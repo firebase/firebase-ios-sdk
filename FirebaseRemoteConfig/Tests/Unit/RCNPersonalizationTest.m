@@ -195,6 +195,49 @@
   XCTAssertEqualObjects(_fakeLogs[3], internalLogParams2);
 }
 
+/// Server-provided personalization metadata missing optional fields must not insert nil values
+/// into the Analytics parameters (see #16728).
+- (void)testPersonalizationMetadataWithMissingFieldsDoesNotCrash {
+  [_fakeLogs removeAllObjects];
+  NSDictionary *config = @{
+    RCNFetchResponseKeyEntries : _configContainer[RCNFetchResponseKeyEntries],
+    RCNFetchResponseKeyPersonalizationMetadata : @{@"key1" : @{kChoiceId : @"id1"}}
+  };
+
+  XCTAssertNoThrow([_personalization logArmActive:@"key1" config:config]);
+
+  XCTAssertEqual([_fakeLogs count], 2);
+  NSDictionary *logParams =
+      @{kExternalRcParameterParam : @"key1", kExternalArmValueParam : @"value1"};
+  XCTAssertEqualObjects(_fakeLogs[0], logParams);
+  XCTAssertEqualObjects(_fakeLogs[1], @{kInternalChoiceIdParam : @"id1"});
+}
+
+/// Personalization metadata of the wrong type must be ignored without crashing.
+- (void)testPersonalizationMetadataWithWrongTypesIsIgnored {
+  [_fakeLogs removeAllObjects];
+  NSDictionary *entries = _configContainer[RCNFetchResponseKeyEntries];
+  NSArray *malformedMetadata = @[
+    @"not a dictionary", @[ @"key1" ], [NSNull null], @{@"key1" : @"not a dictionary"},
+    @{@"key1" : [NSNull null]}, @{@"key1" : @[ @"id1" ]}
+  ];
+  for (id metadata in malformedMetadata) {
+    NSDictionary *config = @{
+      RCNFetchResponseKeyEntries : entries,
+      RCNFetchResponseKeyPersonalizationMetadata : metadata
+    };
+    XCTAssertNoThrow([_personalization logArmActive:@"key1" config:config]);
+  }
+  NSDictionary *config = @{
+    RCNFetchResponseKeyEntries : @"not a dictionary",
+    RCNFetchResponseKeyPersonalizationMetadata :
+        _configContainer[RCNFetchResponseKeyPersonalizationMetadata]
+  };
+  XCTAssertNoThrow([_personalization logArmActive:@"key1" config:config]);
+
+  XCTAssertEqual([_fakeLogs count], 0);
+}
+
 - (void)testRemoteConfigIntegration {
   [_fakeLogs removeAllObjects];
 

@@ -34,6 +34,7 @@
                    completionHandler:(RCNDBCompletion)handler;
 - (void)deleteExperimentTableForKey:(NSString *)key;
 - (void)createOrOpenDatabase;
+- (BOOL)executeQuery:(const char *)SQL withParams:(NSArray *)params;
 @end
 
 @interface RCNConfigDBManagerTest : XCTestCase {
@@ -684,6 +685,123 @@
         [updateAndLoadFetchedRolloutExpectation fulfill];
       };
   [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier completionHandler:loadCompletion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testLoadMainTableSkipsCorruptRows {
+  XCTestExpectation *loadExpectation = [self expectationWithDescription:@"Skip corrupt rows"];
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  NSString *namespace_p = @"namespace_1";
+  NSArray *values = @[
+    bundleIdentifier, namespace_p, @"valid_key", [@"value" dataUsingEncoding:NSUTF8StringEncoding]
+  ];
+  RCNDBCompletion insertCompletion = ^(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+      // Rows with NULL or non-UTF-8 namespace/key columns, e.g. from a corrupted database.
+      const char *nullNamespace = "INSERT INTO main (bundle_identifier, namespace, key, value) "
+                                  "VALUES (?, NULL, 'key', NULL)";
+      const char *nullKey = "INSERT INTO main (bundle_identifier, namespace, key, value) "
+                            "VALUES (?, ?, NULL, NULL)";
+      const char *invalidUTF8Key = "INSERT INTO main (bundle_identifier, namespace, key, value) "
+                                   "VALUES (?, ?, CAST(x'FF' AS TEXT), NULL)";
+      NSArray *params = @[ bundleIdentifier, namespace_p ];
+      XCTAssertTrue([self->_DBManager executeQuery:nullNamespace withParams:@[ bundleIdentifier ]]);
+      XCTAssertTrue([self->_DBManager executeQuery:nullKey withParams:params]);
+      XCTAssertTrue([self->_DBManager executeQuery:invalidUTF8Key withParams:params]);
+
+      [self->_DBManager
+          loadMainWithBundleIdentifier:bundleIdentifier
+                     completionHandler:^(BOOL loadSuccess, NSDictionary *fetchedConfig,
+                                         NSDictionary *activeConfig, NSDictionary *defaultConfig,
+                                         NSDictionary *unusedRolloutMetadata) {
+                       XCTAssertTrue(loadSuccess);
+                       XCTAssertEqual([fetchedConfig[namespace_p] count], 1);
+                       FIRRemoteConfigValue *value = fetchedConfig[namespace_p][@"valid_key"];
+                       XCTAssertEqualObjects(value.stringValue, @"value");
+                       [loadExpectation fulfill];
+                     }];
+    });
+  };
+  [_DBManager insertMainTableWithValues:values
+                             fromSource:RCNDBSourceFetched
+                      completionHandler:insertCompletion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testLoadRolloutWithWrongTypeReturnsEmptyArray {
+  XCTestExpectation *loadExpectation = [self expectationWithDescription:@"Load invalid rollout"];
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+  // Persisted rollout metadata that decodes to a JSON object instead of an array.
+  NSArray *invalidRollout = (NSArray *)@{@"rolloutId" : @"1"};
+
+  RCNDBCompletion writeRolloutCompletion = ^(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+    [self->_DBManager
+        loadMainWithBundleIdentifier:bundleIdentifier
+                   completionHandler:^(BOOL loadSuccess, NSDictionary *unusedFetchedConfig,
+                                       NSDictionary *unusedActiveConfig,
+                                       NSDictionary *unusedDefaultConfig,
+                                       NSDictionary *rolloutMetadata) {
+                     XCTAssertTrue(loadSuccess);
+                     XCTAssertEqualObjects(rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata],
+                                           @[]);
+                     XCTAssertEqualObjects(rolloutMetadata[@RCNRolloutTableKeyActiveMetadata], @[]);
+                     [loadExpectation fulfill];
+                   }];
+  };
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:invalidRollout
+                              completionHandler:nil];
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
+                                          value:invalidRollout
+                              completionHandler:writeRolloutCompletion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testLoadPersonalizationWithWrongTypeReturnsEmptyDictionary {
+  XCTestExpectation *loadExpectation = [self expectationWithDescription:@"Load invalid p13n"];
+  // Persisted personalization metadata that decodes to a JSON array instead of an object.
+  NSDictionary *invalidPersonalization = (NSDictionary *)@[ @"choiceId" ];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    // Wait for the database to be opened.
+    [self->_DBManager loadMetadataWithBundleIdentifier:@"bundle" namespace:@"namespace"];
+    XCTAssertTrue([self->_DBManager insertOrUpdatePersonalizationConfig:invalidPersonalization
+                                                             fromSource:RCNDBSourceFetched]);
+    XCTAssertTrue([self->_DBManager insertOrUpdatePersonalizationConfig:invalidPersonalization
+                                                             fromSource:RCNDBSourceActive]);
+    [self->_DBManager
+        loadPersonalizationWithCompletionHandler:^(
+            BOOL success, NSDictionary *fetchedPersonalization, NSDictionary *activePersonalization,
+            NSDictionary *unusedDefaultConfig, NSDictionary *unusedRolloutMetadata) {
+          XCTAssertTrue(success);
+          XCTAssertTrue([fetchedPersonalization isKindOfClass:[NSDictionary class]]);
+          XCTAssertEqual(fetchedPersonalization.count, 0);
+          XCTAssertTrue([activePersonalization isKindOfClass:[NSDictionary class]]);
+          XCTAssertEqual(activePersonalization.count, 0);
+          [loadExpectation fulfill];
+        }];
+  });
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testLoadExperimentMetadataWithWrongTypeReturnsEmptyDictionary {
+  XCTestExpectation *loadExpectation =
+      [self expectationWithDescription:@"Load invalid experiment metadata"];
+  NSData *invalidMetadata = [NSJSONSerialization dataWithJSONObject:@[ @1 ] options:0 error:nil];
+  RCNDBCompletion insertCompletion = ^(BOOL success, NSDictionary *result) {
+    [self->_DBManager
+        loadExperimentWithCompletionHandler:^(BOOL loadSuccess, NSDictionary *experimentResult) {
+          XCTAssertTrue(loadSuccess);
+          id metadata = experimentResult[@RCNExperimentTableKeyMetadata];
+          XCTAssertTrue([metadata isKindOfClass:[NSDictionary class]]);
+          XCTAssertEqual([metadata count], 0);
+          [loadExpectation fulfill];
+        }];
+  };
+  [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
+                                     value:invalidMetadata
+                         completionHandler:insertCompletion];
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 

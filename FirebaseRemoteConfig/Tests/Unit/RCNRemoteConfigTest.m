@@ -82,6 +82,7 @@
     (RCNConfigUpdateCompletion _Nonnull)listener;
 - (void)removeConfigUpdateListener:(RCNConfigUpdateCompletion _Nonnull)listener;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError;
+- (void)propagateErrors:(NSError *)error;
 
 @end
 
@@ -1887,6 +1888,131 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [expectations[i] fulfill];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testURLSessionDelegateIgnoresInvalidUTF8Data {
+  const unsigned char bytes[] = {0xFF, 0xFE, '{', '}'};
+  NSData *testData = [NSData dataWithBytes:bytes length:sizeof(bytes)];
+  NSURLSession *networkSession = [_configFetch[0] currentNetworkSession];
+  NSURLSessionDataTask *dataTask = [_configFetch[0] URLSessionDataTaskWithContent:[OCMArg any]
+                                                                  fetchTypeHeader:[OCMArg any]
+                                                                completionHandler:nil];
+  XCTAssertNoThrow([_configRealtime[0] URLSession:networkSession
+                                         dataTask:dataTask
+                                   didReceiveData:testData]);
+}
+
+- (void)testRealtimeStreamResponseWithMalformedFieldsDoesNotCrash {
+  OCMStub([_configRealtime[0] pauseRealtimeStream]).andDo(nil);
+  OCMStubRecorder *autoFetchStub = OCMStub([_configRealtime[0] autoFetch:0 targetVersion:0]);
+  autoFetchStub = [autoFetchStub ignoringNonObjectArgs];
+  autoFetchStub.andDo(nil);
+  NSArray *malformedValues = @[ [NSNull null], @[ @1 ], @{@"key" : @"value"} ];
+  for (id value in malformedValues) {
+    NSDictionary *response = @{
+      @"latestTemplateVersionNumber" : value,
+      @"featureDisabled" : value,
+      @"retryIntervalSeconds" : value
+    };
+    XCTAssertNoThrow([_configRealtime[0] evaluateStreamResponse:response error:nil]);
+  }
+  XCTAssertNoThrow([_configRealtime[0] evaluateStreamResponse:(NSDictionary *)@[] error:nil]);
+  // Malformed `featureDisabled` values must not disable realtime.
+  OCMVerify(never(), [_configRealtime[0] pauseRealtimeStream]);
+}
+
+- (void)testRealtimeFeatureDisabledFalseKeepsRealtimeEnabled {
+  OCMStub([_configRealtime[0] pauseRealtimeStream]).andDo(nil);
+  for (id value in @[ @NO, @"false" ]) {
+    NSDictionary *response = @{@"featureDisabled" : value, @"latestTemplateVersionNumber" : @"0"};
+    [_configRealtime[0] evaluateStreamResponse:response error:nil];
+  }
+  OCMVerify(never(), [_configRealtime[0] pauseRealtimeStream]);
+}
+
+- (void)testRealtimeRetryIntervalIsClamped {
+  NSDictionary *response =
+      @{@"latestTemplateVersionNumber" : @"0", @"retryIntervalSeconds" : @(1000000000000)};
+  NSTimeInterval maxThrottleEndTime = [[NSDate date] timeIntervalSince1970] + 24 * 60 * 60;
+  [_configRealtime[0] evaluateStreamResponse:response error:nil];
+  XCTAssertEqualWithAccuracy(_configInstances[0].settings.realtimeExponentialBackoffThrottleEndTime,
+                             maxThrottleEndTime, 5.0);
+}
+
+/// Returns the error `evaluateStreamResponse:error:` propagates to listeners.
+- (NSError *)propagatedErrorForStreamResponse:(id)response error:(NSError *)dataError {
+  __block NSError *propagatedError;
+  OCMStub([_configRealtime[0] propagateErrors:[OCMArg checkWithBlock:^BOOL(NSError *error) {
+                                propagatedError = error;
+                                return YES;
+                              }]])
+      .andDo(nil);
+  [_configRealtime[0] evaluateStreamResponse:response error:dataError];
+  return propagatedError;
+}
+
+- (void)testRealtimeStreamResponseParseErrorPreservesUnderlyingError {
+  NSError *jsonError = [NSError errorWithDomain:NSCocoaErrorDomain
+                                           code:NSPropertyListReadCorruptError
+                                       userInfo:nil];
+  NSError *error = [self propagatedErrorForStreamResponse:nil error:jsonError];
+  XCTAssertEqualObjects(error.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(error.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(error.localizedDescription, @"Unable to parse ConfigUpdate.");
+  XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], jsonError);
+}
+
+- (void)testRealtimeStreamResponseNotDictionaryPreservesUnderlyingError {
+  NSError *error = [self propagatedErrorForStreamResponse:@[] error:nil];
+  XCTAssertEqualObjects(error.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(error.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(error.localizedDescription, @"Unable to parse ConfigUpdate.");
+  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+  XCTAssertEqualObjects(underlyingError.domain, FIRRemoteConfigUpdateErrorDomain);
+  XCTAssertEqual(underlyingError.code, FIRRemoteConfigUpdateErrorMessageInvalid);
+  XCTAssertEqualObjects(underlyingError.localizedDescription,
+                        @"ConfigUpdate message is not a JSON object.");
+}
+
+/// Fetches with a fresh `RCNConfigFetch` whose network response is `responseData`.
+- (void)fetchWithMalformedResponseData:(NSData *)responseData
+                        expectedStatus:(FIRRemoteConfigFetchStatus)expectedStatus {
+  FIRRemoteConfig *config = _configInstances[RCNTestRCInstanceDefault];
+  RCNConfigContent *configContent = [config valueForKey:@"_configContent"];
+  NSString *fullyQualifiedNamespace =
+      [NSString stringWithFormat:@"%@:%@", RCNTestsFIRNamespace, RCNTestsDefaultFIRAppName];
+  dispatch_queue_t queue = dispatch_queue_create("testMalformedFetchQueue", DISPATCH_QUEUE_SERIAL);
+  id configFetch = OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                                DBManager:_DBManager
+                                                                 settings:config.settings
+                                                                analytics:nil
+                                                               experiment:_experimentMock
+                                                                    queue:queue
+                                                                namespace:fullyQualifiedNamespace
+                                                                  options:[self firstAppOptions]]);
+  id completionBlock =
+      [OCMArg invokeBlockWithArgs:responseData, _URLResponse[0], [NSNull null], nil];
+  OCMStub([configFetch URLSessionDataTaskWithContent:[OCMArg any]
+                                     fetchTypeHeader:[OCMArg any]
+                                   completionHandler:completionBlock])
+      .andReturn(nil);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Malformed fetch response"];
+  [configFetch
+      fetchWithUserProperties:@{}
+              fetchTypeHeader:@"Base/1"
+            completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *_Nullable error) {
+              XCTAssertEqual(status, expectedStatus);
+              [expectation fulfill];
+            }
+      updateCompletionHandler:nil];
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  [configFetch stopMocking];
+}
+
+- (void)testFetchWithMalformedServerErrorDoesNotCrash {
+  NSData *data = [@"{\"error\":\"internal\"}" dataUsingEncoding:NSUTF8StringEncoding];
+  [self fetchWithMalformedResponseData:data expectedStatus:FIRRemoteConfigFetchStatusFailure];
 }
 
 - (void)testSetCustomSignals {

@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] Improved robustness when parsing malformed fetch responses, realtime
+  stream messages, and persisted config data, including personalization,
+  rollout, and experiment metadata. (#16728)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
