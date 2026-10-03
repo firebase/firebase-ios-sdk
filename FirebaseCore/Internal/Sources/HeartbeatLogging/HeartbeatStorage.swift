@@ -96,14 +96,12 @@ final class HeartbeatStorage: Sendable, HeartbeatStorageProtocol {
   /// This is internal so the cache identity check can be covered by unit tests.
   static func removeCachedInstance(id: String,
                                    cacheIdentity: UUID,
-                                   from cachedInstances: inout [
-                                     String: HeartbeatStorageCacheEntry,
-                                   ]) {
-    guard let cachedIndex = cachedInstances.index(forKey: id),
-          cachedInstances[cachedIndex].value.cacheIdentity == cacheIdentity else {
+                                   from cache: inout [String: HeartbeatStorageCacheEntry]) {
+    guard let cachedIndex = cache.index(forKey: id),
+          cache[cachedIndex].value.cacheIdentity == cacheIdentity else {
       return
     }
-    cachedInstances.remove(at: cachedIndex)
+    cache.remove(at: cachedIndex)
   }
 
   /// Makes a `HeartbeatStorage` instance using a given `String` identifier.
