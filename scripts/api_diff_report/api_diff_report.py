@@ -35,13 +35,21 @@ def main():
   old_api_file = os.path.join(os.path.expanduser(args.base_branch),
                               api_info.API_INFO_FILE_NAME)
   if os.path.exists(new_api_file):
-    with open(new_api_file) as f:
-      new_api_json = json.load(f)
+    try:
+      with open(new_api_file) as f:
+        new_api_json = json.load(f)
+    except json.JSONDecodeError as e:
+      logging.error(f'Error parsing JSON from {new_api_file}: {e}')
+      new_api_json = {}
   else:
     new_api_json = {}
   if os.path.exists(old_api_file):
-    with open(old_api_file) as f:
-      old_api_json = json.load(f)
+    try:
+      with open(old_api_file) as f:
+        old_api_json = json.load(f)
+    except json.JSONDecodeError as e:
+      logging.error(f'Error parsing JSON from {old_api_file}: {e}')
+      old_api_json = {}
   else:
     old_api_json = {}
 
