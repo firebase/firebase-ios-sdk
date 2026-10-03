@@ -727,18 +727,18 @@ Before moving to Phase 4, each framework must be unit tested using injected
 - [x] Implement `FirebaseAppCheck/Portable/Sources` (`AppCheck`, `AppCheckToken`,
   `AppCheckProvider`, `AppCheckProviderFactory`, `AppCheckDebugProvider`,
   `AppCheckDebugProviderFactory`, `AppCheckErrorCode`).
-- [ ] Implement `FirebaseAuth/Portable/Sources` (`Auth`, `User`,
-  `AuthDataResult`, REST token exchange & refresh).
+- [x] Implement `FirebaseAuth/Portable/Sources` (`Auth`, `User`,
+  `AuthDataResult`, `AuthErrorCode`, REST token exchange & refresh).
 - [x] Add unit tests using mock `URLProtocol` handlers in
-  `FirebaseAppCheck/Portable/Tests` (11/11 tests passing; 37/37 total portable
-  tests passing).
-- [ ] Add unit tests using mock `URLProtocol` handlers in
-  `FirebaseAuth/Portable/Tests`.
-- [ ] **Phase 3 exit gate**:
+  `FirebaseAppCheck/Portable/Tests` (11/11 tests passing).
+- [x] Add unit tests using mock `URLProtocol` handlers in
+  `FirebaseAuth/Portable/Tests` (6/6 tests passing; 43/43 total portable tests
+  passing).
+- [x] **Phase 3 exit gate**:
   - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAppCheckPortableTests`
     passes on macOS, and Static Linux SDK cross-build succeeds for
     `FirebaseAppCheck`.
-  - [ ] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAuthPortableTests`
+  - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAuthPortableTests`
     passes on macOS, and Static Linux SDK cross-build succeeds for
     `FirebaseAuth`.
 
@@ -767,13 +767,18 @@ Audit and update `FirebaseAI/Sources` with minimal conditional compilation:
 - [ ] **Platform image extensions (`PartsRepresentable+Image.swift`)**: Verify
   all `UIKit` / `AppKit` / `CoreGraphics` / `ImageIO` imports are already
   properly guarded by `#if canImport(...)`.
-- [ ] **App Check token helper (`Types/Internal/AppCheck.swift`)**:
+- [ ] **App Check & Auth interop helpers (`Types/Internal/AppCheck.swift`,
+  `Extensions/Internal/FirebaseInfo+Headers.swift`)**:
   Replace `withCheckedContinuation` around `getToken(forcingRefresh: false)`
-  with `await getToken(forcingRefresh: false)`, and guard
+  with `await getToken(forcingRefresh: false)`, guard
   `getLimitedUseTokenAsync()` with `#if FIREBASE_PORTABLE` to call `await
   getLimitedUseToken()` directly instead of Darwin's Objective-C `@optional`
-  completion-handler unwrapping (`guard let limitedUseTokenClosure =
-  getLimitedUseToken`).
+  completion-handler unwrapping, and in `FirebaseInfo+Headers.swift` fall back
+  to `ComponentType<any AuthInterop>.instance(for: (any AuthInterop).self, in:
+  app.container)` when `auth` was `nil` at `FirebaseAI` initialization time (so
+  calling `Auth.auth().signIn(...)` after `FirebaseAI.firebaseAI()` still
+  attaches the `Authorization: Firebase <token>` header in portable builds
+  without Objective-C `+load`).
 - [ ] **WebSocket / Live API (`AsyncWebSocket.swift`, `LiveSession.swift`)**:
   Verify `URLSessionWebSocketTask` compilation with `FoundationNetworking` on
   Linux (or guard unavailable APIs if needed by `swift-corelibs-foundation`).
