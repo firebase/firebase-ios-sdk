@@ -169,6 +169,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-fcm"];
 }
+// trigger CI
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
   FIRComponentCreationBlock creationBlock =
