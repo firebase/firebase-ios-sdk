@@ -122,11 +122,14 @@ static char workerQueueKey;
     [connection resetKeepAlive];
     NSDate *fireDate = [connection valueForKey:@"keepAliveFireDate"];
     XCTAssertGreaterThan([fireDate timeIntervalSinceNow], 40.0);
+    __weak FWebSocketKeepAliveSpy *weakConnection = connection;
     connection.onKeepAlive = ^{
-      XCTAssertEqualObjects(connection.lastSentString, @"0");
-      XCTAssertTrue(connection.sentOnWorkerQueue);
-      [connection onClosed];
-      connection.onKeepAlive = nil;
+      FWebSocketKeepAliveSpy *activeConnection = weakConnection;
+      XCTAssertNotNil(activeConnection);
+      XCTAssertEqualObjects(activeConnection.lastSentString, @"0");
+      XCTAssertTrue(activeConnection.sentOnWorkerQueue);
+      [activeConnection onClosed];
+      activeConnection.onKeepAlive = nil;
       [sent fulfill];
     };
     dispatch_source_t timer = [connection valueForKey:@"keepAlive"];
