@@ -736,7 +736,6 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 
 - (id<FNode>)getServerValue:(FQuerySpec *)query {
     __block id<FNode> serverCacheNode = nil;
-    __block FSyncPoint *targetSyncPoint = nil;
     [self.syncPointTree
         forEachOnPath:query.path
            whileBlock:^BOOL(FPath *pathToSyncPoint, FSyncPoint *syncPoint) {
@@ -744,15 +743,18 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                                         to:query.path];
              serverCacheNode =
                  [syncPoint completeEventCacheAtPath:relativePath];
-             targetSyncPoint = syncPoint;
              return serverCacheNode == nil;
            }];
 
+    // Get the view from the sync point at the query's own path. A sync point at
+    // an ancestor path can have a view for the same query params, but that
+    // view holds the data at the ancestor path.
+    FSyncPoint *targetSyncPoint = [self.syncPointTree valueAtPath:query.path];
     if (targetSyncPoint == nil) {
+        // Use a temporary sync point, so that an empty one isn't left in the
+        // tree.
         targetSyncPoint = [[FSyncPoint alloc]
             initWithPersistenceManager:self.persistenceManager];
-        self.syncPointTree = [self.syncPointTree setValue:targetSyncPoint
-                                                   atPath:[query path]];
     } else {
         serverCacheNode =
             serverCacheNode != nil

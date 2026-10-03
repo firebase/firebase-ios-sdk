@@ -4175,12 +4175,15 @@
       }];
 
   WAIT_FOR(done);
+  done = NO;
 
   [[ref child:@"a"] getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
     XCTAssertEqualObjects([snapshot value], @1);
     done = YES;
   }];
+
+  WAIT_FOR(done);
 }
 
 - (void)testGetForParentReturnsCorrectValue {
@@ -4195,12 +4198,82 @@
          }];
 
   WAIT_FOR(done);
+  done = NO;
 
   [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
     XCTAssertNil(err);
     XCTAssertEqualObjects([snapshot value], @{@"a" : @1});
     done = YES;
   }];
+
+  WAIT_FOR(done);
+}
+
+- (void)testGetForChildOfObservedNodeReturnsChildValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref setValue:@{@"a" : @{@"name" : @"Test"}, @"b" : @{@"name" : @"Test2"}}
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  __block BOOL observed = NO;
+  [ref observeEventType:FIRDataEventTypeValue
+              withBlock:^(FIRDataSnapshot* snapshot) {
+                observed = YES;
+              }];
+
+  WAIT_FOR(observed);
+
+  [[ref child:@"a"] getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects([snapshot value], @{@"name" : @"Test"});
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  [ref removeAllObservers];
+}
+
+- (void)testGetForChildOfKeptSyncedNodeReturnsChildValue {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  __block BOOL done = NO;
+
+  [ref setValue:@{@"a" : @{@"name" : @"Test"}, @"b" : @{@"name" : @"Test2"}}
+      withCompletionBlock:^(NSError* error, FIRDatabaseReference* ref) {
+        XCTAssertNil(error);
+        done = YES;
+      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [ref keepSynced:YES];
+  // Wait for the synced data to load. The observer is then removed, so only keepSynced keeps the
+  // data of ref in memory.
+  [ref observeSingleEventOfType:FIRDataEventTypeValue
+                      withBlock:^(FIRDataSnapshot* snapshot) {
+                        done = YES;
+                      }];
+
+  WAIT_FOR(done);
+  done = NO;
+
+  [[ref child:@"a"] getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+    XCTAssertNil(err);
+    XCTAssertEqualObjects([snapshot value], @{@"name" : @"Test"});
+    done = YES;
+  }];
+
+  WAIT_FOR(done);
+  [ref keepSynced:NO];
 }
 
 - (void)testGetForNodeWithPendingWritesReturnsCorrectValue {
