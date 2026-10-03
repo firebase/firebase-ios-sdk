@@ -578,105 +578,50 @@ Testing, `import Testing`) must cover:
 ### 5.1 `FirebaseAppCheckInterop` (`FirebaseAppCheck/Interop/Portable/Sources`)
 
 Matches Darwin's `FIRAppCheckInterop.h` and `FIRAppCheckTokenResultInterop.h`
-so `FirebaseAI/Sources/Types/Internal/AppCheck.swift` and
-`AppCheckInteropFake.swift` compile cleanly:
+with `package` access level and `async` requirements so
+`FirebaseAI/Sources/Types/Internal/AppCheck.swift` and `AppCheckInteropFake.swift`
+compile cleanly without legacy completion-handler blocks or exposing interop
+types as public 3P API:
 
 ```swift
 import Foundation
 
-/// **[Experimental]** Represents the result of a Firebase App Check token
-/// request.
-///
-/// > Warning: This portable implementation is for development and testing use
-/// > only. The Firebase Apple SDK is only officially supported on Apple
-/// > platforms.
-public protocol FIRAppCheckTokenResultInterop: Sendable {
+/// Represents the result of a Firebase App Check token request.
+package protocol FIRAppCheckTokenResultInterop: Sendable {
   var token: String { get }
   var error: (any Error)? { get }
 }
 
-public typealias AppCheckTokenResultInterop = FIRAppCheckTokenResultInterop
-public typealias AppCheckTokenHandlerInterop = @Sendable (
-  any FIRAppCheckTokenResultInterop
-) -> Void
-
-/// **[Experimental]** Common methods for Firebase App Check interoperability.
-///
-/// > Warning: This portable implementation is for development and testing use
-/// > only. The Firebase Apple SDK is only officially supported on Apple
-/// > platforms.
-public protocol AppCheckInterop: AnyObject, Sendable {
-  func getToken(
-    forcingRefresh: Bool,
-    completion handler: @escaping AppCheckTokenHandlerInterop
-  )
+/// Common methods for Firebase App Check interoperability.
+package protocol AppCheckInterop: AnyObject, Sendable {
   func getToken(forcingRefresh: Bool) async -> any FIRAppCheckTokenResultInterop
+  func getLimitedUseToken() async -> any FIRAppCheckTokenResultInterop
 
   func tokenDidChangeNotificationName() -> String
   func notificationTokenKey() -> String
   func notificationAppNameKey() -> String
-
-  func getLimitedUseToken(completion handler: @escaping AppCheckTokenHandlerInterop)
-  func getLimitedUseToken() async -> any FIRAppCheckTokenResultInterop
-}
-
-extension AppCheckInterop {
-  public func getToken(
-    forcingRefresh: Bool,
-    completion handler: @escaping AppCheckTokenHandlerInterop
-  ) {
-    Task {
-      let result = await getToken(forcingRefresh: forcingRefresh)
-      handler(result)
-    }
-  }
-
-  public func getLimitedUseToken(
-    completion handler: @escaping AppCheckTokenHandlerInterop
-  ) {
-    Task {
-      let result = await getLimitedUseToken()
-      handler(result)
-    }
-  }
 }
 ```
 
+> [!NOTE]
+> In Phase 4, `FirebaseAI/Sources/Types/Internal/AppCheck.swift` can replace
+> `withCheckedContinuation` on `getToken(forcingRefresh: false)` with `await
+> getToken(forcingRefresh: false)`, and use `#if FIREBASE_PORTABLE` in
+> `getLimitedUseTokenAsync()` to call `await getLimitedUseToken()` directly
+> instead of the Darwin Objective-C `@optional` completion-handler workaround.
+
 ### 5.2 `FirebaseAuthInterop` (`FirebaseAuth/Interop/Portable/Sources`)
 
-Matches Darwin's `FIRAuthInterop.h`:
+Matches Darwin's `FIRAuthInterop.h` with `package` access level and `async`
+token lookup:
 
 ```swift
 import Foundation
 
-/// **[Experimental]** Common methods for Firebase Auth interoperability.
-///
-/// > Warning: This portable implementation is for development and testing use
-/// > only. The Firebase Apple SDK is only officially supported on Apple
-/// > platforms.
-public protocol AuthInterop: AnyObject, Sendable {
+/// Common methods for Firebase Auth interoperability.
+package protocol AuthInterop: AnyObject, Sendable {
   func getToken(forcingRefresh: Bool) async throws -> String?
-  func getToken(
-    forcingRefresh: Bool,
-    completion: @escaping @Sendable (String?, (any Error)?) -> Void
-  )
   func getUserID() -> String?
-}
-
-extension AuthInterop {
-  public func getToken(
-    forcingRefresh: Bool,
-    completion: @escaping @Sendable (String?, (any Error)?) -> Void
-  ) {
-    Task {
-      do {
-        let token = try await getToken(forcingRefresh: forcingRefresh)
-        completion(token, nil)
-      } catch {
-        completion(nil, error)
-      }
-    }
-  }
 }
 ```
 
@@ -687,27 +632,29 @@ Before moving to Phase 3, unit tests must verify:
 - **`FirebaseAppCheckInterop`**:
   - Conforming a mock `AppCheckInterop` and `FIRAppCheckTokenResultInterop`
     type, resolving it from `app.container` via
-    `ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self, in: app.container)`,
-    and verifying both `async` and default completion-handler `getToken(forcingRefresh:)`
-    and `getLimitedUseToken()` methods.
+    `ComponentType<any AppCheckInterop>.instance(for: (any AppCheckInterop).self, in: app.container)`,
+    and verifying `getToken(forcingRefresh:)` and `getLimitedUseToken()` (both
+    success and error-carrying placeholder token results).
 - **`FirebaseAuthInterop`**:
   - Conforming a mock `AuthInterop` type, resolving it via
-    `ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)`,
-    and verifying `getToken(forcingRefresh:)` (`async throws` and completion
-    bridging for both success and thrown error cases) and `getUserID()`.
+    `ComponentType<any AuthInterop>.instance(for: (any AuthInterop).self, in: app.container)`,
+    and verifying `getToken(forcingRefresh:)` (success, signed-out `nil`, and
+    thrown error cases) and `getUserID()`.
 
 ### 5.4 Phase 2 checklist (gate before Phase 3)
 
-- [ ] Wire `FirebaseAuthInterop` (`FirebaseAuth/Interop/Portable/Sources`) and
+- [x] Wire `FirebaseAuthInterop` (`FirebaseAuth/Interop/Portable/Sources`) and
   `FirebaseAppCheckInterop` (`FirebaseAppCheck/Interop/Portable/Sources`) into
-  `Package.swift` when `isPortableBuild` is `true`.
-- [ ] Implement `AuthInterop.swift` and `AppCheckInterop.swift`.
-- [ ] Add unit tests in `FirebaseAuth/Interop/Portable/Tests` and
+  `Package.swift` when `isPortableBuild` is `true` (and exclude `"Portable"`
+  from Darwin `FirebaseAuthInterop` and `FirebaseAppCheckInterop` targets).
+- [x] Implement `AuthInterop.swift` and `AppCheckInterop.swift`.
+- [x] Add unit tests in `FirebaseAuth/Interop/Portable/Tests` and
   `FirebaseAppCheck/Interop/Portable/Tests`.
-- [ ] **Phase 2 exit gate**:
-  - [ ] `FIREBASE_PORTABLE=1 swift test` passes for both interop test targets on
-    macOS.
-  - [ ] Static Linux SDK cross-build succeeds.
+- [x] **Phase 2 exit gate**:
+  - [x] `FIREBASE_PORTABLE=1 swift test` passes for both interop test targets on
+    macOS (26/26 total portable tests passing).
+  - [x] Static Linux SDK cross-build succeeds (`FirebaseAppCheckInterop` and
+    `FirebaseAuthInterop` on `x86_64-swift-linux-musl`).
 
 ---
 
@@ -813,6 +760,13 @@ Audit and update `FirebaseAI/Sources` with minimal conditional compilation:
 - [ ] **Platform image extensions (`PartsRepresentable+Image.swift`)**: Verify
   all `UIKit` / `AppKit` / `CoreGraphics` / `ImageIO` imports are already
   properly guarded by `#if canImport(...)`.
+- [ ] **App Check token helper (`Types/Internal/AppCheck.swift`)**:
+  Replace `withCheckedContinuation` around `getToken(forcingRefresh: false)`
+  with `await getToken(forcingRefresh: false)`, and guard
+  `getLimitedUseTokenAsync()` with `#if FIREBASE_PORTABLE` to call `await
+  getLimitedUseToken()` directly instead of Darwin's Objective-C `@optional`
+  completion-handler unwrapping (`guard let limitedUseTokenClosure =
+  getLimitedUseToken`).
 - [ ] **WebSocket / Live API (`AsyncWebSocket.swift`, `LiveSession.swift`)**:
   Verify `URLSessionWebSocketTask` compilation with `FoundationNetworking` on
   Linux (or guard unavailable APIs if needed by `swift-corelibs-foundation`).

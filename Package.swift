@@ -544,6 +544,7 @@ func packageTargets() -> [Target] {
       path: "FirebaseAuth/Interop",
       exclude: [
         "CMakeLists.txt",
+        "Portable",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1298,6 +1299,7 @@ func packageTargets() -> [Target] {
       path: "FirebaseAppCheck/Interop",
       exclude: [
         "CMakeLists.txt",
+        "Portable",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1806,10 +1808,10 @@ func appCheckDependency() -> Package.Dependency {
 func isPortableBuild() -> Bool {
   #if canImport(Darwin)
     return Context.environment["FIREBASE_PORTABLE"] != nil
-  #else
+  #else // canImport(Darwin)
     return Context.environment["FIREBASE_PORTABLE"] != nil
       || Context.environment["DEPENDABOT"] == nil
-  #endif
+  #endif // canImport(Darwin)
 }
 
 func portableProducts() -> [Product] {
@@ -1854,6 +1856,16 @@ func portableTargets() -> [Target] {
       path: "FirebaseCore/Extension/Portable/Sources",
       swiftSettings: portableSwiftSettings
     ),
+    .target(
+      name: "FirebaseAppCheckInterop",
+      path: "FirebaseAppCheck/Interop/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseAuthInterop",
+      path: "FirebaseAuth/Interop/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
     .testTarget(
       name: "FirebaseCorePortableTests",
       dependencies: [
@@ -1862,6 +1874,28 @@ func portableTargets() -> [Target] {
         "FirebaseCoreInternal",
       ],
       path: "FirebaseCore/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAppCheckInteropPortableTests",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Interop/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAuthInteropPortableTests",
+      dependencies: [
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAuth/Interop/Portable/Tests",
       swiftSettings: portableSwiftSettings
     ),
   ]
