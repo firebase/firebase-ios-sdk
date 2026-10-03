@@ -93,6 +93,11 @@
   if (privateKey) {
     CFRelease(privateKey);
   }
+#if TARGET_OS_MACCATALYST
+  if (status == errSecMissingEntitlement) {
+    XCTSkip(@"Catalyst test host lacks keychain entitlements for permanent RSA keys.");
+  }
+#endif
   XCTAssertEqual(status, errSecSuccess);
 
   id store = OCMPartialMock([[FIRInstallationsIIDStore alloc] init]);
