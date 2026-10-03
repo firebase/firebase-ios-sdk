@@ -272,7 +272,11 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
         FFLog(@"I-RDB083005",
               @"(wsc:%@) No more websocket; invalidating nop timer.",
               self.connectionId);
-        [timer invalidate];
+        if (keepAlive) {
+            dispatch_source_cancel(keepAlive);
+            keepAlive = nil;
+        }
+        keepAliveFireDate = nil;
     }
 }
 
