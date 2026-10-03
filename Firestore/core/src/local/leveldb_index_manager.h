@@ -69,6 +69,9 @@ class LevelDbIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
+  /** Returns the greatest persisted index batch ID across all users. */
+  model::BatchId GetHighestBatchIdAcrossUsers() const;
+
   void DeleteAllFieldIndexes() override;
 
   void CreateTargetIndexes(const core::Target& target) override;

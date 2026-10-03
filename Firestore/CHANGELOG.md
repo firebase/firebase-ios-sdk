@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Preserve pending document overlays for indexed queries after the
+  mutation queue becomes empty and is recreated. (#16751)
+
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
