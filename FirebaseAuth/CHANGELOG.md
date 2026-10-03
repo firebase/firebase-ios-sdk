@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
 
