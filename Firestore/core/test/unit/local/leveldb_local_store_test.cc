@@ -255,6 +255,9 @@ TEST(LevelDbLocalStoreRestartTest, IndexedCacheQueryIncludesNewPendingWrite) {
     results.emplace_back(Version(10), Array());
     store.AcknowledgeBatch(
         model::MutationBatchResult(batch, Version(10), std::move(results), {}));
+    // Include the acknowledged remote document in the index as well. This
+    // advances its read-time offset without discarding the batch high-water.
+    store.Backfill();
   }
 
   // Reopen the same database after acknowledging every mutation. The persisted
