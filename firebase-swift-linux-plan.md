@@ -81,10 +81,11 @@ cleanly with the existing Objective-C implementation on Apple platforms.
      `FirebaseComponentContainer`, `Auth`, `AppCheck`) conform to `Sendable`
      natively by being marked `final class` with immutable (`let`) stored
      properties wrapping `UnfairLock`.
-5. **Experimental DocC convention for portable symbols**:
-   - Every public and package-visible declaration in the portable Swift targets
-     must include the experimental prefix and warning callout in its DocC
-     comment:
+5. **Experimental DocC convention for public portable symbols**:
+   - Every `public` declaration in the portable Swift targets must include the
+     experimental prefix and warning callout in its DocC comment (`package` and
+     `internal` declarations use standard DocC comments without the warning
+     banner):
      ```swift
      /// **[Experimental]** <summary line like usual>
      ///
@@ -495,89 +496,16 @@ public final class FirebaseApp: Sendable {
 ### 4.4 `FirebaseCoreExtension`: `ComponentType` and `FirebaseLogger`
 
 To avoid `#if` checks in `FirebaseAI.swift` and `AILog.swift`,
-`FirebaseCoreExtension` exposes `app.container`, `ComponentType`, and
-`FirebaseLogger`:
+`FirebaseCoreExtension` and `FirebaseCore` expose `app.container`,
+`ComponentType`, and `FirebaseLogger` with `package` access level:
 
 ```swift
-import FirebaseCore
+package import FirebaseCore
 import Foundation
-private import FirebaseCoreInternal
 
-extension FirebaseApp {
-  /// **[Experimental]** The component container for this `FirebaseApp`.
-  ///
-  /// > Warning: This portable implementation is for development and testing use
-  /// > only. The Firebase Apple SDK is only officially supported on Apple
-  /// > platforms.
-  public var container: FirebaseComponentContainer {
-    _container
-  }
-}
-
-/// **[Experimental]** Thread-safe component container for an individual
-/// `FirebaseApp`.
-///
-/// > Warning: This portable implementation is for development and testing use
-/// > only. The Firebase Apple SDK is only officially supported on Apple
-/// > platforms.
-public final class FirebaseComponentContainer: Sendable {
-  public typealias Factory = @Sendable (FirebaseApp) -> (any Sendable)?
-
-  private static let registeredFactories = UnfairLock<[ObjectIdentifier: Factory]>([:])
-  private let instances = UnfairLock<[ObjectIdentifier: any Sendable]>([:])
-
-  public init() {}
-
-  /// **[Experimental]** Registers a component factory invoked when
-  /// `FirebaseApp` instances are created or when a component is requested.
-  ///
-  /// > Warning: This portable implementation is for development and testing use
-  /// > only. The Firebase Apple SDK is only officially supported on Apple
-  /// > platforms.
-  public static func register<T>(
-    for type: T.Type,
-    factory: @escaping @Sendable (FirebaseApp) -> (any Sendable)?
-  ) {
-    registeredFactories.withLock { $0[ObjectIdentifier(type)] = factory }
-  }
-
-  /// **[Experimental]** Stores or replaces a component instance directly in
-  /// this container.
-  ///
-  /// > Warning: This portable implementation is for development and testing use
-  /// > only. The Firebase Apple SDK is only officially supported on Apple
-  /// > platforms.
-  public func setInstance<T>(_ instance: (any Sendable)?, for type: T.Type) {
-    instances.withLock { $0[ObjectIdentifier(type)] = instance }
-  }
-
-  /// **[Experimental]** Retrieves a registered component instance for `type`.
-  ///
-  /// > Warning: This portable implementation is for development and testing use
-  /// > only. The Firebase Apple SDK is only officially supported on Apple
-  /// > platforms.
-  public func instance<T>(for type: T.Type) -> T? {
-    instances.withLock { $0[ObjectIdentifier(type)] as? T }
-  }
-
-  package func populateFactories(for app: FirebaseApp) {
-    let factories = Self.registeredFactories.withLock { $0 }
-    for (key, factory) in factories {
-      if let instance = factory(app) {
-        instances.withLock { $0[key] = instance }
-      }
-    }
-  }
-}
-
-/// **[Experimental]** Type-safe lookup wrapper matching Darwin's
-/// `FIRComponentType`.
-///
-/// > Warning: This portable implementation is for development and testing use
-/// > only. The Firebase Apple SDK is only officially supported on Apple
-/// > platforms.
-public enum ComponentType<T> {
-  public static func instance(
+/// Type-safe lookup wrapper matching Darwin's `FIRComponentType` (`ComponentType`).
+package enum ComponentType<T> {
+  package static func instance(
     for type: T.Type,
     in container: FirebaseComponentContainer
   ) -> T? {
@@ -618,29 +546,30 @@ Testing, `import Testing`) must cover:
 
 ### 4.6 Phase 1 checklist (gate before Phase 2)
 
-- [ ] Add `isPortableBuild` conditional in `Package.swift` gating dependencies
+- [x] Add `isPortableBuild` conditional in `Package.swift` gating dependencies
   and targets (respecting `DEPENDABOT`).
-- [ ] Implement `FirebaseCore/Portable/Sources` (with `**[Experimental]**` +
-  `> Warning:` DocC comments on all declarations):
-  - [ ] `FirebaseOptions.swift`
-  - [ ] `FirebaseApp.swift`
-  - [ ] `FirebaseConfiguration.swift` & `FirebaseLoggerLevel.swift`
-  - [ ] `FirebaseVersion.swift`
-  - [ ] `FirebaseComponentContainer.swift`
-- [ ] Implement `FirebaseCore/Extension/Portable/Sources`:
-  - [ ] `FirebaseLogger.swift`
-  - [ ] `ComponentType.swift`
-- [ ] Update `FirebaseCore/Internal/Sources/Utilities/UnfairLock.swift` to use
+- [x] Implement `FirebaseCore/Portable/Sources` (with `**[Experimental]**` +
+  `> Warning:` DocC comments on all `public` declarations):
+  - [x] `FirebaseOptions.swift`
+  - [x] `FirebaseApp.swift`
+  - [x] `FirebaseConfiguration.swift` & `FirebaseLoggerLevel.swift`
+  - [x] `FirebaseVersion.swift`
+  - [x] `FirebaseComponentContainer.swift`
+- [x] Implement `FirebaseCore/Extension/Portable/Sources`:
+  - [x] `FirebaseLogger.swift`
+  - [x] `ComponentType.swift`
+- [x] Update `FirebaseCore/Internal/Sources/Utilities/UnfairLock.swift` to use
   `Synchronization.Mutex` when `#if !canImport(Darwin)`.
-- [ ] Create `FirebaseCore/Portable/Tests/FirebaseCorePortableTests.swift` using
+- [x] Create `FirebaseCore/Portable/Tests/FirebaseCorePortableTests.swift` using
   Swift Testing (`import Testing`).
-- [ ] **Phase 1 exit gate**:
-  - [ ] `FIREBASE_PORTABLE=1 swift test --filter FirebaseCorePortableTests`
-    passes on macOS.
-  - [ ] `DEPENDABOT=1 swift package dump-package` outputs the full Darwin
+- [x] **Phase 1 exit gate**:
+  - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseCorePortableTests`
+    passes on macOS (21/21 tests passing).
+  - [x] `DEPENDABOT=1 swift package dump-package` outputs the full Darwin
     manifest.
-  - [ ] `FIREBASE_PORTABLE=1 swift build --swift-sdk ...` compiles cleanly for
-    Static Linux SDK.
+  - [x] `FIREBASE_PORTABLE=1 swift build --swift-sdk ...` compiles cleanly for
+    Static Linux SDK (`swift-6.4.0-RELEASE_static-linux-0.1.0`,
+    `x86_64-swift-linux-musl`).
 
 ---
 

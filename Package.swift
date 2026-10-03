@@ -68,6 +68,10 @@ let package = Package(
 // MARK: - Package Manifest Builders
 
 func packageProducts() -> [Product] {
+  if isPortableBuild() {
+    return portableProducts()
+  }
+
   return [
     .library(
       name: "FirebaseAILogic",
@@ -167,6 +171,10 @@ func packageProducts() -> [Product] {
 }
 
 func packageDependencies() -> [Package.Dependency] {
+  if isPortableBuild() {
+    return portableDependencies()
+  }
+
   return [
     .package(
       url: "https://github.com/google/promises.git",
@@ -212,6 +220,10 @@ func packageDependencies() -> [Package.Dependency] {
 }
 
 func packageTargets() -> [Target] {
+  if isPortableBuild() {
+    return portableTargets()
+  }
+
   var targets: [Target] = [
     .target(
       name: "Firebase",
@@ -1787,4 +1799,70 @@ func appCheckDependency() -> Package.Dependency {
   }
 
   return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
+}
+
+// MARK: - Portable Build
+
+func isPortableBuild() -> Bool {
+  #if canImport(Darwin)
+    return Context.environment["FIREBASE_PORTABLE"] != nil
+  #else
+    return Context.environment["FIREBASE_PORTABLE"] != nil
+      || Context.environment["DEPENDABOT"] == nil
+  #endif
+}
+
+func portableProducts() -> [Product] {
+  return [
+    .library(
+      name: "FirebaseCore",
+      targets: ["FirebaseCore"]
+    ),
+  ]
+}
+
+func portableDependencies() -> [Package.Dependency] {
+  return []
+}
+
+func portableTargets() -> [Target] {
+  let portableSwiftSettings: [SwiftSetting] = [
+    .define("FIREBASE_PORTABLE"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .swiftLanguageMode(.v6),
+  ]
+  return [
+    .target(
+      name: "FirebaseCoreInternal",
+      path: "FirebaseCore/Internal/Sources/Utilities",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseCore",
+      dependencies: ["FirebaseCoreInternal"],
+      path: "FirebaseCore/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseCoreExtension",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseCore/Extension/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseCorePortableTests",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseCore/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+  ]
 }
