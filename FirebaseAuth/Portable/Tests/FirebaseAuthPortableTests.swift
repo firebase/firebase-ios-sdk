@@ -68,8 +68,8 @@ private final class MockAuthURLProtocol: URLProtocol {
   override func stopLoading() {}
 }
 
-extension URLRequest {
-  fileprivate var bodyData: Data? {
+private extension URLRequest {
+  var bodyData: Data? {
     if let httpBody { return httpBody }
     guard let stream = httpBodyStream else { return nil }
     stream.open()

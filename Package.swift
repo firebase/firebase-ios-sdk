@@ -303,6 +303,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
+      exclude: ["Portable"],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: ".",
       cSettings: [
@@ -1828,6 +1829,10 @@ func portableProducts() -> [Product] {
       name: "FirebaseAuth",
       targets: ["FirebaseAuth"]
     ),
+    .library(
+      name: "FirebaseStorage",
+      targets: ["FirebaseStorage"]
+    ),
   ]
 }
 
@@ -1843,7 +1848,7 @@ func portableTargets() -> [Target] {
     .enableUpcomingFeature("MemberImportVisibility"),
     .swiftLanguageMode(.v6),
   ]
-  return [
+  var targets: [Target] = [
     // MARK: Firebase Core
 
     .target(
@@ -1962,5 +1967,29 @@ func portableTargets() -> [Target] {
       path: "FirebaseAuth/Interop/Portable/Tests",
       swiftSettings: portableSwiftSettings
     ),
+
+    // MARK: Firebase Storage
+
+    .target(
+      name: "FirebaseStorage",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseStorage/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseStoragePortableTests",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseStorage/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
   ]
+
+  return targets
 }

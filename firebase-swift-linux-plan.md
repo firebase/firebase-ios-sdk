@@ -17,14 +17,16 @@ cleanly with the existing Objective-C implementation on Apple platforms.
 - **Preserve the Darwin public API contract**: Match existing Darwin Swift API
   signatures (`FirebaseApp.configure()`, `FirebaseOptions`,
   `Auth.auth().signIn(withEmail:password:)`,
-  `AppCheck.setAppCheckProviderFactory(_:)`) so client code, unit tests, and the
+  `AppCheck.setAppCheckProviderFactory(_:)`,
+  `Storage.storage().reference(withPath:)`) so client code, unit tests, and the
   existing `FirebaseAITestApp` compile without source changes across Apple and
   portable builds.
 - **Minimize conditional compilation in `FirebaseAILogic`**: Retain target names
   (`FirebaseCore`, `FirebaseCoreExtension`, `FirebaseAuthInterop`,
-  `FirebaseAppCheckInterop`, `FirebaseAuth`, `FirebaseAppCheck`) and provide a
-  lightweight `Mutex`-backed `FirebaseComponentContainer` / `ComponentType` so
-  `FirebaseAILogic` requires minimal `#if` branching.
+  `FirebaseAppCheckInterop`, `FirebaseAuth`, `FirebaseAppCheck`,
+  `FirebaseStorage`) and provide a lightweight `Mutex`-backed
+  `FirebaseComponentContainer` / `ComponentType` so `FirebaseAILogic` requires
+  minimal `#if` branching.
 - **Validate locally on macOS before Linux**: Support activating portable mode
   on macOS via the `FIREBASE_PORTABLE` environment variable for rapid local
   iteration in `swift test`, Xcode (`FirebaseAITestApp`), and Static Linux SDK
@@ -78,9 +80,10 @@ cleanly with the existing Objective-C implementation on Apple platforms.
      without `@available(iOS 18.0, macOS 15.0, *)` propagation across
      `FirebaseCore`, `FirebaseAILogic`, or `FirebaseAITestApp`.
    - Reference types (`FirebaseApp`, `FirebaseOptions`, `FirebaseConfiguration`,
-     `FirebaseComponentContainer`, `Auth`, `AppCheck`) conform to `Sendable`
-     natively by being marked `final class` with immutable (`let`) stored
-     properties wrapping `UnfairLock`.
+     `FirebaseComponentContainer`, `Auth`, `AppCheck`, `Storage`,
+     `StorageReference`) conform to `Sendable` natively by being marked
+     `final class` with immutable (`let`) stored properties wrapping
+     `UnfairLock`.
 5. **Experimental DocC convention for public portable symbols**:
    - Every `public` declaration in the portable Swift targets must include the
      experimental prefix and warning callout in its DocC comment (`package` and
@@ -139,9 +142,9 @@ cleanly with the existing Objective-C implementation on Apple platforms.
 | :--- | :--- | :--- | :--- |
 | **Phase 1** | `FirebaseCore`, `FirebaseCoreInternal`, & `FirebaseCoreExtension` | `Package.swift` portable toggle, `UnfairLock` (`Mutex` on Linux), `FirebaseApp`, `FirebaseOptions`, `FirebaseConfiguration`, `FirebaseLogger`, `ComponentType` | `FirebaseCorePortableTests` passing on macOS & Linux cross-build |
 | **Phase 2** | `FirebaseAuthInterop` & `FirebaseAppCheckInterop` | Pure-Swift `AuthInterop`, `AppCheckInterop`, and `FIRAppCheckTokenResultInterop` protocols | `FirebaseAuthInteropPortableTests` & `FirebaseAppCheckInteropPortableTests` passing |
-| **Phase 3** | Portable `FirebaseAuth` & `FirebaseAppCheck` | Lightweight REST implementations of `Auth` and `AppCheck` (`AppCheckDebugProvider`) + container registration | `FirebaseAuthPortableTests` & `FirebaseAppCheckPortableTests` (mocked `URLProtocol`) passing |
+| **Phase 3** | Portable `FirebaseAppCheck`, `FirebaseAuth`, & `FirebaseStorage` | Lightweight REST implementations of `AppCheck` (`AppCheckDebugProvider`) and `Auth` + container registration, plus portable `Storage` / `StorageReference` / `StorageMetadata` | `FirebaseAppCheckPortableTests`, `FirebaseAuthPortableTests`, & `FirebaseStoragePortableTests` passing |
 | **Phase 4** | `FirebaseAILogic` Linux port & unit tests | `FoundationNetworking` imports, `os.log` / lock guards in `FirebaseAI`, portable `FirebaseAILogicUnit` target | Full `FirebaseAILogicUnit` test suite passing in portable mode & Linux |
-| **Phase 5** | End-to-end integration testing | Validate `FirebaseAITestApp` with `FIREBASE_PORTABLE=1` on macOS and SwiftPM integration tests on Linux | Live backend integration tests with Auth + App Check on macOS & Linux |
+| **Phase 5** | End-to-end integration testing | Validate `FirebaseAITestApp` with `FIREBASE_PORTABLE=1` on macOS and SwiftPM integration tests on Linux | Live backend integration tests with Auth + App Check + Storage on macOS & Linux |
 
 ---
 
@@ -176,7 +179,8 @@ In portable mode, `Package.swift` defines:
 - **Products**:
   - `FirebaseCore` (target: `FirebaseCore`)
   - (Subsequent phases add `FirebaseAuthInterop`, `FirebaseAppCheckInterop`,
-    `FirebaseAuth`, `FirebaseAppCheck`, and `FirebaseAILogic`.)
+    `FirebaseAuth`, `FirebaseAppCheck`, `FirebaseStorage`, and
+    `FirebaseAILogic`.)
 - **Phase 1 targets**:
   - `FirebaseCoreInternal` (`path: "FirebaseCore/Internal/Sources/Utilities"`,
     exposing `UnfairLock` backed by `os_unfair_lock` on Darwin iOS 15+ and
@@ -658,7 +662,7 @@ Before moving to Phase 3, unit tests must verify:
 
 ---
 
-## 6. Phase 3: Portable `FirebaseAppCheck` and `FirebaseAuth`
+## 6. Phase 3: Portable `FirebaseAppCheck`, `FirebaseAuth`, and `FirebaseStorage`
 
 ### 6.1 Portable `FirebaseAppCheck` (`FirebaseAppCheck/Portable/Sources`)
 
@@ -697,10 +701,26 @@ Calling `Auth.auth(app:)` lazily creates or retrieves the `Auth` instance for
 `FirebaseAI.firebaseAI(app:)` automatically attaches `Authorization: Firebase <token>`
 headers when a user is signed in.
 
-### 6.3 Phase 3 unit tests (`FirebaseAppCheckPortableTests` & `FirebaseAuthPortableTests`)
+### 6.3 Portable `FirebaseStorage` (`FirebaseStorage/Portable/Sources`)
 
-Before moving to Phase 4, each framework must be unit tested using injected
-`URLSession` / `URLProtocol` mocks:
+Implements a lightweight, pure-Swift subset of `FirebaseStorage` (`Storage`,
+`StorageReference`, and `StorageMetadata`) sufficient for `FirebaseAILogic`
+snippets (`CloudStorageSnippets.swift`) and `FirebaseAITestApp` integration
+tests (`IntegrationTests.swift`) without requiring `GTMSessionFetcherCore` or
+`GoogleUtilities`:
+
+- `Storage.storage()`, `Storage.storage(app:)`, `Storage.storage(url:)`, and
+  `Storage.storage(app:url:)`: Resolves the default or custom `gs://` bucket
+  from `app.options.storageBucket` and caches `Storage` instances per
+  `(app.name, bucket)` using `UnfairLock`.
+- `StorageReference`: Exposes `storage`, `bucket`, `fullPath`, `name`,
+  `root()`, `parent()`, `child(_:)`, `description` (`gs://<bucket>/<fullPath>`),
+  and `putFileAsync(from:metadata:onProgress:)`.
+- `StorageMetadata`: Exposes `contentType` and object path metadata.
+
+### 6.4 Phase 3 unit tests (`FirebaseAppCheckPortableTests`, `FirebaseAuthPortableTests`, & `FirebaseStoragePortableTests`)
+
+Before moving to Phase 4, each framework must be unit tested:
 
 - **`FirebaseAppCheckPortableTests`**:
   - `AppCheckDebugProvider` REST request serialization (`exchangeDebugToken` URL,
@@ -721,19 +741,27 @@ Before moving to Phase 4, each framework must be unit tested using injected
     when expired or `forcingRefresh == true`, and returning `nil` when signed
     out (`signOut()`).
   - Automatic registration into `app.container` under `AuthInterop.self`.
+- **`FirebaseStoragePortableTests`**:
+  - `Storage` instance caching per `(app, bucket)` and `gs://` URL parsing.
+  - `StorageReference` path normalization (`reference()`, `reference(withPath:)`,
+    `reference(forURL:)`, `child(_:)`, `parent()`, `root()`, `bucket`,
+    `fullPath`, `name`, and `description`).
+  - `StorageMetadata` property initialization and `putFileAsync` error handling.
 
-### 6.4 Phase 3 checklist (gate before Phase 4)
+### 6.5 Phase 3 checklist (gate before Phase 4)
 
 - [x] Implement `FirebaseAppCheck/Portable/Sources` (`AppCheck`, `AppCheckToken`,
   `AppCheckProvider`, `AppCheckProviderFactory`, `AppCheckDebugProvider`,
   `AppCheckDebugProviderFactory`, `AppCheckErrorCode`).
 - [x] Implement `FirebaseAuth/Portable/Sources` (`Auth`, `User`,
   `AuthDataResult`, `AuthErrorCode`, REST token exchange & refresh).
+- [x] Implement `FirebaseStorage/Portable/Sources` (`Storage`,
+  `StorageReference`, `StorageMetadata`).
 - [x] Add unit tests using mock `URLProtocol` handlers in
   `FirebaseAppCheck/Portable/Tests` (11/11 tests passing).
 - [x] Add unit tests using mock `URLProtocol` handlers in
-  `FirebaseAuth/Portable/Tests` (6/6 tests passing; 43/43 total portable tests
-  passing).
+  `FirebaseAuth/Portable/Tests` (7/7 tests passing).
+- [x] Add unit tests in `FirebaseStorage/Portable/Tests`.
 - [x] **Phase 3 exit gate**:
   - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAppCheckPortableTests`
     passes on macOS, and Static Linux SDK cross-build succeeds for
@@ -741,6 +769,9 @@ Before moving to Phase 4, each framework must be unit tested using injected
   - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAuthPortableTests`
     passes on macOS, and Static Linux SDK cross-build succeeds for
     `FirebaseAuth`.
+  - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseStoragePortableTests`
+    passes on macOS, and Static Linux SDK cross-build succeeds for
+    `FirebaseStorage`.
 
 ---
 
