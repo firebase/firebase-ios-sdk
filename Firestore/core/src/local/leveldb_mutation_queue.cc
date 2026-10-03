@@ -125,8 +125,6 @@ BatchId LoadNextBatchIdFromDb(DB* db) {
     }
   }
 
-  HARD_ASSERT(max_batch_id < std::numeric_limits<BatchId>::max(),
-              "Mutation batch ID space exhausted");
   return max_batch_id + 1;
 }
 
@@ -148,9 +146,10 @@ void LevelDbMutationQueue::Start() {
   const BatchId highest_indexed_batch_id =
       index_manager_->GetHighestBatchIdAcrossUsers();
   if (highest_indexed_batch_id >= 0) {
-    HARD_ASSERT(highest_indexed_batch_id < std::numeric_limits<BatchId>::max(),
-                "Mutation batch ID space exhausted");
-    next_batch_id_ = std::max(next_batch_id_, highest_indexed_batch_id + 1);
+    // Do not fail startup on an unexpectedly large persisted index offset.
+    const BatchId indexed_batch_id = std::min(
+        highest_indexed_batch_id, std::numeric_limits<BatchId>::max() - 1);
+    next_batch_id_ = std::max(next_batch_id_, indexed_batch_id + 1);
   }
   metadata_ = MetadataForKey(mutation_queue_key());
 }
@@ -177,8 +176,6 @@ MutationBatch LevelDbMutationQueue::AddMutationBatch(
     const Timestamp& local_write_time,
     std::vector<Mutation>&& base_mutations,
     std::vector<Mutation>&& mutations) {
-  HARD_ASSERT(next_batch_id_ < std::numeric_limits<BatchId>::max(),
-              "Mutation batch ID space exhausted");
   BatchId batch_id = next_batch_id_;
   next_batch_id_++;
 

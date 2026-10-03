@@ -162,7 +162,7 @@ TEST_F(LevelDbMutationQueueTest, LoadNextBatchIdOnlyFindsMutations) {
 }
 
 TEST_F(LevelDbMutationQueueTest,
-       LoadNextBatchIdIncludesLargestIndexedBatchIdAcrossUsers) {
+       StartIncludesLargestIndexedBatchIdAcrossUsers) {
   persistence_->Run("AddIndexAndRestartMutationQueue", [&] {
     auto* index_manager = persistence_->GetIndexManager(User("user"));
     index_manager->Start();
@@ -175,6 +175,8 @@ TEST_F(LevelDbMutationQueueTest,
     auto* other_user_index_manager =
         persistence_->GetIndexManager(User("other-user"));
     other_user_index_manager->Start();
+    other_user_index_manager->AddFieldIndex(
+        MakeFieldIndex("coll", "a", model::Segment::Kind::kAscending));
     other_user_index_manager->UpdateCollectionGroup(
         "coll", model::IndexOffset(model::SnapshotVersion::None(),
                                    model::DocumentKey::Empty(), 40));
