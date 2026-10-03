@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where `getData` never completed if the connection
+  dropped before the server responded. (#16717)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
