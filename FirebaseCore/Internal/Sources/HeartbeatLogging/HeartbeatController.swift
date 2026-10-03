@@ -72,6 +72,19 @@ public final class HeartbeatController: Sendable {
   /// - Parameter agent: The string agent (i.e. Firebase User Agent) to associate the logged
   /// heartbeat with.
   public func log(_ agent: String) {
+    log(agentProvider: { agent })
+  }
+
+  /// Asynchronously logs a new heartbeat, if needed, using a lazily provided agent.
+  ///
+  /// The `agentProvider` is called on the storage queue, and only if a new heartbeat needs to be
+  /// recorded. Use this API instead of `log(_:)` when building the agent is expensive, so the
+  /// work is skipped when it isn't needed and doesn't block the calling thread.
+  ///
+  /// - Note: This API is thread-safe.
+  /// - Parameter agentProvider: A block that returns the string agent (i.e. Firebase User Agent)
+  /// to associate the logged heartbeat with.
+  public func log(agentProvider: @escaping @Sendable () -> String) {
     let date = dateProvider()
 
     storage.readAndWriteAsync { heartbeatsBundle in
@@ -88,7 +101,7 @@ public final class HeartbeatController: Sendable {
       if !timePeriods.isEmpty {
         // A heartbeat should only be logged if there is a time period(s) to
         // associate it with.
-        let heartbeat = Heartbeat(agent: agent, date: date, timePeriods: timePeriods)
+        let heartbeat = Heartbeat(agent: agentProvider(), date: date, timePeriods: timePeriods)
         heartbeatsBundle.append(heartbeat)
       }
 
