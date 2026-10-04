@@ -320,9 +320,9 @@ BOOL FIRMessagingIsProductionApp(void) {
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
-  if (![[NSFileManager defaultManager] fileExistsAtPath:path] &&
-      [GULAppEnvironmentUtil isAppStoreReceiptSandbox]) {
-    // Distributed via TestFlight
+  if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+    // There's no profile to read the APNs environment from. This is expected when distributed via
+    // TestFlight, which strips the profile, and for macOS apps signed without one.
     return defaultAppTypeProd;
   }
 
