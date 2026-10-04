@@ -132,8 +132,7 @@ struct TextToSpeechTests {
 
   // MARK: - Multi-Speaker Tests
 
-  // TODO(#16775): Change to `InstanceConfig.defaultConfigs` after backend API rollout.
-  @Test(arguments: [InstanceConfig.enterprise_v1beta_global], ttsModels)
+  @Test(arguments: InstanceConfig.defaultConfigs, ttsModels)
   func multiSpeaker_withTurnMetadata(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
@@ -167,8 +166,7 @@ struct TextToSpeechTests {
     #expect(audioPart.mimeType == unaryMIMEType)
   }
 
-  // TODO(#16775): Change to `InstanceConfig.defaultConfigs` after backend API rollout.
-  @Test(arguments: [InstanceConfig.enterprise_v1beta_global], ttsModels)
+  @Test(arguments: InstanceConfig.defaultConfigs, ttsModels)
   func multiSpeakerStream_withTurnMetadata(_ config: InstanceConfig,
                                            modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(

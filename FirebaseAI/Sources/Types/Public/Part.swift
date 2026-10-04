@@ -53,8 +53,8 @@ public struct TextPart: Part {
 
   /// Creates a text part with a string value.
   ///
-  /// - Parameter text: The text string. For speech generation, this represents the verbatim transcript
-  ///   to be synthesized.
+  /// - Parameter text: The text string. For speech generation, this represents the verbatim
+  ///   transcript to be synthesized.
   public init(_ text: String) {
     self.init(text, speechMetadata: nil, isThought: nil, thoughtSignature: nil)
   }
