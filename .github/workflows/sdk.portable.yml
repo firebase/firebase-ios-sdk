@@ -1,0 +1,75 @@
+name: sdk.portable
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseAI/**'
+    - 'FirebaseAppCheck/Interop/Portable/**'
+    - 'FirebaseAppCheck/Portable/**'
+    - 'FirebaseAuth/Interop/Portable/**'
+    - 'FirebaseAuth/Portable/**'
+    - 'FirebaseCore/Extension/Portable/**'
+    - 'FirebaseCore/Internal/Sources/Utilities/**'
+    - 'FirebaseCore/Portable/**'
+    - 'FirebaseStorage/Portable/**'
+    - 'GeminiLanguageModel/**'
+    - 'Package.swift'
+    - '.github/workflows/sdk.portable.yml'
+    - 'scripts/build.sh'
+    # Do not run for documentation-only PRs.
+    - '!**.md'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read  # Needed for actions/checkout
+
+jobs:
+  unit-tests:
+    name: unit-tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      FIREBASE_PORTABLE: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Fetch Vertex AI mock responses
+      if: matrix.os == 'macos-26'
+      run: scripts/update_vertexai_responses.sh
+
+    - name: Build portable targets
+      run: swift build
+
+    - name: Run portable unit tests
+      run: swift test
+
+  testapp-integration:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    runs-on: xcode-27
+    needs: unit-tests
+    env:
+      FIREBASE_PORTABLE: 1
+      TEST_RUNNER_AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Run integration tests
+      run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_27.0 AI
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: xcodebuild-portable-integration-tests-iOS-xcode-27-Xcode_27.0.log
+        path: xcodebuild-*.log
+        retention-days: 2

@@ -1682,31 +1682,40 @@ func firestoreTargets() -> [Target] {
 }
 
 func firebaseAILogicTargets(swiftSettings: [SwiftSetting] = []) -> [Target] {
-  return [
+  var targets: [Target] = [
     .target(
       name: "FirebaseAILogic",
       dependencies: firebaseAILogicDependencies(),
       path: "FirebaseAI/Sources",
       swiftSettings: swiftSettings
     ),
-    .testTarget(
-      name: "FirebaseAILogicUnit",
-      dependencies: [
-        "FirebaseAILogic",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseAI/Tests/Unit",
-      exclude: [
-        "README.md",
-        "Snippets/README.md",
-      ],
-      resources: [
-        .copy("vertexai-sdk-test-data/mock-responses"),
-        .process("Resources"),
-      ],
-      swiftSettings: swiftSettings
-    ),
   ]
+
+  // Streaming (`AsyncLineSequence`) is unavailable on Linux so these test can only run on Apple
+  // platforms until FirebaseAI/Sources/GenerativeAIService.swift is refactored.
+  #if canImport(Darwin)
+    targets.append(
+      .testTarget(
+        name: "FirebaseAILogicUnit",
+        dependencies: [
+          "FirebaseAILogic",
+          "FirebaseStorage",
+        ],
+        path: "FirebaseAI/Tests/Unit",
+        exclude: [
+          "README.md",
+          "Snippets/README.md",
+        ],
+        resources: [
+          .copy("vertexai-sdk-test-data/mock-responses"),
+          .process("Resources"),
+        ],
+        swiftSettings: swiftSettings
+      )
+    )
+  #endif // canImport(Darwin)
+
+  return targets
 }
 
 func firebaseAILogicDependencies() -> [Target.Dependency] {
