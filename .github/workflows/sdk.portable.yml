@@ -52,6 +52,39 @@ jobs:
     - name: Run portable unit tests
       run: swift test
 
+  integration-tests:
+    name: integration-tests (${{ matrix.os }})
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    needs: unit-tests
+    env:
+      FIREBASE_PORTABLE: 1
+      AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Decrypt GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh \
+          scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
+          GoogleService-Info.plist \
+          "$secrets_passphrase"
+        chmod 600 GoogleService-Info.plist
+
+    - name: Run portable integration tests
+      run: swift test --filter FirebaseAILogicIntegration
+
+    - name: Clean up GoogleService-Info.plist
+      if: always()
+      run: rm -f GoogleService-Info.plist
+
   testapp-integration:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: xcode-27

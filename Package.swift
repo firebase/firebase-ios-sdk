@@ -1691,6 +1691,23 @@ func firebaseAILogicTargets(swiftSettings: [SwiftSetting] = []) -> [Target] {
     ),
   ]
 
+  if isPortableBuild() {
+    targets.append(
+      .testTarget(
+        name: "FirebaseAILogicIntegration",
+        dependencies: [
+          "FirebaseAILogic",
+          "FirebaseAppCheck",
+          "FirebaseAuth",
+          "FirebaseCore",
+          "FirebaseStorage",
+        ],
+        path: "FirebaseAI/Tests/Integration",
+        swiftSettings: swiftSettings
+      )
+    )
+  }
+
   // Streaming (`AsyncLineSequence`) is unavailable on Linux so these test can only run on Apple
   // platforms until FirebaseAI/Sources/GenerativeAIService.swift is refactored.
   #if canImport(Darwin)

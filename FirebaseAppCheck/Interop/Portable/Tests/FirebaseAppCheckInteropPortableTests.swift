@@ -14,7 +14,7 @@
 
 import FirebaseAppCheckInterop
 import FirebaseCore
-import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 import FirebaseCoreInternal
 import Foundation
 import Testing

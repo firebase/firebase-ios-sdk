@@ -15,7 +15,7 @@
 import FirebaseAppCheck
 import FirebaseAppCheckInterop
 import FirebaseCore
-import FirebaseCoreExtension
+internal import FirebaseCoreExtension
 import FirebaseCoreInternal
 import Foundation
 #if canImport(FoundationNetworking)
