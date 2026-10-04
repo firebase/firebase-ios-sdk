@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CoreGraphics
+#if canImport(CoreGraphics)
+  import CoreGraphics
+#endif
 import XCTest
 #if canImport(UIKit)
   import UIKit

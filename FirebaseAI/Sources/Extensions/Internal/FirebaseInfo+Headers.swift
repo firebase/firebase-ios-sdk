@@ -15,7 +15,11 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+internal import FirebaseCoreExtension
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 
 extension FirebaseInfo {
   /// Constructs the standard HTTP headers for Firebase AI API requests.
@@ -68,8 +72,12 @@ extension FirebaseInfo {
       }
     }
 
-    if accessToken == nil, let auth,
-       let authToken = try await auth.getToken(forcingRefresh: false) {
+    if accessToken == nil,
+       let resolvedAuth = auth ?? ComponentType<AuthInterop>.instance(
+         for: AuthInterop.self,
+         in: app.container
+       ),
+       let authToken = try await resolvedAuth.getToken(forcingRefresh: false) {
       headers["Authorization"] = "Firebase \(authToken)"
     }
 

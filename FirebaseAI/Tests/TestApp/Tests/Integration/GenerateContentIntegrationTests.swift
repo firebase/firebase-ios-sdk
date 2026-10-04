@@ -16,7 +16,6 @@ import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
-import FirebaseStorage
 import Testing
 
 #if canImport(UIKit)
@@ -37,12 +36,10 @@ struct GenerateContentIntegrationTests {
   // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
   let tokenCountAccuracy = 1
 
-  let storage: Storage
   let userID1: String
 
   init() async throws {
     userID1 = try await TestHelpers.getUserID()
-    storage = Storage.storage()
   }
 
   @Test(arguments: [

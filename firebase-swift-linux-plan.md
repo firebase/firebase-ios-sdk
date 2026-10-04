@@ -781,52 +781,54 @@ Before moving to Phase 4, each framework must be unit tested:
 
 Audit and update `FirebaseAI/Sources` with minimal conditional compilation:
 
-- [ ] **`FoundationNetworking` imports**: Add
+- [x] **`FoundationNetworking` imports**: Add
   `#if canImport(FoundationNetworking) import FoundationNetworking #endif` (or
   re-export from `FirebaseCore` in portable mode) for `URLSession`,
   `URLRequest`, `URLResponse`, `HTTPURLResponse`, and `URLSessionWebSocketTask`.
-- [ ] **Logging (`AILog.swift`, `GenerativeAIService.swift`)**: Guard
+- [x] **Logging (`AILog.swift`, `GenerativeAIService.swift`)**: Guard
   `import os.log` and `OSLog` usage with `#if canImport(os)` so Linux builds
   route logs solely through `FirebaseLogger.log(level:service:code:message:)`.
-- [ ] **Locking (`FirebaseAI.swift`, `UnfairLock.swift`)**: Replace direct
+- [x] **Locking (`FirebaseAI.swift`, `UnfairLock.swift`)**: Replace direct
   `os_unfair_lock` in `FirebaseAI.swift` with `UnfairLock` (from
   `FirebaseCoreInternal`) or `Synchronization.Mutex` so no Darwin `os.lock`
   symbol is referenced on Linux.
-- [ ] **Objective-C component stub (`FirebaseAI.swift`)**: Guard
+- [x] **Objective-C component stub (`FirebaseAI.swift`)**: Guard
   `@objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}`
   with `#if canImport(ObjectiveC)`.
-- [ ] **Platform image extensions (`PartsRepresentable+Image.swift`)**: Verify
-  all `UIKit` / `AppKit` / `CoreGraphics` / `ImageIO` imports are already
-  properly guarded by `#if canImport(...)`.
-- [ ] **App Check & Auth interop helpers (`Types/Internal/AppCheck.swift`,
+- [x] **Platform image & location extensions (`PartsRepresentable+Image.swift`,
+  `Tool.swift`, `TemplateInput.swift`)**: Guard `UniformTypeIdentifiers`,
+  `CGImage`, `CoreLocation`, and CoreFoundation `CFGetTypeID` with
+  `#if canImport(Darwin)` / `#if canImport(CoreLocation)`.
+- [x] **App Check & Auth interop helpers (`Types/Internal/AppCheck.swift`,
   `Extensions/Internal/FirebaseInfo+Headers.swift`)**:
   Replace `withCheckedContinuation` around `getToken(forcingRefresh: false)`
   with `await getToken(forcingRefresh: false)`, guard
   `getLimitedUseTokenAsync()` with `#if FIREBASE_PORTABLE` to call `await
   getLimitedUseToken()` directly instead of Darwin's Objective-C `@optional`
   completion-handler unwrapping, and in `FirebaseInfo+Headers.swift` fall back
-  to `ComponentType<any AuthInterop>.instance(for: (any AuthInterop).self, in:
+  to `ComponentType<AuthInterop>.instance(for: AuthInterop.self, in:
   app.container)` when `auth` was `nil` at `FirebaseAI` initialization time (so
   calling `Auth.auth().signIn(...)` after `FirebaseAI.firebaseAI()` still
   attaches the `Authorization: Firebase <token>` header in portable builds
   without Objective-C `+load`).
-- [ ] **WebSocket / Live API (`AsyncWebSocket.swift`, `LiveSession.swift`)**:
+- [x] **WebSocket / Live API (`AsyncWebSocket.swift`, `LiveSession.swift`)**:
   Verify `URLSessionWebSocketTask` compilation with `FoundationNetworking` on
-  Linux (or guard unavailable APIs if needed by `swift-corelibs-foundation`).
+  Linux.
 
 ### 7.2 `FirebaseAILogicUnit` test target on portable / Linux builds (gate before Phase 5)
 
-- [ ] In `Package.swift`, omit the `"FirebaseStorage"` dependency from
-  `FirebaseAILogicUnit` when `isPortableBuild` is `true` (and guard
-  `CloudStorageSnippets.swift` with `#if canImport(FirebaseStorage)`).
+- [x] In `Package.swift`, share a `firebaseAILogicTargets(swiftSettings:)`
+  helper for `FirebaseAILogic` and `FirebaseAILogicUnit` across Darwin and
+  portable builds (using portable `FirebaseStorage`).
 - [ ] Guard Objective-C runtime assertions in `VertexComponentTests.swift`
   (`NSClassFromString("FIRVertexAIComponent")` and `autoreleasepool`) with
-  `#if canImport(ObjectiveC)`.
+  `#if canImport(ObjectiveC)` and complete Linux unit test adaptations on a
+  Linux host.
 - [ ] **Phase 4 exit gate**:
-  - [ ] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAILogicUnit` passes on
-    macOS.
-  - [ ] `FirebaseAILogic` builds cleanly with the Static Linux SDK (and passes
-    `swift test` on Linux).
+  - [x] `FIREBASE_PORTABLE=1 swift test --filter FirebaseAILogicUnit` passes on
+    macOS (423/423 passing).
+  - [x] `FirebaseAILogic` builds cleanly with the Static Linux SDK.
+  - [ ] `FirebaseAILogicUnit` passes `swift test` on Linux.
 
 ---
 
@@ -836,12 +838,13 @@ Audit and update `FirebaseAI/Sources` with minimal conditional compilation:
 
 Before running on Linux machines:
 
-- [ ] Open `FirebaseAITestApp` in Xcode with `FIREBASE_PORTABLE=1` set in the
+- [x] Open `FirebaseAITestApp` in Xcode with `FIREBASE_PORTABLE=1` set in the
   environment.
-- [ ] Run the existing integration test suite (`GenerateContentIntegrationTests`,
-  `CountTokensIntegrationTests`, `SchemaTests`) against live Firebase backends
-  to confirm portable `FirebaseCore`, `FirebaseAuth`, and `FirebaseAppCheck`
-  interoperate seamlessly with `FirebaseAILogic`.
+- [x] Run the existing integration test suite (`GenerateContentIntegrationTests`,
+  `CountTokensIntegrationTests`, `SchemaTests`, `IntegrationTests`) against live
+  Firebase backends to confirm portable `FirebaseCore`, `FirebaseAuth`,
+  `FirebaseAppCheck`, and `FirebaseStorage` interoperate seamlessly with
+  `FirebaseAILogic`.
 
 ### 8.2 Standalone SwiftPM Linux integration test target
 

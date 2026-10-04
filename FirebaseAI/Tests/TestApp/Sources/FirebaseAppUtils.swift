@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
+import Foundation
 
 extension FirebaseApp {
   /// Configures a Firebase app with the specified name and Google Service Info plist file name.

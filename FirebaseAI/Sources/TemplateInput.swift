@@ -24,12 +24,14 @@ enum TemplateInput: Encodable, Equatable, Sendable {
 
   init(value: Any) throws {
     switch value {
-    // `NSNumber` bridges to both `Bool` and `Int`, so booleans and integers originating from
-    // Foundation containers (for example, `JSONSerialization` output) are indistinguishable by
-    // `as?` alone: `NSNumber(value: true) as? Int` is `1` and `NSNumber(value: 1) as? Bool` is
-    // `true`. Check the underlying CoreFoundation type first to disambiguate.
-    case let value as NSNumber where CFGetTypeID(value) == CFBooleanGetTypeID():
-      self = .bool(value.boolValue)
+    #if canImport(Darwin)
+      // `NSNumber` bridges to both `Bool` and `Int`, so booleans and integers originating from
+      // Foundation containers (for example, `JSONSerialization` output) are indistinguishable by
+      // `as?` alone: `NSNumber(value: true) as? Int` is `1` and `NSNumber(value: 1) as? Bool` is
+      // `true`. Check the underlying CoreFoundation type first to disambiguate.
+      case let value as NSNumber where CFGetTypeID(value) == CFBooleanGetTypeID():
+        self = .bool(value.boolValue)
+    #endif
     case let value as String:
       self = .string(value)
     case let value as Int:

@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 
 /// **[Public Preview]** A multimodal model (like Gemini) that generates content using
 /// server-managed prompt templates.

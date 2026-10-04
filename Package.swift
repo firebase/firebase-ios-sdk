@@ -231,33 +231,6 @@ func packageTargets() -> [Target] {
       publicHeadersPath: "./"
     ),
 
-    // MARK: - Firebase AI
-
-    .target(
-      name: "FirebaseAILogic",
-      dependencies: firebaseAILogicDependencies(),
-      path: "FirebaseAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAILogicUnit",
-      dependencies: [
-        "FirebaseAILogic",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseAI/Tests/Unit",
-      exclude: [
-        "README.md",
-        "Snippets/README.md",
-      ],
-      resources: [
-        .copy("vertexai-sdk-test-data/mock-responses"),
-        .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
-    ),
-
     // MARK: - Firebase Core
 
     .target(
@@ -1375,6 +1348,7 @@ func packageTargets() -> [Target] {
     ),
   ]
   targets.append(contentsOf: firestoreTargets())
+  targets.append(contentsOf: firebaseAILogicTargets())
 
   #if compiler(>=6.4) && canImport(FoundationModels)
     targets.append(contentsOf: geminiLanguageModelTargets())
@@ -1707,6 +1681,34 @@ func firestoreTargets() -> [Target] {
   ]
 }
 
+func firebaseAILogicTargets(swiftSettings: [SwiftSetting] = []) -> [Target] {
+  return [
+    .target(
+      name: "FirebaseAILogic",
+      dependencies: firebaseAILogicDependencies(),
+      path: "FirebaseAI/Sources",
+      swiftSettings: swiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAILogicUnit",
+      dependencies: [
+        "FirebaseAILogic",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseAI/Tests/Unit",
+      exclude: [
+        "README.md",
+        "Snippets/README.md",
+      ],
+      resources: [
+        .copy("vertexai-sdk-test-data/mock-responses"),
+        .process("Resources"),
+      ],
+      swiftSettings: swiftSettings
+    ),
+  ]
+}
+
 func firebaseAILogicDependencies() -> [Target.Dependency] {
   var dependencies: [Target.Dependency] = [
     // Direct dependency on AppCheck for automatic token acquisition and
@@ -1718,6 +1720,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
     "FirebaseAuthInterop",
     "FirebaseCore",
     "FirebaseCoreExtension",
+    "FirebaseCoreInternal",
   ]
 
   #if compiler(>=6.4) && canImport(FoundationModels)
@@ -1783,6 +1786,9 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       ),
       .target(
         name: "GeminiTestUtilities",
+        dependencies: [
+          "GeminiAPIClient",
+        ],
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
         swiftSettings: swiftSettings,
       ),
@@ -1832,6 +1838,10 @@ func portableProducts() -> [Product] {
     .library(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
+    ),
+    .library(
+      name: "FirebaseAILogic",
+      targets: ["FirebaseAILogic"]
     ),
   ]
 }
@@ -1990,6 +2000,11 @@ func portableTargets() -> [Target] {
       swiftSettings: portableSwiftSettings
     ),
   ]
+  targets.append(contentsOf: firebaseAILogicTargets(swiftSettings: [.define("FIREBASE_PORTABLE")]))
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    targets.append(contentsOf: geminiLanguageModelTargets())
+  #endif
 
   return targets
 }

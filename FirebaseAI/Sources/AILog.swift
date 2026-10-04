@@ -15,7 +15,9 @@
 import FirebaseCore
 internal import FirebaseCoreExtension
 import Foundation
-import os.log
+#if canImport(os)
+  import os.log
+#endif // canImport(os)
 
 enum AILog {
   /// Log message codes for the Firebase AI SDK
@@ -97,10 +99,12 @@ enum AILog {
   /// > Note: This corresponds to the `category` in `OSLog`.
   static let service = "[FirebaseAI]"
 
-  /// The raw `OSLog` log object.
-  ///
-  /// > Important: This is only needed for direct `os_log` usage.
-  static let logObject = OSLog(subsystem: subsystem, category: service)
+  #if canImport(os)
+    /// The raw `OSLog` log object.
+    ///
+    /// > Important: This is only needed for direct `os_log` usage.
+    static let logObject = OSLog(subsystem: subsystem, category: service)
+  #endif // canImport(os)
 
   /// The argument required to enable additional logging.
   static let enableArgumentKey = "-FIRDebugEnabled"

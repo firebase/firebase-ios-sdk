@@ -14,6 +14,11 @@
 
 import FirebaseAILogic
 import FirebaseCore
+#if canImport(UIKit)
+  import UIKit
+#elseif canImport(AppKit)
+  import AppKit
+#endif
 import XCTest
 
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
@@ -29,94 +34,96 @@ final class LiveSnippets: XCTestCase {
     await FirebaseApp.deleteDefaultAppForSnippets()
   }
 
-  func sendAudioReceiveAudio() async throws {
-    // Initialize the Gemini Enterprise API backend service
-    // Set the location to `us-central1` (the flash-live model is only supported in that location)
-    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
-    // the Live API)
-    let model = FirebaseAI.firebaseAI(backend: .enterprise(location: "us-central1")).liveModel(
-      modelName: "gemini-2.0-flash-exp",
-      // Configure the model to respond with audio
-      generationConfig: LiveGenerationConfig(
-        responseModalities: [.audio]
+  #if canImport(Darwin)
+    func sendAudioReceiveAudio() async throws {
+      // Initialize the Gemini Enterprise API backend service
+      // Set the location to `us-central1` (the flash-live model is only supported in that location)
+      // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
+      // the Live API)
+      let model = FirebaseAI.firebaseAI(backend: .enterprise(location: "us-central1")).liveModel(
+        modelName: "gemini-2.0-flash-exp",
+        // Configure the model to respond with audio
+        generationConfig: LiveGenerationConfig(
+          responseModalities: [.audio]
+        )
       )
-    )
 
-    do {
-      let session = try await model.connect()
+      do {
+        let session = try await model.connect()
 
-      // Load the audio file, or tap a microphone
-      guard let audioFile = NSDataAsset(name: "audio.pcm") else {
-        fatalError("Failed to load audio file")
-      }
+        // Load the audio file, or tap a microphone
+        guard let audioFile = NSDataAsset(name: "audio.pcm") else {
+          fatalError("Failed to load audio file")
+        }
 
-      // Provide the audio data
-      await session.sendAudioRealtime(audioFile.data)
+        // Provide the audio data
+        await session.sendAudioRealtime(audioFile.data)
 
-      for try await message in session.responses {
-        if case let .content(content) = message.payload {
-          content.modelTurn?.parts.forEach { part in
-            if let part = part as? InlineDataPart, part.mimeType.starts(with: "audio/pcm") {
-              // Handle 16bit pcm audio data at 24khz
-              playAudio(part.data)
+        for try await message in session.responses {
+          if case let .content(content) = message.payload {
+            content.modelTurn?.parts.forEach { part in
+              if let part = part as? InlineDataPart, part.mimeType.starts(with: "audio/pcm") {
+                // Handle 16bit pcm audio data at 24khz
+                playAudio(part.data)
+              }
+            }
+            // Optional: if you don't require to send more requests.
+            if content.isTurnComplete {
+              await session.close()
             }
           }
-          // Optional: if you don't require to send more requests.
-          if content.isTurnComplete {
-            await session.close()
-          }
         }
+      } catch {
+        fatalError(error.localizedDescription)
       }
-    } catch {
-      fatalError(error.localizedDescription)
     }
-  }
 
-  func sendAudioReceiveText() async throws {
-    // Initialize the Vertex AI Gemini API backend service
-    // Set the location to `us-central1` (the flash-live model is only supported in that location)
-    // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
-    // the Live API)
-    let model = FirebaseAI.firebaseAI(backend: .googleAI()).liveModel(
-      modelName: "gemini-live-2.5-flash-preview",
-      // Configure the model to respond with text
-      generationConfig: LiveGenerationConfig(
-        responseModalities: [.text]
+    func sendAudioReceiveText() async throws {
+      // Initialize the Vertex AI Gemini API backend service
+      // Set the location to `us-central1` (the flash-live model is only supported in that location)
+      // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
+      // the Live API)
+      let model = FirebaseAI.firebaseAI(backend: .googleAI()).liveModel(
+        modelName: "gemini-live-2.5-flash-preview",
+        // Configure the model to respond with text
+        generationConfig: LiveGenerationConfig(
+          responseModalities: [.text]
+        )
       )
-    )
 
-    do {
-      let session = try await model.connect()
+      do {
+        let session = try await model.connect()
 
-      // Load the audio file, or tap a microphone
-      guard let audioFile = NSDataAsset(name: "audio.pcm") else {
-        fatalError("Failed to load audio file")
-      }
+        // Load the audio file, or tap a microphone
+        guard let audioFile = NSDataAsset(name: "audio.pcm") else {
+          fatalError("Failed to load audio file")
+        }
 
-      // Provide the audio data
-      await session.sendAudioRealtime(audioFile.data)
+        // Provide the audio data
+        await session.sendAudioRealtime(audioFile.data)
 
-      var outputText = ""
-      for try await message in session.responses {
-        if case let .content(content) = message.payload {
-          content.modelTurn?.parts.forEach { part in
-            if let part = part as? TextPart {
-              outputText += part.text
+        var outputText = ""
+        for try await message in session.responses {
+          if case let .content(content) = message.payload {
+            content.modelTurn?.parts.forEach { part in
+              if let part = part as? TextPart {
+                outputText += part.text
+              }
+            }
+            // Optional: if you don't require to send more requests.
+            if content.isTurnComplete {
+              await session.close()
             }
           }
-          // Optional: if you don't require to send more requests.
-          if content.isTurnComplete {
-            await session.close()
-          }
         }
-      }
 
-      // Output received from the server.
-      print(outputText)
-    } catch {
-      fatalError(error.localizedDescription)
+        // Output received from the server.
+        print(outputText)
+      } catch {
+        fatalError(error.localizedDescription)
+      }
     }
-  }
+  #endif // canImport(Darwin)
 
   func sendTextReceiveAudio() async throws {
     // Initialize the Gemini Developer API backend service

@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import os.log
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
+#if canImport(os)
+  import os.log
+#endif // canImport(os)
 
 struct GenerativeAIService {
   let firebaseInfo: FirebaseInfo
@@ -62,73 +67,84 @@ struct GenerativeAIService {
   @available(macOS 12.0, watchOS 8.0, *)
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
     -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
-    return AsyncThrowingStream { continuation in
-      let task = Task {
-        do {
-          let urlRequest = try await self.urlRequest(request: request)
+    #if canImport(Darwin)
+      return AsyncThrowingStream { continuation in
+        let task = Task {
+          do {
+            let urlRequest = try await self.urlRequest(request: request)
 
-          #if DEBUG
-            printCURLCommand(from: urlRequest)
-          #endif
+            #if DEBUG
+              printCURLCommand(from: urlRequest)
+            #endif
 
-          let stream: URLSession.AsyncBytes
-          let rawResponse: URLResponse
-          (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
+            let stream: URLSession.AsyncBytes
+            let rawResponse: URLResponse
+            (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
 
-          let response = try httpResponse(urlResponse: rawResponse)
+            let response = try httpResponse(urlResponse: rawResponse)
 
-          // Verify the status code is 200
-          guard response.statusCode == 200 else {
-            AILog.error(
-              code: .loadRequestStreamResponseError,
-              "The server responded with an error: \(response)"
-            )
-            var responseBody = ""
+            // Verify the status code is 200
+            guard response.statusCode == 200 else {
+              AILog.error(
+                code: .loadRequestStreamResponseError,
+                "The server responded with an error: \(response)"
+              )
+              var responseBody = ""
+              for try await line in stream.lines {
+                responseBody += line + "\n"
+              }
+
+              AILog.error(
+                code: .loadRequestStreamResponseErrorPayload,
+                "Response payload: \(responseBody)"
+              )
+              continuation.finish(throwing: parseError(responseBody: responseBody))
+              return
+            }
+
+            // Received lines that are not server-sent events (SSE); these are not prefixed with
+            // "data:"
+            var extraLines = ""
+
             for try await line in stream.lines {
-              responseBody += line + "\n"
+              AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
+
+              if line.hasPrefix("data:") {
+                // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+                let jsonText = String(line.dropFirst(5))
+                let data = try jsonData(jsonText: jsonText)
+                let content = try parseResponse(T.Response.self, from: data)
+                continuation.yield(content)
+              } else {
+                extraLines += line
+              }
             }
 
-            AILog.error(
-              code: .loadRequestStreamResponseErrorPayload,
-              "Response payload: \(responseBody)"
-            )
-            continuation.finish(throwing: parseError(responseBody: responseBody))
-            return
-          }
-
-          // Received lines that are not server-sent events (SSE); these are not prefixed with
-          // "data:"
-          var extraLines = ""
-
-          for try await line in stream.lines {
-            AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
-
-            if line.hasPrefix("data:") {
-              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
-              let jsonText = String(line.dropFirst(5))
-              let data = try jsonData(jsonText: jsonText)
-              let content = try parseResponse(T.Response.self, from: data)
-              continuation.yield(content)
-            } else {
-              extraLines += line
+            if extraLines.count > 0 {
+              continuation.finish(throwing: parseError(responseBody: extraLines))
+              return
             }
-          }
 
-          if extraLines.count > 0 {
-            continuation.finish(throwing: parseError(responseBody: extraLines))
-            return
+            continuation.finish(throwing: nil)
+          } catch {
+            continuation.finish(throwing: error)
           }
+        }
 
-          continuation.finish(throwing: nil)
-        } catch {
-          continuation.finish(throwing: error)
+        continuation.onTermination = { @Sendable _ in
+          task.cancel()
         }
       }
-
-      continuation.onTermination = { @Sendable _ in
-        task.cancel()
+    #else // canImport(Darwin)
+      return AsyncThrowingStream { continuation in
+        continuation.finish(
+          throwing: AILog.makeInternalError(
+            message: "Streaming is not yet supported on this platform.",
+            code: .loadRequestStreamResponseError
+          )
+        )
       }
-    }
+    #endif // canImport(Darwin)
   }
 
   // MARK: - Private Helpers
@@ -255,12 +271,14 @@ struct GenerativeAIService {
         return
       }
       let command = cURLCommand(from: request)
-      os_log(.debug, log: AILog.logObject, """
-      \(AILog.service) Creating request with the equivalent cURL command:
-      ----- cURL command -----
-      \(command, privacy: .private)
-      ------------------------
-      """)
+      #if canImport(os)
+        os_log(.debug, log: AILog.logObject, """
+        \(AILog.service) Creating request with the equivalent cURL command:
+        ----- cURL command -----
+        \(command, privacy: .private)
+        ------------------------
+        """)
+      #endif // canImport(os)
     }
   #endif // DEBUG
 }
