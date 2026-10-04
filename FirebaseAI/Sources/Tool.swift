@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CoreLocation
+#if canImport(CoreLocation)
+  import CoreLocation
+#endif
 import Foundation
 
 /// Structured representation of a function declaration.
@@ -157,43 +159,51 @@ public struct ToolConfig: Sendable {
 /// Use `RetrievalConfig` inside ``ToolConfig`` or ``TemplateToolConfig`` to provide optional
 /// location coordinates and language preferences to bias and localize search results.
 public struct RetrievalConfig: Sendable, Encodable {
+  struct LatLng: Codable {
+    let latitude: Double
+    let longitude: Double
+  }
+
   /// The geographic location coordinates used to bias the retrieval search.
-  let location: CLLocationCoordinate2D?
+  let location: LatLng?
+
   /// The BCP 47 language code of the user (for example, `"en_US"`).
   let languageCode: String?
 
-  /// Constructs a new `RetrievalConfig`.
-  ///
-  /// - Parameters:
-  ///   - location: Geographic coordinates used to bias results towards the user's location.
-  ///   - languageCode: A BCP 47 language code to localize responses.
-  public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
-    self.location = location
-    self.languageCode = languageCode
-  }
+  #if canImport(CoreLocation)
+    /// Constructs a new `RetrievalConfig`.
+    ///
+    /// - Parameters:
+    ///   - location: Geographic coordinates used to bias results towards the user's location.
+    ///   - languageCode: A BCP 47 language code to localize responses.
+    public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
+      self.location = location.map { LatLng(latitude: $0.latitude, longitude: $0.longitude) }
+      self.languageCode = languageCode
+    }
+  #else // canImport(CoreLocation)
+    /// Constructs a new `RetrievalConfig`.
+    ///
+    /// - Parameters:
+    ///   - location: Geographic coordinates used to bias results towards the user's location.
+    ///   - languageCode: A BCP 47 language code to localize responses.
+    public init(location: (latitude: Double, longitude: Double)? = nil,
+                languageCode: String? = nil) {
+      self.location = location.map { LatLng(latitude: $0.latitude, longitude: $0.longitude) }
+      self.languageCode = languageCode
+    }
+  #endif // canImport(CoreLocation)
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(languageCode, forKey: .languageCode)
-    if let location = location {
-      var latLngContainer = container.nestedContainer(keyedBy: LatLngKeys.self, forKey: .location)
-      try latLngContainer.encode(location.latitude, forKey: .latitude)
-      try latLngContainer.encode(location.longitude, forKey: .longitude)
-    }
+    try container.encodeIfPresent(location, forKey: .location)
   }
 
   enum CodingKeys: String, CodingKey {
     case location = "latLng"
     case languageCode
   }
-
-  enum LatLngKeys: String, CodingKey {
-    case latitude
-    case longitude
-  }
 }
-
-extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
 
 // MARK: - Tool Conveniences
 
