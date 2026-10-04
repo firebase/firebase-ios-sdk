@@ -310,12 +310,14 @@
 
   [self setSandboxAPNSToken:APNSToken];
 
-  // The cached tokens are read from the keychain only once.
+  // The cached tokens are read from the keychain only once before `setAPNSToken` returns.
   OCMVerify(times(1), [_mockTokenStore cachedTokenInfos]);
   // No token is cached, so the default token is fetched once the installation ID is available.
   XCTAssertNotNil(installationIDHandler);
   installationIDHandler(@"fake-fid", nil);
   OCMVerifyAll(_mockTokenManager);
+  // The callback reads the cached tokens again, since they may have changed by then.
+  OCMVerify(times(2), [_mockTokenStore cachedTokenInfos]);
 }
 
 - (void)testSetAPNSTokenReadsCachedTokensOnceAndKeepsTokenCachedWithSameAPNSToken {
@@ -366,7 +368,7 @@
 
   [self setSandboxAPNSToken:newAPNSToken];
 
-  // The cached tokens are read from the keychain only once.
+  // The cached tokens are read from the keychain only once before `setAPNSToken` returns.
   OCMVerify(times(1), [_mockTokenStore cachedTokenInfos]);
   // The token fetched with the old APNs token is invalidated, and re-fetched with the new one once
   // the installation ID is available.
@@ -375,6 +377,8 @@
   XCTAssertNotNil(installationIDHandler);
   installationIDHandler(@"fake-fid", nil);
   OCMVerifyAll(_mockTokenManager);
+  // The callback reads the cached tokens again, since they may have changed by then.
+  OCMVerify(times(2), [_mockTokenStore cachedTokenInfos]);
 }
 
 @end
