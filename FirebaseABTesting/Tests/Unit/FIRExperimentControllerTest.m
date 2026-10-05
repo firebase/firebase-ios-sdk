@@ -128,6 +128,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   events.expireExperimentEventName = @"_";
   XCTAssertEqualObjects(events.expireExperimentEventName, @"_");
+  events.expireExperimentEventName = @"name_without_prefix";
+  XCTAssertEqualObjects(FIRExpireExperimentEventName, events.expireExperimentEventName);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   events.expireExperimentEventName = nil;

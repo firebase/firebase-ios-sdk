@@ -206,6 +206,7 @@ public final class GenerativeModel: Sendable {
   /// - Returns: The results of running the model's tokenizer on the input; contains
   /// ``CountTokensResponse/totalTokens``.
   public func countTokens(_ content: [ModelContent]) async throws -> CountTokensResponse {
+    try content.throwIfError()
     let requestContent = switch apiConfig.service {
     case .enterprise:
       content

@@ -91,6 +91,33 @@ enum GenerativeModelTestUtil {
     #endif // os(watchOS)
   }
 
+  /// Returns an HTTP request handler that responds with the provided `body`.
+  ///
+  /// The body is written to a temporary file so that it is served line by line, in the same way as
+  /// the fixture files used by `httpRequestHandler(forResource:withExtension:subdirectory:)`.
+  static func httpRequestHandler(body: String, statusCode: Int = 200) throws
+    -> ((URLRequest) throws -> (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      let fileURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("mock-response-\(UUID().uuidString).txt")
+      try XCTUnwrap(body.data(using: .utf8)).write(to: fileURL)
+      return { request in
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: statusCode,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+        return (response, fileURL.lines)
+      }
+    #endif // os(watchOS)
+  }
+
   static func collectTextFromStream(_ stream: AsyncThrowingStream<
     GenerateContentResponse,
     Error
