@@ -52,6 +52,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
 
 // Skip existence test for patterns that start with the following:
 let skipImportPatterns = [
+  "AppCheckCore-Swift.h",
   "FBLPromise",
   "OCMock",
   "OCMStubRecorder",
@@ -159,6 +160,9 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
           // Non-public header imports should be repo-relative paths. Unqualified imports are
           // allowed in private headers.
           if !isPrivate || importFile.contains("/") {
+            if importFileRaw.hasSuffix("-Swift.h") {
+              continue nextLine
+            }
             for skip in skipImportPatterns {
               if importFileRaw.starts(with: skip) {
                 continue nextLine

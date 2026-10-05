@@ -16,56 +16,37 @@
 public struct Backend {
   // MARK: - Public API
 
-  /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
+  /// Initializes a `Backend` configured for the Gemini Enterprise API.
   ///
-  /// Defaults to the location `us-central1`; see
-  /// [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
-  /// for a list of supported locations.
-  @available(*, deprecated, message: """
-  Use agentPlatform(location:) instead; note that the default location is now "global" instead of "us-central1"
-  """)
-  public static func vertexAI() -> Backend {
-    return Backend(
-      apiConfig: APIConfig(
-        service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
-        version: .v1beta
-      )
-    )
-  }
-
-  /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
-  ///
-  /// - Parameters:
-  ///   - location: The region identifier; see
-  ///     [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
-  ///     for a list of supported locations.
-  @available(*, deprecated, renamed: "agentPlatform(location:)", message: """
-  Vertex AI has been renamed to the Agent Platform Gemini API.
-  """)
-  public static func vertexAI(location: String) -> Backend {
-    return Backend(
-      apiConfig: APIConfig(
-        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
-        version: .v1beta
-      )
-    )
-  }
-
-  /// Initializes a `Backend` configured for the Agent Platform Gemini API.
-  ///
-  /// > Note: The Agent Platform Gemini API was formerly known as Vertex AI.
+  /// > Note: The Gemini Enterprise API was formerly known as Vertex AI and, briefly,
+  /// > the Agent Platform Gemini API.
   ///
   /// - Parameters:
   ///   - location: The region identifier, defaulting to `global`; see
-  ///     [Vertex AI locations](https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
-  ///     for a list of supported locations.
-  public static func agentPlatform(location: String = "global") -> Backend {
+  ///     [available locations][1] for a list of supported locations.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
+  public static func enterprise(location: String = "global") -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
+        service: .enterprise(endpoint: .firebaseProxyProd, location: location),
         version: .v1beta
       )
     )
+  }
+
+  /// Initializes a `Backend` configured for the Gemini Enterprise API.
+  ///
+  /// - Parameters:
+  ///   - location: The region identifier, defaulting to `global`; see
+  ///     [available locations][1] for a list of supported locations.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
+  @available(*, deprecated, renamed: "enterprise(location:)", message: """
+  The Agent Platform Gemini API has been renamed to the Gemini Enterprise API.
+  """)
+  public static func agentPlatform(location: String = "global") -> Backend {
+    return enterprise(location: location)
   }
 
   /// Initializes a `Backend` configured for the Gemini Developer API.

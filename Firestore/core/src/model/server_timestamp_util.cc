@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/model/server_timestamp_util.h"
 
+#include <optional>
+
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -34,7 +36,7 @@ const char kServerTimestampSentinel[] = "server_timestamp";
 
 Message<google_firestore_v1_Value> EncodeServerTimestamp(
     const Timestamp& local_write_time,
-    absl::optional<google_firestore_v1_Value> previous_value) {
+    std::optional<google_firestore_v1_Value> previous_value) {
   // We should avoid storing deeply nested server timestamp map values
   // because we never use the intermediate "previous values".
   // For example:
@@ -112,7 +114,7 @@ google_protobuf_Timestamp GetLocalWriteTime(
   HARD_FAIL("LocalWriteTime not found");
 }
 
-absl::optional<google_firestore_v1_Value> GetPreviousValue(
+std::optional<google_firestore_v1_Value> GetPreviousValue(
     const google_firestore_v1_Value& value) {
   for (size_t i = 0; i < value.map_value.fields_count; ++i) {
     const auto& field = value.map_value.fields[i];
@@ -126,7 +128,7 @@ absl::optional<google_firestore_v1_Value> GetPreviousValue(
     }
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace model

@@ -27,8 +27,8 @@ struct ImplicitCacheTests {
   )
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_Flash),
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_Pro),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_Flash),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_Pro),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
   ])

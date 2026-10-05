@@ -536,7 +536,26 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                                             error:&retError];
       if (retError) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
-                    @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
+                    @"RCN Fetch failure: %@. Could not parse response data as JSON", retError);
+      }
+
+      if (fetchedConfig && ![fetchedConfig isKindOfClass:[NSDictionary class]]) {
+        NSString *errStr =
+            [NSString stringWithFormat:@"RCN Fetch failure: Unexpected JSON response type: %@",
+                                       [fetchedConfig class]];
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042", @"%@", errStr);
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil];
+        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
+        NSError *typeError = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                 code:FIRRemoteConfigErrorInternalError
+                                             userInfo:@{NSLocalizedDescriptionKey : errStr}];
+        [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
+                                    withUpdate:nil
+                                     withError:typeError
+                             completionHandler:completionHandler
+                       updateCompletionHandler:updateCompletionHandler];
+        return;
       }
 
       // Check and log if we received an error from the server

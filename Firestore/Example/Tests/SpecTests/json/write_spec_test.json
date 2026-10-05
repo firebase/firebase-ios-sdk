@@ -698,6 +698,504 @@
       }
     ]
   },
+  "Decimal128 increment loses precision locally and recovers on server ack": {
+    "describeName": "Writes:",
+    "itName": "Decimal128 increment loses precision locally and recovers on server ack",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection/doc"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/doc"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sum": {
+                  "__decimal128__": {
+                    "stringValue": "1.000000000000000000000000000000001"
+                  }
+                }
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "1.000000000000000000000000000000001"
+                    }
+                  }
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/doc",
+          {
+            "sum": {
+              "_methodName": "increment",
+              "_operand": 1
+            }
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "2"
+                    }
+                  }
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ]
+      },
+      {
+        "writeAck": {
+          "transformResults": [
+            {
+              "mapValue": {
+                "fields": {
+                  "__decimal128__": {
+                    "stringValue": "2.000000000000000000000000000000001"
+                  }
+                }
+              }
+            }
+          ],
+          "version": 2000
+        },
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/doc"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sum": {
+                  "__decimal128__": {
+                    "stringValue": "2.000000000000000000000000000000001"
+                  }
+                }
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "2.000000000000000000000000000000001"
+                    }
+                  }
+                },
+                "version": 2000
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "Decimal128 increment loses precision locally and recovers when watch arrives before server ack": {
+    "describeName": "Writes:",
+    "itName": "Decimal128 increment loses precision locally and recovers when watch arrives before server ack",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection/doc"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/doc"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sum": {
+                  "__decimal128__": {
+                    "stringValue": "1.000000000000000000000000000000001"
+                  }
+                }
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "1.000000000000000000000000000000001"
+                    }
+                  }
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ]
+      },
+      {
+        "userPatch": [
+          "collection/doc",
+          {
+            "sum": {
+              "_methodName": "increment",
+              "_operand": 1
+            }
+          }
+        ],
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": true,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": true
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "2"
+                    }
+                  }
+                },
+                "version": 0
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/doc",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "sum": {
+                  "__decimal128__": {
+                    "stringValue": "2.000000000000000000000000000000001"
+                  }
+                }
+              },
+              "version": 2000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 2000
+        }
+      },
+      {
+        "writeAck": {
+          "transformResults": [
+            {
+              "mapValue": {
+                "fields": {
+                  "__decimal128__": {
+                    "stringValue": "2.000000000000000000000000000000001"
+                  }
+                }
+              }
+            }
+          ],
+          "version": 2000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "modified": [
+              {
+                "createTime": 0,
+                "key": "collection/doc",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "sum": {
+                    "__decimal128__": {
+                      "stringValue": "2.000000000000000000000000000000001"
+                    }
+                  }
+                },
+                "version": 2000
+              }
+            ],
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection/doc"
+            }
+          }
+        ],
+        "expectedState": {
+          "userCallbacks": {
+            "acknowledgedDocs": [
+              "collection/doc"
+            ],
+            "rejectedDocs": [
+            ]
+          }
+        }
+      }
+    ]
+  },
   "Doesn't raise 'hasPendingWrites' for committed write and new listen": {
     "describeName": "Writes:",
     "itName": "Doesn't raise 'hasPendingWrites' for committed write and new listen",

@@ -37,7 +37,6 @@ product can be one of:
   Messaging
   MessagingSample
   SwiftUISample
-  MLModelDownloaderSample
   RemoteConfig
   RemoteConfigSample
   Sessions
@@ -107,13 +106,14 @@ case "$system" in
 esac
 
 # Source function to check if CI secrets are available.
+# shellcheck disable=SC1091
 source scripts/check_secrets.sh
 
 # Runs xcodebuild with the given flags, piping output to xcbeautify
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
   # Print the command in a copy-pasteable format
-  echo xcodebuild $(printf "%q " "$@")
+  echo xcodebuild "$(printf "%q " "$@")"
 
   if [[ -n "${DRY_RUN:-}" ]]; then
     echo "DRY_RUN is set. Exiting before build."
@@ -132,12 +132,21 @@ function RunXcodebuild() {
     xcbeautify_cmd=(cat)
   fi
 
+  local has_retry_flag=false
+  for arg in "$@"; do
+    if [[ "$arg" == "-retry-tests-on-failure" ]]; then
+      has_retry_flag=true
+      break
+    fi
+  done
+
   local result=0
   NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
-    "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
+    "${xcbeautify_cmd[@]}" \
+    && { [[ "$has_retry_flag" == "true" ]] || CheckUnexpectedFailures "$log_filename"; } \
     || result=$?
 
-  if [[ $result == 65 ]]; then
+  if [[ $result == 65 && "$has_retry_flag" == "false" ]]; then
     ExportLogs "$@"
 
     echo "xcodebuild exited with 65, retrying" 1>&2
@@ -183,6 +192,14 @@ else
   watchos_flags=(
     -destination 'platform=watchOS Simulator,name=Firebase-Apple-Watch-Ultra-2'
   )
+fi
+
+if [[ "$xcode_major" -ge 27 ]]; then
+  spm_macosx_deployment_target="12.0"
+  spm_watchos_deployment_target="9.0"
+else
+  spm_macosx_deployment_target="11.0"
+  spm_watchos_deployment_target="8.0"
 fi
 
 ios_device_flags=(
@@ -364,52 +381,83 @@ case "$product-$platform-$method" in
         build
     ;;
 
-  Firestore-*-xcodebuild)
-      # Memory intensive, so we limit jobs.
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          "${xcb_flags[@]}" \
-          -jobs 4 \
-          build-for-testing
+  Firestore-*-xcodebuild | FirestoreEnterprise-*-xcodebuild)
+      if [[ "$product" == "FirestoreEnterprise" ]]; then
+        scheme="Firestore_IntegrationTests_Enterprise_$platform"
+      else
+        scheme="Firestore_IntegrationTests_$platform"
+      fi
+
+      if compgen -G "Firestore/Example/DerivedData/Build/Products/${scheme}_*.xctestrun" > /dev/null; then
+        echo "Prebuilt xctestrun for $scheme already exists in DerivedData; skipping rebuild."
+      else
+        # Memory intensive, so we limit jobs.
+        # Build both Standard and Enterprise xctestrun files against the same DerivedData
+        # so the binary is compiled only once per platform.
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "Firestore_IntegrationTests_$platform" \
+            -derivedDataPath 'Firestore/Example/DerivedData' \
+            "${xcb_flags[@]}" \
+            -jobs 8 \
+            build-for-testing
+
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
+            -derivedDataPath 'Firestore/Example/DerivedData' \
+            "${xcb_flags[@]}" \
+            -jobs 8 \
+            build-for-testing
+      fi
       ;;
 
-  Firestore-*-xcodetest)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
+  Firestore-*-xcodetest | FirestoreEnterprise-*-xcodetest)
+      if [[ "$product" == "FirestoreEnterprise" ]]; then
+        scheme="Firestore_IntegrationTests_Enterprise_$platform"
+      else
+        scheme="Firestore_IntegrationTests_$platform"
+      fi
 
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_$platform" \
-          -enableCodeCoverage YES \
-          -retry-tests-on-failure \
-          -test-iterations 3 \
-          "${xcb_flags[@]}" \
-          test-without-building
-      ;;
+      if [[ "${USE_FIRESTORE_EMULATOR:-true}" == "true" ]]; then
+        "${firestore_emulator}" start
+        trap '"${firestore_emulator}" stop' ERR EXIT
+      fi
 
-  FirestoreEnterprise-*-xcodebuild)
-      # Memory intensive, so we limit jobs
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
-          "${xcb_flags[@]}" \
-          -jobs 4 \
-          build-for-testing
-      ;;
+      xctestrun_files=(Firestore/Example/DerivedData/Build/Products/${scheme}_*.xctestrun)
+      if [[ -f "${xctestrun_files[0]}" ]]; then
+        # Update GoogleService-Info.plist inside the prebuilt app bundle (for prod/nightly secrets)
+        for app_bundle in Firestore/Example/DerivedData/Build/Products/*/Firestore_Example_*.app; do
+          if [[ -d "$app_bundle/Contents/Resources" ]]; then
+            cp Firestore/Example/App/GoogleService-Info.plist "$app_bundle/Contents/Resources/GoogleService-Info.plist"
+          elif [[ -d "$app_bundle" ]]; then
+            cp Firestore/Example/App/GoogleService-Info.plist "$app_bundle/GoogleService-Info.plist"
+          fi
+          codesign --force --sign - "$app_bundle" 2>/dev/null || true
+        done
 
-  FirestoreEnterprise-*-xcodetest)
-      "${firestore_emulator}" start
-      trap '"${firestore_emulator}" stop' ERR EXIT
+        result_bundle="${PWD}/Firestore/Example/DerivedData/Logs/Test/Test-${scheme}.xcresult"
+        rm -rf "$result_bundle"
+        mkdir -p "$(dirname "$result_bundle")"
 
-      RunXcodebuild \
-          -workspace 'Firestore/Example/Firestore.xcworkspace' \
-          -scheme "Firestore_IntegrationTests_Enterprise_$platform" \
-          -enableCodeCoverage YES \
-          -retry-tests-on-failure \
-          -test-iterations 3 \
-          "${xcb_flags[@]}" \
-          test-without-building
+        RunXcodebuild \
+            -xctestrun "${xctestrun_files[0]}" \
+            -resultBundlePath "$result_bundle" \
+            -enableCodeCoverage YES \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
+            "${xcb_flags[@]}" \
+            test-without-building
+      else
+        RunXcodebuild \
+            -workspace 'Firestore/Example/Firestore.xcworkspace' \
+            -scheme "$scheme" \
+            -enableCodeCoverage YES \
+            -retry-tests-on-failure \
+            -test-iterations 3 \
+            "${xcb_flags[@]}" \
+            test-without-building
+      fi
       ;;
 
   Firestore-macOS-cmake | Firestore-Linux-cmake)
@@ -490,16 +538,6 @@ case "$product-$platform-$method" in
         build
     fi
     ;;
-
-  MLModelDownloaderSample-*-*)
-  if check_secrets; then
-    RunXcodebuild \
-      -workspace 'FirebaseMLModelDownloader/Apps/Sample/MLDownloaderTestApp.xcworkspace' \
-      -scheme "MLDownloaderTestApp" \
-      "${xcb_flags[@]}" \
-      build
-  fi
-  ;;
 
   WatchOSSample-*-*)
     RunXcodebuild \
@@ -783,7 +821,7 @@ case "$product-$platform-$method" in
 
   FirebaseDataConnect-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
@@ -792,18 +830,18 @@ case "$product-$platform-$method" in
 
   *-*-spm)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
-      MACOSX_DEPLOYMENT_TARGET=10.15 \
+      MACOSX_DEPLOYMENT_TARGET="$spm_macosx_deployment_target" \
       TVOS_DEPLOYMENT_TARGET=15.0 \
-      WATCHOS_DEPLOYMENT_TARGET=7.0 \
+      WATCHOS_DEPLOYMENT_TARGET="$spm_watchos_deployment_target" \
       test
     ;;
 
   *-*-spmbuildonly)
     RunXcodebuild \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -811,7 +849,7 @@ case "$product-$platform-$method" in
   ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'IntegrationTesting/ClientApp/ClientApp.xcodeproj' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;
@@ -819,7 +857,7 @@ case "$product-$platform-$method" in
   ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'IntegrationTesting/ClientApp/ClientApp.xcworkspace' \
-      -scheme $product \
+      -scheme "$product" \
       "${xcb_flags[@]}" \
       build
     ;;

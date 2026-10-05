@@ -20,7 +20,6 @@
 #include <string>
 
 #include "Firestore/core/src/util/exception.h"
-#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,11 +28,11 @@ namespace util {
 /**
  * Default throw handler for ObjC/Swift. Typically shouldn't be used directly.
  */
-ABSL_ATTRIBUTE_NORETURN void ObjcThrowHandler(ExceptionType type,
-                                              const char* file,
-                                              const char* func,
-                                              int line,
-                                              const std::string& message);
+[[noreturn]] void ObjcThrowHandler(ExceptionType type,
+                                   const char* file,
+                                   const char* func,
+                                   int line,
+                                   const std::string& message);
 
 }  // namespace util
 }  // namespace firestore

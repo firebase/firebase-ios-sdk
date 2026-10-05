@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/leveldb_mutation_queue.h"
 
 #include <memory>
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/core/query.h"
@@ -332,7 +333,7 @@ LevelDbMutationQueue::AllMutationBatchesAffectingQuery(const Query& query) {
   return AllMutationBatchesWithIds(unique_batch_ids);
 }
 
-absl::optional<MutationBatch> LevelDbMutationQueue::LookupMutationBatch(
+std::optional<MutationBatch> LevelDbMutationQueue::LookupMutationBatch(
     model::BatchId batch_id) {
   std::string key = mutation_batch_key(batch_id);
 
@@ -340,7 +341,7 @@ absl::optional<MutationBatch> LevelDbMutationQueue::LookupMutationBatch(
   Status status = db_->current_transaction()->Get(key, &value);
   if (!status.ok()) {
     if (status.IsNotFound()) {
-      return absl::nullopt;
+      return std::nullopt;
     }
     HARD_FAIL("Lookup mutation batch (%s, %s) failed with status: %s", user_id_,
               batch_id, status.ToString());
@@ -349,7 +350,7 @@ absl::optional<MutationBatch> LevelDbMutationQueue::LookupMutationBatch(
   return ParseMutationBatch(value);
 }
 
-absl::optional<MutationBatch>
+std::optional<MutationBatch>
 LevelDbMutationQueue::NextMutationBatchAfterBatchId(model::BatchId batch_id) {
   BatchId next_batch_id = batch_id + 1;
 
@@ -360,12 +361,12 @@ LevelDbMutationQueue::NextMutationBatchAfterBatchId(model::BatchId batch_id) {
   LevelDbMutationKey row_key;
   if (!it->Valid() || !row_key.Decode(it->key())) {
     // Past the last row in the DB or out of the mutations table
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   if (row_key.user_id() != user_id_) {
     // Jumped past the last mutation for this user
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   HARD_ASSERT(row_key.batch_id() >= next_batch_id,

@@ -24,7 +24,7 @@ import AVFoundation
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
-    case .agentPlatform:
+    case .enterprise:
       [
         (config, ModelNames.gemini2_5_FlashLive),
       ]
@@ -36,7 +36,7 @@ struct LiveSessionTests {
   }
 
   private let oneSecondInNanoseconds = UInt64(1e+9)
-  private let tools: [Tool] = [
+  private let tools: [GenerativeModel.Tool] = [
     .functionDeclarations([
       FunctionDeclaration(
         name: "getLastName",
@@ -362,7 +362,7 @@ struct LiveSessionTests {
       switch $0.0.apiConfig.service {
       case .googleAI:
         true
-      case .agentPlatform:
+      case .enterprise:
         false
       }
     }

@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
   }
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 
@@ -40,6 +40,10 @@ Pod::Spec.new do |s|
   ]
 
   s.dependency 'FirebaseAuth', '> 12.0'
+
+  s.pod_target_xcconfig = {
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAuthTestingSupport'
+  }
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

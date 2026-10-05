@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/memory_bundle_cache.h"
 
+#include <optional>
 #include <string>
 
 namespace firebase {
@@ -25,26 +26,26 @@ namespace local {
 using bundle::BundleMetadata;
 using bundle::NamedQuery;
 
-absl::optional<BundleMetadata> MemoryBundleCache::GetBundleMetadata(
+std::optional<BundleMetadata> MemoryBundleCache::GetBundleMetadata(
     const std::string& bundle_id) const {
   auto got = bundles_.find(bundle_id);
   if (got == bundles_.end()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
-  return absl::make_optional(got->second);
+  return std::make_optional(got->second);
 }
 
 void MemoryBundleCache::SaveBundleMetadata(const BundleMetadata& metadata) {
   bundles_[metadata.bundle_id()] = metadata;
 }
 
-absl::optional<NamedQuery> MemoryBundleCache::GetNamedQuery(
+std::optional<NamedQuery> MemoryBundleCache::GetNamedQuery(
     const std::string& query_name) const {
   auto got = named_queries_.find(query_name);
   if (got == named_queries_.end()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
-  return absl::make_optional(got->second);
+  return std::make_optional(got->second);
 }
 
 void MemoryBundleCache::SaveNamedQuery(const NamedQuery& query) {

@@ -301,6 +301,18 @@ nanopb::Message<google_firestore_v1_Value> VectorType(Args&&... values) {
              details::MakeArray(std::move(values)...));
 }
 
+nanopb::Message<google_firestore_v1_Value> MinKey();
+nanopb::Message<google_firestore_v1_Value> MaxKey();
+nanopb::Message<google_firestore_v1_Value> Regex(std::string pattern,
+                                                 std::string options);
+nanopb::Message<google_firestore_v1_Value> Int32(int32_t value);
+nanopb::Message<google_firestore_v1_Value> Decimal128(std::string value);
+nanopb::Message<google_firestore_v1_Value> BsonObjectId(std::string oid);
+nanopb::Message<google_firestore_v1_Value> BsonTimestamp(uint32_t seconds,
+                                                         uint32_t increment);
+nanopb::Message<google_firestore_v1_Value> BsonBinaryData(
+    uint8_t subtype, std::initializer_list<uint8_t> data);
+
 model::DocumentKey Key(absl::string_view path);
 
 model::FieldPath Field(absl::string_view field);
@@ -464,6 +476,22 @@ std::pair<std::string, model::TransformOperation> ServerTimestamp(
  * above.
  */
 std::pair<std::string, model::TransformOperation> Increment(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * minimum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Minimum(
+    std::string field, nanopb::Message<google_firestore_v1_Value> operand);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a numeric
+ * maximum on the given field, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> Maximum(
     std::string field, nanopb::Message<google_firestore_v1_Value> operand);
 
 /**

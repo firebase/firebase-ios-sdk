@@ -425,6 +425,25 @@ static FakeAnalyticsLogEventHandler _userPropertyHandler;
   [FIRMessagingAnalytics logUserPropertyForConversionTracking:notification toAnalytics:analytics];
 }
 
+- (void)testConversionTrackingWithNonNumericValueDoesNotCrash {
+  // A sender controls the payload types. "google.c.a.tc" is expected to be a numeric
+  // string, but a JSON object/array/null does not respond to -integerValue.
+  for (id trackingValue in @[ @{}, @[ @1 ], [NSNull null] ]) {
+    NSDictionary *notification = @{
+      @"gcm.message_id" : @"0:1522880049414338%944841cd944841cd",
+      @"google.c.a.c_id" : @"575315420755741863",
+      @"google.c.a.e" : @"1",
+      @"google.c.a.tc" : trackingValue,
+    };
+    FakeAnalytics *analytics = [[FakeAnalytics alloc]
+        initWithEventHandler:^(NSString *origin, NSString *name, NSDictionary *parameters) {
+          XCTFail(@"Conversion tracking must not fire for a non-numeric tracking value.");
+        }];
+    XCTAssertNoThrow([FIRMessagingAnalytics logUserPropertyForConversionTracking:notification
+                                                                     toAnalytics:analytics]);
+  }
+}
+
 #if !SWIFT_PACKAGE
 // This test depends on a sharedApplication which is not available in the Swift PM test env.
 - (void)testLogMessage {

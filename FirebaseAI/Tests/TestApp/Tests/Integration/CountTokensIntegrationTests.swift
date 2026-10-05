@@ -24,13 +24,7 @@ import Testing
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
   let generationConfig = GenerationConfig(
-    temperature: 1.2,
-    topP: 0.95,
-    topK: 32,
-    candidateCount: 1,
     maxOutputTokens: 8192,
-    presencePenalty: 1.5,
-    frequencyPenalty: 1.75,
     stopSequences: ["cat", "dog", "bird"]
   )
   let safetySettings = [
@@ -101,7 +95,7 @@ struct CountTokensIntegrationTests {
     let response = try await model.countTokens(prompt)
 
     switch config.apiConfig.service {
-    case .agentPlatform:
+    case .enterprise:
       #expect(response.totalTokens == 65)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting

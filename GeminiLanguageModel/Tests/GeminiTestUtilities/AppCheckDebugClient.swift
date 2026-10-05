@@ -1,0 +1,214 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#if canImport(Darwin)
+  package import Foundation
+#else
+  import Foundation
+#endif
+
+#if canImport(FoundationNetworking)
+  package import FoundationNetworking
+#endif
+
+/// Lightweight client for exchanging and caching App Check debug tokens in integration tests.
+///
+/// The full `FirebaseAppCheck` SDK relies on Keychain access to persist tokens, which is
+/// unavailable when running tests in a headless environment outside an application bundle host
+/// (such as executing `swift test` directly from the command line).
+///
+/// This client directly queries the Firebase App Check REST API
+/// (`projects/{projectID}/apps/{appID}:exchangeDebugToken`) using standard `URLSession` and
+/// retains tokens in-memory.
+///
+/// Unlike the production SDK, token persistence relies on in-memory storage instead of Keychain.
+/// Exchanged tokens are cached with their TTL and automatically refreshed when nearing expiration.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+package actor AppCheckDebugClient {
+  private let projectID: String
+  private let appID: String
+  private let apiKey: String
+  private let debugToken: String
+
+  private var cachedToken: String?
+  private var expirationDate: Date?
+  private var inFlightExchangeTask: Task<String, any Error>?
+  private static let baseURL = URL(string: "https://firebaseappcheck.googleapis.com")!
+
+  /// Initializes the client with the required project, app, and authentication parameters.
+  ///
+  /// - Parameters:
+  ///   - projectID: The Firebase project ID.
+  ///   - appID: The Firebase app ID.
+  ///   - apiKey: The Firebase API key.
+  ///   - debugToken: The App Check debug token.
+  package init(
+    projectID: String,
+    appID: String,
+    apiKey: String,
+    debugToken: String
+  ) {
+    assert(!projectID.isEmpty, "projectID must not be empty.")
+    assert(!appID.isEmpty, "appID must not be empty.")
+    assert(!apiKey.isEmpty, "apiKey must not be empty.")
+    assert(!debugToken.isEmpty, "debugToken must not be empty.")
+    self.projectID = projectID
+    self.appID = appID
+    self.apiKey = apiKey
+    self.debugToken = debugToken
+  }
+
+  /// Exchanges the debug token for an App Check token, caching the result in-memory.
+  ///
+  /// Automatically refreshes the cached token if it has expired or is nearing expiration.
+  ///
+  /// - Parameters:
+  ///   - session: The `URLSession` to use. Defaults to `.shared`.
+  ///   - forceRefresh: Whether to bypass the cached token and fetch a new one.
+  /// - Returns: The exchanged App Check token string.
+  /// - Throws: An error if the request fails or the response cannot be parsed.
+  package func exchangeDebugToken(
+    session: URLSession = .shared,
+    forceRefresh: Bool = false
+  ) async throws -> String {
+    if !forceRefresh, isTokenValid, let cachedToken {
+      return cachedToken
+    }
+    if !forceRefresh, let inFlightExchangeTask {
+      return try await inFlightExchangeTask.value
+    }
+
+    let projectID = self.projectID
+    let appID = self.appID
+    let apiKey = self.apiKey
+    let debugToken = self.debugToken
+
+    let exchangeTask = Task<String, any Error> {
+      let endpointURL = Self.baseURL
+        .appending(component: "v1")
+        .appending(component: "projects")
+        .appending(component: projectID)
+        .appending(component: "apps")
+        .appending(component: "\(appID):exchangeDebugToken")
+
+      var request = URLRequest(url: endpointURL)
+      request.httpMethod = "POST"
+      request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+      request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
+      request.httpBody = try JSONEncoder().encode(RequestBody(debugToken: debugToken))
+
+      let (data, response) = try await session.data(for: request)
+      guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+        let errorBody = String(decoding: data, as: UTF8.self)
+        throw URLError(.badServerResponse, userInfo: ["body": errorBody])
+      }
+
+      let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
+      let ttlSeconds = Self.parseTTLSeconds(decoded.ttl)
+      self.updateCachedToken(
+        decoded.token, expirationDate: Date().addingTimeInterval(ttlSeconds))
+      return decoded.token
+    }
+
+    self.inFlightExchangeTask = exchangeTask
+    do {
+      let token = try await exchangeTask.value
+      self.inFlightExchangeTask = nil
+      return token
+    } catch {
+      self.inFlightExchangeTask = nil
+      throw error
+    }
+  }
+
+  // MARK: - Private Helpers
+
+  /// Indicates whether the currently cached token is valid and not nearing expiration.
+  private var isTokenValid: Bool {
+    guard let cachedToken, !cachedToken.isEmpty, let expirationDate else {
+      return false
+    }
+    // Proactively refresh if within 5 minutes of expiration.
+    return Date().addingTimeInterval(300) < expirationDate
+  }
+
+  private func updateCachedToken(_ token: String, expirationDate: Date) {
+    self.cachedToken = token
+    self.expirationDate = expirationDate
+  }
+
+  private static func parseTTLSeconds(_ ttl: String?) -> TimeInterval {
+    guard let ttl else { return 3600 }
+    let trimmed = ttl.trimmingCharacters(in: .whitespaces)
+    if trimmed.hasSuffix("s") {
+      let secondsString = trimmed.dropLast()
+      return TimeInterval(secondsString) ?? 3600
+    }
+    return TimeInterval(trimmed) ?? 3600
+  }
+}
+
+// MARK: - Private Payload Types
+
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+extension AppCheckDebugClient {
+  fileprivate struct RequestBody: Encodable {
+    let debugToken: String
+  }
+
+  fileprivate struct ResponseBody: Decodable {
+    let token: String
+    let ttl: String?
+  }
+}
+
+/// An in-memory cache for `AppCheckDebugClient` instances across integration tests.
+///
+/// Deduplicates token exchange requests and manages client instances keyed by
+/// `projectID:appID:apiKey:debugToken` so tokens can be reused across parameterized or concurrent
+/// test cases without hitting the exchange endpoint repeatedly.
+@available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+package actor AppCheckTokenCache {
+  package static let shared = AppCheckTokenCache()
+  private var clients: [String: AppCheckDebugClient] = [:]
+
+  /// Retrieves a cached App Check token, initializing a client if needed.
+  package func token(
+    projectID: String,
+    appID: String,
+    apiKey: String,
+    debugToken: String
+  ) async throws -> String {
+    let key = "\(projectID):\(appID):\(apiKey):\(debugToken)"
+    let client: AppCheckDebugClient
+    if let existing = clients[key] {
+      client = existing
+    } else {
+      let newClient = AppCheckDebugClient(
+        projectID: projectID,
+        appID: appID,
+        apiKey: apiKey,
+        debugToken: debugToken
+      )
+      clients[key] = newClient
+      client = newClient
+    }
+    return try await client.exchangeDebugToken()
+  }
+
+  /// Clears all cached clients and tokens.
+  package func reset() {
+    clients.removeAll()
+  }
+}

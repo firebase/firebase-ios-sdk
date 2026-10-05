@@ -15,8 +15,8 @@
 @testable import FirebaseAILogic
 
 extension FirebaseAI {
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+  static let defaultEnterpriseAPIConfig = APIConfig(
+    service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
     version: .v1beta
   )
 }

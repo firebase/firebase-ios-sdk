@@ -581,7 +581,19 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     });
 }
 
+- (void)systemClockDidChange:(NSNotification *)notification {
+    dispatch_async(self.dispatchQueue, ^{
+      [self interruptForReason:kFInterruptReasonSystemClockChange];
+      [self resumeForReason:kFInterruptReasonSystemClockChange];
+    });
+}
+
 - (void)setupNotifications {
+    [[NSNotificationCenter defaultCenter]
+        addObserver:self
+           selector:@selector(systemClockDidChange:)
+               name:NSSystemClockDidChangeNotification
+             object:nil];
 #if TARGET_OS_WATCH
     __weak FPersistentConnection *weakSelf = self;
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];

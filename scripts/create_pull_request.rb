@@ -52,11 +52,17 @@ BASE_BRANCH=@options[:base_branch]
 COMMIT_COMMENT=@options[:commit_comment]
 
 def generate_pr_for_target_changes(repo_root:, target_path:)
-  if `git diff #{TARGET_PATH}`==""
-    puts "The file, #{TARGET_PATH}, has no changes."
-    return
+  abs_target_path = File.expand_path(target_path)
+  Dir.chdir(repo_root) do
+    if system('git', 'diff', '--quiet', abs_target_path)
+      puts "The file, #{target_path}, has no changes."
+      return
+    end
+    system('git', 'checkout', '-B', BASE_BRANCH) || raise("git checkout failed")
+    system('git', 'add', abs_target_path) || raise("git add failed")
+    system('git', 'commit', '-m', COMMIT_COMMENT) || raise("git commit failed")
+    system('git', 'push', '-u', 'origin', BASE_BRANCH) || raise("git push failed")
   end
-  system("cd #{REPO_ROOT}\ngit checkout -b #{BASE_BRANCH}\ngit add #{TARGET_PATH}\ngit commit -m \"#{COMMIT_COMMENT}\"\ngit push -u origin #{BASE_BRANCH}")
   client = Octokit::Client.new(access_token: ACCESS_TOKEN)
   client.create_pull_request("firebase/firebase-ios-sdk", "main", BASE_BRANCH, PR_TITLE, PR_BODY)
 end

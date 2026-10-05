@@ -37,7 +37,7 @@
 ///   ])
 /// ```
 public struct Constant: Expression, BridgeWrapper, @unchecked Sendable {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
 
   let value: Any?
 
@@ -45,9 +45,9 @@ public struct Constant: Expression, BridgeWrapper, @unchecked Sendable {
   init(_ value: Any?) {
     self.value = value
     if value == nil {
-      bridge = ConstantBridge(NSNull())
+      bridge = __ConstantBridge(NSNull())
     } else {
-      bridge = ConstantBridge(value!)
+      bridge = __ConstantBridge(value!)
     }
   }
 

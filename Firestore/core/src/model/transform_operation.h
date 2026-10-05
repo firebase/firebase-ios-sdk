@@ -59,6 +59,8 @@ class TransformOperation {
     ArrayUnion,
     ArrayRemove,
     Increment,
+    Minimum,
+    Maximum,
   };
 
   TransformOperation() = default;
@@ -200,11 +202,26 @@ class ArrayTransform : public TransformOperation {
 };
 
 /**
+ * A parent class for numeric transforms (increment, minimum, and maximum).
+ */
+class NumericTransform : public TransformOperation {
+ public:
+  explicit NumericTransform(const TransformOperation& op);
+
+  const google_firestore_v1_Value& operand() const;
+
+  class Rep;
+
+ protected:
+  explicit NumericTransform(std::shared_ptr<const TransformOperation::Rep> rep);
+};
+
+/**
  * Implements the backend semantics for locally computed NUMERIC_ADD (increment)
  * transforms. Converts all field values to longs or doubles and resolves
  * overflows to LONG_MAX/LONG_MIN.
  */
-class NumericIncrementTransform : public TransformOperation {
+class NumericIncrementTransform : public NumericTransform {
  public:
   explicit NumericIncrementTransform(
       nanopb::Message<google_firestore_v1_Value> operand);
@@ -216,7 +233,45 @@ class NumericIncrementTransform : public TransformOperation {
    */
   explicit NumericIncrementTransform(const TransformOperation& op);
 
-  const google_firestore_v1_Value& operand() const;
+ private:
+  class Rep;
+};
+
+/**
+ * Implements the backend semantics for locally computed NUMERIC_MIN (minimum)
+ * transforms.
+ */
+class NumericMinimumTransform : public NumericTransform {
+ public:
+  explicit NumericMinimumTransform(
+      nanopb::Message<google_firestore_v1_Value> operand);
+
+  /**
+   * Casts a TransformOperation to a NumericMinimumTransform. This is a
+   * checked operation that will assert if the type of the TransformOperation
+   * isn't actually Type::Minimum.
+   */
+  explicit NumericMinimumTransform(const TransformOperation& op);
+
+ private:
+  class Rep;
+};
+
+/**
+ * Implements the backend semantics for locally computed NUMERIC_MAX (maximum)
+ * transforms.
+ */
+class NumericMaximumTransform : public NumericTransform {
+ public:
+  explicit NumericMaximumTransform(
+      nanopb::Message<google_firestore_v1_Value> operand);
+
+  /**
+   * Casts a TransformOperation to a NumericMaximumTransform. This is a
+   * checked operation that will assert if the type of the TransformOperation
+   * isn't actually Type::Maximum.
+   */
+  explicit NumericMaximumTransform(const TransformOperation& op);
 
  private:
   class Rep;

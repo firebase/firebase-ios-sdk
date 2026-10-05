@@ -641,7 +641,7 @@ import Foundation
       components?.queryItems = queryItems
 
       if let appCheck {
-        let tokenResult = await appCheck.getToken(forcingRefresh: false)
+        let tokenResult = await appCheck.getTokenResult(forcingRefresh: false)
         if let error = tokenResult.error {
           AuthLog.logWarning(code: "I-AUT000018",
                              message: "Error getting App Check token; using placeholder " +

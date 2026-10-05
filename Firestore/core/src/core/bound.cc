@@ -74,7 +74,7 @@ ComparisonResult Bound::CompareToDocument(
     ComparisonResult comparison;
     if (ordering_component.field() == FieldPath::KeyFieldPath()) {
       HARD_ASSERT(
-          GetTypeOrder(field_value) == TypeOrder ::kReference,
+          GetTypeOrder(field_value) == TypeOrder::kReference,
           "Bound has a non-key value where the key path is being used %s",
           field_value.ToString());
       auto key = DocumentKey::FromName(

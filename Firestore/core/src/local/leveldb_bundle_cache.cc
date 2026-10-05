@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_bundle_cache.h"
 
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/bundle/bundle_metadata.h"
@@ -39,14 +40,14 @@ LevelDbBundleCache::LevelDbBundleCache(LevelDbPersistence* db,
     : db_(NOT_NULL(db)), serializer_(NOT_NULL(serializer)) {
 }
 
-absl::optional<BundleMetadata> LevelDbBundleCache::GetBundleMetadata(
+std::optional<BundleMetadata> LevelDbBundleCache::GetBundleMetadata(
     const std::string& bundle_id) const {
   auto key = LevelDbBundleKey::Key(bundle_id);
   std::string encoded;
   auto done = db_->current_transaction()->Get(key, &encoded);
 
   if (!done.ok()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   nanopb::StringReader reader{encoded};
@@ -61,7 +62,7 @@ absl::optional<BundleMetadata> LevelDbBundleCache::GetBundleMetadata(
     HARD_FAIL("BundleMetadata proto failed to decode: %s",
               reader.status().ToString());
   }
-  return absl::make_optional(std::move(bundle));
+  return std::make_optional(std::move(bundle));
 }
 
 void LevelDbBundleCache::SaveBundleMetadata(const BundleMetadata& metadata) {
@@ -69,14 +70,14 @@ void LevelDbBundleCache::SaveBundleMetadata(const BundleMetadata& metadata) {
   db_->current_transaction()->Put(key, serializer_->EncodeBundle(metadata));
 }
 
-absl::optional<NamedQuery> LevelDbBundleCache::GetNamedQuery(
+std::optional<NamedQuery> LevelDbBundleCache::GetNamedQuery(
     const std::string& query_name) const {
   auto key = LevelDbNamedQueryKey::Key(query_name);
   std::string encoded;
   auto done = db_->current_transaction()->Get(key, &encoded);
 
   if (!done.ok()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   nanopb::StringReader reader{encoded};
@@ -91,7 +92,7 @@ absl::optional<NamedQuery> LevelDbBundleCache::GetNamedQuery(
     HARD_FAIL("NamedQuery proto failed to decode: %s",
               reader.status().ToString());
   }
-  return absl::make_optional(std::move(named_query));
+  return std::make_optional(std::move(named_query));
 }
 
 void LevelDbBundleCache::SaveNamedQuery(const NamedQuery& query) {

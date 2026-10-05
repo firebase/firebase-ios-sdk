@@ -85,8 +85,7 @@
                                           scope:kFIRMessagingDefaultTokenScope];
   if (cachedTokenInfo.token.length > 0 &&
       [cachedTokenInfo.tokenType isEqualToString:expectedTokenType]) {
-    _defaultFCMToken = [cachedTokenInfo.token copy];
-    return _defaultFCMToken;
+    return cachedTokenInfo.token;
   } else {
     [self tokenWithAuthorizedEntity:self.fcmSenderID
                               scope:kFIRMessagingDefaultTokenScope
