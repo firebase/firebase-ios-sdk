@@ -24,7 +24,7 @@ import AVFoundation
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
-    case .enterprise:
+    case .agentPlatform:
       [
         (config, ModelNames.gemini2_5_FlashLive),
       ]
@@ -362,7 +362,7 @@ struct LiveSessionTests {
       switch $0.0.apiConfig.service {
       case .googleAI:
         true
-      case .enterprise:
+      case .agentPlatform:
         false
       }
     }

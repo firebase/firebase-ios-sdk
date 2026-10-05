@@ -26,7 +26,7 @@ import Foundation
 /// and a `parts` field containing multi-part data that contains the content of
 /// the message turn.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1Content`
 ///
@@ -43,7 +43,7 @@ package struct Content: Codable, Sendable, Equatable, Hashable {
   /// Ordered `Parts` that constitute a single message. Parts may have different
   /// MIME types.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Required. A list of Part objects
   /// that make up a single message. Parts of a message can have different MIME
@@ -62,7 +62,7 @@ package struct Content: Codable, Sendable, Equatable, Hashable {
   /// Useful to set for multi-turn conversations, otherwise can be left blank
   /// or unset.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The producer of the content. Must be either 'user' or 'model'.
   ///

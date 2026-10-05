@@ -22,7 +22,7 @@ extension FunctionDeclaration {
   /// Optional. Specifies the function Behavior.
   /// Currently only supported by the BidiGenerateContent method.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Specifies the function Behavior.
   /// If not specified, the system keeps the current function call behavior.

@@ -22,7 +22,7 @@ extension Part.MediaResolution {
   /// The tokenization quality used for given media.
   ///  for Gemini API support .
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The tokenization quality used for given media.
   package enum Level: Codable, Sendable, Equatable, Hashable {
