@@ -18,7 +18,13 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"

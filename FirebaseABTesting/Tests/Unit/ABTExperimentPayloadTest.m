@@ -117,6 +117,155 @@
   XCTAssertFalse([testPayload3 overflowPolicyIsValid]);
 }
 
+#pragma mark - Malformed payloads
+
+- (void)testParseFromNilOrEmptyData {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  XCTAssertNil([ABTExperimentPayload parseFromData:nil]);
+#pragma clang diagnostic pop
+  XCTAssertNil([ABTExperimentPayload parseFromData:[NSData data]]);
+}
+
+- (void)testParseFromNonDataObject {
+  // Callers pass objects out of untyped arrays; a non-NSData object must not crash.
+  XCTAssertNil([ABTExperimentPayload parseFromData:(NSData *)[NSNull null]]);
+  XCTAssertNil([ABTExperimentPayload parseFromData:(NSData *)@"{\"experimentId\":\"exp_1\"}"]);
+}
+
+- (void)testParseFromGarbageData {
+  NSData *garbage = [@"{\"experimentId\": \"exp_1\", " dataUsingEncoding:NSUTF8StringEncoding];
+  XCTAssertNil([ABTExperimentPayload parseFromData:garbage]);
+}
+
+- (void)testParseFromNonObjectJSON {
+  // Valid JSON whose top level is not an object must be rejected rather than crash.
+  for (NSString *json in
+       @[ @"[]", @"[{\"experimentId\":\"exp_1\"}]", @"\"exp_1\"", @"42", @"null", @"true" ]) {
+    NSData *data = [json dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertNil([ABTExperimentPayload parseFromData:data], @"%@", json);
+  }
+}
+
+- (void)testInitWithNonDictionary {
+  // In-App Messaging hands the server's `experimentPayload` node straight to this initializer.
+  for (id notADictionary in @[ @"exp_1", @[ @"exp_1" ], @42, [NSNull null] ]) {
+    ABTExperimentPayload *payload =
+        [[ABTExperimentPayload alloc] initWithDictionary:(NSDictionary *)notADictionary];
+    XCTAssertNotNil(payload);
+    XCTAssertNil(payload.experimentId);
+    XCTAssertNil(payload.variantId);
+    XCTAssertEqual(payload.experimentStartTimeMillis, 0);
+    XCTAssertEqual(payload.ongoingExperiments.count, 0);
+    XCTAssertFalse([payload overflowPolicyIsValid]);
+  }
+}
+
+- (void)testInitWithNullValues {
+  NSNull *null = [NSNull null];
+  NSDictionary *dictionary = @{
+    @"experimentId" : null,
+    @"variantId" : null,
+    @"experimentStartTime" : null,
+    @"triggerEvent" : null,
+    @"triggerTimeoutMillis" : null,
+    @"timeToLiveMillis" : null,
+    @"setEventToLog" : null,
+    @"activateEventToLog" : null,
+    @"clearEventToLog" : null,
+    @"timeoutEventToLog" : null,
+    @"ttlExpiryEventToLog" : null,
+    @"overflowPolicy" : null,
+    @"ongoingExperiments" : null,
+  };
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:dictionary];
+  XCTAssertNil(payload.experimentId);
+  XCTAssertNil(payload.variantId);
+  XCTAssertNil(payload.triggerEvent);
+  XCTAssertNil(payload.setEventToLog);
+  XCTAssertNil(payload.activateEventToLog);
+  XCTAssertNil(payload.clearEventToLog);
+  XCTAssertNil(payload.timeoutEventToLog);
+  XCTAssertNil(payload.ttlExpiryEventToLog);
+  XCTAssertEqual(payload.experimentStartTimeMillis, 0);
+  XCTAssertEqual(payload.triggerTimeoutMillis, 0);
+  XCTAssertEqual(payload.timeToLiveMillis, 0);
+  XCTAssertEqual(payload.overflowPolicy, ABTExperimentPayloadExperimentOverflowPolicyUnspecified);
+  XCTAssertEqual(payload.ongoingExperiments.count, 0);
+}
+
+- (void)testInitWithWrongValueTypes {
+  NSDictionary *dictionary = @{
+    @"experimentId" : @123,
+    @"variantId" : @[ @"v1" ],
+    @"experimentStartTime" : @456,
+    @"experimentStartTimeMillis" : @{},
+    @"triggerEvent" : @7,
+    @"triggerTimeoutMillis" : @[ @1 ],
+    @"timeToLiveMillis" : @{@"a" : @"b"},
+    @"setEventToLog" : @1,
+    @"activateEventToLog" : @[],
+    @"clearEventToLog" : @{},
+    @"timeoutEventToLog" : @YES,
+    @"ttlExpiryEventToLog" : @2.5,
+    @"overflowPolicy" : @[ @"DISCARD_OLDEST" ],
+    @"ongoingExperiments" : @"exp_1",
+  };
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:dictionary];
+  XCTAssertNil(payload.experimentId);
+  XCTAssertNil(payload.variantId);
+  XCTAssertNil(payload.triggerEvent);
+  XCTAssertNil(payload.setEventToLog);
+  XCTAssertNil(payload.activateEventToLog);
+  XCTAssertNil(payload.clearEventToLog);
+  XCTAssertNil(payload.timeoutEventToLog);
+  XCTAssertNil(payload.ttlExpiryEventToLog);
+  XCTAssertEqual(payload.experimentStartTimeMillis, 0);
+  XCTAssertEqual(payload.triggerTimeoutMillis, 0);
+  XCTAssertEqual(payload.timeToLiveMillis, 0);
+  XCTAssertEqual(payload.overflowPolicy, ABTExperimentPayloadExperimentOverflowPolicyUnspecified);
+  XCTAssertEqual(payload.ongoingExperiments.count, 0);
+}
+
+- (void)testInitWithNumericStrings {
+  // Int64 JSON values are commonly encoded as strings; keep accepting them.
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:@{
+    @"experimentStartTimeMillis" : @"143",
+    @"triggerTimeoutMillis" : @"1000",
+    @"timeToLiveMillis" : @2000,
+    @"overflowPolicy" : @2,
+  }];
+  XCTAssertEqual(payload.experimentStartTimeMillis, 143);
+  XCTAssertEqual(payload.triggerTimeoutMillis, 1000);
+  XCTAssertEqual(payload.timeToLiveMillis, 2000);
+  XCTAssertEqual(payload.overflowPolicy, ABTExperimentPayloadExperimentOverflowPolicyIgnoreNewest);
+}
+
+- (void)testInitWithUnparseableStartTimeString {
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc]
+      initWithDictionary:@{@"experimentId" : @"exp_1", @"experimentStartTime" : @"not a date"}];
+  XCTAssertEqualObjects(payload.experimentId, @"exp_1");
+  XCTAssertEqual(payload.experimentStartTimeMillis, 0);
+}
+
+- (void)testInitWithMalformedOngoingExperiments {
+  NSDictionary *dictionary = @{
+    @"experimentId" : @"exp_1",
+    @"ongoingExperiments" : @[
+      [NSNull null], @"exp_2", @42, @[ @"exp_3" ], @{}, @{@"experimentId" : [NSNull null]},
+      @{@"experimentId" : @99}, @{@"experimentId" : @"exp_4"}
+    ],
+  };
+  ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:dictionary];
+  XCTAssertEqual(payload.ongoingExperiments.count, 1);
+  XCTAssertEqualObjects(payload.ongoingExperiments.firstObject.experimentId, @"exp_4");
+
+  // A dictionary instead of an array must not be enumerated.
+  payload = [[ABTExperimentPayload alloc]
+      initWithDictionary:@{@"ongoingExperiments" : @{@"experimentId" : @"exp_5"}}];
+  XCTAssertEqual(payload.ongoingExperiments.count, 0);
+}
+
 - (NSDate *)dateFromFormattedDateString:(NSString *)dateString {
   return [[ABTExperimentPayload experimentStartTimeFormatter] dateFromString:dateString];
 }

@@ -56,22 +56,21 @@
       }
       if pendingCallbacks.count > 0 {
         pendingCallbacks.append(callback)
-        // TODO(ncooke3): This is likely a bug in that the async wrapper method
-        // cannot make forward progress.
         return
       }
+      pendingRequestGeneration += 1
+      let requestGeneration = pendingRequestGeneration
       pendingCallbacks = [callback]
 
       DispatchQueue.main.async {
         self.application.registerForRemoteNotifications()
       }
-      let applicableCallbacks = pendingCallbacks
       let deadline = DispatchTime.now() + timeout
       kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
-        // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
-        if applicableCallbacks.count == self.pendingCallbacks.count {
-          self.callback(.failure(AuthErrorUtils.missingAppTokenError(underlyingError: nil)))
-        }
+        // Only cancel if this is still the active request and it has not completed.
+        guard requestGeneration == self.pendingRequestGeneration,
+              !self.pendingCallbacks.isEmpty else { return }
+        self.callback(.failure(AuthErrorUtils.missingAppTokenError(underlyingError: nil)))
       }
     }
 
@@ -124,6 +123,7 @@
     /// Enable unit test faking.
     var application: AuthAPNSTokenApplication
     private var pendingCallbacks: [(Result<AuthAPNSToken, Error>) -> Void] = []
+    private var pendingRequestGeneration = 0
 
     private func callback(_ result: Result<AuthAPNSToken, Error>) {
       let pendingCallbacks = self.pendingCallbacks

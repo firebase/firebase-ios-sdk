@@ -136,6 +136,7 @@ NSString *const kFQPIndex = @"i";
 NSString *const kFInterruptReasonServerKill = @"server_kill";
 NSString *const kFInterruptReasonWaitingForOpen = @"waiting_for_open";
 NSString *const kFInterruptReasonRepoInterrupt = @"repo_interrupt";
+NSString *const kFInterruptReasonSystemClockChange = @"system_clock_change";
 
 #pragma mark -
 #pragma mark Payload constants

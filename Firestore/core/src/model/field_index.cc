@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/model/field_index.h"
 
+#include <optional>
+
 namespace firebase {
 namespace firestore {
 namespace model {
@@ -118,7 +120,7 @@ util::ComparisonResult FieldIndex::SemanticCompare(const FieldIndex& left,
   return util::ComparisonResult::Same;
 }
 
-absl::optional<Segment> FieldIndex::GetArraySegment() const {
+std::optional<Segment> FieldIndex::GetArraySegment() const {
   for (const auto& segment : segments_) {
     if (segment.kind() == Segment::kContains) {
       // Firestore queries can only have a single ArrayContains/ArrayContainsAny
@@ -126,7 +128,7 @@ absl::optional<Segment> FieldIndex::GetArraySegment() const {
       return segment;
     }
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace model

@@ -37,7 +37,7 @@ struct ErrorDetails {
     return isErrorInfo() && reason == "SERVICE_DISABLED" && domain == "googleapis.com"
   }
 
-  func isVertexAIInFirebaseServiceDisabledErrorDetails() -> Bool {
+  func isEnterpriseInFirebaseServiceDisabledErrorDetails() -> Bool {
     guard isServiceDisabledError() else {
       return false
     }

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
+internal import FirebaseCoreExtension
 import Foundation
 import os.log
-
-internal import FirebaseCoreExtension
 
 enum AILog {
   /// Log message codes for the Firebase AI SDK
@@ -29,7 +29,7 @@ enum AILog {
     case verboseLoggingEnabled = 101
 
     // API Enablement Errors
-    case agentPlatformInFirebaseAPIDisabled = 200
+    case enterpriseInFirebaseAPIDisabled = 200
 
     // Generative Model Configuration
     case generativeModelInitialized = 1000
@@ -83,15 +83,10 @@ enum AILog {
     case invalidWebsocketURL = 4004
     case duplicateLiveSessionSetupComplete = 4005
     case malformedURL = 4006
-    case invalidToolOutputType = 4007
-    case hybridPrimarySessionInitializationFailed = 4008
-    case hybridPrimaryModelRequestFailed = 4009
-    case hybridPrimaryModelStreamingRequestFailed = 4010
+    case modelContentUnsupportedPartType = 4007
 
     // SDK Debugging
     case loadRequestStreamResponseLine = 5000
-    case foundationModelsResponseTranscript = 5001
-    case foundationModelsStreamResponseTranscript = 5002
   }
 
   /// Subsystem that should be used for all Loggers.

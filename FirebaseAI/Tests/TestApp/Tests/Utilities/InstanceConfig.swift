@@ -20,41 +20,41 @@ import Testing
 @testable import struct FirebaseAILogic.APIConfig
 
 struct InstanceConfig: Equatable, Encodable {
-  static let agentPlatform_v1beta = InstanceConfig(
+  static let enterprise_v1beta = InstanceConfig(
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_appCheckLimitedUse = InstanceConfig(
+  static let enterprise_v1beta_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_global = InstanceConfig(
+  static let enterprise_v1beta_global = InstanceConfig(
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_global_appCheckLimitedUse = InstanceConfig(
+  static let enterprise_v1beta_global_appCheckLimitedUse = InstanceConfig(
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_staging = InstanceConfig(
+  static let enterprise_v1beta_staging = InstanceConfig(
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyStaging, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyStaging, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_staging_global_bypassProxy = InstanceConfig(
+  static let enterprise_v1beta_staging_global_bypassProxy = InstanceConfig(
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .agentPlatformStagingBypassProxy, location: "global"),
+      service: .enterprise(endpoint: .enterpriseStagingBypassProxy, location: "global"),
       version: .v1beta1
     )
   )
@@ -78,13 +78,13 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let defaultConfigs = [
-    agentPlatform_v1beta_global,
+    enterprise_v1beta_global,
     googleAI_v1beta,
     // Note: The following configs are commented out for easy one-off manual testing.
-    // agentPlatform_v1beta,
-    // agentPlatform_v1beta_global_appCheckLimitedUse,
-    // agentPlatform_v1beta_staging,
-    // agentPlatform_v1beta_staging_global_bypassProxy,
+    // enterprise_v1beta,
+    // enterprise_v1beta_global_appCheckLimitedUse,
+    // enterprise_v1beta_staging,
+    // enterprise_v1beta_staging_global_bypassProxy,
     // googleAI_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_staging,
     // googleAI_v1beta_freeTier,
@@ -92,26 +92,26 @@ struct InstanceConfig: Equatable, Encodable {
   ]
 
   static let liveConfigs = [
-    agentPlatform_v1beta,
+    enterprise_v1beta,
     googleAI_v1beta,
     // Note: The following configs are commented out for easy one-off manual testing.
-    // agentPlatform_v1beta_appCheckLimitedUse,
+    // enterprise_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_appCheckLimitedUse,
     // googleAI_v1beta_freeTier,
   ]
 
-  static let agentPlatform_v1beta_appCheckNotConfigured = InstanceConfig(
+  static let enterprise_v1beta_appCheckNotConfigured = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
-  static let agentPlatform_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
+  static let enterprise_v1beta_appCheckNotConfigured_limitedUseTokens = InstanceConfig(
     appName: FirebaseAppNames.appCheckNotConfigured,
     useLimitedUseAppCheckTokens: true,
     apiConfig: APIConfig(
-      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
+      service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
       version: .v1beta
     )
   )
@@ -126,8 +126,8 @@ struct InstanceConfig: Equatable, Encodable {
   )
 
   static let appCheckNotConfiguredConfigs = [
-    agentPlatform_v1beta_appCheckNotConfigured,
-    agentPlatform_v1beta_appCheckNotConfigured_limitedUseTokens,
+    enterprise_v1beta_appCheckNotConfigured,
+    enterprise_v1beta_appCheckNotConfigured_limitedUseTokens,
     googleAI_v1beta_appCheckNotConfigured,
     googleAI_v1beta_appCheckNotConfigured_limitedUseTokens,
   ]
@@ -148,8 +148,8 @@ struct InstanceConfig: Equatable, Encodable {
 
   var serviceName: String {
     switch apiConfig.service {
-    case .agentPlatform:
-      return "Agent Platform"
+    case .enterprise:
+      return "Enterprise"
     case .googleAI:
       return "Google AI"
     }
@@ -170,11 +170,11 @@ extension InstanceConfig: CustomTestStringConvertible {
       " - Staging"
     case .googleAIBypassProxy:
       " - Bypass Proxy"
-    case .agentPlatformStagingBypassProxy:
+    case .enterpriseStagingBypassProxy:
       " - Staging - Bypass Proxy"
     }
     let locationSuffix: String
-    if case let .agentPlatform(_, location: location) = apiConfig.service {
+    if case let .enterprise(_, location: location) = apiConfig.service {
       locationSuffix = " - (\(location))"
     } else {
       locationSuffix = ""
@@ -191,7 +191,7 @@ extension InstanceConfig: CustomTestStringConvertible {
 extension FirebaseAI {
   static func componentInstance(_ instanceConfig: InstanceConfig) -> FirebaseAI {
     switch instanceConfig.apiConfig.service {
-    case .agentPlatform:
+    case .enterprise:
       return FirebaseAI.createInstance(
         app: instanceConfig.app,
         apiConfig: instanceConfig.apiConfig,

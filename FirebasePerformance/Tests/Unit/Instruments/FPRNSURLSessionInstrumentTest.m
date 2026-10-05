@@ -84,6 +84,10 @@
   return self;
 }
 
+- (Class)class {
+  return [self.delegate class];
+}
+
 - (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
   return [_delegate methodSignatureForSelector:selector];
 }
@@ -102,13 +106,39 @@
 
 @end
 
-@interface FPRNSURLSessionDelegateClassReportingProxy : FPRNSURLSessionDelegateProxy
+@interface FPRNSURLSessionDelegateWeakProxy : NSProxy {
+  // The wrapped delegate object.
+  __weak id _delegate;
+}
+
+/** @return an instance of the delegate proxy. */
+- (instancetype)initWithDelegate:(id)delegate;
+
 @end
 
-@implementation FPRNSURLSessionDelegateClassReportingProxy
+@implementation FPRNSURLSessionDelegateWeakProxy
+
+- (instancetype)initWithDelegate:(id)delegate {
+  if (self) {
+    _delegate = delegate;
+  }
+  return self;
+}
 
 - (Class)class {
-  return [[self delegate] class];
+  return [self->_delegate class];
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)selector {
+  return [_delegate methodSignatureForSelector:selector];
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector {
+  return [_delegate respondsToSelector:aSelector];
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation {
+  [invocation invokeWithTarget:_delegate];
 }
 
 @end
@@ -650,20 +680,20 @@
   [instrument deregisterInstrumentors];
 }
 
-/** Tests that proxy delegate lookup uses the proxy's runtime class instead of -class. */
-- (void)testProxyDelegateUsesRuntimeClassWhenProxyReportsWrappedDelegateClass {
-  FPRNSURLSessionTestDelegate *delegate = [[FPRNSURLSessionTestDelegate alloc] init];
-  FPRNSURLSessionDelegateClassReportingProxy *proxyDelegate =
-      [[FPRNSURLSessionDelegateClassReportingProxy alloc] initWithDelegate:delegate];
+/** Tests that the delegate class is not instrumented in an NSProxy if it is weak. */
+- (void)testWeakProxyDelegateSkipsSwizzlingDelegate {
   FPRNSURLSessionInstrument *instrument = [[FPRNSURLSessionInstrument alloc] init];
   [instrument registerInstrumentors];
+  FPRNSURLSessionCompleteTestDelegate *delegate =
+      [[FPRNSURLSessionCompleteTestDelegate alloc] init];
+  FPRNSURLSessionDelegateWeakProxy *proxyDelegate =
+      [[FPRNSURLSessionDelegateWeakProxy alloc] initWithDelegate:delegate];
   NSURLSessionConfiguration *configuration =
       [NSURLSessionConfiguration defaultSessionConfiguration];
-  XCTAssertFalse([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
-  XCTAssertNoThrow([NSURLSession sessionWithConfiguration:configuration
-                                                 delegate:proxyDelegate
-                                            delegateQueue:nil]);
-  XCTAssertTrue([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]);
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  [NSURLSession sessionWithConfiguration:configuration delegate:proxyDelegate delegateQueue:nil];
+  XCTAssertEqual(instrument.delegateInstrument.classInstrumentors.count, 0);
+  XCTAssertEqual(instrument.delegateInstrument.instrumentedClasses.count, 0);
   [instrument deregisterInstrumentors];
 }
 

@@ -27,8 +27,6 @@ import Testing
 
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(temperature: 0.0, topP: 0.0, topK: 1)
   let safetySettings = [
     SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
     SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
@@ -48,9 +46,9 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.enterprise_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
@@ -65,7 +63,6 @@ struct GenerateContentIntegrationTests {
   func generateContent(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings,
     )
     let prompt = "Where is Google headquarters located? Answer with the city name only."
@@ -149,18 +146,18 @@ struct GenerateContentIntegrationTests {
 
   @Test(
     arguments: [
-      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
-      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
-      (.agentPlatform_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.enterprise_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 0)),
+      (.enterprise_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(thinkingBudget: 24576)),
+      (.enterprise_v1beta, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: 24576, includeThoughts: true
       )),
-      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
+      (.enterprise_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: 128)),
       (
-        .agentPlatform_v1beta_global,
+        .enterprise_v1beta_global,
         ModelNames.gemini2_5_Pro,
         ThinkingConfig(thinkingBudget: 32768)
       ),
-      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+      (.enterprise_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: 32768, includeThoughts: true
       )),
       (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: 0)),
@@ -202,12 +199,7 @@ struct GenerateContentIntegrationTests {
                                thinkingConfig: ThinkingConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings
     )
     let chat = model.startChat()
@@ -272,15 +264,15 @@ struct GenerateContentIntegrationTests {
   @Test(
     arguments: [
       (
-        .agentPlatform_v1beta_global,
+        .enterprise_v1beta_global,
         ModelNames.gemini2_5_Flash,
         ThinkingConfig(thinkingBudget: -1)
       ),
-      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
+      (.enterprise_v1beta_global, ModelNames.gemini2_5_Flash, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
-      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
-      (.agentPlatform_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
+      (.enterprise_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(thinkingBudget: -1)),
+      (.enterprise_v1beta_global, ModelNames.gemini2_5_Pro, ThinkingConfig(
         thinkingBudget: -1, includeThoughts: true
       )),
       (.googleAI_v1beta, ModelNames.gemini2_5_FlashLite, ThinkingConfig(thinkingBudget: -1)),
@@ -306,12 +298,7 @@ struct GenerateContentIntegrationTests {
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: GenerationConfig(
-        temperature: 0.0,
-        topP: 0.0,
-        topK: 1,
-        thinkingConfig: thinkingConfig
-      ),
+      generationConfig: GenerationConfig(thinkingConfig: thinkingConfig),
       safetySettings: safetySettings,
       tools: [.functionDeclarations([getTemperatureDeclaration])],
       systemInstruction: ModelContent(parts: """
@@ -358,18 +345,15 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithAspectRatio(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(aspectRatio: .landscape16x9)
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -403,7 +387,7 @@ struct GenerateContentIntegrationTests {
 
   @Test(arguments: [
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateImageWithCustomSize(_ config: InstanceConfig, modelName: String) async throws {
     let imageConfig = ImageConfig(
@@ -414,9 +398,6 @@ struct GenerateContentIntegrationTests {
       imageSize: .size2K
     )
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.image],
       imageConfig: imageConfig
     )
@@ -446,11 +427,11 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini3_1_FlashImage),
   ])
   func generateContent_finishReason_imageSafety(_ config: InstanceConfig,
                                                 modelName: String) async throws {
@@ -466,7 +447,7 @@ struct GenerateContentIntegrationTests {
     do {
       let response = try await model.generateContent(prompt)
 
-      // agentPlatform gemini3_1_FlashImage doesn't throw.
+      // The Gemini Enterprise API's gemini3_1_FlashImage doesn't throw.
       let candidate = try #require(response.candidates.first)
       #expect(candidate.finishReason == .stop)
     } catch {
@@ -484,17 +465,14 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImage(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(
@@ -562,7 +540,7 @@ struct GenerateContentIntegrationTests {
   }
 
   // TODO: b/524685673 - Re-enable googleAI_v1beta once backend bug is fixed.
-  @Test("generateContent with URL Context", arguments: [InstanceConfig.agentPlatform_v1beta_global])
+  @Test("generateContent with URL Context", arguments: [InstanceConfig.enterprise_v1beta_global])
   func generateContent_withURLContext_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
@@ -584,7 +562,6 @@ struct GenerateContentIntegrationTests {
   func generateContent_codeExecution_succeeds(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: ModelNames.gemini3_1_FlashLite,
-      generationConfig: generationConfig,
       tools: [.codeExecution()]
     )
     let prompt = """
@@ -612,14 +589,14 @@ struct GenerateContentIntegrationTests {
   // MARK: Streaming Tests
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashLite),
-    (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashLite),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.enterprise_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
-    // (InstanceConfig.agentPlatform_v1beta_staging, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.enterprise_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
@@ -643,7 +620,6 @@ struct GenerateContentIntegrationTests {
     """
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
-      generationConfig: generationConfig,
       safetySettings: safetySettings
     )
     let chat = model.startChat()
@@ -693,17 +669,14 @@ struct GenerateContentIntegrationTests {
   }
 
   @Test(arguments: [
-    (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashImage),
-    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta, ModelNames.gemini2_5_FlashImage),
+    (InstanceConfig.enterprise_v1beta_global, ModelNames.gemini2_5_FlashImage),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashImage),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashImage)
   ])
   func generateImageStreaming(_ config: InstanceConfig, modelName: String) async throws {
     let generationConfig = GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseModalities: [.text, .image]
     )
     let model = FirebaseAI.componentInstance(config).generativeModel(

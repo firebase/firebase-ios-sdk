@@ -2041,6 +2041,90 @@ static NSString *UTCToLocal(NSString *utcTime) {
                @"FIRRemoteConfig instance was not deallocated. Retain cycle present!");
 }
 
+#pragma mark - Unexpected JSON Response Type Tests
+
+- (void)testFetchWithTopLevelJSONArrayFailsGracefully {
+  RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  NSString *currentAppName = RCNTestsDefaultFIRAppName;
+  FIROptions *currentOptions = [self firstAppOptions];
+  NSString *currentNamespace = RCNTestsFIRNamespace;
+  NSString *fullyQualifiedNamespace =
+      [NSString stringWithFormat:@"%@:%@", currentNamespace, currentAppName];
+
+  FIRRemoteConfig *config = OCMPartialMock([[FIRRemoteConfig alloc] initWithAppName:currentAppName
+                                                                         FIROptions:currentOptions
+                                                                          namespace:currentNamespace
+                                                                          DBManager:_DBManager
+                                                                      configContent:configContent
+                                                                          analytics:nil]);
+  RCNConfigSettings *settings =
+      [[RCNConfigSettings alloc] initWithDatabaseManager:_DBManager
+                                               namespace:fullyQualifiedNamespace
+                                         firebaseAppName:currentAppName
+                                             googleAppID:currentOptions.googleAppID];
+  dispatch_queue_t queue = dispatch_queue_create(
+      [[NSString stringWithFormat:@"testqueue"] cStringUsingEncoding:NSUTF8StringEncoding],
+      DISPATCH_QUEUE_SERIAL);
+  RCNConfigFetch *configFetch =
+      OCMPartialMock([[RCNConfigFetch alloc] initWithContent:configContent
+                                                   DBManager:_DBManager
+                                                    settings:settings
+                                                   analytics:nil
+                                                  experiment:nil
+                                                       queue:queue
+                                                   namespace:fullyQualifiedNamespace
+                                                     options:currentOptions]);
+
+  OCMStub([configFetch fetchConfigWithExpirationDuration:43200 completionHandler:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained void (^handler)(FIRRemoteConfigFetchStatus status,
+                                            NSError *_Nullable error) = nil;
+        [invocation getArgument:&handler atIndex:3];
+        [configFetch fetchWithUserProperties:[[NSDictionary alloc] init]
+                             fetchTypeHeader:@"Base/1"
+                           completionHandler:handler
+                     updateCompletionHandler:nil];
+      });
+
+  // A single-element top-level array used to crash on the server-error check (`count == 1`).
+  NSData *responseData = [NSJSONSerialization dataWithJSONObject:@[ @{@"some" : @"data"} ]
+                                                         options:0
+                                                           error:nil];
+  NSHTTPURLResponse *URLResponse =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:200
+                                 HTTPVersion:nil
+                                headerFields:@{@"etag" : @"etag1"}];
+  id completionBlock = [OCMArg invokeBlockWithArgs:responseData, URLResponse, [NSNull null], nil];
+  OCMStub([configFetch URLSessionDataTaskWithContent:[OCMArg any]
+                                     fetchTypeHeader:@"Base/1"
+                                   completionHandler:completionBlock])
+      .andReturn(nil);
+
+  [config updateWithNewInstancesForConfigFetch:configFetch
+                                 configContent:configContent
+                                configSettings:settings
+                              configExperiment:nil];
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Fetch with top-level JSON array fails gracefully"];
+  XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+
+  FIRRemoteConfigFetchCompletion fetchCompletion =
+      ^void(FIRRemoteConfigFetchStatus status, NSError *error) {
+        XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+        XCTAssertEqual(error.code, FIRRemoteConfigErrorInternalError);
+        [expectation fulfill];
+      };
+
+  [config fetchWithExpirationDuration:43200 completionHandler:fetchCompletion];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout
+                               handler:^(NSError *error) {
+                                 XCTAssertNil(error);
+                               }];
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {

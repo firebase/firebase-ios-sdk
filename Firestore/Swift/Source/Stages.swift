@@ -24,7 +24,7 @@ import Foundation
 
 protocol Stage {
   var name: String { get }
-  var bridge: StageBridge { get }
+  var bridge: __StageBridge { get }
   /// The `errorMessage` defaults to `nil`. Errors during stage construction are captured and thrown
   /// later when `execute()` is called.
   var errorMessage: String? { get }
@@ -39,17 +39,17 @@ extension Stage {
 class CollectionSource: Stage {
   let name: String = "collection"
 
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private let db: Firestore
   private let forceIndex: String?
 
   init(collection: CollectionReference, db: Firestore, forceIndex: String? = nil) {
     self.db = db
     self.forceIndex = forceIndex
-    bridge = CollectionSourceStageBridge(ref: collection, firestore: db, forceIndex: forceIndex)
+    bridge = __CollectionSourceStageBridge(ref: collection, firestore: db, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionSourceStageBridge, db: Firestore, forceIndex: String? = nil) {
+  init(bridge: __CollectionSourceStageBridge, db: Firestore, forceIndex: String? = nil) {
     self.db = db
     self.bridge = bridge
     self.forceIndex = forceIndex
@@ -58,25 +58,25 @@ class CollectionSource: Stage {
 
 class SubcollectionStage: Stage {
   let name: String = "subcollection"
-  let bridge: StageBridge
+  let bridge: __StageBridge
 
   init(path: String) {
-    bridge = SubcollectionSourceStageBridge(path: path)
+    bridge = __SubcollectionSourceStageBridge(path: path)
   }
 }
 
 class CollectionGroupSource: Stage {
   let name: String = "collection_group"
 
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private let forceIndex: String?
 
   init(collectionId: String, forceIndex: String? = nil) {
     self.forceIndex = forceIndex
-    bridge = CollectionGroupSourceStageBridge(collectionId: collectionId, forceIndex: forceIndex)
+    bridge = __CollectionGroupSourceStageBridge(collectionId: collectionId, forceIndex: forceIndex)
   }
 
-  init(bridge: CollectionGroupSourceStageBridge, forceIndex: String? = nil) {
+  init(bridge: __CollectionGroupSourceStageBridge, forceIndex: String? = nil) {
     self.bridge = bridge
     self.forceIndex = forceIndex
   }
@@ -85,13 +85,13 @@ class CollectionGroupSource: Stage {
 // Represents the entire database as a source.
 class DatabaseSource: Stage {
   let name: String = "database"
-  let bridge: StageBridge
+  let bridge: __StageBridge
 
   init() {
-    bridge = DatabaseSourceStageBridge()
+    bridge = __DatabaseSourceStageBridge()
   }
 
-  init(bridge: DatabaseSourceStageBridge) {
+  init(bridge: __DatabaseSourceStageBridge) {
     self.bridge = bridge
   }
 }
@@ -99,16 +99,16 @@ class DatabaseSource: Stage {
 // Represents a list of document references as a source.
 class DocumentsSource: Stage {
   let name: String = "documents"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private let db: Firestore
 
   // Initialize with an array of String paths
   init(docs: [DocumentReference], db: Firestore) {
     self.db = db
-    bridge = DocumentsSourceStageBridge(documents: docs, firestore: db)
+    bridge = __DocumentsSourceStageBridge(documents: docs, firestore: db)
   }
 
-  init(bridge: DocumentsSourceStageBridge, db: Firestore) {
+  init(bridge: __DocumentsSourceStageBridge, db: Firestore) {
     self.db = db
     self.bridge = bridge
   }
@@ -117,17 +117,17 @@ class DocumentsSource: Stage {
 class Where: Stage {
   let name: String = "where"
 
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var condition: BooleanExpression?
   let errorMessage: String?
 
   init(condition: BooleanExpression) {
     self.condition = condition
-    bridge = WhereStageBridge(expr: condition.toBridge())
+    bridge = __WhereStageBridge(expr: condition.toBridge())
     errorMessage = condition.errorMessage
   }
 
-  init(bridge: WhereStageBridge) {
+  init(bridge: __WhereStageBridge) {
     self.bridge = bridge
     errorMessage = nil
   }
@@ -136,13 +136,13 @@ class Where: Stage {
 class Limit: Stage {
   let name: String = "limit"
 
-  let bridge: StageBridge
+  let bridge: __StageBridge
 
   init(_ limit: Int32) {
-    bridge = LimitStageBridge(limit: NSInteger(limit))
+    bridge = __LimitStageBridge(limit: NSInteger(limit))
   }
 
-  init(bridge: LimitStageBridge) {
+  init(bridge: __LimitStageBridge) {
     self.bridge = bridge
   }
 }
@@ -150,20 +150,20 @@ class Limit: Stage {
 class Offset: Stage {
   let name: String = "offset"
 
-  let bridge: StageBridge
+  let bridge: __StageBridge
 
   init(_ offset: Int32) {
-    bridge = OffsetStageBridge(offset: NSInteger(offset))
+    bridge = __OffsetStageBridge(offset: NSInteger(offset))
   }
 
-  init(bridge: OffsetStageBridge) {
+  init(bridge: __OffsetStageBridge) {
     self.bridge = bridge
   }
 }
 
 class AddFields: Stage {
   let name: String = "add_fields"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var selectables: [Selectable]
   let errorMessage: String?
 
@@ -172,88 +172,88 @@ class AddFields: Stage {
     let (map, error) = Helper.selectablesToMap(selectables: selectables)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = AddFieldsStageBridge(fields: [:])
+      bridge = __AddFieldsStageBridge(fields: [:])
     } else {
       errorMessage = nil
       let objcAccumulators = map.mapValues { $0.toBridge() }
-      bridge = AddFieldsStageBridge(fields: objcAccumulators)
+      bridge = __AddFieldsStageBridge(fields: objcAccumulators)
     }
   }
 }
 
 class RemoveFieldsStage: Stage {
   let name: String = "remove_fields"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var fields: [String]
 
   init(fields: [String]) {
     self.fields = fields
-    bridge = RemoveFieldsStageBridge(fields: fields)
+    bridge = __RemoveFieldsStageBridge(fields: fields)
   }
 
   init(fields: [Field]) {
     self.fields = fields.map { $0.fieldName }
-    bridge = RemoveFieldsStageBridge(fields: self.fields)
+    bridge = __RemoveFieldsStageBridge(fields: self.fields)
   }
 }
 
 class Define: Stage {
   let name: String = "let"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   let errorMessage: String?
 
   init(variables: [Selectable]) {
     let (exprMap, error) = Helper.selectablesToMap(selectables: variables)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = DefineStageBridge(variables: [:])
+      bridge = __DefineStageBridge(variables: [:])
     } else {
       errorMessage = nil
       let bridgeVariables = exprMap.mapValues { $0.toBridge() }
-      bridge = DefineStageBridge(variables: bridgeVariables)
+      bridge = __DefineStageBridge(variables: bridgeVariables)
     }
   }
 }
 
 class Select: Stage {
   let name: String = "select"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   let errorMessage: String?
 
   init(selections: [Selectable]) {
     let (map, error) = Helper.selectablesToMap(selectables: selections)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = SelectStageBridge(selections: [:])
+      bridge = __SelectStageBridge(selections: [:])
     } else {
       errorMessage = nil
       let objcSelections = map.mapValues { Helper.sendableToExpr($0).toBridge() }
-      bridge = SelectStageBridge(selections: objcSelections)
+      bridge = __SelectStageBridge(selections: objcSelections)
     }
   }
 }
 
 class Distinct: Stage {
   let name: String = "distinct"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   let errorMessage: String?
 
   init(groups: [Selectable]) {
     let (map, error) = Helper.selectablesToMap(selectables: groups)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = DistinctStageBridge(groups: [:])
+      bridge = __DistinctStageBridge(groups: [:])
     } else {
       errorMessage = nil
       let objcGroups = map.mapValues { Helper.sendableToExpr($0).toBridge() }
-      bridge = DistinctStageBridge(groups: objcGroups)
+      bridge = __DistinctStageBridge(groups: objcGroups)
     }
   }
 }
 
 class Aggregate: Stage {
   let name: String = "aggregate"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var accumulators: [AliasedAggregate]
   private var groups: [String: Expression] = [:]
   let errorMessage: String?
@@ -265,7 +265,7 @@ class Aggregate: Stage {
       let (map, error) = Helper.selectablesToMap(selectables: groups)
       if let error = error {
         errorMessage = error.localizedDescription
-        bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+        bridge = __AggregateStageBridge(accumulators: [:], groups: [:])
         return
       }
       self.groups = map
@@ -274,13 +274,13 @@ class Aggregate: Stage {
     let (accumulatorsMap, error) = Helper.aliasedAggregatesToMap(accumulators: accumulators)
     if let error = error {
       errorMessage = error.localizedDescription
-      bridge = AggregateStageBridge(accumulators: [:], groups: [:])
+      bridge = __AggregateStageBridge(accumulators: [:], groups: [:])
       return
     }
 
     errorMessage = nil
     let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
-    bridge = AggregateStageBridge(
+    bridge = __AggregateStageBridge(
       accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
     )
@@ -289,7 +289,7 @@ class Aggregate: Stage {
 
 class FindNearest: Stage {
   let name: String = "find_nearest"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var field: Field
   private var vectorValue: VectorValue
   private var distanceMeasure: DistanceMeasure
@@ -306,8 +306,8 @@ class FindNearest: Stage {
     self.distanceMeasure = distanceMeasure
     self.limit = limit
     self.distanceField = distanceField
-    bridge = FindNearestStageBridge(
-      field: field.bridge as! FieldBridge,
+    bridge = __FindNearestStageBridge(
+      field: field.bridge as! __FieldBridge,
       vectorValue: vectorValue,
       distanceMeasure: distanceMeasure.kind.rawValue,
       limit: limit as NSNumber?,
@@ -318,7 +318,7 @@ class FindNearest: Stage {
 
 class Search: Stage {
   let name: String = "search"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   let errorMessage: String?
 
   init(query: Expression? = nil,
@@ -360,7 +360,7 @@ class Search: Stage {
     var errors: [String] = []
 
     // add_fields is a map_value and map function expression is not supported
-    var addFieldsBridge: [String: ExprBridge] = [:]
+    var addFieldsBridge: [String: __ExprBridge] = [:]
     if let addFields = addFields {
       let (map, error) = Helper.selectablesToMap(selectables: addFields)
       if let error = error {
@@ -371,7 +371,7 @@ class Search: Stage {
     }
 
     // select is a map_value and map function expression is not supported
-    var selectBridge: [String: ExprBridge] = [:]
+    var selectBridge: [String: __ExprBridge] = [:]
     if let select = select {
       let (map, error) = Helper.selectablesToMap(selectables: select)
       if let error = error {
@@ -383,19 +383,19 @@ class Search: Stage {
 
     if !errors.isEmpty {
       errorMessage = errors.joined(separator: "\n")
-      bridge = SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
+      bridge = __SearchStageBridge(options: [:], addFields: [:], select: [:], sort: [])
       return
     }
 
     // sort is an array_value and array function expression is not supported
-    var sortBridge: [OrderingBridge] = []
+    var sortBridge: [__OrderingBridge] = []
     if let sort = sort {
       sortBridge = sort.map { $0.bridge }
     }
 
     errorMessage = nil
     let bridgeOptions = options.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = SearchStageBridge(
+    bridge = __SearchStageBridge(
       options: bridgeOptions,
       addFields: addFieldsBridge,
       select: selectBridge,
@@ -406,66 +406,66 @@ class Search: Stage {
 
 class Sort: Stage {
   let name: String = "sort"
-  let bridge: StageBridge
+  let bridge: __StageBridge
 
   init(orderings: [Ordering]) {
-    bridge = SortStageBridge(orderings: orderings.map { $0.bridge })
+    bridge = __SortStageBridge(orderings: orderings.map { $0.bridge })
   }
 
-  init(bridge: SortStageBridge) {
+  init(bridge: __SortStageBridge) {
     self.bridge = bridge
   }
 }
 
 class ReplaceWith: Stage {
   let name: String = "replace_with"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var expr: Expression
   let errorMessage: String?
 
   init(expr: Expression) {
     self.expr = expr
-    bridge = ReplaceWithStageBridge(expr: expr.toBridge())
+    bridge = __ReplaceWithStageBridge(expr: expr.toBridge())
     errorMessage = expr.errorMessage
   }
 }
 
 class Sample: Stage {
   let name: String = "sample"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var count: Int64?
   private var percentage: Double?
 
   init(count: Int64) {
     self.count = count
     percentage = nil
-    bridge = SampleStageBridge(count: count)
+    bridge = __SampleStageBridge(count: count)
   }
 
   init(percentage: Double) {
     self.percentage = percentage
     count = nil
-    bridge = SampleStageBridge(percentage: percentage)
+    bridge = __SampleStageBridge(percentage: percentage)
   }
 }
 
 class Union: Stage {
   let name: String = "union"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var other: Pipeline
 
   let errorMessage: String?
 
   init(other: Pipeline) {
     self.other = other
-    bridge = UnionStageBridge(other: other.pipelineBridge)
+    bridge = __UnionStageBridge(other: other.pipelineBridge)
     errorMessage = other.errorMessage
   }
 }
 
 class Unnest: Stage {
   let name: String = "unnest"
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var alias: Expression
   private var field: Expression
   private var indexField: String?
@@ -478,7 +478,7 @@ class Unnest: Stage {
     self.indexField = indexField
     errorMessage = self.field.errorMessage ?? alias.errorMessage
 
-    bridge = UnnestStageBridge(
+    bridge = __UnnestStageBridge(
       field: self.field.toBridge(),
       alias: alias.toBridge(),
       indexField: indexField.map { Field($0).toBridge() } ?? nil
@@ -488,7 +488,7 @@ class Unnest: Stage {
 
 class RawStage: Stage {
   let name: String
-  let bridge: StageBridge
+  let bridge: __StageBridge
   private var params: [Sendable]
   private var options: [String: Sendable]?
   let errorMessage: String? = nil
@@ -499,6 +499,6 @@ class RawStage: Stage {
     self.options = options
     let bridgeParams = params.map { Helper.sendableToAnyObjectForRawStage($0) }
     let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
-    bridge = RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
+    bridge = __RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
   }
 }

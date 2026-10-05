@@ -665,6 +665,99 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
 }
 
+- (void)testAppStartNotifiesDelegateWhenCachedV4TokenExists {
+  // FirebaseMessaging.isInstallationIdEnabled should return NO.
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(NO);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"fake-cached-v4-token"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"V4"];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:@"123456789123"
+                                            scope:kFIRMessagingDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  // Setup installations ID.
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-iid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  // Setup message delegate.
+  id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
+  self.messaging.delegate = mockDelegate;
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Delegate received registration token on app start."];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  OCMStub([mockDelegate messaging:OCMOCK_ANY didReceiveRegistrationToken:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSString *token;
+        [invocation getArgument:&token atIndex:3];
+        XCTAssertEqualObjects(token, @"fake-cached-v4-token");
+        [expectation fulfill];
+      });
+#pragma clang diagnostic pop
+
+  // Configure messaging to simulate app start with cached token.
+  [self.messaging configureMessagingWithOptions:mockOptions];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testAppStartNotifiesDelegateWhenCachedFidExists {
+  // FirebaseMessaging.isInstallationIdEnabled should return YES.
+  OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);
+
+  id mockOptions = OCMClassMock([FIROptions class]);
+  OCMStub([mockOptions GCMSenderID]).andReturn(@"123456789123");
+  OCMStub([(FIRApp *)self.mockFirebaseApp options]).andReturn(mockOptions);
+
+  FIRMessagingTokenInfo *cachedTokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"fake-cached-fid"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"FID"];
+  OCMStub([self.mockTokenManager
+              cachedTokenInfoWithAuthorizedEntity:@"123456789123"
+                                            scope:kFIRMessagingDefaultTokenScope])
+      .andReturn(cachedTokenInfo);
+
+  // Setup installations ID.
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  // Setup message delegate.
+  id mockDelegate = OCMProtocolMock(@protocol(FIRMessagingDelegate));
+  self.messaging.delegate = mockDelegate;
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Delegate received registration on app start."];
+  OCMStub([mockDelegate messaging:OCMOCK_ANY didReceiveRegistration:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSString *installationId;
+        [invocation getArgument:&installationId atIndex:3];
+        XCTAssertEqualObjects(installationId, @"fake-cached-fid");
+        [expectation fulfill];
+      });
+
+  // Configure messaging to simulate app start with cached FID token.
+  [self.messaging configureMessagingWithOptions:mockOptions];
+
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
 - (void)testSubscribeToTopicWhenInstallationIdEnabled {
   // FirebaseMessaging.isInstallationIdEnabled should return YES.
   OCMStub([self.mockMessaging isInstallationIdEnabled]).andReturn(YES);

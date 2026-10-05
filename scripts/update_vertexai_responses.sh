@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script replaces mock response files for Gemini Enterprise Agent Platform unit tests with a fresh
+# This script replaces mock response files for Gemini Enterprise API unit tests with a fresh
 # clone of the shared repository of mock test data.
 
 cd "$(dirname "$0")/../FirebaseAI/Tests/Unit" || exit

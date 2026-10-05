@@ -26,6 +26,8 @@ on:
   pull_request:
     paths:
     - 'ReleaseTooling/Sources/**'
+    - 'Firestore/Source/Public/**'
+    - 'FirebaseFirestoreInternal/**'
     - '.github/workflows/release.zip.yml'
     - '.github/workflows/_quickstart.framework.yml'
     - 'scripts/zip/**'
@@ -251,7 +253,6 @@ jobs:
                 NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
                 scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 

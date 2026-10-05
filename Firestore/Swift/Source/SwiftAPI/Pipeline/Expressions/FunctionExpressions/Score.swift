@@ -32,7 +32,7 @@ import Foundation
 /// )
 /// ```
 public struct Score: Expression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
+  public let bridge: __ExprBridge
 
   public init() {
     let funcExpr = FunctionExpression(functionName: "score", args: [])

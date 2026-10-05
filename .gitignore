@@ -31,10 +31,6 @@ FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchAppWatchApp
 FirebaseStorage/Tests/ObjCIntegration/Credentials.h
 FirebaseStorage/Tests/Integration/Credentials.swift
 
-# FirebaseMLModelDownloader integration tests GoogleService-Info.plist
-FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
-FirebaseMLModelDownloader/Apps/Sample/**/GoogleService-Info.plist
-
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist
 

@@ -41,7 +41,7 @@ struct BidiGenerateContentSetup: Encodable {
   /// A `Tool` is a piece of code that enables the system to interact with
   /// external systems to perform an action, or set of actions, outside of
   /// knowledge and scope of the model.
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
 
   let toolConfig: ToolConfig?
 
@@ -66,7 +66,7 @@ struct BidiGenerateContentSetup: Encodable {
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
-       tools: [Tool]? = nil,
+       tools: [GenerativeModel.Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
        outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,

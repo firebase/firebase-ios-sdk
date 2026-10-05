@@ -23,9 +23,9 @@
 ///     .select([Variable("doc").getField("title")])
 /// ```
 public struct CurrentDocument: Expression, BridgeWrapper {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
 
   public init() {
-    bridge = FunctionExprBridge(name: "current_document", args: [])
+    bridge = __FunctionExprBridge(name: "current_document", args: [])
   }
 }

@@ -17,6 +17,7 @@
 #include "Firestore/core/src/remote/stream.h"
 
 #include <chrono>
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -118,8 +119,8 @@ void Stream::RequestCredentials() {
   int initial_close_count = close_count_;
 
   auto done = [weak_this, credentials, initial_close_count](
-                  const absl::optional<StatusOr<AuthToken>>& auth,
-                  const absl::optional<std::string>& app_check) {
+                  const std::optional<StatusOr<AuthToken>>& auth,
+                  const std::optional<std::string>& app_check) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
@@ -156,11 +157,11 @@ void Stream::RequestCredentials() {
   };
 
   auth_credentials_provider_->GetToken(
-      [done](const StatusOr<AuthToken>& auth) { done(auth, absl::nullopt); });
+      [done](const StatusOr<AuthToken>& auth) { done(auth, std::nullopt); });
 
   app_check_credentials_provider_->GetToken(
       [done](const StatusOr<std::string>& app_check) {
-        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
+        done(std::nullopt, app_check.ValueOrDie());  // AppCheck never fails
       });
 }
 

@@ -26,7 +26,7 @@
 ///     .select([Field("name"), Variable("discountedPrice")])
 /// ```
 public struct Variable: Expression, BridgeWrapper {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
 
   let name: String
 
@@ -35,6 +35,6 @@ public struct Variable: Expression, BridgeWrapper {
   /// - Parameter name: The name of the variable.
   public init(_ name: String) {
     self.name = name
-    bridge = VariableBridge(name: name)
+    bridge = __VariableBridge(name: name)
   }
 }
