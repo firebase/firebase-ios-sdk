@@ -45,6 +45,10 @@
 
 - (void)systemClockDidChange:(NSNotification *)notification;
 - (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body;
+- (void)sendOnDisconnectAction:(NSString *)action
+                       forPath:(NSString *)pathString
+                      withData:(id)data
+                   andCallback:(fbt_void_nsstring_nsstring)callback;
 
 @end
 
@@ -130,11 +134,19 @@
   XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:(id) @"not a dict"]);
 }
 
-// A response whose body is not a JSON object must be dropped rather than passed
-// to the request callback, which reads it with -objectForKey:.
-- (void)testResponseWithNonDictionaryBodyIsIgnored {
-  NSDictionary *response = @{kFWPRequestNumber : @1, kFWPResponseForRNData : @"not a dict"};
-  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:response]);
+// A response whose body is not a JSON object must not be passed to the request
+// callback as is, since the callback reads it with -objectForKey:. The request
+// should complete as an ordinary failure instead.
+- (void)testResponseWithNonDictionaryBodyFailsRequest {
+  XCTAssertEqualObjects([self statusOfRequestAnsweredWithBody:@"not a dict"],
+                        kFWPResponseForActionStatusFailed);
+}
+
+// A status that is not a string is reported as a failure too, rather than as nil.
+- (void)testResponseWithNonStringStatusFailsRequest {
+  NSDictionary *body = @{kFWPResponseForActionStatus : @5};
+  XCTAssertEqualObjects([self statusOfRequestAnsweredWithBody:body],
+                        kFWPResponseForActionStatusFailed);
 }
 
 - (void)testMalformedServerPushIsIgnored {
@@ -153,6 +165,21 @@
       @{kFWPAsyncServerDataUpdateBodyPath : @42, kFWPAsyncServerDataUpdateBodyData : @"value"};
   XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
                                                  andBody:nonStringPathUpdate]);
+  // Merge whose data is not a JSON object.
+  NSDictionary *nonDictMerge = @{
+    kFWPAsyncServerDataUpdateBodyPath : @"/",
+    kFWPAsyncServerDataUpdateBodyData : @"not a dict"
+  };
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataMerge
+                                                 andBody:nonDictMerge]);
+  // Data update with a non-numeric tag.
+  NSDictionary *nonNumericTagUpdate = @{
+    kFWPAsyncServerDataUpdateBodyPath : @"/",
+    kFWPAsyncServerDataUpdateBodyData : @"value",
+    kFWPAsyncServerDataUpdateBodyTag : @"not a number"
+  };
+  XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerDataUpdate
+                                                 andBody:nonNumericTagUpdate]);
   // Range merge whose ranges are not an array.
   NSDictionary *nonArrayRanges =
       @{kFWPAsyncServerDataUpdateBodyPath : @"/", kFWPAsyncServerDataUpdateBodyData : @"not array"};
@@ -197,6 +224,25 @@
   NSDictionary *body = @{@"msg" : @5};
   XCTAssertNoThrow([self.connection onDataPushWithAction:kFWPAsyncServerSecurityDebug
                                                  andBody:body]);
+}
+
+// Sends a request so that a callback is registered for it, answers it with the
+// given response body, and returns the status its completion received. Returns
+// nil if the completion never ran.
+- (NSString *)statusOfRequestAnsweredWithBody:(id)body {
+  __block NSString *receivedStatus = nil;
+  [self.connection sendOnDisconnectAction:kFWPRequestActionDisconnectCancel
+                                  forPath:@"/"
+                                 withData:[NSNull null]
+                              andCallback:^(NSString *status, NSString *errorReason) {
+                                receivedStatus = status;
+                              }];
+
+  // Request numbers start at 1 and the connection is fresh, so the request
+  // above is number 1.
+  NSDictionary *response = @{kFWPRequestNumber : @1, kFWPResponseForRNData : body};
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:response]);
+  return receivedStatus;
 }
 
 - (void)waitForConnectionQueue {

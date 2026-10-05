@@ -32,6 +32,7 @@
 @interface FConnectionTestDelegate : NSObject <FConnectionDelegate>
 @property(nonatomic) BOOL didBecomeReady;
 @property(nonatomic) BOOL didReceiveDataMessage;
+@property(nonatomic) BOOL didDisconnect;
 @end
 
 @implementation FConnectionTestDelegate
@@ -44,6 +45,7 @@
   self.didReceiveDataMessage = YES;
 }
 - (void)onDisconnect:(FConnection *)fconnection withReason:(FDisconnectReason)reason {
+  self.didDisconnect = YES;
 }
 - (void)onKill:(FConnection *)fconnection withReason:(NSString *)reason {
 }
@@ -54,10 +56,16 @@
 
 @implementation FConnectionTest
 
+- (FRepoInfo *)makeRepoInfo {
+  return [[FRepoInfo alloc] initWithHost:@"foo.firebaseio.com" isSecure:YES withNamespace:@"foo"];
+}
+
 - (FConnection *)connectionWithDelegate:(FConnectionTestDelegate *)delegate {
-  FRepoInfo *info = [[FRepoInfo alloc] initWithHost:@"foo.firebaseio.com"
-                                           isSecure:YES
-                                      withNamespace:@"foo"];
+  return [self connectionWithRepoInfo:[self makeRepoInfo] delegate:delegate];
+}
+
+- (FConnection *)connectionWithRepoInfo:(FRepoInfo *)info
+                               delegate:(FConnectionTestDelegate *)delegate {
   FConnection *connection = [[FConnection alloc] initWith:info
                                          andDispatchQueue:dispatch_get_main_queue()
                                               googleAppID:@"1:1234:ios:1234"
@@ -91,21 +99,34 @@
   XCTAssertNoThrow([connection onControl:nonStringType]);
 }
 
-- (void)testMalformedHandshakeIsIgnored {
-  FConnectionTestDelegate *delegate = [[FConnectionTestDelegate alloc] init];
-  FConnection *connection = [self connectionWithDelegate:delegate];
-
+// A malformed handshake can't move the connection into the connected state, so
+// it closes the connection and lets the normal retry logic reconnect. A closed
+// FConnection stays closed, so every case runs against a fresh one.
+- (void)testMalformedHandshakeClosesConnection {
   // Handshake is not a JSON object.
-  XCTAssertNoThrow([connection onHandshake:(id) @"not a dict"]);
+  [self assertHandshakeClosesConnection:@"not a dict" repoInfo:[self makeRepoInfo]];
+
   // Handshake with a non-numeric timestamp.
   NSDictionary *nonNumericTimestamp = @{kFWPAsyncServerHelloTimestamp : @"soon"};
-  XCTAssertNoThrow([connection onHandshake:nonNumericTimestamp]);
-  // Handshake with a non-string host.
+  [self assertHandshakeClosesConnection:nonNumericTimestamp repoInfo:[self makeRepoInfo]];
+
+  // Handshake with a non-string host. The bad host must not replace the one the
+  // repo info already has.
   NSDictionary *nonStringHost =
       @{kFWPAsyncServerHelloTimestamp : @123, kFWPAsyncServerHelloConnectedHost : @5};
-  XCTAssertNoThrow([connection onHandshake:nonStringHost]);
+  FRepoInfo *info = [self makeRepoInfo];
+  NSString *internalHost = info.internalHost;
+  [self assertHandshakeClosesConnection:nonStringHost repoInfo:info];
+  XCTAssertEqualObjects(info.internalHost, internalHost);
+}
 
-  XCTAssertFalse(delegate.didBecomeReady);
+- (void)assertHandshakeClosesConnection:(id)handshake repoInfo:(FRepoInfo *)info {
+  FConnectionTestDelegate *delegate = [[FConnectionTestDelegate alloc] init];
+  FConnection *connection = [self connectionWithRepoInfo:info delegate:delegate];
+
+  XCTAssertNoThrow([connection onHandshake:handshake], @"handshake: %@", handshake);
+  XCTAssertTrue(delegate.didDisconnect, @"handshake: %@", handshake);
+  XCTAssertFalse(delegate.didBecomeReady, @"handshake: %@", handshake);
 }
 
 @end

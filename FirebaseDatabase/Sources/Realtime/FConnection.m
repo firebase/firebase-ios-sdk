@@ -253,7 +253,11 @@ typedef enum {
         return;
     }
 
-    self.repoInfo.internalHost = host;
+    // Only update the host when the handshake includes one, so a handshake
+    // without it keeps the cached host instead of clearing it.
+    if (host != nil) {
+        self.repoInfo.internalHost = host;
+    }
 
     if (state == REALTIME_STATE_CONNECTING) {
         [self.conn start];
