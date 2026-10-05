@@ -144,7 +144,7 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
                                inputs: [String: TemplateInput] = [:],
                                history: [ModelContent] = [],
                                stream: Bool = false,
-                               apiConfig: APIConfig = FirebaseAI.defaultVertexAIAPIConfig,
+                               apiConfig: APIConfig = FirebaseAI.defaultAgentPlatformAPIConfig,
                                tools: [TemplateTool.Internal]? = nil,
                                toolConfig: TemplateToolConfig? = nil)
     -> TemplateGenerateContentRequest {
