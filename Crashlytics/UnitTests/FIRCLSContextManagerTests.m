@@ -136,14 +136,24 @@ NSString *const TestContextSessionID2 = @"TestContextSessionID2";
                                                            settings:self.mockSettings
                                                         fileManager:self.fileManager];
 
+  XCTestExpectation *chainedBlocksRan =
+      [self expectationWithDescription:@"All blocks chained on the init promise ran"];
+  chainedBlocksRan.expectedFulfillmentCount = 100;
+  chainedBlocksRan.assertForOverFulfill = YES;
+
   for (int i = 0; i < 100; i++) {
     [promise then:^id _Nullable(id _Nullable value) {
       [result addObject:[NSString stringWithFormat:@"%d", i]];
-      if (i == 99) {
-        XCTAssertTrue([result isEqualToArray:expectation]);
-      }
+      [chainedBlocksRan fulfill];
       return nil;
     }];
   }
+
+  // Wait for context initialization and every chained block before returning. Otherwise the
+  // background work started by FIRCLSContextInitialize keeps running into the next test, racing
+  // with its re-initialization of the global Crashlytics context and with tearDown deleting the
+  // report directory, which intermittently crashes the test process.
+  [self waitForExpectations:@[ chainedBlocksRan ] timeout:30];
+  XCTAssertEqualObjects(result, expectation);
 }
 @end
