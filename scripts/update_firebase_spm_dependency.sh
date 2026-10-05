@@ -37,10 +37,12 @@ EOF
 # State tracked for cleanup trap
 temp_file=""
 pbxproj_path=""
+backup_successful=false
 
 cleanup() {
   local status=$?
-  if [[ ${status} -ne 0 && -n "${temp_file}" && -f "${temp_file}" ]]; then
+  if [[ ${status} -ne 0 && "${backup_successful}" == "true" \
+        && -n "${temp_file}" && -f "${temp_file}" ]]; then
     mv "${temp_file}" "${pbxproj_path}" 2>/dev/null || true
   fi
   if [[ -n "${temp_file}" ]]; then
@@ -121,14 +123,16 @@ main() {
 
   temp_file="$(mktemp "${TMPDIR:-/tmp}/pbxproj_backup.XXXXXX")"
   cp "${pbxproj_path}" "${temp_file}"
+  backup_successful=true
 
   # Pass variables through the environment to avoid regex delimiter injection
   # and Perl variable interpolation collisions.
   KIND="${kind}" KEY="${key}" VALUE="${value}" perl -0777 -i -pe '
-    my $repo = qr#repositoryURL = "https?://github\.com/firebase/firebase-ios-sdk(?:\.git)?";#;
-    my $isa = qr#isa = XCRemoteSwiftPackageReference;#;
+    my $repo =
+      qr#repositoryURL\s*=\s*"https?://github\.com/firebase/firebase-ios-sdk(?:\.git)?";#;
+    my $isa = qr#isa\s*=\s*XCRemoteSwiftPackageReference;#;
     my $header = qr#(?:${isa}\s*${repo}|${repo}\s*${isa})#;
-    my $pattern = qr#${header}\s*\Krequirement = \{[^}]*\};#;
+    my $pattern = qr#${header}\s*\Krequirement\s*=\s*\{[^}]*\};#;
 
     my $kind = $ENV{"KIND"};
     my $key  = $ENV{"KEY"};
