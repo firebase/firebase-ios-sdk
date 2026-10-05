@@ -21,7 +21,7 @@ import Synchronization
   package import FoundationNetworking
 #endif
 
-/// An HTTP client that streams bytes and lines of text using `URLSession`.
+/// A cross-platform HTTP client that performs unary and streaming requests using `URLSession`.
 ///
 /// Supports Apple platforms and Linux with full Swift 6 strict concurrency compliance.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -44,6 +44,21 @@ package final class HTTPStreamingClient: Sendable {
 
   deinit {
     session.invalidateAndCancel()
+  }
+
+  /// Sends a request and delivers the response body data and the HTTP response.
+  ///
+  /// - Parameter request: The `URLRequest` to execute.
+  /// - Returns: A tuple of the response `Data` and `HTTPURLResponse` metadata.
+  /// - Throws: An error if the request fails or if the response is not an HTTP response.
+  package func data(
+    for request: URLRequest
+  ) async throws -> (data: Data, response: HTTPURLResponse) {
+    let (data, rawResponse) = try await session.data(for: request)
+    guard let httpResponse = rawResponse as? HTTPURLResponse else {
+      throw Self.nonHTTPResponseError()
+    }
+    return (data: data, response: httpResponse)
   }
 
   /// Sends a request and delivers an asynchronous sequence of lines of text and the HTTP response.
@@ -86,6 +101,15 @@ package final class HTTPStreamingClient: Sendable {
   package func invalidateAndCancel() {
     session.invalidateAndCancel()
   }
+
+  // MARK: - Internal Helpers
+
+  static func nonHTTPResponseError() -> URLError {
+    URLError(
+      .badServerResponse,
+      userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
+    )
+  }
 }
 
 // MARK: - HTTP Async Line Sequence
@@ -93,6 +117,9 @@ package final class HTTPStreamingClient: Sendable {
 /// An asynchronous sequence of lines of text parsed from an HTTP byte stream.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
+  /// The type of element produced by this asynchronous sequence.
+  package typealias Element = String
+
   private let dataStream: AsyncThrowingStream<Data, any Error>
 
   /// The underlying `URLSessionTask` performing the data transfer.
@@ -285,7 +312,7 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
       resumeResponse(with: .success(httpResponse))
       completionHandler(.allow)
     } else {
-      resumeResponse(with: .failure(URLError(.badServerResponse)))
+      resumeResponse(with: .failure(HTTPStreamingClient.nonHTTPResponseError()))
       completionHandler(.cancel)
     }
   }
@@ -304,7 +331,7 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
       dataContinuation.finish(throwing: error)
     } else {
       // Fallback in case the task completes successfully but somehow never sent a response
-      resumeResponse(with: .failure(URLError(.badServerResponse)))
+      resumeResponse(with: .failure(HTTPStreamingClient.nonHTTPResponseError()))
       dataContinuation.finish()
     }
   }

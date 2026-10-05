@@ -97,8 +97,7 @@ package struct GeminiAPIClient: Sendable {
       body: request
     )
 
-    let (lines, response) = try await httpClient.lines(for: urlRequest)
-    let bodyData = try await collectBody(from: lines)
+    let (bodyData, response) = try await httpClient.data(for: urlRequest)
 
     if response.statusCode != 200 {
       throw parseError(from: bodyData, statusCode: response.statusCode, response: response)

@@ -57,6 +57,59 @@ struct HTTPStreamingClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func accumulatesDataAcrossChunks() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("data-api")
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("Hello, ".utf8))
+      proto.client?.urlProtocol(proto, didLoad: Data("world!".utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let (data, response) = try await client.data(for: URLRequest(url: testURL))
+
+    #expect(response.statusCode == 200)
+    #expect(String(decoding: data, as: UTF8.self) == "Hello, world!")
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func dataNonHTTPResponseThrowsBadServerResponse() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("data-non-http")
+    let nonHTTPResponse = try #require(
+      URLResponse(
+        url: testURL,
+        mimeType: "text/plain",
+        expectedContentLength: 0,
+        textEncodingName: nil
+      )
+    )
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(
+        proto,
+        didReceive: nonHTTPResponse,
+        cacheStoragePolicy: .notAllowed
+      )
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    do {
+      _ = try await client.data(for: URLRequest(url: testURL))
+      Issue.record("Expected non-HTTP response to throw error")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .badServerResponse)
+      #expect(urlError.localizedDescription == "Response was not an HTTP response.")
+    }
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamsLinesAndReturnsTask() async throws {
     let client = makeClient()
     let testURL = try makeTestURL("bytes-api")
@@ -234,23 +287,127 @@ struct HTTPStreamingClientTests {
     let client = makeClient()
     let testURL = try makeTestURL("early-termination")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+    let (stopStream, stopContinuation) = AsyncStream<Void>.makeStream()
 
+    MockHTTPURLProtocol.setStopHandler(for: testURL) {
+      stopContinuation.yield()
+      stopContinuation.finish()
+    }
     MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
       proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
-      proto.client?.urlProtocol(proto, didLoad: Data("line1\nline2\nline3\nline4\n".utf8))
-      proto.client?.urlProtocolDidFinishLoading(proto)
+      let payload = String(repeating: "line\n", count: 2000)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
     }
 
-    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
     var receivedCount = 0
-    for try await _ in linesSequence {
-      receivedCount += 1
-      if receivedCount == 2 {
-        break
+    do {
+      let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
+      for try await _ in linesSequence {
+        receivedCount += 1
+        if receivedCount == 2 {
+          break
+        }
       }
     }
 
+    var stopIterator = stopStream.makeAsyncIterator()
+    await stopIterator.next()
+
     #expect(receivedCount == 2)
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func ignores1xxInformationalResponseBefore200() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("informational-100")
+    let continueResponse = try makeResponse(url: testURL, statusCode: 100, headerFields: nil)
+    let okResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(
+        proto,
+        didReceive: continueResponse,
+        cacheStoragePolicy: .notAllowed
+      )
+      proto.client?.urlProtocol(proto, didReceive: okResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("ok\n".utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let (linesSequence, response) = try await client.lines(for: URLRequest(url: testURL))
+    let collectedLines = try await collectLines(from: linesSequence)
+
+    #expect(response.statusCode == 200)
+    #expect(collectedLines == ["ok"])
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func cancelledDataRequestAfterHeadersThrowsCancelledError() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("cancel-data-mid-body")
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+    let (loadedStream, loadedContinuation) = AsyncStream<Void>.makeStream()
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("partial body".utf8))
+      loadedContinuation.yield()
+      loadedContinuation.finish()
+    }
+
+    let requestTask = Task {
+      try await client.data(for: URLRequest(url: testURL))
+    }
+
+    var loadedIterator = loadedStream.makeAsyncIterator()
+    await loadedIterator.next()
+    requestTask.cancel()
+
+    do {
+      _ = try await requestTask.value
+      Issue.record("Expected cancelled data(for:) request to throw URLError(.cancelled)")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .cancelled)
+    }
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func cancelledLineStreamWithPartialLineThrowsCancelledError() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("cancel-lines-mid-line")
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      let payload = "complete line\n" + String(repeating: "x", count: 8192)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+    }
+
+    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
+    let consumeTask = Task { () -> [String] in
+      var lines: [String] = []
+      var iterator = linesSequence.makeAsyncIterator()
+      if let first = try await iterator.next() {
+        lines.append(first)
+      }
+      withUnsafeCurrentTask { $0?.cancel() }
+      if let second = try await iterator.next() {
+        lines.append(second)
+      }
+      return lines
+    }
+
+    do {
+      let lines = try await consumeTask.value
+      Issue.record("Expected cancelled stream to throw, but returned \(lines)")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .cancelled)
+    }
   }
 
   @Test
@@ -278,6 +435,7 @@ struct HTTPStreamingClientTests {
     } catch {
       let urlError = try #require(error as? URLError)
       #expect(urlError.code == .badServerResponse)
+      #expect(urlError.localizedDescription == "Response was not an HTTP response.")
     }
   }
 
