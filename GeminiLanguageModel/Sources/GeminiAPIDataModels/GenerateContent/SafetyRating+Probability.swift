@@ -21,7 +21,7 @@ extension SafetyRating {
   ///
   /// Required. The probability of harm for this content.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The probability of harm for this category.
   package enum Probability: Codable, Sendable, Equatable, Hashable {

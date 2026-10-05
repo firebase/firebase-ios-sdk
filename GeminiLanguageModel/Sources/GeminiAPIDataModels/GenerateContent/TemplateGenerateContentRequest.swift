@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Request for performing a GenerateContent operation.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `TemplateGenerateContentRequest`
 ///
