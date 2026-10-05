@@ -86,7 +86,9 @@
 
   XCTAssertTrue(FIRCLSReadString((vm_address_t)buffer, &string, 32));
   XCTAssertEqual(string, (char *)buffer);
-  XCTAssertEqual(strlen(string), (size_t)31);
+  if (string != NULL) {
+    XCTAssertEqual(strlen(string), (size_t)31);
+  }
 }
 
 - (void)testReadStringWithoutTerminatorInRange {
