@@ -55,7 +55,7 @@ final class ChatTests: XCTestCase {
           httpVersion: nil,
           headerFields: nil
         )!
-        return (response, fileURL.lines)
+        return try (response, Data(contentsOf: fileURL))
       }
 
       let app = FirebaseApp(instanceWithName: "testApp",

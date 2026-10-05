@@ -56,12 +56,6 @@ import XCTest
       let expectedStatusCode = 500
       let responseBody = "Internal Server Error"
 
-      // We need to construct the handler to return specific data
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -70,9 +64,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       do {
@@ -80,8 +72,7 @@ import XCTest
         XCTFail("An error should have been thrown, but no error was thrown.")
       } catch let GenerateContentError
         .internalError(underlying: unrecognizedError as UnrecognizedRPCError) {
-        // MockURLProtocol appends a newline to the response.
-        XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
+        XCTAssertEqual(unrecognizedError.responseBody, responseBody)
       } catch {
         XCTFail("Caught unexpected error: \(error)")
       }
@@ -92,11 +83,6 @@ import XCTest
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
 
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -105,9 +91,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Simulate a network drop mid-stream
@@ -146,11 +130,6 @@ import XCTest
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
 
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -159,9 +138,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Simulate a network drop mid-stream while reading the error payload
@@ -198,17 +175,6 @@ import XCTest
     func testGenerateContentStream_cancellation_resourceLeak() async throws {
       let expectedStatusCode = 200
 
-      // We don't use responseBody here because we want to manually yield lines slowly
-      // to test that the mock continues sending them even after the stream is cancelled.
-      // But MockURLProtocol currently doesn't support manual line yielding.
-      // Let's rely on the fact that if it's NOT cancelled, the Task continues doing work.
-      // We can use a large payload and assert that MockURLProtocol finishes its sleep.
-
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -219,9 +185,7 @@ import XCTest
 
         let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
         let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Prevent the mock server from finishing naturally so it keeps the connection open.

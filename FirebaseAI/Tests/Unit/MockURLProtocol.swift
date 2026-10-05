@@ -13,13 +13,16 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)
-class MockURLProtocol: URLProtocol, @unchecked Sendable {
+class MockURLProtocol: URLProtocol {
   typealias MockURLRequestHandler = (URLRequest) throws -> (
     URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
+    Data?
   )
 
   private nonisolated(unsafe) static var _requestHandlers = [MockURLRequestHandler]()
@@ -67,42 +70,39 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     }
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
-    Task {
-      let (response, stream): (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)
-      do {
-        (response, stream) = try requestHandler(self.request)
-      } catch {
-        XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
-        return
-      }
+    let (response, data): (URLResponse, Data?)
+    do {
+      (response, data) = try requestHandler(request)
+    } catch {
+      XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
+      return
+    }
 
-      client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-      if let stream = stream {
-        do {
-          for try await line in stream {
-            guard let data = line.data(using: .utf8) else {
-              fatalError("Failed to convert \"\(line)\" to UTF8 data.")
-            }
-            client.urlProtocol(self, didLoad: data)
-            // Add a newline character since AsyncLineSequence strips them when reading line by
-            // line;
-            // without the following, the whole file is delivered as a single line.
-            client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
-          }
-        } catch {
-          client.urlProtocol(self, didFailWithError: error)
-          XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
+    client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    if let data {
+      var searchStart = data.startIndex
+      while searchStart < data.endIndex {
+        if let newlineIndex = data[searchStart...].firstIndex(of: 0x0A) {
+          let nextIndex = data.index(after: newlineIndex)
+          client.urlProtocol(self, didLoad: Data(data[searchStart ..< nextIndex]))
+          searchStart = nextIndex
+        } else {
+          client.urlProtocol(self, didLoad: Data(data[searchStart...]))
+          break
         }
       }
-      if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
-        // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
-        // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
-        // internal buffer sizes.
+    }
+    if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
+      // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
+      // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
+      // internal buffer sizes.
+      nonisolated(unsafe) let unsafeSelf = self
+      Task {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
-        client.urlProtocol(self, didFailWithError: errorToThrow)
-      } else if !MockURLProtocol.neverFinishes {
-        client.urlProtocolDidFinishLoading(self)
+        client.urlProtocol(unsafeSelf, didFailWithError: errorToThrow)
       }
+    } else if !MockURLProtocol.neverFinishes {
+      client.urlProtocolDidFinishLoading(self)
     }
   }
 

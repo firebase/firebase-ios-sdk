@@ -13,16 +13,21 @@
 // limitations under the License.
 
 import Foundation
-import os.log
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(os.log)
+  import os.log
+#endif
 
 struct GenerativeAIService {
   let firebaseInfo: FirebaseInfo
 
-  private let urlSession: URLSession
+  private let httpClient: HTTPClient
 
   init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
     self.firebaseInfo = firebaseInfo
-    self.urlSession = urlSession
+    httpClient = HTTPClient(configuration: urlSession.configuration)
   }
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
@@ -34,11 +39,7 @@ struct GenerativeAIService {
       }
     #endif
 
-    let data: Data
-    let rawResponse: URLResponse
-    (data, rawResponse) = try await urlSession.data(for: urlRequest)
-
-    let response = try httpResponse(urlResponse: rawResponse)
+    let (data, response) = try await httpClient.data(for: urlRequest)
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
@@ -71,11 +72,7 @@ struct GenerativeAIService {
             printCURLCommand(from: urlRequest)
           #endif
 
-          let stream: URLSession.AsyncBytes
-          let rawResponse: URLResponse
-          (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
-
-          let response = try httpResponse(urlResponse: rawResponse)
+          let (lines, response) = try await httpClient.lines(for: urlRequest)
 
           // Verify the status code is 200
           guard response.statusCode == 200 else {
@@ -84,7 +81,7 @@ struct GenerativeAIService {
               "The server responded with an error: \(response)"
             )
             var responseBody = ""
-            for try await line in stream.lines {
+            for try await line in lines {
               responseBody += line + "\n"
             }
 
@@ -100,7 +97,8 @@ struct GenerativeAIService {
           // "data:"
           var extraLines = ""
 
-          for try await line in stream.lines {
+          for try await line in lines {
+            guard !line.isEmpty else { continue }
             AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
             if line.hasPrefix("data:") {
@@ -147,24 +145,6 @@ struct GenerativeAIService {
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
-  }
-
-  private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
-    // The following condition should always be true: "Whenever you make HTTP URL load requests, any
-    // response objects you get back from the URLSession, NSURLConnection, or NSURLDownload class
-    // are instances of the HTTPURLResponse class."
-    guard let response = urlResponse as? HTTPURLResponse else {
-      AILog.error(
-        code: .generativeAIServiceNonHTTPResponse,
-        "Response wasn't an HTTP response, internal error \(urlResponse)"
-      )
-      throw URLError(
-        .badServerResponse,
-        userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
-      )
-    }
-
-    return response
   }
 
   private func jsonData(jsonText: String) throws -> Data {
@@ -251,16 +231,18 @@ struct GenerativeAIService {
 
     @available(macOS 11.0, *)
     private func printCURLCommand(from request: URLRequest) {
-      guard AILog.additionalLoggingEnabled() else {
-        return
-      }
-      let command = cURLCommand(from: request)
-      os_log(.debug, log: AILog.logObject, """
-      \(AILog.service) Creating request with the equivalent cURL command:
-      ----- cURL command -----
-      \(command, privacy: .private)
-      ------------------------
-      """)
+      #if canImport(os.log)
+        guard AILog.additionalLoggingEnabled() else {
+          return
+        }
+        let command = cURLCommand(from: request)
+        os_log(.debug, log: AILog.logObject, """
+        \(AILog.service) Creating request with the equivalent cURL command:
+        ----- cURL command -----
+        \(command, privacy: .private)
+        ------------------------
+        """)
+      #endif // canImport(os.log)
     }
   #endif // DEBUG
 }
