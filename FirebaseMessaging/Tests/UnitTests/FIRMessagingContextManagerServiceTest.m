@@ -124,7 +124,8 @@ API_AVAILABLE(macos(10.14))
 
 /**
  *  A string start/end time that does not parse yields a nil date. That must be
- *  dropped rather than crash on -[NSDate compare:] with a nil argument.
+ *  dropped rather than scheduled, or crash on -[NSDate compare:] with a nil
+ *  argument.
  */
 - (void)testHandleContextManagerMessage_unparseableTimes {
   NSDictionary *badStart = @{
@@ -139,6 +140,19 @@ API_AVAILABLE(macos(10.14))
     kFIRMessagingContextManagerLocalTimeEnd : @"not-a-date",
   };
   XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badEnd]);
+
+  // An unparseable start time with an end time still in the future must be
+  // dropped as well, not scheduled through the elapsed-start path.
+  NSDate *futureEndDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+  NSString *futureEnd = [self.dateFormatter stringFromDate:futureEndDate];
+  NSDictionary *badStartFutureEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"not-a-date",
+    kFIRMessagingContextManagerLocalTimeEnd : futureEnd,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badStartFutureEnd]);
+
+  // None of the malformed messages above may end up scheduled.
+  XCTAssertEqual(self.requests.count, 0);
 }
 
 /**
