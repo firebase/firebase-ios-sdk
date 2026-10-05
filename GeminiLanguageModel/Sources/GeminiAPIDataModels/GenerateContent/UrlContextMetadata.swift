@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Metadata related to url context retrieval tool.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1UrlContextMetadata`
 ///
@@ -35,7 +35,7 @@ package struct UrlContextMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// List of url context.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. A list of URL metadata, with one entry for each URL
   /// retrieved by the tool.

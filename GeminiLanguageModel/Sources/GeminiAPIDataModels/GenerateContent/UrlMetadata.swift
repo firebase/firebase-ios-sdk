@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Context of the a single url retrieval.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1UrlMetadata`
 ///
@@ -34,7 +34,7 @@ package struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Retrieved url by the tool.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The URL retrieved by the tool.
   package let retrievedUrl: String?
@@ -45,7 +45,7 @@ package struct UrlMetadata: Codable, Sendable, Equatable, Hashable {
   ///
   /// Status of the url retrieval.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The status of the URL retrieval.
   package let urlRetrievalStatus: UrlRetrievalStatus?

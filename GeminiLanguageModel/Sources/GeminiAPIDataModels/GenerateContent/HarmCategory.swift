@@ -20,9 +20,9 @@ import Foundation
 ///
 /// Type: `GoogleAiGenerativelanguageV1betaHarmCategory`
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
-/// > Important: This type is not supported in the Gemini Enterprise API.
+/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
   /// **PaLM** - Negative or harmful comments targeting identity and/or protected
   /// attribute.
