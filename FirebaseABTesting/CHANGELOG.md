@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where Remote Config's `activate()` completion could be
+  delayed by several seconds on a busy device because A/B Testing updated
+  experiments at background priority. (#16784)
 - [fixed] Fixed an issue where `LifecycleEvents.expireExperimentEventName` accepted event names
   without the required `_` prefix instead of falling back to the default name. (#16785)
 
