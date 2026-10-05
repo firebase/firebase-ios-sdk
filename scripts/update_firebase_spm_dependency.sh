@@ -43,6 +43,7 @@ cleanup() {
   local status=$?
   if [[ ${status} -ne 0 && "${backup_successful}" == "true" \
         && -n "${temp_file}" && -f "${temp_file}" ]]; then
+    echo "Error occurred. Restoring backup of project.pbxproj..." >&2
     mv "${temp_file}" "${pbxproj_path}" 2>/dev/null || true
   fi
   if [[ -n "${temp_file}" ]]; then
@@ -152,11 +153,6 @@ main() {
   }
 
   echo "Successfully updated SPM dependency in ${pbxproj_path}"
-
-  # Point SPM CI to the tip of `main` of
-  # https://github.com/google/GoogleAppMeasurement so that the release process
-  # can defer publishing the `GoogleAppMeasurement` tag until after testing.
-  export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
 }
 
 main "$@"
