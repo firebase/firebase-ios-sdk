@@ -85,13 +85,16 @@ uintptr_t FIRCLSParsePointerAndAdvance(const void** cursor) {
   return tmp;
 }
 
+// A 64-bit value takes at most ceil(64 / 7) = 10 bytes to encode as LEB128.
+#define CLS_DWARF_LEB128_MAX_BYTES (10)
+
 // Signed and Unsigned LEB128 decoding algorithms taken from Wikipedia -
 // http://en.wikipedia.org/wiki/LEB128
 uint64_t FIRCLSParseULEB128AndAdvance(const void** cursor) {
   uint64_t result = 0;
   char shift = 0;
 
-  for (int i = 0; i < sizeof(uint64_t); ++i) {
+  for (int i = 0; i < CLS_DWARF_LEB128_MAX_BYTES; ++i) {
     char byte;
 
     byte = **(uint8_t**)cursor;
@@ -115,7 +118,7 @@ int64_t FIRCLSParseLEB128AndAdvance(const void** cursor) {
   char size = sizeof(int64_t) * 8;
   char byte = 0;
 
-  for (int i = 0; i < sizeof(uint64_t); ++i) {
+  for (int i = 0; i < CLS_DWARF_LEB128_MAX_BYTES; ++i) {
     byte = **(uint8_t**)cursor;
 
     *cursor += 1;
@@ -131,7 +134,7 @@ int64_t FIRCLSParseLEB128AndAdvance(const void** cursor) {
 
   if ((shift < size) && (0x40 & byte)) {
     // sign extend
-    result |= -((uint64_t)1 << shift);
+    result |= ~(((uint64_t)1 << shift) - 1);
   }
 
   return result;

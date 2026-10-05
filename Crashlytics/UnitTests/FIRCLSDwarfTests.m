@@ -192,6 +192,24 @@
   XCTAssertEqual(cursor, (const void*)(encoded + sizeof(encoded)));
 }
 
+- (void)testParseULEB128DecodesFullWidthValue {
+  // A 64-bit value can take ten bytes; the last one carries only bit 63.
+  const uint8_t encoded[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x01};
+  const void* cursor = encoded;
+
+  XCTAssertEqual(FIRCLSParseULEB128AndAdvance(&cursor), UINT64_MAX);
+  XCTAssertEqual(cursor, (const void*)(encoded + sizeof(encoded)));
+}
+
+- (void)testParseLEB128DecodesFullWidthValue {
+  // SLEB128 of INT64_MIN, which also needs all ten bytes.
+  const uint8_t encoded[] = {0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x7F};
+  const void* cursor = encoded;
+
+  XCTAssertEqual(FIRCLSParseLEB128AndAdvance(&cursor), INT64_MIN);
+  XCTAssertEqual(cursor, (const void*)(encoded + sizeof(encoded)));
+}
+
 #endif
 
 @end
