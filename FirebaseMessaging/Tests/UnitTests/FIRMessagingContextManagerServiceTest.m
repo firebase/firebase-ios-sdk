@@ -182,6 +182,19 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  A badge that arrives as a numeric string is still applied.
+ */
+- (void)testContentFromContextualMessage_numericStringBadge {
+  NSDictionary *message = @{
+    @"gcm.notification.badge" : @"5",
+    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+  };
+  UNMutableNotificationContent *content =
+      [FIRMessagingContextManagerService contentFromContextualMessage:message];
+  XCTAssertEqualObjects(content.badge, @5);
+}
+
+/**
  *  Context Manager message with future start date should be successfully scheduled.
  */
 - (void)testMessageWithFutureStartTime {

@@ -203,6 +203,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   id badge = apsDictionary[kFIRMessagingContextManagerBadgeKey];
   if ([badge isKindOfClass:[NSNumber class]]) {
     content.badge = badge;
+  } else if ([badge isKindOfClass:[NSString class]]) {
+    // The badge can also arrive as a numeric string.
+    NSScanner *scanner = [NSScanner scannerWithString:badge];
+    NSInteger badgeValue;
+    if ([scanner scanInteger:&badgeValue] && scanner.isAtEnd) {
+      content.badge = @(badgeValue);
+    }
   }
 #if !TARGET_OS_TV
   // The following fields are not available on tvOS
