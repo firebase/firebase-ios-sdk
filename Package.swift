@@ -68,6 +68,10 @@ let package = Package(
 // MARK: - Package Manifest Builders
 
 func packageProducts() -> [Product] {
+  if isPortableBuild() {
+    return portableProducts()
+  }
+
   return [
     .library(
       name: "FirebaseAILogic",
@@ -167,6 +171,10 @@ func packageProducts() -> [Product] {
 }
 
 func packageDependencies() -> [Package.Dependency] {
+  if isPortableBuild() {
+    return portableDependencies()
+  }
+
   return [
     .package(
       url: "https://github.com/google/promises.git",
@@ -212,38 +220,15 @@ func packageDependencies() -> [Package.Dependency] {
 }
 
 func packageTargets() -> [Target] {
+  if isPortableBuild() {
+    return portableTargets()
+  }
+
   var targets: [Target] = [
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
       publicHeadersPath: "./"
-    ),
-
-    // MARK: - Firebase AI
-
-    .target(
-      name: "FirebaseAILogic",
-      dependencies: firebaseAILogicDependencies(),
-      path: "FirebaseAI/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAILogicUnit",
-      dependencies: [
-        "FirebaseAILogic",
-        "FirebaseStorage",
-      ],
-      path: "FirebaseAI/Tests/Unit",
-      exclude: [
-        "README.md",
-        "Snippets/README.md",
-      ],
-      resources: [
-        .copy("vertexai-sdk-test-data/mock-responses"),
-        .process("Resources"),
-      ],
-      cSettings: [
-        .headerSearchPath("../../../"),
-      ]
     ),
 
     // MARK: - Firebase Core
@@ -291,6 +276,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
+      exclude: ["Portable"],
       resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: ".",
       cSettings: [
@@ -532,6 +518,7 @@ func packageTargets() -> [Target] {
       path: "FirebaseAuth/Interop",
       exclude: [
         "CMakeLists.txt",
+        "Portable",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1286,6 +1273,7 @@ func packageTargets() -> [Target] {
       path: "FirebaseAppCheck/Interop",
       exclude: [
         "CMakeLists.txt",
+        "Portable",
       ],
       publicHeadersPath: "Public",
       cSettings: [
@@ -1360,6 +1348,7 @@ func packageTargets() -> [Target] {
     ),
   ]
   targets.append(contentsOf: firestoreTargets())
+  targets.append(contentsOf: firebaseAILogicTargets())
 
   #if compiler(>=6.4) && canImport(FoundationModels)
     targets.append(contentsOf: geminiLanguageModelTargets())
@@ -1692,6 +1681,60 @@ func firestoreTargets() -> [Target] {
   ]
 }
 
+func firebaseAILogicTargets(swiftSettings: [SwiftSetting] = []) -> [Target] {
+  var targets: [Target] = [
+    .target(
+      name: "FirebaseAILogic",
+      dependencies: firebaseAILogicDependencies(),
+      path: "FirebaseAI/Sources",
+      swiftSettings: swiftSettings
+    ),
+  ]
+
+  if isPortableBuild() {
+    targets.append(
+      .testTarget(
+        name: "FirebaseAILogicIntegration",
+        dependencies: [
+          "FirebaseAILogic",
+          "FirebaseAppCheck",
+          "FirebaseAuth",
+          "FirebaseCore",
+          "FirebaseStorage",
+        ],
+        path: "FirebaseAI/Tests/Integration",
+        swiftSettings: swiftSettings
+      )
+    )
+  }
+
+  // Streaming (`AsyncLineSequence`) is unavailable on Linux so these test can only run on Apple
+  // platforms until FirebaseAI/Sources/GenerativeAIService.swift is refactored.
+  #if canImport(Darwin)
+    targets.append(
+      .testTarget(
+        name: "FirebaseAILogicUnit",
+        dependencies: [
+          "FirebaseAILogic",
+          "FirebaseStorage",
+        ],
+        path: "FirebaseAI/Tests/Unit",
+        exclude: [
+          "README.md",
+          "Snippets/README.md",
+        ],
+        resources: [
+          .copy("vertexai-sdk-test-data/mock-responses"),
+          .process("Resources"),
+        ],
+        swiftSettings: swiftSettings
+      )
+    )
+  #endif // canImport(Darwin)
+
+  return targets
+}
+
 func firebaseAILogicDependencies() -> [Target.Dependency] {
   var dependencies: [Target.Dependency] = [
     // Direct dependency on AppCheck for automatic token acquisition and
@@ -1703,6 +1746,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
     "FirebaseAuthInterop",
     "FirebaseCore",
     "FirebaseCoreExtension",
+    "FirebaseCoreInternal",
   ]
 
   #if compiler(>=6.4) && canImport(FoundationModels)
@@ -1768,6 +1812,9 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       ),
       .target(
         name: "GeminiTestUtilities",
+        dependencies: [
+          "GeminiAPIClient",
+        ],
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
         swiftSettings: swiftSettings,
       ),
@@ -1787,4 +1834,203 @@ func appCheckDependency() -> Package.Dependency {
   }
 
   return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
+}
+
+// MARK: - Portable Build
+
+func isPortableBuild() -> Bool {
+  #if canImport(Darwin)
+    return Context.environment["FIREBASE_PORTABLE"] != nil
+  #else // canImport(Darwin)
+    return Context.environment["FIREBASE_PORTABLE"] != nil
+      || Context.environment["DEPENDABOT"] == nil
+  #endif // canImport(Darwin)
+}
+
+func portableProducts() -> [Product] {
+  return [
+    .library(
+      name: "FirebaseCore",
+      targets: ["FirebaseCore"]
+    ),
+    .library(
+      name: "FirebaseAppCheck",
+      targets: ["FirebaseAppCheck"]
+    ),
+    .library(
+      name: "FirebaseAuth",
+      targets: ["FirebaseAuth"]
+    ),
+    .library(
+      name: "FirebaseStorage",
+      targets: ["FirebaseStorage"]
+    ),
+    .library(
+      name: "FirebaseAILogic",
+      targets: ["FirebaseAILogic"]
+    ),
+  ]
+}
+
+func portableDependencies() -> [Package.Dependency] {
+  return []
+}
+
+func portableTargets() -> [Target] {
+  let portableSwiftSettings: [SwiftSetting] = [
+    .define("FIREBASE_PORTABLE"),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .swiftLanguageMode(.v6),
+  ]
+  var targets: [Target] = [
+    // MARK: Firebase Core
+
+    .target(
+      name: "FirebaseCoreInternal",
+      path: "FirebaseCore/Internal/Sources/Utilities",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseCore",
+      dependencies: ["FirebaseCoreInternal"],
+      path: "FirebaseCore/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseCoreExtension",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseCore/Extension/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseCorePortableTests",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseCore/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+
+    // MARK: Firebase App Check
+
+    .target(
+      name: "FirebaseAppCheck",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAppCheckPortableTests",
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseAppCheckInterop",
+      path: "FirebaseAppCheck/Interop/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAppCheckInteropPortableTests",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAppCheck/Interop/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+
+    // MARK: Firebase Auth
+
+    .target(
+      name: "FirebaseAuth",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAuth/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAuthPortableTests",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseAuth",
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAuth/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+    .target(
+      name: "FirebaseAuthInterop",
+      path: "FirebaseAuth/Interop/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseAuthInteropPortableTests",
+      dependencies: [
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseAuth/Interop/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+
+    // MARK: Firebase Storage
+
+    .target(
+      name: "FirebaseStorage",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
+      ],
+      path: "FirebaseStorage/Portable/Sources",
+      swiftSettings: portableSwiftSettings
+    ),
+    .testTarget(
+      name: "FirebaseStoragePortableTests",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseStorage",
+      ],
+      path: "FirebaseStorage/Portable/Tests",
+      swiftSettings: portableSwiftSettings
+    ),
+  ]
+  targets.append(contentsOf: firebaseAILogicTargets(swiftSettings: [.define("FIREBASE_PORTABLE")]))
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    targets.append(contentsOf: geminiLanguageModelTargets())
+  #endif
+
+  return targets
 }

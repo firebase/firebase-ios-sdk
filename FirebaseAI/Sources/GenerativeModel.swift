@@ -15,6 +15,9 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.

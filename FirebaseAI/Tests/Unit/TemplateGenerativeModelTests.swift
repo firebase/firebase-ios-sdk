@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CoreLocation
+#if canImport(CoreLocation)
+  import CoreLocation
+#endif
 @testable import FirebaseAILogic
 import FirebaseCore
 import XCTest

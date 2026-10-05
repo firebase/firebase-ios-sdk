@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseAppCheckInterop
+import Foundation
 
 /// Internal helper extension for fetching app check tokens.
 ///
@@ -47,32 +48,35 @@ extension AppCheckInterop {
       #endif
     }
 
-    return await withCheckedContinuation { continuation in
-      self.getToken(forcingRefresh: false) { result in
-        continuation.resume(returning: (token: result.token, error: result.error))
-      }
-    }
+    let result = await getToken(forcingRefresh: false)
+    return (token: result.token, error: result.error)
   }
 
   private func getLimitedUseTokenAsync() async
     -> (token: String, error: Error?)? {
-    // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
-    await withCheckedContinuation { (continuation: CheckedContinuation<
-      (token: String, error: Error?)?,
-      Never
-    >) in
-      guard
-        // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
-        // is performed to make sure `continuation` is called even if the method’s not implemented.
-        let limitedUseTokenClosure = getLimitedUseToken
-      else {
-        return continuation.resume(returning: nil)
-      }
+    #if FIREBASE_PORTABLE
+      let tokenResult = await getLimitedUseToken()
+      return (token: tokenResult.token, error: tokenResult.error)
+    #else // FIREBASE_PORTABLE
+      // At the moment, `await` doesn’t get along with Objective-C’s optional protocol methods.
+      await withCheckedContinuation { (continuation: CheckedContinuation<
+        (token: String, error: Error?)?,
+        Never
+      >) in
+        guard
+          // `getLimitedUseToken(completion:)` is an optional protocol method. Optional binding
+          // is performed to make sure `continuation` is called even if the method’s not
+          // implemented.
+          let limitedUseTokenClosure = getLimitedUseToken
+        else {
+          return continuation.resume(returning: nil)
+        }
 
-      limitedUseTokenClosure { tokenResult in
-        // The placeholder token should be used in the case of App Check error.
-        continuation.resume(returning: (token: tokenResult.token, error: tokenResult.error))
+        limitedUseTokenClosure { tokenResult in
+          // The placeholder token should be used in the case of App Check error.
+          continuation.resume(returning: (token: tokenResult.token, error: tokenResult.error))
+        }
       }
-    }
+    #endif // FIREBASE_PORTABLE
   }
 }

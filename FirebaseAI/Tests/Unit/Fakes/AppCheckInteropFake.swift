@@ -15,12 +15,12 @@
 import FirebaseAppCheckInterop
 import Foundation
 
-class AppCheckInteropFake: NSObject, AppCheckInterop {
+final class AppCheckInteropFake: NSObject, AppCheckInterop, Sendable {
   /// The placeholder token value returned when an error occurs
   static let placeholderTokenValue = "placeholder-token"
 
-  var token: String
-  var error: Error?
+  let token: String
+  let error: Error?
 
   private init(token: String, error: Error?) {
     self.token = token
@@ -55,8 +55,8 @@ class AppCheckInteropFake: NSObject, AppCheckInterop {
     fatalError("\(#function) not implemented.")
   }
 
-  private class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop,
-    @unchecked Sendable {
+  private final class AppCheckTokenResultInteropFake: NSObject, FIRAppCheckTokenResultInterop,
+    Sendable {
     let token: String
     let error: Error?
 

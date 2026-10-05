@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// Represents available backend APIs for the Firebase AI SDK.
-public struct Backend {
+public struct Backend: Sendable {
   // MARK: - Public API
 
   /// Initializes a `Backend` configured for the Gemini Enterprise API.

@@ -13,7 +13,12 @@
 // limitations under the License.
 
 import Foundation
-import os.log
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
+#if canImport(os)
+  import os.log
+#endif // canImport(os)
 
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
@@ -288,12 +293,14 @@ actor LiveSessionService {
 
       guard let message = JSONSerialization.prettyString(with: message) else { return }
 
-      os_log(.debug, log: AILog.logObject, """
-      \(AILog.service) Received a message from the server in a LiveSession:
-      ----- LiveServerMessage -----
-      \(message, privacy: .private)
-      ------------------------
-      """)
+      #if canImport(os)
+        os_log(.debug, log: AILog.logObject, """
+        \(AILog.service) Received a message from the server in a LiveSession:
+        ----- LiveServerMessage -----
+        \(message, privacy: .private)
+        ------------------------
+        """)
+      #endif // canImport(os)
     }
   #endif
 

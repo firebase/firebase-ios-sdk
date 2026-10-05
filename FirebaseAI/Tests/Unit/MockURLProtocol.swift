@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)

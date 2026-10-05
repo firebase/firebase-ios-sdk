@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 
 /// A namespace providing `URLSession` instances.
 enum GenAIURLSession {

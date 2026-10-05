@@ -15,7 +15,7 @@
 import FirebaseAuthInterop
 import Foundation
 
-class AuthInteropFake: NSObject, AuthInterop {
+final class AuthInteropFake: NSObject, AuthInterop, Sendable {
   let token: String?
   let error: Error?
 

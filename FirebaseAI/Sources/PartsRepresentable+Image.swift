@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UniformTypeIdentifiers
+#if canImport(UniformTypeIdentifiers)
+  import UniformTypeIdentifiers
+#endif // canImport(UniformTypeIdentifiers)
 #if canImport(UIKit)
   import UIKit // For UIImage extensions.
 #elseif canImport(AppKit)
   import AppKit // For NSImage extensions.
 #endif
 
-private let imageCompressionQuality: CGFloat = 0.8
+#if canImport(UIKit) || canImport(AppKit)
+  private let imageCompressionQuality: CGFloat = 0.8
+#endif // canImport(Darwin)
 
 /// An enum describing failures that can occur when converting image types to model content data.
 /// For some image types like `CIImage`, creating valid model content requires creating a JPEG
@@ -63,7 +67,7 @@ enum ImageConversionError: Error {
   }
 #endif
 
-#if !os(watchOS) // This code does not build on watchOS.
+#if canImport(CoreGraphics) && !os(watchOS) // This code does not build on watchOS.
   /// Enables `CGImages` to be representable as model content.
   extension CGImage: PartsRepresentable {
     public var partsValue: [any Part] {
@@ -88,7 +92,7 @@ enum ImageConversionError: Error {
       return [ErrorPart(ImageConversionError.couldNotConvertToJPEG)]
     }
   }
-#endif // !os(watchOS)
+#endif // canImport(CoreGraphics) && !os(watchOS)
 
 #if canImport(CoreImage)
   /// Enables `CIImages` to be representable as model content.

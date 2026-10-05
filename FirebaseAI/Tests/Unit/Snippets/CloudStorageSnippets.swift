@@ -17,6 +17,7 @@
   import FirebaseAILogic
   import FirebaseCore
   import FirebaseStorage
+  import Foundation
 
   // These CloudStorageSnippets are not currently runnable due to the GCS upload paths but are used
   // as compilation tests.

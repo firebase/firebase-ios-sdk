@@ -19,6 +19,7 @@ import Foundation
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
+private import FirebaseCoreInternal
 
 #if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
   @_exported import GeminiLanguageModel
@@ -183,9 +184,11 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
-  /// to include FirebaseAI in the userAgent.
-  @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
+  #if canImport(ObjectiveC)
+    /// Class to enable FirebaseAI to register via the Objective-C based Firebase component system
+    /// to include FirebaseAI in the userAgent.
+    @objc(FIRVertexAIComponent) class FirebaseVertexAIComponent: NSObject {}
+  #endif // canImport(ObjectiveC)
 
   // MARK: - Private
 
@@ -194,12 +197,9 @@ public final class FirebaseAI: Sendable {
 
   let apiConfig: APIConfig
 
-  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`,  the `APIConfig`, and
+  /// A map of active `FirebaseAI` instances keyed by the `FirebaseApp`, the `APIConfig`, and
   /// `useLimitedUseAppCheckTokens`.
-  private nonisolated(unsafe) static var instances: [InstanceKey: FirebaseAI] = [:]
-
-  /// Lock to manage access to the `instances` array to avoid race conditions.
-  private nonisolated(unsafe) static var instancesLock: os_unfair_lock = .init()
+  private static let instances = UnfairLock<[InstanceKey: FirebaseAI]>([:])
 
   static func createInstance(app: FirebaseApp?,
                              apiConfig: APIConfig,
@@ -208,26 +208,23 @@ public final class FirebaseAI: Sendable {
       fatalError("No instance of the default Firebase app was found.")
     }
 
-    os_unfair_lock_lock(&instancesLock)
-
-    // Unlock before the function returns.
-    defer { os_unfair_lock_unlock(&instancesLock) }
-
     let instanceKey = InstanceKey(
       appName: app.name,
       apiConfig: apiConfig,
       useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
     )
-    if let instance = instances[instanceKey] {
-      return instance
+    return instances.withLock { instances in
+      if let instance = instances[instanceKey] {
+        return instance
+      }
+      let newInstance = FirebaseAI(
+        app: app,
+        apiConfig: apiConfig,
+        useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
+      )
+      instances[instanceKey] = newInstance
+      return newInstance
     }
-    let newInstance = FirebaseAI(
-      app: app,
-      apiConfig: apiConfig,
-      useLimitedUseAppCheckTokens: useLimitedUseAppCheckTokens
-    )
-    instances[instanceKey] = newInstance
-    return newInstance
   }
 
   init(app: FirebaseApp, apiConfig: APIConfig,

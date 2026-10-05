@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 
 /// A multimodal model (like Gemini) capable of real-time content generation based on
 /// various input types, supporting bidirectional streaming.

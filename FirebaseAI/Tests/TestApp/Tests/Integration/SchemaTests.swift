@@ -16,7 +16,6 @@ import FirebaseAILogic
 import FirebaseAITestApp
 import FirebaseAuth
 import FirebaseCore
-import FirebaseStorage
 import Testing
 
 #if canImport(UIKit)

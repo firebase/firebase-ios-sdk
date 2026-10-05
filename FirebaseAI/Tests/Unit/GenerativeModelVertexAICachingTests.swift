@@ -15,6 +15,9 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif // canImport(FoundationNetworking)
 import XCTest
 
 @testable import FirebaseAILogic
