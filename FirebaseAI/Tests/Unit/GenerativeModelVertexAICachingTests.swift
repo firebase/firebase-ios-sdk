@@ -29,13 +29,13 @@ final class GenerativeModelImplicitCachingTests: XCTestCase {
 
   let vertexSubdirectory = "mock-responses/vertexai"
 
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
   var model: GenerativeModel!
 
   override func setUp() async throws {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+    httpClient = HTTPClient(configuration: configuration)
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
@@ -43,7 +43,7 @@ final class GenerativeModelImplicitCachingTests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 

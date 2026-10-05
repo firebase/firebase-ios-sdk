@@ -74,7 +74,8 @@ public final class GenerativeModel: Sendable {
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  ///   - urlSession: The `URLSession` to use for requests; defaults to `URLSession.shared`.
+  ///   - httpClient: The `HTTPClient` to use for requests; defaults to the shared
+  ///     `HTTPClient.default`.
   init(modelName: String,
        modelResourceName: String,
        firebaseInfo: FirebaseInfo,
@@ -85,13 +86,13 @@ public final class GenerativeModel: Sendable {
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
        requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default) {
+       httpClient: HTTPClient = .default) {
     self.modelName = modelName
     self.modelResourceName = modelResourceName
     self.apiConfig = apiConfig
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     self.generationConfig = generationConfig
     self.safetySettings = safetySettings

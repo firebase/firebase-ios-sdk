@@ -15,14 +15,11 @@
 import Foundation
 private import FirebaseCoreInternal
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
-/// A cross-platform HTTP client that performs unary and streaming requests using `URLSession`.
-///
-/// Supports Apple platforms and Linux with full Swift 6 strict concurrency compliance.
+/// An HTTP client that performs unary and streaming requests using `URLSession`.
 final class HTTPClient: Sendable {
+  /// The default shared `HTTPClient` instance for the SDK.
+  static let `default` = HTTPClient(configuration: GenAIURLSession.default.configuration)
+
   private let session: URLSession
   private let sessionDelegate: SessionDelegate
 
@@ -84,7 +81,7 @@ final class HTTPClient: Sendable {
       dataTask.cancel()
     }
 
-    let asyncLines = HTTPAsyncLineSequence(dataStream: dataStream, task: dataTask, client: self)
+    let asyncLines = HTTPAsyncLineSequence(dataStream: dataStream, client: self)
     return (lines: asyncLines, response: response)
   }
 
@@ -100,6 +97,11 @@ final class HTTPClient: Sendable {
 
   // MARK: - Internal Helpers
 
+  /// Creates a `URLError(.badServerResponse)` for a non-HTTP response, logging an error if a
+  /// `URLResponse` instance is provided.
+  ///
+  /// - Parameter response: The unexpected non-HTTP `URLResponse`, if one was received.
+  /// - Returns: A `URLError` indicating that the server response was not an HTTP response.
   static func nonHTTPResponseError(for response: URLResponse? = nil) -> URLError {
     if let response {
       AILog.error(
@@ -118,12 +120,11 @@ final class HTTPClient: Sendable {
 
 /// An asynchronous sequence of lines of text parsed from an HTTP byte stream.
 struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
+  /// The type of element produced by this asynchronous sequence.
   typealias Element = String
 
   private let dataStream: AsyncThrowingStream<Data, any Error>
 
-  /// The underlying `URLSessionTask` performing the data transfer.
-  let task: URLSessionTask
   /// Retained to prevent the client (and its session) from deallocating during iteration.
   private let client: HTTPClient
 
@@ -131,13 +132,10 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   ///
   /// - Parameters:
   ///   - dataStream: The underlying byte stream.
-  ///   - task: The URL session data task.
   ///   - client: The HTTP client that created this sequence.
   init(dataStream: AsyncThrowingStream<Data, any Error>,
-       task: URLSessionDataTask,
        client: HTTPClient) {
     self.dataStream = dataStream
-    self.task = task
     self.client = client
   }
 
@@ -175,6 +173,8 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
       while pendingLines.isEmpty {
         guard let chunk = try await streamIterator.next() else {
           if Task.isCancelled {
+            // Throw `URLError(.cancelled)` rather than `CancellationError` to match `URLSession`
+            // cancellation semantics when the underlying stream ends due to task cancellation.
             throw URLError(.cancelled)
           }
           // Once the stream ends, flush any remaining bytes as a final line.
@@ -183,7 +183,7 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
         }
 
         // Convert the returned Array into an ArraySlice
-        pendingLines = decoder.feed(chunk)[...]
+        pendingLines = try decoder.feed(chunk)[...]
       }
 
       return pendingLines.popFirst()
@@ -193,17 +193,25 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
 
 // MARK: - Internal Session Delegate Dispatcher
 
+/// A session-level delegate that routes `URLSessionDataTask` callbacks to per-task delegates.
 private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable {
   private let taskDelegates = UnfairLock<[Int: TaskDelegate]>([:])
 
+  /// Registers a delegate for the given task identifier.
+  ///
+  /// - Parameters:
+  ///   - delegate: The per-task delegate to register.
+  ///   - taskIdentifier: The `URLSessionTask.taskIdentifier` to associate with `delegate`.
   func addTaskDelegate(_ delegate: TaskDelegate, for taskIdentifier: Int) {
     taskDelegates.withLock { $0[taskIdentifier] = delegate }
   }
 
+  /// Returns the delegate registered for the given task identifier, if any.
   private func taskDelegate(for taskIdentifier: Int) -> TaskDelegate? {
     taskDelegates.withLock { $0[taskIdentifier] }
   }
 
+  /// Removes and returns the delegate registered for the given task identifier, if any.
   private func removeTaskDelegate(for taskIdentifier: Int) -> TaskDelegate? {
     taskDelegates.withLock { $0.removeValue(forKey: taskIdentifier) }
   }
@@ -233,12 +241,25 @@ private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable 
   func urlSession(_ session: URLSession, task: URLSessionTask,
                   didCompleteWithError error: (any Error)?) {
     let delegate = removeTaskDelegate(for: task.taskIdentifier)
-    delegate?.urlSession(session, task: task, didCompleteWithError: error)
+    delegate?.didComplete(withError: error)
+  }
+
+  func urlSession(_ session: URLSession, didBecomeInvalidWithError error: (any Error)?) {
+    let remainingDelegates = taskDelegates.withLock {
+      let values = Array($0.values)
+      $0.removeAll()
+      return values
+    }
+    let terminationError = error ?? URLError(.cancelled)
+    for delegate in remainingDelegates {
+      delegate.didComplete(withError: terminationError)
+    }
   }
 }
 
 // MARK: - Internal Task Delegate
 
+/// A per-task delegate that bridges `URLSessionDataTask` callbacks into async continuations.
 private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
   private enum ResponseState: Sendable {
     case pending
@@ -249,10 +270,14 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
   private let responseState = UnfairLock<ResponseState>(.pending)
   private let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
 
+  /// Initializes a new per-task delegate writing body chunks into `dataContinuation`.
   init(dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation) {
     self.dataContinuation = dataContinuation
   }
 
+  /// Registers the continuation to resume when the initial HTTP response headers arrive.
+  ///
+  /// - Parameter continuation: The continuation awaiting the `HTTPURLResponse`.
   func setResponseContinuation(_ continuation: CheckedContinuation<HTTPURLResponse, any Error>) {
     let resultToResume: Result<HTTPURLResponse, any Error>? = responseState.withLock { state in
       switch state {
@@ -260,13 +285,29 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
         state = .waiting(continuation)
         return nil
       case .waiting:
-        fatalError("Response continuation set multiple times")
+        assertionFailure("Response continuation set multiple times.")
+        return .failure(URLError(.unknown))
       case let .completed(result):
         return result
       }
     }
     if let resultToResume {
       continuation.resume(with: resultToResume)
+    }
+  }
+
+  /// Completes the response continuation (if still pending) and finishes the data stream.
+  ///
+  /// - Parameter error: The error that terminated the task, or `nil` on normal completion.
+  func didComplete(withError error: (any Error)?) {
+    // 3. Clean up stream and catch any pre-response failures
+    if let error {
+      resumeResponse(with: .failure(error))
+      dataContinuation.finish(throwing: error)
+    } else {
+      // Fallback in case the task completes successfully but somehow never sent a response
+      resumeResponse(with: .failure(HTTPClient.nonHTTPResponseError()))
+      dataContinuation.finish()
     }
   }
 
@@ -315,14 +356,6 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
 
   func urlSession(_ session: URLSession, task: URLSessionTask,
                   didCompleteWithError error: (any Error)?) {
-    // 3. Clean up stream and catch any pre-response failures
-    if let error {
-      resumeResponse(with: .failure(error))
-      dataContinuation.finish(throwing: error)
-    } else {
-      // Fallback in case the task completes successfully but somehow never sent a response
-      resumeResponse(with: .failure(HTTPClient.nonHTTPResponseError()))
-      dataContinuation.finish()
-    }
+    didComplete(withError: error)
   }
 }

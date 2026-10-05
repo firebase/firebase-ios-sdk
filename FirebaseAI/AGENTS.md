@@ -25,7 +25,7 @@ This directory contains the main source code for the FirebaseAI library.
 - **`GenerativeAIService.swift`**: Responsible for making requests to the generative AI backend, handling authentication, URL construction, and response parsing.
 - **`GenerativeModel.swift`**: Defines the `GenerativeModel` class, representing a remote multimodal model. It provides methods for generating content and starting chats.
 - **`History.swift`**: A thread-safe class for managing chat history, used by the `Chat` class.
-- **`HTTPClient.swift`**: Cross-platform HTTP client that performs unary and streaming requests using `URLSession`.
+- **`HTTPClient.swift`**: HTTP client that performs unary and streaming requests using `URLSession`.
 - **`HTTPLineDecoder.swift`**: Incremental decoder that extracts UTF-8 lines of text from streaming byte chunks.
 - **`JSONValue.swift`**: Defines the `JSONValue` enum and `JSONObject` typealias for representing JSON values.
 - **`ModalityTokenCount.swift`**: Represents token counting information for a single modality.

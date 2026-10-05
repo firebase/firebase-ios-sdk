@@ -13,9 +13,6 @@
 // limitations under the License.
 
 import Foundation
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
 import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)
@@ -30,6 +27,7 @@ class MockURLProtocol: URLProtocol {
   nonisolated(unsafe) static var errorToThrowMidStream: Error?
   nonisolated(unsafe) static var stopLoadingExpectation: XCTestExpectation?
   nonisolated(unsafe) static var neverFinishes: Bool = false
+  nonisolated(unsafe) static var chunkSize: Int?
 
   nonisolated(unsafe) static var requestHandler: MockURLRequestHandler? {
     get {
@@ -74,21 +72,32 @@ class MockURLProtocol: URLProtocol {
     do {
       (response, data) = try requestHandler(request)
     } catch {
+      client.urlProtocol(self, didFailWithError: error)
       XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
       return
     }
 
     client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     if let data {
-      var searchStart = data.startIndex
-      while searchStart < data.endIndex {
-        if let newlineIndex = data[searchStart...].firstIndex(of: 0x0A) {
-          let nextIndex = data.index(after: newlineIndex)
-          client.urlProtocol(self, didLoad: Data(data[searchStart ..< nextIndex]))
-          searchStart = nextIndex
-        } else {
-          client.urlProtocol(self, didLoad: Data(data[searchStart...]))
-          break
+      if let chunkSize = MockURLProtocol.chunkSize, chunkSize > 0 {
+        var offset = data.startIndex
+        while offset < data.endIndex {
+          let end =
+            data.index(offset, offsetBy: chunkSize, limitedBy: data.endIndex) ?? data.endIndex
+          client.urlProtocol(self, didLoad: Data(data[offset ..< end]))
+          offset = end
+        }
+      } else {
+        var searchStart = data.startIndex
+        while searchStart < data.endIndex {
+          if let newlineIndex = data[searchStart...].firstIndex(of: 0x0A) {
+            let nextIndex = data.index(after: newlineIndex)
+            client.urlProtocol(self, didLoad: Data(data[searchStart ..< nextIndex]))
+            searchStart = nextIndex
+          } else {
+            client.urlProtocol(self, didLoad: Data(data[searchStart...]))
+            break
+          }
         }
       }
     }

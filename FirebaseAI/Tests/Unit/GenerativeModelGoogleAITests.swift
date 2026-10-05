@@ -62,13 +62,13 @@ final class GenerativeModelGoogleAITests: XCTestCase {
 
   let googleAISubdirectory = "mock-responses/googleai"
 
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
   var model: GenerativeModel!
 
   override func setUp() async throws {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+    httpClient = HTTPClient(configuration: configuration)
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
@@ -76,7 +76,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 

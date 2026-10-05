@@ -281,7 +281,7 @@ struct HTTPStreamingClientTests {
     }
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func earlyTerminationCancelsStream() async throws {
     let client = makeClient()
@@ -300,6 +300,8 @@ struct HTTPStreamingClientTests {
     }
 
     var receivedCount = 0
+    // Scope `linesSequence` to a `do` block so it deallocates immediately after `break`,
+    // triggering `onTermination` and cancelling the underlying `URLSessionDataTask`.
     do {
       let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
       for try await _ in linesSequence {
@@ -342,7 +344,7 @@ struct HTTPStreamingClientTests {
     #expect(collectedLines == ["ok"])
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func cancelledDataRequestAfterHeadersThrowsCancelledError() async throws {
     let client = makeClient()
@@ -374,7 +376,7 @@ struct HTTPStreamingClientTests {
     }
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func cancelledLineStreamWithPartialLineThrowsCancelledError() async throws {
     let client = makeClient()
@@ -439,12 +441,31 @@ struct HTTPStreamingClientTests {
     }
   }
 
-  @Test
+  @Test(.timeLimit(.minutes(1)))
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func sessionInvalidationMethods() {
-    let client = makeClient()
+  func sessionInvalidationMethods() async throws {
+    let finishingClient = makeClient()
+    finishingClient.finishTasksAndInvalidate()
 
-    client.finishTasksAndInvalidate()
-    client.invalidateAndCancel()
+    let cancellingClient = makeClient()
+    let testURL = try makeTestURL("invalidate-and-cancel")
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      let payload = String(repeating: "line\n", count: 2000)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+    }
+
+    let (linesSequence, _) = try await cancellingClient.lines(for: URLRequest(url: testURL))
+    cancellingClient.invalidateAndCancel()
+
+    do {
+      for try await _ in linesSequence {}
+      Issue.record("Expected invalidated session stream to throw URLError(.cancelled)")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .cancelled)
+    }
   }
 }

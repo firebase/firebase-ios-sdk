@@ -27,13 +27,13 @@ import XCTest
       "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
     let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
-    var urlSession: URLSession!
+    var httpClient: HTTPClient!
     var model: GenerativeModel!
 
     override func setUp() async throws {
       let configuration = URLSessionConfiguration.default
       configuration.protocolClasses = [MockURLProtocol.self]
-      urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+      httpClient = HTTPClient(configuration: configuration)
       model = GenerativeModel(
         modelName: testModelName,
         modelResourceName: testModelResourceName,
@@ -41,7 +41,7 @@ import XCTest
         apiConfig: apiConfig,
         tools: nil,
         requestOptions: RequestOptions(),
-        urlSession: urlSession
+        httpClient: httpClient
       )
     }
 
@@ -50,6 +50,30 @@ import XCTest
       MockURLProtocol.errorToThrowMidStream = nil
       MockURLProtocol.stopLoadingExpectation = nil
       MockURLProtocol.neverFinishes = false
+      MockURLProtocol.chunkSize = nil
+    }
+
+    func testModelsShareDefaultHTTPClient() {
+      let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
+      let model1 = GenerativeModel(
+        modelName: testModelName,
+        modelResourceName: testModelResourceName,
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        tools: nil,
+        requestOptions: RequestOptions()
+      )
+      let model2 = TemplateGenerativeModel(
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        tools: nil,
+        toolConfig: nil,
+        requestOptions: RequestOptions()
+      )
+
+      XCTAssertTrue(model1.generativeAIService.httpClient === HTTPClient.default)
+      XCTAssertTrue(model2.generativeAIService.httpClient === HTTPClient.default)
+      XCTAssertTrue(model.generativeAIService.httpClient === httpClient)
     }
 
     func testGenerateContent_failure_unrecognizedErrorPayload() async throws {
@@ -76,6 +100,86 @@ import XCTest
       } catch {
         XCTFail("Caught unexpected error: \(error)")
       }
+    }
+
+    func testGenerateContentStream_singleChunkMultipleEvents() async throws {
+      MockURLProtocol.chunkSize = .max
+      let event1 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello \"}]}}]}"
+      let event2 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"world!\"}]}}]}"
+      let responseBody = "data: \(event1)\n\ndata: \(event2)\n\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, ["Hello ", "world!"])
+    }
+
+    func testGenerateContentStream_crlfFramingAndArbitraryChunkBoundaries() async throws {
+      MockURLProtocol.chunkSize = 17
+      let event1 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"First\"}]}}]}"
+      let event2 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Second\"}]}}]}"
+      let responseBody = "data: \(event1)\r\n\r\ndata: \(event2)\r\n\r\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, ["First", "Second"])
+    }
+
+    func testGenerateContentStream_preservesUnicodeLineSeparatorsInJSON() async throws {
+      let expectedText = "Line 1\u{2028}Line 2\u{2029}Line 3"
+      let event = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(expectedText)\"}]}}]}"
+      let responseBody = "data: \(event)\n\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, [expectedText])
     }
 
     func testGenerateContentStream_failure_midStreamError_throwsError() async throws {

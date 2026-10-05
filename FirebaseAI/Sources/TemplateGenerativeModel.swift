@@ -50,10 +50,10 @@ public final class TemplateGenerativeModel: Sendable {
 
   init(firebaseInfo: FirebaseInfo, apiConfig: APIConfig, tools: [TemplateTool]?,
        toolConfig: TemplateToolConfig?, requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default) {
+       httpClient: HTTPClient = .default) {
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     self.apiConfig = apiConfig
     self.tools = tools

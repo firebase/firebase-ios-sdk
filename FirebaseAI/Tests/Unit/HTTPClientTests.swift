@@ -16,10 +16,6 @@ import FirebaseCoreInternal
 import Foundation
 import Testing
 
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-
 @testable import FirebaseAILogic
 
 #if !os(watchOS)
@@ -276,7 +272,8 @@ import Testing
       }
     }
 
-    @Test
+    @Test(.timeLimit(.minutes(1)))
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     func earlyTerminationCancelsStream() async throws {
       let client = makeClient()
       let testURL = try makeTestURL("early-termination")
@@ -294,6 +291,8 @@ import Testing
       }
 
       var receivedCount = 0
+      // Scope `linesSequence` to a `do` block so it deallocates immediately after `break`,
+      // triggering `onTermination` and cancelling the underlying `URLSessionDataTask`.
       do {
         let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
         for try await _ in linesSequence {
@@ -335,7 +334,8 @@ import Testing
       #expect(collectedLines == ["ok"])
     }
 
-    @Test
+    @Test(.timeLimit(.minutes(1)))
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     func cancelledDataRequestAfterHeadersThrowsCancelledError() async throws {
       let client = makeClient()
       let testURL = try makeTestURL("cancel-data-mid-body")
@@ -366,7 +366,8 @@ import Testing
       }
     }
 
-    @Test
+    @Test(.timeLimit(.minutes(1)))
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
     func cancelledLineStreamWithPartialLineThrowsCancelledError() async throws {
       let client = makeClient()
       let testURL = try makeTestURL("cancel-lines-mid-line")
@@ -433,46 +434,73 @@ import Testing
       }
     }
 
-    @Test
-    func sessionInvalidationMethods() {
-      let client = makeClient()
+    @Test(.timeLimit(.minutes(1)))
+    @available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *)
+    func sessionInvalidationMethods() async throws {
+      let finishingClient = makeClient()
+      finishingClient.finishTasksAndInvalidate()
 
-      client.finishTasksAndInvalidate()
-      client.invalidateAndCancel()
+      let cancellingClient = makeClient()
+      let testURL = try makeTestURL("invalidate-and-cancel")
+      let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+      StreamingTestURLProtocol.setHandler(for: testURL) { _, proto in
+        proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+        let payload = String(repeating: "line\n", count: 2000)
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+      }
+
+      let (linesSequence, _) = try await cancellingClient.lines(for: URLRequest(url: testURL))
+      cancellingClient.invalidateAndCancel()
+
+      do {
+        for try await _ in linesSequence {}
+        Issue.record("Expected invalidated session stream to throw URLError(.cancelled)")
+      } catch {
+        let urlError = try #require(error as? URLError)
+        #expect(urlError.code == .cancelled)
+      }
     }
   }
 
   // MARK: - Streaming Test URLProtocol
 
+  /// A custom `URLProtocol` for intercepting and mocking streaming HTTP requests in unit tests.
   private final class StreamingTestURLProtocol: URLProtocol {
+    /// A closure that handles a mocked `URLRequest` using the provided `StreamingTestURLProtocol`.
     typealias Handler = @Sendable (URLRequest, StreamingTestURLProtocol) throws -> Void
 
     private static let handlers = UnfairLock<[String: Handler]>([:])
     private static let stopHandlers = UnfairLock<[String: @Sendable () -> Void]>([:])
 
+    /// Registers a mock response handler for the specified URL.
     static func setHandler(for url: URL, _ handler: @escaping Handler) {
       let urlString = url.absoluteString
       handlers.withLock { $0[urlString] = handler }
     }
 
+    /// Registers a callback invoked when `stopLoading()` is called for the specified URL.
     static func setStopHandler(for url: URL, _ handler: @escaping @Sendable () -> Void) {
       let urlString = url.absoluteString
       stopHandlers.withLock { $0[urlString] = handler }
     }
 
+    /// Determines whether this protocol can handle the given request.
     override class func canInit(with request: URLRequest) -> Bool {
       guard let urlString = request.url?.absoluteString else { return false }
       return handlers.withLock { $0[urlString] != nil }
     }
 
+    /// Returns the canonical version of the given request.
     override class func canonicalRequest(for request: URLRequest) -> URLRequest {
       request
     }
 
+    /// Starts loading the mocked request by invoking its registered handler.
     override func startLoading() {
       let handler: Handler? = {
         guard let urlString = request.url?.absoluteString else { return nil }
-        return Self.handlers.withLock { $0[urlString] }
+        return Self.handlers.withLock { $0.removeValue(forKey: urlString) }
       }()
 
       guard let handler else {
@@ -487,6 +515,7 @@ import Testing
       }
     }
 
+    /// Stops loading the mocked request and notifies any registered stop handler.
     override func stopLoading() {
       if let urlString = request.url?.absoluteString {
         let stopHandler = Self.stopHandlers.withLock { $0.removeValue(forKey: urlString) }

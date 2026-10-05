@@ -13,22 +13,13 @@
 // limitations under the License.
 
 import Foundation
-#if canImport(FoundationNetworking)
-  import FoundationNetworking
-#endif
-#if canImport(os.log)
-  import os.log
-#endif
+import os.log
 
 struct GenerativeAIService {
   let firebaseInfo: FirebaseInfo
 
-  private let httpClient: HTTPClient
-
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
-    self.firebaseInfo = firebaseInfo
-    httpClient = HTTPClient(configuration: urlSession.configuration)
-  }
+  /// The HTTP client used to send requests to the backend.
+  let httpClient: HTTPClient
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
     let urlRequest = try await urlRequest(request: request)
@@ -231,18 +222,16 @@ struct GenerativeAIService {
 
     @available(macOS 11.0, *)
     private func printCURLCommand(from request: URLRequest) {
-      #if canImport(os.log)
-        guard AILog.additionalLoggingEnabled() else {
-          return
-        }
-        let command = cURLCommand(from: request)
-        os_log(.debug, log: AILog.logObject, """
-        \(AILog.service) Creating request with the equivalent cURL command:
-        ----- cURL command -----
-        \(command, privacy: .private)
-        ------------------------
-        """)
-      #endif // canImport(os.log)
+      guard AILog.additionalLoggingEnabled() else {
+        return
+      }
+      let command = cURLCommand(from: request)
+      os_log(.debug, log: AILog.logObject, """
+      \(AILog.service) Creating request with the equivalent cURL command:
+      ----- cURL command -----
+      \(command, privacy: .private)
+      ------------------------
+      """)
     }
   #endif // DEBUG
 }
