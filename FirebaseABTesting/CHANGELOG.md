@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Improved robustness when parsing malformed experiment payloads from
+  the server. (#16728)
 - [fixed] Fixed an issue where Remote Config's `activate()` completion could be
   delayed by several seconds on a busy device because A/B Testing updated
   experiments at background priority. (#16784)
