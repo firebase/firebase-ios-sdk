@@ -66,7 +66,8 @@ let package = Package(
     .target(
       name: "GeminiAPIClient",
       dependencies: [
-        "GeminiAPIDataModels"
+        "GeminiAPIDataModels",
+        "GeminiHTTPClient",
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -84,6 +85,23 @@ let package = Package(
         .enableUpcomingFeature("ExistentialAny"),
         .enableUpcomingFeature("MemberImportVisibility"),
       ]
+    ),
+    // The FirebaseAILogic CocoaPods podspec compiles these sources directly into its module, where
+    // explicit `package import`s conflict with its implicit imports; `InternalImportsByDefault` is
+    // omitted so that implicit imports can be used in `package` declarations.
+    .target(
+      name: "GeminiHTTPClient",
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+      ]
+    ),
+    .testTarget(
+      name: "GeminiHTTPClientTests",
+      dependencies: [
+        "GeminiHTTPClient"
+      ],
+      swiftSettings: defaultSwiftSettings
     ),
   ],
   swiftLanguageModes: [.v6]

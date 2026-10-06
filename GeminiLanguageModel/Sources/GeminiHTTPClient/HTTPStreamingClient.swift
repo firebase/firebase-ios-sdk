@@ -12,13 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-private import FirebaseCoreInternal
+// Modules used in `package` declarations are imported without an access-level modifier: CocoaPods
+// compiles this file directly into `FirebaseAILogic`, where mixing `package import Foundation` with
+// implicit imports in other files is an error ("ambiguous implicit access level").
 import Foundation
 
-/// An HTTP client that performs unary and streaming requests using `URLSession`.
-final class HTTPClient: Sendable {
-  /// The default shared `HTTPClient` instance for the SDK.
-  static let `default` = HTTPClient(configuration: GenAIURLSession.default.configuration)
+#if !canImport(Darwin)
+  import FoundationNetworking
+  // Declares `Mutex.withLock(_:)`, used through `LockedValue`.
+  import Synchronization
+#endif
+
+/// A cross-platform HTTP client that performs unary and streaming requests using `URLSession`.
+///
+/// Supports Apple platforms and Linux with full Swift 6 strict concurrency compliance.
+package final class HTTPClient: Sendable {
+  /// A shared client backed by an ephemeral `URLSessionConfiguration`.
+  ///
+  /// An ephemeral configuration is used rather than `.default` so that requests don't share the
+  /// app's URL cache, cookies, or credentials: responses (which may contain personal content) are
+  /// never cached to disk, and authentication is header-based, so cookies aren't needed.
+  package static let `default` = HTTPClient(configuration: .ephemeral)
 
   private let session: URLSession
   private let sessionDelegate: SessionDelegate
@@ -30,11 +44,13 @@ final class HTTPClient: Sendable {
   ///   - configuration: The `URLSessionConfiguration` to use. Defaults to `.ephemeral`.
   ///   - maxLineLength: The maximum length of a single streamed line, in bytes, excluding line
   ///     delimiters; defaults to ``HTTPLineDecoder/defaultMaxLineLength``.
-  init(configuration: URLSessionConfiguration = .ephemeral,
-       maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength) {
+  package init(
+    configuration: URLSessionConfiguration = .ephemeral,
+    maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength
+  ) {
     let delegate = SessionDelegate()
-    sessionDelegate = delegate
-    session = URLSession(
+    self.sessionDelegate = delegate
+    self.session = URLSession(
       configuration: configuration,
       delegate: delegate,
       delegateQueue: nil
@@ -51,10 +67,12 @@ final class HTTPClient: Sendable {
   /// - Parameter request: The `URLRequest` to execute.
   /// - Returns: A tuple of the response `Data` and `HTTPURLResponse` metadata.
   /// - Throws: An error if the request fails or if the response is not an HTTP response.
-  func data(for request: URLRequest) async throws -> (data: Data, response: HTTPURLResponse) {
+  package func data(
+    for request: URLRequest
+  ) async throws -> (data: Data, response: HTTPURLResponse) {
     let (data, rawResponse) = try await session.data(for: request)
     guard let httpResponse = rawResponse as? HTTPURLResponse else {
-      throw Self.nonHTTPResponseError(for: rawResponse)
+      throw Self.nonHTTPResponseError()
     }
     return (data: data, response: httpResponse)
   }
@@ -64,10 +82,9 @@ final class HTTPClient: Sendable {
   /// - Parameter request: The `URLRequest` to execute.
   /// - Returns: A tuple of the `HTTPAsyncLineSequence` stream and `HTTPURLResponse` metadata.
   /// - Throws: An error if the request fails to connect or if the response is not an HTTP response.
-  func lines(for request: URLRequest) async throws -> (
-    lines: HTTPAsyncLineSequence,
-    response: HTTPURLResponse
-  ) {
+  package func lines(
+    for request: URLRequest
+  ) async throws -> (lines: HTTPAsyncLineSequence, response: HTTPURLResponse) {
     let (dataStream, dataContinuation) = AsyncThrowingStream<Data, any Error>.makeStream()
 
     let dataTask = session.dataTask(with: request)
@@ -97,30 +114,23 @@ final class HTTPClient: Sendable {
   }
 
   /// Invalidates the session, allowing any outstanding tasks to finish.
-  func finishTasksAndInvalidate() {
+  package func finishTasksAndInvalidate() {
     session.finishTasksAndInvalidate()
   }
 
   /// Invalidates the session and cancels all active tasks.
-  func invalidateAndCancel() {
+  package func invalidateAndCancel() {
     session.invalidateAndCancel()
   }
 
   // MARK: - Internal Helpers
 
-  /// Creates a `URLError(.badServerResponse)` for a non-HTTP response, logging an error if a
-  /// `URLResponse` instance is provided.
+  /// Creates a `URLError(.badServerResponse)` indicating that the response was not an HTTP
+  /// response.
   ///
-  /// - Parameter response: The unexpected non-HTTP `URLResponse`, if one was received.
-  /// - Returns: A `URLError` indicating that the server response was not an HTTP response.
-  static func nonHTTPResponseError(for response: URLResponse? = nil) -> URLError {
-    if let response {
-      AILog.error(
-        code: .generativeAIServiceNonHTTPResponse,
-        "Response wasn't an HTTP response, internal error \(response)"
-      )
-    }
-    return URLError(
+  /// - Returns: A `URLError` with `.badServerResponse`.
+  static func nonHTTPResponseError() -> URLError {
+    URLError(
       .badServerResponse,
       userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
     )
@@ -130,18 +140,16 @@ final class HTTPClient: Sendable {
 // MARK: - HTTP Async Line Sequence
 
 /// An asynchronous sequence of lines of text parsed from an HTTP byte stream.
-struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
+package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   /// The type of element produced by this asynchronous sequence.
-  typealias Element = String
+  package typealias Element = String
 
   private let dataStream: AsyncThrowingStream<Data, any Error>
 
   /// The underlying `URLSessionTask` performing the data transfer.
-  private let task: URLSessionTask
-
+  package let task: URLSessionTask
   /// The maximum length of a single line, in bytes, excluding line delimiters.
   private let maxLineLength: Int
-
   /// Retained to prevent the client (and its session) from deallocating during iteration.
   private let client: HTTPClient
 
@@ -152,10 +160,12 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   ///   - task: The URL session task.
   ///   - maxLineLength: The maximum length of a single line, in bytes, excluding line delimiters.
   ///   - client: The HTTP client that created this sequence.
-  init(dataStream: AsyncThrowingStream<Data, any Error>,
-       task: URLSessionTask,
-       maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength,
-       client: HTTPClient) {
+  init(
+    dataStream: AsyncThrowingStream<Data, any Error>,
+    task: URLSessionTask,
+    maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength,
+    client: HTTPClient
+  ) {
     self.dataStream = dataStream
     self.task = task
     self.maxLineLength = maxLineLength
@@ -165,7 +175,7 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   /// Creates an asynchronous iterator over the line sequence.
   ///
   /// - Returns: An `AsyncIterator` instance.
-  func makeAsyncIterator() -> AsyncIterator {
+  package func makeAsyncIterator() -> AsyncIterator {
     AsyncIterator(
       streamIterator: dataStream.makeAsyncIterator(),
       task: task,
@@ -175,7 +185,7 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
   }
 
   /// An asynchronous iterator over lines of text decoded from an HTTP response.
-  struct AsyncIterator: AsyncIteratorProtocol {
+  package struct AsyncIterator: AsyncIteratorProtocol {
     private var streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator
     private var decoder: HTTPLineDecoder
     private var pendingLines: ArraySlice<String> = []
@@ -193,13 +203,15 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     ///   - task: The URL session task delivering the byte stream.
     ///   - maxLineLength: The maximum length of a single line, in bytes, excluding line delimiters.
     ///   - client: The HTTP client that created this sequence.
-    init(streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator,
-         task: URLSessionTask,
-         maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength,
-         client: HTTPClient) {
+    init(
+      streamIterator: AsyncThrowingStream<Data, any Error>.AsyncIterator,
+      task: URLSessionTask,
+      maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength,
+      client: HTTPClient
+    ) {
       self.streamIterator = streamIterator
-      decoder = HTTPLineDecoder(maxLineLength: maxLineLength)
-      cancellationToken = TaskCancellationToken(task: task)
+      self.decoder = HTTPLineDecoder(maxLineLength: maxLineLength)
+      self.cancellationToken = TaskCancellationToken(task: task)
       self.client = client
     }
 
@@ -207,7 +219,7 @@ struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
     ///
     /// - Returns: The next decoded line of text, or `nil` if the stream has finished.
     /// - Throws: An error if reading from the stream fails.
-    mutating func next() async throws -> String? {
+    package mutating func next() async throws -> String? {
       guard !isFinished else { return nil }
 
       do {
@@ -273,7 +285,7 @@ private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable 
     var invalidationError: (any Error)?
   }
 
-  private let state = UnfairLock<State>(State())
+  private let state = LockedValue<State>(State())
 
   /// Registers a delegate for the given task identifier.
   ///
@@ -308,9 +320,10 @@ private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable 
 
   // MARK: - URLSessionDataDelegate
 
-  func urlSession(_ session: URLSession, dataTask: URLSessionDataTask,
-                  didReceive response: URLResponse,
-                  completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+  func urlSession(
+    _ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+  ) {
     guard let delegate = taskDelegate(for: dataTask.taskIdentifier) else {
       completionHandler(.allow)
       return
@@ -323,8 +336,9 @@ private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable 
     delegate.didReceive(data: data)
   }
 
-  func urlSession(_ session: URLSession, task: URLSessionTask,
-                  didCompleteWithError error: (any Error)?) {
+  func urlSession(
+    _ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?
+  ) {
     let delegate = removeTaskDelegate(for: task.taskIdentifier)
     delegate?.didComplete(withError: error)
   }
@@ -355,7 +369,7 @@ private final class TaskDelegate: Sendable {
     case completed(Result<HTTPURLResponse, any Error>)
   }
 
-  private let responseState = UnfairLock<ResponseState>(.pending)
+  private let responseState = LockedValue<ResponseState>(.pending)
   private let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
 
   /// Initializes a new per-task delegate writing body chunks into `dataContinuation`.
@@ -375,7 +389,7 @@ private final class TaskDelegate: Sendable {
       case .waiting:
         assertionFailure("Response continuation set multiple times.")
         return .failure(URLError(.unknown))
-      case let .completed(result):
+      case .completed(let result):
         return result
       }
     }
@@ -392,18 +406,20 @@ private final class TaskDelegate: Sendable {
   /// - Parameters:
   ///   - response: The `URLResponse` received for the task.
   ///   - completionHandler: The disposition handler to invoke to continue or cancel the load.
-  func didReceive(response: URLResponse,
-                  completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+  func didReceive(
+    response: URLResponse,
+    completionHandler: @escaping (URLSession.ResponseDisposition) -> Void
+  ) {
     // 1. Dedicated hook for the response header
     if let httpResponse = response as? HTTPURLResponse {
-      if (100 ... 199).contains(httpResponse.statusCode) {
+      if (100...199).contains(httpResponse.statusCode) {
         completionHandler(.allow)
         return
       }
       resumeResponse(with: .success(httpResponse))
       completionHandler(.allow)
     } else {
-      resumeResponse(with: .failure(HTTPClient.nonHTTPResponseError(for: response)))
+      resumeResponse(with: .failure(HTTPClient.nonHTTPResponseError()))
       completionHandler(.cancel)
     }
   }
@@ -435,18 +451,18 @@ private final class TaskDelegate: Sendable {
   private func resumeResponse(with result: Result<HTTPURLResponse, any Error>) {
     let continuationToResume: CheckedContinuation<HTTPURLResponse, any Error>? =
       responseState
-        .withLock { state in
-          switch state {
-          case .pending:
-            state = .completed(result)
-            return nil
-          case let .waiting(continuation):
-            state = .completed(result)
-            return continuation
-          case .completed:
-            return nil
-          }
+      .withLock { state in
+        switch state {
+        case .pending:
+          state = .completed(result)
+          return nil
+        case .waiting(let continuation):
+          state = .completed(result)
+          return continuation
+        case .completed:
+          return nil
         }
+      }
     continuationToResume?.resume(with: result)
   }
 }

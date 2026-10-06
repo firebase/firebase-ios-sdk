@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package import Foundation
+// Imported without an access-level modifier for CocoaPods compatibility; see
+// `HTTPStreamingClient.swift`.
+import Foundation
 
 /// An incremental decoder that extracts UTF-8 lines of text from streaming byte chunks.
 package struct HTTPLineDecoder: Sendable {

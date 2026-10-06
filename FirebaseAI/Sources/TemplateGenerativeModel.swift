@@ -14,6 +14,10 @@
 
 import Foundation
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 /// **[Public Preview]** A multimodal model (like Gemini) that generates content using
 /// server-managed prompt templates.
 ///

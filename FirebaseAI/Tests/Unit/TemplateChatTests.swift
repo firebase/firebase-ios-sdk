@@ -16,6 +16,10 @@
 import FirebaseCore
 import XCTest
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class TemplateChatTests: XCTestCase {
   var model: TemplateGenerativeModel!

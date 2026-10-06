@@ -17,6 +17,10 @@ import CoreLocation
 import FirebaseCore
 import XCTest
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class TemplateGenerativeModelTests: XCTestCase {
   var httpClient: HTTPClient!

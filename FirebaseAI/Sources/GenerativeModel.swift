@@ -16,6 +16,10 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import Foundation
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 /// A type that represents a remote multimodal model (like Gemini), with the ability to generate
 /// content based on various input types.
 public final class GenerativeModel: Sendable {

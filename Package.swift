@@ -1360,6 +1360,7 @@ func packageTargets() -> [Target] {
     ),
   ]
   targets.append(contentsOf: firestoreTargets())
+  targets.append(contentsOf: geminiHTTPClientTargets())
 
   #if compiler(>=6.4) && canImport(FoundationModels)
     targets.append(contentsOf: geminiLanguageModelTargets())
@@ -1703,6 +1704,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
     "FirebaseAuthInterop",
     "FirebaseCore",
     "FirebaseCoreExtension",
+    "GeminiHTTPClient",
   ]
 
   #if compiler(>=6.4) && canImport(FoundationModels)
@@ -1710,6 +1712,39 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
   #endif // compiler(>=6.4) && canImport(FoundationModels)
 
   return dependencies
+}
+
+/// Targets for the HTTP client shared by `FirebaseAILogic` and `GeminiAPIClient`.
+///
+/// Unlike the other `GeminiLanguageModel` targets, these are not gated on the compiler version
+/// because `FirebaseAILogic` always depends on them. Keep in sync with
+/// `GeminiLanguageModel/Package.swift`.
+func geminiHTTPClientTargets() -> [Target] {
+  return [
+    // `InternalImportsByDefault` is omitted because the FirebaseAILogic podspec compiles these
+    // sources directly into its module, where explicit `package import`s conflict with its
+    // implicit imports.
+    .target(
+      name: "GeminiHTTPClient",
+      path: "GeminiLanguageModel/Sources/GeminiHTTPClient",
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .swiftLanguageMode(.v6),
+      ]
+    ),
+    .testTarget(
+      name: "GeminiHTTPClientTests",
+      dependencies: ["GeminiHTTPClient"],
+      path: "GeminiLanguageModel/Tests/GeminiHTTPClientTests",
+      swiftSettings: [
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .swiftLanguageMode(.v6),
+      ]
+    ),
+  ]
 }
 
 #if compiler(>=6.4) && canImport(FoundationModels)
@@ -1744,6 +1779,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
         name: "GeminiAPIClient",
         dependencies: [
           "GeminiAPIDataModels",
+          "GeminiHTTPClient",
         ],
         path: "GeminiLanguageModel/Sources/GeminiAPIClient",
         swiftSettings: swiftSettings

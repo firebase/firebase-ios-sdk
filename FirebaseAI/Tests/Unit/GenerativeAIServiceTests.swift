@@ -19,6 +19,10 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 #if !os(watchOS)
   @available(macOS 12.0, *)
   final class GenerativeAIServiceTests: XCTestCase {

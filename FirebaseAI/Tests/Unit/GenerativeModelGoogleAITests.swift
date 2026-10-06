@@ -19,6 +19,10 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelGoogleAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"

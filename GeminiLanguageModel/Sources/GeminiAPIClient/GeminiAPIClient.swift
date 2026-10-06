@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package import GeminiAPIDataModels
+import GeminiHTTPClient
 
 #if canImport(Darwin)
   package import Foundation
@@ -35,7 +36,7 @@ package struct GeminiAPIClient: Sendable {
   /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
   let headerProvider: HeaderProvider?
 
-  private let httpClient: HTTPStreamingClient
+  private let httpClient: HTTPClient
 
   /// Initializes a new Gemini API client with a model resource and target endpoint configuration.
   ///
@@ -56,7 +57,7 @@ package struct GeminiAPIClient: Sendable {
     self.modelResource = modelResource
     self.endpointConfiguration = endpointConfiguration
     self.headerProvider = headerProvider
-    self.httpClient = HTTPStreamingClient(configuration: sessionConfiguration)
+    self.httpClient = HTTPClient(configuration: sessionConfiguration)
   }
 
   /// Sends a streaming text generation request and delivers responses asynchronously as a

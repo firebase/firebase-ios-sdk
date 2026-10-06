@@ -15,6 +15,10 @@
 import Foundation
 import os.log
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 struct GenerativeAIService {
   let firebaseInfo: FirebaseInfo
 

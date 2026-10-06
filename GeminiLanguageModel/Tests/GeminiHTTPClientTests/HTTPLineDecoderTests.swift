@@ -15,7 +15,11 @@
 import Foundation
 import Testing
 
-@testable import FirebaseAILogic
+#if COCOAPODS
+  @testable import FirebaseAILogic
+#else
+  import GeminiHTTPClient
+#endif
 
 @Suite("HTTPLineDecoder Tests")
 struct HTTPLineDecoderTests {
@@ -87,8 +91,8 @@ struct HTTPLineDecoderTests {
     var decoder = HTTPLineDecoder()
     // "🎉" is 4 bytes: 0xF0, 0x9F, 0x8E, 0x89
     let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89]
-    let chunk1 = Data("Start ".utf8) + Data(emojiBytes[0 ..< 2])
-    let chunk2 = Data(emojiBytes[2 ..< 4]) + Data(" End\n".utf8)
+    let chunk1 = Data("Start ".utf8) + Data(emojiBytes[0..<2])
+    let chunk2 = Data(emojiBytes[2..<4]) + Data(" End\n".utf8)
 
     let lines1 = try decoder.feed(chunk1)
     let lines2 = try decoder.feed(chunk2)
@@ -179,7 +183,7 @@ struct HTTPLineDecoderTests {
     var expectedLines: [String] = []
     var combinedData = Data()
 
-    for index in 1 ... 500 {
+    for index in 1...500 {
       let line = "Event item #\(index) with some UTF-8 data: 🚀✨"
       expectedLines.append(line)
       let delimiter = index.isMultiple(of: 2) ? "\r\n" : "\n"

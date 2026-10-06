@@ -12,11 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreInternal
 import Foundation
 import Testing
 
-@testable import FirebaseAILogic
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+
+#if !canImport(Darwin)
+  // Declares `Mutex.withLock(_:)`, used through `LockedValue`.
+  import Synchronization
+#endif
+
+#if COCOAPODS
+  @testable import FirebaseAILogic
+#else
+  import GeminiHTTPClient
+#endif
 
 #if !os(watchOS)
   @Suite("HTTPClient Tests")
@@ -24,7 +36,8 @@ import Testing
     private let testID = UUID().uuidString
 
     private func makeClient(maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength)
-      -> HTTPClient {
+      -> HTTPClient
+    {
       let configuration = URLSessionConfiguration.ephemeral
       configuration.protocolClasses = [StreamingTestURLProtocol.self]
       return HTTPClient(configuration: configuration, maxLineLength: maxLineLength)
@@ -34,8 +47,10 @@ import Testing
       try #require(URL(string: "https://example.com/\(testID)/\(path)"))
     }
 
-    private func makeResponse(url: URL, statusCode: Int = 200,
-                              headerFields: [String: String]? = nil) throws -> HTTPURLResponse {
+    private func makeResponse(
+      url: URL, statusCode: Int = 200,
+      headerFields: [String: String]? = nil
+    ) throws -> HTTPURLResponse {
       try #require(
         HTTPURLResponse(
           url: url,
@@ -172,14 +187,14 @@ import Testing
       let testURL = try makeTestURL("stream-crlf-utf8")
       let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
 
-      let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89] // 🎉
+      let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89]  // 🎉
       StreamingTestURLProtocol.setHandler(for: testURL) { _, proto in
         proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
         proto.client?.urlProtocol(proto, didLoad: Data("Greeting\r".utf8))
-        proto.client?.urlProtocol(proto, didLoad: Data("\nParty ".utf8) + Data(emojiBytes[0 ..< 2]))
+        proto.client?.urlProtocol(proto, didLoad: Data("\nParty ".utf8) + Data(emojiBytes[0..<2]))
         proto.client?.urlProtocol(
           proto,
-          didLoad: Data(emojiBytes[2 ..< 4]) + Data(" Time\r\n".utf8)
+          didLoad: Data(emojiBytes[2..<4]) + Data(" Time\r\n".utf8)
         )
         proto.client?.urlProtocolDidFinishLoading(proto)
       }
@@ -551,8 +566,8 @@ import Testing
     /// A closure that handles a mocked `URLRequest` using the provided `StreamingTestURLProtocol`.
     typealias Handler = @Sendable (URLRequest, StreamingTestURLProtocol) throws -> Void
 
-    private static let handlers = UnfairLock<[String: Handler]>([:])
-    private static let stopHandlers = UnfairLock<[String: @Sendable () -> Void]>([:])
+    private static let handlers = LockedValue<[String: Handler]>([:])
+    private static let stopHandlers = LockedValue<[String: @Sendable () -> Void]>([:])
 
     /// Registers a mock response handler for the specified URL.
     static func setHandler(for url: URL, _ handler: @escaping Handler) {
@@ -605,4 +620,4 @@ import Testing
       client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
     }
   }
-#endif // !os(watchOS)
+#endif  // !os(watchOS)
