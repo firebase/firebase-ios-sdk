@@ -1,9 +1,10 @@
 # Unreleased
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
-- [fixed] Fixed crashes when nested fields of a fetch response have unexpected
-  JSON types (a non-string `state`, a non-dictionary `entries`, a non-string
-  entry value, or a non-dictionary server `error`).
+- [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
+  `entries`, `personalizationMetadata`, `rolloutMetadata`,
+  `experimentDescriptions` or a server `error`) have unexpected JSON types.
+  (#16800)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`

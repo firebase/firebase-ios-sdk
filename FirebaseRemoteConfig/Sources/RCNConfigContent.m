@@ -343,7 +343,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                 withEntries:(NSDictionary *)entries {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000058", @"Update config in DB for namespace:%@",
               currentNamespace);
-  if (![entries isKindOfClass:[NSDictionary class]]) {
+  // A missing `entries` is a valid empty config; only a present value with the wrong type is
+  // malformed.
+  if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000079",
                 @"Entries field in fetch response is not a dictionary. Update dropped.");
     return;

@@ -172,6 +172,29 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   XCTAssertNil(fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
   XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
                         @"value2");
+
+  // A non-dictionary `entries` drops the update and keeps the previously fetched values.
+  [_configContent
+      updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @"not-a-dict"}
+                         forNamespace:_namespaceGoogleMobilePlatform];
+  fetchedConfig = _configContent.fetchedConfig;
+  XCTAssertEqualObjects([fetchedConfig[_namespaceGoogleMobilePlatform][@"key2"] stringValue],
+                        @"value2");
+}
+
+/// An `UPDATE` response without `entries` is a valid empty config and clears the previously
+/// fetched values.
+- (void)testUpdateConfigContentWithUpdateStateAndNoEntriesClearsFetchedConfig {
+  [_configContent
+      updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @{@"key1" : @"value1"}}
+                         forNamespace:_namespaceGoogleMobilePlatform];
+  XCTAssertNotNil(_configContent.fetchedConfig[_namespaceGoogleMobilePlatform][@"key1"]);
+
+  [_configContent updateConfigContentWithResponse:@{@"state" : @"UPDATE"}
+                                     forNamespace:_namespaceGoogleMobilePlatform];
+  NSDictionary *fetchedConfig = _configContent.fetchedConfig;
+  XCTAssertNotNil(fetchedConfig[_namespaceGoogleMobilePlatform]);
+  XCTAssertEqual(((NSDictionary *)fetchedConfig[_namespaceGoogleMobilePlatform]).count, 0);
 }
 
 /// Verify that fetchedConfig is overwritten for a new fetch call.
