@@ -312,11 +312,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return;
   }
 #endif  // !TARGET_OS_WATCH
-  static dispatch_once_t prewarmIsSandboxAppOnceToken;
-  dispatch_once(&prewarmIsSandboxAppOnceToken, ^{
-    dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
-      FIRMessagingIsSandboxApp();
-    });
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
+    FIRMessagingIsSandboxApp();
   });
 #endif  // !TARGET_OS_SIMULATOR
 }
