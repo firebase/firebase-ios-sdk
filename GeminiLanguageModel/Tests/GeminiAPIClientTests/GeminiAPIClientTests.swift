@@ -610,6 +610,63 @@ struct GeminiAPIClientTests {
     }
   }
 
+  @Test(.timeLimit(.minutes(1)))
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func streamGenerateContentMidStreamErrorFinishesIteratorAndCancelsTask() async throws {
+    let client = makeClient()
+    let expectedURL = try makeExpectedURL()
+    let httpResponse = try makeResponse(
+      url: expectedURL,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let (stopStream, stopContinuation) = AsyncStream<Void>.makeStream()
+
+    let payload = """
+      data: {"candidates": [{"content": {"parts": [{"text": "First "}]},"index": 0}]}
+
+      data: {"error": {"code": 500, "message": "Internal error occurred.", "status": "INTERNAL"}}
+
+      data: {"candidates": [{"content": {"parts": [{"text": "Never delivered"}]},"index": 0}]}
+
+
+      """
+
+    MockHTTPURLProtocol.setStopHandler(for: expectedURL) {
+      stopContinuation.yield()
+      stopContinuation.finish()
+    }
+    MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+      // Leave the connection open; the stream is expected to cancel it after the error.
+    }
+
+    let request = makePromptRequest("Mid-stream error cancellation test")
+    let stream = try await client.generateContentStream(for: request)
+    var iterator = stream.makeAsyncIterator()
+    let first = try await iterator.next()
+    let thrownError: (any Error)?
+    do {
+      _ = try await iterator.next()
+      thrownError = nil
+    } catch {
+      thrownError = error
+    }
+    // The iterator and stream are still retained here, so only the iterator's own error handling
+    // can have cancelled the task.
+    var stopIterator = stopStream.makeAsyncIterator()
+    await stopIterator.next()
+    let afterError = try await iterator.next()
+
+    #expect(extractText(from: first) == "First ")
+    guard case .apiError(let apiError)? = thrownError as? GeminiAPIError else {
+      Issue.record("Expected GeminiAPIError.apiError, got \(String(describing: thrownError))")
+      return
+    }
+    #expect(apiError.code == 500)
+    #expect(afterError == nil)
+  }
+
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensSuccess() async throws {

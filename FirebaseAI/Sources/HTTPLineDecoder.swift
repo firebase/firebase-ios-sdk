@@ -22,6 +22,9 @@ struct HTTPLineDecoder: Sendable {
   /// encoded images) is expected to fit comfortably within this limit.
   static let defaultMaxLineLength = 100 * 1024 * 1024
 
+  /// The largest stitched-line buffer, in bytes, whose capacity is retained for reuse (64 KiB).
+  private static let retainedBufferCapacity = 64 * 1024
+
   /// The maximum length of a single line, in bytes, excluding line delimiters.
   let maxLineLength: Int
 
@@ -86,7 +89,10 @@ struct HTTPLineDecoder: Sendable {
         // Slow path: Stitch together bytes split across chunk boundaries
         buffer.append(lineSlice)
         line = String(decoding: buffer, as: UTF8.self)
-        buffer.removeAll(keepingCapacity: true)
+        // Keep the allocation for typical line sizes to avoid reallocating on every stitched line,
+        // but release it after an unusually large line (e.g., inline image data) so the capacity
+        // is not retained for the remainder of the stream.
+        buffer.removeAll(keepingCapacity: buffer.count <= Self.retainedBufferCapacity)
       }
       lines.append(line)
 

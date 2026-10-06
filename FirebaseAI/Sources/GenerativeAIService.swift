@@ -98,8 +98,13 @@ struct GenerativeAIService {
               let data = try jsonData(jsonText: jsonText)
               let content = try parseResponse(T.Response.self, from: data)
               continuation.yield(content)
+            } else if line.hasPrefix(":") || line.hasPrefix("event:") || line.hasPrefix("id:")
+              || line.hasPrefix("retry:") {
+              // Ignore SSE comments (e.g., ": keep-alive") and control fields; they carry no
+              // response content.
+              continue
             } else {
-              extraLines += line
+              extraLines += line + "\n"
             }
           }
 

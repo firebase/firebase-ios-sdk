@@ -28,10 +28,12 @@ struct HTTPStreamingClientTests {
   private let testID = UUID().uuidString
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  private func makeClient() -> HTTPStreamingClient {
+  private func makeClient(
+    maxLineLength: Int = HTTPLineDecoder.defaultMaxLineLength
+  ) -> HTTPStreamingClient {
     let configuration = URLSessionConfiguration.ephemeral
     configuration.protocolClasses = [MockHTTPURLProtocol.self]
-    return HTTPStreamingClient(configuration: configuration)
+    return HTTPStreamingClient(configuration: configuration, maxLineLength: maxLineLength)
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
@@ -110,7 +112,7 @@ struct HTTPStreamingClientTests {
 
   @Test
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamsLinesAndReturnsTask() async throws {
+  func streamsLines() async throws {
     let client = makeClient()
     let testURL = try makeTestURL("bytes-api")
     let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
@@ -299,23 +301,102 @@ struct HTTPStreamingClientTests {
       proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
     }
 
+    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
     var receivedCount = 0
-    // Scope `linesSequence` to a `do` block so it deallocates immediately after `break`,
-    // triggering `onTermination` and cancelling the underlying `URLSessionDataTask`.
-    do {
-      let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
-      for try await _ in linesSequence {
-        receivedCount += 1
-        if receivedCount == 2 {
-          break
-        }
+    for try await _ in linesSequence {
+      receivedCount += 1
+      if receivedCount == 2 {
+        break
       }
     }
 
+    // Breaking out of the loop releases only the iterator; `linesSequence` is deliberately kept
+    // alive until after `stopLoading()` is observed, verifying that dropping the iterator alone
+    // cancels the underlying `URLSessionDataTask`.
+    var stopIterator = stopStream.makeAsyncIterator()
+    await stopIterator.next()
+    withExtendedLifetime(linesSequence) {}
+
+    #expect(receivedCount == 2)
+  }
+
+  @Test(.timeLimit(.minutes(1)))
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func cancelledLineStreamWithBufferedLinesThrowsCancelledErrorThenFinishes() async throws {
+    let client = makeClient()
+    let testURL = try makeTestURL("cancel-lines-buffered")
+    let testResponse = try makeResponse(url: testURL, statusCode: 200, headerFields: nil)
+
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("line1\nline2\nline3\n".utf8))
+      proto.client?.urlProtocolDidFinishLoading(proto)
+    }
+
+    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
+    let consumeTask = Task { () -> (first: String?, error: (any Error)?, afterError: String?) in
+      var iterator = linesSequence.makeAsyncIterator()
+      let first = try await iterator.next()
+      withUnsafeCurrentTask { $0?.cancel() }
+      do {
+        let second = try await iterator.next()
+        return (first: first, error: nil, afterError: second)
+      } catch {
+        let afterError = try await iterator.next()
+        return (first: first, error: error, afterError: afterError)
+      }
+    }
+
+    let result = try await consumeTask.value
+
+    #expect(result.first == "line1")
+    let urlError = try #require(result.error as? URLError)
+    #expect(urlError.code == .cancelled)
+    #expect(result.afterError == nil)
+  }
+
+  @Test(.timeLimit(.minutes(1)))
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func lineExceedingMaximumLengthThrowsThenFinishesAndCancelsTask() async throws {
+    let client = makeClient(maxLineLength: 8)
+    let testURL = try makeTestURL("line-too-long")
+    // Without a `Content-Type`, `URLSession` withholds the response and body until it has 512 bytes
+    // to sniff the MIME type (or loading ends), which would stall this deliberately unfinished load.
+    let testResponse = try makeResponse(
+      url: testURL,
+      statusCode: 200,
+      headerFields: ["Content-Type": "text/event-stream"]
+    )
+    let (stopStream, stopContinuation) = AsyncStream<Void>.makeStream()
+
+    MockHTTPURLProtocol.setStopHandler(for: testURL) {
+      stopContinuation.yield()
+      stopContinuation.finish()
+    }
+    MockHTTPURLProtocol.setHandler(for: testURL) { _, proto in
+      proto.client?.urlProtocol(proto, didReceive: testResponse, cacheStoragePolicy: .notAllowed)
+      proto.client?.urlProtocol(proto, didLoad: Data("this line is longer than eight bytes".utf8))
+      // Leave the connection open; the client is expected to cancel it after the error.
+    }
+
+    let (linesSequence, _) = try await client.lines(for: URLRequest(url: testURL))
+    var iterator = linesSequence.makeAsyncIterator()
+    let thrownError: (any Error)?
+    do {
+      _ = try await iterator.next()
+      thrownError = nil
+    } catch {
+      thrownError = error
+    }
+    let afterError = try await iterator.next()
+    // The iterator and sequence are still retained here, so only the iterator's own error handling
+    // can have cancelled the task.
     var stopIterator = stopStream.makeAsyncIterator()
     await stopIterator.next()
 
-    #expect(receivedCount == 2)
+    let urlError = try #require(thrownError as? URLError)
+    #expect(urlError.code == .dataLengthExceedsMaximum)
+    #expect(afterError == nil)
   }
 
   @Test
