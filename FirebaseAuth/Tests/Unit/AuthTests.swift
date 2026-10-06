@@ -2087,6 +2087,52 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
   }
 
+  /** @fn testAuthStateChangesInitialCallbackWaitsForStoredUser
+      @brief Tests that the initial call of a listener added while @c Auth is still loading the
+          stored user reports that user, not nil.
+   */
+  func testAuthStateChangesInitialCallbackWaitsForStoredUser() throws {
+    // Save a signed-in user to a keychain for a new `Auth` instance to load at startup.
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    // Hold the work queue, so the new instance is still loading the user when the listener is
+    // added.
+    let workQueueHold = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workQueueHold.wait()
+    }
+    let restoringAuth = Auth(app: app,
+                             keychainStorageProvider: keychainStorage,
+                             backend: authBackend)
+    let expectation = self.expectation(description: "initial")
+    var listenerUsers: [User?] = []
+    let handle = restoringAuth.addStateDidChangeListener { _, listenerUser in
+      XCTAssertTrue(Thread.isMainThread)
+      listenerUsers.append(listenerUser)
+      if listenerUsers.count == 1 {
+        expectation.fulfill()
+      }
+    }
+    // Let the main queue run, as it would in an app, before the user is loaded.
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.2))
+    workQueueHold.signal()
+    waitForExpectations(timeout: 5)
+
+    // Let any remaining calls run.
+    waitForAuthGlobalWorkQueueDrain()
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+    XCTAssertEqual(listenerUsers.count, 1)
+    XCTAssertEqual(listenerUsers.first??.uid, user.uid)
+    restoringAuth.removeStateDidChangeListener(handle)
+  }
+
   /** @fn testUseEmulator
       @brief Tests the @c useEmulatorWithHost:port: method.
    */
