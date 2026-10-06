@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [added] Added `Auth.automaticSignOutNotification`, which is posted with the
+  error when Auth signs out the user because the backend reported that the
+  user or the session is no longer valid. (#16855)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone

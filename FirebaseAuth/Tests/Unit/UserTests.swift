@@ -844,6 +844,124 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testAutomaticSignOutNotificationAfterRequestError
+      @brief Tests that an automatic sign-out after a failed request posts
+          @c automaticSignOutNotification with the error and the user ID, after the auth state
+          change notification for the sign-out.
+   */
+  func testAutomaticSignOutNotificationAfterRequestError() throws {
+    setFakeGetAccountProvider()
+    let auth = try XCTUnwrap(self.auth)
+    let signedOutStateChange = expectation(forNotification: Auth.authStateDidChangeNotification,
+                                           object: auth) { _ in
+      auth.currentUser == nil
+    }
+    let signOutNotification = expectation(forNotification: Auth.automaticSignOutNotification,
+                                          object: auth) { notification in
+      XCTAssertTrue(Thread.isMainThread)
+      let error = notification.userInfo?[Auth.automaticSignOutErrorKey] as? NSError
+      XCTAssertEqual(error?.code, AuthErrorCode.userDisabled.rawValue)
+      XCTAssertEqual(notification.userInfo?[Auth.automaticSignOutUserIDKey] as? String,
+                     self.kLocalID)
+      XCTAssertNil(auth.currentUser)
+      return true
+    }
+    let completion = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
+      }
+      user.updatePassword(to: self.kNewPassword) { error in
+        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.userDisabled.rawValue)
+        completion.fulfill()
+      }
+    }
+    wait(for: [signedOutStateChange, signOutNotification], timeout: 5, enforceOrder: true)
+    wait(for: [completion], timeout: 5)
+  }
+
+  /** @fn testAutomaticSignOutNotificationAfterTokenRefreshError
+      @brief Tests that an automatic sign-out after a failed token refresh posts
+          @c automaticSignOutNotification with the error and the user ID.
+   */
+  func testAutomaticSignOutNotificationAfterTokenRefreshError() throws {
+    setFakeGetAccountProvider()
+    let auth = try XCTUnwrap(self.auth)
+    let signOutNotification = expectation(forNotification: Auth.automaticSignOutNotification,
+                                          object: auth) { notification in
+      XCTAssertTrue(Thread.isMainThread)
+      let error = notification.userInfo?[Auth.automaticSignOutErrorKey] as? NSError
+      XCTAssertEqual(error?.code, AuthErrorCode.userTokenExpired.rawValue)
+      XCTAssertEqual(notification.userInfo?[Auth.automaticSignOutUserIDKey] as? String,
+                     self.kLocalID)
+      XCTAssertNil(auth.currentUser)
+      return true
+    }
+    let completion = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+      user.getIDTokenResult(forcingRefresh: true) { tokenResult, error in
+        XCTAssertNil(tokenResult)
+        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.userTokenExpired.rawValue)
+        XCTAssertNil(auth.currentUser)
+        completion.fulfill()
+      }
+    }
+    wait(for: [signOutNotification, completion], timeout: 5)
+  }
+
+  /** @fn testSignOutDoesNotPostAutomaticSignOutNotification
+      @brief Tests that @c signOut does not post @c automaticSignOutNotification.
+   */
+  func testSignOutDoesNotPostAutomaticSignOutNotification() throws {
+    setFakeGetAccountProvider()
+    let auth = try XCTUnwrap(self.auth)
+    let signOutNotification = expectation(forNotification: Auth.automaticSignOutNotification,
+                                          object: auth)
+    signOutNotification.isInverted = true
+    let signedOut = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { _ in
+      do {
+        try auth.signOut()
+      } catch {
+        XCTFail("Sign out failed: \(error)")
+      }
+      // The notification would be queued on the main queue before this block.
+      DispatchQueue.main.async {
+        signedOut.fulfill()
+      }
+    }
+    wait(for: [signedOut], timeout: 5)
+    wait(for: [signOutNotification], timeout: 0.1)
+    XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testDeleteDoesNotPostAutomaticSignOutNotification
+      @brief Tests that @c delete signs out without posting @c automaticSignOutNotification.
+   */
+  func testDeleteDoesNotPostAutomaticSignOutNotification() throws {
+    setFakeGetAccountProvider()
+    let auth = try XCTUnwrap(self.auth)
+    let signOutNotification = expectation(forNotification: Auth.automaticSignOutNotification,
+                                          object: auth)
+    signOutNotification.isInverted = true
+    let completion = expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is DeleteAccountRequest)
+        return try self.rpcIssuer.respond(withJSON: [:])
+      }
+      user.delete { error in
+        XCTAssertNil(error)
+        XCTAssertNil(auth.currentUser)
+        completion.fulfill()
+      }
+    }
+    // The notification would be queued on the main queue before the completion.
+    wait(for: [completion], timeout: 5)
+    wait(for: [signOutNotification], timeout: 0.1)
+  }
+
   /** @fn testReloadSuccess
       @brief Tests the flow of a successful @c reloadWithCompletion: call.
    */

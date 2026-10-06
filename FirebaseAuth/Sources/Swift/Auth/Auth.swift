@@ -1621,6 +1621,31 @@ extension Auth: AuthInterop {
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
 
+  /// The name of the `NotificationCenter` notification which is posted when `Auth` signs out the
+  /// current user because the backend reported that the user or the user's session is no longer
+  /// valid.
+  ///
+  /// This happens when a backend request or a token refresh for the current user fails with
+  /// `AuthErrorCode.userNotFound`, `.userDisabled`, `.invalidUserToken`, or `.userTokenExpired`.
+  /// For example, the account was deleted or disabled, or the user's refresh token expired or was
+  /// revoked. The notification isn't posted when the app calls `signOut()` or `User.delete()`.
+  ///
+  /// The notification is posted on the main thread, after the `authStateDidChangeNotification`
+  /// for the sign-out. The object parameter of the notification is the sender `Auth` instance.
+  /// The `userInfo` dictionary contains the error that caused the sign-out under
+  /// `automaticSignOutErrorKey`, and the ID of the user who was signed out under
+  /// `automaticSignOutUserIDKey`.
+  public static let automaticSignOutNotification =
+    NSNotification.Name(rawValue: "FIRAuthAutomaticSignOutNotification")
+
+  /// The key in the `userInfo` dictionary of `automaticSignOutNotification` for the `Error` that
+  /// caused the sign-out.
+  public static let automaticSignOutErrorKey = "FIRAuthAutomaticSignOutErrorKey"
+
+  /// The key in the `userInfo` dictionary of `automaticSignOutNotification` for the ID (a
+  /// `String`) of the user who was signed out.
+  public static let automaticSignOutUserIDKey = "FIRAuthAutomaticSignOutUserIDKey"
+
   // MARK: Internal methods
 
   init(app: FirebaseApp,
@@ -1855,6 +1880,29 @@ extension Auth: AuthInterop {
       return
     }
     try updateCurrentUser(nil, byForce: true, savingToDisk: true)
+  }
+
+  /// Signs out the user with `userID`, if that is the current user, because the backend reported
+  /// that the user or the user's session is no longer valid. Then posts
+  /// `automaticSignOutNotification`.
+  /// - Parameter userID: The ID of the user to sign out.
+  /// - Parameter error: The error that caused the sign-out.
+  func signOutAutomatically(withUserID userID: String, error: Error) {
+    guard _currentUser?.uid == userID else {
+      return
+    }
+    // With `byForce`, the user is signed out even if removing the stored user from the keychain
+    // fails, so the error can be ignored.
+    try? updateCurrentUser(nil, byForce: true, savingToDisk: true)
+    // `updateCurrentUser` has already queued the auth state change notification on the main
+    // queue, so this notification is delivered after it.
+    let userInfo: [String: Any] = [Auth.automaticSignOutErrorKey: error,
+                                   Auth.automaticSignOutUserIDKey: userID]
+    let notifications = NotificationCenter.default
+    DispatchQueue.main.async {
+      notifications.post(name: Auth.automaticSignOutNotification, object: self,
+                         userInfo: userInfo)
+    }
   }
 
   // MARK: Private methods
