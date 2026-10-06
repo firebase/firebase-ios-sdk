@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Logprobs Result
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1LogprobsResult`
 ///
@@ -41,9 +41,9 @@ package struct LogprobsResult: Codable, Sendable, Equatable, Hashable {
   ///
   /// Sum of log probabilities for all tokens.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise API.
+  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package let logProbabilitySum: Double?
 
   /// Length = total number of decoding steps.
@@ -52,7 +52,7 @@ package struct LogprobsResult: Codable, Sendable, Equatable, Hashable {
   ///
   /// Length = total number of decoding steps.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// A list of the top candidate tokens at each decoding step. The
   /// length of this list is equal to the total number of decoding steps.
@@ -65,7 +65,7 @@ package struct LogprobsResult: Codable, Sendable, Equatable, Hashable {
   /// Length = total number of decoding steps.
   /// The chosen candidates may or may not be in top_candidates.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// A list of the chosen candidate tokens at each decoding step.
   /// The length of this list is equal to the total number of decoding steps.

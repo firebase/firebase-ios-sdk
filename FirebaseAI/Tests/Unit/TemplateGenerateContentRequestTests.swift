@@ -144,7 +144,7 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
                                inputs: [String: TemplateInput] = [:],
                                history: [ModelContent] = [],
                                stream: Bool = false,
-                               apiConfig: APIConfig = FirebaseAI.defaultEnterpriseAPIConfig,
+                               apiConfig: APIConfig = FirebaseAI.defaultAgentPlatformAPIConfig,
                                tools: [TemplateTool.Internal]? = nil,
                                toolConfig: TemplateToolConfig? = nil)
     -> TemplateGenerateContentRequest {
@@ -177,7 +177,7 @@ final class TemplateGenerateContentRequestTests: XCTestCase {
   func testGetURL_agentPlatform_includesLocation() throws {
     let request = templateRequest(
       apiConfig: APIConfig(
-        service: .enterprise(endpoint: .firebaseProxyProd, location: "us-central1"),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
         version: .v1beta
       )
     )

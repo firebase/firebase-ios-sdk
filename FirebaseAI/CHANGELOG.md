@@ -10,14 +10,9 @@
   `ai.geminiLanguageModel(name:)` directly with Apple's native Foundation
   Models framework.
 - [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
-  `Backend.vertexAI(location:)` methods. Use `Backend.enterprise(location:)`
+  `Backend.vertexAI(location:)` methods. Use `Backend.agentPlatform(location:)`
   instead (note that the default location is `"global"` instead of
   `"us-central1"`). (#16689)
-- [changed] Deprecated `Backend.agentPlatform(location:)` in favor of
-  `Backend.enterprise(location:)` to reflect the renaming of the Agent Platform
-  Gemini API to the Gemini Enterprise API.
-  Note: No functionality or default values have changed. The new method can be
-  used identically, for example: `FirebaseAI.firebaseAI(backend: .enterprise())`.
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
