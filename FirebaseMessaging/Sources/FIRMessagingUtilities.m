@@ -316,7 +316,7 @@ BOOL FIRMessagingIsProductionApp(void) {
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
-  if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+  if (path.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:path]) {
     // There's no profile to read the APNs environment from. This is expected for App Store and
     // TestFlight builds, which strip the profile, and for macOS apps signed without one.
     return defaultAppTypeProd;
