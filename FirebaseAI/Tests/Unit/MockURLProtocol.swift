@@ -105,10 +105,10 @@ class MockURLProtocol: URLProtocol {
       // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
       // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
       // internal buffer sizes.
-      nonisolated(unsafe) let unsafeSelf = self
+      let urlProtocol = UncheckedSendable(self)
       Task {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
-        client.urlProtocol(unsafeSelf, didFailWithError: errorToThrow)
+        client.urlProtocol(urlProtocol.value, didFailWithError: errorToThrow)
       }
     } else if !MockURLProtocol.neverFinishes {
       client.urlProtocolDidFinishLoading(self)
@@ -117,5 +117,21 @@ class MockURLProtocol: URLProtocol {
 
   override func stopLoading() {
     MockURLProtocol.stopLoadingExpectation?.fulfill()
+  }
+}
+
+/// Wraps a non-`Sendable` value so it can be captured by a concurrently executing closure.
+///
+/// Foundation does not declare `URLProtocol` as `Sendable` (only `URLProtocolClient` is
+/// `NS_SWIFT_SENDABLE`), yet `URLSession` itself messages protocol instances from its own threads
+/// and client callbacks may be made from any thread, so handing the mock to the delayed
+/// error-delivery `Task` is safe.
+private struct UncheckedSendable<Value>: @unchecked Sendable {
+  /// The wrapped value.
+  let value: Value
+
+  /// Wraps `value`.
+  init(_ value: Value) {
+    self.value = value
   }
 }
