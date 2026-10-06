@@ -1411,9 +1411,11 @@ extension Auth: AuthInterop {
     // already queued, such as loading the persisted user at startup. Otherwise a listener added
     // right after `FirebaseApp.configure()` could get `nil` before the signed-in user is loaded.
     // Read `_currentUser` on the work queue, where it's written.
-    kAuthGlobalWorkQueue.async {
+    kAuthGlobalWorkQueue.async { [weak self] in
+      guard let self else { return }
       let currentUser = self._currentUser
-      DispatchQueue.main.async {
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
         listener(self, currentUser)
       }
     }
