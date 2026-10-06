@@ -273,7 +273,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 }
 
 - (void)start {
-  [self prewarmIsSandboxApp];
   [self setupFileManagerSubDirectory];
   [self setupNotificationListeners];
 
@@ -296,26 +295,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   [self setupRmqManager];
   [self setupSyncMessageManager];
   [self setupInstallationIDObserver];
-}
-
-- (void)prewarmIsSandboxApp {
-#if !TARGET_OS_SIMULATOR
-  // The first `FIRMessagingIsSandboxApp()` call can block for seconds on a synchronous XPC call in
-  // `-[NSBundle appStoreReceiptURL]`. Make it in the background now so that the result is usually
-  // cached by the time the app sets the APNs token, typically on the main thread. The simulator
-  // always uses the sandbox environment, so it never needs the result.
-  // See https://github.com/firebase/firebase-ios-sdk/issues/16726.
-#if !TARGET_OS_WATCH
-  // Skip app extensions, as `-configureMessagingWithOptions:` does. They can't register for remote
-  // notifications, so they rarely need the result. On watchOS, the app itself can be an extension.
-  if ([GULAppEnvironmentUtil isAppExtension]) {
-    return;
-  }
-#endif  // !TARGET_OS_WATCH
-  dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY, 0), ^{
-    FIRMessagingIsSandboxApp();
-  });
-#endif  // !TARGET_OS_SIMULATOR
 }
 
 - (void)setupFileManagerSubDirectory {

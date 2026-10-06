@@ -1,6 +1,6 @@
 # Unreleased
 - [fixed] Reduced main-thread work when setting the APNs token: the APNs
-  environment is now detected in the background at startup, and the keychain is
+  environment check no longer queries the App Store receipt, and the keychain is
   read once instead of up to twice. (#16726)
 
 # 13.0.0
