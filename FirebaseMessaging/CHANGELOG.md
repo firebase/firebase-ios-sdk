@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fix a potential crash when a contextual (local time) message payload
+  contains fields of an unexpected type, and drop messages whose local start
+  or end time cannot be parsed instead of scheduling them. (#16520)
+
 # 13.0.0
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
   delegates. (#15987)
