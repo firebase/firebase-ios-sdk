@@ -31,6 +31,7 @@ class UserTests: RPCBaseTests {
   let kVerificationCode = "12345678"
   let kVerificationID = "55432"
   let kPhoneNumber = "555-1234"
+  let kRefreshedAccessToken = "REFRESHED_ACCESS_TOKEN"
 
   var auth: Auth?
 
@@ -484,7 +485,8 @@ class UserTests: RPCBaseTests {
   }
 
   /** @fn testUpdateEmailAutoSignOut
-      @brief Tests the flow of a failed @c updateEmail:completion: call that automatically signs out.
+      @brief Tests the flow of a failed @c updateEmail:completion: call that automatically signs out
+          because the session has ended.
    */
   func testUpdateEmailAutoSignOut() {
     setFakeGetAccountProvider()
@@ -492,7 +494,9 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+          // The refresh that checks the session fails too.
+          self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+          return try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
         }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
@@ -504,6 +508,32 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateEmailInvalidIDTokenWithValidSessionStaysSignedIn
+      @brief Tests that a failed @c updateEmail:completion: call with @c INVALID_ID_TOKEN refreshes
+          the token, and keeps the user signed in when the refresh succeeds.
+   */
+  func testUpdateEmailInvalidIDTokenWithValidSessionStaysSignedIn() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        self.setFakeSecureTokenService(fakeAccessToken: self.kRefreshedAccessToken)
+        return try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+      }
+      user.updateEmail(to: self.kNewEmail) { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidUserToken.rawValue)
+        XCTAssertEqual(user.email, self.kEmail)
+        // The token was refreshed and the user is still signed in.
+        XCTAssertEqual(user.rawAccessToken(), self.kRefreshedAccessToken)
+        XCTAssertEqual(self.auth?.currentUser, user)
+        expectation.fulfill()
       }
     }
     waitForExpectations(timeout: 5)
@@ -578,7 +608,7 @@ class UserTests: RPCBaseTests {
 
     /** @fn testUpdatePhoneNumberFailureAutoSignOut
         @brief Tests the flow of a failed @c updatePhoneNumberCredential:completion: call that
-            automatically signs out.
+            automatically signs out because the session has ended.
      */
     func testUpdatePhoneNumberFailureAutoSignOut() throws {
       setFakeGetAccountProvider()
@@ -587,7 +617,9 @@ class UserTests: RPCBaseTests {
       signInWithEmailPasswordReturnFakeUser { user in
         do {
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            // The refresh that checks the session fails too.
+            self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+            return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           self.expectVerifyPhoneNumberRequest()
 
@@ -890,7 +922,8 @@ class UserTests: RPCBaseTests {
   }
 
   /** @fn testReloadFailureAutoSignOut
-      @brief Tests the flow of a failed @c reloadWithCompletion: call that automtatically signs out.
+      @brief Tests the flow of a failed @c reloadWithCompletion: call that automtatically signs out
+          because the session has ended.
    */
   func testReloadFailureAutoSignOut() {
     setFakeGetAccountProvider()
@@ -898,7 +931,9 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         self.rpcIssuer.respondBlock = {
-          try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          // The refresh that checks the session fails too.
+          self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
@@ -911,6 +946,62 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadTokenExpiredWithValidSessionStaysSignedIn
+      @brief Tests that a failed @c reloadWithCompletion: call with @c TOKEN_EXPIRED refreshes the
+          token, and keeps the user signed in when the refresh succeeds.
+   */
+  func testReloadTokenExpiredWithValidSessionStaysSignedIn() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        self.setFakeSecureTokenService(fakeAccessToken: self.kRefreshedAccessToken)
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      // Clear fake so we can inject error
+      self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+      user.reload { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        // The token was refreshed and the user is still signed in.
+        XCTAssertEqual(user.rawAccessToken(), self.kRefreshedAccessToken)
+        XCTAssertEqual(self.auth?.currentUser, user)
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadTokenExpiredWithNetworkErrorDuringCheckStaysSignedIn
+      @brief Tests that the user stays signed in when the refresh that checks the session after
+          @c TOKEN_EXPIRED fails with a network error.
+   */
+  func testReloadTokenExpiredWithNetworkErrorDuringCheckStaysSignedIn() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        let underlying = NSError(domain: "Test Error", code: 1)
+        self.rpcIssuer.secureTokenNetworkError =
+          AuthErrorUtils.networkError(underlyingError: underlying) as NSError
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      // Clear fake so we can inject error
+      self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+      user.reload { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        XCTAssertEqual(self.auth?.currentUser, user)
+        expectation.fulfill()
       }
     }
     waitForExpectations(timeout: 5)
@@ -1323,7 +1414,7 @@ class UserTests: RPCBaseTests {
 
   /** @fn testLinkEmailAndRetrieveDataErrorAutoSignOut
       @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
-          invocation that automatically signs out.
+          invocation that automatically signs out because the session has ended.
    */
   func testLinkEmailAndRetrieveDataErrorAutoSignOut() throws {
     setFakeGetAccountProvider()
@@ -1333,6 +1424,8 @@ class UserTests: RPCBaseTests {
       do {
         self.rpcIssuer.respondBlock = {
           XCTAssertNotNil(self.rpcIssuer?.request as? SignUpNewUserRequest)
+          // The refresh that checks the session fails too.
+          self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
           return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
@@ -1346,6 +1439,36 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(self.auth?.currentUser)
           expectation.fulfill()
         }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkEmailTokenExpiredWithValidSessionStaysSignedIn
+      @brief Tests that an unsuccessful @c linkWithCredential:completion: invocation for email
+          credential with @c TOKEN_EXPIRED refreshes the token, and keeps the user signed in when
+          the refresh succeeds.
+   */
+  func testLinkEmailTokenExpiredWithValidSessionStaysSignedIn() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      self.rpcIssuer.respondBlock = {
+        XCTAssertNotNil(self.rpcIssuer?.request as? SignUpNewUserRequest)
+        self.setFakeSecureTokenService(fakeAccessToken: self.kRefreshedAccessToken)
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                         password: self.kFakePassword)
+      user.link(with: emailCredential) { linkAuthResult, rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(linkAuthResult)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        // The token was refreshed and the user is still signed in.
+        XCTAssertEqual(user.rawAccessToken(), self.kRefreshedAccessToken)
+        XCTAssertEqual(self.auth?.currentUser, user)
+        expectation.fulfill()
       }
     }
     waitForExpectations(timeout: 5)
@@ -1375,7 +1498,9 @@ class UserTests: RPCBaseTests {
         do {
           self.setFakeGetAccountProvider()
           self.rpcIssuer.respondBlock = {
-            try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+            // The refresh that checks the session fails too.
+            self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+            return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
           }
           user.link(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                     uiDelegate: nil) { linkAuthResult, rawError in
