@@ -1885,23 +1885,28 @@ extension Auth: AuthInterop {
   /// Signs out the user with `userID`, if that is the current user, because the backend reported
   /// that the user or the user's session is no longer valid. Then posts
   /// `automaticSignOutNotification`.
+  ///
+  /// Runs synchronously on `kAuthGlobalWorkQueue`, like `signOut()`, so the sign-out finishes
+  /// before the caller reports the error. Don't call it on `kAuthGlobalWorkQueue`.
   /// - Parameter userID: The ID of the user to sign out.
   /// - Parameter error: The error that caused the sign-out.
   func signOutAutomatically(withUserID userID: String, error: Error) {
-    guard _currentUser?.uid == userID else {
-      return
-    }
-    // With `byForce`, the user is signed out even if removing the stored user from the keychain
-    // fails, so the error can be ignored.
-    try? updateCurrentUser(nil, byForce: true, savingToDisk: true)
-    // `updateCurrentUser` has already queued the auth state change notification on the main
-    // queue, so this notification is delivered after it.
-    let userInfo: [String: Any] = [Auth.automaticSignOutErrorKey: error,
-                                   Auth.automaticSignOutUserIDKey: userID]
-    let notifications = NotificationCenter.default
-    DispatchQueue.main.async {
-      notifications.post(name: Auth.automaticSignOutNotification, object: self,
-                         userInfo: userInfo)
+    kAuthGlobalWorkQueue.sync {
+      guard self._currentUser?.uid == userID else {
+        return
+      }
+      // With `byForce`, the user is signed out even if removing the stored user from the
+      // keychain fails, so the error can be ignored.
+      try? self.updateCurrentUser(nil, byForce: true, savingToDisk: true)
+      // `updateCurrentUser` has already queued the auth state change notification on the main
+      // queue, so this notification is delivered after it.
+      let userInfo: [String: Any] = [Auth.automaticSignOutErrorKey: error,
+                                     Auth.automaticSignOutUserIDKey: userID]
+      let notifications = NotificationCenter.default
+      DispatchQueue.main.async {
+        notifications.post(name: Auth.automaticSignOutNotification, object: self,
+                           userInfo: userInfo)
+      }
     }
   }
 
