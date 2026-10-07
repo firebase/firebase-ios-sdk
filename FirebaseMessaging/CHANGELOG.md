@@ -2,6 +2,10 @@
 - [fixed] Reduced main-thread work when setting the APNs token: the APNs
   environment check no longer queries the App Store receipt, and the keychain is
   read once instead of up to twice. (#16726)
+- [fixed] Fixed a crash in token fetches and topic subscriptions, for up to
+  seven days, after a malformed device checkin response. Checkin responses are
+  now validated before they're saved, and saved values of an unexpected type
+  are ignored. (#16867)
 
 # 13.0.0
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene

@@ -131,17 +131,22 @@ static NSString *const kCheckinKeychainContentSeparatorString = @"|";
 }
 
 - (void)updateWithCheckinPlistContents:(NSDictionary *)checkinPlistContent {
+  // These values come from the checkin server and are read from disk at every launch. Drop values
+  // of an unexpected type (for example, saved by an older SDK version) instead of using them.
   for (NSString *key in checkinPlistContent) {
+    id value = checkinPlistContent[key];
     if ([kFIRMessagingDigestStringKey isEqualToString:key]) {
-      self.digest = [checkinPlistContent[key] copy];
+      self.digest = [value isKindOfClass:[NSString class]] ? value : nil;
     } else if ([kFIRMessagingVersionInfoStringKey isEqualToString:key]) {
-      self.versionInfo = [checkinPlistContent[key] copy];
+      self.versionInfo = [value isKindOfClass:[NSString class]] ? value : nil;
     } else if ([kFIRMessagingLastCheckinTimeKey isEqualToString:key]) {
-      self.lastCheckinTimestampMillis = [checkinPlistContent[key] longLongValue];
+      BOOL isTimestamp =
+          [value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]];
+      self.lastCheckinTimestampMillis = isTimestamp ? [value longLongValue] : 0;
     } else if ([kFIRMessagingGServicesDictionaryKey isEqualToString:key]) {
-      self.gServicesData = [checkinPlistContent[key] mutableCopy];
+      self.gServicesData = [value isKindOfClass:[NSDictionary class]] ? [value mutableCopy] : nil;
     } else if ([kFIRMessagingDeviceDataVersionKey isEqualToString:key]) {
-      self.deviceDataVersion = [checkinPlistContent[key] copy];
+      self.deviceDataVersion = [value isKindOfClass:[NSString class]] ? value : nil;
     }
     // Otherwise we have some keys we don't care about
   }

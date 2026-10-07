@@ -169,7 +169,11 @@ NSString *FIRMessagingSubscriptionsServer(void) {
       stringWithFormat:@"AidLogin %@:%@", _tokenManager.deviceAuthID, _tokenManager.secretToken];
   [request setValue:authString forHTTPHeaderField:@"Authorization"];
   [request setValue:appIdentifier forHTTPHeaderField:@"app"];
-  [request setValue:_tokenManager.versionInfo forHTTPHeaderField:@"info"];
+  // `setValue:forHTTPHeaderField:` throws for a value that isn't a string.
+  id versionInfo = _tokenManager.versionInfo;
+  if ([versionInfo isKindOfClass:[NSString class]]) {
+    [request setValue:versionInfo forHTTPHeaderField:@"info"];
+  }
   // Topic can contain special characters (like `%`) so encode the value.
   NSCharacterSet *characterSet = [NSCharacterSet URLQueryAllowedCharacterSet];
   NSString *encodedTopic =
