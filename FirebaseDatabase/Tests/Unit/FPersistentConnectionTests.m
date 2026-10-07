@@ -71,6 +71,13 @@
   self.connection.resumedReasons = [NSMutableArray array];
 }
 
+// A data message with an error that isn't a response to a request used to
+// throw an exception that nothing caught, which crashed the app.
+- (void)testServerErrorMessageDoesNotThrow {
+  NSDictionary *message = @{kFWPRequestError : @"boom"};
+  XCTAssertNoThrow([self.connection onDataMessage:nil withMessage:message]);
+}
+
 - (void)testSystemClockChangeRestartsConnection {
   [self.connection systemClockDidChange:nil];
   [self waitForConnectionQueue];
