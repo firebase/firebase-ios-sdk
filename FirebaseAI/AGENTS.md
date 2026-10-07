@@ -16,7 +16,6 @@ This directory contains the main source code for the FirebaseAI library.
 - **`Errors.swift`**: Defines various error-related structs and enums used for parsing and representing errors from the backend, such as `ErrorStatus` and `RPCStatus`.
 - **`FirebaseAI.swift`**: The primary entry point for using the Firebase AI SDK. It provides factory methods for creating `GenerativeModel` and `LiveGenerativeModel` instances.
 - **`FirebaseInfo.swift`**: Encapsulates Firebase-related information used by the SDK, such as project ID, API key, App Check, and Auth interop instances.
-- **`GenAIURLSession.swift`**: Provides a `GenAIURLSession` enum with a default `URLSession` instance for the SDK to use.
 - **`GenerateContentError.swift`**: Defines the public `GenerateContentError` enum, representing errors that can occur when generating content.
 - **`GenerateContentRequest.swift`**: Defines the `GenerateContentRequest` struct, representing a request to generate content from the model.
 - **`GenerateContentResponse.swift`**: Represents the model's response to a generate content request, including usage metadata, candidates, and prompt feedback.
@@ -36,6 +35,8 @@ This directory contains the main source code for the FirebaseAI library.
 - **`TemplateGenerativeModel.swift`**: Model for generating content from a prompt template.
 - **`TemplateInput.swift`**: Defines the `TemplateInput` enum for representing different types of input to a template.
 - **`Tool.swift`**: Structs and enums related to tools and function calling (e.g., `FunctionDeclaration`).
+
+The HTTP client (`HTTPClient`) and `HTTPLineDecoder` live in the `GeminiHTTPClient` module at `GeminiLanguageModel/Sources/GeminiHTTPClient/`, shared with `GeminiLanguageModel`. Swift Package Manager builds it as a separate target (imported under `#if !COCOAPODS`); CocoaPods compiles its sources directly into `FirebaseAILogic`.
 
 ---
 

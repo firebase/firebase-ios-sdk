@@ -18,17 +18,21 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class ChatTests: XCTestCase {
   let modelName = "test-model-name"
   let modelResourceName = "projects/my-project/locations/us-central1/models/test-model-name"
 
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
 
   override func setUp() {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = URLSession(configuration: configuration)
+    httpClient = HTTPClient(configuration: configuration)
   }
 
   override func tearDown() {
@@ -55,7 +59,7 @@ final class ChatTests: XCTestCase {
           httpVersion: nil,
           headerFields: nil
         )!
-        return (response, fileURL.lines)
+        return try (response, Data(contentsOf: fileURL))
       }
 
       let app = FirebaseApp(instanceWithName: "testApp",
@@ -74,7 +78,7 @@ final class ChatTests: XCTestCase {
         apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
         tools: nil,
         requestOptions: RequestOptions(),
-        urlSession: urlSession
+        httpClient: httpClient
       )
       let chat = Chat(model: model, history: [])
       let input = "Test input"
@@ -110,7 +114,7 @@ final class ChatTests: XCTestCase {
       apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let chat = model.startChat()
 
@@ -151,7 +155,7 @@ final class ChatTests: XCTestCase {
       apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let chat = model.startChat()
     let input = "Test input"
@@ -187,7 +191,7 @@ final class ChatTests: XCTestCase {
       apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let chat = model.startChat(history: history)
@@ -209,7 +213,7 @@ final class ChatTests: XCTestCase {
       apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: [.codeExecution()],
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     let chat = model.startChat()
 

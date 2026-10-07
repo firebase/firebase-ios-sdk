@@ -33,6 +33,9 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
 
   s.source_files = [
     'FirebaseAI/Sources/**/*.swift',
+    # Shared with `GeminiLanguageModel`, which is distributed only with Swift Package Manager; the
+    # sources are compiled directly into this module instead of being imported.
+    'GeminiLanguageModel/Sources/GeminiHTTPClient/**/*.swift',
   ]
 
   s.swift_version = '6.0'
@@ -44,7 +47,9 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
   s.watchos.framework = 'WatchKit'
 
   s.pod_target_xcconfig = {
-    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAILogic'
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAILogic',
+    # Required by the `package` declarations in `GeminiHTTPClient`.
+    'OTHER_SWIFT_FLAGS' => '$(inherited) -package-name FirebaseAILogic',
   }
 
   # Direct dependency on AppCheck for automatic token acquisition and
@@ -67,6 +72,7 @@ Build AI-powered apps and features with the Gemini API using the Firebase AI Log
     }
     unit_tests.source_files = [
       unit_tests_dir + '**/*.swift',
+      'GeminiLanguageModel/Tests/GeminiHTTPClientTests/**/*.swift',
     ]
     unit_tests.exclude_files = [
       unit_tests_dir + 'Snippets/**/*.swift',

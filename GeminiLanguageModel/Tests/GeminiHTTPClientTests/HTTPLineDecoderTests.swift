@@ -13,17 +13,22 @@
 // limitations under the License.
 
 import Foundation
-import GeminiAPIClient
 import Testing
+
+#if COCOAPODS
+  @testable import FirebaseAILogic
+#else
+  import GeminiHTTPClient
+#endif
 
 @Suite("HTTPLineDecoder Tests")
 struct HTTPLineDecoderTests {
   @Test
-  func singleChunkWithMultipleLines() {
+  func singleChunkWithMultipleLines() throws {
     var decoder = HTTPLineDecoder()
     let data = Data("line1\nline2\nline3\n".utf8)
 
-    let lines = decoder.feed(data)
+    let lines = try decoder.feed(data)
     let remainder = decoder.flush()
 
     #expect(lines == ["line1", "line2", "line3"])
@@ -31,15 +36,15 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func linesSplitAcrossMultipleChunks() {
+  func linesSplitAcrossMultipleChunks() throws {
     var decoder = HTTPLineDecoder()
     let chunk1 = Data("hello ".utf8)
     let chunk2 = Data("world\nsecond ".utf8)
     let chunk3 = Data("line\n".utf8)
 
-    let lines1 = decoder.feed(chunk1)
-    let lines2 = decoder.feed(chunk2)
-    let lines3 = decoder.feed(chunk3)
+    let lines1 = try decoder.feed(chunk1)
+    let lines2 = try decoder.feed(chunk2)
+    let lines3 = try decoder.feed(chunk3)
     let remainder = decoder.flush()
 
     #expect(lines1.isEmpty)
@@ -49,13 +54,13 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func splitCRLFBoundary() {
+  func splitCRLFBoundary() throws {
     var decoder = HTTPLineDecoder()
     let chunk1 = Data("first\r".utf8)
     let chunk2 = Data("\nsecond\r\n".utf8)
 
-    let lines1 = decoder.feed(chunk1)
-    let lines2 = decoder.feed(chunk2)
+    let lines1 = try decoder.feed(chunk1)
+    let lines2 = try decoder.feed(chunk2)
     let remainder = decoder.flush()
 
     #expect(lines1 == ["first"])
@@ -64,15 +69,15 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func standaloneCarriageReturn() {
+  func standaloneCarriageReturn() throws {
     var decoder = HTTPLineDecoder()
     let chunk1 = Data("first\r".utf8)
     let chunk2 = Data("second\r".utf8)
     let chunk3 = Data("third".utf8)
 
-    let lines1 = decoder.feed(chunk1)
-    let lines2 = decoder.feed(chunk2)
-    let lines3 = decoder.feed(chunk3)
+    let lines1 = try decoder.feed(chunk1)
+    let lines2 = try decoder.feed(chunk2)
+    let lines3 = try decoder.feed(chunk3)
     let remainder = decoder.flush()
 
     #expect(lines1 == ["first"])
@@ -82,15 +87,15 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func splitMultiByteUTF8Character() {
+  func splitMultiByteUTF8Character() throws {
     var decoder = HTTPLineDecoder()
     // "🎉" is 4 bytes: 0xF0, 0x9F, 0x8E, 0x89
     let emojiBytes: [UInt8] = [0xF0, 0x9F, 0x8E, 0x89]
     let chunk1 = Data("Start ".utf8) + Data(emojiBytes[0..<2])
     let chunk2 = Data(emojiBytes[2..<4]) + Data(" End\n".utf8)
 
-    let lines1 = decoder.feed(chunk1)
-    let lines2 = decoder.feed(chunk2)
+    let lines1 = try decoder.feed(chunk1)
+    let lines2 = try decoder.feed(chunk2)
     let remainder = decoder.flush()
 
     #expect(lines1.isEmpty)
@@ -99,11 +104,11 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func preserveBlankLines() {
+  func preserveBlankLines() throws {
     var decoder = HTTPLineDecoder()
     let data = Data("line1\n\nline2\r\n\r\nline3\n".utf8)
 
-    let lines = decoder.feed(data)
+    let lines = try decoder.feed(data)
     let remainder = decoder.flush()
 
     #expect(lines == ["line1", "", "line2", "", "line3"])
@@ -111,11 +116,11 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func flushRemainderWithoutTrailingNewline() {
+  func flushRemainderWithoutTrailingNewline() throws {
     var decoder = HTTPLineDecoder()
     let data = Data("no newline at end".utf8)
 
-    let lines = decoder.feed(data)
+    let lines = try decoder.feed(data)
     let remainder = decoder.flush()
 
     #expect(lines.isEmpty)
@@ -123,10 +128,10 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func emptyDataReturnsNoLines() {
+  func emptyDataReturnsNoLines() throws {
     var decoder = HTTPLineDecoder()
 
-    let lines = decoder.feed(Data())
+    let lines = try decoder.feed(Data())
     let remainder = decoder.flush()
 
     #expect(lines.isEmpty)
@@ -134,9 +139,9 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func multipleFlushesReturnNilAfterFirst() {
+  func multipleFlushesReturnNilAfterFirst() throws {
     var decoder = HTTPLineDecoder()
-    _ = decoder.feed(Data("trailing".utf8))
+    _ = try decoder.feed(Data("trailing".utf8))
 
     let firstFlush = decoder.flush()
     let secondFlush = decoder.flush()
@@ -146,13 +151,13 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func standaloneCRFollowedByNonNewlineChunk() {
+  func standaloneCRFollowedByNonNewlineChunk() throws {
     var decoder = HTTPLineDecoder()
     let chunk1 = Data("first\r".utf8)
     let chunk2 = Data("second\n".utf8)
 
-    let lines1 = decoder.feed(chunk1)
-    let lines2 = decoder.feed(chunk2)
+    let lines1 = try decoder.feed(chunk1)
+    let lines2 = try decoder.feed(chunk2)
     let remainder = decoder.flush()
 
     #expect(lines1 == ["first"])
@@ -161,11 +166,11 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func standaloneCRFollowedByNonNewlineInSameChunk() {
+  func standaloneCRFollowedByNonNewlineInSameChunk() throws {
     var decoder = HTTPLineDecoder()
     let data = Data("first\rsecond\rthird\n".utf8)
 
-    let lines = decoder.feed(data)
+    let lines = try decoder.feed(data)
     let remainder = decoder.flush()
 
     #expect(lines == ["first", "second", "third"])
@@ -173,7 +178,7 @@ struct HTTPLineDecoderTests {
   }
 
   @Test
-  func largePayloadWithMixedNewlines() {
+  func largePayloadWithMixedNewlines() throws {
     var decoder = HTTPLineDecoder()
     var expectedLines: [String] = []
     var combinedData = Data()
@@ -185,10 +190,71 @@ struct HTTPLineDecoderTests {
       combinedData.append(Data("\(line)\(delimiter)".utf8))
     }
 
-    let lines = decoder.feed(combinedData)
+    let lines = try decoder.feed(combinedData)
     let remainder = decoder.flush()
 
     #expect(lines == expectedLines)
+    #expect(remainder == nil)
+  }
+
+  @Test
+  func doesNotSplitOnUnicodeLineSeparators() throws {
+    var decoder = HTTPLineDecoder()
+    let payload = "data: {\"text\": \"a\u{0085}b\u{2028}c\u{2029}d\"}"
+    let data = Data("\(payload)\n".utf8)
+
+    let lines = try decoder.feed(data)
+    let remainder = decoder.flush()
+
+    #expect(lines == [payload])
+    #expect(remainder == nil)
+  }
+
+  @Test
+  func defaultMaxLineLengthIs100MiB() {
+    let decoder = HTTPLineDecoder()
+
+    #expect(decoder.maxLineLength == 100 * 1024 * 1024)
+  }
+
+  @Test
+  func lineAtMaxLengthIsAccepted() throws {
+    var decoder = HTTPLineDecoder(maxLineLength: 5)
+
+    let lines1 = try decoder.feed(Data("123".utf8))
+    let lines2 = try decoder.feed(Data("45\r\n".utf8))
+
+    #expect(lines1.isEmpty)
+    #expect(lines2 == ["12345"])
+  }
+
+  @Test
+  func completeLineExceedingMaxLengthThrows() throws {
+    var decoder = HTTPLineDecoder(maxLineLength: 5)
+
+    do {
+      _ = try decoder.feed(Data("123456\n".utf8))
+      Issue.record("Expected feed(_:) to throw URLError(.dataLengthExceedsMaximum)")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .dataLengthExceedsMaximum)
+    }
+  }
+
+  @Test
+  func partialLineExceedingMaxLengthAcrossChunksThrowsAndReleasesBuffer() throws {
+    var decoder = HTTPLineDecoder(maxLineLength: 5)
+    _ = try decoder.feed(Data("123".utf8))
+
+    do {
+      _ = try decoder.feed(Data("456".utf8))
+      Issue.record("Expected feed(_:) to throw URLError(.dataLengthExceedsMaximum)")
+    } catch {
+      let urlError = try #require(error as? URLError)
+      #expect(urlError.code == .dataLengthExceedsMaximum)
+    }
+    let remainder = decoder.flush()
+
     #expect(remainder == nil)
   }
 }

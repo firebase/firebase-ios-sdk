@@ -16,17 +16,21 @@
 import FirebaseCore
 import XCTest
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class TemplateChatTests: XCTestCase {
   var model: TemplateGenerativeModel!
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
 
   override func setUp() {
     super.setUp()
 
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = URLSession(configuration: configuration)
+    httpClient = HTTPClient(configuration: configuration)
     let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
@@ -34,7 +38,7 @@ final class TemplateChatTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 

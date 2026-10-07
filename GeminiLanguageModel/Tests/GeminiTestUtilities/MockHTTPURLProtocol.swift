@@ -28,6 +28,7 @@ package final class MockHTTPURLProtocol: URLProtocol {
   package typealias Handler = @Sendable (URLRequest, MockHTTPURLProtocol) throws -> Void
 
   private static let handlers = Mutex<[String: Handler]>([:])
+  private static let stopHandlers = Mutex<[String: @Sendable () -> Void]>([:])
 
   /// Registers a mock response handler for the specified URL.
   ///
@@ -47,9 +48,20 @@ package final class MockHTTPURLProtocol: URLProtocol {
     handlers.withLock { $0[urlString] = handler }
   }
 
+  /// Registers a callback invoked when `stopLoading()` is called for the specified URL.
+  ///
+  /// - Parameters:
+  ///   - url: The target URL to observe for cancellation.
+  ///   - handler: The closure executed when loading stops for the URL.
+  package static func setStopHandler(for url: URL, _ handler: @escaping @Sendable () -> Void) {
+    let urlString = url.absoluteString
+    stopHandlers.withLock { $0[urlString] = handler }
+  }
+
   /// Clears all registered request handlers.
   package static func reset() {
     handlers.withLock { $0.removeAll() }
+    stopHandlers.withLock { $0.removeAll() }
   }
 
   /// Determines whether this protocol can handle the given request.
@@ -90,6 +102,10 @@ package final class MockHTTPURLProtocol: URLProtocol {
 
   /// Stops loading the mocked request.
   override package func stopLoading() {
+    if let urlString = request.url?.absoluteString {
+      let stopHandler = Self.stopHandlers.withLock { $0.removeValue(forKey: urlString) }
+      stopHandler?()
+    }
     client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
   }
 }

@@ -29,7 +29,7 @@ final class AsyncWebSocket: Sendable {
   private let continuationFinished = UnfairLock<Bool>(false)
   private let closeError: UnfairLock<WebSocketClosedError?>
 
-  init(urlSession: URLSession = GenAIURLSession.default, urlRequest: URLRequest) {
+  init(urlSession: URLSession, urlRequest: URLRequest) {
     webSocketTask = urlSession.webSocketTask(with: urlRequest)
     (stream, continuation) = AsyncThrowingStream<URLSessionWebSocketTask.Message, Error>
       .makeStream()

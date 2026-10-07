@@ -16,10 +16,10 @@ import Foundation
 import XCTest
 
 @available(macOS 12.0, watchOS 8.0, *)
-class MockURLProtocol: URLProtocol, @unchecked Sendable {
+class MockURLProtocol: URLProtocol {
   typealias MockURLRequestHandler = (URLRequest) throws -> (
     URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
+    Data?
   )
 
   private nonisolated(unsafe) static var _requestHandlers = [MockURLRequestHandler]()
@@ -27,6 +27,7 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
   nonisolated(unsafe) static var errorToThrowMidStream: Error?
   nonisolated(unsafe) static var stopLoadingExpectation: XCTestExpectation?
   nonisolated(unsafe) static var neverFinishes: Bool = false
+  nonisolated(unsafe) static var chunkSize: Int?
 
   nonisolated(unsafe) static var requestHandler: MockURLRequestHandler? {
     get {
@@ -67,46 +68,70 @@ class MockURLProtocol: URLProtocol, @unchecked Sendable {
     }
     let requestHandler = MockURLProtocol.requestHandlersQueue.removeFirst()
 
-    Task {
-      let (response, stream): (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)
-      do {
-        (response, stream) = try requestHandler(self.request)
-      } catch {
-        XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
-        return
-      }
+    let (response, data): (URLResponse, Data?)
+    do {
+      (response, data) = try requestHandler(request)
+    } catch {
+      client.urlProtocol(self, didFailWithError: error)
+      XCTFail("Unexpected failure calling request handler: \(error.localizedDescription)")
+      return
+    }
 
-      client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-      if let stream = stream {
-        do {
-          for try await line in stream {
-            guard let data = line.data(using: .utf8) else {
-              fatalError("Failed to convert \"\(line)\" to UTF8 data.")
-            }
-            client.urlProtocol(self, didLoad: data)
-            // Add a newline character since AsyncLineSequence strips them when reading line by
-            // line;
-            // without the following, the whole file is delivered as a single line.
-            client.urlProtocol(self, didLoad: "\n".data(using: .utf8)!)
+    client.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    if let data {
+      if let chunkSize = MockURLProtocol.chunkSize, chunkSize > 0 {
+        var offset = data.startIndex
+        while offset < data.endIndex {
+          let end =
+            data.index(offset, offsetBy: chunkSize, limitedBy: data.endIndex) ?? data.endIndex
+          client.urlProtocol(self, didLoad: Data(data[offset ..< end]))
+          offset = end
+        }
+      } else {
+        var searchStart = data.startIndex
+        while searchStart < data.endIndex {
+          if let newlineIndex = data[searchStart...].firstIndex(of: 0x0A) {
+            let nextIndex = data.index(after: newlineIndex)
+            client.urlProtocol(self, didLoad: Data(data[searchStart ..< nextIndex]))
+            searchStart = nextIndex
+          } else {
+            client.urlProtocol(self, didLoad: Data(data[searchStart...]))
+            break
           }
-        } catch {
-          client.urlProtocol(self, didFailWithError: error)
-          XCTFail("Unexpected failure reading lines from stream: \(error.localizedDescription)")
         }
       }
-      if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
-        // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
-        // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
-        // internal buffer sizes.
+    }
+    if let errorToThrow = MockURLProtocol.errorToThrowMidStream {
+      // Sleep guarantees the error is thrown mid-stream (after URLSession yields the stream to
+      // the consumer) rather than pre-stream, preventing test coupling to undocumented URLSession
+      // internal buffer sizes.
+      let urlProtocol = UncheckedSendable(self)
+      Task {
         try? await Task.sleep(nanoseconds: 2_000_000_000)
-        client.urlProtocol(self, didFailWithError: errorToThrow)
-      } else if !MockURLProtocol.neverFinishes {
-        client.urlProtocolDidFinishLoading(self)
+        client.urlProtocol(urlProtocol.value, didFailWithError: errorToThrow)
       }
+    } else if !MockURLProtocol.neverFinishes {
+      client.urlProtocolDidFinishLoading(self)
     }
   }
 
   override func stopLoading() {
     MockURLProtocol.stopLoadingExpectation?.fulfill()
+  }
+}
+
+/// Wraps a non-`Sendable` value so it can be captured by a concurrently executing closure.
+///
+/// Foundation does not declare `URLProtocol` as `Sendable` (only `URLProtocolClient` is
+/// `NS_SWIFT_SENDABLE`), yet `URLSession` itself messages protocol instances from its own threads
+/// and client callbacks may be made from any thread, so handing the mock to the delayed
+/// error-delivery `Task` is safe.
+private struct UncheckedSendable<Value>: @unchecked Sendable {
+  /// The wrapped value.
+  let value: Value
+
+  /// Wraps `value`.
+  init(_ value: Value) {
+    self.value = value
   }
 }

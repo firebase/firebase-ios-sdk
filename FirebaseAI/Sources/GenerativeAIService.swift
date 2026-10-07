@@ -15,15 +15,15 @@
 import Foundation
 import os.log
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 struct GenerativeAIService {
   let firebaseInfo: FirebaseInfo
 
-  private let urlSession: URLSession
-
-  init(firebaseInfo: FirebaseInfo, urlSession: URLSession) {
-    self.firebaseInfo = firebaseInfo
-    self.urlSession = urlSession
-  }
+  /// The HTTP client used to send requests to the backend.
+  let httpClient: HTTPClient
 
   func loadRequest<T: GenerativeAIRequest>(request: T) async throws -> T.Response {
     let urlRequest = try await urlRequest(request: request)
@@ -34,11 +34,7 @@ struct GenerativeAIService {
       }
     #endif
 
-    let data: Data
-    let rawResponse: URLResponse
-    (data, rawResponse) = try await urlSession.data(for: urlRequest)
-
-    let response = try httpResponse(urlResponse: rawResponse)
+    let (data, response) = try await httpClient.data(for: urlRequest)
 
     // Verify the status code is 200
     guard response.statusCode == 200 else {
@@ -71,11 +67,7 @@ struct GenerativeAIService {
             printCURLCommand(from: urlRequest)
           #endif
 
-          let stream: URLSession.AsyncBytes
-          let rawResponse: URLResponse
-          (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
-
-          let response = try httpResponse(urlResponse: rawResponse)
+          let (lines, response) = try await httpClient.lines(for: urlRequest)
 
           // Verify the status code is 200
           guard response.statusCode == 200 else {
@@ -84,7 +76,7 @@ struct GenerativeAIService {
               "The server responded with an error: \(response)"
             )
             var responseBody = ""
-            for try await line in stream.lines {
+            for try await line in lines {
               responseBody += line + "\n"
             }
 
@@ -100,7 +92,8 @@ struct GenerativeAIService {
           // "data:"
           var extraLines = ""
 
-          for try await line in stream.lines {
+          for try await line in lines {
+            guard !line.isEmpty else { continue }
             AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
 
             if line.hasPrefix("data:") {
@@ -109,8 +102,13 @@ struct GenerativeAIService {
               let data = try jsonData(jsonText: jsonText)
               let content = try parseResponse(T.Response.self, from: data)
               continuation.yield(content)
+            } else if line.hasPrefix(":") || line.hasPrefix("event:") || line.hasPrefix("id:")
+              || line.hasPrefix("retry:") {
+              // Ignore SSE comments (e.g., ": keep-alive") and control fields; they carry no
+              // response content.
+              continue
             } else {
-              extraLines += line
+              extraLines += line + "\n"
             }
           }
 
@@ -147,24 +145,6 @@ struct GenerativeAIService {
     urlRequest.timeoutInterval = request.options.timeout
 
     return urlRequest
-  }
-
-  private func httpResponse(urlResponse: URLResponse) throws -> HTTPURLResponse {
-    // The following condition should always be true: "Whenever you make HTTP URL load requests, any
-    // response objects you get back from the URLSession, NSURLConnection, or NSURLDownload class
-    // are instances of the HTTPURLResponse class."
-    guard let response = urlResponse as? HTTPURLResponse else {
-      AILog.error(
-        code: .generativeAIServiceNonHTTPResponse,
-        "Response wasn't an HTTP response, internal error \(urlResponse)"
-      )
-      throw URLError(
-        .badServerResponse,
-        userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
-      )
-    }
-
-    return response
   }
 
   private func jsonData(jsonText: String) throws -> Data {

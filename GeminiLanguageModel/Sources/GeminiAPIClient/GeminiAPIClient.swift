@@ -13,6 +13,7 @@
 // limitations under the License.
 
 package import GeminiAPIDataModels
+import GeminiHTTPClient
 
 #if canImport(Darwin)
   package import Foundation
@@ -35,7 +36,7 @@ package struct GeminiAPIClient: Sendable {
   /// An optional async provider for dynamic headers (such as API keys or Bearer tokens).
   let headerProvider: HeaderProvider?
 
-  private let httpClient: HTTPStreamingClient
+  private let httpClient: HTTPClient
 
   /// Initializes a new Gemini API client with a model resource and target endpoint configuration.
   ///
@@ -56,7 +57,7 @@ package struct GeminiAPIClient: Sendable {
     self.modelResource = modelResource
     self.endpointConfiguration = endpointConfiguration
     self.headerProvider = headerProvider
-    self.httpClient = HTTPStreamingClient(configuration: sessionConfiguration)
+    self.httpClient = HTTPClient(configuration: sessionConfiguration)
   }
 
   /// Sends a streaming text generation request and delivers responses asynchronously as a
@@ -97,8 +98,7 @@ package struct GeminiAPIClient: Sendable {
       body: request
     )
 
-    let (lines, response) = try await httpClient.lines(for: urlRequest)
-    let bodyData = try await collectBody(from: lines)
+    let (bodyData, response) = try await httpClient.data(for: urlRequest)
 
     if response.statusCode != 200 {
       throw parseError(from: bodyData, statusCode: response.statusCode, response: response)
@@ -227,11 +227,33 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
 
     /// Asynchronously advances to and returns the next `GenerateContentResponse` chunk.
     ///
+    /// After an error is thrown or the stream is exhausted, subsequent calls return `nil` and the
+    /// underlying network task is cancelled.
+    ///
     /// - Returns: The next decoded `GenerateContentResponse`, or `nil` if the stream has finished.
     /// - Throws: An error if reading or decoding fails, or if a mid-stream API error occurs.
     package mutating func next() async throws -> GenerateContentResponse? {
       guard !isFinished else { return nil }
 
+      do {
+        let chunk = try await nextChunk()
+        if chunk == nil {
+          finish()
+        }
+        return chunk
+      } catch {
+        finish()
+        throw error
+      }
+    }
+
+    /// Marks the iterator as finished and cancels the underlying network task.
+    private mutating func finish() {
+      isFinished = true
+      task.cancel()
+    }
+
+    private mutating func nextChunk() async throws -> GenerateContentResponse? {
       while let line = try await linesIterator.next() {
         // Empty line marks the end of an SSE event
         if line.isEmpty || line.allSatisfy({ $0.isWhitespace }) {
@@ -315,8 +337,7 @@ package struct GenerateContentStream: AsyncSequence, Sendable {
     ) throws -> GenerateContentResponse {
       let chunk = try decodeEventData(dataString)
       if isTerminalResponse(chunk) {
-        isFinished = true
-        task.cancel()
+        finish()
       }
       return chunk
     }
