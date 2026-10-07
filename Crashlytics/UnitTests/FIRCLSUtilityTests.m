@@ -94,7 +94,9 @@
 - (void)testReadStringWithoutTerminatorInRange {
   char buffer[64];
   memset(buffer, 'a', sizeof(buffer));
-  buffer[63] = 0;
+  // The terminator sits one byte past the window FIRCLSReadString is allowed
+  // to read, so it must not count.
+  buffer[32] = 0;
 
   char *string = NULL;
 
