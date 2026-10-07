@@ -34,12 +34,13 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
   }
 
   override func tearDown() {
+    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
     tracer = nil
     tracerProvider = nil
     super.tearDown()
   }
 
-  func test_onStart_attachesCommonSpanAttributesToSpan() async throws {
+  func test_onStart_attachesCommonSpanAttributesToSpan() {
     let span = tracer.spanBuilder(spanName: "test_operation").startSpan()
     defer { span.end() }
 
@@ -48,15 +49,17 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
       return
     }
 
-    let screenName = try await waitForScreenNameAttribute(on: readableSpan)
-    XCTAssertEqual(screenName, .string(CrashlyticsView.unknown.name))
+    XCTAssertEqual(
+      readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
+      .string(CrashlyticsView.unknown.name)
+    )
     XCTAssertEqual(
       readableSpan.getAttributes()["gcp.firebase.app_version"],
       .string("1.0")
     )
   }
 
-  func test_onStart_overwritesExistingCommonAttributeOnSpan() async throws {
+  func test_onStart_overwritesExistingCommonAttributeOnSpan() {
     let span = tracer
       .spanBuilder(spanName: "custom_screen_operation")
       .setAttribute(
@@ -71,29 +74,26 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
       return
     }
 
-    try await Task.sleep(nanoseconds: 20_000_000)
     XCTAssertEqual(
       readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsView.unknown.name)
     )
   }
 
-  // MARK: - Private Helpers
+  func test_onStart_capturesScreenNameAtStartTimeBeforeSubsequentChange() {
+    AttributeStore.setScreenName("HomeScreen")
+    let span = tracer.spanBuilder(spanName: "navigation_operation").startSpan()
+    AttributeStore.setScreenName("DetailScreen")
+    defer { span.end() }
 
-  private func waitForScreenNameAttribute(on span: ReadableSpan,
-                                          timeout: TimeInterval = 2.0) async throws
-    -> AttributeValue {
-    let deadline = Date().addingTimeInterval(timeout)
-    while Date() < deadline {
-      if let value = span.getAttributes()[SemanticConventions.App.screenName.rawValue] {
-        return value
-      }
-      try await Task.sleep(nanoseconds: 10_000_000)
+    guard let readableSpan = span as? ReadableSpan else {
+      XCTFail("Expected span to conform to ReadableSpan")
+      return
     }
 
-    if let finalValue = span.getAttributes()[SemanticConventions.App.screenName.rawValue] {
-      return finalValue
-    }
-    throw XCTTimeoutError()
+    XCTAssertEqual(
+      readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
+      .string("HomeScreen")
+    )
   }
 }

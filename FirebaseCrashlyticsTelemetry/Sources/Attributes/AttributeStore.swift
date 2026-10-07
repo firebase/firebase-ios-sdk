@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+private import FirebaseCoreInternal
 import Foundation
 import OpenTelemetryApi
 
@@ -20,13 +21,17 @@ enum AttributeStore {
   // TODO: Add resource attributes.
   // TODO: Add instrumentation scope attributes.
 
-  /// Returns the common attributes that should be attached to all spans.
-  static func commonSpanAttributes() async -> [String: AttributeValue] {
-    let activeView = await FirebaseCrashlyticsTelemetry.instance?.viewInstrumentation?
-      .activeView ?? .unknown
+  private static let screenName = UnfairLock<String>(CrashlyticsView.unknown.name)
 
+  /// Updates the currently active screen name.
+  static func setScreenName(_ name: String) {
+    screenName.withLock { $0 = name }
+  }
+
+  /// Returns the common attributes that should be attached to all spans.
+  static func commonSpanAttributes() -> [String: AttributeValue] {
     return [
-      SemanticConventions.App.screenName.rawValue: .string(activeView.name),
+      SemanticConventions.App.screenName.rawValue: .string(screenName.value()),
       // TODO: Remove this attribute. Currently added as a work around to a limitation in the
       // backend server.
       "gcp.firebase.app_version": .string("1.0"),
@@ -34,12 +39,9 @@ enum AttributeStore {
   }
 
   /// Returns the common attributes that should be attached to all log records.
-  static func commonLogAttributes() async -> [String: AttributeValue] {
-    let activeView = await FirebaseCrashlyticsTelemetry.instance?.viewInstrumentation?
-      .activeView ?? .unknown
-
+  static func commonLogAttributes() -> [String: AttributeValue] {
     return [
-      SemanticConventions.App.screenName.rawValue: .string(activeView.name),
+      SemanticConventions.App.screenName.rawValue: .string(screenName.value()),
     ]
   }
 }

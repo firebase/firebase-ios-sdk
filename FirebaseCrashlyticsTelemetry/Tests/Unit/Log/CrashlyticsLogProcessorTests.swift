@@ -33,6 +33,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
   }
 
   override func tearDown() {
+    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
     logger = nil
     loggerProvider = nil
     processor = nil
@@ -90,6 +91,23 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsView.unknown.name)
+    )
+  }
+
+  func test_onEmit_capturesScreenNameAtEmitTimeBeforeSubsequentChange() async throws {
+    AttributeStore.setScreenName("CheckoutScreen")
+    logger
+      .logRecordBuilder()
+      .setEventName("checkout.submit")
+      .setSeverity(.info)
+      .emit()
+    AttributeStore.setScreenName("ConfirmationScreen")
+
+    let records = try await waitForExportedLogs(count: 1)
+    XCTAssertEqual(records.count, 1)
+    XCTAssertEqual(
+      records[0].attributes[SemanticConventions.App.screenName.rawValue],
+      .string("CheckoutScreen")
     )
   }
 

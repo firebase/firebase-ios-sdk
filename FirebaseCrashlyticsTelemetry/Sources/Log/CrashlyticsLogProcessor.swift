@@ -38,13 +38,14 @@ final class CrashlyticsLogProcessor: LogRecordProcessor, Sendable {
   }
 
   func onEmit(logRecord: ReadableLogRecord) {
+    var enrichedRecord = logRecord
+    let commonAttributes = AttributeStore.commonLogAttributes()
+    for (key, value) in commonAttributes {
+      enrichedRecord.setAttribute(key: key, value: value)
+    }
+
     let exporter = self.exporter
     Task {
-      var enrichedRecord = logRecord
-      let commonAttributes = await AttributeStore.commonLogAttributes()
-      for (key, value) in commonAttributes {
-        enrichedRecord.setAttribute(key: key, value: value)
-      }
       await exporter.export(enrichedRecord)
     }
   }

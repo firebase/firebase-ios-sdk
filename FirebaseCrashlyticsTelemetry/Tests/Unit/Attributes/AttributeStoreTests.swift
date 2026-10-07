@@ -18,8 +18,13 @@ import XCTest
 @testable import FirebaseCrashlyticsTelemetry
 
 final class AttributeStoreTests: XCTestCase {
-  func test_commonSpanAttributes_containsScreenNameAndAppVersion() async {
-    let attributes = await AttributeStore.commonSpanAttributes()
+  override func tearDown() {
+    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
+    super.tearDown()
+  }
+
+  func test_commonSpanAttributes_containsScreenNameAndAppVersion() {
+    let attributes = AttributeStore.commonSpanAttributes()
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
@@ -31,12 +36,25 @@ final class AttributeStoreTests: XCTestCase {
     )
   }
 
-  func test_commonLogAttributes_containsScreenName() async {
-    let attributes = await AttributeStore.commonLogAttributes()
+  func test_commonLogAttributes_containsScreenName() {
+    let attributes = AttributeStore.commonLogAttributes()
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsView.unknown.name)
+    )
+  }
+
+  func test_setScreenName_updatesCommonSpanAndLogAttributes() {
+    AttributeStore.setScreenName("SettingsScreen")
+
+    XCTAssertEqual(
+      AttributeStore.commonSpanAttributes()[SemanticConventions.App.screenName.rawValue],
+      .string("SettingsScreen")
+    )
+    XCTAssertEqual(
+      AttributeStore.commonLogAttributes()[SemanticConventions.App.screenName.rawValue],
+      .string("SettingsScreen")
     )
   }
 }

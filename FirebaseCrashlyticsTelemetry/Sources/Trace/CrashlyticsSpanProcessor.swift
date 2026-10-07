@@ -37,11 +37,11 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   ///   - parentContext: The context of the parent span, if any.
   ///   - span: The newly started readable span.
   func onStart(parentContext: SpanContext?, span: ReadableSpan) {
-    Task {
-      let commonAttributes = await AttributeStore.commonSpanAttributes()
-      span.setAttributes(commonAttributes)
+    let commonAttributes = AttributeStore.commonSpanAttributes()
+    span.setAttributes(commonAttributes)
 
-      let spanData = span.toSpanData()
+    let spanData = span.toSpanData()
+    Task {
       await PersistenceManager.shared.onSpanStart(span: spanData)
     }
   }

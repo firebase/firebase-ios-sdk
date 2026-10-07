@@ -32,7 +32,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
   private var recoveryManager: RecoveredTelemetryExporter?
   private var urlInstrumentation: URLSessionInstrumentation?
-  private(set) var viewInstrumentation: (any ActiveViewProvider)?
+  private var viewInstrumentation: ViewInstrumentation?
   private var userInteractionInstrumentation: UserInteractionInstrumentation?
 
   private let scopeName = "Firebase Crashlytics Telemetry"
@@ -86,7 +86,9 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
       )
     )
 
-    viewInstrumentation = ViewInstrumentation(logger: logger)
+    viewInstrumentation = ViewInstrumentation(logger: logger) { view in
+      AttributeStore.setScreenName(view)
+    }
     userInteractionInstrumentation = UserInteractionInstrumentation(logger: logger)
   }
 

@@ -195,6 +195,23 @@ final class ViewInstrumentationTests: XCTestCase {
     XCTAssertEqual(mockLogger.exportedLogs().count, 1)
   }
 
+  // MARK: - onChange Callback
+
+  func test_onChangeCallback_isInvokedWhenSettledViewChanges() async throws {
+    let expectation = expectation(description: "onChange called for HomeScreen")
+    let localLogger = MockLogger()
+    let customInstrumentation = ViewInstrumentation(logger: localLogger.logger) { viewName in
+      if viewName == "CallbackScreen" {
+        expectation.fulfill()
+      }
+    }
+    _ = customInstrumentation
+    try await Task.sleep(nanoseconds: 10_000_000)
+
+    postViewEvent(id: UUID(), name: "CallbackScreen", type: .appear)
+    await fulfillment(of: [expectation], timeout: 2.0)
+  }
+
   // MARK: - End-to-End Test with ViewLifecycleHarness
 
   @MainActor
