@@ -17,6 +17,13 @@
 #warning "Firebase Firestore does not support watchOS"
 #endif
 
+#if !defined(FIRESTORE_TRAIT_ENABLED)
+#error "FirebaseFirestore was included in your project dependencies, but the \
+'Firestore' SwiftPM package trait is disabled. To use Firestore, please \
+enable the 'Firestore' trait (or default traits) in your Package.swift \
+or in the Package Dependencies tab of your Xcode project."
+#endif  // !defined(FIRESTORE_TRAIT_ENABLED)
+
 #if TARGET_OS_VISION && FIREBASE_BINARY_FIRESTORE
 #error "Firebase Firestore's binary SPM distribution does not support \
 visionOS. To enable the source distribution, quit Xcode and open the desired \

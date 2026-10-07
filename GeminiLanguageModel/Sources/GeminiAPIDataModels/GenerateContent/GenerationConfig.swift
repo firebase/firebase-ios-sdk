@@ -227,7 +227,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   /// Deprecated: Use `response_format` instead.
   package let responseSchema: Schema?
 
-  /// Optional. Output schema of the generated response. This is an alternative to
+  /// Optional. Output schema of the generated response.
   ///
   /// ### Gemini Developer API
   ///
@@ -270,21 +270,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// ### Gemini Enterprise Agent Platform
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let responsejsonschema: JSONValue?
-
-  /// Optional. An internal detail. Use `responseJsonSchema` rather than this field.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. An internal detail. Use `responseJsonSchema` rather than this field.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. When this field is set,
-  /// response_schema
-  /// must be omitted and
-  /// response_mime_type
+  /// Optional. When this field is set, `response_schema` must be omitted and `response_mime_type`
   /// must be set to `application/json`.
   /// Deprecated: Use `response_format` instead.
   package let responseJsonSchema: JSONValue?
@@ -508,8 +494,7 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
   ///   - seed: Optional. Seed used in decoding. If not set, the request uses a randomly generated (behavior varies by backend). For more details, see ``seed``.
   ///   - responseMimeType: Optional. MIME type of the generated candidate text. (behavior varies by backend). For more details, see ``responseMimeType``.
   ///   - responseSchema: Optional. Output schema of the generated candidate text. Schemas must be a (behavior varies by backend). For more details, see ``responseSchema``.
-  ///   - responsejsonschema: Optional. Output schema of the generated response. This is an alternative to (Gemini Developer API only). For more details, see ``responsejsonschema``.
-  ///   - responseJsonSchema: Optional. An internal detail. Use `responseJsonSchema` rather than this field. (behavior varies by backend). For more details, see ``responseJsonSchema``.
+  ///   - responseJsonSchema: Optional. Output schema of the generated response. (behavior varies by backend). For more details, see ``responseJsonSchema``.
   ///   - presencePenalty: Optional. Presence penalty applied to the next token's logprobs if the token has (behavior varies by backend). For more details, see ``presencePenalty``.
   ///   - frequencyPenalty: Optional. Frequency penalty applied to the next token's logprobs, multiplied by the (behavior varies by backend). For more details, see ``frequencyPenalty``.
   ///   - responseLogprobs: Optional. If true, export the logprobs results in response. (behavior varies by backend). For more details, see ``responseLogprobs``.
@@ -533,7 +518,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     seed: Int? = nil,
     responseMimeType: String? = nil,
     responseSchema: Schema? = nil,
-    responsejsonschema: JSONValue? = nil,
     responseJsonSchema: JSONValue? = nil,
     presencePenalty: Double? = nil,
     frequencyPenalty: Double? = nil,
@@ -558,7 +542,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     self.seed = seed
     self.responseMimeType = responseMimeType
     self.responseSchema = responseSchema
-    self.responsejsonschema = responsejsonschema
     self.responseJsonSchema = responseJsonSchema
     self.presencePenalty = presencePenalty
     self.frequencyPenalty = frequencyPenalty
@@ -584,7 +567,6 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable {
     case seed = "seed"
     case responseMimeType = "responseMimeType"
     case responseSchema = "responseSchema"
-    case responsejsonschema = "_responseJsonSchema"
     case responseJsonSchema = "responseJsonSchema"
     case presencePenalty = "presencePenalty"
     case frequencyPenalty = "frequencyPenalty"

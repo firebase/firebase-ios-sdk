@@ -33,7 +33,7 @@
       GeminiLanguageModel(
         modelResource: try modelResource(modelID: modelID),
         endpointConfiguration: endpointConfiguration,
-        headerProvider: try await makeHeaderProvider()
+        headerProvider: try makeHeaderProvider()
       )
     }
   }

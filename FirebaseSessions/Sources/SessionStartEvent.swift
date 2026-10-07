@@ -32,7 +32,19 @@ internal import GoogleDataTransport
 ///   1) Writing fields to the Session proto
 ///   2) Synthesizing itself for persisting to disk and logging to GoogleDataTransport
 ///
-class SessionStartEvent: NSObject, GDTCOREventDataObject {
+/// - Note: This type is `@unchecked Sendable` rather than genuinely thread safe.
+///   It wraps a mutable nanopb struct holding manually managed pointers that are
+///   freed in `deinit`, so concurrent mutation would corrupt memory. The safety
+///   invariant is that an event instance is only ever *handed off* between
+///   executors, never shared: it is created on the initiator's thread, mutated
+///   by exactly one `loggedEventCallbackQueue` work item, and then handed to
+///   the coordinator, which serializes its own writes. Note that the callback
+///   queue is concurrent by default, so the protection here is single-owner
+///   confinement, not queue serialization: never enqueue a second work item
+///   against an event, and never mutate one from more than one context.
+///   TODO: Make this checked `Sendable` by making the proto writes internally
+///   synchronized, or by modeling the event as a value type.
+class SessionStartEvent: NSObject, GDTCOREventDataObject, @unchecked Sendable {
   var proto: firebase_appquality_sessions_SessionEvent
 
   init(sessionInfo: SessionInfo, appInfo: ApplicationInfoProtocol,

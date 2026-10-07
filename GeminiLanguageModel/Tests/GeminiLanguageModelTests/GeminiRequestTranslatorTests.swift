@@ -105,11 +105,9 @@
 
       #expect(result.contents.count == 1)
       let generationConfig = try #require(result.generationConfig)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
+      #expect(generationConfig.responseMimeType == "application/json")
+      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
+        Issue.record("Expected responseJsonSchema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -133,11 +131,9 @@
       let config = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
 
       let generationConfig = try #require(config)
-      let responseFormat = try #require(generationConfig.responseFormat)
-      let textFormat = try #require(responseFormat.text)
-      #expect(textFormat.mimeType == TextResponseFormat.MimeType.applicationJson)
-      guard case .object(let schemaObject) = textFormat.schema else {
-        Issue.record("Expected schema to be a JSON object.")
+      #expect(generationConfig.responseMimeType == "application/json")
+      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
+        Issue.record("Expected responseJsonSchema to be a JSON object.")
         return
       }
       #expect(schemaObject["x-order"] == nil)
@@ -228,24 +224,129 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesToolCallingModes() {
-      let allowedConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: .allowed
+    func translatesToolCallingModes() throws {
+      let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .allowed,
+        hasFunctionDeclarations: true
       )
-      let requiredConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: .required
+      let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .required,
+        hasFunctionDeclarations: true
       )
-      let disallowedConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: .disallowed
+      let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .disallowed,
+        hasFunctionDeclarations: true
       )
-      let nilConfig = GeminiRequestTranslator.translateToolConfig(
-        toolCallingMode: nil
+      let unsetConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: nil,
+        hasFunctionDeclarations: true
       )
 
-      #expect(allowedConfig?.functionCallingConfig?.mode == .auto)
+      #expect(allowedConfig?.functionCallingConfig?.mode == .validated)
       #expect(requiredConfig?.functionCallingConfig?.mode == .any)
       #expect(disallowedConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+      #expect(unsetConfig?.functionCallingConfig?.mode == .validated)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesToolCallingModesWithoutDeclarationsReturnsNil() throws {
+      let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .allowed,
+        hasFunctionDeclarations: false
+      )
+      let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .required,
+        hasFunctionDeclarations: false
+      )
+      let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .disallowed,
+        hasFunctionDeclarations: false
+      )
+      let nilConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: nil,
+        hasFunctionDeclarations: false
+      )
+
+      #expect(allowedConfig == nil)
+      #expect(requiredConfig == nil)
+      #expect(disallowedConfig == nil)
       #expect(nilConfig == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestEndToEndWithToolCallingMode() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "What is the weather in Boston?"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let toolDefinition = Transcript.ToolDefinition(
+        name: "get_current_weather",
+        description: "Get the current weather for a city.",
+        parameters: LocationArguments.generationSchema
+      )
+      let requestWithTool = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [toolDefinition],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .allowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+      let requestWithoutTools = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .allowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let resultWithTool = try GeminiRequestTranslator.translate(requestWithTool)
+      let resultWithoutTools = try GeminiRequestTranslator.translate(requestWithoutTools)
+
+      let unwrappedToolConfig = try #require(resultWithTool.toolConfig)
+      let functionCallingConfig = try #require(unwrappedToolConfig.functionCallingConfig)
+      #expect(functionCallingConfig.mode == FunctionCallingConfig.Mode.validated)
+      #expect(resultWithoutTools.toolConfig == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestEndToEndWithUnsetToolCallingMode() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "What is the weather in Boston?"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+      let toolDefinition = Transcript.ToolDefinition(
+        name: "get_current_weather",
+        description: "Get the current weather for a city.",
+        parameters: LocationArguments.generationSchema
+      )
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: transcript,
+        enabledTools: [toolDefinition],
+        schema: nil,
+        generationOptions: GenerationOptions(),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request)
+
+      let toolConfig = try #require(result.toolConfig)
+      let functionCallingConfig = try #require(toolConfig.functionCallingConfig)
+      #expect(functionCallingConfig.mode == FunctionCallingConfig.Mode.validated)
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

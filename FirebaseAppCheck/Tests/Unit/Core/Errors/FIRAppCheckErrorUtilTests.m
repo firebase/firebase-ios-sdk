@@ -18,7 +18,13 @@
 
 #import <XCTest/XCTest.h>
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 static NSString *const kTestErrorDomain = @"com.google.test.error-domain";
 static NSInteger kTestErrorCode = 42;
@@ -54,7 +60,7 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForGACErrorUnknown {
-  NSError *unknownError = [NSError errorWithDomain:GACAppCheckErrorDomain
+  NSError *unknownError = [NSError errorWithDomain:@"com.google.app_check_core"
                                               code:GACAppCheckErrorCodeUnknown
                                           userInfo:self.userInfo];
 
@@ -68,7 +74,7 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForGACErrorServerUnreachable {
-  NSError *serverError = [NSError errorWithDomain:GACAppCheckErrorDomain
+  NSError *serverError = [NSError errorWithDomain:@"com.google.app_check_core"
                                              code:GACAppCheckErrorCodeServerUnreachable
                                          userInfo:self.userInfo];
 
@@ -83,7 +89,7 @@ static NSInteger kTestErrorCode = 42;
 
 - (void)testPublicDomainErrorForGACErrorInvalidConfiguration {
   NSError *invalidConfigurationError =
-      [NSError errorWithDomain:GACAppCheckErrorDomain
+      [NSError errorWithDomain:@"com.google.app_check_core"
                           code:GACAppCheckErrorCodeInvalidConfiguration
                       userInfo:self.userInfo];
 
@@ -99,7 +105,7 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForGACErrorKeychain {
-  NSError *keychainError = [NSError errorWithDomain:GACAppCheckErrorDomain
+  NSError *keychainError = [NSError errorWithDomain:@"com.google.app_check_core"
                                                code:GACAppCheckErrorCodeKeychain
                                            userInfo:self.userInfo];
 
@@ -113,7 +119,7 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForGACErrorUnsupported {
-  NSError *unsupportedError = [NSError errorWithDomain:GACAppCheckErrorDomain
+  NSError *unsupportedError = [NSError errorWithDomain:@"com.google.app_check_core"
                                                   code:GACAppCheckErrorCodeUnsupported
                                               userInfo:self.userInfo];
 
@@ -129,7 +135,7 @@ static NSInteger kTestErrorCode = 42;
 
 - (void)testPublicDomainErrorForGACErrorUnrecognizedCode {
   NSInteger unrecognizedErrorCode = -1000;  // Not part of the GACAppCheckErrorCode enum
-  NSError *unknownError = [NSError errorWithDomain:GACAppCheckErrorDomain
+  NSError *unknownError = [NSError errorWithDomain:@"com.google.app_check_core"
                                               code:unrecognizedErrorCode
                                           userInfo:self.userInfo];
 
@@ -147,7 +153,8 @@ static NSInteger kTestErrorCode = 42;
 }
 
 - (void)testPublicDomainErrorForUnrecognizedDomainError {
-  // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or GACAppCheckErrorDomain).
+  // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or
+  // @"com.google.app_check_core").
   NSError *unrecognizedError = [NSError errorWithDomain:kTestErrorDomain
                                                    code:kTestErrorCode
                                                userInfo:self.userInfo];

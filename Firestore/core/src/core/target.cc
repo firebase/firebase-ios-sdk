@@ -207,13 +207,13 @@ IndexBoundValues Target::GetUpperBound(
 
 Target::IndexBoundValue Target::GetAscendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) const {
-  google_firestore_v1_Value segment_value = model::MinValue();
+  google_firestore_v1_Value segment_value = model::InternalMinValue();
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    google_firestore_v1_Value filter_value = model::MinValue();
+    google_firestore_v1_Value filter_value = model::InternalMinValue();
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -232,7 +232,7 @@ Target::IndexBoundValue Target::GetAscendingBound(
         break;
       case FieldFilter::Operator::NotEqual:
       case FieldFilter::Operator::NotIn:
-        filter_value = model::MinValue();
+        filter_value = model::MinKeyValue();
         break;
       default:
         // Remaining filters cannot be used as bound.
@@ -271,13 +271,13 @@ Target::IndexBoundValue Target::GetAscendingBound(
 
 Target::IndexBoundValue Target::GetDescendingBound(
     const Segment& segment, const absl::optional<Bound>& bound) const {
-  google_firestore_v1_Value segment_value = model::MaxValue();
+  google_firestore_v1_Value segment_value = model::InternalMaxValue();
   bool segment_inclusive = true;
 
   // Process all filters to find a value for the current field segment
   for (const auto& field_filter :
        GetFieldFiltersForPath(segment.field_path())) {
-    google_firestore_v1_Value filter_value = model::MaxValue();
+    google_firestore_v1_Value filter_value = model::InternalMaxValue();
     bool filter_inclusive = true;
 
     switch (field_filter.op()) {
@@ -297,7 +297,7 @@ Target::IndexBoundValue Target::GetDescendingBound(
         break;
       case FieldFilter::Operator::NotIn:
       case FieldFilter::Operator::NotEqual:
-        filter_value = model::MaxValue();
+        filter_value = model::MaxKeyValue();
         break;
       default:
         // Remaining filters cannot be used as bound.

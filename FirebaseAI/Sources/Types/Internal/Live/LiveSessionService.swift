@@ -39,7 +39,7 @@ actor LiveSessionService {
   let apiConfig: APIConfig
   let firebaseInfo: FirebaseInfo
   let requestOptions: RequestOptions
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
 
@@ -61,7 +61,7 @@ actor LiveSessionService {
        urlSession: URLSession,
        apiConfig: APIConfig,
        firebaseInfo: FirebaseInfo,
-       tools: [Tool]?,
+       tools: [GenerativeModel.Tool]?,
        toolConfig: ToolConfig?,
        systemInstruction: ModelContent?,
        requestOptions: RequestOptions) {

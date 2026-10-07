@@ -201,9 +201,9 @@ struct GenerativeAIService {
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
   private func logRPCError(_ error: BackendError) {
     let projectID = firebaseInfo.projectID
-    if error.isVertexAIInFirebaseServiceDisabledError() {
+    if error.isFirebaseAILogicServiceDisabledError() {
       AILog.error(code: .agentPlatformInFirebaseAPIDisabled, """
-      The Firebase AI SDK requires the Firebase AI API \
+      The Firebase AI Logic SDK requires the Firebase AI Logic API \
       (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
       by visiting the Firebase Console at
       https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \

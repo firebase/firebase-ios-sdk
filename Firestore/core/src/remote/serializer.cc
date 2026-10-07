@@ -18,6 +18,7 @@
 
 #include <pb_decode.h>
 #include <pb_encode.h>
+#include <optional>
 
 #include <algorithm>
 #include <functional>
@@ -178,10 +179,10 @@ FieldPath InvalidFieldPath() {
   return FieldPath::EmptyPath();
 }
 
-absl::optional<SnapshotVersion> NotNoneVersionOrNullOpt(
+std::optional<SnapshotVersion> NotNoneVersionOrNullOpt(
     const SnapshotVersion& version) {
   if (version == SnapshotVersion::None()) {
-    return absl::nullopt;
+    return std::nullopt;
   } else {
     return version;
   }
@@ -578,7 +579,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_increment_tag;
       const auto& increment = static_cast<const NumericIncrementTransform&>(
           field_transform.transformation());
-      proto.increment = increment.operand();
+      proto.increment = *DeepClone(increment.operand()).release();
       return proto;
     }
 
@@ -587,7 +588,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag;
       const auto& minimum = static_cast<const NumericMinimumTransform&>(
           field_transform.transformation());
-      proto.minimum = minimum.operand();
+      proto.minimum = *DeepClone(minimum.operand()).release();
       return proto;
     }
 
@@ -596,7 +597,7 @@ Serializer::EncodeFieldTransform(const FieldTransform& field_transform) const {
           google_firestore_v1_DocumentTransform_FieldTransform_maximum_tag;
       const auto& maximum = static_cast<const NumericMaximumTransform&>(
           field_transform.transformation());
-      proto.maximum = maximum.operand();
+      proto.maximum = *DeepClone(maximum.operand()).release();
       return proto;
     }
   }
@@ -642,9 +643,11 @@ FieldTransform Serializer::DecodeFieldTransform(
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_increment_tag: {
-      return FieldTransform(
+      FieldTransform field_transform(
           std::move(field),
           NumericIncrementTransform(MakeMessage(proto.increment)));
+      proto.increment = {};
+      return field_transform;
     }
 
     case google_firestore_v1_DocumentTransform_FieldTransform_minimum_tag: {
@@ -843,13 +846,13 @@ Target Serializer::DecodeStructuredQuery(
     limit = query.limit.value;
   }
 
-  absl::optional<Bound> start_at;
+  std::optional<Bound> start_at;
   if (query.start_at.values_count > 0) {
     bool inclusive = query.start_at.before;
     start_at = Bound::FromValue(DecodeCursorValue(query.start_at), inclusive);
   }
 
-  absl::optional<Bound> end_at;
+  std::optional<Bound> end_at;
   if (query.end_at.values_count > 0) {
     bool inclusive = !query.end_at.before;
     end_at = Bound::FromValue(DecodeCursorValue(query.end_at), inclusive);
@@ -1521,7 +1524,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
   return absl::make_unique<DocumentWatchChange>(std::vector<TargetId>{},
                                                 std::move(removed_target_ids),
-                                                std::move(key), absl::nullopt);
+                                                std::move(key), std::nullopt);
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
@@ -1533,7 +1536,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
   if (!filter.has_unchanged_names) {
-    return {filter.count, absl::nullopt};
+    return {filter.count, std::nullopt};
   }
 
   int32_t hash_count = filter.unchanged_names.hash_count;
@@ -1576,7 +1579,7 @@ api::PipelineSnapshot Serializer::DecodePipelineResponse(
   results.reserve(message->results_count);
 
   for (pb_size_t i = 0; i < message->results_count; ++i) {
-    absl::optional<DocumentKey> key;
+    std::optional<DocumentKey> key;
     if (message->results[i].name != nullptr) {
       key = DecodeKey(context, message->results[i].name);
     }
@@ -1596,11 +1599,11 @@ api::PipelineSnapshot Serializer::DecodePipelineResponse(
   return api::PipelineSnapshot(std::move(results), execution_time);
 }
 
-absl::optional<core::TargetOrPipeline> Serializer::DecodePipelineTarget(
+std::optional<core::TargetOrPipeline> Serializer::DecodePipelineTarget(
     util::ReadContext* context,
     const google_firestore_v1_Target_PipelineQueryTarget& proto) const {
   if (!context->status().ok()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   if (proto.which_pipeline_type !=
@@ -1608,7 +1611,7 @@ absl::optional<core::TargetOrPipeline> Serializer::DecodePipelineTarget(
     context->Fail(
         StringFormat("Unknown pipeline_type in PipelineQueryTarget: %d",
                      proto.which_pipeline_type));
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   const auto& pipeline_proto = proto.structured_pipeline.pipeline;
@@ -1618,7 +1621,7 @@ absl::optional<core::TargetOrPipeline> Serializer::DecodePipelineTarget(
   for (pb_size_t i = 0; i < pipeline_proto.stages_count; ++i) {
     auto stage_ptr = DecodeStage(context, pipeline_proto.stages[i]);
     if (!context->status().ok()) {
-      return absl::nullopt;
+      return std::nullopt;
     }
     decoded_stages.push_back(std::move(stage_ptr));
   }
@@ -1774,7 +1777,7 @@ api::Ordering Serializer::DecodeOrdering(
   }
 
   std::shared_ptr<api::Expr> decoded_expr = nullptr;
-  absl::optional<api::Ordering::Direction> decoded_direction;
+  std::optional<api::Ordering::Direction> decoded_direction;
 
   const auto& map_value = proto_value.map_value;
   for (pb_size_t i = 0; i < map_value.fields_count; ++i) {

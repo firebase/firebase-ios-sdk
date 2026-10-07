@@ -18,6 +18,7 @@
 
 #include <chrono>
 #include <future>
+#include <optional>
 
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_util.h"
@@ -57,15 +58,15 @@ using Type = GrpcCompletion::Type;
 
 namespace internal {
 
-absl::optional<BufferedWrite> BufferedWriter::EnqueueWrite(
+std::optional<BufferedWrite> BufferedWriter::EnqueueWrite(
     grpc::ByteBuffer&& message, const grpc::WriteOptions& options) {
   queue_.push({std::move(message), options});
   return TryStartWrite();
 }
 
-absl::optional<BufferedWrite> BufferedWriter::TryStartWrite() {
+std::optional<BufferedWrite> BufferedWriter::TryStartWrite() {
   if (queue_.empty() || has_active_write_) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   has_active_write_ = true;
@@ -74,7 +75,7 @@ absl::optional<BufferedWrite> BufferedWriter::TryStartWrite() {
   return {std::move(message)};
 }
 
-absl::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
+std::optional<BufferedWrite> BufferedWriter::DequeueNextWrite() {
   has_active_write_ = false;
   return TryStartWrite();
 }
@@ -145,7 +146,7 @@ void GrpcStream::WriteLast(grpc::ByteBuffer&& message) {
   MaybeWrite(buffered_writer_.EnqueueWrite(std::move(message), options));
 }
 
-void GrpcStream::MaybeWrite(absl::optional<BufferedWrite> maybe_write) {
+void GrpcStream::MaybeWrite(std::optional<BufferedWrite> maybe_write) {
   if (!maybe_write) {
     return;
   }
@@ -261,7 +262,7 @@ bool GrpcStream::WriteAndFinish(grpc::ByteBuffer&& message) {
 }
 
 bool GrpcStream::TryLastWrite(grpc::ByteBuffer&& message) {
-  absl::optional<BufferedWrite> maybe_write =
+  std::optional<BufferedWrite> maybe_write =
       buffered_writer_.EnqueueWrite(std::move(message));
   // Only bother with the last write if there is no active write at the moment.
   if (!maybe_write) {

@@ -168,7 +168,20 @@
     [frame setOffset:addr - (uintptr_t)dlInfo.dli_saddr];
   }
 
-  [frame setLibrary:[[binaryImage objectForKey:@"path"] lastPathComponent]];
+  NSString* library = nil;
+  id rawPath = [binaryImage objectForKey:@"path"];
+
+  if ([rawPath isKindOfClass:[NSString class]] && [(NSString*)rawPath length] > 0) {
+    library = [(NSString*)rawPath lastPathComponent];
+  } else if (dlInfo.dli_fname && strlen(dlInfo.dli_fname) > 0) {
+    library = [[NSString stringWithUTF8String:dlInfo.dli_fname] lastPathComponent];
+  }
+
+  if (library) {
+    [frame setLibrary:library];
+  } else {
+    FIRCLSSDKLog("Could not find library path\n");
+  }
 
   return YES;
 }

@@ -509,6 +509,8 @@
 		86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../..;
+			traits = (
+			);
 		};
 /* End XCLocalSwiftPackageReference section */
 

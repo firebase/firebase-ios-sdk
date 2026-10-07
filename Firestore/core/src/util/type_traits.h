@@ -20,32 +20,30 @@
 #include <type_traits>
 #include <utility>
 
-#include "absl/meta/type_traits.h"
-
 namespace firebase {
 namespace firestore {
 namespace util {
 
 // is_iterable
 
-template <typename T, typename = absl::void_t<>>
+template <typename T, typename = std::void_t<>>
 struct is_iterable : std::false_type {};
 
 template <typename T>
 struct is_iterable<
     T,
-    absl::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
+    std::void_t<decltype(std::declval<T>().begin(), std::declval<T>().end())>>
     : std::true_type {};
 
 // is_associative_container
 
-template <typename T, typename = absl::void_t<>>
+template <typename T, typename = std::void_t<>>
 struct is_associative_container : std::false_type {};
 
 template <typename T>
 struct is_associative_container<
     T,
-    absl::void_t<decltype(std::declval<typename T::mapped_type>())>>
+    std::void_t<decltype(std::declval<typename T::mapped_type>())>>
     : std::true_type {};
 
 }  // namespace util

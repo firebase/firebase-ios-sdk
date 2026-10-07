@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <ostream>
 
 #include "Firestore/core/src/core/bound.h"
@@ -80,7 +81,7 @@ const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   return result;
 }
 
-absl::optional<Operator> Query::FindOpInsideFilters(
+std::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
     for (const auto& field_filter : filter.GetFlattenedFilters()) {
@@ -89,7 +90,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
       }
     }
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 std::shared_ptr<const std::vector<OrderBy>> Query::CalculateNormalizedOrderBys()
@@ -236,7 +237,7 @@ bool Query::MatchesOrderBy(const Document& doc) const {
     const FieldPath& field_path = order_by.field();
     // order by key always matches
     if (field_path != FieldPath::KeyFieldPath() &&
-        doc->field(field_path) == absl::nullopt) {
+        doc->field(field_path) == std::nullopt) {
       return false;
     }
   }
@@ -316,13 +317,13 @@ Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
 
     // We need to swap the cursors to match the now-flipped query ordering.
     auto new_start_at = end_at_
-                            ? absl::optional<Bound>{Bound::FromValue(
+                            ? std::optional<Bound>{Bound::FromValue(
                                   end_at_->position(), end_at_->inclusive())}
-                            : absl::nullopt;
+                            : std::nullopt;
     auto new_end_at = start_at_
-                          ? absl::optional<Bound>{Bound::FromValue(
+                          ? std::optional<Bound>{Bound::FromValue(
                                 start_at_->position(), start_at_->inclusive())}
-                          : absl::nullopt;
+                          : std::nullopt;
 
     return Target(path(), collection_group(), filters(), new_order_bys, limit_,
                   new_start_at, new_end_at);

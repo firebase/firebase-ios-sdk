@@ -32,9 +32,8 @@
 /// (`projects/{projectID}/apps/{appID}:exchangeDebugToken`) using standard `URLSession` and
 /// retains tokens in-memory.
 ///
-/// Unlike the production SDK, token expiration is intentionally not tracked because integration
-/// test suites complete in seconds, well within the standard token validity window. This allows
-/// standalone Swift Package tests to run quickly without requiring an application host wrapper.
+/// Unlike the production SDK, token persistence relies on in-memory storage instead of Keychain.
+/// Exchanged tokens are cached with their TTL and automatically refreshed when nearing expiration.
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 package actor AppCheckDebugClient {
   private let projectID: String
@@ -42,8 +41,8 @@ package actor AppCheckDebugClient {
   private let apiKey: String
   private let debugToken: String
 
-  // Token expiration is intentionally not tracked; test suites complete well within token TTL.
   private var cachedToken: String?
+  private var expirationDate: Date?
   private var inFlightExchangeTask: Task<String, any Error>?
   private static let baseURL = URL(string: "https://firebaseappcheck.googleapis.com")!
 
@@ -72,7 +71,7 @@ package actor AppCheckDebugClient {
 
   /// Exchanges the debug token for an App Check token, caching the result in-memory.
   ///
-  /// Token expiration is not tracked as test suites finish well within the token's validity window.
+  /// Automatically refreshes the cached token if it has expired or is nearing expiration.
   ///
   /// - Parameters:
   ///   - session: The `URLSession` to use. Defaults to `.shared`.
@@ -83,7 +82,7 @@ package actor AppCheckDebugClient {
     session: URLSession = .shared,
     forceRefresh: Bool = false
   ) async throws -> String {
-    if !forceRefresh, let cachedToken {
+    if !forceRefresh, isTokenValid, let cachedToken {
       return cachedToken
     }
     if !forceRefresh, let inFlightExchangeTask {
@@ -116,19 +115,47 @@ package actor AppCheckDebugClient {
       }
 
       let decoded = try JSONDecoder().decode(ResponseBody.self, from: data)
+      let ttlSeconds = Self.parseTTLSeconds(decoded.ttl)
+      self.updateCachedToken(
+        decoded.token, expirationDate: Date().addingTimeInterval(ttlSeconds))
       return decoded.token
     }
 
     self.inFlightExchangeTask = exchangeTask
     do {
       let token = try await exchangeTask.value
-      self.cachedToken = token
       self.inFlightExchangeTask = nil
       return token
     } catch {
       self.inFlightExchangeTask = nil
       throw error
     }
+  }
+
+  // MARK: - Private Helpers
+
+  /// Indicates whether the currently cached token is valid and not nearing expiration.
+  private var isTokenValid: Bool {
+    guard let cachedToken, !cachedToken.isEmpty, let expirationDate else {
+      return false
+    }
+    // Proactively refresh if within 5 minutes of expiration.
+    return Date().addingTimeInterval(300) < expirationDate
+  }
+
+  private func updateCachedToken(_ token: String, expirationDate: Date) {
+    self.cachedToken = token
+    self.expirationDate = expirationDate
+  }
+
+  private static func parseTTLSeconds(_ ttl: String?) -> TimeInterval {
+    guard let ttl else { return 3600 }
+    let trimmed = ttl.trimmingCharacters(in: .whitespaces)
+    if trimmed.hasSuffix("s") {
+      let secondsString = trimmed.dropLast()
+      return TimeInterval(secondsString) ?? 3600
+    }
+    return TimeInterval(trimmed) ?? 3600
   }
 }
 
@@ -142,6 +169,7 @@ extension AppCheckDebugClient {
 
   fileprivate struct ResponseBody: Decodable {
     let token: String
+    let ttl: String?
   }
 }
 

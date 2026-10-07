@@ -128,7 +128,7 @@
 
     /// Creates the authentication header provider for this backend.
     @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-    package func makeHeaderProvider() async throws -> (
+    package func makeHeaderProvider() throws -> (
       @Sendable () async throws -> [String: String]
     )? {
       switch self {
@@ -149,14 +149,14 @@
         guard let debugToken = appCheckDebugToken else {
           throw IntegrationBackendError.missingCredential("appCheckDebugToken")
         }
-        let appCheckToken = try await AppCheckTokenCache.shared.token(
-          projectID: projectID,
-          appID: appID,
-          apiKey: apiKey,
-          debugToken: debugToken
-        )
         return {
-          [
+          let appCheckToken = try await AppCheckTokenCache.shared.token(
+            projectID: projectID,
+            appID: appID,
+            apiKey: apiKey,
+            debugToken: debugToken
+          )
+          return [
             "x-goog-api-key": apiKey,
             "x-firebase-appcheck": appCheckToken,
           ]

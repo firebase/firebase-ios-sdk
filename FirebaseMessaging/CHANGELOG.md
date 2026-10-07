@@ -1,3 +1,16 @@
+# Unreleased
+- [fixed] Reduced main-thread work when setting the APNs token: the APNs
+  environment check no longer queries the App Store receipt, and the keychain is
+  read once instead of up to twice. (#16726)
+
+# 13.0.0
+- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
+  delegates. (#15987)
+- [changed] **Breaking Change**: Scene delegates take priority over app delegates for
+  automatic deep link routing. (#15987)
+- [fixed] Fixed an issue where `NSSecureCoding` was not enforced when
+  archiving and unarchiving registration tokens in the keychain. (#16511)
+
 # 12.19.0
 - [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
   longer called at app launch when a token was cached. (#16581)

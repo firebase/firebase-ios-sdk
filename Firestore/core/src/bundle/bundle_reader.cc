@@ -17,6 +17,7 @@
 #include "Firestore/core/src/bundle/bundle_reader.h"
 
 #include <algorithm>
+#include <optional>
 
 #include "absl/memory/memory.h"
 #include "absl/strings/numbers.h"
@@ -96,22 +97,22 @@ std::unique_ptr<BundleElement> BundleReader::ReadNextElement() {
   return result;
 }
 
-absl::optional<std::string> BundleReader::ReadLengthPrefix() {
+std::optional<std::string> BundleReader::ReadLengthPrefix() {
   // length string of size 16 indicates an element about 1PB, which is
   // impossible for valid bundles.
   StreamReadResult result = input_->ReadUntil('{', 16);
   if (!result.ok()) {
     reader_status_.Update(result.status());
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   // Underlying stream is closed, and there happens to be no more data to
   // process.
   if (result.eof() && result.ValueOrDie().empty()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
-  return absl::make_optional(std::move(result).ValueOrDie());
+  return std::make_optional(std::move(result).ValueOrDie());
 }
 
 void BundleReader::ReadJsonToBuffer(size_t required_size) {
