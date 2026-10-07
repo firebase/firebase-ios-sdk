@@ -97,12 +97,9 @@ private extension CrashlyticsRemoteConfigManager {
           "Rollouts excess the maximum length of parameter value can pass to Crashlytics",
           assignment.parameterValue
         )
-        let upperBound = String.Index(
-          utf16Offset: CrashlyticsRemoteConfigManager.maxParameterValueLength,
-          in: assignment.parameterValue
+        assignment.parameterValue = String(
+          assignment.parameterValue.prefix(CrashlyticsRemoteConfigManager.maxParameterValueLength)
         )
-        let slicedParameterValue = assignment.parameterValue[..<upperBound]
-        assignment.parameterValue = String(slicedParameterValue)
       }
     }
 
