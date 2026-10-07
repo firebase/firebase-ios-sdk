@@ -77,6 +77,32 @@
   XCTAssertEqualObjects([NSString stringWithUTF8String:string], @"52d04e1f", @"");
 }
 
+- (void)testReadStringWithTerminatorInRange {
+  char buffer[64];
+  memset(buffer, 'a', sizeof(buffer));
+  buffer[31] = 0;
+
+  char *string = NULL;
+
+  XCTAssertTrue(FIRCLSReadString((vm_address_t)buffer, &string, 32));
+  XCTAssertEqual(string, (char *)buffer);
+  if (string != NULL) {
+    XCTAssertEqual(strlen(string), (size_t)31);
+  }
+}
+
+- (void)testReadStringWithoutTerminatorInRange {
+  char buffer[64];
+  memset(buffer, 'a', sizeof(buffer));
+  // The terminator sits one byte past the window FIRCLSReadString is allowed
+  // to read, so it must not count.
+  buffer[32] = 0;
+
+  char *string = NULL;
+
+  XCTAssertFalse(FIRCLSReadString((vm_address_t)buffer, &string, 32));
+}
+
 - (void)testRedactUUID {
   // Define a local struct to hold the test data
   struct TestCase {
