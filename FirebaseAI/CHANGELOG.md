@@ -18,8 +18,16 @@
   Models framework.
 - [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
   `Backend.vertexAI(location:)` methods. Use `Backend.agentPlatform(location:)`
-  instead (note that the default location is `"global"` instead of
-  `"us-central1"`). (#16689)
+  instead. (#16689)
+
+  The only difference for `Backend.agentPlatform` is the default
+  [location for accessing the model](https://firebase.google.com/docs/ai-logic/locations).
+  The default location for `Backend.agentPlatform` is `global`, whereas the
+  default location for `Backend.vertexAI` was `us-central1`. To use
+  `us-central1` with `Backend.agentPlatform`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK. However, note that most new Gemini models do not support
+  `us-central1`.
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
