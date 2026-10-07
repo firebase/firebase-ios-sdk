@@ -1,3 +1,8 @@
+# Unreleased
+- [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`
+  now cancel the underlying download or upload and throw `StorageError.cancelled` when the
+  calling Swift task is cancelled. (#11786)
+
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
