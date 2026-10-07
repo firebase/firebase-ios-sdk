@@ -52,7 +52,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertNotNil(task)
       // A delay of 0 refreshes the token right away.
       XCTAssertGreaterThanOrEqual(delay, 0)
-      XCTAssertLessThanOrEqual(delay, 24 * 60 * 60)
+      XCTAssertLessThanOrEqual(delay, AuthTokenLifetime.maximum)
       XCTAssertEqual(kAuthGlobalWorkQueue, queue)
       self.authDispatcherDelays.append(delay)
       self.authDispatcherCallback = task
@@ -2303,7 +2303,7 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken(expiresIn: "1e400")
 
     let expirationDate = try XCTUnwrap(auth.currentUser?.accessTokenExpirationDate())
-    XCTAssertEqual(expirationDate.timeIntervalSinceNow, 60 * 60, accuracy: 5)
+    XCTAssertEqual(expirationDate.timeIntervalSinceNow, AuthTokenLifetime.standard, accuracy: 5)
     // The refresh is scheduled five minutes before the token expires.
     let delay = try XCTUnwrap(authDispatcherDelays.last)
     XCTAssertEqual(delay, 55 * 60, accuracy: 5)
@@ -2393,7 +2393,8 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
     XCTAssertEqual(refreshDelays.first, 0)
 
-    // The new token's expiration date was saved, so the next launch uses it.
+    // The new token's expiration date was saved, so the next launch uses it. The fake secure token
+    // service returns an `expires_in` of "3600".
     let relaunchedAuth = Auth(
       app: app,
       keychainStorageProvider: keychainStorage,
