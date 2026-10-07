@@ -182,6 +182,21 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  An empty sound name is not a usable sound file, so no sound is set.
+ */
+- (void)testContentFromContextualMessage_emptySoundName {
+  NSDictionary *message = @{
+    @"gcm.notification.sound" : @"",
+    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+  };
+  UNMutableNotificationContent *content =
+      [FIRMessagingContextManagerService contentFromContextualMessage:message];
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  XCTAssertNil(content.sound);
+#endif
+}
+
+/**
  *  A badge that arrives as a numeric string is still applied.
  */
 - (void)testContentFromContextualMessage_numericStringBadge {

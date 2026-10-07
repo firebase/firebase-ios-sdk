@@ -109,6 +109,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   dispatch_once(&onceToken, ^{
     dateFormatter = [[NSDateFormatter alloc] init];
     dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    // The payload times are wall clock times in the device time zone reported at
+    // check-in, which is localTimeZone, so parse them in that zone instead of
+    // following a process-wide default time zone override.
+    dateFormatter.timeZone = [NSTimeZone localTimeZone];
     [dateFormatter setDateFormat:kLocalTimeFormatString];
   });
   NSDate *startDate = [dateFormatter dateFromString:startTimeString];
@@ -224,7 +228,7 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
   }
 
   id soundName = apsDictionary[kFIRMessagingContextManagerSoundKey];
-  if ([soundName isKindOfClass:[NSString class]]) {
+  if ([soundName isKindOfClass:[NSString class]] && [soundName length]) {
 #if !TARGET_OS_WATCH
     // UNNotificationSound soundNamded: is not available in watchOS
     content.sound = [UNNotificationSound soundNamed:soundName];
