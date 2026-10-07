@@ -41,7 +41,7 @@
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in
   `GeminiLanguageModel`. (#16649)
-- [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
+- [deprecated] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.
 
