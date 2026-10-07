@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where observers could miss events, and keep showing stale
+  or reverted values, when multiple pending transactions at overlapping locations
+  were rerun. (#16791)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
