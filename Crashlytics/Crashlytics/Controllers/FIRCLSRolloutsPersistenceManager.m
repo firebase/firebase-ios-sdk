@@ -53,24 +53,24 @@
 
 - (void)updateRolloutsStateToPersistenceWithRollouts:(NSData *_Nonnull)rollouts
                                             reportID:(NSString *_Nonnull)reportID {
-  NSString *rolloutsPath = [[[_fileManager activePath] stringByAppendingPathComponent:reportID]
-      stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
-  if (![_fileManager fileExistsAtPath:rolloutsPath]) {
-    if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
-      FIRCLSDebugLog(@"Could not create rollouts.clsrecord file. Error was code: %d - message: %s",
-                     errno, strerror(errno));
-      return;
-    }
-  }
-
-  NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
-
   if (!_rolloutsLoggingQueue) {
     FIRCLSDebugLog(@"Rollouts logging queue is dealloccated");
     return;
   }
 
   dispatch_async(_rolloutsLoggingQueue, ^{
+    NSString *rolloutsPath = [[[_fileManager activePath] stringByAppendingPathComponent:reportID]
+        stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
+    if (![_fileManager fileExistsAtPath:rolloutsPath]) {
+      if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
+        FIRCLSDebugLog(
+            @"Could not create rollouts.clsrecord file. Error was code: %d - message: %s", errno,
+            strerror(errno));
+        return;
+      }
+    }
+
+    NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
     @try {
       [rolloutsFile seekToEndOfFile];
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];

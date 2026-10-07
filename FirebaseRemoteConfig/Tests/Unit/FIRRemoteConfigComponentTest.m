@@ -50,6 +50,27 @@
   XCTAssertEqual(config, sameConfig);
 }
 
+- (void)testConcurrentRCInstanceCreationReturnsSameInstance {
+  FIRRemoteConfigComponent *provider = [self providerForTest];
+  NSString *sharedNamespace = @"concurrent_namespace";
+
+  dispatch_group_t group = dispatch_group_create();
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  __block FIRRemoteConfig *config1 = nil;
+  __block FIRRemoteConfig *config2 = nil;
+
+  dispatch_group_async(group, queue, ^{
+    config1 = [provider remoteConfigForNamespace:sharedNamespace];
+  });
+  dispatch_group_async(group, queue, ^{
+    config2 = [provider remoteConfigForNamespace:sharedNamespace];
+  });
+
+  XCTAssertEqual(dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)), 0);
+  XCTAssertNotNil(config1);
+  XCTAssertEqual(config1, config2);
+}
+
 - (void)testRCSeparateInstancesForDifferentNamespaces {
   // Create the provider to vend Remote Config instances.
   FIRRemoteConfigComponent *provider = [self providerForTest];

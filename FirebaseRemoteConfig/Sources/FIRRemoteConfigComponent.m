@@ -80,18 +80,26 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
                        errorPropertyName]];
   }
 
-  FIRRemoteConfig *instance = self.instances[remoteConfigNamespace];
+  FIRRemoteConfig *instance;
+  @synchronized(self.instances) {
+    instance = self.instances[remoteConfigNamespace];
+  }
   if (!instance) {
     FIRApp *app = self.app;
     id<FIRAnalyticsInterop> analytics =
         app.isDefaultApp ? FIR_COMPONENT(FIRAnalyticsInterop, app.container) : nil;
-    instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
-                                             FIROptions:app.options
-                                              namespace:remoteConfigNamespace
-                                              DBManager:[RCNConfigDBManager sharedInstance]
-                                          configContent:[RCNConfigContent sharedInstance]
-                                              analytics:analytics];
-    self.instances[remoteConfigNamespace] = instance;
+    @synchronized(self.instances) {
+      instance = self.instances[remoteConfigNamespace];
+      if (!instance) {
+        instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
+                                                 FIROptions:app.options
+                                                  namespace:remoteConfigNamespace
+                                                  DBManager:[RCNConfigDBManager sharedInstance]
+                                              configContent:[RCNConfigContent sharedInstance]
+                                                  analytics:analytics];
+        self.instances[remoteConfigNamespace] = instance;
+      }
+    }
   }
 
   return instance;

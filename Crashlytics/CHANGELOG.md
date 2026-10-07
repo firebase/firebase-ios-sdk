@@ -2,6 +2,9 @@
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
 - [fixed] Fixed an issue casuing a crash while symbolicating stack frames if the binary image path is null. (#16622)
+- [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` by
+  subscribing to Remote Config rollouts and persisting rollout state on the
+  background rollouts queue (#16736).
 
 # 12.18.0
 - [removed] Removes unused integration with the now deprecated ObjC MetricKit API.

@@ -98,6 +98,9 @@ NSString *reportId = @"1234567";
       @"\"636f6e74726f6c\"}]}";
 
   NSData *data = [encodedStateString dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *rolloutsFilePath =
+      [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
+          stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
 
   // Clog up the queue with a long running operation. This sleep time
   // must be longer than the expectation timeout.
@@ -106,9 +109,11 @@ NSString *reportId = @"1234567";
   });
 
   dispatch_async(testQueue, ^{
-    // Ensure that calling this returns quickly so we don't hang
+    // Ensure that calling this returns quickly and does not perform synchronous file creation on
+    // the calling thread while the logging queue is blocked.
     [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
                                                                          reportID:reportId];
+    XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
     [expectation fulfill];
   });
 
