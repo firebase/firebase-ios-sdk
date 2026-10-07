@@ -92,8 +92,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
   // MARK: - User Interaction Instrumentation
 
-  public func recordTap(on widgetId: String, x: Int? = nil, y: Int? = nil) {
-    userInteractionInstrumentation?.record(.tap(widgetId: widgetId, x: x, y: y))
+  public func recordTap(on widgetId: String) {
+    userInteractionInstrumentation?.record(.tap(widgetId: widgetId))
   }
 
   // MARK: - Public API for testing

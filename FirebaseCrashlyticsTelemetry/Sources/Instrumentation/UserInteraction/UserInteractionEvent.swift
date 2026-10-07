@@ -17,7 +17,7 @@ import OpenTelemetryApi
 
 /// Represents a manual user interaction event to be recorded as an OpenTelemetry event.
 enum UserInteractionEvent: Equatable, Sendable {
-  case tap(widgetId: String, x: Int? = nil, y: Int? = nil)
+  case tap(widgetId: String)
 
   /// The OpenTelemetry semantic event name for this interaction.
   var eventName: String {
@@ -35,17 +35,10 @@ enum UserInteractionEvent: Equatable, Sendable {
   /// The OpenTelemetry semantic attributes for this interaction event.
   var attributes: [String: AttributeValue] {
     switch self {
-    case let .tap(widgetId, x, y):
-      var attributes: [String: AttributeValue] = [
+    case let .tap(widgetId):
+      return [
         SemanticConventions.App.widgetId.rawValue: .string(widgetId),
       ]
-      if let x {
-        attributes[SemanticConventions.App.screenCoordinateX.rawValue] = .int(x)
-      }
-      if let y {
-        attributes[SemanticConventions.App.screenCoordinateY.rawValue] = .int(y)
-      }
-      return attributes
     }
   }
 }

@@ -76,7 +76,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
 
   func test_onEmit_withUserInteractionTap_includesWidgetAttributesAndScreenName() async throws {
     let interactionInstrumentation = UserInteractionInstrumentation(logger: logger)
-    interactionInstrumentation.record(.tap(widgetId: "login_button", x: 50, y: 120))
+    interactionInstrumentation.record(.tap(widgetId: "login_button"))
 
     let records = try await waitForExportedLogs(count: 1)
     XCTAssertEqual(records.count, 1)
@@ -86,14 +86,6 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.widgetId.rawValue],
       .string("login_button")
-    )
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateX.rawValue],
-      .int(50)
-    )
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateY.rawValue],
-      .int(120)
     )
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.screenName.rawValue],

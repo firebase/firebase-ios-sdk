@@ -34,7 +34,7 @@ final class UserInteractionInstrumentationTests: XCTestCase {
     super.tearDown()
   }
 
-  func test_recordTap_withoutCoordinates_emitsWidgetClickEventWithWidgetIdOnly() async throws {
+  func test_recordTap_withoutCoordinates_emitsWidgetClickEventWithWidgetId() async throws {
     instrumentation.record(.tap(widgetId: "submit_button"))
 
     let records = try await mockLogger.waitForLogCount(1)
@@ -46,67 +46,6 @@ final class UserInteractionInstrumentationTests: XCTestCase {
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.widgetId.rawValue],
       .string("submit_button")
-    )
-    XCTAssertNil(record.attributes[SemanticConventions.App.screenCoordinateX.rawValue])
-    XCTAssertNil(record.attributes[SemanticConventions.App.screenCoordinateY.rawValue])
-  }
-
-  func test_recordTap_withBothCoordinates_emitsWidgetClickEventWithCoordinates() async throws {
-    instrumentation.record(.tap(widgetId: "checkout_button", x: 131, y: 99))
-
-    let records = try await mockLogger.waitForLogCount(1)
-    XCTAssertEqual(records.count, 1)
-
-    let record = records[0]
-    XCTAssertEqual(record.eventName, SemanticConventions.App.widgetClickEvent)
-    XCTAssertEqual(record.severity, .info)
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.widgetId.rawValue],
-      .string("checkout_button")
-    )
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateX.rawValue],
-      .int(131)
-    )
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateY.rawValue],
-      .int(99)
-    )
-  }
-
-  func test_recordTap_withOnlyXCoordinate_emitsWidgetClickEventWithXOnly() async throws {
-    instrumentation.record(.tap(widgetId: "slider_thumb", x: 42, y: nil))
-
-    let records = try await mockLogger.waitForLogCount(1)
-    XCTAssertEqual(records.count, 1)
-
-    let record = records[0]
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.widgetId.rawValue],
-      .string("slider_thumb")
-    )
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateX.rawValue],
-      .int(42)
-    )
-    XCTAssertNil(record.attributes[SemanticConventions.App.screenCoordinateY.rawValue])
-  }
-
-  func test_recordTap_withOnlyYCoordinate_emitsWidgetClickEventWithYOnly() async throws {
-    instrumentation.record(.tap(widgetId: "scroll_handle", x: nil, y: 256))
-
-    let records = try await mockLogger.waitForLogCount(1)
-    XCTAssertEqual(records.count, 1)
-
-    let record = records[0]
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.widgetId.rawValue],
-      .string("scroll_handle")
-    )
-    XCTAssertNil(record.attributes[SemanticConventions.App.screenCoordinateX.rawValue])
-    XCTAssertEqual(
-      record.attributes[SemanticConventions.App.screenCoordinateY.rawValue],
-      .int(256)
     )
   }
 }
