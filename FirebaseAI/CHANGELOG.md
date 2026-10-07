@@ -20,7 +20,7 @@
   `Backend.vertexAI(location:)` methods. Use `Backend.agentPlatform(location:)`
   instead.
   The only difference for `Backend.agentPlatform` is the default
-  [location for accessing the model](https://firebase.google.com/docs/ai-logic/locations).
+  [location for accessing the model](https://firebase.google.com/docs/ai-logic/locations?api=vertex).
   The default location for `Backend.agentPlatform` is `global`, whereas the
   default location for `Backend.vertexAI` was `us-central1`. To use
   `us-central1` with `Backend.agentPlatform`, specify
