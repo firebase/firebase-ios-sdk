@@ -29,6 +29,8 @@ class AuthTests: RPCBaseTests {
   var auth: Auth!
   static var testNum = 0
   var authDispatcherCallback: (() -> Void)?
+  /// The delays of the tasks passed to the stubbed `AuthDispatcher`, in order.
+  var authDispatcherDelays: [TimeInterval] = []
 
   override func setUp() {
     super.setUp()
@@ -48,8 +50,11 @@ class AuthTests: RPCBaseTests {
     // Stub the implementation to save the token refresh task for later execution.
     let authDispatcher = AuthDispatcher { delay, queue, task in
       XCTAssertNotNil(task)
-      XCTAssertGreaterThan(delay, 0)
+      // A delay of 0 refreshes the token right away.
+      XCTAssertGreaterThanOrEqual(delay, 0)
+      XCTAssertLessThanOrEqual(delay, 24 * 60 * 60)
       XCTAssertEqual(kAuthGlobalWorkQueue, queue)
+      self.authDispatcherDelays.append(delay)
       self.authDispatcherCallback = task
     }
     auth = Auth(
@@ -2286,6 +2291,120 @@ class AuthTests: RPCBaseTests {
     }
   #endif
 
+  /** @fn testAutomaticTokenRefreshWithOutOfRangeExpiresIn
+      @brief Tests that a sign-in response with an out-of-range token lifetime schedules the
+          automatic token refresh for the standard one-hour lifetime, instead of crashing.
+   */
+  func testAutomaticTokenRefreshWithOutOfRangeExpiresIn() throws {
+    try auth.signOut()
+    enableAutoTokenRefresh()
+
+    // "1e400" parses as infinity.
+    try waitForSignInWithAccessToken(expiresIn: "1e400")
+
+    let expirationDate = try XCTUnwrap(auth.currentUser?.accessTokenExpirationDate())
+    XCTAssertEqual(expirationDate.timeIntervalSinceNow, 60 * 60, accuracy: 5)
+    // The refresh is scheduled five minutes before the token expires.
+    let delay = try XCTUnwrap(authDispatcherDelays.last)
+    XCTAssertEqual(delay, 55 * 60, accuracy: 5)
+  }
+
+  /** @fn testAutomaticTokenRefreshWithInfiniteExpirationDate
+      @brief Tests that the automatic token refresh for an access token that expires at an infinite
+          date is scheduled right away, instead of crashing, and that it gets a token with a valid
+          expiration date.
+   */
+  func testAutomaticTokenRefreshWithInfiniteExpirationDate() throws {
+    try signInAndEnableAutoTokenRefresh(expirationDate: Date(timeIntervalSinceNow: .infinity))
+    // The token looks valid, so only the scheduled refresh replaces it.
+    XCTAssertEqual(authDispatcherDelays, [0])
+
+    try runScheduledTokenRefreshAndCheckNextRefresh()
+  }
+
+  /** @fn testAutomaticTokenRefreshWithNaNExpirationDate
+      @brief Tests that the automatic token refresh for an access token that expires at a NaN date
+          is scheduled right away, instead of crashing. This is defense in depth: no lifetime from
+          the backend parses as NaN.
+   */
+  func testAutomaticTokenRefreshWithNaNExpirationDate() throws {
+    try signInAndEnableAutoTokenRefresh(expirationDate: Date(timeIntervalSinceReferenceDate: .nan))
+    // The token doesn't look valid, so getting it already got a new token, and the next refresh is
+    // scheduled five minutes before the new token expires.
+    XCTAssertEqual(auth.currentUser?.rawAccessToken(), AuthTests.kNewAccessToken)
+    XCTAssertEqual(authDispatcherDelays.count, 2)
+    XCTAssertEqual(authDispatcherDelays.first, 0)
+    let delay = try XCTUnwrap(authDispatcherDelays.last)
+    XCTAssertEqual(delay, 55 * 60, accuracy: 5)
+  }
+
+  /** @fn testAutomaticTokenRefreshWithFarFutureExpirationDate
+      @brief Tests that the automatic token refresh for an access token that expires too far in the
+          future is scheduled right away, instead of crashing, and that it gets a token with a valid
+          expiration date.
+   */
+  func testAutomaticTokenRefreshWithFarFutureExpirationDate() throws {
+    try signInAndEnableAutoTokenRefresh(expirationDate: Date(timeIntervalSinceNow: 1e19))
+    // The token looks valid, so only the scheduled refresh replaces it.
+    XCTAssertEqual(authDispatcherDelays, [0])
+
+    try runScheduledTokenRefreshAndCheckNextRefresh()
+  }
+
+  /** @fn testAutomaticTokenRefreshForRestoredUserWithOutOfRangeExpirationDate
+      @brief Tests that a user loaded from the keychain with an out-of-range access token expiration
+          date, as saved by earlier versions, gets a new token once the automatic token refresh is
+          enabled, instead of crashing at every launch.
+   */
+  func testAutomaticTokenRefreshForRestoredUserWithOutOfRangeExpirationDate() throws {
+    // Save a user whose access token expires at an infinite date, as earlier versions did for an
+    // `expiresIn` of "1e400".
+    try auth.signOut()
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    user.tokenService.accessTokenExpirationDate = Date(timeIntervalSinceNow: .infinity)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    // Load the user in a new `Auth` instance, as at the next launch.
+    var refreshDelays: [TimeInterval] = []
+    let restoringAuth = Auth(
+      app: app,
+      keychainStorageProvider: keychainStorage,
+      backend: authBackend,
+      authDispatcher: AuthDispatcher { delay, _, _ in refreshDelays.append(delay) }
+    )
+    waitForAuthGlobalWorkQueueDrain()
+    let restoredUser = try XCTUnwrap(restoringAuth.currentUser)
+    XCTAssertNil(restoredUser.accessTokenExpirationDate())
+
+    // Get a token, which enables the automatic token refresh, as other Firebase SDKs do.
+    setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+    let expectation = self.expectation(description: #function)
+    restoringAuth.getToken(forcingRefresh: false) { token, error in
+      XCTAssertEqual(token, AuthTests.kNewAccessToken)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+    XCTAssertEqual(refreshDelays.first, 0)
+
+    // The new token's expiration date was saved, so the next launch uses it.
+    let relaunchedAuth = Auth(
+      app: app,
+      keychainStorageProvider: keychainStorage,
+      backend: authBackend,
+      authDispatcher: AuthDispatcher { _, _, _ in }
+    )
+    waitForAuthGlobalWorkQueueDrain()
+    let savedExpirationDate = try XCTUnwrap(relaunchedAuth.currentUser?.accessTokenExpirationDate())
+    XCTAssertEqual(savedExpirationDate.timeIntervalSinceNow, 60 * 60, accuracy: 5)
+  }
+
   // MARK: Application Delegate tests.
 
   #if os(iOS)
@@ -2385,7 +2504,39 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  private func waitForSignInWithAccessToken(fakeAccessToken: String = kAccessToken) throws {
+  /// Signs in a user, sets the expiration date of its access token, and then gets a token, which
+  /// enables the automatic token refresh, as other Firebase SDKs do.
+  private func signInAndEnableAutoTokenRefresh(expirationDate: Date) throws {
+    try auth.signOut()
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    user.tokenService.accessTokenExpirationDate = expirationDate
+    setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+    enableAutoTokenRefresh()
+  }
+
+  /// Runs the scheduled automatic token refresh, and checks that it gets a new access token and
+  /// schedules the next refresh five minutes before the new token expires, so it doesn't repeat.
+  private func runScheduledTokenRefreshAndCheckNextRefresh() throws {
+    // The new token is saved, and the next refresh scheduled, before this notification is posted.
+    let newAccessToken = expectation(forNotification: Auth.authStateDidChangeNotification,
+                                     object: auth) { _ in
+      self.auth.currentUser?.rawAccessToken() == AuthTests.kNewAccessToken
+    }
+    kAuthGlobalWorkQueue.async {
+      XCTAssertNotNil(self.authDispatcherCallback)
+      self.authDispatcherCallback?()
+    }
+    wait(for: [newAccessToken], timeout: 5)
+
+    XCTAssertEqual(auth.currentUser?.rawAccessToken(), AuthTests.kNewAccessToken)
+    XCTAssertEqual(authDispatcherDelays.count, 2)
+    let delay = try XCTUnwrap(authDispatcherDelays.last)
+    XCTAssertEqual(delay, 55 * 60, accuracy: 5)
+  }
+
+  private func waitForSignInWithAccessToken(fakeAccessToken: String = kAccessToken,
+                                            expiresIn: String = "3600") throws {
     let kRefreshToken = "fakeRefreshToken"
     let expectation = self.expectation(description: #function)
     setFakeGetAccountProvider()
@@ -2404,7 +2555,7 @@ class AuthTests: RPCBaseTests {
       return try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
                                                    "email": self.kEmail,
                                                    "isNewUser": true,
-                                                   "expiresIn": "3600",
+                                                   "expiresIn": expiresIn,
                                                    "refreshToken": kRefreshToken])
     }
     auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
