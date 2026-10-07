@@ -108,7 +108,7 @@ final actor ViewInstrumentation {
   /// Reports the currently active View.
   private func reportActiveView(_ view: CrashlyticsView) {
     onChange?(view.name)
-    
+
     let attributes: [String: AttributeValue] = [
       SemanticConventions.App.navigationDestination: AttributeValue(view.name),
     ]
