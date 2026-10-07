@@ -29,4 +29,6 @@
 
 @property(nonatomic, strong) FIRCLSLaunchMarkerModel *launchMarker;
 
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token;
+
 @end

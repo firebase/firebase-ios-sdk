@@ -630,4 +630,11 @@
   XCTAssertEqualObjects(json, nil);
 }
 
+- (void)testBeginSettingsRunsOffMainThreadWhenDataCollectionEnabled {
+  XCTAssertTrue([NSThread isMainThread]);
+  [self startReportManager];
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 1);
+  XCTAssertFalse(self.reportManager.beginSettingsCalledOnMainThread);
+}
+
 @end

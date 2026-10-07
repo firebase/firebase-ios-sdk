@@ -43,4 +43,10 @@
   // This stuff does operations on the main thread, which we don't want during tests.
 }
 
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
+  self.beginSettingsCallCount += 1;
+  self.beginSettingsCalledOnMainThread = [NSThread isMainThread];
+  [super beginSettingsWithToken:token];
+}
+
 @end
