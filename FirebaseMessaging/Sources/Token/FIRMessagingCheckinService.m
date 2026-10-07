@@ -47,7 +47,11 @@ static NSString *_Nullable FIRMessagingCheckinString(id _Nullable value) {
   // The checkin preferences are saved as an XML property list, and the write fails if a string
   // contains U+0000. Other control characters and noncharacters such as U+FFFE and U+FFFF are
   // saved and read back unchanged. A failed write also deletes the saved checkin credentials.
-  NSCharacterSet *nul = [NSCharacterSet characterSetWithRange:NSMakeRange(0, 1)];
+  static NSCharacterSet *nul;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    nul = [NSCharacterSet characterSetWithRange:NSMakeRange(0, 1)];
+  });
   return [value rangeOfCharacterFromSet:nul].location == NSNotFound ? value : nil;
 }
 
@@ -59,8 +63,11 @@ static NSString *_Nullable FIRMessagingCheckinID(id _Nullable value) {
     return [value stringValue];
   }
   NSString *string = FIRMessagingCheckinString(value);
-  NSCharacterSet *nonDigits =
-      [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+  static NSCharacterSet *nonDigits;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    nonDigits = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+  });
   if (string.length == 0 || [string rangeOfCharacterFromSet:nonDigits].location != NSNotFound) {
     return nil;
   }
