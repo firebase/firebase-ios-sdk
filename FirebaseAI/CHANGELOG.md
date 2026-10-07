@@ -18,8 +18,15 @@
   Models framework.
 - [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
   `Backend.vertexAI(location:)` methods. Use `Backend.agentPlatform(location:)`
-  instead (note that the default location is `"global"` instead of
-  `"us-central1"`). (#16689)
+  instead.
+  The only difference for `Backend.agentPlatform` is the default
+  [location for accessing the model](https://firebase.google.com/docs/ai-logic/locations?api=vertex).
+  The default location for `Backend.agentPlatform` is `global`, whereas the
+  default location for `Backend.vertexAI` was `us-central1`. To use
+  `us-central1` with `Backend.agentPlatform`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK. However, note that most new Gemini models do not support
+  `us-central1`. (#16689)
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
@@ -33,7 +40,7 @@
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in
   `GeminiLanguageModel`. (#16649)
-- [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
+- [deprecated] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.
 
