@@ -34,8 +34,6 @@
 // designated initializer
 - (instancetype)initWithDatabaseName:(NSString *)databaseName;
 
-- (void)loadRmqId;
-
 /**
  *  Save Server to device message with the given RMQ-ID.
  *

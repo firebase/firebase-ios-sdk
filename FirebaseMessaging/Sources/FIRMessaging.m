@@ -318,7 +318,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)setupRmqManager {
   self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
-  [self.rmq2Manager loadRmqId];
 }
 
 - (void)setupTopics {

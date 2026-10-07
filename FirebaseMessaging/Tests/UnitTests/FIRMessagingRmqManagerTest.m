@@ -24,8 +24,16 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
+
+@interface FIRMessaging (ExposedForRmqTest)
+
+@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
+- (void)setupRmqManager;
+
+@end
 
 @interface FIRMessagingRmqManager (ExposedForTest)
 
@@ -172,6 +180,42 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 
   XCTAssertEqualObjects([NSData dataWithContentsOfFile:databasePath], brokenDBFileContent);
   return databasePath;
+}
+
+- (void)testSetupRmqManagerDoesNotBlockOnDatabaseQueue {
+  dispatch_semaphore_t databaseBlockedSemaphore = dispatch_semaphore_create(0);
+  dispatch_semaphore_t databaseEnteredSemaphore = dispatch_semaphore_create(0);
+  __block BOOL setupReturnedBeforeDatabaseOpened = NO;
+  __block BOOL didObserveSetupReturned = NO;
+
+  NSString *realPath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2"];
+  id rmqClassMock = OCMClassMock([FIRMessagingRmqManager class]);
+  OCMStub([rmqClassMock pathForDatabaseWithName:@"rmq2"]).andDo(^(NSInvocation *invocation) {
+    dispatch_semaphore_signal(databaseEnteredSemaphore);
+    dispatch_semaphore_wait(databaseBlockedSemaphore,
+                            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
+    didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
+    [invocation setReturnValue:&realPath];
+  });
+
+  FIRMessaging *messaging = [FIRMessaging alloc];
+  [messaging setupRmqManager];
+  FIRMessagingRmqManager *manager = messaging.rmq2Manager;
+  XCTAssertNotNil(manager);
+  XCTAssertFalse([manager respondsToSelector:NSSelectorFromString(@"loadRmqId")]);
+
+  // Wait until openDatabase has started on _databaseOperationQueue, then unblock it after
+  // confirming setupRmqManager returned without blocking the calling thread.
+  dispatch_semaphore_wait(databaseEnteredSemaphore,
+                          dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
+  setupReturnedBeforeDatabaseOpened = YES;
+  dispatch_semaphore_signal(databaseBlockedSemaphore);
+
+  [rmqClassMock stopMocking];
+  [manager removeDatabase];
+  [self waitForDrainDatabaseQueueForRmqManager:manager];
+
+  XCTAssertTrue(didObserveSetupReturned);
 }
 
 @end
