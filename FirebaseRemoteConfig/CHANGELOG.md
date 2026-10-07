@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] `@RemoteConfigProperty` now uses the in-app default value, or its
+  fallback value, after an activation removes its key, instead of keeping the
+  previous remote value. (#16816)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
