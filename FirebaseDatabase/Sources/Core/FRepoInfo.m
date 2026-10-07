@@ -148,7 +148,7 @@
     // Assign the ivar rather than use the setter: the configured host must
     // always be accepted, even if it doesn't pass +isValidHost: (e.g. an IPv6
     // emulator host).
-    internalHost = self.host;
+    internalHost = [self.host copy];
 
     // Remove the cached entry
     NSString *internalHostKey =
