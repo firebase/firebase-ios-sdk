@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
+  on the worker queue to avoid cross-thread access. (#16767)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
