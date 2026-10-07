@@ -36,4 +36,12 @@ public extension SemanticConventions.App {
    - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
    */
   static let navigationDestination = "app.navigation.destination.name"
+
+  /**
+   This event indicates that an application widget has been clicked.
+
+   - SeeAlso: [OpenTelemetry App Events - app.widget.click](https://opentelemetry.io/docs/specs/semconv/app/app-events/#event-appwidgetclick)
+   - Note: Stability level is `development`.
+   */
+  static let widgetClickEvent = "app.widget.click"
 }

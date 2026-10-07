@@ -19,7 +19,7 @@ import OpenTelemetryApi
 ///
 /// Listens for view appear and disappear notifications on a background thread. Processes
 /// the notifications in order to track and report the currently active screen.
-final actor ViewInstrumentation {
+final actor ViewInstrumentation: ActiveViewProvider {
   private var logger: Logger
   private var viewStack: [CrashlyticsView] = []
   private var lastReportedView: CrashlyticsView?
@@ -106,7 +106,6 @@ final actor ViewInstrumentation {
   /// Reports the currently active View.
   private func reportActiveView(_ view: CrashlyticsView) {
     let attributes: [String: AttributeValue] = [
-      SemanticConventions.App.screenName.rawValue: AttributeValue(view.name),
       SemanticConventions.App.navigationDestination: AttributeValue(view.name),
     ]
 

@@ -19,6 +19,19 @@ internal import FirebaseCoreExtension
 public final class CrashlyticsTelemetry {
   private init() {}
 
+  // MARK: - User Interaction Instrumentation
+
+  /// Records a tap interaction on a UI widget as an OpenTelemetry `app.widget.click` event.
+  ///
+  /// - Parameters:
+  ///   - widgetId: An identifier that uniquely differentiates this widget from other widgets
+  ///     in the application (`app.widget.id`).
+  ///   - x: Optional horizontal coordinate of the tap in screen pixels (`app.screen.coordinate.x`).
+  ///   - y: Optional vertical coordinate of the tap in screen pixels (`app.screen.coordinate.y`).
+  public static func recordTap(on widgetId: String, x: Int? = nil, y: Int? = nil) {
+    FirebaseCrashlyticsTelemetry.instance?.recordTap(on: widgetId, x: x, y: y)
+  }
+
   // MARK: - Public API for testing
 
   // TODO: Remove all the testing API.
