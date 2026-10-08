@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 import copy
 import json
 import os
@@ -26,6 +27,8 @@ from typing import Any, Callable
 import urllib.request
 
 import yaml
+
+from swift_typegen.config import GeneratorConfig
 
 DISCOVERY_URL = (
     "https://firebasevertexai.googleapis.com/$discovery/rest?version=v1beta"
@@ -110,7 +113,9 @@ def normalize_refs(node: Any) -> None:
             normalize_refs(item)
 
 
-def extract_standalone_enums(schemas: dict[str, Any]) -> None:
+def extract_standalone_enums(
+    schemas: dict[str, Any], prefixes: Sequence[str]
+) -> None:
     """Extracts shared inline enums into standalone top-level schemas.
 
     Heuristically identifies inline enums matching STANDALONE_ENUM_RULES,
@@ -119,16 +124,15 @@ def extract_standalone_enums(schemas: dict[str, Any]) -> None:
 
     Args:
         schemas: Dictionary mapping schema names to schema definitions.
+        prefixes: Backend schema name prefixes (generatorConfig.backends).
+            Extracted enums are named with the prefix of the schema they
+            were found in, so each backend gets its own standalone enum.
     """
     extracted: dict[str, Any] = {}
     for s_name, s_data in list(schemas.items()):
         if not isinstance(s_data, dict) or "properties" not in s_data:
             continue
-        prefix = ""
-        if s_name.startswith("GoogleAiGenerativelanguageV1beta"):
-            prefix = "GoogleAiGenerativelanguageV1beta"
-        elif s_name.startswith("GoogleCloudAiplatformV1beta1"):
-            prefix = "GoogleCloudAiplatformV1beta1"
+        prefix = next((p for p in prefixes if s_name.startswith(p)), "")
 
         for p_name, p_data in list(s_data["properties"].items()):
             if not isinstance(p_data, dict):
@@ -416,9 +420,10 @@ def main(argv: list[str] | None = None) -> None:
     print("Normalizing schema references...")
     normalize_refs(schemas)
 
-    # 4. Extract shared standalone enums
+    # 4. Extract shared standalone enums, named per configured backend
     print("Extracting shared standalone enums...")
-    extract_standalone_enums(schemas)
+    backends = GeneratorConfig.from_file(args.overrides_file).backends
+    extract_standalone_enums(schemas, prefixes=[b.prefix for b in backends])
 
     # 5. Infer required properties
     print("Inferring required properties...")

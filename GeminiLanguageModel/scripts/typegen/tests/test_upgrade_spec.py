@@ -31,6 +31,11 @@ sys.path.insert(
 )
 import upgrade_spec
 
+PREFIXES = (
+    "GoogleAiGenerativelanguageV1beta",
+    "GoogleCloudAiplatformV1beta1",
+)
+
 
 class TestUpgradeSpec(unittest.TestCase):
     """Test suite covering Discovery transformations in upgrade_spec."""
@@ -113,7 +118,7 @@ class TestUpgradeSpec(unittest.TestCase):
                 },
             },
         }
-        upgrade_spec.extract_standalone_enums(schemas)
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
 
         # Verify extracted top-level schemas
         self.assertIn("GoogleAiGenerativelanguageV1betaHarmCategory", schemas)
@@ -186,7 +191,7 @@ class TestUpgradeSpec(unittest.TestCase):
                 },
             },
         }
-        upgrade_spec.extract_standalone_enums(schemas)
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
         modality = schemas["GoogleAiGenerativelanguageV1betaModality"]
         self.assertEqual(
             modality["enum"],
@@ -210,6 +215,21 @@ class TestUpgradeSpec(unittest.TestCase):
                 "Document.",
             ],
         )
+
+    def test_extract_standalone_enums_uses_given_prefixes(self):
+        schemas = {
+            "VendorXSafetyRating": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "enum": ["HARM_CATEGORY_UNSPECIFIED"],
+                    }
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=["VendorX"])
+        self.assertIn("VendorXHarmCategory", schemas)
 
     def test_upgrade_nullables_string_type(self):
         data = {"type": "string", "nullable": True}
