@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` when
+  Crashlytics subscribes to rollouts, and made Remote Config instance creation
+  thread-safe (#16736).
 - [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
   `entries`, `personalizationMetadata`, `rolloutMetadata`,
   `experimentDescriptions` or a server `error`) have unexpected JSON types.
