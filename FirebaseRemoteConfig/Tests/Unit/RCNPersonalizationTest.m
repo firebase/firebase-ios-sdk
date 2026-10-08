@@ -238,6 +238,48 @@
   XCTAssertEqual([_fakeLogs count], 0);
 }
 
+/// JSON null parses as NSNull, which must not be logged as a choice ID or event parameter.
+- (void)testPersonalizationMetadataWithNullOrWrongTypeFieldsIsIgnored {
+  [_fakeLogs removeAllObjects];
+  NSDictionary *entries = _configContainer[RCNFetchResponseKeyEntries];
+
+  // Nothing is logged without a string choice ID.
+  for (id choiceId in @[ [NSNull null], @1, @[ @"id1" ] ]) {
+    NSDictionary *config = @{
+      RCNFetchResponseKeyEntries : entries,
+      RCNFetchResponseKeyPersonalizationMetadata : @{@"key1" : @{kChoiceId : choiceId}}
+    };
+    XCTAssertNoThrow([_personalization logArmActive:@"key1" config:config]);
+  }
+  XCTAssertEqual([_fakeLogs count], 0);
+
+  // Optional fields that are null or have the wrong type are omitted.
+  NSDictionary *config = @{
+    RCNFetchResponseKeyEntries : entries,
+    RCNFetchResponseKeyPersonalizationMetadata : @{
+      @"key1" : @{
+        kChoiceId : @"id1",
+        kPersonalizationId : [NSNull null],
+        kArmIndex : [NSNull null],
+        kGroup : [NSNull null]
+      },
+      @"key2" : @{kChoiceId : @"id2", kPersonalizationId : @2, kArmIndex : @"1", kGroup : @[]}
+    }
+  };
+  XCTAssertNoThrow([_personalization logArmActive:@"key1" config:config]);
+  XCTAssertNoThrow([_personalization logArmActive:@"key2" config:config]);
+
+  XCTAssertEqual([_fakeLogs count], 4);
+  NSDictionary *logParams1 =
+      @{kExternalRcParameterParam : @"key1", kExternalArmValueParam : @"value1"};
+  XCTAssertEqualObjects(_fakeLogs[0], logParams1);
+  XCTAssertEqualObjects(_fakeLogs[1], @{kInternalChoiceIdParam : @"id1"});
+  NSDictionary *logParams2 =
+      @{kExternalRcParameterParam : @"key2", kExternalArmValueParam : @"value2"};
+  XCTAssertEqualObjects(_fakeLogs[2], logParams2);
+  XCTAssertEqualObjects(_fakeLogs[3], @{kInternalChoiceIdParam : @"id2"});
+}
+
 - (void)testRemoteConfigIntegration {
   [_fakeLogs removeAllObjects];
 

@@ -43,8 +43,10 @@
     return;
   }
 
+  // JSON null parses as NSNull, so check the type of each server-provided field, not just its
+  // presence.
   NSString *choiceId = metadata[kChoiceId];
-  if (choiceId == nil) {
+  if (![choiceId isKindOfClass:[NSString class]]) {
     return;
   }
 
@@ -55,13 +57,22 @@
   }
   self->_loggedChoiceIds[rcParameter] = choiceId;
 
-  // Server-provided fields may be missing; never insert nil into the parameters dictionary.
+  // Optional fields that are missing or have an unexpected type are omitted from the event.
   NSMutableDictionary<NSString *, id> *parameters = [[NSMutableDictionary alloc] init];
   parameters[kExternalRcParameterParam] = rcParameter;
   parameters[kExternalArmValueParam] = values[rcParameter].stringValue;
-  parameters[kExternalPersonalizationIdParam] = metadata[kPersonalizationId];
-  parameters[kExternalArmIndexParam] = metadata[kArmIndex];
-  parameters[kExternalGroupParam] = metadata[kGroup];
+  id personalizationId = metadata[kPersonalizationId];
+  if ([personalizationId isKindOfClass:[NSString class]]) {
+    parameters[kExternalPersonalizationIdParam] = personalizationId;
+  }
+  id armIndex = metadata[kArmIndex];
+  if ([armIndex isKindOfClass:[NSNumber class]]) {
+    parameters[kExternalArmIndexParam] = armIndex;
+  }
+  id group = metadata[kGroup];
+  if ([group isKindOfClass:[NSString class]]) {
+    parameters[kExternalGroupParam] = group;
+  }
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kExternalEvent
