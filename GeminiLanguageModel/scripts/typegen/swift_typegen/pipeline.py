@@ -146,6 +146,8 @@ def load_spec(openapi_spec: str) -> dict[str, Any]:
 
     Raises:
         FileNotFoundError: If the specification file does not exist.
+        ValueError: If the specification has no `components.schemas`, e.g.
+            because the file is empty.
     """
     if not os.path.exists(openapi_spec):
         raise FileNotFoundError(
@@ -157,7 +159,18 @@ def load_spec(openapi_spec: str) -> dict[str, Any]:
     with open(openapi_spec, "r", encoding="utf-8") as f:
         doc = yaml.safe_load(f)
 
-    base_schemas = doc.get("components", {}).get("schemas", {})
+    components = doc.get("components") if isinstance(doc, dict) else None
+    base_schemas = (
+        components.get("schemas") if isinstance(components, dict) else None
+    )
+    if not isinstance(base_schemas, dict) or not base_schemas:
+        # Continuing with no schemas would write no files and then prune
+        # every previously generated file.
+        raise ValueError(
+            f"No components.schemas found in {openapi_spec}. Run"
+            " `python upgrade_spec.py` to regenerate the OpenAPI 3.1.0"
+            " specification."
+        )
     print(
         f"Loaded specification {openapi_spec} with {len(base_schemas)}"
         " schemas."

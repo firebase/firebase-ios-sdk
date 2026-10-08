@@ -53,6 +53,18 @@ class TestLoadConfig(unittest.TestCase):
         with self.assertRaisesRegex(FileNotFoundError, "upgrade_spec.py"):
             load_spec("/nonexistent/openapi.yaml")
 
+    def test_spec_without_schemas_raises(self):
+        for contents in ("", "# only a comment\n", "components: {}\n"):
+            with self.subTest(contents=contents):
+                with tempfile.TemporaryDirectory() as tmp:
+                    path = os.path.join(tmp, "openapi.yaml")
+                    with open(path, "w", encoding="utf-8") as f:
+                        f.write(contents)
+                    with self.assertRaisesRegex(
+                        ValueError, "No components.schemas"
+                    ):
+                        load_spec(path)
+
     def test_loads_existing_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = os.path.join(tmp, "overrides.yaml")
