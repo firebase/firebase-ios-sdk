@@ -51,6 +51,7 @@ extension {{ namespace }} {
 // MARK: - RawRepresentable Conformance
 
 {% set full_name = (namespace ~ '.' if namespace else '') ~ name %}
+{% set deprecated_cases = cases | selectattr('is_deprecated') | list %}
 extension {{ full_name }}: RawRepresentable {
   {{ access_level }} var rawValue: String {
     switch self {
@@ -68,7 +69,41 @@ extension {{ full_name }}: RawRepresentable {
     case "{{ case.raw_value }}": self = .{{ case.swift_name }}
     {% endif %}
     {% endfor %}
+    {% if deprecated_cases %}
+    default: self = decodeDeprecatedCase(Self.self, rawValue: rawValue) ?? .unrecognized(rawValue)
+    {% else %}
     default: self = .unrecognized(rawValue)
+    {% endif %}
     }
   }
 }
+{% if deprecated_cases %}
+
+// MARK: - Deprecated Cases
+
+// Referencing a deprecated case from `init(rawValue:)` would emit a deprecation warning.
+// Instead, deprecated cases are constructed in a deprecated witness of a non-deprecated protocol
+// requirement, which is called generically so that no deprecated declaration is referenced
+// directly.
+private protocol DeprecatedCaseDecoding {
+  static func deprecatedCase(rawValue: String) -> Self?
+}
+
+private func decodeDeprecatedCase<T: DeprecatedCaseDecoding>(
+  _: T.Type, rawValue: String
+) -> T? {
+  T.deprecatedCase(rawValue: rawValue)
+}
+
+extension {{ full_name }}: DeprecatedCaseDecoding {
+  @available(*, deprecated)
+  fileprivate static func deprecatedCase(rawValue: String) -> Self? {
+    switch rawValue {
+    {% for case in deprecated_cases %}
+    case "{{ case.raw_value }}": .{{ case.swift_name }}
+    {% endfor %}
+    default: nil
+    }
+  }
+}
+{% endif %}

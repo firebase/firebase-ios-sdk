@@ -141,6 +141,38 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertIn("case unrecognized(_ value: String)", content)
         self.assertIn("extension GoogleAI.TestEnum: RawRepresentable", content)
         self.assertIn('case .activeCase: "ACTIVE"', content)
+        self.assertIn('case .deprecatedCase: "DEPRECATED"', content)
+        # Non-deprecated cases decode directly; deprecated cases decode
+        # through the deprecated protocol witness to avoid warnings.
+        self.assertIn('case "ACTIVE": self = .activeCase', content)
+        self.assertNotIn('case "DEPRECATED": self = .deprecatedCase', content)
+        self.assertIn(
+            "default: self = decodeDeprecatedCase(Self.self, rawValue:"
+            " rawValue) ?? .unrecognized(rawValue)",
+            content,
+        )
+        self.assertIn(
+            "extension GoogleAI.TestEnum: DeprecatedCaseDecoding", content
+        )
+        self.assertIn(
+            "  @available(*, deprecated)\n"
+            "  fileprivate static func deprecatedCase(rawValue: String)"
+            " -> Self? {\n"
+            "    switch rawValue {\n"
+            '    case "DEPRECATED": .deprecatedCase\n'
+            "    default: nil\n",
+            content,
+        )
+
+    def test_render_enum_without_deprecated_cases_omits_helper(self):
+        et = SwiftType(name="Plain", namespace="", kind="enum")
+        et.cases = [SwiftEnumCase(swift_name="one", raw_value="ONE")]
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR, access_level="package", root_namespace=""
+        )
+        _, content = renderer.render(et)
+        self.assertIn("default: self = .unrecognized(rawValue)", content)
+        self.assertNotIn("DeprecatedCaseDecoding", content)
 
     def test_render_unknown_kind_returns_none(self):
         st = SwiftType(name="Thing", namespace="", kind="class")
