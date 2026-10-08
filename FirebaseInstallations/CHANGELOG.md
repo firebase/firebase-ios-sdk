@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Delete both legacy Firebase Instance ID keys during IID migration cleanup,
+  and skip key deletion when the application tag is unavailable. (#16777)
+
 # 12.16.0
 - [changed] Changed error message for missing `FirebaseApp.configure()` to
   properly articulate supported methods. (#16294)
