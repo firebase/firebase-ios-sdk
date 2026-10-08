@@ -83,7 +83,8 @@ STANDALONE_ENUM_RULES: list[dict[str, Any]] = [
     {
         "pattern": (
             lambda s_name, p_name, cases: bool(
-                cases and cases[0].startswith("STAGE_") or p_name == "stage"
+                p_name in ("stage", "modelStage")
+                or (cases and cases[0].startswith(("STAGE_", "MODEL_STAGE_")))
             )
         ),
         "name_fn": lambda prefix: f"{prefix}ModelStage",

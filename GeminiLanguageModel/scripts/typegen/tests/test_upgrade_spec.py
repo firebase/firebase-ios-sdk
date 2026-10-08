@@ -216,6 +216,41 @@ class TestUpgradeSpec(unittest.TestCase):
             ],
         )
 
+    def test_extract_standalone_enums_model_stage(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaModelStatus": {
+                "type": "object",
+                "properties": {
+                    "modelStage": {
+                        "type": "string",
+                        "description": "The stage of the underlying model.",
+                        "enum": [
+                            "MODEL_STAGE_UNSPECIFIED",
+                            "PREVIEW",
+                            "STABLE",
+                        ],
+                    }
+                },
+            }
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaModelStage"]["enum"],
+            ["MODEL_STAGE_UNSPECIFIED", "PREVIEW", "STABLE"],
+        )
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaModelStatus"][
+                "properties"
+            ]["modelStage"],
+            {
+                "$ref": (
+                    "#/components/schemas/"
+                    "GoogleAiGenerativelanguageV1betaModelStage"
+                ),
+                "description": "The stage of the underlying model.",
+            },
+        )
+
     def test_extract_standalone_enums_uses_given_prefixes(self):
         schemas = {
             "VendorXSafetyRating": {
