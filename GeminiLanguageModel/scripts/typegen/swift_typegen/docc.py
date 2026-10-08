@@ -24,6 +24,9 @@ from typing import Any
 VARIANT_SEPARATOR = "\n\nVariant:\n"
 # Introduces a backend-availability callout in a description.
 IMPORTANT_SEPARATOR = "\n\n> Important:"
+# Backend display names used in availability callouts.
+DEVELOPER_API_NAME = "Gemini Developer API"
+ENTERPRISE_API_NAME = "Gemini Enterprise Agent Platform"
 
 
 def strip_doc_prefixes(text: str) -> str:
@@ -226,7 +229,8 @@ def _format_backend_docc(
     Args:
         data: Schema or property definition dictionary.
         has_gl: Whether the element exists in the Gemini Developer API.
-        has_ai: Whether the element exists in the Gemini Enterprise API.
+        has_ai: Whether the element exists in the Gemini Enterprise Agent
+            Platform.
         noun: 'type' or 'property', used in availability callouts.
         wrap_width: Column wrap width.
 
@@ -244,12 +248,12 @@ def _format_backend_docc(
     if has_gl:
         return _with_unsupported_note(
             gl_desc,
-            f"This {noun} is not supported in the Gemini Enterprise API.",
+            f"This {noun} is not supported in the {ENTERPRISE_API_NAME}.",
             wrap_width,
         )
     return _with_unsupported_note(
         ai_desc,
-        f"This {noun} is not supported in the Gemini Developer API.",
+        f"This {noun} is not supported in the {DEVELOPER_API_NAME}.",
         wrap_width,
     )
 
@@ -257,8 +261,8 @@ def _format_backend_docc(
 def format_schema_docc(data: dict[str, Any], wrap_width: int = 96) -> str:
     """Formats top-level DocC documentation for a Swift type.
 
-    Annotates backend availability callouts (Developer API vs Enterprise API)
-    if the schema is backend-specific.
+    Annotates backend availability callouts (Gemini Developer API vs Gemini
+    Enterprise Agent Platform) if the schema is backend-specific.
 
     Args:
         data: Schema definition dictionary.
@@ -308,7 +312,7 @@ def format_enum_case_docc(
     Args:
         raw_description: Raw case description from `enumDescriptions`.
         in_gl: Whether the case exists in the Gemini Developer API.
-        in_ai: Whether the case exists in the Gemini Enterprise API.
+        in_ai: Whether the case exists in the Gemini Enterprise Agent Platform.
         wrap_width: Column wrap width.
 
     Returns:
@@ -318,10 +322,10 @@ def format_enum_case_docc(
     desc = strip_doc_prefixes(raw_description or "")
     if in_gl == in_ai:
         return wrap_docc(desc, wrap_width)
-    unsupported = "Enterprise" if in_gl else "Developer"
+    unsupported = ENTERPRISE_API_NAME if in_gl else DEVELOPER_API_NAME
     return _with_unsupported_note(
         desc,
-        f"This case is not supported in the Gemini {unsupported} API.",
+        f"This case is not supported in the {unsupported}.",
         wrap_width,
     )
 
@@ -356,9 +360,9 @@ def format_init_description(
 
     if is_backend_specific:
         if has_gl and not has_ai:
-            suffix = " (Gemini Developer API only)"
+            suffix = f" ({DEVELOPER_API_NAME} only)"
         elif has_ai and not has_gl:
-            suffix = " (Gemini Enterprise API only)"
+            suffix = f" ({ENTERPRISE_API_NAME} only)"
         else:
             suffix = " (behavior varies by backend)"
         init_desc = (

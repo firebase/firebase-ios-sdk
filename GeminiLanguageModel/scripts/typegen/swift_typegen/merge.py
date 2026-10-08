@@ -145,7 +145,8 @@ def _merge_provenance(
     Args:
         merged: The merged definition to update in place.
         gl: Definition from the Gemini Developer API (first) backend.
-        ai: Definition from the Gemini Enterprise API (second) backend.
+        ai: Definition from the Gemini Enterprise Agent Platform (second)
+            backend.
     """
     if "x-gl-original-name" in gl:
         merged["x-gl-original-name"] = gl["x-gl-original-name"]

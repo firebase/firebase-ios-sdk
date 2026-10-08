@@ -39,7 +39,7 @@ class Backend:
         prefix: Schema name prefix to strip (e.g.
             'GoogleAiGenerativelanguageV1beta').
         tag: Provenance extension tag: 'gl' (Gemini Developer API) or 'ai'
-            (Gemini Enterprise API).
+            (Gemini Enterprise Agent Platform).
     """
 
     prefix: str

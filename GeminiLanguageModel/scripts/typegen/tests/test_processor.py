@@ -302,7 +302,7 @@ class TestSchemaProcessor(unittest.TestCase):
         self.assertEqual(
             descriptions["derogatory"],
             "Derogatory.\n\n> Important: This case is not supported in the"
-            " Gemini Enterprise API.",
+            " Gemini Enterprise Agent Platform.",
         )
         self.assertEqual(
             descriptions["imageHate"],
