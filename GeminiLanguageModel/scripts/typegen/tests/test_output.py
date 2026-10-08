@@ -14,11 +14,20 @@
 
 """Unit tests for swift_typegen.output."""
 
+import contextlib
+import io
 import os
+import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
-from swift_typegen.output import prune_stale_files, write_files
+from swift_typegen.output import (
+    find_swift_format,
+    prune_stale_files,
+    run_swift_format,
+    write_files,
+)
 
 
 class TestOutput(unittest.TestCase):
@@ -71,4 +80,59 @@ class TestOutput(unittest.TestCase):
             sorted(os.listdir(self.out)),
             ["Kept.swift", "Preserved.swift", "README.md"],
         )
+
+
+def _which(available: dict[str, str]):
+    """Returns a shutil.which replacement resolving only `available`."""
+    return lambda name: available.get(name)
+
+
+class TestSwiftFormat(unittest.TestCase):
+
+    @mock.patch("swift_typegen.output.subprocess.run")
+    @mock.patch("swift_typegen.output.shutil.which")
+    def test_find_swift_format_prefers_path(self, which, run):
+        which.side_effect = _which({"swift-format": "/bin/swift-format"})
+        self.assertEqual(find_swift_format(), "/bin/swift-format")
+        run.assert_not_called()
+
+    @mock.patch("swift_typegen.output.os.path.exists", return_value=True)
+    @mock.patch("swift_typegen.output.subprocess.run")
+    @mock.patch("swift_typegen.output.shutil.which")
+    def test_find_swift_format_falls_back_to_xcrun(self, which, run, _):
+        which.side_effect = _which({"xcrun": "/usr/bin/xcrun"})
+        run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=0, stdout="/Xcode/swift-format\n", stderr=""
+        )
+        self.assertEqual(find_swift_format(), "/Xcode/swift-format")
+        run.assert_called_once()
+        self.assertEqual(
+            run.call_args.args[0], ["/usr/bin/xcrun", "--find", "swift-format"]
+        )
+
+    @mock.patch("swift_typegen.output.shutil.which", return_value=None)
+    def test_run_swift_format_warns_when_missing(self, _):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            run_swift_format(["A.swift"])
+        self.assertIn("swift-format not found", out.getvalue())
+
+    @mock.patch("swift_typegen.output.subprocess.run")
+    @mock.patch(
+        "swift_typegen.output.find_swift_format",
+        return_value="/bin/swift-format",
+    )
+    def test_run_swift_format_warns_on_failure(self, _, run):
+        run.return_value = subprocess.CompletedProcess(
+            args=[], returncode=1, stdout="", stderr="bad input"
+        )
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            run_swift_format(["A.swift"])
+        self.assertIn("exited with status 1: bad input", out.getvalue())
+
+    @mock.patch("swift_typegen.output.find_swift_format")
+    def test_run_swift_format_skips_empty_paths(self, find):
+        run_swift_format([])
+        find.assert_not_called()
 
