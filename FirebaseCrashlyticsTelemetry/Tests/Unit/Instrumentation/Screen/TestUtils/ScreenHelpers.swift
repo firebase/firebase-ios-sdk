@@ -16,14 +16,14 @@ import SwiftUI
 
 @testable import FirebaseCrashlyticsTelemetry
 
-struct TestViewEvent: Sendable, Equatable {
+struct TestScreenEvent: Sendable, Equatable {
   let screenName: String
-  let type: ViewEventType
+  let type: ScreenEventType
   let id: UUID
 
   init?(from notification: Notification) {
     guard let screenName = notification.userInfo?["screenName"] as? String,
-          let type = notification.userInfo?["type"] as? ViewEventType,
+          let type = notification.userInfo?["type"] as? ScreenEventType,
           let id = notification.userInfo?["id"] as? UUID else {
       return nil
     }
@@ -33,18 +33,18 @@ struct TestViewEvent: Sendable, Equatable {
   }
 }
 
-/// Listens to `NotificationCenter.default` and collects the first matching viewTrackingEvent.
+/// Listens to `NotificationCenter.default` and collects the first matching screenTrackingEvent.
 @MainActor
-func waitForViewEvent(matching predicate: @escaping @Sendable (TestViewEvent) -> Bool,
-                      timeout: TimeInterval = 2.0,
-                      action: () -> Void) async throws -> TestViewEvent {
-  let notifications = NotificationCenter.default.notifications(named: .viewTrackingEvent)
+func waitForScreenEvent(matching predicate: @escaping @Sendable (TestScreenEvent) -> Bool,
+                        timeout: TimeInterval = 2.0,
+                        action: () -> Void) async throws -> TestScreenEvent {
+  let notifications = NotificationCenter.default.notifications(named: .screenTrackingEvent)
 
-  return try await withThrowingTaskGroup(of: TestViewEvent.self) { group in
+  return try await withThrowingTaskGroup(of: TestScreenEvent.self) { group in
     group.addTask {
       for await notification in notifications {
         try Task.checkCancellation()
-        if let event = TestViewEvent(from: notification), predicate(event) {
+        if let event = TestScreenEvent(from: notification), predicate(event) {
           return event
         }
       }

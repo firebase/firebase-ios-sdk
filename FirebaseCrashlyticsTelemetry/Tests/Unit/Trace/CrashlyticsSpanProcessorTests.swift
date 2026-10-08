@@ -34,7 +34,7 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
   }
 
   override func tearDown() {
-    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
+    AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
     tracer = nil
     tracerProvider = nil
     super.tearDown()
@@ -51,7 +51,7 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
 
     XCTAssertEqual(
       readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
     XCTAssertEqual(
       readableSpan.getAttributes()["gcp.firebase.app_version"],
@@ -76,7 +76,7 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
 
     XCTAssertEqual(
       readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
   }
 
