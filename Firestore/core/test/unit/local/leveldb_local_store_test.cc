@@ -17,9 +17,13 @@
 #include "Firestore/core/include/firebase/firestore/geo_point.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
+#include "Firestore/core/src/local/local_write_result.h"
+#include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/field_index.h"
+#include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/remote/remote_event.h"
 #include "Firestore/core/test/unit/local/local_store_test.h"
@@ -219,6 +223,56 @@ TEST_F(LevelDbLocalStoreTest, UsesIndexes) {
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 1, /* byCollection= */ 0);
   FSTAssertQueryReturned("coll/a");
+}
+
+TEST(LevelDbLocalStoreRestartTest, IndexedCacheQueryIncludesNewPendingWrite) {
+  const auto directory = LevelDbDir();
+  const auto user = credentials::User::Unauthenticated();
+  const core::Query query =
+      testutil::Query("coll").AddingFilter(Filter("matches", "==", true));
+
+  {
+    auto persistence = LevelDbPersistenceForTesting(directory);
+    CountingQueryEngine query_engine;
+    LocalStore store(persistence.get(), &query_engine, user);
+    store.Start();
+    store.ConfigureFieldIndexes(
+        {MakeFieldIndex("coll", 0, FieldIndex::InitialState(), "matches",
+                        model::Segment::Kind::kAscending)});
+    store.AllocateTarget(core::QueryOrPipeline(query).ToTargetOrPipeline());
+
+    auto mutation = SetMutation("coll/a", Map("matches", true));
+    const auto write = store.WriteLocally({mutation});
+    store.Backfill();
+    const auto indexed_batch_id = persistence->Run("ReadIndexedBatchId", [&] {
+      return persistence->GetIndexManager(user)
+          ->GetMinOffset("coll")
+          .largest_batch_id();
+    });
+    ASSERT_GT(indexed_batch_id, 0);
+
+    model::MutationBatch batch(write.batch_id(), Timestamp::Now(), {},
+                               {std::move(mutation)});
+    std::vector<model::MutationResult> results;
+    results.emplace_back(Version(10), Array());
+    store.AcknowledgeBatch(
+        model::MutationBatchResult(batch, Version(10), std::move(results), {}));
+    // Include the acknowledged remote document in the index as well. This
+    // advances its read-time offset without discarding the batch high-water.
+    store.Backfill();
+  }
+
+  // Reopen the same database after acknowledging every mutation. The persisted
+  // index offset must not hide the first pending write from the new queue.
+  auto persistence = LevelDbPersistenceForTesting(directory);
+  CountingQueryEngine query_engine;
+  LocalStore store(persistence.get(), &query_engine, user);
+  store.Start();
+  store.WriteLocally({SetMutation("coll/b", Map("matches", true))});
+  const auto result = store.ExecuteQuery(core::QueryOrPipeline(query), false);
+  ASSERT_EQ(result.documents().size(), 2);
+  ASSERT_NE(result.documents().find(Key("coll/b")), result.documents().end());
+  ASSERT_EQ(query_engine.documents_read_by_query(), 0);
 }
 
 TEST_F(LevelDbLocalStoreTest,
