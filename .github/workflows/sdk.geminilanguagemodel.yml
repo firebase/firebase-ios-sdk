@@ -7,6 +7,9 @@ on:
     - '.github/workflows/sdk.geminilanguagemodel.yml'
     # Do not run for documentation-only PRs.
     - '!**.md'
+  schedule:
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
+    - cron: '0 7 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -17,6 +20,78 @@ permissions:
   contents: read  # Needed for actions/checkout
 
 jobs:
+  check-data-models:
+    name: check-data-models
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: GeminiLanguageModel/scripts/typegen
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Set up Python environment
+      run: |
+        python3 -m venv .venv
+        .venv/bin/pip install --upgrade pip
+        .venv/bin/pip install -r requirements.txt
+
+    - name: Run typegen unit tests
+      run: .venv/bin/python -m unittest discover -s tests -t . -v
+
+    - name: Check for Discovery Document and data model updates
+      continue-on-error: true
+      run: |
+        .venv/bin/python upgrade_spec.py --fetch
+        .venv/bin/python generate_types.py
+
+        REVISION=$(.venv/bin/python -c 'import json; print(json.load(open("discovery_documents/firebasevertexai_discovery_v1beta.json")).get("revision", "unknown"))')
+        echo "Discovery Document revision: $REVISION"
+
+        TARGET_DIR="../../Sources/GeminiAPIDataModels/GenerateContent"
+        if [[ -z "$(git status --porcelain "$TARGET_DIR")" ]]; then
+          echo "GeminiAPIDataModels is up to date with Discovery Document revision $REVISION."
+          exit 0
+        fi
+
+        echo "::warning title=GeminiAPIDataModels update available::Generated data models differ from committed sources (Discovery Document revision: $REVISION). Run upgrade_spec.py --fetch and generate_types.py to update."
+
+        {
+          echo "### ⚠️ \`GeminiAPIDataModels\` Update Available"
+          echo ""
+          echo "Regenerating data models from the latest Discovery Document (**revision \`$REVISION\`**) produced changes in \`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent\`."
+          echo ""
+          echo "To update the models locally:"
+          echo "\`\`\`bash"
+          echo "cd GeminiLanguageModel/scripts/typegen"
+          echo "python upgrade_spec.py --fetch"
+          echo "python generate_types.py"
+          echo "\`\`\`"
+          echo ""
+          echo "<details>"
+          echo "<summary><strong>Changed files (\`git status --short\`)</strong></summary>"
+          echo ""
+          echo "\`\`\`text"
+          git status --short "$TARGET_DIR"
+          echo "\`\`\`"
+          echo ""
+          echo "</details>"
+          echo ""
+          echo "<details>"
+          echo "<summary><strong>Diff summary (\`git diff --stat\`)</strong></summary>"
+          echo ""
+          echo "\`\`\`text"
+          git add -N "$TARGET_DIR"
+          git diff --stat "$TARGET_DIR"
+          echo "\`\`\`"
+          echo ""
+          echo "</details>"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        exit 1
+
   integration-tests:
     name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
