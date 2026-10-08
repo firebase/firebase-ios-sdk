@@ -16,6 +16,6 @@ import Foundation
 
 /// Defines an exporter capable of receiving recovered telemetry data from prior sessions or
 /// crashes.
-public protocol RecoveredTelemetryExporter: AnyObject, Sendable {
+protocol RecoveredTelemetryExporter: AnyObject, Sendable {
   func uploadRecoveredSpans(spans: [RecoveredSpan]) async
 }

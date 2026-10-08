@@ -14,7 +14,7 @@
 
 import OpenTelemetryApi
 
-public extension SemanticConventions.App {
+extension SemanticConventions.App {
   /**
    This event represents a completed navigation to a destination of an application.
 
