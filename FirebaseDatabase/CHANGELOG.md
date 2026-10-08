@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where a `getData` call that failed without a cached value
+  kept its query marked as active in the persistence cache until the app restarted,
+  which kept that location from being pruned. (#16792)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
