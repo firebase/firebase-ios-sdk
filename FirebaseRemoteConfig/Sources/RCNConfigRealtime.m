@@ -68,7 +68,7 @@ static NSInteger const gFetchAttempts = 3;
 static NSInteger const gMaxRetries = 7;
 /// Upper bound applied to the server-provided `retryIntervalSeconds` (24 hours), so a malformed
 /// value cannot overflow the dispatch timer or persist an effectively infinite backoff.
-static NSInteger const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
+static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -548,7 +548,12 @@ static NSInteger const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
     id retryInterval = [response objectForKey:kRealtime_Retry_Interval];
     if ([retryInterval isKindOfClass:[NSString class]] ||
         [retryInterval isKindOfClass:[NSNumber class]]) {
-      realtimeRetryInterval = MIN([retryInterval integerValue], kRealtimeMaxRetryIntervalSeconds);
+      // Clamp as a double: `integerValue` of a value outside the NSInteger range is
+      // platform-dependent and can be negative. Non-positive and NaN values are ignored.
+      NSTimeInterval retrySeconds = [retryInterval doubleValue];
+      if (retrySeconds > 0) {
+        realtimeRetryInterval = MIN(retrySeconds, kRealtimeMaxRetryIntervalSeconds);
+      }
     }
 
     if (self->_isRealtimeDisabled) {

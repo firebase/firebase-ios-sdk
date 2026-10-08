@@ -1931,12 +1931,30 @@ static NSString *UTCToLocal(NSString *utcTime) {
 }
 
 - (void)testRealtimeRetryIntervalIsClamped {
-  NSDictionary *response =
-      @{@"latestTemplateVersionNumber" : @"0", @"retryIntervalSeconds" : @(1000000000000)};
-  NSTimeInterval maxThrottleEndTime = [[NSDate date] timeIntervalSince1970] + 24 * 60 * 60;
-  [_configRealtime[0] evaluateStreamResponse:response error:nil];
-  XCTAssertEqualWithAccuracy(_configInstances[0].settings.realtimeExponentialBackoffThrottleEndTime,
-                             maxThrottleEndTime, 5.0);
+  RCNConfigSettings *settings = _configInstances[0].settings;
+  // Includes values outside the NSInteger range, which must not wrap negative.
+  for (id retryInterval in @[ @(1000000000000), @(1e300), @"1e300" ]) {
+    [settings updateRealtimeBackoffTimeWithInterval:0];
+    NSDictionary *response =
+        @{@"latestTemplateVersionNumber" : @"0", @"retryIntervalSeconds" : retryInterval};
+    NSTimeInterval maxThrottleEndTime = [[NSDate date] timeIntervalSince1970] + 24 * 60 * 60;
+    [_configRealtime[0] evaluateStreamResponse:response error:nil];
+    XCTAssertEqualWithAccuracy(settings.realtimeExponentialBackoffThrottleEndTime,
+                               maxThrottleEndTime, 5.0, @"retryIntervalSeconds: %@", retryInterval);
+  }
+}
+
+- (void)testRealtimeNonPositiveRetryIntervalIsIgnored {
+  RCNConfigSettings *settings = _configInstances[0].settings;
+  [settings updateRealtimeBackoffTimeWithInterval:0];
+  NSTimeInterval throttleEndTime = settings.realtimeExponentialBackoffThrottleEndTime;
+  for (id retryInterval in @[ @0, @(-100), @(-1e300), @"-1e300", @(NAN) ]) {
+    NSDictionary *response =
+        @{@"latestTemplateVersionNumber" : @"0", @"retryIntervalSeconds" : retryInterval};
+    [_configRealtime[0] evaluateStreamResponse:response error:nil];
+    XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime,
+                   @"retryIntervalSeconds: %@", retryInterval);
+  }
 }
 
 /// Returns the error `evaluateStreamResponse:error:` propagates to listeners.
