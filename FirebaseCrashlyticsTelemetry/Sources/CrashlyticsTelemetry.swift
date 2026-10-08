@@ -19,6 +19,17 @@ internal import FirebaseCoreExtension
 public final class CrashlyticsTelemetry {
   private init() {}
 
+  // MARK: - User Interaction Instrumentation
+
+  /// Records a tap interaction on a UI widget as an OpenTelemetry `app.widget.click` event.
+  ///
+  /// - Parameters:
+  ///   - on: An identifier that uniquely differentiates this widget from other widgets
+  ///     in the application (`app.widget.id`).
+  public static func recordTap(on element: String) {
+    FirebaseCrashlyticsTelemetry.instance?.recordTap(on: element)
+  }
+
   // MARK: - Public API for testing
 
   // TODO: Remove all the testing API.

@@ -45,11 +45,7 @@ class CrashlyticsSpanBuilder: SpanBuilder {
   ///
   /// - Returns: A `CrashlyticsSpan` if the underlying span is readable; otherwise `Any Span`
   func startSpan() -> Span {
-    let realSpan = otelSpanBuilder
-      // TODO: Remove this attribute. Currently added as a work around to a limitation in the
-      // backend server.
-      .setAttribute(key: "gcp.firebase.app_version", value: "1.0")
-      .startSpan()
+    let realSpan = otelSpanBuilder.startSpan()
 
     if let readableSpan = realSpan as? ReadableSpan {
       let crashlyticsSpan = CrashlyticsSpan(

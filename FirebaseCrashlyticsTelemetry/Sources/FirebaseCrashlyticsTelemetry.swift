@@ -33,6 +33,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   private var recoveryManager: RecoveredTelemetryExporter?
   private var urlInstrumentation: URLSessionInstrumentation?
   private var viewInstrumentation: ViewInstrumentation?
+  private var userInteractionInstrumentation: UserInteractionInstrumentation?
 
   private let scopeName = "Firebase Crashlytics Telemetry"
   private let scopeVersion = "semver:0.1.0"
@@ -85,7 +86,16 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
       )
     )
 
-    viewInstrumentation = ViewInstrumentation(logger: logger)
+    viewInstrumentation = ViewInstrumentation(logger: logger) { view in
+      AttributeStore.setScreenName(view)
+    }
+    userInteractionInstrumentation = UserInteractionInstrumentation(logger: logger)
+  }
+
+  // MARK: - User Interaction Instrumentation
+
+  public func recordTap(on widgetId: String) {
+    userInteractionInstrumentation?.record(.tap(widgetId: widgetId))
   }
 
   // MARK: - Public API for testing
@@ -175,7 +185,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   }
 
   private static func createLoggerProvider(with resource: Resource) -> LoggerProvider {
-    let logProcessor = SimpleLogRecordProcessor(logRecordExporter: StdoutLogExporter())
+    let logProcessor = CrashlyticsLogProcessor(logRecordExporter: StdoutLogExporter())
 
     return LoggerProviderBuilder()
       .with(processors: [logProcessor])

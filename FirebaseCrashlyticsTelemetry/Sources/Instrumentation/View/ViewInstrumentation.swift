@@ -21,12 +21,14 @@ import OpenTelemetryApi
 /// the notifications in order to track and report the currently active screen.
 final actor ViewInstrumentation {
   private var logger: Logger
+  private var onChange: (@Sendable (String) -> Void)?
   private var viewStack: [CrashlyticsView] = []
   private var lastReportedView: CrashlyticsView?
   private var reportingTask: Task<Void, Never>?
 
-  public init(logger: Logger) {
+  public init(logger: Logger, onChange: (@Sendable (String) -> Void)? = nil) {
     self.logger = logger
+    self.onChange = onChange
     configure()
   }
 
@@ -105,8 +107,9 @@ final actor ViewInstrumentation {
 
   /// Reports the currently active View.
   private func reportActiveView(_ view: CrashlyticsView) {
+    onChange?(view.name)
+
     let attributes: [String: AttributeValue] = [
-      SemanticConventions.App.screenName.rawValue: AttributeValue(view.name),
       SemanticConventions.App.navigationDestination: AttributeValue(view.name),
     ]
 

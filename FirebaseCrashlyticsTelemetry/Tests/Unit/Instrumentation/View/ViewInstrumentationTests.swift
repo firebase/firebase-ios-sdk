@@ -61,10 +61,6 @@ final class ViewInstrumentationTests: XCTestCase {
     XCTAssertEqual(first.eventName, SemanticConventions.App.navigationEvent)
     XCTAssertEqual(first.severity, .info)
     XCTAssertEqual(
-      first.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "HomeScreen"
-    )
-    XCTAssertEqual(
       first.attributes[SemanticConventions.App.navigationDestination]?.description,
       "HomeScreen"
     )
@@ -83,7 +79,7 @@ final class ViewInstrumentationTests: XCTestCase {
 
     XCTAssertEqual(active.name, "Unknown")
     XCTAssertEqual(
-      records.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
+      records.last?.attributes[SemanticConventions.App.navigationDestination]?.description,
       "Unknown"
     )
   }
@@ -104,10 +100,6 @@ final class ViewInstrumentationTests: XCTestCase {
 
     var active = await instrumentation.activeView
     XCTAssertEqual(active.name, "SettingsScreen")
-    XCTAssertEqual(
-      recordsAfterPush.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "SettingsScreen"
-    )
 
     // 3. Settings disappears (pop back to Home)
     postViewEvent(id: settingsID, name: "SettingsScreen", type: .disappear)
@@ -115,10 +107,6 @@ final class ViewInstrumentationTests: XCTestCase {
 
     active = await instrumentation.activeView
     XCTAssertEqual(active.name, "HomeScreen")
-    XCTAssertEqual(
-      recordsAfterPop.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "HomeScreen"
-    )
   }
 
   func test_stackUnwind_popToExistingView_truncatesStack() async throws {
@@ -143,10 +131,6 @@ final class ViewInstrumentationTests: XCTestCase {
     active = await instrumentation.activeView
 
     XCTAssertEqual(active.name, "ViewA")
-    XCTAssertEqual(
-      records.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "ViewA"
-    )
   }
 
   func test_disappearNonExistentView_doesNotAffectStack() async throws {
@@ -174,10 +158,6 @@ final class ViewInstrumentationTests: XCTestCase {
 
     let records = try await mockLogger.waitForLogCount(1)
     XCTAssertEqual(records.count, 1)
-    XCTAssertEqual(
-      records[0].attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "Screen3"
-    )
 
     let active = await instrumentation.activeView
     XCTAssertEqual(active.name, "Screen3")
@@ -215,6 +195,23 @@ final class ViewInstrumentationTests: XCTestCase {
     XCTAssertEqual(mockLogger.exportedLogs().count, 1)
   }
 
+  // MARK: - onChange Callback
+
+  func test_onChangeCallback_isInvokedWhenSettledViewChanges() async throws {
+    let expectation = expectation(description: "onChange called for HomeScreen")
+    let localLogger = MockLogger()
+    let customInstrumentation = ViewInstrumentation(logger: localLogger.logger) { viewName in
+      if viewName == "CallbackScreen" {
+        expectation.fulfill()
+      }
+    }
+    _ = customInstrumentation
+    try await Task.sleep(nanoseconds: 10_000_000)
+
+    postViewEvent(id: UUID(), name: "CallbackScreen", type: .appear)
+    await fulfillment(of: [expectation], timeout: 2.0)
+  }
+
   // MARK: - End-to-End Test with ViewLifecycleHarness
 
   @MainActor
@@ -227,18 +224,10 @@ final class ViewInstrumentationTests: XCTestCase {
     // 1. Appear
     harness.appear()
     let appearRecords = try await mockLogger.waitForLogCount(1)
-    XCTAssertEqual(
-      appearRecords.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      screenName
-    )
 
     // 2. Disappear
     harness.disappear()
     let disappearRecords = try await mockLogger.waitForLogCount(2)
-    XCTAssertEqual(
-      disappearRecords.last?.attributes[SemanticConventions.App.screenName.rawValue]?.description,
-      "Unknown"
-    )
 
     harness.cleanup()
   }
