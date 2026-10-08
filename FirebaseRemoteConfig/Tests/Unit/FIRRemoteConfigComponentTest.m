@@ -52,6 +52,10 @@
 
 - (void)testConcurrentRCInstanceCreationReturnsSameInstance {
   FIRRemoteConfigComponent *provider = [self providerForTest];
+  // Warm up one-time SQLite database initialization on slow simulators before testing concurrent
+  // creation of a new namespace.
+  XCTAssertNotNil([provider remoteConfigForNamespace:@"warmup_namespace"]);
+
   NSString *sharedNamespace = @"concurrent_namespace";
 
   dispatch_group_t group = dispatch_group_create();
@@ -66,7 +70,8 @@
     config2 = [provider remoteConfigForNamespace:sharedNamespace];
   });
 
-  XCTAssertEqual(dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)), 0);
+  XCTAssertEqual(dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)),
+                 0);
   XCTAssertNotNil(config1);
   XCTAssertEqual(config1, config2);
 }

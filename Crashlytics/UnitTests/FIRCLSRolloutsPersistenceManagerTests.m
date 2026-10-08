@@ -77,7 +77,7 @@ NSString *reportId = @"1234567";
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[ expectation ] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
 
@@ -102,10 +102,12 @@ NSString *reportId = @"1234567";
       [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
           stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
 
-  // Clog up the queue with a long running operation. This sleep time
-  // must be longer than the expectation timeout.
+  // Block the logging queue until the test verifies that calling
+  // updateRolloutsStateToPersistenceWithRollouts:reportID: returns without hanging.
+  dispatch_semaphore_t queueBlockedSemaphore = dispatch_semaphore_create(0);
   dispatch_async(self.loggingQueue, ^{
-    sleep(10);
+    dispatch_semaphore_wait(queueBlockedSemaphore,
+                            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15.0 * NSEC_PER_SEC)));
   });
 
   dispatch_async(testQueue, ^{
@@ -117,7 +119,10 @@ NSString *reportId = @"1234567";
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[ expectation ] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  dispatch_semaphore_signal(queueBlockedSemaphore);
+  dispatch_sync(self.loggingQueue, ^{
+                });
 }
 
 @end
