@@ -21,11 +21,10 @@ from typing import Any
 
 from .config import GeneratorConfig
 from .docc import (
+    format_enum_case_docc,
     format_init_description,
     format_property_docc,
     format_schema_docc,
-    strip_doc_prefixes,
-    wrap_docc,
 )
 from .graph import property_ref_target, resolve_ref
 from .models import SwiftEnumCase, SwiftProperty, SwiftType
@@ -396,6 +395,12 @@ class SchemaProcessor:
 
         cases: list[SwiftEnumCase] = []
         prefix, _ = strip_enum_prefix(data["enum"])
+        # Per-backend case lists are only meaningful when the enum was merged
+        # from both backends; otherwise availability is documented at the
+        # type or property level.
+        gl_cases = data.get("x-gl-enum")
+        ai_cases = data.get("x-ai-enum")
+        track_backends = gl_cases is not None and ai_cases is not None
 
         for idx, raw_val in enumerate(data["enum"]):
             val_upper = raw_val.upper()
@@ -413,12 +418,14 @@ class SchemaProcessor:
                 if idx < len(enum_descriptions)
                 else None
             )
-            if raw_case_desc:
-                raw_case_desc = strip_doc_prefixes(raw_case_desc)
             case_description = (
-                wrap_docc(raw_case_desc, self.member_wrap_width)
-                if raw_case_desc
-                else None
+                format_enum_case_docc(
+                    raw_case_desc,
+                    in_gl=not track_backends or raw_val in gl_cases,
+                    in_ai=not track_backends or raw_val in ai_cases,
+                    wrap_width=self.member_wrap_width,
+                )
+                or None
             )
             case_is_deprecated = (
                 enum_deprecated_list[idx]

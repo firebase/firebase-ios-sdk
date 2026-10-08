@@ -239,6 +239,57 @@ class TestSchemaProcessor(unittest.TestCase):
         struct_type = next(t for t in swift_types if t.kind == "struct")
         self.assertEqual(struct_type.properties[0].swift_type, "Threshold")
 
+    def test_merged_enum_cases_document_backend_availability(self):
+        resolved = {
+            "HarmCategory": {
+                "type": "string",
+                "enum": [
+                    "HARM_CATEGORY_UNSPECIFIED",
+                    "HARM_CATEGORY_HATE_SPEECH",
+                    "HARM_CATEGORY_DEROGATORY",
+                    "HARM_CATEGORY_IMAGE_HATE",
+                ],
+                "enumDescriptions": ["Unused.", "Hate.", "Derogatory.", ""],
+                "x-gl-enum": [
+                    "HARM_CATEGORY_UNSPECIFIED",
+                    "HARM_CATEGORY_HATE_SPEECH",
+                    "HARM_CATEGORY_DEROGATORY",
+                ],
+                "x-ai-enum": [
+                    "HARM_CATEGORY_UNSPECIFIED",
+                    "HARM_CATEGORY_HATE_SPEECH",
+                    "HARM_CATEGORY_IMAGE_HATE",
+                ],
+            }
+        }
+        (enum_type,) = process(resolved)
+        descriptions = {c.swift_name: c.description for c in enum_type.cases}
+        self.assertEqual(descriptions["hateSpeech"], "Hate.")
+        self.assertEqual(
+            descriptions["derogatory"],
+            "Derogatory.\n\n> Important: This case is not supported in the"
+            " Gemini Enterprise API.",
+        )
+        self.assertEqual(
+            descriptions["imageHate"],
+            "> Important: This case is not supported in the Gemini Developer"
+            " API.",
+        )
+
+    def test_single_backend_enum_cases_have_no_availability_callouts(self):
+        resolved = {
+            "ServiceTier": {
+                "type": "string",
+                "enum": ["STANDARD", "FLEX"],
+                "enumDescriptions": ["Standard.", "Flex."],
+                "x-gl-enum": ["STANDARD", "FLEX"],
+            }
+        }
+        (enum_type,) = process(resolved)
+        self.assertEqual(
+            [c.description for c in enum_type.cases], ["Standard.", "Flex."]
+        )
+
     def test_reference_to_deprecated_schema_marks_property_deprecated(self):
         resolved = {
             "Holder": {

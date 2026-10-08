@@ -155,6 +155,103 @@ class TestMerge(unittest.TestCase):
             merged["description"], "Developer.\n\nVariant:\nEnterprise."
         )
 
+    def test_merge_properties_unions_enum_cases(self):
+        gl = {
+            "type": "string",
+            "description": "Reason.",
+            "x-gl-description": "Reason.",
+            "enum": ["UNSPECIFIED", "STOP", "LANGUAGE"],
+            "x-gl-enum": ["UNSPECIFIED", "STOP", "LANGUAGE"],
+            "enumDescriptions": ["Unused.", "Stopped.", "Language."],
+            "enumDeprecated": [False, True, False],
+        }
+        ai = {
+            "type": "string",
+            "description": "Reason.",
+            "x-ai-description": "Reason.",
+            "enum": ["UNSPECIFIED", "STOP", "MODEL_ARMOR"],
+            "x-ai-enum": ["UNSPECIFIED", "STOP", "MODEL_ARMOR"],
+            "enumDescriptions": ["Unused.", "Stopped (AI).", "Armor."],
+            "enumDeprecated": [False, False, False],
+        }
+        merged = merge_properties(
+            "Candidate", "finishReason", gl, ai, divergences={}
+        )
+        self.assertEqual(
+            merged["enum"], ["UNSPECIFIED", "STOP", "LANGUAGE", "MODEL_ARMOR"]
+        )
+        self.assertEqual(
+            merged["enumDescriptions"],
+            ["Unused.", "Stopped.", "Language.", "Armor."],
+        )
+        # STOP is deprecated only in the Developer API, so it is not
+        # deprecated in the merged enum.
+        self.assertEqual(
+            merged["enumDeprecated"], [False, False, False, False]
+        )
+        self.assertEqual(merged["x-gl-enum"], gl["enum"])
+        self.assertEqual(merged["x-ai-enum"], ai["enum"])
+
+    def test_merge_schemas_unions_standalone_enum_cases(self):
+        gl = {
+            "type": "string",
+            "description": "Harm categories.",
+            "x-gl-original-name": "GlHarmCategory",
+            "x-gl-description": "Harm categories.",
+            "enum": ["HARM_CATEGORY_UNSPECIFIED", "HARM_CATEGORY_DEROGATORY"],
+            "x-gl-enum": [
+                "HARM_CATEGORY_UNSPECIFIED",
+                "HARM_CATEGORY_DEROGATORY",
+            ],
+            "enumDescriptions": ["Unused.", "Derogatory."],
+        }
+        ai = {
+            "type": "string",
+            "description": "Harm categories.",
+            "x-ai-original-name": "AiHarmCategory",
+            "x-ai-description": "Harm categories.",
+            "enum": ["HARM_CATEGORY_UNSPECIFIED", "HARM_CATEGORY_IMAGE_HATE"],
+            "x-ai-enum": [
+                "HARM_CATEGORY_UNSPECIFIED",
+                "HARM_CATEGORY_IMAGE_HATE",
+            ],
+            "enumDescriptions": ["Unused.", "Image hate."],
+        }
+        merged = merge_schemas("HarmCategory", gl, ai, divergences={})
+        self.assertEqual(
+            merged["enum"],
+            [
+                "HARM_CATEGORY_UNSPECIFIED",
+                "HARM_CATEGORY_DEROGATORY",
+                "HARM_CATEGORY_IMAGE_HATE",
+            ],
+        )
+        self.assertEqual(
+            merged["enumDescriptions"],
+            ["Unused.", "Derogatory.", "Image hate."],
+        )
+        self.assertNotIn("enumDeprecated", merged)
+        self.assertEqual(merged["x-gl-original-name"], "GlHarmCategory")
+        self.assertEqual(merged["x-ai-original-name"], "AiHarmCategory")
+
+    def test_strip_prefix_annotates_backend_enum_cases(self):
+        schemas = {
+            "GlModality": {"type": "string", "enum": ["TEXT", "IMAGE"]},
+            "GlPart": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string", "enum": ["A", "B"]},
+                },
+            },
+        }
+        stripped = strip_prefix_from_schemas(
+            schemas, Backend(prefix="Gl", tag="gl"), divergences={}
+        )
+        self.assertEqual(stripped["Modality"]["x-gl-enum"], ["TEXT", "IMAGE"])
+        self.assertEqual(
+            stripped["Part"]["properties"]["kind"]["x-gl-enum"], ["A", "B"]
+        )
+
     def test_rename_schemas_and_refs_applies_acronyms(self):
         schemas = {
             "UrlContext": {"type": "object", "id": "UrlContext"},

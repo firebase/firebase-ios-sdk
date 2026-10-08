@@ -297,6 +297,35 @@ def format_property_docc(
     )
 
 
+def format_enum_case_docc(
+    raw_description: str | None,
+    in_gl: bool,
+    in_ai: bool,
+    wrap_width: int = 94,
+) -> str:
+    """Formats DocC documentation for a Swift enum case.
+
+    Args:
+        raw_description: Raw case description from `enumDescriptions`.
+        in_gl: Whether the case exists in the Gemini Developer API.
+        in_ai: Whether the case exists in the Gemini Enterprise API.
+        wrap_width: Column wrap width.
+
+    Returns:
+        Formatted DocC comment block, with a '> Important:' callout when the
+        case exists in only one backend.
+    """
+    desc = strip_doc_prefixes(raw_description or "")
+    if in_gl == in_ai:
+        return wrap_docc(desc, wrap_width)
+    unsupported = "Enterprise" if in_gl else "Developer"
+    return _with_unsupported_note(
+        desc,
+        f"This case is not supported in the Gemini {unsupported} API.",
+        wrap_width,
+    )
+
+
 def format_init_description(
     prop_data: dict[str, Any], swift_prop_name: str
 ) -> str:

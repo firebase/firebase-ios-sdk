@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .config import Backend
+from .config import BACKEND_TAGS, Backend
 from .docc import VARIANT_SEPARATOR
 from .naming import apply_swift_acronyms
 
@@ -44,10 +44,82 @@ def _annotate_backend(
                 p_data[f"x-{backend_tag}-description"] = p_data.get(
                     "description", ""
                 )
+                if isinstance(p_data.get("enum"), list):
+                    p_data[f"x-{backend_tag}-enum"] = list(p_data["enum"])
     stripped[f"x-{backend_tag}-original-name"] = schema_name
     stripped[f"x-{backend_tag}-description"] = schema_data.get(
         "description", ""
     )
+    if isinstance(stripped.get("enum"), list):
+        stripped[f"x-{backend_tag}-enum"] = list(stripped["enum"])
+
+
+def _ordered_union(lists: list[list[Any]]) -> list[Any]:
+    """Returns the distinct items of lists, in first-seen order."""
+    result: list[Any] = []
+    for items in lists:
+        for item in items:
+            if item not in result:
+                result.append(item)
+    return result
+
+
+def _merge_enums(
+    merged: dict[str, Any], first: dict[str, Any], second: dict[str, Any]
+) -> None:
+    """Unions the enum cases of two definitions into merged, in place.
+
+    Cases keep first-seen order (first's cases, then cases only in second).
+    `enumDescriptions` and `enumDeprecated` stay index-aligned with the
+    merged cases: descriptions prefer first's text, and a case is deprecated
+    only if every definition containing it marks it deprecated. Per-backend
+    'x-<tag>-enum' case lists are unioned by tag (not by position) so that
+    per-case availability can be documented.
+
+    Args:
+        merged: The merged definition to update in place.
+        first: First enum definition.
+        second: Second enum definition.
+    """
+    sources = [d for d in (first, second) if isinstance(d.get("enum"), list)]
+    if not sources:
+        return
+    cases = _ordered_union([d["enum"] for d in sources])
+    merged["enum"] = cases
+
+    def lookup(data: dict[str, Any], key: str, case: Any) -> Any:
+        values = data.get(key)
+        if not isinstance(values, list) or case not in data["enum"]:
+            return None
+        idx = data["enum"].index(case)
+        return values[idx] if idx < len(values) else None
+
+    if any("enumDescriptions" in d for d in sources):
+        descriptions: list[str] = []
+        for case in cases:
+            found = [lookup(d, "enumDescriptions", case) for d in sources]
+            descriptions.append(next((f for f in found if f), ""))
+        merged["enumDescriptions"] = descriptions
+    else:
+        merged.pop("enumDescriptions", None)
+
+    if any("enumDeprecated" in d for d in sources):
+        merged["enumDeprecated"] = [
+            all(
+                bool(lookup(d, "enumDeprecated", case))
+                for d in sources
+                if case in d["enum"]
+            )
+            for case in cases
+        ]
+    else:
+        merged.pop("enumDeprecated", None)
+
+    for tag in BACKEND_TAGS:
+        key = f"x-{tag}-enum"
+        tagged = [d[key] for d in (first, second) if key in d]
+        if tagged:
+            merged[key] = _ordered_union(tagged)
 
 
 def _merge_descriptions(
@@ -261,6 +333,7 @@ def merge_properties(
 
     merged = dict(prop1)
     _merge_provenance(merged, prop1, prop2)
+    _merge_enums(merged, prop1, prop2)
 
     t1 = prop1.get("type")
     t2 = prop2.get("type")
@@ -361,6 +434,14 @@ def merge_schemas(
     Returns:
         Merged schema definition dictionary.
     """
+    if isinstance(schema1.get("enum"), list) and isinstance(
+        schema2.get("enum"), list
+    ):
+        merged = dict(schema1)
+        _merge_provenance(merged, schema1, schema2)
+        _merge_enums(merged, schema1, schema2)
+        return merged
+
     if schema1.get("type") != "object" or schema2.get("type") != "object":
         return schema1
 
