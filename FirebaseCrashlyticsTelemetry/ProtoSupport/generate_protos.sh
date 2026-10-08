@@ -18,19 +18,18 @@
 
 set -euo pipefail
 
-readonly DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly DIR="$( git rev-parse --show-toplevel )"
 
 # Version of otel protos used from https://github.com/open-telemetry/opentelemetry-proto/releases
 readonly OTEL_PROTO_VERSION="v1.11.0"
 
-# Path to the local copy of the Firebase generation script
-readonly FIREBASE_SCRIPT_DIR="$(cd "${DIR}/../../../scripts/nanopb" && pwd)"
-readonly FIREBASE_SCRIPT="${FIREBASE_SCRIPT_DIR}/generate_protos.sh"
+# Proto generation script
+readonly FIREBASE_SCRIPT="./scripts/nanopb/generate_protos.sh"
 
-readonly LIBRARY_DIR="$(cd "${DIR}/../Sources" && pwd)"
-readonly PROTO_BASE_DIR="${DIR}/third_party/opentelemetry-proto"
+readonly LIBRARY_DIR="${DIR}/FirebaseCrashlyticsTelemetry/Sources"
+readonly PROTO_BASE_DIR="${DIR}/FirebaseCrashlyticsTelemetry/ProtoSupport/third_party/opentelemetry-proto"
 readonly PROTO_DIR="${PROTO_BASE_DIR}/Protos"
-readonly OPTIONS_DIR="${DIR}/options"
+readonly OPTIONS_DIR="${DIR}/FirebaseCrashlyticsTelemetry/ProtoSupport/Options"
 readonly PROTOGEN_BASE_DIR="${LIBRARY_DIR}/third_party/opentelemetry-proto"
 readonly PROTOGEN_DIR="${PROTOGEN_BASE_DIR}/Protogen"
 
