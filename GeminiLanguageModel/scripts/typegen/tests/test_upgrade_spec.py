@@ -413,6 +413,17 @@ class TestUpgradeSpec(unittest.TestCase):
             "oldField", destination["schemas"]["MySchema"]["properties"]
         )
 
+    def test_deep_merge_replaces_non_dict_destination_values(self):
+        source = {"items": {"$ref": "#/components/schemas/Part"}}
+        for existing in (None, "string", 1):
+            with self.subTest(existing=existing):
+                destination = {"items": existing}
+                upgrade_spec.deep_merge(source, destination)
+                self.assertEqual(
+                    destination,
+                    {"items": {"$ref": "#/components/schemas/Part"}},
+                )
+
     def test_deep_merge_removes_type_and_items_on_ref(self):
         source = {"$ref": "#/components/schemas/OverriddenRef"}
         destination = {

@@ -23,7 +23,7 @@ import copy
 import json
 import os
 import sys
-from typing import Any, Callable
+from typing import Any
 import urllib.request
 
 import yaml
@@ -363,7 +363,12 @@ def deep_merge(
     """
     for key, value in source.items():
         if isinstance(value, dict):
-            node = destination.setdefault(key, {})
+            node = destination.get(key)
+            if not isinstance(node, dict):
+                # Replace missing or non-dict values (e.g. None) so the
+                # override can be merged into them.
+                node = {}
+                destination[key] = node
             deep_merge(value, node)
         else:
             destination[key] = value
