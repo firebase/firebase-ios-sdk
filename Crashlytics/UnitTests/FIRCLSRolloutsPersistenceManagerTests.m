@@ -121,6 +121,7 @@ NSString *reportId = @"1234567";
 
   [self waitForExpectations:@[ expectation ] timeout:10];
   dispatch_semaphore_signal(queueBlockedSemaphore);
+  // Let the pending write finish before tearDown removes the report directory.
   dispatch_sync(self.loggingQueue, ^{
                 });
 }
