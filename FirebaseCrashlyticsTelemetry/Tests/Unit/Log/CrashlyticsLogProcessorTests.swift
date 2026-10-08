@@ -60,7 +60,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
   func test_onEmit_overwritesExistingCommonAttributeOnLog() async throws {
     logger
       .logRecordBuilder()
-      .setEventName(SemanticConventions.App.navigationEvent)
+      .setEventName(SemanticConventions.App.crashlyticsNavigationEvent)
       .setSeverity(.info)
       .setAttributes([
         SemanticConventions.App.screenName.rawValue: .string("ExplicitScreen"),
@@ -83,7 +83,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(records.count, 1)
 
     let record = records[0]
-    XCTAssertEqual(record.eventName, SemanticConventions.App.widgetClickEvent)
+    XCTAssertEqual(record.eventName, SemanticConventions.App.crashlyticsWidgetClickEvent)
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.widgetId.rawValue],
       .string("login_button")

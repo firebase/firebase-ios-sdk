@@ -41,7 +41,7 @@ final class UserInteractionInstrumentationTests: XCTestCase {
     XCTAssertEqual(records.count, 1)
 
     let record = records[0]
-    XCTAssertEqual(record.eventName, SemanticConventions.App.widgetClickEvent)
+    XCTAssertEqual(record.eventName, SemanticConventions.App.crashlyticsWidgetClickEvent)
     XCTAssertEqual(record.severity, .info)
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.widgetId.rawValue],

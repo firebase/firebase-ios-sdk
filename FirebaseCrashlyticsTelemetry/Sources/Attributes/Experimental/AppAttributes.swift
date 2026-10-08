@@ -21,7 +21,7 @@ public extension SemanticConventions.App {
    - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
    - Note: Stability level is `development`.
    */
-  static let navigationEvent = "app.navigation.complete"
+  static let crashlyticsNavigationEvent = "app.navigation.complete"
 
   /**
    The destination name of the navigation event.
@@ -35,7 +35,7 @@ public extension SemanticConventions.App {
    - Note: Required attribute for the `app.navigation.complete` event.
    - SeeAlso: [opentelemetry-android events.yaml](https://github.com/open-telemetry/opentelemetry-android/blob/main/semconv/model/android/events.yaml)
    */
-  static let navigationDestination = "app.navigation.destination.name"
+  static let crashlyticsNavigationDestination = "app.navigation.destination.name"
 
   /**
    This event indicates that an application widget has been clicked.
@@ -43,5 +43,5 @@ public extension SemanticConventions.App {
    - SeeAlso: [OpenTelemetry App Events - app.widget.click](https://opentelemetry.io/docs/specs/semconv/app/app-events/#event-appwidgetclick)
    - Note: Stability level is `development`.
    */
-  static let widgetClickEvent = "app.widget.click"
+  static let crashlyticsWidgetClickEvent = "app.widget.click"
 }

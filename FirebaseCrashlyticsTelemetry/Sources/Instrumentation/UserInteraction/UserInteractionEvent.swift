@@ -23,7 +23,7 @@ enum UserInteractionEvent: Equatable, Sendable {
   var eventName: String {
     switch self {
     case .tap:
-      return SemanticConventions.App.widgetClickEvent
+      return SemanticConventions.App.crashlyticsWidgetClickEvent
     }
   }
 
