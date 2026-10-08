@@ -26,7 +26,7 @@ import OpenTelemetryApi
 /// RecoveredSpan serves as the next best alternative. We can map CppSpan to RecoveredSpan which
 /// is a Swift native struct allowing for the data to be passed around and modified before being
 /// converted in to a proto and exported.
-public struct RecoveredSpan: @unchecked Sendable {
+struct RecoveredSpan: @unchecked Sendable {
   /// The OpenTelemetry Trace ID for this span
   public let traceID: TraceId
 

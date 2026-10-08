@@ -17,7 +17,7 @@ import Foundation
 /// A helper to use for methods to verify thread safety.
 /// TODO: Explore having a common thread worker similar to
 /// https://github.com/firebase/firebase-android-sdk/blob/e2aaa50e35ec14970ae49aa0b0d9bce94a3b443d/firebase-crashlytics/src/main/java/com/google/firebase/crashlytics/internal/concurrency/CrashlyticsWorkers.kt
-public final class ThreadHelper: @unchecked Sendable {
+final class ThreadHelper: @unchecked Sendable {
   public static func isNotMainThread() {
     assert(!Thread.isMainThread, "This method must not be called on the main thread.")
   }

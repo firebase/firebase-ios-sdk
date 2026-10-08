@@ -16,7 +16,7 @@ import Foundation
 import os
 
 // TODO: Refactor this to be similar to https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseSessions/Sources/Logger.swift
-public enum LoggingHelper {
+enum LoggingHelper {
   public static let logger = Logger(
     subsystem: "com.google.firebase.crashlytics", category: "CrashlyticsTelemetry"
   )
