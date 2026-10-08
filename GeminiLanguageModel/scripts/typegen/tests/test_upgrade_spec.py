@@ -1,0 +1,281 @@
+#!/usr/bin/env python3
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Unit tests for the Google Discovery to OpenAPI 3.1.0 upgrade script."""
+
+import contextlib
+import io
+import json
+import os
+import sys
+import tempfile
+import unittest
+from unittest import mock
+
+import yaml
+
+sys.path.insert(
+    0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+import upgrade_spec
+
+
+class TestUpgradeSpec(unittest.TestCase):
+    """Test suite covering Discovery transformations in upgrade_spec."""
+
+    def test_normalize_refs(self):
+        data = {
+            "prop": {"$ref": "SomeSchema"},
+            "nested": {
+                "arr": [{"$ref": "ItemSchema"}],
+                "already_normalized": {
+                    "$ref": "#/components/schemas/Existing"
+                },
+            },
+        }
+        upgrade_spec.normalize_refs(data)
+        self.assertEqual(
+            data["prop"]["$ref"], "#/components/schemas/SomeSchema"
+        )
+        self.assertEqual(
+            data["nested"]["arr"][0]["$ref"],
+            "#/components/schemas/ItemSchema",
+        )
+        self.assertEqual(
+            data["nested"]["already_normalized"]["$ref"],
+            "#/components/schemas/Existing",
+        )
+
+    def test_infer_required_properties(self):
+        schemas = {
+            "SampleSchema": {
+                "type": "object",
+                "properties": {
+                    "reqField": {
+                        "type": "string",
+                        "description": "Required. Must provide this value.",
+                    },
+                    "optField": {
+                        "type": "string",
+                        "description": "Optional. Extra information.",
+                    },
+                    "reqColonField": {
+                        "type": "string",
+                        "description": "Required: Follow format.",
+                    },
+                },
+            }
+        }
+        upgrade_spec.infer_required_properties(schemas)
+        self.assertEqual(
+            schemas["SampleSchema"]["required"],
+            ["reqField", "reqColonField"],
+        )
+
+    def test_extract_standalone_enums(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaSafetyRating": {
+                "type": "object",
+                "properties": {
+                    "category": {
+                        "type": "string",
+                        "enum": [
+                            "HARM_CATEGORY_UNSPECIFIED",
+                            "HARM_CATEGORY_HATE_SPEECH",
+                        ],
+                        "description": "Safety category.",
+                    }
+                },
+            },
+            "GoogleAiGenerativelanguageV1betaGenerationConfig": {
+                "type": "object",
+                "properties": {
+                    "responseModalities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": ["MODALITY_UNSPECIFIED", "TEXT", "IMAGE"],
+                        },
+                        "description": "Response modalities.",
+                    }
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas)
+
+        # Verify extracted top-level schemas
+        self.assertIn("GoogleAiGenerativelanguageV1betaHarmCategory", schemas)
+        self.assertIn("GoogleAiGenerativelanguageV1betaModality", schemas)
+
+        # Verify properties replaced with refs
+        category_prop = schemas[
+            "GoogleAiGenerativelanguageV1betaSafetyRating"
+        ]["properties"]["category"]
+        self.assertEqual(
+            category_prop["$ref"],
+            "#/components/schemas/GoogleAiGenerativelanguageV1betaHarmCategory",
+        )
+
+        modalities_prop = schemas[
+            "GoogleAiGenerativelanguageV1betaGenerationConfig"
+        ]["properties"]["responseModalities"]
+        self.assertEqual(
+            modalities_prop["items"]["$ref"],
+            "#/components/schemas/GoogleAiGenerativelanguageV1betaModality",
+        )
+
+    def test_upgrade_nullables_string_type(self):
+        data = {"type": "string", "nullable": True}
+        upgrade_spec.upgrade_nullables(data)
+        self.assertEqual(data["type"], ["string", "null"])
+        self.assertNotIn("nullable", data)
+
+    def test_upgrade_nullables_list_type(self):
+        data = {"type": ["integer"], "nullable": True}
+        upgrade_spec.upgrade_nullables(data)
+        self.assertEqual(data["type"], ["integer", "null"])
+        self.assertNotIn("nullable", data)
+
+    def test_upgrade_nullables_ref(self):
+        data = {"$ref": "#/components/schemas/MyType", "nullable": True}
+        upgrade_spec.upgrade_nullables(data)
+        self.assertNotIn("nullable", data)
+        self.assertNotIn("$ref", data)
+        self.assertEqual(
+            data["oneOf"],
+            [{"$ref": "#/components/schemas/MyType"}, {"type": "null"}],
+        )
+
+    def test_simplify_all_of(self):
+        data = {
+            "allOf": [{"$ref": "#/components/schemas/MyType"}],
+            "description": "Sibling description",
+        }
+        upgrade_spec.simplify_all_of(data)
+        self.assertNotIn("allOf", data)
+        self.assertEqual(data["$ref"], "#/components/schemas/MyType")
+        self.assertEqual(data["description"], "Sibling description")
+
+    def test_deep_merge(self):
+        source = {
+            "schemas": {
+                "MySchema": {
+                    "required": ["name"],
+                    "properties": {"name": {"type": "string"}},
+                }
+            }
+        }
+        destination = {
+            "schemas": {
+                "MySchema": {
+                    "required": ["oldField"],
+                    "properties": {"oldField": {"type": "integer"}},
+                }
+            }
+        }
+        upgrade_spec.deep_merge(source, destination)
+        self.assertEqual(
+            destination["schemas"]["MySchema"]["required"], ["name"]
+        )
+        self.assertIn("name", destination["schemas"]["MySchema"]["properties"])
+        self.assertIn(
+            "oldField", destination["schemas"]["MySchema"]["properties"]
+        )
+
+    def test_deep_merge_removes_type_and_items_on_ref(self):
+        source = {"$ref": "#/components/schemas/OverriddenRef"}
+        destination = {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Original array",
+        }
+        upgrade_spec.deep_merge(source, destination)
+        self.assertEqual(
+            destination["$ref"], "#/components/schemas/OverriddenRef"
+        )
+        self.assertNotIn("type", destination)
+        self.assertNotIn("items", destination)
+        self.assertEqual(destination["description"], "Original array")
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_auto_fetches_when_input_file_missing(self, mock_urlopen):
+        fake_discovery = {
+            "title": "Test API",
+            "version": "v1beta",
+            "schemas": {
+                "Sample": {
+                    "type": "object",
+                    "properties": {"name": {"type": "string"}},
+                }
+            },
+        }
+        resp = mock.MagicMock()
+        resp.read.return_value = json.dumps(fake_discovery).encode("utf-8")
+        mock_urlopen.return_value.__enter__.return_value = resp
+
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "discovery.json")
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with contextlib.redirect_stdout(io.StringIO()):
+                upgrade_spec.main(
+                    [
+                        "--input-file",
+                        input_file,
+                        "--output-file",
+                        output_file,
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_called_once()
+            self.assertTrue(os.path.isfile(input_file))
+            self.assertTrue(os.path.isfile(output_file))
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_uses_cached_input_file_without_fetch_flag(
+        self, mock_urlopen
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "discovery.json")
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(input_file, "w", encoding="utf-8") as f:
+                json.dump({"schemas": {}}, f)
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with contextlib.redirect_stdout(io.StringIO()):
+                upgrade_spec.main(
+                    [
+                        "--input-file",
+                        input_file,
+                        "--output-file",
+                        output_file,
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_not_called()
+            self.assertTrue(os.path.isfile(output_file))
+
+
+if __name__ == "__main__":
+    unittest.main()

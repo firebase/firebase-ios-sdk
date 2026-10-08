@@ -1,0 +1,160 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Unit tests for swift_typegen.render (no filesystem output)."""
+
+import os
+import unittest
+
+from swift_typegen.models import SwiftEnumCase, SwiftProperty, SwiftType
+from swift_typegen.render import SwiftRenderer, output_filename
+
+TEMPLATES_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "templates")
+)
+
+
+class TestTemplateRendering(unittest.TestCase):
+    """Test suite for Jinja2 template rendering."""
+
+    def test_render_struct_with_properties_and_oneof(self):
+        st = SwiftType(
+            name="TestConfig",
+            namespace="GoogleAI",
+            kind="struct",
+            description="Configuration for tests.",
+        )
+        st.properties = [
+            SwiftProperty(
+                swift_name="temperature",
+                json_name="temperature",
+                swift_type="Double",
+                description="Controls randomness.",
+            ),
+            SwiftProperty(
+                swift_name="topK",
+                json_name="top_k",
+                swift_type="Int",
+                description="Top-k sampling threshold.",
+            ),
+        ]
+        st.has_oneof = True
+        st.oneof_name = "Data"
+        st.oneof_properties = [
+            SwiftProperty(
+                swift_name="text",
+                json_name="text",
+                swift_type="String",
+            ),
+        ]
+
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR,
+            access_level="package",
+            root_namespace="GoogleAI",
+            shared_models_target="InternalSharedDataModels",
+        )
+        filename, content = renderer.render(st)
+
+        self.assertEqual(filename, "TestConfig.swift")
+        self.assertIn("package import InternalSharedDataModels", content)
+        self.assertIn("/// Configuration for tests.", content)
+        self.assertIn(
+            "package struct TestConfig: Codable, Sendable, Equatable, Hashable,"
+            " Buildable",
+            content,
+        )
+        self.assertIn("/// Controls randomness.", content)
+        self.assertIn("package var temperature: Double?", content)
+        self.assertIn(
+            "package enum Data: Sendable, Equatable, Hashable", content
+        )
+        self.assertIn("case text(String)", content)
+        self.assertIn("case temperature", content)
+        self.assertIn('case topK = "top_k"', content)
+
+    def test_render_empty_struct(self):
+        st = SwiftType(
+            name="EmptyStruct",
+            namespace="GoogleAI",
+            kind="struct",
+            description="An empty struct.",
+        )
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR, access_level="package", root_namespace="GoogleAI"
+        )
+        filename, content = renderer.render(st)
+
+        self.assertEqual(filename, "EmptyStruct.swift")
+        self.assertIn(
+            "package struct EmptyStruct: Codable, Sendable, Equatable, Hashable,"
+            " Buildable",
+            content,
+        )
+        self.assertIn("package init() {}", content)
+        self.assertNotIn("enum CodingKeys", content)
+
+    def test_render_enum_with_cases_and_deprecation(self):
+        et = SwiftType(
+            name="TestEnum",
+            namespace="GoogleAI",
+            kind="enum",
+            description="Test enum description.",
+        )
+        et.cases = [
+            SwiftEnumCase(
+                swift_name="activeCase",
+                raw_value="ACTIVE",
+                description="Active case.",
+            ),
+            SwiftEnumCase(
+                swift_name="deprecatedCase",
+                raw_value="DEPRECATED",
+                description="Deprecated case.",
+                is_deprecated=True,
+            ),
+        ]
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR, access_level="public", root_namespace="GoogleAI"
+        )
+        filename, content = renderer.render(et)
+
+        self.assertEqual(filename, "TestEnum.swift")
+        self.assertIn(
+            "public enum TestEnum: Codable, Sendable, Equatable, Hashable",
+            content,
+        )
+        self.assertIn("case activeCase", content)
+        self.assertIn("@available(*, deprecated)", content)
+        self.assertIn("case deprecatedCase", content)
+        self.assertIn("case unrecognized(_ value: String)", content)
+        self.assertIn("extension GoogleAI.TestEnum: RawRepresentable", content)
+        self.assertIn('case .activeCase: "ACTIVE"', content)
+
+    def test_render_unknown_kind_returns_none(self):
+        st = SwiftType(name="Thing", namespace="", kind="class")
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR, access_level="package", root_namespace=""
+        )
+        self.assertIsNone(renderer.render(st))
+
+    def test_output_filename_joins_nested_namespaces(self):
+        st = SwiftType(
+            name="`Type`", namespace="GoogleAI.Schema.Items", kind="enum"
+        )
+        self.assertEqual(
+            output_filename(st, root_namespace="GoogleAI"),
+            "Schema+Items+Type.swift",
+        )
+

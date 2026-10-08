@@ -1,0 +1,280 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Unit tests for swift_typegen.processor."""
+
+from __future__ import annotations
+
+from typing import Any
+import unittest
+
+from swift_typegen.config import GeneratorConfig
+from swift_typegen.models import SwiftType
+from swift_typegen.processor import (
+    SchemaProcessor,
+    get_primitive_type,
+    strip_enum_prefix,
+)
+
+
+def process(
+    resolved: dict[str, Any],
+    namespace: str = "",
+    config: GeneratorConfig | None = None,
+) -> list[SwiftType]:
+    """Processes schemas with an empty (or given) configuration."""
+    return SchemaProcessor(config or GeneratorConfig()).process(
+        resolved, namespace
+    )
+
+
+class TestSchemaProcessor(unittest.TestCase):
+
+    def test_schema_processor_isolated_context(self):
+        config = GeneratorConfig(
+            excluded_properties={"Candidate": {"groundingMetadata"}},
+            excluded_schemas={"ExcludedType"},
+        )
+        schemas = {
+            "Candidate": {
+                "type": "object",
+                "properties": {
+                    "groundingMetadata": {"type": "string"},
+                    "includedProp": {"type": "string"},
+                    "badRef": {
+                        "$ref": "#/components/schemas/ExcludedType"
+                    },
+                },
+            }
+        }
+        swift_types = process(schemas, config=config)
+        self.assertEqual(len(swift_types), 1)
+        prop_names = [p.swift_name for p in swift_types[0].properties]
+        self.assertEqual(prop_names, ["includedProp"])
+
+    def test_strip_enum_prefix(self):
+        cases = [
+            "MEDIA_RESOLUTION_LOW",
+            "MEDIA_RESOLUTION_MEDIUM",
+            "MEDIA_RESOLUTION_HIGH",
+        ]
+        prefix, filtered = strip_enum_prefix(cases)
+        self.assertEqual(prefix, "MEDIA_RESOLUTION_")
+        self.assertEqual(filtered, cases)
+
+        cases = ["low", "medium", "high"]
+        prefix, filtered = strip_enum_prefix(cases)
+        self.assertEqual(prefix, "")
+        self.assertEqual(filtered, cases)
+
+    def test_dotted_namespace_nesting(self):
+        schema_data = {
+            "type": "object",
+            "properties": {"level": {"type": "string"}},
+        }
+        resolved = {"Part.MediaResolution": schema_data}
+        swift_types = process(resolved, "GeminiDataModels")
+        self.assertEqual(len(swift_types), 1)
+        st = swift_types[0]
+        self.assertEqual(st.name, "MediaResolution")
+        self.assertEqual(st.namespace, "GeminiDataModels.Part")
+        self.assertEqual(st.kind, "struct")
+
+    def test_firebase_flat_namespace_nesting(self):
+        schema_data = {
+            "type": "object",
+            "properties": {"level": {"type": "string"}},
+        }
+        resolved = {
+            "Candidate": {
+                "type": "object",
+                "properties": {"index": {"type": "integer"}},
+            },
+            "Part.MediaResolution": schema_data,
+        }
+        swift_types = process(resolved, "")
+        self.assertEqual(len(swift_types), 2)
+        top_level = next(t for t in swift_types if t.name == "Candidate")
+        self.assertEqual(top_level.namespace, "")
+
+        nested = next(t for t in swift_types if t.name == "MediaResolution")
+        self.assertEqual(nested.namespace, "Part")
+
+    def test_auto_exclusion_of_properties(self):
+        config = GeneratorConfig(excluded_schemas={"DynamicRetrievalConfig"})
+        schema_data = {
+            "type": "object",
+            "properties": {
+                "dynamicRetrievalConfig": {
+                    "$ref": "#/components/schemas/DynamicRetrievalConfig"
+                },
+                "otherProp": {"type": "string"},
+            },
+        }
+        resolved = {"GoogleSearchRetrieval": schema_data}
+        swift_types = process(resolved, "GeminiDataModels", config=config)
+        self.assertEqual(len(swift_types), 1)
+        st = swift_types[0]
+        self.assertEqual(len(st.properties), 1)
+        self.assertEqual(st.properties[0].swift_name, "otherProp")
+
+    def test_standalone_top_level_enum_generation(self):
+        schema_data = {
+            "type": "string",
+            "enum": ["unspecified", "standard", "flex"],
+            "enumDescriptions": ["Default", "Standard", "Flexible"],
+        }
+        resolved = {"ServiceTier": schema_data}
+        swift_types = process(resolved, "GeminiDataModels")
+        self.assertEqual(len(swift_types), 1)
+        st = swift_types[0]
+        self.assertEqual(st.name, "ServiceTier")
+        self.assertEqual(st.kind, "enum")
+        self.assertEqual(len(st.cases), 2)
+        self.assertEqual(st.cases[0].swift_name, "standard")
+        self.assertEqual(st.cases[0].description, "Standard")
+
+    def test_nullable_types_parsing(self):
+        schema_data = {
+            "type": "object",
+            "properties": {"foo": {"type": ["string", "null"]}},
+        }
+        resolved = {"Parent": schema_data}
+        swift_types = process(resolved, "GeminiDataModels")
+        self.assertEqual(len(swift_types), 1)
+        st = swift_types[0]
+        self.assertEqual(len(st.properties), 1)
+        prop = st.properties[0]
+        self.assertEqual(prop.swift_type, "String")
+        self.assertFalse(prop.is_required)
+
+    def test_properties_sorted_alphabetically_in_generated_struct(self):
+        schema_data = {
+            "type": "object",
+            "properties": {
+                "zebra": {"type": "string"},
+                "apple": {"type": "string"},
+                "mango": {"type": "string"},
+            },
+        }
+        resolved = {"Fruits": schema_data}
+        swift_types = process(resolved, "GeminiDataModels")
+        prop_names = [p.swift_name for p in swift_types[0].properties]
+        self.assertEqual(prop_names, ["apple", "mango", "zebra"])
+
+    def test_byte_format_mapping(self):
+        prop_data = {"type": "string", "format": "byte"}
+        self.assertEqual(get_primitive_type(prop_data), "Data")
+
+    def test_property_type_override_replaces_primitive_mapping(self):
+        config = GeneratorConfig(
+            property_type_overrides={"Part.thoughtSignature": "String"}
+        )
+        byte_prop = {"type": "string", "format": "byte"}
+        resolved = {
+            "Part": {
+                "type": "object",
+                "properties": {
+                    "data": byte_prop,
+                    "thoughtSignature": byte_prop,
+                },
+            },
+            "Other": {
+                "type": "object",
+                "properties": {"thoughtSignature": byte_prop},
+            },
+        }
+        swift_types = {t.name: t for t in process(resolved, config=config)}
+        part_types = {p.swift_name: p.swift_type for p in swift_types["Part"].properties}
+        self.assertEqual(part_types, {"data": "Data", "thoughtSignature": "String"})
+        self.assertEqual(swift_types["Other"].properties[0].swift_type, "Data")
+
+    def test_property_enum_becomes_nested_enum(self):
+        resolved = {
+            "SafetySetting": {
+                "type": "object",
+                "properties": {
+                    "threshold": {
+                        "type": "string",
+                        "enum": [
+                            "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
+                            "BLOCK_LOW_AND_ABOVE",
+                            "BLOCK_NONE",
+                        ],
+                        "enumDescriptions": [
+                            "Unspecified.",
+                            "Optional. Block low and above.",
+                            "Block none.",
+                        ],
+                        "enumDeprecated": [False, False, True],
+                    }
+                },
+            }
+        }
+        swift_types = process(resolved)
+        enum_type = next(t for t in swift_types if t.kind == "enum")
+        self.assertEqual(enum_type.name, "Threshold")
+        self.assertEqual(enum_type.namespace, "SafetySetting")
+        # The shared "BLOCK_" prefix (ignoring the UNSPECIFIED sentinel) is
+        # stripped from case names.
+        self.assertEqual(
+            [(c.swift_name, c.raw_value) for c in enum_type.cases],
+            [("lowAndAbove", "BLOCK_LOW_AND_ABOVE"), ("none", "BLOCK_NONE")],
+        )
+        self.assertEqual(enum_type.cases[0].description, "Block low and above.")
+        self.assertEqual(
+            [c.is_deprecated for c in enum_type.cases], [False, True]
+        )
+        struct_type = next(t for t in swift_types if t.kind == "struct")
+        self.assertEqual(struct_type.properties[0].swift_type, "Threshold")
+
+    def test_reference_to_deprecated_schema_marks_property_deprecated(self):
+        resolved = {
+            "Holder": {
+                "type": "object",
+                "properties": {
+                    "single": {"$ref": "#/components/schemas/Old"},
+                    "many": {
+                        "type": "array",
+                        "items": {"$ref": "#/components/schemas/Old"},
+                    },
+                    "current": {"$ref": "#/components/schemas/New"},
+                },
+            },
+            "Old": {"type": "object", "properties": {}, "deprecated": True},
+            "New": {"type": "object", "properties": {}},
+        }
+        holder = next(t for t in process(resolved) if t.name == "Holder")
+        deprecated = {p.swift_name: p.is_deprecated for p in holder.properties}
+        self.assertEqual(
+            deprecated, {"current": False, "many": True, "single": True}
+        )
+
+    def test_excluded_properties(self):
+        config = GeneratorConfig(
+            excluded_properties={"GenerationConfig": {"_responseJsonSchema"}}
+        )
+        schema_data = {
+            "type": "object",
+            "properties": {
+                "_responseJsonSchema": {"description": "internal detail"},
+                "responseJsonSchema": {"description": "actual schema"},
+            },
+        }
+        resolved = {"GenerationConfig": schema_data}
+        swift_types = process(resolved, "", config=config)
+        self.assertEqual(len(swift_types), 1)
+        prop_names = [p.swift_name for p in swift_types[0].properties]
+        self.assertEqual(prop_names, ["responseJSONSchema"])
+
