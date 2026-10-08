@@ -4,6 +4,10 @@
 - [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` when
   Crashlytics subscribes to rollouts, and made Remote Config instance creation
   thread-safe (#16736).
+- [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
+  `entries`, `personalizationMetadata`, `rolloutMetadata`,
+  `experimentDescriptions` or a server `error`) have unexpected JSON types.
+  (#16800)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
