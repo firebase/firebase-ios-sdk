@@ -136,6 +136,81 @@ class TestUpgradeSpec(unittest.TestCase):
             "#/components/schemas/GoogleAiGenerativelanguageV1betaModality",
         )
 
+    def test_extract_standalone_enums_prefers_superset_cases(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaGenerationConfig": {
+                "type": "object",
+                "properties": {
+                    "responseModalities": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "enum": [
+                                "MODALITY_UNSPECIFIED",
+                                "TEXT",
+                                "IMAGE",
+                                "AUDIO",
+                            ],
+                            "enumDescriptions": [
+                                "Unspecified.",
+                                "Text.",
+                                "Image.",
+                                "Audio.",
+                            ],
+                        },
+                    }
+                },
+            },
+            "GoogleAiGenerativelanguageV1betaModalityTokenCount": {
+                "type": "object",
+                "properties": {
+                    "modality": {
+                        "type": "string",
+                        "enum": [
+                            "MODALITY_UNSPECIFIED",
+                            "TEXT",
+                            "IMAGE",
+                            "VIDEO",
+                            "AUDIO",
+                            "DOCUMENT",
+                        ],
+                        "enumDescriptions": [
+                            "Unspecified.",
+                            "Text.",
+                            "Image.",
+                            "Video.",
+                            "Audio.",
+                            "Document.",
+                        ],
+                    }
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas)
+        modality = schemas["GoogleAiGenerativelanguageV1betaModality"]
+        self.assertEqual(
+            modality["enum"],
+            [
+                "MODALITY_UNSPECIFIED",
+                "TEXT",
+                "IMAGE",
+                "VIDEO",
+                "AUDIO",
+                "DOCUMENT",
+            ],
+        )
+        self.assertEqual(
+            modality["enumDescriptions"],
+            [
+                "Unspecified.",
+                "Text.",
+                "Image.",
+                "Video.",
+                "Audio.",
+                "Document.",
+            ],
+        )
+
     def test_upgrade_nullables_string_type(self):
         data = {"type": "string", "nullable": True}
         upgrade_spec.upgrade_nullables(data)

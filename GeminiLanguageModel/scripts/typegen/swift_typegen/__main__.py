@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Allows running the generator with `python -m swift_typegen` from scripts/."""
+"""Allows running the generator with `python -m swift_typegen` from `scripts/typegen/`."""
 
 from .cli import main
 

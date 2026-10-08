@@ -176,18 +176,34 @@ def extract_standalone_enums(schemas: dict[str, Any]) -> None:
                 extracted[enum_schema_name] = enum_schema
             elif enum_schema_name in extracted:
                 existing = extracted[enum_schema_name]
-                if len(target_dict.get("enumDescriptions", [])) > len(
-                    existing.get("enumDescriptions", [])
-                ):
-                    existing["enumDescriptions"] = list(
-                        target_dict["enumDescriptions"]
-                    )
-                if len(target_dict.get("enumDeprecated", [])) > len(
-                    existing.get("enumDeprecated", [])
-                ):
-                    existing["enumDeprecated"] = list(
-                        target_dict["enumDeprecated"]
-                    )
+                existing_cases = existing.get("enum", [])
+                if len(cases) > len(existing_cases):
+                    existing["enum"] = list(cases)
+                    if "enumDescriptions" in target_dict:
+                        existing["enumDescriptions"] = list(
+                            target_dict["enumDescriptions"]
+                        )
+                    else:
+                        existing.pop("enumDescriptions", None)
+                    if "enumDeprecated" in target_dict:
+                        existing["enumDeprecated"] = list(
+                            target_dict["enumDeprecated"]
+                        )
+                    else:
+                        existing.pop("enumDeprecated", None)
+                elif cases == existing_cases:
+                    if len(target_dict.get("enumDescriptions", [])) > len(
+                        existing.get("enumDescriptions", [])
+                    ):
+                        existing["enumDescriptions"] = list(
+                            target_dict["enumDescriptions"]
+                        )
+                    if len(target_dict.get("enumDeprecated", [])) > len(
+                        existing.get("enumDeprecated", [])
+                    ):
+                        existing["enumDeprecated"] = list(
+                            target_dict["enumDeprecated"]
+                        )
 
             prop_desc = p_data.get("description")
             if is_array:
@@ -364,7 +380,7 @@ def main(argv: list[str] | None = None) -> None:
             args.discovery_url,
             headers={"User-Agent": "Firebase-Type-Generator/1.0"},
         )
-        with urllib.request.urlopen(req) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             content = resp.read()
         doc_json = json.loads(content.decode("utf-8"))
         os.makedirs(

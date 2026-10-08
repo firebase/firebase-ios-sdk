@@ -132,19 +132,24 @@ class GeneratorConfig:
             return cls()
         with open(path, "r", encoding="utf-8") as f:
             overrides = yaml.safe_load(f) or {}
-        gen_config = overrides.get("generatorConfig", {})
+        gen_config = overrides.get("generatorConfig") or {}
         return cls(
-            type_overrides=gen_config.get("typeOverrides", {}),
-            property_type_overrides=gen_config.get("propertyTypeOverrides", {}),
-            excluded_schemas=set(gen_config.get("excludedSchemas", [])),
+            type_overrides=gen_config.get("typeOverrides") or {},
+            property_type_overrides=(
+                gen_config.get("propertyTypeOverrides") or {}
+            ),
+            excluded_schemas=set(gen_config.get("excludedSchemas") or []),
             manual_override_schemas=set(
-                gen_config.get("manualOverrideSchemas", [])
+                gen_config.get("manualOverrideSchemas") or []
             ),
-            type_divergences_resolutions=gen_config.get(
-                "typeDivergencesResolutions", {}
+            type_divergences_resolutions=(
+                gen_config.get("typeDivergencesResolutions") or {}
             ),
-            rename_mappings=gen_config.get("renameMappings", {}),
-            excluded_properties=gen_config.get("excludedProperties", {}),
+            rename_mappings=gen_config.get("renameMappings") or {},
+            excluded_properties={
+                k: set(v or [])
+                for k, v in (gen_config.get("excludedProperties") or {}).items()
+            },
             backends=[
                 _parse_backend(entry)
                 for entry in gen_config.get("backends") or []

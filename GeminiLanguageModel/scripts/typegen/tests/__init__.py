@@ -14,13 +14,12 @@
 
 """Unit tests for the swift_typegen package.
 
-These tests import `swift_typegen` from `scripts/`, so `scripts/` must be the
-top-level directory. From the repository root:
+These tests import `swift_typegen` and `upgrade_spec` from `scripts/typegen/`,
+so `scripts/typegen/` must be the top-level directory. From `scripts/typegen/`:
 
-    python -m unittest discover scripts                    # all tests
-    python -m unittest discover -s scripts/tests -t scripts  # generator only
+    python -m unittest discover -s tests -t .
 
-A single module, from `scripts/`:
+A single module, from `scripts/typegen/`:
 
     python -m unittest tests.test_render
 """
