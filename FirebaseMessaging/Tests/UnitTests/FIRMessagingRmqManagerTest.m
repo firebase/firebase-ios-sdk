@@ -31,6 +31,10 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 @interface FIRMessaging (ExposedForRmqTest)
 
 @property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
+- (instancetype)initWithAnalytics:(nullable id)analytics
+                     userDefaults:(nullable id)defaults
+                  heartbeatLogger:(nullable id)heartbeatLogger;
+- (void)setupFileManagerSubDirectory;
 - (void)setupRmqManager;
 
 @end
@@ -183,22 +187,32 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 }
 
 - (void)testSetupRmqManagerDoesNotBlockOnDatabaseQueue {
+  // Ensure setUp's rmqManager has finished opening its database before stubbing the class method.
+  [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
+
+  FIRMessaging *messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                                       userDefaults:nil
+                                                    heartbeatLogger:nil];
+  [messaging setupFileManagerSubDirectory];
+
+  NSString *realPath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2"];
+  [[NSFileManager defaultManager] removeItemAtPath:realPath error:nil];
+
   dispatch_semaphore_t databaseBlockedSemaphore = dispatch_semaphore_create(0);
   dispatch_semaphore_t databaseEnteredSemaphore = dispatch_semaphore_create(0);
   __block BOOL setupReturnedBeforeDatabaseOpened = NO;
   __block BOOL didObserveSetupReturned = NO;
 
-  NSString *realPath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2"];
   id rmqClassMock = OCMClassMock([FIRMessagingRmqManager class]);
-  OCMStub([rmqClassMock pathForDatabaseWithName:@"rmq2"]).andDo(^(NSInvocation *invocation) {
-    dispatch_semaphore_signal(databaseEnteredSemaphore);
-    dispatch_semaphore_wait(databaseBlockedSemaphore,
-                            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
-    didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
-    [invocation setReturnValue:&realPath];
-  });
+  OCMStub([rmqClassMock pathForDatabaseWithName:@"rmq2"])
+      .andDo(^(NSInvocation *invocation) {
+        dispatch_semaphore_signal(databaseEnteredSemaphore);
+        dispatch_semaphore_wait(databaseBlockedSemaphore,
+                                dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
+        didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
+      })
+      .andReturn(realPath);
 
-  FIRMessaging *messaging = [FIRMessaging alloc];
   [messaging setupRmqManager];
   FIRMessagingRmqManager *manager = messaging.rmq2Manager;
   XCTAssertNotNil(manager);
@@ -211,6 +225,8 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   setupReturnedBeforeDatabaseOpened = YES;
   dispatch_semaphore_signal(databaseBlockedSemaphore);
 
+  // Wait for openDatabase to complete before removing the database.
+  [self waitForDrainDatabaseQueueForRmqManager:manager];
   [rmqClassMock stopMocking];
   [manager removeDatabase];
   [self waitForDrainDatabaseQueueForRmqManager:manager];
