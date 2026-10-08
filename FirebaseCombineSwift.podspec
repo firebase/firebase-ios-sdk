@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCombineSwift'
-  s.version          = '13.0.0'
+  s.version          = '13.1.0'
   s.summary          = 'Swift extensions with Combine support for Firebase'
 
   s.description      = <<-DESC
@@ -51,11 +51,11 @@ for internal testing only. It should not be published.
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
 
-  s.dependency 'FirebaseCore', '~> 13.0.0'
-  s.dependency 'FirebaseAuth', '~> 13.0.0'
-  s.dependency 'FirebaseFunctions', '~> 13.0.0'
-  s.dependency 'FirebaseFirestore', '~> 13.0.0'
-  s.dependency 'FirebaseStorage', '~> 13.0.0'
+  s.dependency 'FirebaseCore', '~> 13.1.0'
+  s.dependency 'FirebaseAuth', '~> 13.1.0'
+  s.dependency 'FirebaseFunctions', '~> 13.1.0'
+  s.dependency 'FirebaseFirestore', '~> 13.1.0'
+  s.dependency 'FirebaseStorage', '~> 13.1.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
@@ -105,6 +105,6 @@ for internal testing only. It should not be published.
     int_tests.resources = 'FirebaseStorage/Tests/Integration/Resources/1mb.dat',
                           'FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist',
                           'FirebaseStorage/Tests/Integration/Resources/HomeImprovement.numbers'
-    int_tests.dependency 'FirebaseAuth', '~> 13.0.0'
+    int_tests.dependency 'FirebaseAuth', '~> 13.1.0'
   end
 end
