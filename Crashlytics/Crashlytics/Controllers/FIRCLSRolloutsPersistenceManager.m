@@ -83,14 +83,14 @@
       [rolloutsFile writeData:rolloutsWithNewLineData];
       [rolloutsFile closeFile];
     } @catch (NSException *exception) {
-      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
+      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %@ - message: %@",
                      exception.name, exception.reason);
     }
   });
 }
 
 - (void)debugLogWithMessage:(NSString *_Nonnull)message {
-  FIRCLSDebugLog(message);
+  FIRCLSDebugLog(@"%@", message);
 }
 
 @end
