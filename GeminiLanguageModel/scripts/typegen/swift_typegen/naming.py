@@ -98,7 +98,10 @@ def escape_swift_name(name: str) -> str:
 SWIFT_ACRONYM_PAIRS: list[tuple[str, str]] = [
     ("Uris", "URIs"),
     ("Uri", "URI"),
+    ("Urls", "URLs"),
     ("Url", "URL"),
+    ("Apis", "APIs"),
+    ("Api", "API"),
     ("Json", "JSON"),
     ("Mime", "MIME"),
     ("Id", "ID"),
@@ -108,7 +111,7 @@ SWIFT_ACRONYM_PAIRS: list[tuple[str, str]] = [
 def apply_swift_acronyms(s: str, is_type: bool = False) -> str:
     """Applies Swift API Design Guidelines for acronym casing.
 
-    Acronyms like ID, URI, URL, JSON, and MIME are uniformly uppercase,
+    Acronyms like API, ID, URI, URL, JSON, and MIME are uniformly uppercase,
     except when starting a lowerCamelCase property or method identifier.
 
     Args:

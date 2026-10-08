@@ -67,6 +67,19 @@ class TestNaming(unittest.TestCase):
         self.assertEqual(
             apply_swift_acronyms("responseMimeType", False), "responseMIMEType"
         )
+        self.assertEqual(
+            apply_swift_acronyms("obfuscatedApiKey", False),
+            "obfuscatedAPIKey",
+        )
+        self.assertEqual(apply_swift_acronyms("OpenApi", True), "OpenAPI")
+        self.assertEqual(
+            apply_swift_acronyms("supportedApis", False), "supportedAPIs"
+        )
+        self.assertEqual(
+            apply_swift_acronyms("sourceUrls", False), "sourceURLs"
+        )
+        self.assertEqual(apply_swift_acronyms("apiKey", False), "apiKey")
+        self.assertEqual(apply_swift_acronyms("capital", False), "capital")
         self.assertEqual(apply_swift_acronyms("uri", False), "uri")
         self.assertEqual(apply_swift_acronyms("url", False), "url")
         self.assertEqual(apply_swift_acronyms("id", False), "id")
