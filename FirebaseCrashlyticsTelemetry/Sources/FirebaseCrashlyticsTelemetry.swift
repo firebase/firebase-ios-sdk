@@ -58,7 +58,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     // Initialize the persistence layer and upload the recovered spans.
     Task.detached(priority: .utility) { [weak recoveryManager] in
       if let recoveryManager = recoveryManager {
-        await PersistenceManager.shared.configure(recoveryManager: recoveryManager)
+        PersistenceManager.shared.configure(recoveryManager: recoveryManager)
       }
     }
 
@@ -77,6 +77,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
     // MARK: - Instrumentation
 
+    // TODO: Initialize this on a bg thread as this initialization is really resource intensive.
     urlInstrumentation = URLSessionInstrumentation(
       configuration: URLSessionInstrumentationConfiguration(
         shouldInstrument: filterNetworkRequests,

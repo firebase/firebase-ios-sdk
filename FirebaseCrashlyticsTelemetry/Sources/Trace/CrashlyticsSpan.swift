@@ -27,7 +27,7 @@ import OpenTelemetrySdk
 /// OpenTelemetry.
 class CrashlyticsSpan: ReadableSpan, @unchecked Sendable {
   /// The underlying span that provides the span functionality
-  private let otelSpan: ReadableSpan
+  let otelSpan: ReadableSpan
   /// The span processor to persist the latest state of this span
   private let crashlyticsProcessor: CrashlyticsSpanProcessor
 

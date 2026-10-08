@@ -19,12 +19,31 @@ import XCTest
 @testable import FirebaseCrashlyticsTelemetry
 
 final class CrashlyticsSpanProcessorTests: XCTestCase {
+  private var mockBuffer: MockPersistenceBuffer!
+  private var mockRecoveryManager: MockRecoveryManager!
+  private var persistenceManager: PersistenceManager!
   private var tracerProvider: CrashlyticsTracerProvider!
   private var tracer: Tracer!
 
   override func setUp() {
     super.setUp()
-    tracerProvider = CrashlyticsTracerProviderBuilder().build()
+    PersistenceWrapperFactory.reset()
+    mockBuffer = MockPersistenceBuffer()
+    mockRecoveryManager = MockRecoveryManager()
+    PersistenceWrapperFactory.mockBuffer = mockBuffer
+    PersistenceWrapperFactory.mockRecoveredSpans = []
+
+    let manager = PersistenceManager()
+    let recoveryManager = mockRecoveryManager!
+    let configured = DispatchSemaphore(value: 0)
+    DispatchQueue.global(qos: .userInitiated).async {
+      manager.configure(recoveryManager: recoveryManager)
+      configured.signal()
+    }
+    configured.wait()
+
+    persistenceManager = manager
+    tracerProvider = CrashlyticsTracerProviderBuilder(persistenceManager: manager).build()
     tracer = tracerProvider.get(
       instrumentationName: "CrashlyticsSpanProcessorTests",
       instrumentationVersion: nil,
@@ -35,8 +54,12 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
 
   override func tearDown() {
     AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
+    PersistenceWrapperFactory.reset()
     tracer = nil
     tracerProvider = nil
+    persistenceManager = nil
+    mockRecoveryManager = nil
+    mockBuffer = nil
     super.tearDown()
   }
 
@@ -94,6 +117,52 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
     XCTAssertEqual(
       readableSpan.getAttributes()[SemanticConventions.App.screenName.rawValue],
       .string("HomeScreen")
+    )
+  }
+
+  func test_onStart_persistsSpanSynchronouslyWithoutPreStartSetAttributeCalls() {
+    AttributeStore.setScreenName("CheckoutScreen")
+    let span = tracer
+      .spanBuilder(spanName: "checkout_operation")
+      .setAttribute(key: "custom.init_key", value: .string("init_val"))
+      .startSpan()
+    let spanId = span.context.spanId.rawValue
+
+    // Immediately after startSpan() returns on the calling thread, the span must already be in the
+    // persistence buffer with no pre-start setAttribute calls.
+    XCTAssertEqual(mockBuffer.addedSpans.count, 1)
+    XCTAssertTrue(mockBuffer.setAttributeCalls.isEmpty)
+    XCTAssertEqual(mockBuffer.recordedOperations, [.addSpan(spanId)])
+    XCTAssertEqual(mockBuffer.addedSpans[0].attributes["custom.init_key"], "init_val")
+    XCTAssertEqual(
+      mockBuffer.addedSpans[0].attributes[SemanticConventions.App.screenName.rawValue],
+      "CheckoutScreen"
+    )
+
+    span.end()
+  }
+
+  func test_spanLifecycle_persistsStartSetAttributesAndEndInStrictFIFOOrderSynchronously() {
+    let span = tracer.spanBuilder(spanName: "ordered_span").startSpan()
+    let spanId = span.context.spanId.rawValue
+
+    span.setAttribute(key: "step", value: .string("1"))
+    span.setAttribute(key: "step", value: .string("2"))
+    span.setAttribute(key: "step", value: .string("3"))
+
+    let endDate = Date(timeIntervalSince1970: 1_700_000_000)
+    let expectedEndNano = UInt64(endDate.timeIntervalSince1970 * 1_000_000_000)
+    span.end(time: endDate)
+
+    XCTAssertEqual(
+      mockBuffer.recordedOperations,
+      [
+        .addSpan(spanId),
+        .setAttribute(.init(spanId: spanId, key: "step", value: "1")),
+        .setAttribute(.init(spanId: spanId, key: "step", value: "2")),
+        .setAttribute(.init(spanId: spanId, key: "step", value: "3")),
+        .endSpan(.init(spanId: spanId, endTime: expectedEndNano)),
+      ]
     )
   }
 }

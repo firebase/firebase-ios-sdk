@@ -29,24 +29,38 @@ final class MockPersistenceBuffer: PersistenceBuffer, @unchecked Sendable {
     let endTime: UInt64
   }
 
+  enum Operation: Equatable {
+    case addSpan(UInt64)
+    case setAttribute(SetAttributeCall)
+    case endSpan(EndSpanCall)
+    case removeSpan(UInt64)
+  }
+
   var addedSpans: [PersistenceSpan] = []
   var setAttributeCalls: [SetAttributeCall] = []
   var endSpanCalls: [EndSpanCall] = []
   var removedSpanIds: [UInt64] = []
+  var recordedOperations: [Operation] = []
 
   func add(_ span: PersistenceSpan) {
     addedSpans.append(span)
+    recordedOperations.append(.addSpan(span.spanId))
   }
 
   func setAttribute(_ value: String, forKey key: String, onSpanId spanId: UInt64) {
-    setAttributeCalls.append(.init(spanId: spanId, key: key, value: value))
+    let call = SetAttributeCall(spanId: spanId, key: key, value: value)
+    setAttributeCalls.append(call)
+    recordedOperations.append(.setAttribute(call))
   }
 
   func endSpanId(_ spanId: UInt64, endTime: UInt64) {
-    endSpanCalls.append(.init(spanId: spanId, endTime: endTime))
+    let call = EndSpanCall(spanId: spanId, endTime: endTime)
+    endSpanCalls.append(call)
+    recordedOperations.append(.endSpan(call))
   }
 
   func removeSpanId(_ spanId: UInt64) {
     removedSpanIds.append(spanId)
+    recordedOperations.append(.removeSpan(spanId))
   }
 }
