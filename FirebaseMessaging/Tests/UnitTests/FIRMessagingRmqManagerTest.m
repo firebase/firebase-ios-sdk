@@ -208,7 +208,7 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
       .andDo(^(NSInvocation *invocation) {
         dispatch_semaphore_signal(databaseEnteredSemaphore);
         dispatch_semaphore_wait(databaseBlockedSemaphore,
-                                dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
+                                dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)));
         didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
       })
       .andReturn(realPath);
@@ -220,8 +220,10 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 
   // Wait until openDatabase has started on _databaseOperationQueue, then unblock it after
   // confirming setupRmqManager returned without blocking the calling thread.
-  dispatch_semaphore_wait(databaseEnteredSemaphore,
-                          dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)));
+  intptr_t waitResult = dispatch_semaphore_wait(
+      databaseEnteredSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)));
+  XCTAssertEqual(waitResult, 0,
+                 @"Timed out waiting for database queue to start opening the database");
   setupReturnedBeforeDatabaseOpened = YES;
   dispatch_semaphore_signal(databaseBlockedSemaphore);
 
