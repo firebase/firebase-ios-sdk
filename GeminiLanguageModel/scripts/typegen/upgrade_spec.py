@@ -114,6 +114,62 @@ def normalize_refs(node: Any) -> None:
             normalize_refs(item)
 
 
+def merge_enum_values(
+    existing: dict[str, Any], incoming: dict[str, Any]
+) -> None:
+    """Unions incoming enum cases into an existing enum definition in-place.
+
+    The longer case list provides the base order (so a superset keeps its own
+    order) and cases only in the other list are appended. `enumDescriptions`
+    and `enumDeprecated` stay index-aligned with the merged cases:
+    descriptions prefer the base's non-empty text, and a case is deprecated
+    only if every definition containing it marks it deprecated.
+
+    Args:
+        existing: The enum definition to update.
+        incoming: Another definition of the same enum.
+    """
+    existing_cases = existing.get("enum", [])
+    incoming_cases = incoming.get("enum", [])
+    if len(incoming_cases) > len(existing_cases):
+        sources = [dict(incoming), dict(existing)]
+    else:
+        sources = [dict(existing), dict(incoming)]
+    cases = list(sources[0].get("enum", []))
+    cases += [c for c in sources[1].get("enum", []) if c not in cases]
+
+    def lookup(data: dict[str, Any], key: str, case: str) -> Any:
+        values = data.get(key)
+        data_cases = data.get("enum", [])
+        if not isinstance(values, list) or case not in data_cases:
+            return None
+        idx = data_cases.index(case)
+        return values[idx] if idx < len(values) else None
+
+    existing["enum"] = cases
+    if any("enumDescriptions" in d for d in sources):
+        existing["enumDescriptions"] = [
+            next(
+                (
+                    desc
+                    for d in sources
+                    if (desc := lookup(d, "enumDescriptions", case))
+                ),
+                "",
+            )
+            for case in cases
+        ]
+    if any("enumDeprecated" in d for d in sources):
+        existing["enumDeprecated"] = [
+            all(
+                bool(lookup(d, "enumDeprecated", case))
+                for d in sources
+                if case in d.get("enum", [])
+            )
+            for case in cases
+        ]
+
+
 def extract_standalone_enums(
     schemas: dict[str, Any], prefixes: Sequence[str]
 ) -> None:
@@ -121,7 +177,8 @@ def extract_standalone_enums(
 
     Heuristically identifies inline enums matching STANDALONE_ENUM_RULES,
     converts them into standalone top-level schemas, and updates referring
-    properties and array items to reference them via $ref.
+    properties and array items to reference them via $ref. When several
+    properties match the same rule, their cases are unioned.
 
     Args:
         schemas: Dictionary mapping schema names to schema definitions.
@@ -159,10 +216,22 @@ def extract_standalone_enums(
                 continue
 
             enum_schema_name = rule_matched["name_fn"](prefix)
-            if (
-                enum_schema_name not in extracted
-                and enum_schema_name not in schemas
-            ):
+            existing = extracted.get(enum_schema_name)
+            if existing is None and enum_schema_name in schemas:
+                candidate = schemas[enum_schema_name]
+                if not (
+                    isinstance(candidate, dict)
+                    and isinstance(candidate.get("enum"), list)
+                ):
+                    print(
+                        f"Warning: Standalone enum name '{enum_schema_name}'"
+                        " is already used by a non-enum schema; leaving"
+                        f" '{s_name}.{p_name}' inline."
+                    )
+                    continue
+                existing = candidate
+
+            if existing is None:
                 enum_schema: dict[str, Any] = {
                     "type": "string",
                     "enum": list(cases),
@@ -179,36 +248,8 @@ def extract_standalone_enums(
                         target_dict["enumDeprecated"]
                     )
                 extracted[enum_schema_name] = enum_schema
-            elif enum_schema_name in extracted:
-                existing = extracted[enum_schema_name]
-                existing_cases = existing.get("enum", [])
-                if len(cases) > len(existing_cases):
-                    existing["enum"] = list(cases)
-                    if "enumDescriptions" in target_dict:
-                        existing["enumDescriptions"] = list(
-                            target_dict["enumDescriptions"]
-                        )
-                    else:
-                        existing.pop("enumDescriptions", None)
-                    if "enumDeprecated" in target_dict:
-                        existing["enumDeprecated"] = list(
-                            target_dict["enumDeprecated"]
-                        )
-                    else:
-                        existing.pop("enumDeprecated", None)
-                elif cases == existing_cases:
-                    if len(target_dict.get("enumDescriptions", [])) > len(
-                        existing.get("enumDescriptions", [])
-                    ):
-                        existing["enumDescriptions"] = list(
-                            target_dict["enumDescriptions"]
-                        )
-                    if len(target_dict.get("enumDeprecated", [])) > len(
-                        existing.get("enumDeprecated", [])
-                    ):
-                        existing["enumDeprecated"] = list(
-                            target_dict["enumDeprecated"]
-                        )
+            else:
+                merge_enum_values(existing, target_dict)
 
             prop_desc = p_data.get("description")
             if is_array:

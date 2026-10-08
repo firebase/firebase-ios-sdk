@@ -216,6 +216,68 @@ class TestUpgradeSpec(unittest.TestCase):
             ],
         )
 
+    def test_extract_standalone_enums_unions_non_superset_cases(self):
+        def harm_prop(cases, deprecated):
+            return {
+                "type": "string",
+                "enum": cases,
+                "enumDescriptions": [f"{c}." for c in cases],
+                "enumDeprecated": deprecated,
+            }
+
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaSafetyRating": {
+                "type": "object",
+                "properties": {
+                    "category": harm_prop(
+                        [
+                            "HARM_CATEGORY_A",
+                            "HARM_CATEGORY_B",
+                            "HARM_CATEGORY_C",
+                        ],
+                        [False, True, False],
+                    )
+                },
+            },
+            "GoogleAiGenerativelanguageV1betaSafetySetting": {
+                "type": "object",
+                "properties": {
+                    "category": harm_prop(
+                        [
+                            "HARM_CATEGORY_A",
+                            "HARM_CATEGORY_B",
+                            "HARM_CATEGORY_D",
+                        ],
+                        [False, False, False],
+                    )
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        harm = schemas["GoogleAiGenerativelanguageV1betaHarmCategory"]
+        # Equal-length, non-identical case lists are unioned rather than
+        # dropping the second list's extra case.
+        self.assertEqual(
+            harm["enum"],
+            [
+                "HARM_CATEGORY_A",
+                "HARM_CATEGORY_B",
+                "HARM_CATEGORY_C",
+                "HARM_CATEGORY_D",
+            ],
+        )
+        self.assertEqual(
+            harm["enumDescriptions"],
+            [
+                "HARM_CATEGORY_A.",
+                "HARM_CATEGORY_B.",
+                "HARM_CATEGORY_C.",
+                "HARM_CATEGORY_D.",
+            ],
+        )
+        # B is only deprecated in one of the two definitions.
+        self.assertEqual(harm["enumDeprecated"], [False, False, False, False])
+
     def test_extract_standalone_enums_model_stage(self):
         schemas = {
             "GoogleAiGenerativelanguageV1betaModelStatus": {
@@ -249,6 +311,33 @@ class TestUpgradeSpec(unittest.TestCase):
                 ),
                 "description": "The stage of the underlying model.",
             },
+        )
+
+    def test_extract_standalone_enums_skips_non_enum_name_collision(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaModality": {
+                "type": "object",
+                "properties": {},
+            },
+            "GoogleAiGenerativelanguageV1betaPart": {
+                "type": "object",
+                "properties": {
+                    "modality": {
+                        "type": "string",
+                        "enum": ["MODALITY_UNSPECIFIED", "TEXT"],
+                    }
+                },
+            },
+        }
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        self.assertIn("already used by a non-enum schema", out.getvalue())
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaPart"]["properties"][
+                "modality"
+            ]["enum"],
+            ["MODALITY_UNSPECIFIED", "TEXT"],
         )
 
     def test_extract_standalone_enums_uses_given_prefixes(self):
