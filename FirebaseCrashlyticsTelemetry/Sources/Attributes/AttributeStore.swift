@@ -21,7 +21,7 @@ enum AttributeStore {
   // TODO: Add resource attributes.
   // TODO: Add instrumentation scope attributes.
 
-  private static let screenName = UnfairLock<String>(CrashlyticsView.unknown.name)
+  private static let screenName = UnfairLock<String>(CrashlyticsScreen.unknown.name)
 
   /// Updates the currently active screen name.
   static func setScreenName(_ name: String) {

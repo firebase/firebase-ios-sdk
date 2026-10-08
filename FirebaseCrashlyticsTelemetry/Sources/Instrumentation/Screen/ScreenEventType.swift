@@ -14,18 +14,13 @@
 
 import Foundation
 
-/// Represents a View modified to be tracked by Crashlytics.
-struct CrashlyticsView: Equatable {
-  /// A unique identifier for the instance of the View
-  let id: UUID
-  /// An identifier of the View for human readability
-  let name: String
+/// Denotes the different type of screen events being tracked.
+enum ScreenEventType: Sendable {
+  case appear
+  case disappear
 }
 
-/// Convenience presets
-extension CrashlyticsView {
-  static let unknown = CrashlyticsView(
-    id: UUID(uuid: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-    name: "Unknown"
-  )
+extension Notification.Name {
+  /// Name for the internal screen tracking event notification.
+  static let screenTrackingEvent = Notification.Name("CrashlyticsScreenEvent")
 }

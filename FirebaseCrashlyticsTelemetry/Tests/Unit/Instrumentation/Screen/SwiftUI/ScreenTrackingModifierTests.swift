@@ -18,14 +18,14 @@ import XCTest
 @testable import FirebaseCrashlyticsTelemetry
 
 @MainActor
-final class ViewTrackingModifierTests: XCTestCase {
-  func test_viewTrackingModifier_onAppear_postsAppearNotification() async throws {
+final class ScreenTrackingModifierTests: XCTestCase {
+  func test_screenTrackingModifier_onAppear_postsAppearNotification() async throws {
     let screenName = "HomeScreen"
     let harness = ViewLifecycleHarness(
-      view: Text("Test View").modifier(ViewTrackingModifier(screenName: screenName))
+      view: Text("Test View").modifier(ScreenTrackingModifier(screenName: screenName))
     )
 
-    let event = try await waitForViewEvent(matching: { $0.type == .appear }) {
+    let event = try await waitForScreenEvent(matching: { $0.type == .appear }) {
       harness.appear()
     }
 
@@ -35,17 +35,17 @@ final class ViewTrackingModifierTests: XCTestCase {
     harness.cleanup()
   }
 
-  func test_viewTrackingModifier_onDisappear_postsDisappearNotification() async throws {
+  func test_screenTrackingModifier_onDisappear_postsDisappearNotification() async throws {
     let screenName = "SettingsScreen"
     let harness = ViewLifecycleHarness(
-      view: Text("Test View").modifier(ViewTrackingModifier(screenName: screenName))
+      view: Text("Test View").modifier(ScreenTrackingModifier(screenName: screenName))
     )
 
-    _ = try await waitForViewEvent(matching: { $0.type == .appear }) {
+    _ = try await waitForScreenEvent(matching: { $0.type == .appear }) {
       harness.appear()
     }
 
-    let event = try await waitForViewEvent(matching: { $0.type == .disappear }) {
+    let event = try await waitForScreenEvent(matching: { $0.type == .disappear }) {
       harness.disappear()
     }
 
@@ -55,17 +55,17 @@ final class ViewTrackingModifierTests: XCTestCase {
     harness.cleanup()
   }
 
-  func test_viewTrackingModifier_appearAndDisappear_shareSameInstanceID() async throws {
+  func test_screenTrackingModifier_appearAndDisappear_shareSameInstanceID() async throws {
     let screenName = "DetailScreen"
     let harness = ViewLifecycleHarness(
-      view: Text("Test View").modifier(ViewTrackingModifier(screenName: screenName))
+      view: Text("Test View").modifier(ScreenTrackingModifier(screenName: screenName))
     )
 
-    let appearEvent = try await waitForViewEvent(matching: { $0.type == .appear }) {
+    let appearEvent = try await waitForScreenEvent(matching: { $0.type == .appear }) {
       harness.appear()
     }
 
-    let disappearEvent = try await waitForViewEvent(matching: { $0.type == .disappear }) {
+    let disappearEvent = try await waitForScreenEvent(matching: { $0.type == .disappear }) {
       harness.disappear()
     }
 

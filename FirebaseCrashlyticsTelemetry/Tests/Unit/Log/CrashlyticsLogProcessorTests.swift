@@ -33,7 +33,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
   }
 
   override func tearDown() {
-    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
+    AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
     logger = nil
     loggerProvider = nil
     processor = nil
@@ -53,7 +53,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(records[0].eventName, "custom.event")
     XCTAssertEqual(
       records[0].attributes[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
   }
 
@@ -71,7 +71,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(records.count, 1)
     XCTAssertEqual(
       records[0].attributes[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
   }
 
@@ -90,7 +90,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     )
     XCTAssertEqual(
       record.attributes[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
   }
 

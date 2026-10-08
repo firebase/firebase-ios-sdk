@@ -14,8 +14,8 @@
 
 import SwiftUI
 
-/// A view modifier that posts notifications when a view appears or disappears.
-struct ViewTrackingModifier: ViewModifier {
+/// A view modifier that posts notifications when a screen appears or disappears.
+struct ScreenTrackingModifier: ViewModifier {
   @State private var instanceID = UUID()
   let screenName: String
 
@@ -23,22 +23,22 @@ struct ViewTrackingModifier: ViewModifier {
     content
       .onAppear {
         NotificationCenter.default.post(
-          name: .viewTrackingEvent,
+          name: .screenTrackingEvent,
           object: nil,
           userInfo: [
             "screenName": screenName,
-            "type": ViewEventType.appear,
+            "type": ScreenEventType.appear,
             "id": instanceID,
           ]
         )
       }
       .onDisappear {
         NotificationCenter.default.post(
-          name: .viewTrackingEvent,
+          name: .screenTrackingEvent,
           object: nil,
           userInfo: [
             "screenName": screenName,
-            "type": ViewEventType.disappear,
+            "type": ScreenEventType.disappear,
             "id": instanceID,
           ]
         )

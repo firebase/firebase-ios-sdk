@@ -19,14 +19,14 @@ import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry
 
-final class ViewInstrumentationTests: XCTestCase {
+final class ScreenInstrumentationTests: XCTestCase {
   private var mockLogger: MockLogger!
-  private var instrumentation: ViewInstrumentation!
+  private var instrumentation: ScreenInstrumentation!
 
   override func setUp() async throws {
     try super.setUpWithError()
     mockLogger = MockLogger()
-    instrumentation = ViewInstrumentation(logger: mockLogger.logger)
+    instrumentation = ScreenInstrumentation(logger: mockLogger.logger)
     // Buffer for listening task to be set up
     try await Task.sleep(nanoseconds: 10_000_000)
   }
@@ -39,21 +39,21 @@ final class ViewInstrumentationTests: XCTestCase {
 
   // MARK: - Initial State
 
-  func test_initialState_activeViewIsUnknownAndNoLogsEmitted() async {
-    let active = await instrumentation.activeView
+  func test_initialState_activeScreenIsUnknownAndNoLogsEmitted() async {
+    let active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "Unknown")
     XCTAssertEqual(mockLogger.exportedLogs().count, 0)
   }
 
   // MARK: - Single Screen Transitions
 
-  func test_singleViewAppear_updatesActiveViewAndEmitsLog() async throws {
+  func test_singleScreenAppear_updatesActiveScreenAndEmitsLog() async throws {
     let homeID = UUID()
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
 
     let records = try await mockLogger.waitForLogCount(1)
 
-    let active = await instrumentation.activeView
+    let active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "HomeScreen")
     XCTAssertEqual(active.id, homeID)
 
@@ -66,16 +66,16 @@ final class ViewInstrumentationTests: XCTestCase {
     )
   }
 
-  func test_singleViewDisappear_resetsActiveViewToUnknownAndEmitsLog() async throws {
+  func test_singleScreenDisappear_resetsActiveScreenToUnknownAndEmitsLog() async throws {
     let homeID = UUID()
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
     _ = try await mockLogger.waitForLogCount(1)
 
     // Trigger disappear
-    postViewEvent(id: homeID, name: "HomeScreen", type: .disappear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .disappear)
     let records = try await mockLogger.waitForLogCount(2)
 
-    let active = await instrumentation.activeView
+    let active = await instrumentation.activeScreen
 
     XCTAssertEqual(active.name, "Unknown")
     XCTAssertEqual(
@@ -91,56 +91,59 @@ final class ViewInstrumentationTests: XCTestCase {
     let settingsID = UUID()
 
     // 1. Home appears
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
     _ = try await mockLogger.waitForLogCount(1)
 
     // 2. Settings appears on top
-    postViewEvent(id: settingsID, name: "SettingsScreen", type: .appear)
+    postScreenEvent(id: settingsID, name: "SettingsScreen", type: .appear)
     let recordsAfterPush = try await mockLogger.waitForLogCount(2)
+    _ = recordsAfterPush
 
-    var active = await instrumentation.activeView
+    var active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "SettingsScreen")
 
     // 3. Settings disappears (pop back to Home)
-    postViewEvent(id: settingsID, name: "SettingsScreen", type: .disappear)
+    postScreenEvent(id: settingsID, name: "SettingsScreen", type: .disappear)
     let recordsAfterPop = try await mockLogger.waitForLogCount(3)
+    _ = recordsAfterPop
 
-    active = await instrumentation.activeView
+    active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "HomeScreen")
   }
 
-  func test_stackUnwind_popToExistingView_truncatesStack() async throws {
-    let viewAID = UUID()
-    let viewBID = UUID()
-    let viewCID = UUID()
+  func test_stackUnwind_popToExistingScreen_truncatesStack() async throws {
+    let screenAID = UUID()
+    let screenBID = UUID()
+    let screenCID = UUID()
 
     // Push A -> B -> C
-    postViewEvent(id: viewAID, name: "ViewA", type: .appear)
-    postViewEvent(id: viewBID, name: "ViewB", type: .appear)
-    postViewEvent(id: viewCID, name: "ViewC", type: .appear)
+    postScreenEvent(id: screenAID, name: "ScreenA", type: .appear)
+    postScreenEvent(id: screenBID, name: "ScreenB", type: .appear)
+    postScreenEvent(id: screenCID, name: "ScreenC", type: .appear)
 
-    _ = try await mockLogger.waitForLogCount(1) // intermediate views coalesced to ViewC
+    _ = try await mockLogger.waitForLogCount(1) // intermediate screens coalesced to ScreenC
 
-    var active = await instrumentation.activeView
-    XCTAssertEqual(active.name, "ViewC")
+    var active = await instrumentation.activeScreen
+    XCTAssertEqual(active.name, "ScreenC")
 
-    // Unwind back to ViewA directly (pop-to-root)
-    postViewEvent(id: viewAID, name: "ViewA", type: .appear)
+    // Unwind back to ScreenA directly (pop-to-root)
+    postScreenEvent(id: screenAID, name: "ScreenA", type: .appear)
 
     let records = try await mockLogger.waitForLogCount(2)
-    active = await instrumentation.activeView
+    _ = records
+    active = await instrumentation.activeScreen
 
-    XCTAssertEqual(active.name, "ViewA")
+    XCTAssertEqual(active.name, "ScreenA")
   }
 
-  func test_disappearNonExistentView_doesNotAffectStack() async throws {
+  func test_disappearNonExistentScreen_doesNotAffectStack() async throws {
     let homeID = UUID()
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
     _ = try await mockLogger.waitForLogCount(1)
 
-    postViewEvent(id: UUID(), name: "PhantomScreen", type: .disappear)
+    postScreenEvent(id: UUID(), name: "PhantomScreen", type: .disappear)
 
-    let active = await instrumentation.activeView
+    let active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "HomeScreen")
   }
 
@@ -152,14 +155,14 @@ final class ViewInstrumentationTests: XCTestCase {
     let id3 = UUID()
 
     // 3 events posted in rapid succession (< 50ms)
-    postViewEvent(id: id1, name: "Screen1", type: .appear)
-    postViewEvent(id: id2, name: "Screen2", type: .appear)
-    postViewEvent(id: id3, name: "Screen3", type: .appear)
+    postScreenEvent(id: id1, name: "Screen1", type: .appear)
+    postScreenEvent(id: id2, name: "Screen2", type: .appear)
+    postScreenEvent(id: id3, name: "Screen3", type: .appear)
 
     let records = try await mockLogger.waitForLogCount(1)
     XCTAssertEqual(records.count, 1)
 
-    let active = await instrumentation.activeView
+    let active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "Screen3")
   }
 
@@ -167,48 +170,48 @@ final class ViewInstrumentationTests: XCTestCase {
     let homeID = UUID()
     let modalID = UUID()
 
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
     _ = try await mockLogger.waitForLogCount(1)
 
     // Modal appears and immediately disappears within 10ms
-    postViewEvent(id: modalID, name: "ModalScreen", type: .appear)
+    postScreenEvent(id: modalID, name: "ModalScreen", type: .appear)
     try await Task.sleep(nanoseconds: 10_000_000)
-    postViewEvent(id: modalID, name: "ModalScreen", type: .disappear)
+    postScreenEvent(id: modalID, name: "ModalScreen", type: .disappear)
 
     // Wait out the debounce period
     try await Task.sleep(nanoseconds: 50_000_000)
     XCTAssertEqual(mockLogger.exportedLogs().count, 1)
 
-    let active = await instrumentation.activeView
+    let active = await instrumentation.activeScreen
     XCTAssertEqual(active.name, "HomeScreen")
   }
 
-  func test_deduplication_sameViewDoesNotEmitDuplicateLog() async throws {
+  func test_deduplication_sameScreenDoesNotEmitDuplicateLog() async throws {
     let homeID = UUID()
 
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
     _ = try await mockLogger.waitForLogCount(1)
 
     // Post identical appear event after settling
-    postViewEvent(id: homeID, name: "HomeScreen", type: .appear)
+    postScreenEvent(id: homeID, name: "HomeScreen", type: .appear)
 
     XCTAssertEqual(mockLogger.exportedLogs().count, 1)
   }
 
   // MARK: - onChange Callback
 
-  func test_onChangeCallback_isInvokedWhenSettledViewChanges() async throws {
-    let expectation = expectation(description: "onChange called for HomeScreen")
+  func test_onChangeCallback_isInvokedWhenSettledScreenChanges() async throws {
+    let expectation = expectation(description: "onChange called for CallbackScreen")
     let localLogger = MockLogger()
-    let customInstrumentation = ViewInstrumentation(logger: localLogger.logger) { viewName in
-      if viewName == "CallbackScreen" {
+    let customInstrumentation = ScreenInstrumentation(logger: localLogger.logger) { screenName in
+      if screenName == "CallbackScreen" {
         expectation.fulfill()
       }
     }
     _ = customInstrumentation
     try await Task.sleep(nanoseconds: 10_000_000)
 
-    postViewEvent(id: UUID(), name: "CallbackScreen", type: .appear)
+    postScreenEvent(id: UUID(), name: "CallbackScreen", type: .appear)
     await fulfillment(of: [expectation], timeout: 2.0)
   }
 
@@ -218,25 +221,27 @@ final class ViewInstrumentationTests: XCTestCase {
   func test_endToEnd_withViewLifecycleHarness() async throws {
     let screenName = "DashboardView"
     let harness = ViewLifecycleHarness(
-      view: Text("Telemetry Test").modifier(ViewTrackingModifier(screenName: screenName))
+      view: Text("Telemetry Test").modifier(ScreenTrackingModifier(screenName: screenName))
     )
 
     // 1. Appear
     harness.appear()
     let appearRecords = try await mockLogger.waitForLogCount(1)
+    _ = appearRecords
 
     // 2. Disappear
     harness.disappear()
     let disappearRecords = try await mockLogger.waitForLogCount(2)
+    _ = disappearRecords
 
     harness.cleanup()
   }
 
   // MARK: - Private Helpers
 
-  private func postViewEvent(id: UUID, name: String, type: ViewEventType) {
+  private func postScreenEvent(id: UUID, name: String, type: ScreenEventType) {
     NotificationCenter.default.post(
-      name: .viewTrackingEvent,
+      name: .screenTrackingEvent,
       object: nil,
       userInfo: [
         "id": id,

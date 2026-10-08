@@ -19,7 +19,7 @@ import XCTest
 
 final class AttributeStoreTests: XCTestCase {
   override func tearDown() {
-    AttributeStore.setScreenName(CrashlyticsView.unknown.name)
+    AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
     super.tearDown()
   }
 
@@ -28,7 +28,7 @@ final class AttributeStoreTests: XCTestCase {
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
     XCTAssertEqual(
       attributes["gcp.firebase.app_version"],
@@ -41,7 +41,7 @@ final class AttributeStoreTests: XCTestCase {
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
-      .string(CrashlyticsView.unknown.name)
+      .string(CrashlyticsScreen.unknown.name)
     )
   }
 

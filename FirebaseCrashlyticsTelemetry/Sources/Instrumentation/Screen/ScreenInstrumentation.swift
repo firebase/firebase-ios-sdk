@@ -15,15 +15,15 @@
 import Foundation
 import OpenTelemetryApi
 
-/// Instruments SwiftUI `Views` and reports when the active view changes.
+/// Instruments SwiftUI `Views` and reports when the active screen changes.
 ///
-/// Listens for view appear and disappear notifications on a background thread. Processes
+/// Listens for screen appear and disappear notifications on a background thread. Processes
 /// the notifications in order to track and report the currently active screen.
-final actor ViewInstrumentation {
+final actor ScreenInstrumentation {
   private var logger: Logger
   private var onChange: (@Sendable (String) -> Void)?
-  private var viewStack: [CrashlyticsView] = []
-  private var lastReportedView: CrashlyticsView?
+  private var screenStack: [CrashlyticsScreen] = []
+  private var lastReportedScreen: CrashlyticsScreen?
   private var reportingTask: Task<Void, Never>?
 
   public init(logger: Logger, onChange: (@Sendable (String) -> Void)? = nil) {
@@ -32,61 +32,61 @@ final actor ViewInstrumentation {
     configure()
   }
 
-  /// Returns the currently active view, defaults to unknown if the view stack is empty.
-  public var activeView: CrashlyticsView {
-    if let view = viewStack.last {
-      return view
+  /// Returns the currently active screen, defaults to unknown if the screen stack is empty.
+  public var activeScreen: CrashlyticsScreen {
+    if let screen = screenStack.last {
+      return screen
     } else {
-      return CrashlyticsView.unknown
+      return CrashlyticsScreen.unknown
     }
   }
 
-  /// Configures the ViewInstrumentation to listen for view events.
+  /// Configures the ScreenInstrumentation to listen for screen events.
   ///
   /// Spawns a background thread which processes an async stream of notifications in order.
-  /// Calls the `handleViewEvent` on the actor thread when a view event notification
+  /// Calls the `handleScreenEvent` on the actor thread when a screen event notification
   /// is received.
   private nonisolated func configure() {
     Task(priority: .utility) {
-      let stream = NotificationCenter.default.notifications(named: .viewTrackingEvent)
+      let stream = NotificationCenter.default.notifications(named: .screenTrackingEvent)
       for await notification in stream {
         guard let id = notification.userInfo?["id"] as? UUID,
               let screenName = notification.userInfo?["screenName"] as? String,
-              let type = notification.userInfo?["type"] as? ViewEventType
+              let type = notification.userInfo?["type"] as? ScreenEventType
         else { continue }
 
-        await handleViewEvent(
-          view: CrashlyticsView(id: id, name: screenName),
+        await handleScreenEvent(
+          screen: CrashlyticsScreen(id: id, name: screenName),
           type: type
         )
       }
     }
   }
 
-  /// Handles a view event to update the screen stack and report the currently active screen.
+  /// Handles a screen event to update the screen stack and report the currently active screen.
   ///
   /// - Parameters:
-  ///   - view: The Screen metadata being updated.
+  ///   - screen: The Screen metadata being updated.
   ///   - type: Whether the screen appeared or disappeared.
-  private func handleViewEvent(view: CrashlyticsView, type: ViewEventType) {
+  private func handleScreenEvent(screen: CrashlyticsScreen, type: ScreenEventType) {
     switch type {
     case .appear:
-      if let existingIndex = viewStack.firstIndex(of: view) {
-        viewStack = Array(viewStack[...existingIndex])
+      if let existingIndex = screenStack.firstIndex(of: screen) {
+        screenStack = Array(screenStack[...existingIndex])
       } else {
-        viewStack.append(view)
+        screenStack.append(screen)
       }
       scheduleReporting()
 
     case .disappear:
-      if let index = viewStack.lastIndex(of: view) {
-        viewStack.remove(at: index)
+      if let index = screenStack.lastIndex(of: screen) {
+        screenStack.remove(at: index)
         scheduleReporting()
       }
     }
   }
 
-  /// Coalesces rapid sequential view events to only report the final settled active screen.
+  /// Coalesces rapid sequential screen events to only report the final settled active screen.
   private func scheduleReporting() {
     reportingTask?.cancel()
     reportingTask = Task {
@@ -94,10 +94,10 @@ final actor ViewInstrumentation {
         try await Task.sleep(nanoseconds: 50_000_000) // 50ms
         guard !Task.isCancelled else { return }
 
-        let view = activeView
-        if view != lastReportedView {
-          reportActiveView(view)
-          lastReportedView = view
+        let screen = activeScreen
+        if screen != lastReportedScreen {
+          reportActiveScreen(screen)
+          lastReportedScreen = screen
         }
       } catch {
         // Catch cancellation/sleep errors silently
@@ -105,12 +105,12 @@ final actor ViewInstrumentation {
     }
   }
 
-  /// Reports the currently active View.
-  private func reportActiveView(_ view: CrashlyticsView) {
-    onChange?(view.name)
+  /// Reports the currently active Screen.
+  private func reportActiveScreen(_ screen: CrashlyticsScreen) {
+    onChange?(screen.name)
 
     let attributes: [String: AttributeValue] = [
-      SemanticConventions.App.navigationDestination: AttributeValue(view.name),
+      SemanticConventions.App.navigationDestination: AttributeValue(screen.name),
     ]
 
     logger
