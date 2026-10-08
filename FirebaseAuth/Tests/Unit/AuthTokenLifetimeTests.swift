@@ -45,9 +45,9 @@ class AuthTokenLifetimeTests: XCTestCase {
   private let lifetimes: [(expiresIn: String, expected: TimeInterval)] = [
     // Lifetimes in (0, 24 h] are used, parsed as before.
     ("3600", 3600),
-    ("3599.5", 3599.5),
-    (" 3600", 3600),
-    ("+3600", 3600),
+    ("1799.5", 1799.5),
+    (" 1800", 1800),
+    ("+1800", 1800),
     ("300", 300),
     ("120", 120),
     ("86400", 86400),
