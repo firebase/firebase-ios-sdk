@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Config for speech generation and transcription.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1SpeechConfig`
 ///
@@ -34,7 +34,7 @@ package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// The configuration in case of single-voice output.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The configuration for the voice to use.
   package let voiceConfig: VoiceConfig?
@@ -46,7 +46,7 @@ package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
   /// Optional. The configuration for the multi-speaker setup.
   /// It is mutually exclusive with the voice_config field.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The configuration for a multi-speaker text-to-speech request.
   /// This field is mutually exclusive with `voice_config`.
@@ -66,7 +66,7 @@ package struct SpeechConfig: Codable, Sendable, Equatable, Hashable {
   /// `ta-IN`, `te-IN`, `nl-NL`, `ko-KR`, `cmn-CN`, `pl-PL`, `ru-RU`, and
   /// `th-TH`.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The language code (ISO 639-1) for the speech synthesis.
   package let languageCode: String?

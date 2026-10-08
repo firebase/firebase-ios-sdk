@@ -22,7 +22,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
   var urlSession: URLSession!
   var model: TemplateGenerativeModel!
   let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
-  let apiConfig = FirebaseAI.defaultEnterpriseAPIConfig
+  let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
   override func setUp() {
     super.setUp()
@@ -160,7 +160,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     XCTAssertEqual(firstChunk.placeID, "places/ChIJqdNaaBVbwokRLTafYrQlZI8")
   }
 
-  func testGenerateContent_success_mapsGrounding_enterprise() async throws {
+  func testGenerateContent_success_mapsGrounding_agentPlatform() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-google-maps-grounding",
       withExtension: "json",
@@ -174,7 +174,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
     )
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
-      apiConfig: FirebaseAI.defaultEnterpriseAPIConfig,
+      apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
@@ -271,5 +271,155 @@ final class TemplateGenerativeModelTests: XCTestCase {
     let body = try await captureRequestBody(tools: [])
 
     XCTAssertNil(body["tools"])
+  }
+
+  // MARK: - Unexpected Server Responses
+
+  // The template (model, prompt, schema and config) lives on the server, so the SDK must tolerate
+  // any response shape: unexpected-but-valid data should decode, and malformed data should surface
+  // as a thrown error rather than a crash.
+
+  func testGenerateContent_unrecognizedValues_decodes() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(body: """
+    {
+      "candidates": [{
+        "content": {
+          "role": "model",
+          "parts": [{"text": "Hello"}, {"futurePartType": {"key": "value"}}]
+        },
+        "finishReason": "FUTURE_FINISH_REASON",
+        "safetyRatings": [{
+          "category": "HARM_CATEGORY_FUTURE",
+          "probability": "FUTURE_PROBABILITY"
+        }]
+      }],
+      "promptFeedback": {"blockReason": "FUTURE_BLOCK_REASON"},
+      "usageMetadata": {
+        "promptTokenCount": -1,
+        "promptTokensDetails": [{"modality": "FUTURE_MODALITY", "tokenCount": 1}]
+      },
+      "futureTopLevelField": {"key": "value"}
+    }
+    """)
+
+    let response = try await model.generateContent(templateID: "test-template")
+
+    let candidate = try XCTUnwrap(response.candidates.first)
+    XCTAssertEqual(candidate.content.parts.count, 1)
+    XCTAssertEqual(response.text, "Hello")
+    XCTAssertEqual(candidate.finishReason?.rawValue, "FUTURE_FINISH_REASON")
+    XCTAssertEqual(candidate.safetyRatings.first?.category.rawValue, "HARM_CATEGORY_FUTURE")
+    XCTAssertEqual(response.promptFeedback?.blockReason?.rawValue, "FUTURE_BLOCK_REASON")
+    let usageMetadata = try XCTUnwrap(response.usageMetadata)
+    XCTAssertEqual(usageMetadata.promptTokenCount, -1)
+    XCTAssertEqual(usageMetadata.promptTokensDetails.first?.modality.rawValue, "FUTURE_MODALITY")
+  }
+
+  func testGenerateContent_noCandidateContent_decodes() async throws {
+    for body in [
+      #"{"candidates": []}"#,
+      #"{"candidates": [{}]}"#,
+      #"{"candidates": [{"content": {}}]}"#,
+      #"{"candidates": [{"content": {"parts": [{}]}}]}"#,
+      #"{"usageMetadata": {}}"#,
+    ] {
+      MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(body: body)
+
+      let response = try await model.generateContent(templateID: "test-template")
+
+      XCTAssertNil(response.text, "Unexpected text for response: \(body)")
+      XCTAssertNil(response.thoughtSummary)
+      XCTAssertTrue(response.functionCalls.isEmpty)
+      XCTAssertTrue(response.inlineDataParts.isEmpty)
+    }
+  }
+
+  func testGenerateContent_malformedResponse_throws() async throws {
+    for body in [
+      "",
+      "not json",
+      "[]",
+      "{}",
+      #"{"candidates": "#,
+      #"{"candidates": "not an array"}"#,
+      #"{"candidates": [{"content": {"parts": "not an array"}}]}"#,
+      #"{"candidates": [{"content": {"parts": [{"text": 123}]}}]}"#,
+      #"{"candidates": [{"finishReason": 1}]}"#,
+      #"{"usageMetadata": {"totalTokenCount": 99999999999999999999999}}"#,
+      #"{"usageMetadata": {"totalTokenCount": 1.5}}"#,
+    ] {
+      MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(body: body)
+
+      do {
+        let response = try await model.generateContent(templateID: "test-template")
+        XCTFail("Expected an error for response \(body); got \(response)")
+      } catch {
+        // Expected: malformed responses surface as thrown errors.
+      }
+    }
+  }
+
+  func testGenerateContent_malformedErrorResponse_throws() async throws {
+    for body in ["", "not json", #"{"error": "not an object"}"#, #"{"error": {"code": "#] {
+      MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+        body: body,
+        statusCode: 500
+      )
+
+      do {
+        let response = try await model.generateContent(templateID: "test-template")
+        XCTFail("Expected an error for response \(body); got \(response)")
+      } catch {
+        // Expected: malformed error responses surface as thrown errors.
+      }
+    }
+  }
+
+  func testGenerateContentStream_malformedLine_throwsAfterValidChunks() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(body: """
+    data: {"candidates": [{"content": {"role": "model", "parts": [{"text": "Hello"}]}}]}
+
+    data: {"candidates": [{"content": {"role": "model", "parts": [{"futurePartType": {}}]}}]}
+
+    data:
+
+    data: {"candidates": [{"content": {"role": "model", "parts": [{"text": "partial"
+    """)
+
+    let stream = try model.generateContentStream(templateID: "test-template")
+
+    var responses = [GenerateContentResponse]()
+    do {
+      for try await response in stream {
+        responses.append(response)
+      }
+      XCTFail("Expected an error for the malformed stream.")
+    } catch {
+      // Expected: the empty `data:` line is not valid JSON.
+    }
+    XCTAssertEqual(responses.count, 2)
+    XCTAssertEqual(responses.first?.text, "Hello")
+    XCTAssertEqual(responses.last?.candidates.first?.content.parts.count, 0)
+  }
+
+  func testGenerateContentStream_nonSSEResponse_throws() async throws {
+    for body in ["", "<html>Not SSE</html>", "data", "{\"candidates\": []}"] {
+      MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(body: body)
+
+      let stream = try model.generateContentStream(templateID: "test-template")
+
+      var responses = [GenerateContentResponse]()
+      do {
+        for try await response in stream {
+          responses.append(response)
+        }
+        if !body.isEmpty {
+          XCTFail("Expected an error for stream response \(body).")
+        }
+      } catch {
+        // Expected: lines without a `data:` prefix surface as an error.
+      }
+      XCTAssertTrue(responses.isEmpty)
+    }
   }
 }

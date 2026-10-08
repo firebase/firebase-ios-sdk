@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Configuration for image output format.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1ImageResponseFormat`
 ///
@@ -37,7 +37,7 @@ package struct ImageResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The delivery mode for the image output.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Delivery mode for the generated content.
   package let delivery: Delivery?

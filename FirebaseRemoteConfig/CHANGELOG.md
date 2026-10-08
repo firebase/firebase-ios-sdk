@@ -4,6 +4,10 @@
 - [fixed] Improved robustness when parsing malformed fetch responses, realtime
   stream messages, and persisted config data, including personalization,
   rollout, and experiment metadata. (#16728)
+- [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
+  `entries`, `personalizationMetadata`, `rolloutMetadata`,
+  `experimentDescriptions` or a server `error`) have unexpected JSON types.
+  (#16800)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
