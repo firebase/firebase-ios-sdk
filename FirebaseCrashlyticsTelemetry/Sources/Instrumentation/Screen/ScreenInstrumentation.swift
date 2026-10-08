@@ -110,12 +110,12 @@ final actor ScreenInstrumentation {
     onChange?(screen.name)
 
     let attributes: [String: AttributeValue] = [
-      SemanticConventions.App.navigationDestination: AttributeValue(screen.name),
+      SemanticConventions.App.crashlyticsNavigationDestination: AttributeValue(screen.name),
     ]
 
     logger
       .logRecordBuilder()
-      .setEventName(SemanticConventions.App.navigationEvent)
+      .setEventName(SemanticConventions.App.crashlyticsNavigationEvent)
       .setSeverity(.info)
       .setAttributes(attributes)
       .emit()

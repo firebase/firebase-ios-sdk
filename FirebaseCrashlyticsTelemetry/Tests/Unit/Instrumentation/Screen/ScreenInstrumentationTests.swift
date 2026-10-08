@@ -58,10 +58,10 @@ final class ScreenInstrumentationTests: XCTestCase {
     XCTAssertEqual(active.id, homeID)
 
     let first = records[0]
-    XCTAssertEqual(first.eventName, SemanticConventions.App.navigationEvent)
+    XCTAssertEqual(first.eventName, SemanticConventions.App.crashlyticsNavigationEvent)
     XCTAssertEqual(first.severity, .info)
     XCTAssertEqual(
-      first.attributes[SemanticConventions.App.navigationDestination]?.description,
+      first.attributes[SemanticConventions.App.crashlyticsNavigationDestination]?.description,
       "HomeScreen"
     )
   }
@@ -79,7 +79,8 @@ final class ScreenInstrumentationTests: XCTestCase {
 
     XCTAssertEqual(active.name, "Unknown")
     XCTAssertEqual(
-      records.last?.attributes[SemanticConventions.App.navigationDestination]?.description,
+      records.last?
+        .attributes[SemanticConventions.App.crashlyticsNavigationDestination]?.description,
       "Unknown"
     )
   }
