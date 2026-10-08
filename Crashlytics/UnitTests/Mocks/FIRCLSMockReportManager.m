@@ -46,7 +46,6 @@
 - (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
   self.beginSettingsCallCount += 1;
   self.beginSettingsCalledOnMainThread = [NSThread isMainThread];
-  [super beginSettingsWithToken:token];
 }
 
 @end
