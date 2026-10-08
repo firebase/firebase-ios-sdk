@@ -44,9 +44,9 @@ class CrashlyticsTracerProviderBuilder {
   ///
   /// This initializer sets up the underlying OpenTelemetry builder and instantiates the
   /// `CrashlyticsSpanProcessor` with its required exporter to ensure persistence tracking is ready.
-  public init() {
+  public init(persistenceManager: PersistenceManager = .shared) {
     otelTracerProviderBuilder = TracerProviderBuilder()
-    crashlyticsProcessor = CrashlyticsSpanProcessor()
+    crashlyticsProcessor = CrashlyticsSpanProcessor(persistenceManager: persistenceManager)
   }
 
   public func build() -> CrashlyticsTracerProvider {

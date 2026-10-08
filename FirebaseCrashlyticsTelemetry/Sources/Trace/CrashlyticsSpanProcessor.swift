@@ -24,26 +24,28 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   let isStartRequired = true
   let isEndRequired = true
 
+  private let persistenceManager: PersistenceManager
+
   /// Initializes a new Crashlytics span processor.
-  public init() {}
+  public init(persistenceManager: PersistenceManager = .shared) {
+    self.persistenceManager = persistenceManager
+  }
 
   /// Called when a span begins its lifecycle.
   ///
-  /// This method converts a custom `CrashlyticsSpan` to standard span data and asynchronously
-  /// writes
+  /// This method converts a custom `CrashlyticsSpan` to standard span data and writes
   /// it to the persistence layer.
   ///
   /// - Parameters:
   ///   - parentContext: The context of the parent span, if any.
   ///   - span: The newly started readable span.
   func onStart(parentContext: SpanContext?, span: ReadableSpan) {
+    let targetSpan = (span as? CrashlyticsSpan)?.otelSpan ?? span
     let commonAttributes = AttributeStore.commonSpanAttributes()
-    span.setAttributes(commonAttributes)
+    targetSpan.setAttributes(commonAttributes)
 
-    let spanData = span.toSpanData()
-    Task {
-      await PersistenceManager.shared.onSpanStart(span: spanData)
-    }
+    let spanData = targetSpan.toSpanData()
+    persistenceManager.onSpanStart(span: spanData)
   }
 
   // TODO: Add hook for on name change.
@@ -62,30 +64,24 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   ///   - key: The key of the added attribute.
   ///   - value: The value of the added attribute.
   func onAddAttribute(span: ReadableSpan, key: String, value: AttributeValue?) {
-    Task {
-      await PersistenceManager.shared.onSpanAddAttribute(
-        spanId: span.context.spanId.rawValue, key: key, value: value?.description
-      )
-    }
+    persistenceManager.onSpanAddAttribute(
+      spanId: span.context.spanId.rawValue, key: key, value: value?.description
+    )
   }
 
   /// Called when a span completes its lifecycle.
   ///
-  /// This method exports the finalized span data. If the export succeeds, it asynchronously
-  /// instructs
-  /// the persistence layer to free the span's allocated memory slot in the in-flight disk buffer.
+  /// This method instructs the persistence layer to finalize the span in the in-flight disk buffer.
   ///
   /// - Parameter span: The completed readable span.
   func onEnd(span: ReadableSpan) {
     let timestampNanoseconds = UInt64(span.toSpanData().endTime
       .timeIntervalSince1970 * 1_000_000_000)
 
-    Task {
-      await PersistenceManager.shared.onSpanEnd(
-        spanId: span.context.spanId.rawValue,
-        endTime: timestampNanoseconds
-      )
-    }
+    persistenceManager.onSpanEnd(
+      spanId: span.context.spanId.rawValue,
+      endTime: timestampNanoseconds
+    )
   }
 
   func forceFlush(timeout: TimeInterval?) {}
