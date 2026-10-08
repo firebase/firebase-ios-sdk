@@ -1,8 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
-- [fixed] Avoid blocking the calling thread when registering a rollouts state
-  subscriber and synchronize Remote Config instance creation (#16736).
+- [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` when
+  Crashlytics subscribes to rollouts, and made Remote Config instance creation
+  thread-safe (#16736).
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`

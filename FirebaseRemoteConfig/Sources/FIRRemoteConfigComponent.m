@@ -85,6 +85,12 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
     instance = self.instances[remoteConfigNamespace];
   }
   if (!instance) {
+    // Serialize creation so concurrent callers share one instance, without holding the
+    // `instances` lock during the slow `FIRRemoteConfig` init.
+    // Lock order: component -> FIRComponentContainer. The Analytics lookup below and the
+    // ABTesting lookup in `FIRRemoteConfig` init take the container lock while this lock is held,
+    // so never call this method for a new namespace while holding the container lock (e.g. from a
+    // FIRComponent creation block).
     @synchronized(self) {
       @synchronized(self.instances) {
         instance = self.instances[remoteConfigNamespace];
