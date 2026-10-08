@@ -239,6 +239,40 @@ class TestSchemaProcessor(unittest.TestCase):
         struct_type = next(t for t in swift_types if t.kind == "struct")
         self.assertEqual(struct_type.properties[0].swift_type, "Threshold")
 
+    def test_single_value_enum_becomes_constant_without_nested_enum(self):
+        resolved = {
+            "Schema": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string", "enum": ["OBJECT"]},
+                },
+            }
+        }
+        swift_types = process(resolved)
+        self.assertEqual([t.kind for t in swift_types], ["struct"])
+        prop = swift_types[0].properties[0]
+        self.assertTrue(prop.is_const)
+        self.assertEqual(prop.swift_type, "String")
+        self.assertEqual(prop.const_value, '"OBJECT"')
+
+    def test_const_property_maps_value_type(self):
+        resolved = {
+            "Flags": {
+                "type": "object",
+                "properties": {
+                    "enabled": {"type": "boolean", "const": True},
+                    "version": {"type": "integer", "const": 2},
+                },
+            }
+        }
+        props = {
+            p.swift_name: (p.swift_type, p.const_value)
+            for p in process(resolved)[0].properties
+        }
+        self.assertEqual(
+            props, {"enabled": ("Bool", "true"), "version": ("Int", "2")}
+        )
+
     def test_merged_enum_cases_document_backend_availability(self):
         resolved = {
             "HarmCategory": {

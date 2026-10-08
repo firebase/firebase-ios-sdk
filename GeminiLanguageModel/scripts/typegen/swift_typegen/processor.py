@@ -228,7 +228,20 @@ class SchemaProcessor:
 
             swift_prop_name = to_camel_case(prop_name, lower=True)
 
-            if "enum" in prop_data:
+            # A single-value enum is treated as a constant, so it is detected
+            # before the enum branch to avoid emitting an unused nested enum.
+            const_val = prop_data.get("const")
+            if (
+                const_val is None
+                and isinstance(prop_data.get("enum"), list)
+                and len(prop_data["enum"]) == 1
+            ):
+                const_val = prop_data["enum"][0]
+
+            if const_val is not None:
+                swift_type_str = ""  # Set from const_val below.
+
+            elif "enum" in prop_data:
                 enum_name = to_camel_case(prop_name, lower=False)
                 enum_namespace = (
                     f"{actual_namespace}.{actual_name}"
@@ -278,15 +291,6 @@ class SchemaProcessor:
                 is_prop_deprecated = bool(
                     resolved_schemas[ref_target].get("deprecated", False)
                 )
-
-            const_val = prop_data.get("const")
-            if (
-                const_val is None
-                and "enum" in prop_data
-                and isinstance(prop_data["enum"], list)
-                and len(prop_data["enum"]) == 1
-            ):
-                const_val = prop_data["enum"][0]
 
             is_const = False
             const_value: str | None = None

@@ -105,6 +105,44 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertIn("package init() {}", content)
         self.assertNotIn("enum CodingKeys", content)
 
+    def test_render_struct_with_const_property_defaults_when_missing(self):
+        st = SwiftType(name="Schema", namespace="GoogleAI", kind="struct")
+        st.properties = [
+            SwiftProperty(
+                swift_name="kind",
+                json_name="kind",
+                swift_type="String",
+                is_required=True,
+                is_const=True,
+                const_value='"OBJECT"',
+            ),
+            SwiftProperty(
+                swift_name="title",
+                json_name="title",
+                swift_type="String",
+            ),
+        ]
+        renderer = SwiftRenderer(
+            TEMPLATES_DIR, access_level="package", root_namespace="GoogleAI"
+        )
+        _, content = renderer.render(st)
+
+        self.assertIn('package var kind: String = "OBJECT"', content)
+        self.assertIn("package init(from decoder: any Decoder)", content)
+        self.assertIn(
+            "self.kind = (try container.decodeIfPresent(String.self,"
+            ' forKey: .kind)) ?? "OBJECT"',
+            content,
+        )
+        self.assertIn(
+            "try container.encode(kind, forKey: .kind)", content
+        )
+        self.assertIn(
+            "try container.encodeIfPresent(title, forKey: .title)", content
+        )
+        self.assertNotIn("DynamicCodingKey", content)
+        self.assertNotIn("unrecognized", content)
+
     def test_render_enum_with_cases_and_deprecation(self):
         et = SwiftType(
             name="TestEnum",

@@ -75,6 +75,7 @@ extension {{ namespace }} {
       {% endif %}
     }
     {% endif %}
+    {% set has_const = properties | selectattr('is_const') | list | length > 0 %}
     {% if has_oneof %}
 
     private struct DynamicCodingKey: CodingKey {
@@ -83,6 +84,8 @@ extension {{ namespace }} {
       init?(stringValue: String) { self.stringValue = stringValue }
       init?(intValue: Int) { nil }
     }
+    {% endif %}
+    {% if has_oneof or has_const %}
 
     {{ access_level }} init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -93,6 +96,7 @@ extension {{ namespace }} {
       self.{{ prop.swift_name }} = try container.decodeIfPresent({{ prop.swift_type }}.self, forKey: .{{ prop.swift_name }})
       {% endif %}
       {% endfor %}
+      {% if has_oneof %}
 
       {% for prop in oneof_properties %}
       {% if loop.first %}if{% else %}else if{% endif %} let {{ prop.swift_name }} = try container.decodeIfPresent({{ prop.swift_type }}.self, forKey: .{{ prop.swift_name }}) {
@@ -110,13 +114,19 @@ extension {{ namespace }} {
         }
         self.data = unrecognizedFields.isEmpty ? nil : .unrecognized(unrecognizedFields)
       }
+      {% endif %}
     }
 
     {{ access_level }} func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       {% for prop in properties %}
+      {% if prop.is_const %}
+      try container.encode({{ prop.swift_name }}, forKey: .{{ prop.swift_name }})
+      {% else %}
       try container.encodeIfPresent({{ prop.swift_name }}, forKey: .{{ prop.swift_name }})
+      {% endif %}
       {% endfor %}
+      {% if has_oneof %}
 
       switch data {
       case .none: break
@@ -131,6 +141,7 @@ extension {{ namespace }} {
           }
         }
       }
+      {% endif %}
     }
     {% endif %}
   }
