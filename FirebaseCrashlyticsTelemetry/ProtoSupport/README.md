@@ -19,7 +19,7 @@ This directory manages the fetching, configuration, and compilation of **OpenTel
   * `generate_protos.sh` — The core generation script.
   * `Options/` — **Modify configs here.** Contains `.options` files. The script automatically pairs these with matching `.proto` files.
   * `third_party/opentelemetry-proto/Protos/` — **Do not edit.** This is an upstream mirror. It is entirely wiped and recreated on every run.
-* **`../Sources/Protogen/nanopb`** — **Output destination** for the compiled `.pb.c` and `.pb.h` files.
+* **`../Sources/third_party/opentelemetry-proto/Protogen/nanopb`** — **Output destination** for the compiled `.pb.c` and `.pb.h` files.
 
 ---
 
