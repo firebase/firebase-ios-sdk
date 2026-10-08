@@ -25,7 +25,7 @@ final class PersistenceManager: Sendable {
   private let persistenceFile = "crashlytics_persistence.clsrecord"
 
   private enum PersistenceEvent {
-    case spanStart(SpanData)
+    case spanStart(PersistenceSpan)
     case addAttribute(spanId: UInt64, key: String, value: String?)
     case spanEnd(spanId: UInt64, endTime: UInt64)
   }
@@ -40,7 +40,7 @@ final class PersistenceManager: Sendable {
       for event in pendingEvents {
         switch event {
         case let .spanStart(span):
-          persistenceBuffer?.add(SpanAdapter.toPersistedSpan(spanData: span))
+          persistenceBuffer?.add(span)
         case let .addAttribute(spanId, key, value):
           if let value {
             persistenceBuffer?.setAttribute(value, forKey: key, onSpanId: spanId)
@@ -99,7 +99,7 @@ final class PersistenceManager: Sendable {
     let persistedSpan = SpanAdapter.toPersistedSpan(spanData: span)
     state.withLock { state in
       guard state.isConfigured else {
-        state.pendingEvents.append(.spanStart(span))
+        state.pendingEvents.append(.spanStart(persistedSpan))
         return
       }
 
