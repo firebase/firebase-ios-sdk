@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Improved robustness when parsing malformed Remote Config values for
+  Performance Monitoring. Cached values of unexpected types and out-of-range
+  rate limits, gauge frequencies and session durations now fall back to
+  defaults. (#16728)
+
 # 12.19.0
 - [fixed] Revert to using `kFPRSlowFrameThreshold` for slow frames on iOS to prevent
   falsely classifying 60 FPS frames as slow on ProMotion devices,
