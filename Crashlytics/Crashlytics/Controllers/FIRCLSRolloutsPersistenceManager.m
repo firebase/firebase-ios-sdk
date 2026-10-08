@@ -59,10 +59,11 @@
   }
 
   dispatch_async(_rolloutsLoggingQueue, ^{
-    NSString *rolloutsPath = [[[_fileManager activePath] stringByAppendingPathComponent:reportID]
-        stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
-    if (![_fileManager fileExistsAtPath:rolloutsPath]) {
-      if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
+    NSString *rolloutsPath =
+        [[[self.fileManager activePath] stringByAppendingPathComponent:reportID]
+            stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
+    if (![self.fileManager fileExistsAtPath:rolloutsPath]) {
+      if (![self.fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
         FIRCLSDebugLog(
             @"Could not create rollouts.clsrecord file. Error was code: %d - message: %s", errno,
             strerror(errno));
@@ -71,6 +72,10 @@
     }
 
     NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
+    if (!rolloutsFile) {
+      FIRCLSDebugLog(@"Failed to open rollouts file at path: %@", rolloutsPath);
+      return;
+    }
     @try {
       [rolloutsFile seekToEndOfFile];
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
