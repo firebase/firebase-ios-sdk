@@ -736,9 +736,21 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 }
 
 /// Returns the key of the first nested field in the fetch response whose value doesn't have the
-/// JSON type that the personalization, rollout and experiment parsers expect, or nil if every
-/// field that is present is well-formed. Missing fields are allowed.
+/// JSON type that the config, personalization, rollout and experiment parsers expect, or nil if
+/// every field that is present is well-formed. Missing fields are allowed.
 - (nullable NSString *)fieldWithUnexpectedTypeInFetchResponse:(NSDictionary *)fetchedConfig {
+  // Checking `state` and `entries` here, rather than only in RCNConfigContent, rejects the whole
+  // response. Otherwise the fetch would still be reported as a success, the ETag and template
+  // version would advance, and the other metadata in the response would be applied without the
+  // config values.
+  id state = fetchedConfig[RCNFetchResponseKeyState];
+  if (state && ![state isKindOfClass:[NSString class]]) {
+    return RCNFetchResponseKeyState;
+  }
+  id entries = fetchedConfig[RCNFetchResponseKeyEntries];
+  if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
+    return RCNFetchResponseKeyEntries;
+  }
   id personalizationMetadata = fetchedConfig[RCNFetchResponseKeyPersonalizationMetadata];
   if (personalizationMetadata && ![personalizationMetadata isKindOfClass:[NSDictionary class]]) {
     return RCNFetchResponseKeyPersonalizationMetadata;

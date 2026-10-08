@@ -2257,6 +2257,30 @@ static NSString *UTCToLocal(NSString *utcTime) {
               }];
 }
 
+- (void)testFetchWithNonStringStateFailsGracefully {
+  // A non-string `state` used to be dropped by RCNConfigContent while the fetch was still
+  // reported as a success and the ETag and template version advanced.
+  [self fetchWithResponseObject:@{@"state" : @5, @"entries" : @{@"key1" : @"value1"}}
+              completionHandler:^(FIRRemoteConfig *config, FIRRemoteConfigFetchStatus status,
+                                  NSError *error) {
+                XCTAssertEqual(status, FIRRemoteConfigFetchStatusFailure);
+                XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+                XCTAssertEqual(error.code, FIRRemoteConfigErrorInternalError);
+              }];
+}
+
+- (void)testFetchWithNonDictionaryEntriesFailsGracefully {
+  // A non-dictionary `entries` used to be dropped by RCNConfigContent while the fetch was still
+  // reported as a success and the ETag and template version advanced.
+  [self fetchWithResponseObject:@{@"state" : @"UPDATE", @"entries" : @"boom"}
+              completionHandler:^(FIRRemoteConfig *config, FIRRemoteConfigFetchStatus status,
+                                  NSError *error) {
+                XCTAssertEqual(status, FIRRemoteConfigFetchStatusFailure);
+                XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusFailure);
+                XCTAssertEqual(error.code, FIRRemoteConfigErrorInternalError);
+              }];
+}
+
 #pragma mark - Test Helpers
 
 - (FIROptions *)firstAppOptions {

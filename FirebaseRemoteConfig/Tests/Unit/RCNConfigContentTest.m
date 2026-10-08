@@ -882,6 +882,15 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 
 - (void)testUpdateConfigContentWithMalformedEntriesKeepsValidValues {
   NSString *namespace = @"test_namespace";
+
+  // Seed a valid value so the retention checks below are meaningful.
+  NSDictionary *seedResponse = [self createFetchResponseWithConfigEntries:@{@"valid" : @"value"}
+                                                             p13nMetadata:nil
+                                                          rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:seedResponse forNamespace:namespace];
+  XCTAssertEqual([_configContent.fetchedConfig[namespace] count], 1);
+
+  // A non-dictionary `entries` drops the whole update and leaves the stored values untouched.
   NSArray *malformedEntries = @[ @"entries", @[ @"key", @"value" ], [NSNull null], @1 ];
   for (id entries in malformedEntries) {
     NSDictionary *response = @{
@@ -890,11 +899,15 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
     };
     XCTAssertNoThrow([_configContent updateConfigContentWithResponse:response
                                                         forNamespace:namespace]);
-    XCTAssertEqual([_configContent.fetchedConfig[namespace] count], 0);
+    NSDictionary *fetchedConfig = _configContent.fetchedConfig[namespace];
+    XCTAssertEqual(fetchedConfig.count, 1);
+    XCTAssertEqualObjects([fetchedConfig[@"valid"] stringValue], @"value");
   }
 
+  // A dictionary `entries` with some non-string values applies the update and skips only the
+  // invalid values.
   NSDictionary *entries = @{
-    @"valid" : @"value",
+    @"valid" : @"value2",
     @"number" : @1,
     @"null" : [NSNull null],
     @"array" : @[ @"value" ],
@@ -907,7 +920,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                       forNamespace:namespace]);
   NSDictionary *fetchedConfig = _configContent.fetchedConfig[namespace];
   XCTAssertEqual(fetchedConfig.count, 1);
-  XCTAssertEqualObjects([fetchedConfig[@"valid"] stringValue], @"value");
+  XCTAssertEqualObjects([fetchedConfig[@"valid"] stringValue], @"value2");
 }
 
 - (void)testUpdateConfigContentWithMalformedMetadataDoesNotCrash {

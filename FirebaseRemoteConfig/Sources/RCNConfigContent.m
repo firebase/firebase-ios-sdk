@@ -362,17 +362,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _fetchedConfig[currentNamespace] = [[NSMutableDictionary alloc] init];
     }
 
-    if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
-      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000079",
-                    @"Ignoring invalid entries field in fetch response.");
-      entries = nil;
-    }
-
     // Store the fetched config values.
     for (NSString *key in entries) {
       NSString *value = entries[key];
       if (![key isKindOfClass:[NSString class]] || ![value isKindOfClass:[NSString class]]) {
-        FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000079",
+        FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000082",
                       @"Ignoring invalid value in fetch response for key: %@", key);
         continue;
       }
