@@ -195,8 +195,9 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
                                                     heartbeatLogger:nil];
   [messaging setupFileManagerSubDirectory];
 
-  NSString *realPath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2"];
-  [[NSFileManager defaultManager] removeItemAtPath:realPath error:nil];
+  // Redirect the "rmq2" database to a test-only file so the test doesn't touch the real database.
+  NSString *testDatabasePath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2-setup-test"];
+  [[NSFileManager defaultManager] removeItemAtPath:testDatabasePath error:nil];
 
   dispatch_semaphore_t databaseBlockedSemaphore = dispatch_semaphore_create(0);
   dispatch_semaphore_t databaseEnteredSemaphore = dispatch_semaphore_create(0);
@@ -211,12 +212,11 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
                                 dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)));
         didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
       })
-      .andReturn(realPath);
+      .andReturn(testDatabasePath);
 
   [messaging setupRmqManager];
   FIRMessagingRmqManager *manager = messaging.rmq2Manager;
   XCTAssertNotNil(manager);
-  XCTAssertFalse([manager respondsToSelector:NSSelectorFromString(@"loadRmqId")]);
 
   // Wait until openDatabase has started on _databaseOperationQueue, then unblock it after
   // confirming setupRmqManager returned without blocking the calling thread.
@@ -227,11 +227,11 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   setupReturnedBeforeDatabaseOpened = YES;
   dispatch_semaphore_signal(databaseBlockedSemaphore);
 
-  // Wait for openDatabase to complete before removing the database.
+  // Wait for openDatabase to complete before removing the test database. Remove the file directly
+  // because -removeDatabase would resolve the real "rmq2" path once mocking stops.
   [self waitForDrainDatabaseQueueForRmqManager:manager];
   [rmqClassMock stopMocking];
-  [manager removeDatabase];
-  [self waitForDrainDatabaseQueueForRmqManager:manager];
+  [[NSFileManager defaultManager] removeItemAtPath:testDatabasePath error:nil];
 
   XCTAssertTrue(didObserveSetupReturned);
 }

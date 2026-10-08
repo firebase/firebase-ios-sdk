@@ -21,14 +21,13 @@
 /**
  * This manages the RMQ persistent store.
  *
- * The store is used to store all the S2D id's that were received by the client and were ACK'ed
- * by us but the server hasn't confirmed the ACK. We don't delete these id's until the server
- * ACK's us that they have received them.
+ * The store is used to de-duplicate sync messages (APNS messages with `content-available` set)
+ * received by the client. Sync messages are deleted from the store once they expire, or once they
+ * have been received via both APNS and MCS.
  *
- * We also store the upstream messages(d2s) that were sent by the client.
+ * The store also records the RMQ IDs of server to device (S2D) messages received by the client.
  *
- * Also store the lastRMQId that was sent by us so that for a new connection being setup we don't
- * duplicate RMQ Id's for the new messages.
+ * All database operations run on a serial background queue.
  */
 @interface FIRMessagingRmqManager : NSObject
 // designated initializer

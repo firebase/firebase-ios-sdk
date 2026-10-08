@@ -24,6 +24,10 @@
 - (dispatch_queue_t)databaseOperationQueue;
 @end
 
+// Opening or creating a database can be slow on heavily loaded CI simulators. A generous timeout
+// only delays tests that are already failing.
+static const NSTimeInterval kDrainDatabaseQueueTimeout = 10.0;
+
 @implementation XCTestCase (FIRMessagingRmqManagerTests)
 
 - (void)waitForDrainDatabaseQueueForRmqManager:(FIRMessagingRmqManager *)manager {
@@ -37,7 +41,7 @@
   dispatch_async([manager databaseOperationQueue], ^{
     [drainDatabaseQueueExpectation fulfill];
   });
-  [self waitForExpectations:@[ drainDatabaseQueueExpectation ] timeout:1.5];
+  [self waitForExpectations:@[ drainDatabaseQueueExpectation ] timeout:kDrainDatabaseQueueTimeout];
 }
 
 @end
