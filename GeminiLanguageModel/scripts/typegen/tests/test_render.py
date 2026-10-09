@@ -180,29 +180,21 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertIn("extension GoogleAI.TestEnum: RawRepresentable", content)
         self.assertIn('case .activeCase: "ACTIVE"', content)
         self.assertIn('case .deprecatedCase: "DEPRECATED"', content)
-        # Non-deprecated cases decode directly; deprecated cases decode
-        # through the deprecated protocol witness to avoid warnings.
+        # Deprecated cases decode in the main switch, with deprecation
+        # warnings suppressed by `@diagnose` on Swift 6.4+ compilers.
+        self.assertIn(
+            "  #if hasAttribute(diagnose)\n"
+            "    @diagnose(DeprecatedDeclaration, as: ignored)\n"
+            "  #endif\n"
+            "  public init(rawValue: String) {\n",
+            content,
+        )
         self.assertIn('case "ACTIVE": self = .activeCase', content)
-        self.assertNotIn('case "DEPRECATED": self = .deprecatedCase', content)
-        self.assertIn(
-            "default: self = decodeDeprecatedCase(Self.self, rawValue:"
-            " rawValue) ?? .unrecognized(rawValue)",
-            content,
-        )
-        self.assertIn(
-            "extension GoogleAI.TestEnum: DeprecatedCaseDecoding", content
-        )
-        self.assertIn(
-            "  @available(*, deprecated)\n"
-            "  fileprivate static func deprecatedCase(rawValue: String)"
-            " -> Self? {\n"
-            "    switch rawValue {\n"
-            '    case "DEPRECATED": .deprecatedCase\n'
-            "    default: nil\n",
-            content,
-        )
+        self.assertIn('case "DEPRECATED": self = .deprecatedCase', content)
+        self.assertIn("default: self = .unrecognized(rawValue)", content)
+        self.assertNotIn("DeprecatedCaseDecoding", content)
 
-    def test_render_enum_without_deprecated_cases_omits_helper(self):
+    def test_render_enum_without_deprecated_cases_omits_diagnose(self):
         et = SwiftType(name="Plain", namespace="", kind="enum")
         et.cases = [SwiftEnumCase(swift_name="one", raw_value="ONE")]
         renderer = SwiftRenderer(
@@ -210,7 +202,8 @@ class TestTemplateRendering(unittest.TestCase):
         )
         _, content = renderer.render(et)
         self.assertIn("default: self = .unrecognized(rawValue)", content)
-        self.assertNotIn("DeprecatedCaseDecoding", content)
+        self.assertNotIn("@diagnose", content)
+        self.assertNotIn("hasAttribute", content)
 
     def test_render_unknown_kind_returns_none(self):
         st = SwiftType(name="Thing", namespace="", kind="class")
