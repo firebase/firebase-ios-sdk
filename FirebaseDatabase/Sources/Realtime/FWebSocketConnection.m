@@ -448,10 +448,14 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
  * external close handler, we just set a flag saying not to call our own
  * delegate method and close the websocket. That will trigger a callback into
  * this class that can then do things like clean up the keepalive timer.
+ *
+ * closeIfNeverConnected is the exception, since a websocket that never
+ * connected may not report that it closed for a long time. That's safe because
+ * the websocket's delegate is weak.
  */
 
 - (void)closeIfNeverConnected {
-    if (!everConnected) {
+    if (!everConnected && !isClosed) {
         FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
               self.connectionId);
 #if TARGET_OS_WATCH
@@ -460,7 +464,15 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                          reason:nil];
 #else
         [self.webSocket close];
+        self.webSocket.delegate = nil;
 #endif // TARGET_OS_WATCH
+
+        // Don't wait for the websocket to report that it closed, and ignore
+        // the report if it comes later. It may not come for hours, e.g. if the
+        // websocket is stuck in the TLS handshake, and the client would stay
+        // offline until then.
+        // https://github.com/firebase/firebase-ios-sdk/issues/9682
+        [self onClosed];
     }
 }
 

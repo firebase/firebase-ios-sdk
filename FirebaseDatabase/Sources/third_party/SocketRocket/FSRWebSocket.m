@@ -674,6 +674,13 @@ static __strong NSData *CRLFCRLF;
         SRFastLog(@"Closing with code %d reason %@", code, reason);
 
         if (wasConnecting) {
+            // The connection never opened, so drop the unsent handshake
+            // request, if any. _disconnect only closes the streams once all
+            // queued data is written, which may not happen for hours if the
+            // connection is stuck, e.g. in the TLS handshake.
+            // https://github.com/firebase/firebase-ios-sdk/issues/9682
+            self->_outputBuffer = [[NSMutableData alloc] init];
+            self->_outputBufferOffset = 0;
             [self _disconnect];
             return;
         }

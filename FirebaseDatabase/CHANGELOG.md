@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)
