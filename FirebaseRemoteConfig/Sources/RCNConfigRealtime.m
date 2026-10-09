@@ -66,6 +66,9 @@ static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
+/// Upper bound applied to the server-provided `retryIntervalSeconds` (24 hours), so a malformed
+/// value cannot overflow the dispatch timer or persist an effectively infinite backoff.
+static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -523,15 +526,34 @@ static NSInteger const gMaxRetries = 7;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
   NSInteger updateTemplateVersion = 1;
   NSTimeInterval realtimeRetryInterval = 0;
+  if (dataError == nil && ![response isKindOfClass:[NSDictionary class]]) {
+    dataError =
+        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                            code:FIRRemoteConfigUpdateErrorMessageInvalid
+                        userInfo:@{
+                          NSLocalizedDescriptionKey : @"ConfigUpdate message is not a JSON object."
+                        }];
+  }
   if (dataError == nil) {
-    if ([response objectForKey:kTemplateVersionNumberKey]) {
-      updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
+    id templateVersion = [response objectForKey:kTemplateVersionNumberKey];
+    if ([templateVersion isKindOfClass:[NSString class]] ||
+        [templateVersion isKindOfClass:[NSNumber class]]) {
+      updateTemplateVersion = [templateVersion integerValue];
     }
-    if ([response objectForKey:kIsFeatureDisabled]) {
-      self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+    id featureDisabled = [response objectForKey:kIsFeatureDisabled];
+    if ([featureDisabled isKindOfClass:[NSString class]] ||
+        [featureDisabled isKindOfClass:[NSNumber class]]) {
+      self->_isRealtimeDisabled = [featureDisabled boolValue];
     }
-    if ([response objectForKey:kRealtime_Retry_Interval]) {
-      realtimeRetryInterval = [[response objectForKey:kRealtime_Retry_Interval] integerValue];
+    id retryInterval = [response objectForKey:kRealtime_Retry_Interval];
+    if ([retryInterval isKindOfClass:[NSString class]] ||
+        [retryInterval isKindOfClass:[NSNumber class]]) {
+      // Clamp as a double: `integerValue` of a value outside the NSInteger range is
+      // platform-dependent and can be negative. Non-positive and NaN values are ignored.
+      NSTimeInterval retrySeconds = [retryInterval doubleValue];
+      if (retrySeconds > 0) {
+        realtimeRetryInterval = MIN(retrySeconds, kRealtimeMaxRetryIntervalSeconds);
+      }
     }
 
     if (self->_isRealtimeDisabled) {
@@ -559,10 +581,12 @@ static NSInteger const gMaxRetries = 7;
       }
     }
   } else {
-    NSError *error =
-        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
-                            code:FIRRemoteConfigUpdateErrorMessageInvalid
-                        userInfo:@{NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate."}];
+    NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                                         code:FIRRemoteConfigUpdateErrorMessageInvalid
+                                     userInfo:@{
+                                       NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate.",
+                                       NSUnderlyingErrorKey : dataError
+                                     }];
     [self propagateErrors:error];
   }
 }
@@ -574,6 +598,11 @@ static NSInteger const gMaxRetries = 7;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  if (!strData) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000083",
+                @"Ignoring realtime stream data that is not valid UTF-8.");
+    return;
+  }
 
   /// If response data contains the API enablement link, return the entire message to the user in
   /// the form of a error.
