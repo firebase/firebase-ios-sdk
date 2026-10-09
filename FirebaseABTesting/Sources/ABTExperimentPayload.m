@@ -36,6 +36,19 @@ static NSString *const kExperimentPayloadValueIgnoreNewestOverflowPolicy = @"IGN
 
 static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperiments";
 
+/// Returns `value` if it is a string, otherwise nil.
+static NSString *_Nullable ABTStringValue(id _Nullable value) {
+  return [value isKindOfClass:[NSString class]] ? value : nil;
+}
+
+/// Returns the int64 value of `value` if it is a number or numeric string, otherwise 0.
+static int64_t ABTInt64Value(id _Nullable value) {
+  if ([value isKindOfClass:[NSNumber class]] || [value isKindOfClass:[NSString class]]) {
+    return [value longLongValue];
+  }
+  return 0;
+}
+
 @implementation ABTExperimentLite
 
 - (instancetype)initWithExperimentId:(NSString *)experimentId {
@@ -50,23 +63,30 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
 @implementation ABTExperimentPayload
 
 + (NSDateFormatter *)experimentStartTimeFormatter {
-  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-  [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-  // Locale needs to be hardcoded. See
-  // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
-  [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
-  [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+  // NSDateFormatter is expensive to create and is thread-safe on all supported OS versions, so
+  // create it once and share it.
+  static NSDateFormatter *dateFormatter;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
+    // Locale needs to be hardcoded. See
+    // https://developer.apple.com/library/ios/#qa/qa1480/_index.html for more details.
+    [dateFormatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"]];
+    [dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+  });
   return dateFormatter;
 }
 
 + (nullable instancetype)parseFromData:(NSData *)data {
+  if (![data isKindOfClass:[NSData class]]) {
+    return nil;
+  }
   NSError *error;
-  NSDictionary *experimentDictionary =
-      [NSJSONSerialization JSONObjectWithData:data
-                                      options:NSJSONReadingAllowFragments
-                                        error:&error];
-  if (error != nil) {
+  id experimentDictionary = [NSJSONSerialization JSONObjectWithData:data
+                                                            options:NSJSONReadingAllowFragments
+                                                              error:&error];
+  if (error != nil || ![experimentDictionary isKindOfClass:[NSDictionary class]]) {
     return nil;
   } else {
     return [[ABTExperimentPayload alloc] initWithDictionary:experimentDictionary];
@@ -75,31 +95,34 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
 
 - (instancetype)initWithDictionary:(NSDictionary<NSString *, id> *)dictionary {
   if (self = [super init]) {
-    _experimentId = dictionary[kExperimentPayloadKeyExperimentID];
-    _variantId = dictionary[kExperimentPayloadKeyVariantID];
-    _triggerEvent = dictionary[kExperimentPayloadKeyTriggerEvent];
-    _setEventToLog = dictionary[kExperimentPayloadKeySetEventToLog];
-    _activateEventToLog = dictionary[kExperimentPayloadKeyActivateEventToLog];
-    _clearEventToLog = dictionary[kExperimentPayloadKeyClearEventToLog];
-    _timeoutEventToLog = dictionary[kExperimentPayloadKeyTimeoutEventToLog];
-    _ttlExpiryEventToLog = dictionary[kExperimentPayloadKeyTTLExpiryEventToLog];
+    if (![dictionary isKindOfClass:[NSDictionary class]]) {
+      dictionary = @{};
+    }
+    _experimentId = ABTStringValue(dictionary[kExperimentPayloadKeyExperimentID]);
+    _variantId = ABTStringValue(dictionary[kExperimentPayloadKeyVariantID]);
+    _triggerEvent = ABTStringValue(dictionary[kExperimentPayloadKeyTriggerEvent]);
+    _setEventToLog = ABTStringValue(dictionary[kExperimentPayloadKeySetEventToLog]);
+    _activateEventToLog = ABTStringValue(dictionary[kExperimentPayloadKeyActivateEventToLog]);
+    _clearEventToLog = ABTStringValue(dictionary[kExperimentPayloadKeyClearEventToLog]);
+    _timeoutEventToLog = ABTStringValue(dictionary[kExperimentPayloadKeyTimeoutEventToLog]);
+    _ttlExpiryEventToLog = ABTStringValue(dictionary[kExperimentPayloadKeyTTLExpiryEventToLog]);
 
     // Experiment start time can either be in the form of a date string or milliseconds since 1970.
-    if (dictionary[kExperimentPayloadKeyExperimentStartTime]) {
+    NSString *experimentStartTimeString =
+        ABTStringValue(dictionary[kExperimentPayloadKeyExperimentStartTime]);
+    if (experimentStartTimeString) {
       // Convert from date string.
-      NSDate *experimentStartTime = [[[self class] experimentStartTimeFormatter]
-          dateFromString:dictionary[kExperimentPayloadKeyExperimentStartTime]];
-      _experimentStartTimeMillis =
-          [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
+      NSDate *experimentStartTime =
+          [[[self class] experimentStartTimeFormatter] dateFromString:experimentStartTimeString];
+      _experimentStartTimeMillis = (int64_t)(experimentStartTime.timeIntervalSince1970 * 1000);
     } else if (dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]) {
       // Simply store milliseconds.
       _experimentStartTimeMillis =
-          [dictionary[kExperimentPayloadKeyExperimentStartTimeMillis] longLongValue];
-      ;
+          ABTInt64Value(dictionary[kExperimentPayloadKeyExperimentStartTimeMillis]);
     }
 
-    _triggerTimeoutMillis = [dictionary[kExperimentPayloadKeyTriggerTimeoutMillis] longLongValue];
-    _timeToLiveMillis = [dictionary[kExperimentPayloadKeyTimeToLiveMillis] longLongValue];
+    _triggerTimeoutMillis = ABTInt64Value(dictionary[kExperimentPayloadKeyTriggerTimeoutMillis]);
+    _timeToLiveMillis = ABTInt64Value(dictionary[kExperimentPayloadKeyTimeToLiveMillis]);
 
     // Overflow policy can be an integer, or string e.g. "DISCARD_OLDEST" or "IGNORE_NEWEST".
     if ([dictionary[kExperimentPayloadKeyOverflowPolicy] isKindOfClass:[NSString class]]) {
@@ -112,21 +135,27 @@ static NSString *const kExperimentPayloadKeyOngoingExperiments = @"ongoingExperi
       } else {
         _overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyUnrecognizedValue;
       }
-    } else {
+    } else if ([dictionary[kExperimentPayloadKeyOverflowPolicy] isKindOfClass:[NSNumber class]]) {
       _overflowPolicy = [dictionary[kExperimentPayloadKeyOverflowPolicy] intValue];
+    } else {
+      _overflowPolicy = ABTExperimentPayloadExperimentOverflowPolicyUnspecified;
     }
 
     NSMutableArray<ABTExperimentLite *> *ongoingExperiments = [[NSMutableArray alloc] init];
 
-    NSArray<NSDictionary<NSString *, NSString *> *> *ongoingExperimentsArray =
-        dictionary[kExperimentPayloadKeyOngoingExperiments];
-
-    for (NSDictionary<NSString *, NSString *> *experimentDictionary in ongoingExperimentsArray) {
-      NSString *experimentId = experimentDictionary[kExperimentPayloadKeyExperimentID];
-      if (experimentId) {
-        ABTExperimentLite *liteExperiment =
-            [[ABTExperimentLite alloc] initWithExperimentId:experimentId];
-        [ongoingExperiments addObject:liteExperiment];
+    id ongoingExperimentsArray = dictionary[kExperimentPayloadKeyOngoingExperiments];
+    if ([ongoingExperimentsArray isKindOfClass:[NSArray class]]) {
+      for (id experimentDictionary in ongoingExperimentsArray) {
+        if (![experimentDictionary isKindOfClass:[NSDictionary class]]) {
+          continue;
+        }
+        NSString *experimentId =
+            ABTStringValue(experimentDictionary[kExperimentPayloadKeyExperimentID]);
+        if (experimentId) {
+          ABTExperimentLite *liteExperiment =
+              [[ABTExperimentLite alloc] initWithExperimentId:experimentId];
+          [ongoingExperiments addObject:liteExperiment];
+        }
       }
     }
 

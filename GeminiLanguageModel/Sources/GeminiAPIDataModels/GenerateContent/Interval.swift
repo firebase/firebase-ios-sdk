@@ -27,9 +27,9 @@ import Foundation
 /// When the start equals the end, the interval is empty (matches no time).
 /// When both start and end are unspecified, the interval matches any time.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
-/// > Important: This type is not supported in the Gemini Enterprise API.
+/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package struct Interval: Codable, Sendable, Equatable, Hashable {
   /// Optional. Inclusive start of the interval.
   ///
@@ -40,9 +40,9 @@ package struct Interval: Codable, Sendable, Equatable, Hashable {
   /// If specified, a Timestamp matching this interval will have to be the same
   /// or after the start.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise API.
+  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package let startTime: String?
 
   /// Optional. Exclusive end of the interval.
@@ -54,9 +54,9 @@ package struct Interval: Codable, Sendable, Equatable, Hashable {
   /// If specified, a Timestamp matching this interval will have to be before the
   /// end.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
-  /// > Important: This property is not supported in the Gemini Enterprise API.
+  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package let endTime: String?
 
   /// Creates a new `Interval`.

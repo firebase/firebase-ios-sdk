@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Google search entry point.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1SearchEntryPoint`
 ///
@@ -38,7 +38,7 @@ package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Web content snippet that can be embedded in a web page or an app webview.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. An HTML snippet that can be embedded in a web page or an
   /// application's webview. This snippet displays a search result, including the
@@ -51,7 +51,7 @@ package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. Base64 encoded JSON representing array of  tuple.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. A base64-encoded JSON object that contains a list of search
   /// queries and their corresponding search URLs. This information can be used

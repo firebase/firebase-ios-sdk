@@ -256,8 +256,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [self checkAndWaitForInitialDatabaseLoad];
   NSString *state = response[RCNFetchResponseKeyState];
 
-  if (!state) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000049", @"State field in fetch response is nil.");
+  if (![state isKindOfClass:[NSString class]]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000049",
+                @"State field in fetch response is missing or not a string.");
     return;
   }
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000059",
@@ -342,6 +343,13 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                 withEntries:(NSDictionary *)entries {
   FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000058", @"Update config in DB for namespace:%@",
               currentNamespace);
+  // A missing `entries` is a valid empty config; only a present value with the wrong type is
+  // malformed.
+  if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000079",
+                @"Entries field in fetch response is not a dictionary. Update dropped.");
+    return;
+  }
   // Clear before updating
   [_DBManager deleteRecordFromMainTableWithNamespace:currentNamespace
                                     bundleIdentifier:_bundleIdentifier
@@ -356,6 +364,9 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
     // Store the fetched config values.
     for (NSString *key in entries) {
+      if (![entries[key] isKindOfClass:[NSString class]]) {
+        continue;
+      }
       NSData *valueData = [entries[key] dataUsingEncoding:NSUTF8StringEncoding];
       if (!valueData) {
         continue;
