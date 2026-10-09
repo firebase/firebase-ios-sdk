@@ -136,9 +136,7 @@ class TestTemplateRendering(unittest.TestCase):
             ' forKey: .kind)) ?? "OBJECT"',
             content,
         )
-        self.assertIn(
-            "try container.encode(kind, forKey: .kind)", content
-        )
+        self.assertIn("try container.encode(kind, forKey: .kind)", content)
         self.assertIn(
             "try container.encodeIfPresent(title, forKey: .title)", content
         )
@@ -242,4 +240,3 @@ class TestTemplateRendering(unittest.TestCase):
             render.output_filename(st, root_namespace="GoogleAI"),
             "Schema+Items+Type.swift",
         )
-

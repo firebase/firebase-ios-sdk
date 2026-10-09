@@ -195,9 +195,7 @@ class TestMerge(unittest.TestCase):
         )
         # STOP is deprecated only in the Developer API, so it is not
         # deprecated in the merged enum.
-        self.assertEqual(
-            merged["enumDeprecated"], [False, False, False, False]
-        )
+        self.assertEqual(merged["enumDeprecated"], [False, False, False, False])
         self.assertEqual(merged["x-gl-developer-enum"], developer["enum"])
         self.assertEqual(merged["x-ai-enterprise-enum"], enterprise["enum"])
 
@@ -289,4 +287,3 @@ class TestMerge(unittest.TestCase):
             renamed["Tool"]["properties"]["urlContext"]["$ref"],
             "#/components/schemas/URLContext",
         )
-

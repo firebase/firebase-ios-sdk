@@ -260,8 +260,7 @@ class SchemaProcessor:
                 swift_type_str = enum_name
 
             elif (
-                prop_data.get("type") == "object"
-                and "properties" in prop_data
+                prop_data.get("type") == "object" and "properties" in prop_data
             ):
                 nested_name = naming.to_camel_case(prop_name, lower=False)
                 nested_namespace = (
@@ -319,9 +318,7 @@ class SchemaProcessor:
                 ),
                 init_description=init_desc,
                 is_deprecated=is_prop_deprecated,
-                is_required=True
-                if is_const
-                else (prop_name in required_props),
+                is_required=True if is_const else (prop_name in required_props),
                 is_const=is_const,
                 const_value=const_value,
             )
@@ -418,9 +415,7 @@ class SchemaProcessor:
                 raw_val[len(prefix) :], lower=True
             )
             raw_case_desc = (
-                enum_descriptions[idx]
-                if idx < len(enum_descriptions)
-                else None
+                enum_descriptions[idx] if idx < len(enum_descriptions) else None
             )
             case_description = (
                 docc.format_enum_case_docc(

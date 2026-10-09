@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import re
 
-
 # Swift Keywords
 SWIFT_KEYWORDS: set[str] = {
     "associatedtype",

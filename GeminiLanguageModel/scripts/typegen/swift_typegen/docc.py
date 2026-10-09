@@ -253,7 +253,9 @@ def _format_backend_docc(
         Formatted DocC comment block.
     """
     if not has_developer and not has_enterprise:
-        return wrap_docc(_clean_description(data.get("description")), wrap_width)
+        return wrap_docc(
+            _clean_description(data.get("description")), wrap_width
+        )
 
     developer_desc = _clean_description(data.get(_DEVELOPER_DESCRIPTION))
     enterprise_desc = _clean_description(data.get(_ENTERPRISE_DESCRIPTION))

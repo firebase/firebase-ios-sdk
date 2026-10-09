@@ -105,7 +105,9 @@ def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
     parser.add_argument(
         "--overrides-file",
         default=os.path.join(
-            TYPEGEN_DIR, "discovery_documents", "firebasevertexai-overrides.yaml"
+            TYPEGEN_DIR,
+            "discovery_documents",
+            "firebasevertexai-overrides.yaml",
         ),
         help="Path to the overrides YAML file containing generatorConfig.",
     )

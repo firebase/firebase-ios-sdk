@@ -45,7 +45,10 @@ class TestOutput(unittest.TestCase):
         )
         self.assertEqual(
             written,
-            [os.path.join(self.out, "A.swift"), os.path.join(self.out, "B.swift")],
+            [
+                os.path.join(self.out, "A.swift"),
+                os.path.join(self.out, "B.swift"),
+            ],
         )
         with open(written[0], encoding="utf-8") as f:
             self.assertEqual(f.read(), "struct A {}\n")
@@ -132,4 +135,3 @@ class TestSwiftFormat(unittest.TestCase):
     def test_run_swift_format_skips_empty_paths(self, find):
         output.run_swift_format([])
         find.assert_not_called()
-

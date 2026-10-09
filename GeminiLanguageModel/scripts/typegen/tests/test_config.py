@@ -108,7 +108,9 @@ class TestGeneratorConfig(unittest.TestCase):
                 with tempfile.TemporaryDirectory() as tmp:
                     path = os.path.join(tmp, "overrides.yaml")
                     with open(path, "w", encoding="utf-8") as f:
-                        f.write(f"generatorConfig:\n  backends:\n    - {entry}\n")
+                        f.write(
+                            f"generatorConfig:\n  backends:\n    - {entry}\n"
+                        )
                     with self.assertRaisesRegex(ValueError, "backends entry"):
                         config_lib.GeneratorConfig.from_file(path)
 

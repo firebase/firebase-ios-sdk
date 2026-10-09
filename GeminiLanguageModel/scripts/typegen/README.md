@@ -127,3 +127,16 @@ python -m unittest discover \
   -s GeminiLanguageModel/scripts/typegen/tests \
   -t GeminiLanguageModel/scripts/typegen
 ```
+
+---
+
+## 4. Formatting
+
+Python sources are formatted with [pyink](https://github.com/google/pyink)
+using the settings in [pyproject.toml](pyproject.toml). From
+`GeminiLanguageModel/scripts/typegen/`:
+
+```bash
+pip install pyink
+pyink .
+```

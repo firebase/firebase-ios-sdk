@@ -46,9 +46,7 @@ class TestSchemaProcessor(unittest.TestCase):
                 "properties": {
                     "groundingMetadata": {"type": "string"},
                     "includedProp": {"type": "string"},
-                    "badRef": {
-                        "$ref": "#/components/schemas/ExcludedType"
-                    },
+                    "badRef": {"$ref": "#/components/schemas/ExcludedType"},
                 },
             }
         }
@@ -220,8 +218,12 @@ class TestSchemaProcessor(unittest.TestCase):
             },
         }
         swift_types = {t.name: t for t in process(resolved, config=config)}
-        part_types = {p.swift_name: p.swift_type for p in swift_types["Part"].properties}
-        self.assertEqual(part_types, {"data": "Data", "thoughtSignature": "String"})
+        part_types = {
+            p.swift_name: p.swift_type for p in swift_types["Part"].properties
+        }
+        self.assertEqual(
+            part_types, {"data": "Data", "thoughtSignature": "String"}
+        )
         self.assertEqual(swift_types["Other"].properties[0].swift_type, "Data")
 
     def test_property_enum_becomes_nested_enum(self):
@@ -386,4 +388,3 @@ class TestSchemaProcessor(unittest.TestCase):
         self.assertEqual(len(swift_types), 1)
         prop_names = [p.swift_name for p in swift_types[0].properties]
         self.assertEqual(prop_names, ["responseJSONSchema"])
-

@@ -218,7 +218,9 @@ def strip_prefix_from_schemas(
         if not schema_name.startswith(prefix):
             stripped = strip_prefix_from_value(schema_data)
             if isinstance(stripped, dict):
-                _annotate_backend(stripped, schema_name, schema_data, backend_tag)
+                _annotate_backend(
+                    stripped, schema_name, schema_data, backend_tag
+                )
             new_schemas[schema_name] = stripped
 
     for schema_name, schema_data in schemas.items():
@@ -226,7 +228,9 @@ def strip_prefix_from_schemas(
             new_name = schema_name[len(prefix) :]
             stripped = strip_prefix_from_value(schema_data)
             if isinstance(stripped, dict):
-                _annotate_backend(stripped, schema_name, schema_data, backend_tag)
+                _annotate_backend(
+                    stripped, schema_name, schema_data, backend_tag
+                )
             if new_name in new_schemas:
                 new_schemas[new_name] = merge_schemas(
                     new_name,

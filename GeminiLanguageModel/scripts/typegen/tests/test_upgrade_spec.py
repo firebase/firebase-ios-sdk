@@ -24,9 +24,7 @@ from unittest import mock
 
 import yaml
 
-sys.path.insert(
-    0, os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import upgrade_spec
 
 PREFIXES = (
@@ -43,9 +41,7 @@ class TestUpgradeSpec(unittest.TestCase):
             "prop": {"$ref": "SomeSchema"},
             "nested": {
                 "arr": [{"$ref": "ItemSchema"}],
-                "already_normalized": {
-                    "$ref": "#/components/schemas/Existing"
-                },
+                "already_normalized": {"$ref": "#/components/schemas/Existing"},
             },
         }
         upgrade_spec.normalize_refs(data)
@@ -123,9 +119,9 @@ class TestUpgradeSpec(unittest.TestCase):
         self.assertIn("GoogleAiGenerativelanguageV1betaModality", schemas)
 
         # Verify properties replaced with refs
-        category_prop = schemas[
-            "GoogleAiGenerativelanguageV1betaSafetyRating"
-        ]["properties"]["category"]
+        category_prop = schemas["GoogleAiGenerativelanguageV1betaSafetyRating"][
+            "properties"
+        ]["category"]
         self.assertEqual(
             category_prop["$ref"],
             "#/components/schemas/GoogleAiGenerativelanguageV1betaHarmCategory",
@@ -493,9 +489,7 @@ class TestUpgradeSpec(unittest.TestCase):
             self.assertTrue(os.path.isfile(output_file))
 
     @mock.patch("urllib.request.urlopen")
-    def test_main_uses_cached_input_file_without_fetch_flag(
-        self, mock_urlopen
-    ):
+    def test_main_uses_cached_input_file_without_fetch_flag(self, mock_urlopen):
         with tempfile.TemporaryDirectory() as tmp:
             input_file = os.path.join(tmp, "discovery.json")
             output_file = os.path.join(tmp, "openapi.yaml")
