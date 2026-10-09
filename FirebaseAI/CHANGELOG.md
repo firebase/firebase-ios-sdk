@@ -8,6 +8,9 @@
   Enterprise Agent Platform in multi-turn `GeminiLanguageModel` sessions, which
   occurred when a thought signature from a previous text response was sent back
   as a part containing no data. (#16886)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
