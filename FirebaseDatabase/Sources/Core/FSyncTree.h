@@ -69,6 +69,8 @@
 - (NSArray *)applyTaggedServerRangeMergeAtPath:(FPath *)path
                                        updates:(NSArray *)ranges
                                          tagId:(NSNumber *)tagId;
+- (NSArray *)applyGetResultForQuery:(FQuerySpec *)query
+                            newData:(id<FNode>)newData;
 - (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
                          forQuery:(FQuerySpec *)query;
 - (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
