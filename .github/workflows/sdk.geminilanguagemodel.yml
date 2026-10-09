@@ -42,7 +42,9 @@ jobs:
       run: .venv/bin/python -m unittest discover -s tests -t . -v
 
     - name: Check for Discovery Document and data model updates
-      continue-on-error: true
+      # Drift is reported as a warning and doesn't fail the step. Unexpected
+      # failures (e.g. fetching the Discovery Document) fail the job so that
+      # they're noticed and re-run.
       run: |
         .venv/bin/python upgrade_spec.py --fetch
         .venv/bin/python generate_types.py
@@ -89,8 +91,6 @@ jobs:
           echo ""
           echo "</details>"
         } >> "$GITHUB_STEP_SUMMARY"
-
-        exit 1
 
   integration-tests:
     name: integration-tests
