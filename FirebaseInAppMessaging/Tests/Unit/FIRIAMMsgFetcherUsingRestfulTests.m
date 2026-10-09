@@ -232,4 +232,58 @@ static NSString *apiKey = @"Api-key";
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
+
+// Makes the mocked URL session respond to the fetch request with a 200 status code and `data`.
+- (void)stubFetchResponseWithData:(nullable NSData *)data {
+  OCMStub([self.mockclientInfoFetcher
+      fetchFirebaseInstallationDataWithProjectNumber:[OCMArg any]
+                                      withCompletion:([OCMArg invokeBlockWithArgs:@"FID", @"token",
+                                                                                  [NSNull null],
+                                                                                  nil])]);
+  NSHTTPURLResponse *response =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://myhost"]
+                                  statusCode:200
+                                 HTTPVersion:nil
+                                headerFields:nil];
+  id dataArg = data ?: (id)[NSNull null];
+  OCMStub(
+      [self.mockedNSURLSession
+          dataTaskWithRequest:[OCMArg any]
+            completionHandler:([OCMArg invokeBlockWithArgs:dataArg, response, [NSNull null], nil])])
+      .andReturn(OCMClassMock([NSURLSessionDataTask class]));
+}
+
+- (void)assertFetchFailsWithResponseData:(nullable NSData *)data {
+  [self stubFetchResponseWithData:data];
+
+  __block BOOL completionCalled = NO;
+  [self.fetcher
+      fetchMessagesWithImpressionList:@[]
+                       withCompletion:^(NSArray<FIRIAMMessageDefinition *> *_Nullable messages,
+                                        NSNumber *_Nullable nextFetchWaitTime,
+                                        NSInteger discardCount, NSError *_Nullable error) {
+                         completionCalled = YES;
+                         XCTAssertNil(messages);
+                         XCTAssertNil(nextFetchWaitTime);
+                         XCTAssertNotNil(error);
+                       }];
+  XCTAssertTrue(completionCalled);
+}
+
+- (void)testFetchWithNilResponseBody {
+  [self assertFetchFailsWithResponseData:nil];
+}
+
+- (void)testFetchWithGarbageResponseBody {
+  [self assertFetchFailsWithResponseData:[@"not json" dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
+- (void)testFetchWithNonDictionaryJSONResponseBody {
+  [self assertFetchFailsWithResponseData:[@"[1, 2, 3]" dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
+- (void)testFetchWithNonArrayMessagesInResponseBody {
+  [self assertFetchFailsWithResponseData:[@"{\"messages\": \"oops\"}"
+                                             dataUsingEncoding:NSUTF8StringEncoding]];
+}
 @end

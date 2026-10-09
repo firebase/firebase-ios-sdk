@@ -229,4 +229,188 @@
   XCTAssertEqual(3, discardCount);
 }
 
+- (void)testParsingMalformedMessageNodes {
+  NSString *testJsonDataFilePath = [[NSBundle bundleForClass:[self class]]
+      pathForResource:@"JsonDataWithMalformedMessagesFromFetch"
+               ofType:@"txt"];
+  NSData *data = [NSData dataWithContentsOfFile:testJsonDataFilePath];
+  XCTAssertNotNil(data);
+  NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
+                                                               options:kNilOptions
+                                                                 error:nil];
+  XCTAssertNotNil(responseDict);
+
+  NSInteger discardCount;
+  NSNumber *fetchWaitTime;
+  NSArray<FIRIAMMessageDefinition *> *results =
+      [self.parser parseAPIResponseDictionary:responseDict
+                            discardedMsgCount:&discardCount
+                       fetchWaitTimeInSeconds:&fetchWaitTime];
+
+  XCTAssertNil(fetchWaitTime);
+  XCTAssertEqual(2, results.count);
+  XCTAssertEqual(12, discardCount);
+
+  // Every parsed value that is later used as a string must actually be a string.
+  for (FIRIAMMessageDefinition *definition in results) {
+    XCTAssertTrue([definition.renderData.messageID isKindOfClass:[NSString class]]);
+    XCTAssertTrue([definition.renderData.name isKindOfClass:[NSString class]]);
+    XCTAssertTrue([definition.renderData.contentData.titleText isKindOfClass:[NSString class]]);
+    for (FIRIAMDisplayTriggerDefinition *trigger in definition.renderTriggers) {
+      if (trigger.triggerType == FIRIAMRenderTriggerOnFirebaseAnalyticsEvent) {
+        XCTAssertTrue([trigger.firebaseEventName isKindOfClass:[NSString class]]);
+        XCTAssertGreaterThan(trigger.firebaseEventName.length, 0);
+      }
+    }
+  }
+
+  FIRIAMMessageDefinition *valid = results[0];
+  XCTAssertEqualObjects(@"valid_banner", valid.renderData.messageID);
+  XCTAssertEqual(1, valid.renderTriggers.count);
+  XCTAssertEqualObjects(@"valid_event", valid.renderTriggers[0].firebaseEventName);
+
+  // Wrongly typed optional fields are dropped while the message itself is kept.
+  FIRIAMMessageDefinition *optionalFields = results[1];
+  XCTAssertEqualObjects(@"optional_fields_have_wrong_types", optionalFields.renderData.messageID);
+  XCTAssertFalse(optionalFields.isTestMessage);
+  XCTAssertEqualObjects(@"Valid title", optionalFields.renderData.contentData.titleText);
+  XCTAssertNil(optionalFields.renderData.contentData.bodyText);
+  XCTAssertNil(optionalFields.renderData.contentData.actionButtonText);
+  XCTAssertNil(optionalFields.renderData.contentData.imageURL);
+  XCTAssertNil(optionalFields.renderData.contentData.actionURL);
+  XCTAssertNil(optionalFields.experimentPayload);
+  XCTAssertNil(optionalFields.appData);
+  XCTAssertEqual(1, optionalFields.renderTriggers.count);
+  XCTAssertEqualObjects(@"valid_event_2", optionalFields.renderTriggers[0].firebaseEventName);
+}
+
+- (void)testParsingNonDictionaryResponse {
+  NSArray *malformedResponses = @[ @[ @1, @2 ], @"response", @42, [NSNull null] ];
+  for (id response in malformedResponses) {
+    NSInteger discardCount = -1;
+    NSNumber *fetchWaitTime = @1;
+    NSArray<FIRIAMMessageDefinition *> *results =
+        [self.parser parseAPIResponseDictionary:response
+                              discardedMsgCount:&discardCount
+                         fetchWaitTimeInSeconds:&fetchWaitTime];
+    XCTAssertNil(results, @"%@", response);
+    XCTAssertNil(fetchWaitTime, @"%@", response);
+  }
+}
+
+- (void)testParsingNonArrayMessagesNode {
+  NSArray *malformedMessages =
+      @[ @"messages", @42, [NSNull null], @{@"campaignId" : @"not in an array"} ];
+  for (id messages in malformedMessages) {
+    NSInteger discardCount = 0;
+    NSNumber *fetchWaitTime;
+    NSArray<FIRIAMMessageDefinition *> *results =
+        [self.parser parseAPIResponseDictionary:@{@"messages" : messages}
+                              discardedMsgCount:&discardCount
+                         fetchWaitTimeInSeconds:&fetchWaitTime];
+    XCTAssertNil(results, @"%@", messages);
+  }
+}
+
+- (void)testParsingEmptyResponse {
+  NSInteger discardCount = -1;
+  NSNumber *fetchWaitTime;
+  NSArray<FIRIAMMessageDefinition *> *results =
+      [self.parser parseAPIResponseDictionary:@{}
+                            discardedMsgCount:&discardCount
+                       fetchWaitTimeInSeconds:&fetchWaitTime];
+  XCTAssertNotNil(results);
+  XCTAssertEqual(0, results.count);
+  XCTAssertEqual(0, discardCount);
+  XCTAssertNil(fetchWaitTime);
+}
+
+- (void)testParsingInvalidFetchExpirationTime {
+  NSTimeInterval currentMoment = 100000000;
+  OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(currentMoment);
+
+  NSArray *invalidExpirations = @[ @"-1000", @"garbage", @"nan", @"", [NSNull null], @[] ];
+  for (id expiration in invalidExpirations) {
+    NSInteger discardCount;
+    NSNumber *fetchWaitTime;
+    NSArray<FIRIAMMessageDefinition *> *results =
+        [self.parser parseAPIResponseDictionary:@{@"expirationEpochTimestampMillis" : expiration}
+                              discardedMsgCount:&discardCount
+                         fetchWaitTimeInSeconds:&fetchWaitTime];
+    XCTAssertNotNil(results, @"%@", expiration);
+    XCTAssertNil(fetchWaitTime, @"%@", expiration);
+  }
+}
+
+- (void)testParsingWrongTypedIntermediateContentNodes {
+  // Intermediate nodes (title/body/action/button) that are not dictionaries should only drop the
+  // fields beneath them, not discard the whole message via an unrecognized selector exception.
+  NSDictionary *payload = @{@"campaignId" : @"c1", @"campaignName" : @"name"};
+  NSArray *triggers = @[ @{@"fiamTrigger" : @"ON_FOREGROUND"} ];
+  NSDictionary *responseDict = @{
+    @"messages" : @[
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"modal" : @{
+            @"title" : @{@"text" : @"Modal title"},
+            @"body" : [NSNull null],
+            @"actionButton" : @{@"text" : @"not a dictionary", @"buttonHexColor" : @5},
+            @"action" : @"not a dictionary",
+          }
+        }
+      },
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"card" : @{
+            @"title" : @{@"text" : @"Card title", @"hexColor" : [NSNull null]},
+            @"body" : @[ @"array" ],
+            @"primaryActionButton" : @42,
+            @"secondaryActionButton" : @{@"text" : [NSNull null]},
+            @"primaryAction" : [NSNull null],
+            @"secondaryAction" : @"not a dictionary",
+          }
+        }
+      },
+      @{
+        @"vanillaPayload" : payload,
+        @"triggeringConditions" : triggers,
+        @"content" : @{
+          @"banner" : @{
+            @"title" : @"not a dictionary",
+          }
+        }
+      },
+    ]
+  };
+
+  NSInteger discardCount = -1;
+  NSNumber *fetchWaitTime;
+  NSArray<FIRIAMMessageDefinition *> *results =
+      [self.parser parseAPIResponseDictionary:responseDict
+                            discardedMsgCount:&discardCount
+                       fetchWaitTimeInSeconds:&fetchWaitTime];
+
+  // The banner is discarded because its (required) title is missing, not because of an exception.
+  XCTAssertEqual(2, results.count);
+  XCTAssertEqual(1, discardCount);
+
+  id<FIRIAMMessageContentData> modal = results[0].renderData.contentData;
+  XCTAssertEqualObjects(@"Modal title", modal.titleText);
+  XCTAssertNil(modal.bodyText);
+  XCTAssertNil(modal.actionButtonText);
+  XCTAssertNil(modal.actionURL);
+
+  id<FIRIAMMessageContentData> card = results[1].renderData.contentData;
+  XCTAssertEqualObjects(@"Card title", card.titleText);
+  XCTAssertNil(card.bodyText);
+  XCTAssertNil(card.actionButtonText);
+  XCTAssertNil(card.secondaryActionButtonText);
+  XCTAssertNil(card.actionURL);
+  XCTAssertNil(card.secondaryActionURL);
+}
+
 @end

@@ -21,7 +21,7 @@
 
 @implementation UIColor (HexString)
 + (UIColor *)firiam_colorWithHexString:(nullable NSString *)hexString {
-  if (hexString.length < 7) {
+  if (![hexString isKindOfClass:[NSString class]] || hexString.length < 7) {
     return nil;
   }
 
