@@ -251,10 +251,11 @@ static NSString *const kDeviceCheckinURL = @"https://device-provisioning.googlea
 }
 
 - (void)testCheckinFailsWithInvalidIDs {
-  // The Arabic-Indic digits are decimal digits but not ASCII.
+  // The Arabic-Indic digits are decimal digits but not ASCII. Numbers must be non-negative
+  // integers, and JSON booleans are numbers whose string values are "1" and "0".
   NSArray *invalidIDs = @[
     @"", @"12a4", @"-1234", @"12.5", @" 1234", @"1234|5", @"\u0661\u0662\u0663\u0664", @[ @1234 ],
-    @{@"id" : @1234}
+    @{@"id" : @1234}, @12.5, @(-1234), @YES, @NO
   ];
   for (NSString *key in @[ @"android_id", @"security_token" ]) {
     for (id invalidID in invalidIDs) {

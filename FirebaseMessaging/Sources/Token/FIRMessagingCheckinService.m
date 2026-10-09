@@ -55,14 +55,21 @@ static NSString *_Nullable FIRMessagingCheckinString(id _Nullable value) {
   return [value rangeOfCharacterFromSet:nul].location == NSNotFound ? value : nil;
 }
 
-/// Returns a checkin ID (`android_id` or `security_token`) as a string, or nil if `value` is
-/// neither a number nor a string of ASCII decimal digits. The IDs are 64-bit integers, which the
-/// proto3 JSON format sends as strings.
+/// Returns a checkin ID (`android_id` or `security_token`) as a string of ASCII decimal digits,
+/// or nil if `value` isn't a non-negative integer. The IDs are 64-bit integers, which the proto3
+/// JSON format sends as strings, so both numbers and strings of digits are accepted.
 static NSString *_Nullable FIRMessagingCheckinID(id _Nullable value) {
+  NSString *string;
   if ([value isKindOfClass:[NSNumber class]]) {
-    return [value stringValue];
+    // A JSON boolean is an NSNumber whose string value is "1" or "0".
+    if (CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID()) {
+      return nil;
+    }
+    // Other numbers get the same digit check as strings, which rejects values such as 1.5 or -1.
+    string = [value stringValue];
+  } else {
+    string = FIRMessagingCheckinString(value);
   }
-  NSString *string = FIRMessagingCheckinString(value);
   static NSCharacterSet *nonDigits;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
