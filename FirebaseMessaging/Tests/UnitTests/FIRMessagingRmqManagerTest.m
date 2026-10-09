@@ -24,8 +24,20 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPersistentSyncMessage.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 static NSString *const kRmqDatabaseName = @"rmq-test-db";
+
+@interface FIRMessaging (ExposedForRmqTest)
+
+@property(nonatomic, readwrite, strong) FIRMessagingRmqManager *rmq2Manager;
+- (instancetype)initWithAnalytics:(nullable id)analytics
+                     userDefaults:(nullable id)defaults
+                  heartbeatLogger:(nullable id)heartbeatLogger;
+- (void)setupFileManagerSubDirectory;
+- (void)setupRmqManager;
+
+@end
 
 @interface FIRMessagingRmqManager (ExposedForTest)
 
@@ -172,6 +184,56 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 
   XCTAssertEqualObjects([NSData dataWithContentsOfFile:databasePath], brokenDBFileContent);
   return databasePath;
+}
+
+- (void)testSetupRmqManagerDoesNotBlockOnDatabaseQueue {
+  // Ensure setUp's rmqManager has finished opening its database before stubbing the class method.
+  [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
+
+  FIRMessaging *messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                                       userDefaults:nil
+                                                    heartbeatLogger:nil];
+  [messaging setupFileManagerSubDirectory];
+
+  // Redirect the "rmq2" database to a test-only file so the test doesn't touch the real database.
+  NSString *testDatabasePath = [FIRMessagingRmqManager pathForDatabaseWithName:@"rmq2-setup-test"];
+  [[NSFileManager defaultManager] removeItemAtPath:testDatabasePath error:nil];
+
+  dispatch_semaphore_t databaseBlockedSemaphore = dispatch_semaphore_create(0);
+  dispatch_semaphore_t databaseEnteredSemaphore = dispatch_semaphore_create(0);
+  __block BOOL setupReturnedBeforeDatabaseOpened = NO;
+  __block BOOL didObserveSetupReturned = NO;
+
+  id rmqClassMock = OCMClassMock([FIRMessagingRmqManager class]);
+  OCMStub([rmqClassMock pathForDatabaseWithName:@"rmq2"])
+      .andDo(^(NSInvocation *invocation) {
+        dispatch_semaphore_signal(databaseEnteredSemaphore);
+        dispatch_semaphore_wait(databaseBlockedSemaphore,
+                                dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)));
+        didObserveSetupReturned = setupReturnedBeforeDatabaseOpened;
+      })
+      .andReturn(testDatabasePath);
+
+  [messaging setupRmqManager];
+  FIRMessagingRmqManager *manager = messaging.rmq2Manager;
+  XCTAssertNotNil(manager);
+
+  // Wait until openDatabase has started on _databaseOperationQueue, then unblock it after
+  // confirming setupRmqManager returned without blocking the calling thread.
+  intptr_t waitResult = dispatch_semaphore_wait(
+      databaseEnteredSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)));
+  XCTAssertEqual(waitResult, 0,
+                 @"Timed out waiting for database queue to start opening the database");
+  setupReturnedBeforeDatabaseOpened = YES;
+  dispatch_semaphore_signal(databaseBlockedSemaphore);
+
+  // Wait for openDatabase to complete before removing the test database. Remove the file directly
+  // because -removeDatabase would resolve the real "rmq2" path once mocking stops.
+  [self waitForDrainDatabaseQueueForRmqManager:manager];
+  [rmqClassMock stopMocking];
+  [[NSFileManager defaultManager] removeItemAtPath:testDatabasePath error:nil];
+
+  XCTAssertTrue(didObserveSetupReturned);
 }
 
 @end
