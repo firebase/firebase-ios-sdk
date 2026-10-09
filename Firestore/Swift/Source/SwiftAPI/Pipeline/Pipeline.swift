@@ -1154,12 +1154,13 @@ public class Pipeline: @unchecked Sendable {
     )
   }
 
-  // MARK: - In-Place Upsert (variadic is the only parameter: ALLOWED)
+  // MARK: - In-Place Upsert
 
-  /// Appends an `upsert` stage to the pipeline modifying matching documents in-place.
+  /// Appends an `upsert` stage that writes each document produced by the preceding stages to the
+  /// path in its `__name__` field.
   ///
-  /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if
-  /// it does.
+  /// A document that doesn't exist is created; one that exists is replaced entirely (fields are not
+  /// merged). An input document without `__name__` makes the pipeline fail.
   ///
   /// ```swift
   /// // Example: In-place upsert with variadic additional fields
@@ -1172,23 +1173,23 @@ public class Pipeline: @unchecked Sendable {
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
   ///
-  /// - Parameter additionalFields: Variadic list of `Selectable` expressions representing updated
-  /// field assignments.
+  /// - Parameter additionalFields: Variadic list of `Selectable` expressions to add to each input
+  ///   document before it is written. A field with the same name as an input field replaces it.
   /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
   public func upsert(_ additionalFields: Selectable...) -> Pipeline {
     return upsert(additionalFields)
   }
 
-  /// Appends an `upsert` stage to the pipeline modifying matching documents in-place using an
-  /// array.
+  /// Appends an `upsert` stage that writes each document produced by the preceding stages to the
+  /// path in its `__name__` field.
   ///
-  /// The `upsert` stage inserts a document if it does not already exist, or updates its fields if
-  /// it does.
+  /// A document that doesn't exist is created; one that exists is replaced entirely (fields are not
+  /// merged). An input document without `__name__` makes the pipeline fail.
   ///
   /// ```swift
-  /// // Example: In-place transactional upsert on document references
+  /// // Example: In-place upsert with an array of additional fields
   /// let inPlaceSnapshot = try await db.pipeline()
-  ///   .documents([db.collection("books").document("new_upsert_doc_id")])
+  ///   .documents([db.collection("books").document("book1")])
   ///   .upsert([
   ///     Constant("Sci-Fi").as("genre"),
   ///     Constant("New Book Title").as("title")
@@ -1196,8 +1197,8 @@ public class Pipeline: @unchecked Sendable {
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
   ///
-  /// - Parameter additionalFields: Array of `Selectable` expressions representing updated field
-  /// assignments.
+  /// - Parameter additionalFields: Array of `Selectable` expressions to add to each input document
+  ///   before it is written. A field with the same name as an input field replaces it.
   /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
   public func upsert(_ additionalFields: [Selectable]) -> Pipeline {
     return Pipeline(
@@ -1208,13 +1209,13 @@ public class Pipeline: @unchecked Sendable {
     )
   }
 
-  // MARK: - Target-Collection Upsert (explicit array only: ALLOWED)
+  // MARK: - Target-Collection Upsert
 
-  /// Appends an `upsert` stage to write documents into a destination collection.
+  /// Appends an `upsert` stage that writes each document produced by the preceding stages into the
+  /// collection at `collectionPath`.
   ///
-  /// The `upsert` stage writes documents into the specified `collectionPath`. If a document exists,
-  /// it is updated;
-  /// otherwise, it is inserted.
+  /// A document that doesn't exist is created; one that exists is replaced entirely (fields are not
+  /// merged).
   ///
   /// ```swift
   /// // Example 1: Target custom collection with custom document ID field and additional fields
@@ -1247,9 +1248,11 @@ public class Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - collectionPath: The target collection path to upsert documents into.
   ///   - documentIdExpression: Optional expression resolving to the document ID in the target
-  /// collection.
-  ///   - additionalFields: Array of `Selectable` expressions representing updated field
-  /// assignments. Defaults to empty array.
+  ///     collection. If `nil`, the input document's ID is reused, or an ID is generated if it has
+  ///     none.
+  ///   - additionalFields: Array of `Selectable` expressions to add to each input document before
+  ///     it is written. A field with the same name as an input field replaces it. Defaults to an
+  ///     empty array.
   /// - Returns: A new `Pipeline` object with the `upsert` stage appended.
   public func upsert(collectionPath: String,
                      documentIdExpression: Expression? = nil,
