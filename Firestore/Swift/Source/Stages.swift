@@ -114,6 +114,40 @@ class DocumentsSource: Stage {
   }
 }
 
+class LiteralsSource: Stage {
+  let name: String = "literals"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(data: [[String: Sendable]]) {
+    if data.isEmpty {
+      errorMessage = "The 'literals' stage requires at least one document."
+      bridge = __LiteralsSourceStageBridge(data: [])
+      return
+    }
+    var errors: [String] = []
+    let bridgedData: [[String: __ExprBridge]] = data.map { doc in
+      var bridgedDoc: [String: __ExprBridge] = [:]
+      for (key, val) in doc {
+        let validationErrors = Helper.validateLiteralsValue(val, fieldPath: key)
+        if !validationErrors.isEmpty {
+          errors.append(contentsOf: validationErrors)
+          bridgedDoc[key] = Constant.nil.toBridge()
+        } else {
+          let expr = Helper.sendableToExpr(val)
+          if let error = expr.errorMessage {
+            errors.append(error)
+          }
+          bridgedDoc[key] = expr.toBridge()
+        }
+      }
+      return bridgedDoc
+    }
+    errorMessage = errors.isEmpty ? nil : errors.joined(separator: "\n")
+    bridge = __LiteralsSourceStageBridge(data: bridgedData)
+  }
+}
+
 class Where: Stage {
   let name: String = "where"
 
@@ -500,5 +534,77 @@ class RawStage: Stage {
     let bridgeParams = params.map { Helper.sendableToAnyObjectForRawStage($0) }
     let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
     bridge = __RawStageBridge(name: name, params: bridgeParams, options: bridgeOptions)
+  }
+}
+
+class DeleteStage: Stage {
+  let name: String = "delete"
+  let bridge: __StageBridge
+  init() {
+    bridge = __DeleteStageBridge()
+  }
+}
+
+class UpdateStage: Stage {
+  let name: String = "update"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(fields: [Selectable]) {
+    let (map, error) = Helper.selectablesToMap(selectables: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      bridge = __UpdateStageBridge(fields: [:])
+    } else {
+      errorMessage = nil
+      bridge = __UpdateStageBridge(fields: map.mapValues { $0.toBridge() })
+    }
+  }
+}
+
+class InsertStage: Stage {
+  let name: String = "insert"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
+    errorMessage = documentIdExpression?.errorMessage
+    bridge = __InsertStageBridge(
+      collectionPath: collectionPath,
+      documentIdExpression: documentIdExpression?.toBridge()
+    )
+  }
+}
+
+class UpsertStage: Stage {
+  let name: String = "upsert"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(additionalFields: [Selectable] = [], collectionPath: String? = nil,
+       documentIdExpression: Expression? = nil) {
+    let (map, error) = Helper.selectablesToMap(selectables: additionalFields)
+    var errors: [String] = []
+    if let error = error {
+      errors.append(error.localizedDescription)
+    }
+    if let docIdError = documentIdExpression?.errorMessage {
+      errors.append(docIdError)
+    }
+    if !errors.isEmpty {
+      errorMessage = errors.joined(separator: "\n")
+      bridge = __UpsertStageBridge(
+        additionalFields: [:],
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    } else {
+      errorMessage = nil
+      bridge = __UpsertStageBridge(
+        additionalFields: map.mapValues { $0.toBridge() },
+        collectionPath: collectionPath,
+        documentIdExpression: documentIdExpression?.toBridge()
+      )
+    }
   }
 }
