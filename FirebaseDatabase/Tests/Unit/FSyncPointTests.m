@@ -511,6 +511,47 @@ typedef NSDictionary * (^fbt_nsdictionary_void)(void);
   }
 }
 
+// purgeOutstandingWrites removes all writes from the sync tree. The connection can still deliver
+// acks for them afterwards: it defers acks that arrive while listens are outstanding, and delivers
+// them when the writes are purged. https://github.com/firebase/firebase-ios-sdk/issues/5161
+- (void)testAckForWriteRemovedByRemoveAllWritesIsIgnored {
+  FListenProvider *listenProvider = [[FListenProvider alloc] init];
+  listenProvider.startListening = ^(FQuerySpec *query, NSNumber *tagId, id<FSyncTreeHash> hash,
+                                    fbt_nsarray_nsstring onComplete) {
+    return @[];
+  };
+  listenProvider.stopListening = ^(FQuerySpec *query, NSNumber *tagId) {
+  };
+  FSyncTree *syncTree = [[FSyncTree alloc] initWithListenProvider:listenProvider];
+  FPath *path = [FPath pathWithString:@"a"];
+  [syncTree applyUserOverwriteAtPath:path
+                             newData:[FSnapshotUtilities nodeFrom:@"purged"]
+                             writeId:0
+                           isVisible:YES];
+  [syncTree removeAllWrites];
+  [syncTree applyUserOverwriteAtPath:path
+                             newData:[FSnapshotUtilities nodeFrom:@"pending"]
+                             writeId:1
+                           isVisible:YES];
+
+  NSArray *events = nil;
+  XCTAssertNoThrow(events = [syncTree ackUserWriteWithWriteId:0
+                                                       revert:NO
+                                                      persist:YES
+                                                        clock:[[FTestClock alloc] init]]);
+  XCTAssertEqual(events.count, 0);
+  XCTAssertEqualObjects([syncTree calcCompleteEventCacheAtPath:path excludeWriteIds:@[]],
+                        [FSnapshotUtilities nodeFrom:@"pending"]);
+
+  // The write that is still pending is acked as usual.
+  XCTAssertNoThrow([syncTree ackUserWriteWithWriteId:1
+                                              revert:YES
+                                             persist:YES
+                                               clock:[[FTestClock alloc] init]]);
+  XCTAssertEqualObjects([syncTree calcCompleteEventCacheAtPath:path excludeWriteIds:@[]],
+                        [FEmptyNode emptyNode]);
+}
+
 - (void)testDefaultListenHandlesParentSet {
   [self runTestForName:@"Default listen handles a parent set"];
 }
