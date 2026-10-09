@@ -340,6 +340,22 @@ class TestUpgradeSpec(unittest.TestCase):
             ["MODALITY_UNSPECIFIED", "TEXT"],
         )
 
+    def test_extract_standalone_enums_prefixes_tool_type(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaToolCall": {
+                "type": "object",
+                "properties": {
+                    "toolType": {
+                        "type": "string",
+                        "enum": ["TOOL_TYPE_UNSPECIFIED", "GOOGLE_SEARCH"],
+                    }
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        self.assertIn("GoogleAiGenerativelanguageV1betaToolType", schemas)
+        self.assertNotIn("ToolType", schemas)
+
     def test_extract_standalone_enums_uses_given_prefixes(self):
         schemas = {
             "VendorXSafetyRating": {

@@ -68,7 +68,7 @@ STANDALONE_ENUM_RULES: list[dict[str, Any]] = [
                 cases and cases[0].startswith("TOOL_TYPE_")
             )
         ),
-        "name_fn": lambda prefix: "ToolType",
+        "name_fn": lambda prefix: f"{prefix}ToolType",
         "description": "Tool types for function calling and tools.",
     },
     {
