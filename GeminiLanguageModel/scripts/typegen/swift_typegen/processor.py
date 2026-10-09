@@ -65,6 +65,20 @@ def get_primitive_type(prop_data: dict[str, Any]) -> str | None:
     return None
 
 
+def is_sentinel_case(value: str) -> bool:
+    """Returns whether an enum value is an UNSPECIFIED/UNKNOWN sentinel.
+
+    Sentinels are matched case-insensitively and are not generated as cases.
+
+    Args:
+        value: Raw enum value.
+    """
+    upper = value.upper()
+    return upper in ("UNSPECIFIED", "UNKNOWN") or upper.endswith(
+        ("_UNSPECIFIED", "_UNKNOWN")
+    )
+
+
 def strip_enum_prefix(cases: list[str]) -> tuple[str, list[str]]:
     """Identifies and strips shared prefixes from enum cases.
 
@@ -74,16 +88,7 @@ def strip_enum_prefix(cases: list[str]) -> tuple[str, list[str]]:
     Returns:
         Tuple of (common prefix string, filtered cases without UNSPECIFIED).
     """
-    filtered_cases = [
-        c
-        for c in cases
-        if not (
-            c.endswith("_UNSPECIFIED")
-            or c.endswith("_UNKNOWN")
-            or c == "UNSPECIFIED"
-            or c == "UNKNOWN"
-        )
-    ]
+    filtered_cases = [c for c in cases if not is_sentinel_case(c)]
     if not filtered_cases:
         return "", cases
 
@@ -410,13 +415,7 @@ class SchemaProcessor:
         )
 
         for idx, raw_val in enumerate(data["enum"]):
-            val_upper = raw_val.upper()
-            if (
-                val_upper.endswith("_UNSPECIFIED")
-                or val_upper.endswith("_UNKNOWN")
-                or val_upper == "UNSPECIFIED"
-                or val_upper == "UNKNOWN"
-            ):
+            if is_sentinel_case(raw_val):
                 continue
 
             case_swift_name = to_camel_case(raw_val[len(prefix) :], lower=True)

@@ -24,6 +24,7 @@ from swift_typegen.models import SwiftType
 from swift_typegen.processor import (
     SchemaProcessor,
     get_primitive_type,
+    is_sentinel_case,
     strip_enum_prefix,
 )
 
@@ -77,6 +78,26 @@ class TestSchemaProcessor(unittest.TestCase):
         prefix, filtered = strip_enum_prefix(cases)
         self.assertEqual(prefix, "")
         self.assertEqual(filtered, cases)
+
+    def test_strip_enum_prefix_ignores_lowercase_sentinels(self):
+        prefix, filtered = strip_enum_prefix(
+            ["unknown", "mode_fast", "mode_slow"]
+        )
+        self.assertEqual(prefix, "mode_")
+        self.assertEqual(filtered, ["mode_fast", "mode_slow"])
+
+    def test_is_sentinel_case(self):
+        for value in (
+            "UNSPECIFIED",
+            "unknown",
+            "MODE_UNSPECIFIED",
+            "x_unknown",
+        ):
+            with self.subTest(value=value):
+                self.assertTrue(is_sentinel_case(value))
+        for value in ("UNSPECIFIED_MODE", "KNOWN", "FAST"):
+            with self.subTest(value=value):
+                self.assertFalse(is_sentinel_case(value))
 
     def test_dotted_namespace_nesting(self):
         schema_data = {
