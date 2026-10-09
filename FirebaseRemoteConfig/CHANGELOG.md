@@ -1,4 +1,7 @@
 # Unreleased
+- [added] Added `RemoteConfig.reset()`, which deletes all activated, fetched and
+  default configs and resets all Remote Config settings, matching the Android
+  SDK's `FirebaseRemoteConfig.reset()`. (#16874)
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
 - [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,

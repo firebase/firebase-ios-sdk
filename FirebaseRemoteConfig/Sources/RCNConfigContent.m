@@ -292,6 +292,30 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   }
 }
 
+- (BOOL)resetForNamespace:(NSString *)FIRNamespace {
+  // Clearing memory before the initial load completes would let the load restore the old configs.
+  if (![self checkAndWaitForInitialDatabaseLoad]) {
+    return NO;
+  }
+  @synchronized(self) {
+    [_fetchedConfig removeObjectForKey:FIRNamespace];
+    [_activeConfig removeObjectForKey:FIRNamespace];
+    [_defaultConfig removeObjectForKey:FIRNamespace];
+    _fetchedPersonalization = [[NSDictionary alloc] init];
+    _activePersonalization = [[NSDictionary alloc] init];
+    _fetchedRolloutMetadata = [[NSArray alloc] init];
+    _activeRolloutMetadata = [[NSArray alloc] init];
+  }
+  for (NSNumber *source in
+       @[ @(RCNDBSourceFetched), @(RCNDBSourceActive), @(RCNDBSourceDefault) ]) {
+    [_DBManager deleteRecordFromMainTableWithNamespace:FIRNamespace
+                                      bundleIdentifier:_bundleIdentifier
+                                            fromSource:(RCNDBSource)source.integerValue];
+  }
+  [_DBManager deleteAllRecordsFromPersonalizationAndRolloutTables];
+  return YES;
+}
+
 - (void)activatePersonalization {
   @synchronized(self) {
     _activePersonalization = _fetchedPersonalization;
