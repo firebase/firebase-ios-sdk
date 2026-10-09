@@ -379,9 +379,9 @@ typedef enum {
         }
     } else if (message[kFWPRequestError] != nil) {
         NSString *error = [message objectForKey:kFWPRequestError];
-        @throw [[NSException alloc] initWithName:@"FirebaseDatabaseServerError"
-                                          reason:error
-                                        userInfo:nil];
+        // Log the error and ignore the message. Throwing here crashed the app,
+        // since nothing up the call stack catches the exception.
+        FFWarn(@"I-RDB034058", @"Received an error from the server: %@", error);
     } else if (message[kFWPAsyncServerAction] != nil) {
         // this is a server push of some sort
         NSString *action = [message objectForKey:kFWPAsyncServerAction];

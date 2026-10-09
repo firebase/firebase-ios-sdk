@@ -1,3 +1,10 @@
+# Unreleased
+- [fixed] Fixed a potential crash at every launch after the server sent an
+  invalid database host. Such hosts are now ignored, and a saved one is
+  discarded. (#16863)
+- [fixed] Fixed a potential crash when the server sent a data message with an
+  `error`. (#16863)
+
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
   `.info/serverTimeOffset` is refreshed. (#363)

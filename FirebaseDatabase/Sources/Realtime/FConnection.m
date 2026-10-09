@@ -224,6 +224,18 @@ typedef enum {
 }
 
 - (void)onReset:(NSString *)host {
+    if (![FRepoInfo isValidHost:host]) {
+        // Go back to the configured host instead. Close without SERVER_RESET,
+        // so the reconnect uses the normal backoff and doesn't loop without a
+        // delay if the server keeps sending this reset.
+        FFWarn(
+            @"I-RDB082021",
+            @"Reset to invalid host %@; reconnecting to the configured host.",
+            host);
+        [self.repoInfo clearInternalHostCache];
+        [self close];
+        return;
+    }
     FFLog(
         @"I-RDB082015",
         @"Got a reset; killing connection to: %@; Updating internalHost to: %@",
