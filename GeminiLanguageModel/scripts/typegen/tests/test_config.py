@@ -18,10 +18,26 @@ import os
 import tempfile
 import unittest
 
-from swift_typegen.config import Backend, GeneratorConfig
+from swift_typegen.config import (
+    DEVELOPER_TAG,
+    ENTERPRISE_TAG,
+    Backend,
+    GeneratorConfig,
+    provenance_key,
+)
 
 
 class TestGeneratorConfig(unittest.TestCase):
+
+    def test_provenance_key_builds_extension_key(self):
+        self.assertEqual(
+            provenance_key(DEVELOPER_TAG, "description"),
+            "x-gl-developer-description",
+        )
+        self.assertEqual(
+            provenance_key(ENTERPRISE_TAG, "original-name"),
+            "x-ai-enterprise-original-name",
+        )
 
     def test_generator_config_defaults(self):
         config = GeneratorConfig()
@@ -44,8 +60,8 @@ class TestGeneratorConfig(unittest.TestCase):
                     "  renameMappings: {Old: New}\n"
                     "  typeOverrides: {Struct: JSONObject}\n"
                     "  backends:\n"
-                    "    - {prefix: GlPrefix, tag: gl}\n"
-                    "    - {prefix: AiPrefix, tag: ai}\n"
+                    "    - {prefix: GlPrefix, tag: gl-developer}\n"
+                    "    - {prefix: AiPrefix, tag: ai-enterprise}\n"
                     "  preservedFiles: [Manual.swift]\n"
                 )
             config = GeneratorConfig.from_file(path)
@@ -55,7 +71,10 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(config.type_overrides, {"Struct": "JSONObject"})
         self.assertEqual(
             config.backends,
-            [Backend("GlPrefix", "gl"), Backend("AiPrefix", "ai")],
+            [
+                Backend("GlPrefix", "gl-developer"),
+                Backend("AiPrefix", "ai-enterprise"),
+            ],
         )
         self.assertEqual(config.preserved_files, {"Manual.swift"})
 
@@ -65,22 +84,32 @@ class TestGeneratorConfig(unittest.TestCase):
 
     def test_backend_rejects_empty_prefix(self):
         with self.assertRaises(ValueError):
-            Backend(prefix="", tag="gl")
+            Backend(prefix="", tag="gl-developer")
 
     def test_rejects_duplicate_backend_prefixes(self):
         with self.assertRaisesRegex(ValueError, "prefix"):
             GeneratorConfig(
-                backends=[Backend("Same", "gl"), Backend("Same", "ai")]
+                backends=[
+                    Backend("Same", "gl-developer"),
+                    Backend("Same", "ai-enterprise"),
+                ]
             )
 
     def test_rejects_duplicate_backend_tags(self):
         with self.assertRaisesRegex(ValueError, "tag"):
             GeneratorConfig(
-                backends=[Backend("One", "gl"), Backend("Two", "gl")]
+                backends=[
+                    Backend("One", "gl-developer"),
+                    Backend("Two", "gl-developer"),
+                ]
             )
 
     def test_from_file_rejects_malformed_backend_entries(self):
-        for entry in ("{prefix: OnlyPrefix}", "{tag: gl}", "JustAString"):
+        for entry in (
+            "{prefix: OnlyPrefix}",
+            "{tag: gl-developer}",
+            "JustAString",
+        ):
             with self.subTest(entry=entry):
                 with tempfile.TemporaryDirectory() as tmp:
                     path = os.path.join(tmp, "overrides.yaml")
@@ -90,8 +119,10 @@ class TestGeneratorConfig(unittest.TestCase):
                         GeneratorConfig.from_file(path)
 
     def test_backend_for_prefix(self):
-        config = GeneratorConfig(backends=[Backend("GlPrefix", "gl")])
-        self.assertEqual(config.backend_for_prefix("GlPrefix").tag, "gl")
+        config = GeneratorConfig(backends=[Backend("GlPrefix", "gl-developer")])
+        self.assertEqual(
+            config.backend_for_prefix("GlPrefix").tag, "gl-developer"
+        )
         with self.assertRaises(ValueError):
             config.backend_for_prefix("Unknown")
 
@@ -107,6 +138,6 @@ class TestGeneratorConfig(unittest.TestCase):
             )
         )
         self.assertEqual(
-            [b.tag for b in config.backends], ["gl", "ai"]
+            [b.tag for b in config.backends], ["gl-developer", "ai-enterprise"]
         )
         self.assertIn("ResponseFormatConfig.swift", config.preserved_files)

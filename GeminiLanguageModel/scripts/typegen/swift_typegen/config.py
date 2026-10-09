@@ -23,12 +23,29 @@ from typing import Any
 import yaml
 
 # Extension tags used for 'x-<tag>-*' provenance fields on merged schemas.
-# The set is closed: merge.py and docc.py read 'x-gl-*' / 'x-ai-*' fields
-# directly, so supporting another backend requires code changes, not just
+# The set is closed: merge.py and docc.py read the provenance fields of these
+# specific tags, so supporting another backend requires code changes, not just
 # configuration.
-DEVELOPER_API_TAG = "gl"
-ENTERPRISE_API_TAG = "ai"
-BACKEND_TAGS = (DEVELOPER_API_TAG, ENTERPRISE_API_TAG)
+DEVELOPER_TAG = "gl-developer"
+ENTERPRISE_TAG = "ai-enterprise"
+BACKEND_TAGS = (DEVELOPER_TAG, ENTERPRISE_TAG)
+
+
+def provenance_key(tag: str, field_name: str) -> str:
+    """Returns the extension key recording a backend's provenance for a field.
+
+    Tags contain hyphens, so keys must be built (or matched against
+    BACKEND_TAGS) rather than parsed by splitting on '-'.
+
+    Args:
+        tag: A backend tag from BACKEND_TAGS.
+        field_name: The provenance field: 'description', 'enum', or
+            'original-name'.
+
+    Returns:
+        The 'x-<tag>-<field_name>' extension key.
+    """
+    return f"x-{tag}-{field_name}"
 
 
 @dataclass(frozen=True)
@@ -38,8 +55,8 @@ class Backend:
     Attributes:
         prefix: Schema name prefix to strip (e.g.
             'GoogleAiGenerativelanguageV1beta').
-        tag: Provenance extension tag: 'gl' (Gemini Developer API) or 'ai'
-            (Gemini Enterprise Agent Platform).
+        tag: Provenance extension tag: 'gl-developer' (Gemini Developer API)
+            or 'ai-enterprise' (Gemini Enterprise Agent Platform).
     """
 
     prefix: str

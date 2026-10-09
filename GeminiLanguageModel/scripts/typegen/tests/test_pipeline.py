@@ -36,8 +36,8 @@ from swift_typegen.pipeline import (
     write_types,
 )
 
-GL = Backend("GoogleAiGenerativelanguageV1beta", "gl")
-AI = Backend("GoogleCloudAiplatformV1beta1", "ai")
+GL = Backend("GoogleAiGenerativelanguageV1beta", "gl-developer")
+AI = Backend("GoogleCloudAiplatformV1beta1", "ai-enterprise")
 
 TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES_DIR = os.path.join(TYPEGEN_DIR, "templates")
@@ -126,9 +126,15 @@ class TestPreprocessBackend(unittest.TestCase):
                 base_schemas, AI, ["Root"], GeneratorConfig()
             )
         self.assertEqual(set(resolved), {"Root", "Child"})
-        self.assertEqual(resolved["Root"]["x-ai-original-name"], f"{AI.prefix}Root")
+        self.assertEqual(
+            resolved["Root"]["x-ai-enterprise-original-name"],
+            f"{AI.prefix}Root",
+        )
         # The input is deep-copied, not mutated.
-        self.assertNotIn("x-ai-original-name", base_schemas[f"{AI.prefix}Root"])
+        self.assertNotIn(
+            "x-ai-enterprise-original-name",
+            base_schemas[f"{AI.prefix}Root"],
+        )
 
     def test_no_backend_leaves_names_unchanged(self):
         base_schemas = {"Root": {"type": "object", "properties": {}}}
@@ -137,7 +143,7 @@ class TestPreprocessBackend(unittest.TestCase):
                 base_schemas, None, ["Root"], GeneratorConfig()
             )
         self.assertEqual(list(resolved), ["Root"])
-        self.assertNotIn("x-gl-original-name", resolved["Root"])
+        self.assertNotIn("x-gl-developer-original-name", resolved["Root"])
 
 
 @mock.patch("swift_typegen.pipeline.run_swift_format")
@@ -179,8 +185,8 @@ class TestRunPipeline(unittest.TestCase):
             {
                 "generatorConfig": {
                     "backends": [
-                        {"prefix": GL.prefix, "tag": "gl"},
-                        {"prefix": AI.prefix, "tag": "ai"},
+                        {"prefix": GL.prefix, "tag": "gl-developer"},
+                        {"prefix": AI.prefix, "tag": "ai-enterprise"},
                     ],
                     "preservedFiles": ["Manual.swift"],
                 }

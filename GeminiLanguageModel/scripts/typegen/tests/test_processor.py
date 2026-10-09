@@ -284,12 +284,12 @@ class TestSchemaProcessor(unittest.TestCase):
                     "HARM_CATEGORY_IMAGE_HATE",
                 ],
                 "enumDescriptions": ["Unused.", "Hate.", "Derogatory.", ""],
-                "x-gl-enum": [
+                "x-gl-developer-enum": [
                     "HARM_CATEGORY_UNSPECIFIED",
                     "HARM_CATEGORY_HATE_SPEECH",
                     "HARM_CATEGORY_DEROGATORY",
                 ],
-                "x-ai-enum": [
+                "x-ai-enterprise-enum": [
                     "HARM_CATEGORY_UNSPECIFIED",
                     "HARM_CATEGORY_HATE_SPEECH",
                     "HARM_CATEGORY_IMAGE_HATE",
@@ -316,7 +316,7 @@ class TestSchemaProcessor(unittest.TestCase):
                 "type": "string",
                 "enum": ["STANDARD", "FLEX"],
                 "enumDescriptions": ["Standard.", "Flex."],
-                "x-gl-enum": ["STANDARD", "FLEX"],
+                "x-gl-developer-enum": ["STANDARD", "FLEX"],
             }
         }
         (enum_type,) = process(resolved)

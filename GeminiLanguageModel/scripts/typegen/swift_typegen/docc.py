@@ -20,6 +20,8 @@ import re
 import textwrap
 from typing import Any
 
+from .config import DEVELOPER_TAG, ENTERPRISE_TAG, provenance_key
+
 # Joins differing descriptions from two backends when merging schemas.
 VARIANT_SEPARATOR = "\n\nVariant:\n"
 # Introduces a backend-availability callout in a description.
@@ -27,6 +29,11 @@ IMPORTANT_SEPARATOR = "\n\n> Important:"
 # Backend display names used in availability callouts.
 DEVELOPER_API_NAME = "Gemini Developer API"
 ENTERPRISE_API_NAME = "Gemini Enterprise Agent Platform"
+# Per-backend provenance fields read when annotating availability.
+_DEVELOPER_DESCRIPTION = provenance_key(DEVELOPER_TAG, "description")
+_ENTERPRISE_DESCRIPTION = provenance_key(ENTERPRISE_TAG, "description")
+_DEVELOPER_ORIGINAL_NAME = provenance_key(DEVELOPER_TAG, "original-name")
+_ENTERPRISE_ORIGINAL_NAME = provenance_key(ENTERPRISE_TAG, "original-name")
 
 
 def strip_doc_prefixes(text: str) -> str:
@@ -219,8 +226,8 @@ def _with_unsupported_note(desc: str, note: str, wrap_width: int) -> str:
 
 def _format_backend_docc(
     data: dict[str, Any],
-    has_gl: bool,
-    has_ai: bool,
+    has_developer: bool,
+    has_enterprise: bool,
     noun: str,
     wrap_width: int,
 ) -> str:
@@ -228,31 +235,31 @@ def _format_backend_docc(
 
     Args:
         data: Schema or property definition dictionary.
-        has_gl: Whether the element exists in the Gemini Developer API.
-        has_ai: Whether the element exists in the Gemini Enterprise Agent
-            Platform.
+        has_developer: Whether the element exists in the Gemini Developer API.
+        has_enterprise: Whether the element exists in the Gemini Enterprise
+            Agent Platform.
         noun: 'type' or 'property', used in availability callouts.
         wrap_width: Column wrap width.
 
     Returns:
         Formatted DocC comment block.
     """
-    if not has_gl and not has_ai:
+    if not has_developer and not has_enterprise:
         return wrap_docc(_clean_description(data.get("description")), wrap_width)
 
-    gl_desc = _clean_description(data.get("x-gl-description"))
-    ai_desc = _clean_description(data.get("x-ai-description"))
+    developer_desc = _clean_description(data.get(_DEVELOPER_DESCRIPTION))
+    enterprise_desc = _clean_description(data.get(_ENTERPRISE_DESCRIPTION))
 
-    if has_gl and has_ai:
-        return wrap_docc(ai_desc or gl_desc or "", wrap_width)
-    if has_gl:
+    if has_developer and has_enterprise:
+        return wrap_docc(enterprise_desc or developer_desc or "", wrap_width)
+    if has_developer:
         return _with_unsupported_note(
-            gl_desc,
+            developer_desc,
             f"This {noun} is not supported in the {ENTERPRISE_API_NAME}.",
             wrap_width,
         )
     return _with_unsupported_note(
-        ai_desc,
+        enterprise_desc,
         f"This {noun} is not supported in the {DEVELOPER_API_NAME}.",
         wrap_width,
     )
@@ -273,8 +280,8 @@ def format_schema_docc(data: dict[str, Any], wrap_width: int = 96) -> str:
     """
     return _format_backend_docc(
         data,
-        has_gl=data.get("x-gl-original-name") is not None,
-        has_ai=data.get("x-ai-original-name") is not None,
+        has_developer=data.get(_DEVELOPER_ORIGINAL_NAME) is not None,
+        has_enterprise=data.get(_ENTERPRISE_ORIGINAL_NAME) is not None,
         noun="type",
         wrap_width=wrap_width,
     )
@@ -294,8 +301,8 @@ def format_property_docc(
     """
     return _format_backend_docc(
         prop_data,
-        has_gl="x-gl-description" in prop_data,
-        has_ai="x-ai-description" in prop_data,
+        has_developer=_DEVELOPER_DESCRIPTION in prop_data,
+        has_enterprise=_ENTERPRISE_DESCRIPTION in prop_data,
         noun="property",
         wrap_width=wrap_width,
     )
@@ -303,16 +310,17 @@ def format_property_docc(
 
 def format_enum_case_docc(
     raw_description: str | None,
-    in_gl: bool,
-    in_ai: bool,
+    in_developer: bool,
+    in_enterprise: bool,
     wrap_width: int = 94,
 ) -> str:
     """Formats DocC documentation for a Swift enum case.
 
     Args:
         raw_description: Raw case description from `enumDescriptions`.
-        in_gl: Whether the case exists in the Gemini Developer API.
-        in_ai: Whether the case exists in the Gemini Enterprise Agent Platform.
+        in_developer: Whether the case exists in the Gemini Developer API.
+        in_enterprise: Whether the case exists in the Gemini Enterprise Agent
+            Platform.
         wrap_width: Column wrap width.
 
     Returns:
@@ -320,9 +328,9 @@ def format_enum_case_docc(
         case exists in only one backend.
     """
     desc = strip_doc_prefixes(raw_description or "")
-    if in_gl == in_ai:
+    if in_developer == in_enterprise:
         return wrap_docc(desc, wrap_width)
-    unsupported = ENTERPRISE_API_NAME if in_gl else DEVELOPER_API_NAME
+    unsupported = ENTERPRISE_API_NAME if in_developer else DEVELOPER_API_NAME
     return _with_unsupported_note(
         desc,
         f"This case is not supported in the {unsupported}.",
@@ -343,25 +351,31 @@ def format_init_description(
         A one-sentence description, suffixed with backend availability when
         the property is backend-specific.
     """
-    gl_p_desc = strip_variant((prop_data.get("x-gl-description") or "").strip())
-    ai_p_desc = strip_variant((prop_data.get("x-ai-description") or "").strip())
+    developer_p_desc = strip_variant(
+        (prop_data.get(_DEVELOPER_DESCRIPTION) or "").strip()
+    )
+    enterprise_p_desc = strip_variant(
+        (prop_data.get(_ENTERPRISE_DESCRIPTION) or "").strip()
+    )
 
-    has_gl = "x-gl-description" in prop_data
-    has_ai = "x-ai-description" in prop_data
+    has_developer = _DEVELOPER_DESCRIPTION in prop_data
+    has_enterprise = _ENTERPRISE_DESCRIPTION in prop_data
 
-    p_desc = gl_p_desc or ai_p_desc
+    p_desc = developer_p_desc or enterprise_p_desc
     if not p_desc:
         p_desc = strip_variant((prop_data.get("description") or "").strip())
 
     first_line = extract_summary_sentence(p_desc)
-    is_backend_specific = (has_gl != has_ai) or (
-        gl_p_desc and ai_p_desc and gl_p_desc != ai_p_desc
+    is_backend_specific = (has_developer != has_enterprise) or (
+        developer_p_desc
+        and enterprise_p_desc
+        and developer_p_desc != enterprise_p_desc
     )
 
     if is_backend_specific:
-        if has_gl and not has_ai:
+        if has_developer and not has_enterprise:
             suffix = f" ({DEVELOPER_API_NAME} only)"
-        elif has_ai and not has_gl:
+        elif has_enterprise and not has_developer:
             suffix = f" ({ENTERPRISE_API_NAME} only)"
         else:
             suffix = " (behavior varies by backend)"

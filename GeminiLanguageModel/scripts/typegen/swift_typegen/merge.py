@@ -18,7 +18,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from .config import BACKEND_TAGS, Backend
+from .config import (
+    BACKEND_TAGS,
+    DEVELOPER_TAG,
+    ENTERPRISE_TAG,
+    Backend,
+    provenance_key,
+)
 from .docc import VARIANT_SEPARATOR
 from .naming import apply_swift_acronyms
 
@@ -35,23 +41,21 @@ def _annotate_backend(
         stripped: Prefix-stripped copy of the schema to annotate.
         schema_name: Original (unstripped) schema name.
         schema_data: Original schema definition.
-        backend_tag: Backend extension tag ('gl' or 'ai').
+        backend_tag: Backend extension tag (one of BACKEND_TAGS).
     """
+    description_key = provenance_key(backend_tag, "description")
+    enum_key = provenance_key(backend_tag, "enum")
     props = stripped.get("properties")
     if isinstance(props, dict):
         for p_data in props.values():
             if isinstance(p_data, dict):
-                p_data[f"x-{backend_tag}-description"] = p_data.get(
-                    "description", ""
-                )
+                p_data[description_key] = p_data.get("description", "")
                 if isinstance(p_data.get("enum"), list):
-                    p_data[f"x-{backend_tag}-enum"] = list(p_data["enum"])
-    stripped[f"x-{backend_tag}-original-name"] = schema_name
-    stripped[f"x-{backend_tag}-description"] = schema_data.get(
-        "description", ""
-    )
+                    p_data[enum_key] = list(p_data["enum"])
+    stripped[provenance_key(backend_tag, "original-name")] = schema_name
+    stripped[description_key] = schema_data.get("description", "")
     if isinstance(stripped.get("enum"), list):
-        stripped[f"x-{backend_tag}-enum"] = list(stripped["enum"])
+        stripped[enum_key] = list(stripped["enum"])
 
 
 def _ordered_union(lists: list[list[Any]]) -> list[Any]:
@@ -116,7 +120,7 @@ def _merge_enums(
         merged.pop("enumDeprecated", None)
 
     for tag in BACKEND_TAGS:
-        key = f"x-{tag}-enum"
+        key = provenance_key(tag, "enum")
         tagged = [d[key] for d in (first, second) if key in d]
         if tagged:
             merged[key] = _ordered_union(tagged)
@@ -135,36 +139,38 @@ def _merge_descriptions(
 
 
 def _merge_provenance(
-    merged: dict[str, Any], gl: dict[str, Any], ai: dict[str, Any]
+    merged: dict[str, Any],
+    developer: dict[str, Any],
+    enterprise: dict[str, Any],
 ) -> None:
-    """Combines 'x-gl-*' / 'x-ai-*' provenance and descriptions into merged.
+    """Combines per-backend provenance and descriptions into merged.
 
     Callers must pass the Developer API definition first; see
     pipeline.select_backends, which fixes the merge order.
 
     Args:
         merged: The merged definition to update in place.
-        gl: Definition from the Gemini Developer API (first) backend.
-        ai: Definition from the Gemini Enterprise Agent Platform (second)
-            backend.
+        developer: Definition from the Gemini Developer API (first) backend.
+        enterprise: Definition from the Gemini Enterprise Agent Platform
+            (second) backend.
     """
-    if "x-gl-original-name" in gl:
-        merged["x-gl-original-name"] = gl["x-gl-original-name"]
-    elif "x-gl-original-name" in ai:
-        merged["x-gl-original-name"] = ai["x-gl-original-name"]
-
-    if "x-ai-original-name" in ai:
-        merged["x-ai-original-name"] = ai["x-ai-original-name"]
-    elif "x-ai-original-name" in gl:
-        merged["x-ai-original-name"] = gl["x-ai-original-name"]
-
-    merged["x-gl-description"] = gl.get("x-gl-description") or gl.get(
-        "description", ""
+    by_tag = (
+        (DEVELOPER_TAG, developer, enterprise),
+        (ENTERPRISE_TAG, enterprise, developer),
     )
-    merged["x-ai-description"] = ai.get("x-ai-description") or ai.get(
-        "description", ""
-    )
-    _merge_descriptions(merged, gl, ai)
+    for tag, own, other in by_tag:
+        name_key = provenance_key(tag, "original-name")
+        if name_key in own:
+            merged[name_key] = own[name_key]
+        elif name_key in other:
+            merged[name_key] = other[name_key]
+
+    for tag, own, _ in by_tag:
+        description_key = provenance_key(tag, "description")
+        merged[description_key] = own.get(description_key) or own.get(
+            "description", ""
+        )
+    _merge_descriptions(merged, developer, enterprise)
 
 
 def strip_prefix_from_schemas(
@@ -174,8 +180,8 @@ def strip_prefix_from_schemas(
 ) -> dict[str, Any]:
     """Strips a backend vendor prefix from schema names and $ref targets.
 
-    Annotates original names and descriptions in 'x-gl-*' or 'x-ai-*' extension
-    fields for backend divergence tracking.
+    Annotates original names and descriptions in 'x-<tag>-*' extension fields
+    (see config.provenance_key) for backend divergence tracking.
 
     Args:
         schemas: Dictionary of schemas.

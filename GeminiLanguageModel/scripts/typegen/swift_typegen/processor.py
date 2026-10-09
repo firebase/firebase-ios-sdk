@@ -19,7 +19,12 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from .config import GeneratorConfig
+from .config import (
+    DEVELOPER_TAG,
+    ENTERPRISE_TAG,
+    GeneratorConfig,
+    provenance_key,
+)
 from .docc import (
     format_enum_case_docc,
     format_init_description,
@@ -402,9 +407,11 @@ class SchemaProcessor:
         # Per-backend case lists are only meaningful when the enum was merged
         # from both backends; otherwise availability is documented at the
         # type or property level.
-        gl_cases = data.get("x-gl-enum")
-        ai_cases = data.get("x-ai-enum")
-        track_backends = gl_cases is not None and ai_cases is not None
+        developer_cases = data.get(provenance_key(DEVELOPER_TAG, "enum"))
+        enterprise_cases = data.get(provenance_key(ENTERPRISE_TAG, "enum"))
+        track_backends = (
+            developer_cases is not None and enterprise_cases is not None
+        )
 
         for idx, raw_val in enumerate(data["enum"]):
             val_upper = raw_val.upper()
@@ -425,8 +432,12 @@ class SchemaProcessor:
             case_description = (
                 format_enum_case_docc(
                     raw_case_desc,
-                    in_gl=not track_backends or raw_val in gl_cases,
-                    in_ai=not track_backends or raw_val in ai_cases,
+                    in_developer=(
+                        not track_backends or raw_val in developer_cases
+                    ),
+                    in_enterprise=(
+                        not track_backends or raw_val in enterprise_cases
+                    ),
                     wrap_width=self.member_wrap_width,
                 )
                 or None

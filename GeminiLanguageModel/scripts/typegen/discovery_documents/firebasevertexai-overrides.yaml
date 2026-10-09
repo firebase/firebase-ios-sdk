@@ -138,14 +138,14 @@ schemas:
 # Code generator configurations (used by generate_types.py)
 generatorConfig:
   # Backend schema prefixes to strip. Order is not significant: backends are
-  # always merged Developer API (gl) first, so its definitions take precedence.
-  # Tags select the x-gl-* / x-ai-* provenance fields used for availability
-  # callouts in DocC.
+  # always merged Developer API (gl-developer) first, so its definitions take
+  # precedence. Tags select the x-gl-developer-* / x-ai-enterprise-*
+  # provenance fields used for availability callouts in DocC.
   backends:
     - prefix: GoogleAiGenerativelanguageV1beta
-      tag: gl
+      tag: gl-developer
     - prefix: GoogleCloudAiplatformV1beta1
-      tag: ai
+      tag: ai-enterprise
   # Hand-written Swift files in the output directory that must not be pruned.
   preservedFiles:
     - ResponseFormatConfig.swift

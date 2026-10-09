@@ -88,8 +88,8 @@ missing, rather than generating a much smaller type set and pruning existing
 output. Each `--strip-prefix` value must be listed in
 `generatorConfig.backends`. If no backends are configured, the generator exits
 with an error unless `--strip-prefix` is passed with no values. Backends are
-always merged Developer API (`gl`) first, regardless of argument or config
-order.
+always merged Developer API (`gl-developer`) first, regardless of argument or
+config order.
 
 ### Code layout
 

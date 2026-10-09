@@ -79,7 +79,7 @@ class TestMerge(unittest.TestCase):
             },
         }
         stripped = strip_prefix_from_schemas(
-            schemas, Backend(prefix, "gl"), divergences={}
+            schemas, Backend(prefix, "gl-developer"), divergences={}
         )
         self.assertEqual(list(stripped), ["Candidate"])
         candidate = stripped["Candidate"]
@@ -87,10 +87,14 @@ class TestMerge(unittest.TestCase):
             candidate["properties"]["content"]["$ref"],
             "#/components/schemas/Content",
         )
-        self.assertEqual(candidate["x-gl-original-name"], f"{prefix}Candidate")
-        self.assertEqual(candidate["x-gl-description"], "A candidate.")
         self.assertEqual(
-            candidate["properties"]["content"]["x-gl-description"],
+            candidate["x-gl-developer-original-name"], f"{prefix}Candidate"
+        )
+        self.assertEqual(
+            candidate["x-gl-developer-description"], "A candidate."
+        )
+        self.assertEqual(
+            candidate["properties"]["content"]["x-gl-developer-description"],
             "The content.",
         )
 
@@ -104,11 +108,15 @@ class TestMerge(unittest.TestCase):
             },
         }
         candidate = strip_prefix_from_schemas(
-            schemas, Backend(prefix, "ai"), divergences={}
+            schemas, Backend(prefix, "ai-enterprise"), divergences={}
         )["Candidate"]
-        self.assertEqual(candidate["x-ai-original-name"], f"{prefix}Candidate")
-        self.assertNotIn("x-gl-original-name", candidate)
-        self.assertIn("x-ai-description", candidate["properties"]["index"])
+        self.assertEqual(
+            candidate["x-ai-enterprise-original-name"], f"{prefix}Candidate"
+        )
+        self.assertNotIn("x-gl-developer-original-name", candidate)
+        self.assertIn(
+            "x-ai-enterprise-description", candidate["properties"]["index"]
+        )
 
     def test_strip_prefix_applies_divergences_on_name_collision(self):
         prefix = "GoogleCloudAiplatformV1beta1"
@@ -125,7 +133,9 @@ class TestMerge(unittest.TestCase):
         divergences = {"Blob": {"size": {"type": "string"}}}
         with contextlib.redirect_stdout(io.StringIO()) as out:
             stripped = strip_prefix_from_schemas(
-                schemas, Backend(prefix, "ai"), divergences=divergences
+                schemas,
+                Backend(prefix, "ai-enterprise"),
+                divergences=divergences,
             )
         self.assertEqual(list(stripped), ["Blob"])
         self.assertEqual(
@@ -137,20 +147,20 @@ class TestMerge(unittest.TestCase):
         gl = {
             "type": "object",
             "description": "Developer.",
-            "x-gl-original-name": "GlThing",
+            "x-gl-developer-original-name": "GlThing",
             "properties": {},
         }
         ai = {
             "type": "object",
             "description": "Enterprise.",
-            "x-ai-original-name": "AiThing",
+            "x-ai-enterprise-original-name": "AiThing",
             "properties": {},
         }
         merged = merge_schemas("Thing", gl, ai, divergences={})
-        self.assertEqual(merged["x-gl-original-name"], "GlThing")
-        self.assertEqual(merged["x-ai-original-name"], "AiThing")
-        self.assertEqual(merged["x-gl-description"], "Developer.")
-        self.assertEqual(merged["x-ai-description"], "Enterprise.")
+        self.assertEqual(merged["x-gl-developer-original-name"], "GlThing")
+        self.assertEqual(merged["x-ai-enterprise-original-name"], "AiThing")
+        self.assertEqual(merged["x-gl-developer-description"], "Developer.")
+        self.assertEqual(merged["x-ai-enterprise-description"], "Enterprise.")
         self.assertEqual(
             merged["description"], "Developer.\n\nVariant:\nEnterprise."
         )
@@ -159,18 +169,18 @@ class TestMerge(unittest.TestCase):
         gl = {
             "type": "string",
             "description": "Reason.",
-            "x-gl-description": "Reason.",
+            "x-gl-developer-description": "Reason.",
             "enum": ["UNSPECIFIED", "STOP", "LANGUAGE"],
-            "x-gl-enum": ["UNSPECIFIED", "STOP", "LANGUAGE"],
+            "x-gl-developer-enum": ["UNSPECIFIED", "STOP", "LANGUAGE"],
             "enumDescriptions": ["Unused.", "Stopped.", "Language."],
             "enumDeprecated": [False, True, False],
         }
         ai = {
             "type": "string",
             "description": "Reason.",
-            "x-ai-description": "Reason.",
+            "x-ai-enterprise-description": "Reason.",
             "enum": ["UNSPECIFIED", "STOP", "MODEL_ARMOR"],
-            "x-ai-enum": ["UNSPECIFIED", "STOP", "MODEL_ARMOR"],
+            "x-ai-enterprise-enum": ["UNSPECIFIED", "STOP", "MODEL_ARMOR"],
             "enumDescriptions": ["Unused.", "Stopped (AI).", "Armor."],
             "enumDeprecated": [False, False, False],
         }
@@ -189,17 +199,17 @@ class TestMerge(unittest.TestCase):
         self.assertEqual(
             merged["enumDeprecated"], [False, False, False, False]
         )
-        self.assertEqual(merged["x-gl-enum"], gl["enum"])
-        self.assertEqual(merged["x-ai-enum"], ai["enum"])
+        self.assertEqual(merged["x-gl-developer-enum"], gl["enum"])
+        self.assertEqual(merged["x-ai-enterprise-enum"], ai["enum"])
 
     def test_merge_schemas_unions_standalone_enum_cases(self):
         gl = {
             "type": "string",
             "description": "Harm categories.",
-            "x-gl-original-name": "GlHarmCategory",
-            "x-gl-description": "Harm categories.",
+            "x-gl-developer-original-name": "GlHarmCategory",
+            "x-gl-developer-description": "Harm categories.",
             "enum": ["HARM_CATEGORY_UNSPECIFIED", "HARM_CATEGORY_DEROGATORY"],
-            "x-gl-enum": [
+            "x-gl-developer-enum": [
                 "HARM_CATEGORY_UNSPECIFIED",
                 "HARM_CATEGORY_DEROGATORY",
             ],
@@ -208,10 +218,10 @@ class TestMerge(unittest.TestCase):
         ai = {
             "type": "string",
             "description": "Harm categories.",
-            "x-ai-original-name": "AiHarmCategory",
-            "x-ai-description": "Harm categories.",
+            "x-ai-enterprise-original-name": "AiHarmCategory",
+            "x-ai-enterprise-description": "Harm categories.",
             "enum": ["HARM_CATEGORY_UNSPECIFIED", "HARM_CATEGORY_IMAGE_HATE"],
-            "x-ai-enum": [
+            "x-ai-enterprise-enum": [
                 "HARM_CATEGORY_UNSPECIFIED",
                 "HARM_CATEGORY_IMAGE_HATE",
             ],
@@ -231,8 +241,12 @@ class TestMerge(unittest.TestCase):
             ["Unused.", "Derogatory.", "Image hate."],
         )
         self.assertNotIn("enumDeprecated", merged)
-        self.assertEqual(merged["x-gl-original-name"], "GlHarmCategory")
-        self.assertEqual(merged["x-ai-original-name"], "AiHarmCategory")
+        self.assertEqual(
+            merged["x-gl-developer-original-name"], "GlHarmCategory"
+        )
+        self.assertEqual(
+            merged["x-ai-enterprise-original-name"], "AiHarmCategory"
+        )
 
     def test_strip_prefix_annotates_backend_enum_cases(self):
         schemas = {
@@ -245,11 +259,14 @@ class TestMerge(unittest.TestCase):
             },
         }
         stripped = strip_prefix_from_schemas(
-            schemas, Backend(prefix="Gl", tag="gl"), divergences={}
+            schemas, Backend(prefix="Gl", tag="gl-developer"), divergences={}
         )
-        self.assertEqual(stripped["Modality"]["x-gl-enum"], ["TEXT", "IMAGE"])
         self.assertEqual(
-            stripped["Part"]["properties"]["kind"]["x-gl-enum"], ["A", "B"]
+            stripped["Modality"]["x-gl-developer-enum"], ["TEXT", "IMAGE"]
+        )
+        self.assertEqual(
+            stripped["Part"]["properties"]["kind"]["x-gl-developer-enum"],
+            ["A", "B"],
         )
 
     def test_rename_schemas_and_refs_applies_acronyms(self):
