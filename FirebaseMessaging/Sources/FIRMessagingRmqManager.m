@@ -130,28 +130,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   sqlite3_close(_database);
 }
 
-#pragma mark - RMQ ID
-
-- (void)saveS2dMessageWithRmqId:(NSString *)rmqId {
-  dispatch_async(_databaseOperationQueue, ^{
-    NSString *insertFormat = @"INSERT INTO %@ (%@) VALUES (?)";
-    NSString *insertSQL = [NSString stringWithFormat:insertFormat, kTableS2DRmqIds, kRmqIdColumn];
-    sqlite3_stmt *insert_statement;
-    if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &insert_statement, NULL) !=
-        SQLITE_OK) {
-      FIRMessagingRmqLogAndReturn(insert_statement);
-    }
-    if (sqlite3_bind_text(insert_statement, 1, [rmqId UTF8String], (int)[rmqId length],
-                          SQLITE_STATIC) != SQLITE_OK) {
-      FIRMessagingRmqLogAndReturn(insert_statement);
-    }
-    if (sqlite3_step(insert_statement) != SQLITE_DONE) {
-      FIRMessagingRmqLogAndReturn(insert_statement);
-    }
-    sqlite3_finalize(insert_statement);
-  });
-}
-
 #pragma mark - Sync Messages
 
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {

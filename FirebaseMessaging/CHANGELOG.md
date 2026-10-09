@@ -4,6 +4,8 @@
   read once instead of up to twice. (#16726)
 - [fixed] Fixed a potential main-thread hang during `FirebaseApp.configure()`
   caused by unused synchronous SQLite queries for outgoing RMQ IDs. (#16736)
+- [fixed] Stopped writing the ID of each received message to an unused database
+  table that grew without bound. (#16870)
 
 # 13.0.0
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene

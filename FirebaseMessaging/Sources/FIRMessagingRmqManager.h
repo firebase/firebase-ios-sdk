@@ -25,21 +25,11 @@
  * received by the client. Sync messages are deleted from the store once they expire, or once they
  * have been received via both APNS and MCS.
  *
- * The store also records the RMQ IDs of server to device (S2D) messages received by the client.
- *
  * All database operations run on a serial background queue.
  */
 @interface FIRMessagingRmqManager : NSObject
 // designated initializer
 - (instancetype)initWithDatabaseName:(NSString *)databaseName;
-
-/**
- *  Save Server to device message with the given RMQ-ID.
- *
- *  @param rmqID The rmqID of the s2d message to save.
- *
- */
-- (void)saveS2dMessageWithRmqId:(NSString *)rmqID;
 
 #pragma mark - Sync Messages
 
