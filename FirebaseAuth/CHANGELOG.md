@@ -1,4 +1,7 @@
 # Unreleased
+- [added] Added `Auth.persistence`, which can be set to `.inMemory` before
+  configuring Firebase to keep the signed-in user in memory instead of the
+  keychain, e.g. in an XCTest runner without keychain access. (#14396)
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
 
