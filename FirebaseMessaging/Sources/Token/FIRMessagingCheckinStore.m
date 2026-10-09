@@ -162,8 +162,8 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
 
   NSDictionary *checkinPlistContents = [self.plist contentAsDictionary];
 
-  NSString *plistDeviceAuthID = checkinPlistContents[kFIRMessagingDeviceAuthIdKey];
-  NSString *plistSecretToken = checkinPlistContents[kFIRMessagingSecretTokenKey];
+  id plistDeviceAuthID = checkinPlistContents[kFIRMessagingDeviceAuthIdKey];
+  id plistSecretToken = checkinPlistContents[kFIRMessagingSecretTokenKey];
 
   // If deviceID and secret not found in the keychain verify that we don't have them in the
   // checkin preferences plist.
