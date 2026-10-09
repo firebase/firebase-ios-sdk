@@ -31,84 +31,87 @@ class TestDocc(unittest.TestCase):
 
     def test_structured_docc_formatting(self):
         dual_prop_data = {
-            "x-gl-developer-description": "Gl description.",
-            "x-ai-enterprise-description": "Ai description.",
-            "x-gl-developer-original-name": "glName",
-            "x-ai-enterprise-original-name": "aiName",
+            "x-gl-developer-description": "Developer description.",
+            "x-ai-enterprise-description": "Enterprise description.",
+            "x-gl-developer-original-name": "developerName",
+            "x-ai-enterprise-original-name": "enterpriseName",
         }
         dual_docc = format_property_docc(dual_prop_data)
-        self.assertEqual(dual_docc, "Ai description.")
+        self.assertEqual(dual_docc, "Enterprise description.")
         self.assertNotIn("### Gemini Developer API", dual_docc)
         self.assertNotIn("### Gemini Enterprise Agent Platform", dual_docc)
 
-        gl_only_prop_data = {
-            "x-gl-developer-description": "Gl only description.",
-            "x-gl-developer-original-name": "glName",
+        developer_only_prop_data = {
+            "x-gl-developer-description": "Developer-only description.",
+            "x-gl-developer-original-name": "developerName",
         }
-        gl_docc = format_property_docc(gl_only_prop_data)
-        self.assertIn("Gl only description.", gl_docc)
-        self.assertNotIn("### Gemini Developer API", gl_docc)
-        self.assertNotIn("### Gemini Enterprise Agent Platform", gl_docc)
+        developer_docc = format_property_docc(developer_only_prop_data)
+        self.assertIn("Developer-only description.", developer_docc)
+        self.assertNotIn("### Gemini Developer API", developer_docc)
+        self.assertNotIn("### Gemini Enterprise Agent Platform", developer_docc)
         self.assertIn(
             "> Important: This property is not supported in the Gemini"
             " Enterprise Agent Platform.",
-            gl_docc,
+            developer_docc,
         )
 
         dual_schema_data = {
-            "x-gl-developer-description": "Gl schema description.",
-            "x-ai-enterprise-description": "Ai schema description.",
-            "x-gl-developer-original-name": "GlCandidate",
-            "x-ai-enterprise-original-name": "AiCandidate",
+            "x-gl-developer-description": "Developer schema description.",
+            "x-ai-enterprise-description": "Enterprise schema description.",
+            "x-gl-developer-original-name": "DeveloperCandidate",
+            "x-ai-enterprise-original-name": "EnterpriseCandidate",
         }
         schema_docc = format_schema_docc(dual_schema_data)
-        self.assertEqual(schema_docc, "Ai schema description.")
+        self.assertEqual(schema_docc, "Enterprise schema description.")
         self.assertNotIn("An internal data model for", schema_docc)
         self.assertNotIn("### Gemini Developer API", schema_docc)
         self.assertNotIn("### Gemini Enterprise Agent Platform", schema_docc)
 
-        gl_only_schema_data = {
-            "x-gl-developer-description": "Gl only schema description.",
-            "x-gl-developer-original-name": "GlHarmCategory",
+        developer_only_schema_data = {
+            "x-gl-developer-description": "Developer-only schema description.",
+            "x-gl-developer-original-name": "DeveloperHarmCategory",
         }
-        gl_schema_docc = format_schema_docc(gl_only_schema_data)
+        developer_schema_docc = format_schema_docc(developer_only_schema_data)
         self.assertEqual(
-            gl_schema_docc,
-            "Gl only schema description.\n\n> Important: This type is not"
-            " supported in the Gemini Enterprise Agent Platform.",
+            developer_schema_docc,
+            "Developer-only schema description.\n\n> Important: This type is"
+            " not supported in the Gemini Enterprise Agent Platform.",
         )
-        self.assertNotIn("An internal data model for", gl_schema_docc)
-        self.assertNotIn("### Gemini Developer API", gl_schema_docc)
+        self.assertNotIn("An internal data model for", developer_schema_docc)
+        self.assertNotIn("### Gemini Developer API", developer_schema_docc)
         self.assertNotIn(
-            "### Gemini Enterprise Agent Platform", gl_schema_docc
+            "### Gemini Enterprise Agent Platform", developer_schema_docc
         )
 
-        ai_only_schema_data = {
-            "x-ai-enterprise-description": "Ai only schema description.",
-            "x-ai-enterprise-original-name": "AiCandidate",
+        enterprise_only_schema_data = {
+            "x-ai-enterprise-description": (
+                "Enterprise-only schema description."
+            ),
+            "x-ai-enterprise-original-name": "EnterpriseCandidate",
         }
-        ai_schema_docc = format_schema_docc(ai_only_schema_data)
+        enterprise_schema_docc = format_schema_docc(enterprise_only_schema_data)
         self.assertEqual(
-            ai_schema_docc,
-            "Ai only schema description.\n\n> Important: This type is not"
-            " supported in the Gemini Developer API.",
+            enterprise_schema_docc,
+            "Enterprise-only schema description.\n\n> Important: This type is"
+            " not supported in the Gemini Developer API.",
         )
-        self.assertNotIn("An internal data model for", ai_schema_docc)
-        self.assertNotIn("### Gemini Developer API", ai_schema_docc)
+        self.assertNotIn("An internal data model for", enterprise_schema_docc)
+        self.assertNotIn("### Gemini Developer API", enterprise_schema_docc)
         self.assertNotIn(
-            "### Gemini Enterprise Agent Platform", ai_schema_docc
+            "### Gemini Enterprise Agent Platform", enterprise_schema_docc
         )
 
     def test_variant_and_existing_callouts_are_stripped(self):
         prop_data = {
             "x-gl-developer-description": (
-                "Optional. Gl text.\n\n> Important: stale note.\n\nVariant:\nOther."
+                "Optional. Developer text.\n\n> Important: stale note."
+                "\n\nVariant:\nOther."
             ),
         }
         self.assertEqual(
             format_property_docc(prop_data),
-            "Gl text.\n\n> Important: This property is not supported in the"
-            " Gemini Enterprise Agent Platform.",
+            "Developer text.\n\n> Important: This property is not supported in"
+            " the Gemini Enterprise Agent Platform.",
         )
         self.assertEqual(
             format_property_docc({"description": "Optional. Shared.\n\nVariant:\nOther."}
@@ -125,20 +128,21 @@ class TestDocc(unittest.TestCase):
         )
         self.assertEqual(
             format_init_description(
-                {"x-gl-developer-description": "Gl only."}, "glProp"
+                {"x-gl-developer-description": "Developer-only."},
+                "developerProp",
             ),
-            "Gl only. (Gemini Developer API only). For more details, see"
-            " ``glProp``.",
+            "Developer-only. (Gemini Developer API only). For more details, see"
+            " ``developerProp``.",
         )
         self.assertEqual(
             format_init_description(
                 {
-                    "x-gl-developer-description": "Gl.",
-                    "x-ai-enterprise-description": "Ai.",
+                    "x-gl-developer-description": "Developer.",
+                    "x-ai-enterprise-description": "Enterprise.",
                 },
                 "both",
             ),
-            "Gl. (behavior varies by backend). For more details, see"
+            "Developer. (behavior varies by backend). For more details, see"
             " ``both``.",
         )
         self.assertEqual(
@@ -149,10 +153,11 @@ class TestDocc(unittest.TestCase):
     def test_format_init_description_enterprise_only(self):
         self.assertEqual(
             format_init_description(
-                {"x-ai-enterprise-description": "Ai only."}, "aiProp"
+                {"x-ai-enterprise-description": "Enterprise-only."},
+                "enterpriseProp",
             ),
-            "Ai only. (Gemini Enterprise Agent Platform only). For more"
-            " details, see ``aiProp``.",
+            "Enterprise-only. (Gemini Enterprise Agent Platform only). For more"
+            " details, see ``enterpriseProp``.",
         )
 
     def test_format_init_description_same_text_on_both_backends(self):

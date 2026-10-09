@@ -60,8 +60,8 @@ class TestGeneratorConfig(unittest.TestCase):
                     "  renameMappings: {Old: New}\n"
                     "  typeOverrides: {Struct: JSONObject}\n"
                     "  backends:\n"
-                    "    - {prefix: GlPrefix, tag: gl-developer}\n"
-                    "    - {prefix: AiPrefix, tag: ai-enterprise}\n"
+                    "    - {prefix: DeveloperPrefix, tag: gl-developer}\n"
+                    "    - {prefix: EnterprisePrefix, tag: ai-enterprise}\n"
                     "  preservedFiles: [Manual.swift]\n"
                 )
             config = GeneratorConfig.from_file(path)
@@ -72,8 +72,8 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(
             config.backends,
             [
-                Backend("GlPrefix", "gl-developer"),
-                Backend("AiPrefix", "ai-enterprise"),
+                Backend("DeveloperPrefix", "gl-developer"),
+                Backend("EnterprisePrefix", "ai-enterprise"),
             ],
         )
         self.assertEqual(config.preserved_files, {"Manual.swift"})
@@ -119,9 +119,11 @@ class TestGeneratorConfig(unittest.TestCase):
                         GeneratorConfig.from_file(path)
 
     def test_backend_for_prefix(self):
-        config = GeneratorConfig(backends=[Backend("GlPrefix", "gl-developer")])
+        config = GeneratorConfig(
+            backends=[Backend("DeveloperPrefix", "gl-developer")]
+        )
         self.assertEqual(
-            config.backend_for_prefix("GlPrefix").tag, "gl-developer"
+            config.backend_for_prefix("DeveloperPrefix").tag, "gl-developer"
         )
         with self.assertRaises(ValueError):
             config.backend_for_prefix("Unknown")

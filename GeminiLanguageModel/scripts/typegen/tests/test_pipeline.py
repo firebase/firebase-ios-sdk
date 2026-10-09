@@ -36,8 +36,8 @@ from swift_typegen.pipeline import (
     write_types,
 )
 
-GL = Backend("GoogleAiGenerativelanguageV1beta", "gl-developer")
-AI = Backend("GoogleCloudAiplatformV1beta1", "ai-enterprise")
+DEVELOPER = Backend("GoogleAiGenerativelanguageV1beta", "gl-developer")
+ENTERPRISE = Backend("GoogleCloudAiplatformV1beta1", "ai-enterprise")
 
 TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES_DIR = os.path.join(TYPEGEN_DIR, "templates")
@@ -78,10 +78,12 @@ class TestLoadConfig(unittest.TestCase):
 class TestSelectBackends(unittest.TestCase):
 
     def setUp(self):
-        self.config = GeneratorConfig(backends=[GL, AI])
+        self.config = GeneratorConfig(backends=[DEVELOPER, ENTERPRISE])
 
     def test_none_selects_all_configured_backends(self):
-        self.assertEqual(select_backends(None, self.config), [GL, AI])
+        self.assertEqual(
+            select_backends(None, self.config), [DEVELOPER, ENTERPRISE]
+        )
 
     def test_none_without_configured_backends_raises(self):
         with self.assertRaisesRegex(ValueError, "--strip-prefix"):
@@ -93,14 +95,22 @@ class TestSelectBackends(unittest.TestCase):
 
     def test_merge_order_is_developer_api_first(self):
         self.assertEqual(
-            select_backends([AI.prefix, GL.prefix], self.config), [GL, AI]
+            select_backends(
+                [ENTERPRISE.prefix, DEVELOPER.prefix], self.config
+            ),
+            [DEVELOPER, ENTERPRISE],
         )
-        reversed_config = GeneratorConfig(backends=[AI, GL])
-        self.assertEqual(select_backends(None, reversed_config), [GL, AI])
+        reversed_config = GeneratorConfig(backends=[ENTERPRISE, DEVELOPER])
+        self.assertEqual(
+            select_backends(None, reversed_config), [DEVELOPER, ENTERPRISE]
+        )
 
     def test_duplicate_prefixes_are_selected_once(self):
         self.assertEqual(
-            select_backends([AI.prefix, AI.prefix], self.config), [AI]
+            select_backends(
+                [ENTERPRISE.prefix, ENTERPRISE.prefix], self.config
+            ),
+            [ENTERPRISE],
         )
 
     def test_unknown_prefix_raises(self):
@@ -112,28 +122,35 @@ class TestPreprocessBackend(unittest.TestCase):
 
     def test_strips_prefix_and_resolves_from_roots(self):
         base_schemas = {
-            f"{AI.prefix}Root": {
+            f"{ENTERPRISE.prefix}Root": {
                 "type": "object",
                 "properties": {
-                    "child": {"$ref": f"#/components/schemas/{AI.prefix}Child"}
+                    "child": {
+                        "$ref": (
+                            f"#/components/schemas/{ENTERPRISE.prefix}Child"
+                        )
+                    }
                 },
             },
-            f"{AI.prefix}Child": {"type": "object", "properties": {}},
-            f"{AI.prefix}Unreachable": {"type": "object", "properties": {}},
+            f"{ENTERPRISE.prefix}Child": {"type": "object", "properties": {}},
+            f"{ENTERPRISE.prefix}Unreachable": {
+                "type": "object",
+                "properties": {},
+            },
         }
         with contextlib.redirect_stdout(io.StringIO()):
             resolved = preprocess_backend(
-                base_schemas, AI, ["Root"], GeneratorConfig()
+                base_schemas, ENTERPRISE, ["Root"], GeneratorConfig()
             )
         self.assertEqual(set(resolved), {"Root", "Child"})
         self.assertEqual(
             resolved["Root"]["x-ai-enterprise-original-name"],
-            f"{AI.prefix}Root",
+            f"{ENTERPRISE.prefix}Root",
         )
         # The input is deep-copied, not mutated.
         self.assertNotIn(
             "x-ai-enterprise-original-name",
-            base_schemas[f"{AI.prefix}Root"],
+            base_schemas[f"{ENTERPRISE.prefix}Root"],
         )
 
     def test_no_backend_leaves_names_unchanged(self):
@@ -164,7 +181,7 @@ class TestRunPipeline(unittest.TestCase):
             "description": "Root.",
             "properties": {"name": {"type": "string", "description": "Name."}},
         }
-        ai_root = copy_with_property(
+        enterprise_root = copy_with_property(
             root, "extra", {"type": "integer", "description": "Extra."}
         )
         self.spec = os.path.join(tmp, "spec.yaml")
@@ -173,8 +190,8 @@ class TestRunPipeline(unittest.TestCase):
             {
                 "components": {
                     "schemas": {
-                        f"{GL.prefix}Root": root,
-                        f"{AI.prefix}Root": ai_root,
+                        f"{DEVELOPER.prefix}Root": root,
+                        f"{ENTERPRISE.prefix}Root": enterprise_root,
                     }
                 }
             },
@@ -185,8 +202,8 @@ class TestRunPipeline(unittest.TestCase):
             {
                 "generatorConfig": {
                     "backends": [
-                        {"prefix": GL.prefix, "tag": "gl-developer"},
-                        {"prefix": AI.prefix, "tag": "ai-enterprise"},
+                        {"prefix": DEVELOPER.prefix, "tag": "gl-developer"},
+                        {"prefix": ENTERPRISE.prefix, "tag": "ai-enterprise"},
                     ],
                     "preservedFiles": ["Manual.swift"],
                 }
