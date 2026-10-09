@@ -14,24 +14,8 @@
 
 import Foundation
 
-/// An internal data model for `WebSearch`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaToolGoogleSearchWebSearch`
-///
-/// Standard web search for grounding and related configurations.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchWebSearch`
-///
-/// Standard web search for grounding and related configurations. Only text
-/// results are returned.
-package struct WebSearch: Codable, Sendable, Equatable, Hashable {
-
-  /// Creates a new `WebSearch`.
-  ///
-  package init() {
-  }
+/// Standard web search for grounding and related configurations. Only text results are returned.
+package struct WebSearch: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Initializes a new `WebSearch`.
+  package init() {}
 }

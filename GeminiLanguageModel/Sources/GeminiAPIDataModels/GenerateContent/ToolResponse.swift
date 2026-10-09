@@ -14,74 +14,35 @@
 
 import Foundation
 
-/// An internal data model for `ToolResponse`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaToolResponse`
-///
-/// The output from a server-side `ToolCall` execution. This message contains
-/// the results of a tool invocation that was initiated by a `ToolCall`
-/// from the model. The client should pass this `ToolResponse` back to the API
-/// in a subsequent turn within a `Content` message, along with the corresponding
-/// `ToolCall`.
-///
-/// ### Gemini Enterprise Agent Platform
+/// The output from a server-side `ToolCall` execution. This message contains the results of a tool
+/// invocation that was initiated by a `ToolCall` from the model. The client should pass this
+/// `ToolResponse` back to the API in a subsequent turn within a `Content` message, along with the
+/// corresponding `ToolCall`.
 ///
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
-package struct ToolResponse: Codable, Sendable, Equatable, Hashable {
-  /// Optional. The identifier of the tool call this response is for.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The identifier of the tool call this response is for.
-  ///
-  /// ### Gemini Enterprise Agent Platform
+package struct ToolResponse: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// The identifier of the tool call this response is for.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let id: String?
+  package var id: String?
 
-  /// Required. The type of tool that was called, matching the `tool_type` in the
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Required. The type of tool that was called, matching the `tool_type` in the
-  /// corresponding `ToolCall`.
-  ///
-  /// ### Gemini Enterprise Agent Platform
+  /// The tool response.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let toolType: ToolType
+  package var response: JSONObject?
 
-  /// Optional. The tool response.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The tool response.
-  ///
-  /// ### Gemini Enterprise Agent Platform
+  /// Required. The type of tool that was called, matching the `tool_type` in the corresponding
+  /// `ToolCall`.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let response: [String: JSONValue]?
+  package var toolType: ToolType?
 
-  /// Creates a new `ToolResponse`.
-  ///
-  /// - Parameters:
-  ///   - id: Optional. The identifier of the tool call this response is for. (Gemini Developer API only). For more details, see ``id``.
-  ///   - toolType: Required. The type of tool that was called, matching the `tool_type` in the (Gemini Developer API only). For more details, see ``toolType``.
-  ///   - response: Optional. The tool response. (Gemini Developer API only). For more details, see ``response``.
-  package init(
-    id: String? = nil,
-    toolType: ToolType,
-    response: [String: JSONValue]? = nil
-  ) {
-    self.id = id
-    self.toolType = toolType
-    self.response = response
-  }
+  /// Initializes a new `ToolResponse`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case id = "id"
-    case toolType = "toolType"
-    case response = "response"
+    case id
+    case response
+    case toolType
   }
 }

@@ -14,23 +14,8 @@
 
 import Foundation
 
-/// An internal data model for `ImageSearch`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaToolGoogleSearchImageSearch`
-///
 /// Image search for grounding and related configurations.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchImageSearch`
-///
-/// Image search for grounding and related configurations.
-package struct ImageSearch: Codable, Sendable, Equatable, Hashable {
-
-  /// Creates a new `ImageSearch`.
-  ///
-  package init() {
-  }
+package struct ImageSearch: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Initializes a new `ImageSearch`.
+  package init() {}
 }

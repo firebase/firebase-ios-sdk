@@ -14,17 +14,9 @@
 
 import Foundation
 
-extension UrlMetadata {
-  /// Status of the url retrieval.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Status of the url retrieval.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
+extension URLMetadata {
   /// The status of the URL retrieval.
-  package enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {
+  package enum URLRetrievalStatus: Codable, Sendable, Equatable, Hashable {
     /// Url retrieval is successful.
     case success
 
@@ -32,9 +24,13 @@ extension UrlMetadata {
     case error
 
     /// Url retrieval is failed because the content is behind paywall.
+    ///
+    /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
     case paywall
 
     /// Url retrieval is failed because the content is unsafe.
+    ///
+    /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
     case unsafe
 
     /// Unrecognized case.
@@ -46,7 +42,7 @@ extension UrlMetadata {
 
 // MARK: - RawRepresentable Conformance
 
-extension UrlMetadata.UrlRetrievalStatus: RawRepresentable {
+extension URLMetadata.URLRetrievalStatus: RawRepresentable {
   package var rawValue: String {
     switch self {
     case .success: "URL_RETRIEVAL_STATUS_SUCCESS"

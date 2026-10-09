@@ -14,11 +14,11 @@
 
 import Foundation
 
-extension ImageResponseFormat {
-  /// Optional. The MIME type of the image output.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
-    /// JPEG image format.
-    case jpeg
+extension ExecutableCode {
+  /// Required. Programming language of the `code`.
+  package enum Language: Codable, Sendable, Equatable, Hashable {
+    /// Python >= 3.10, with numpy and simpy available. Python is the default language.
+    case python
 
     /// Unrecognized case.
     ///
@@ -29,17 +29,17 @@ extension ImageResponseFormat {
 
 // MARK: - RawRepresentable Conformance
 
-extension ImageResponseFormat.MimeType: RawRepresentable {
+extension ExecutableCode.Language: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .jpeg: "IMAGE_JPEG"
+    case .python: "PYTHON"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "IMAGE_JPEG": self = .jpeg
+    case "PYTHON": self = .python
     default: self = .unrecognized(rawValue)
     }
   }

@@ -14,13 +14,7 @@
 
 import Foundation
 
-/// An internal data model for `ToolType`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `ToolType`
-///
-/// ### Gemini Enterprise Agent Platform
+/// Tool types for function calling and tools.
 ///
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum ToolType: Codable, Sendable, Equatable, Hashable {

@@ -15,7 +15,7 @@
 import Foundation
 
 extension ImageResponseFormat {
-  /// Optional. The aspect ratio for the image output.
+  /// The aspect ratio for the image output.
   package enum AspectRatio: Codable, Sendable, Equatable, Hashable {
     /// 1:1 aspect ratio.
     case oneByOne

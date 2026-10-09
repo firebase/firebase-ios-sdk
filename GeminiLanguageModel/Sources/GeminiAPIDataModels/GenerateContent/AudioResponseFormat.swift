@@ -14,71 +14,27 @@
 
 import Foundation
 
-/// An internal data model for `AudioResponseFormat`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaAudioResponseFormat`
-///
-/// Configuration for audio output format.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1AudioResponseFormat`
-///
 /// Configuration for audio-specific output formatting.
-package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable {
-  /// Optional. The MIME type of the audio output.
-  package let mimeType: MimeType?
+package struct AudioResponseFormat: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Bit rate in bits per second (bps). Only applicable for compressed formats (MP3, Opus).
+  package var bitRate: Int?
 
-  /// Optional. The delivery mode for the audio output.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The delivery mode for the audio output.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Delivery mode for the generated content.
-  package let delivery: Delivery?
+  /// Delivery mode for the generated content.
+  package var delivery: Delivery?
 
-  /// Optional. Sample rate in Hz.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Sample rate in Hz.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Sample rate for the generated audio in Hertz.
-  package let sampleRate: Int?
+  /// The MIME type of the audio output.
+  package var mimeType: MIMEType?
 
-  /// Optional. Bit rate in bits per second (bps). Only applicable for compressed formats
-  /// (MP3, Opus).
-  package let bitRate: Int?
+  /// Sample rate for the generated audio in Hertz.
+  package var sampleRate: Int?
 
-  /// Creates a new `AudioResponseFormat`.
-  ///
-  /// - Parameters:
-  ///   - mimeType: Optional. The MIME type of the audio output.
-  ///   - delivery: Optional. The delivery mode for the audio output. (behavior varies by backend). For more details, see ``delivery``.
-  ///   - sampleRate: Optional. Sample rate in Hz. (behavior varies by backend). For more details, see ``sampleRate``.
-  ///   - bitRate: Optional. Bit rate in bits per second (bps). Only applicable for compressed formats
-  package init(
-    mimeType: MimeType? = nil,
-    delivery: Delivery? = nil,
-    sampleRate: Int? = nil,
-    bitRate: Int? = nil
-  ) {
-    self.mimeType = mimeType
-    self.delivery = delivery
-    self.sampleRate = sampleRate
-    self.bitRate = bitRate
-  }
+  /// Initializes a new `AudioResponseFormat`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case mimeType = "mimeType"
-    case delivery = "delivery"
-    case sampleRate = "sampleRate"
-    case bitRate = "bitRate"
+    case bitRate
+    case delivery
+    case mimeType
+    case sampleRate
   }
 }

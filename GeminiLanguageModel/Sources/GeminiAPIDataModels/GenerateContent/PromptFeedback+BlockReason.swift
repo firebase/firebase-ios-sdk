@@ -15,26 +15,16 @@
 import Foundation
 
 extension PromptFeedback {
-  /// Optional. If set, the prompt was blocked and no candidates are returned.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. If set, the prompt was blocked and no candidates are returned.
-  /// Rephrase the prompt.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Output only. The reason why the prompt was blocked.
+  /// The reason why the prompt was blocked.
   package enum BlockReason: Codable, Sendable, Equatable, Hashable {
-    /// Prompt was blocked due to safety reasons. Inspect `safety_ratings`
-    /// to understand which safety category blocked it.
+    /// Prompt was blocked due to safety reasons. Inspect `safety_ratings` to understand which safety
+    /// category blocked it.
     case safety
 
     /// Prompt was blocked due to unknown reasons.
     case other
 
-    /// Prompt was blocked due to the terms which are included from the
-    /// terminology blocklist.
+    /// Prompt was blocked due to the terms which are included from the terminology blocklist.
     case blocklist
 
     /// Prompt was blocked due to prohibited content.
@@ -42,6 +32,16 @@ extension PromptFeedback {
 
     /// Candidates blocked due to unsafe image generation content.
     case imageSafety
+
+    /// The prompt was blocked by Model Armor.
+    ///
+    /// > Important: This case is not supported in the Gemini Developer API.
+    case modelArmor
+
+    /// The prompt was blocked as a jailbreak attempt.
+    ///
+    /// > Important: This case is not supported in the Gemini Developer API.
+    case jailbreak
 
     /// Unrecognized case.
     ///
@@ -60,6 +60,8 @@ extension PromptFeedback.BlockReason: RawRepresentable {
     case .blocklist: "BLOCKLIST"
     case .prohibitedContent: "PROHIBITED_CONTENT"
     case .imageSafety: "IMAGE_SAFETY"
+    case .modelArmor: "MODEL_ARMOR"
+    case .jailbreak: "JAILBREAK"
     case .unrecognized(let value): value
     }
   }
@@ -71,6 +73,8 @@ extension PromptFeedback.BlockReason: RawRepresentable {
     case "BLOCKLIST": self = .blocklist
     case "PROHIBITED_CONTENT": self = .prohibitedContent
     case "IMAGE_SAFETY": self = .imageSafety
+    case "MODEL_ARMOR": self = .modelArmor
+    case "JAILBREAK": self = .jailbreak
     default: self = .unrecognized(rawValue)
     }
   }

@@ -14,64 +14,26 @@
 
 import Foundation
 
-/// An internal data model for `FunctionResponsePart`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaFunctionResponsePart`
-///
-/// A datatype containing media that is part of a `FunctionResponse` message.
-///
-/// A `FunctionResponsePart` consists of data which has an associated datatype. A
+/// A datatype containing media that is part of a `FunctionResponse` message. A
+/// `FunctionResponsePart` consists of data which has an associated datatype. A
 /// `FunctionResponsePart` can only contain one of the accepted types in
-/// `FunctionResponsePart.data`.
-///
-/// A `FunctionResponsePart` must have a fixed IANA MIME type identifying the
-/// type and subtype of the media if the `inline_data` field is filled with raw
+/// `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type
+/// identifying the type and subtype of the media if the `inline_data` field is filled with raw
 /// bytes.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1FunctionResponsePart`
-///
-/// A datatype containing media that is part of a `FunctionResponse` message.
-///
-/// A `FunctionResponsePart` consists of data which has an associated datatype. A
-/// `FunctionResponsePart` can only contain one of the accepted types in
-/// `FunctionResponsePart.data`.
-///
-/// A `FunctionResponsePart` must have a fixed IANA MIME type identifying the
-/// type and subtype of the media if the `inline_data` field is filled with raw
-/// bytes.
-package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable {
-  /// Inline media bytes.
-  package let inlineData: FunctionResponseBlob?
-
+package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Buildable {
   /// URI based data.
-  ///
-  /// ### Gemini Developer API
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// URI based data.
-  package let fileData: FunctionResponseFileData?
+  package var fileData: FunctionResponseFileData?
 
-  /// Creates a new `FunctionResponsePart`.
-  ///
-  /// - Parameters:
-  ///   - inlineData: Inline media bytes.
-  ///   - fileData: URI based data. (Gemini Enterprise Agent Platform only). For more details, see ``fileData``.
-  package init(
-    inlineData: FunctionResponseBlob? = nil,
-    fileData: FunctionResponseFileData? = nil
-  ) {
-    self.inlineData = inlineData
-    self.fileData = fileData
-  }
+  /// Inline media bytes.
+  package var inlineData: FunctionResponseBlob?
+
+  /// Initializes a new `FunctionResponsePart`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case inlineData = "inlineData"
-    case fileData = "fileData"
+    case fileData
+    case inlineData
   }
 }

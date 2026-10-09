@@ -14,45 +14,23 @@
 
 import Foundation
 
-/// An internal data model for `GoogleMaps`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleMaps`
-///
 /// Tool to retrieve public maps data for grounding, powered by Google.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1GoogleMaps`
-///
-/// Tool to retrieve public maps data for grounding, powered by Google.
-package struct GoogleMaps: Codable, Sendable, Equatable, Hashable {
-  /// Optional. If true, include the widget context token in the response.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. If true, include the widget context token in the response.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Deprecated: The Google Maps contextual widget behavior in Grounding with
-  /// Google Maps is being deprecated; this field is planned for removal and no
-  /// longer has any effect once removed.
-  ///
-  /// If true, include the widget context token in the response.
-  package let enableWidget: Bool?
+package struct GoogleMaps: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Deprecated: The Google Maps contextual widget behavior in Grounding with Google Maps is being
+  /// deprecated; this field is planned for removal and no longer has any effect once removed. If
+  /// true, include the widget context token in the response.
+  package var enableWidget: Bool?
 
-  /// Creates a new `GoogleMaps`.
+  /// Specifies the types of Google Maps grounding to enable. Defaults to `places` when unset.
   ///
-  /// - Parameters:
-  ///   - enableWidget: Optional. If true, include the widget context token in the response. (behavior varies by backend). For more details, see ``enableWidget``.
-  package init(
-    enableWidget: Bool? = nil
-  ) {
-    self.enableWidget = enableWidget
-  }
+  /// > Important: This property is not supported in the Gemini Developer API.
+  package var groundingTypes: GoogleMapsGroundingTypes?
+
+  /// Initializes a new `GoogleMaps`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case enableWidget = "enableWidget"
+    case enableWidget
+    case groundingTypes
   }
 }

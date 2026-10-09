@@ -14,42 +14,16 @@
 
 import Foundation
 
-/// An internal data model for `MultiSpeakerVoiceConfig`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaMultiSpeakerVoiceConfig`
-///
-/// The configuration for the multi-speaker setup.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1MultiSpeakerVoiceConfig`
-///
 /// Configuration for a multi-speaker text-to-speech request.
-package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
-  /// Required. All the enabled speaker voices.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Required. All the enabled speaker voices.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Required. A list of configurations for the voices of the speakers. Exactly
-  /// two speaker voice configurations must be provided.
-  package let speakerVoiceConfigs: [SpeakerVoiceConfig]
+package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Required. A list of configurations for the voices of the speakers. Exactly two speaker voice
+  /// configurations must be provided.
+  package var speakerVoiceConfigs: [SpeakerVoiceConfig]?
 
-  /// Creates a new `MultiSpeakerVoiceConfig`.
-  ///
-  /// - Parameters:
-  ///   - speakerVoiceConfigs: Required. All the enabled speaker voices. (behavior varies by backend). For more details, see ``speakerVoiceConfigs``.
-  package init(
-    speakerVoiceConfigs: [SpeakerVoiceConfig]
-  ) {
-    self.speakerVoiceConfigs = speakerVoiceConfigs
-  }
+  /// Initializes a new `MultiSpeakerVoiceConfig`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case speakerVoiceConfigs = "speakerVoiceConfigs"
+    case speakerVoiceConfigs
   }
 }

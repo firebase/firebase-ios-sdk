@@ -14,56 +14,19 @@
 
 import Foundation
 
-/// An internal data model for `SearchTypes`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaToolGoogleSearchSearchTypes`
-///
 /// Different types of search that can be enabled on the GoogleSearch tool.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1ToolGoogleSearchSearchTypes`
-///
-/// Different types of search that can be enabled on the GoogleSearch tool.
-package struct SearchTypes: Codable, Sendable, Equatable, Hashable {
-  /// Optional. Enables web search. Only text results are returned.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Enables web search. Only text results are returned.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Setting this field enables web search. Only text results are returned.
-  package let webSearch: WebSearch?
+package struct SearchTypes: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Setting this field enables image search. Image bytes are returned.
+  package var imageSearch: ImageSearch?
 
-  /// Optional. Enables image search. Image bytes are returned.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Enables image search. Image bytes are returned.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Setting this field enables image search. Image bytes are returned.
-  package let imageSearch: ImageSearch?
+  /// Setting this field enables web search. Only text results are returned.
+  package var webSearch: WebSearch?
 
-  /// Creates a new `SearchTypes`.
-  ///
-  /// - Parameters:
-  ///   - webSearch: Optional. Enables web search. Only text results are returned. (behavior varies by backend). For more details, see ``webSearch``.
-  ///   - imageSearch: Optional. Enables image search. Image bytes are returned. (behavior varies by backend). For more details, see ``imageSearch``.
-  package init(
-    webSearch: WebSearch? = nil,
-    imageSearch: ImageSearch? = nil
-  ) {
-    self.webSearch = webSearch
-    self.imageSearch = imageSearch
-  }
+  /// Initializes a new `SearchTypes`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case webSearch = "webSearch"
-    case imageSearch = "imageSearch"
+    case imageSearch
+    case webSearch
   }
 }

@@ -14,44 +14,16 @@
 
 import Foundation
 
-/// An internal data model for `TopCandidates`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaLogprobsResultTopCandidates`
-///
-/// Candidates with top log probabilities at each decoding step.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1LogprobsResultTopCandidates`
-///
-/// A list of the top candidate tokens and their log probabilities
-/// at each decoding step. This can be used to see what other tokens the model
-/// considered.
-package struct TopCandidates: Codable, Sendable, Equatable, Hashable {
-  /// Sorted by log probability in descending order.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Sorted by log probability in descending order.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// The list of candidate tokens, sorted by log probability in
-  /// descending order.
-  package let candidates: [LogprobsResultCandidate]?
+/// A list of the top candidate tokens and their log probabilities at each decoding step. This can
+/// be used to see what other tokens the model considered.
+package struct TopCandidates: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// The list of candidate tokens, sorted by log probability in descending order.
+  package var candidates: [LogprobsResultCandidate]?
 
-  /// Creates a new `TopCandidates`.
-  ///
-  /// - Parameters:
-  ///   - candidates: Sorted by log probability in descending order. (behavior varies by backend). For more details, see ``candidates``.
-  package init(
-    candidates: [LogprobsResultCandidate]? = nil
-  ) {
-    self.candidates = candidates
-  }
+  /// Initializes a new `TopCandidates`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case candidates = "candidates"
+    case candidates
   }
 }

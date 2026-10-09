@@ -1,0 +1,68 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+import Foundation
+
+/// Configuration for speech recognition (transcription).
+package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Deprecated: Use `custom_vocabulary` instead. A list of phrases to bias the speech recognition
+  /// model towards.
+  @available(*, deprecated)
+  package var adaptationPhrases: [String]?
+
+  /// A list of custom vocabulary phrases to bias the speech recognition model toward recognizing
+  /// specific terms.
+  package var customVocabulary: [String]?
+
+  /// Configures speaker diarization.
+  package var diarization: Bool?
+
+  /// Deprecated: Use top-level `language_codes` instead. The model will detect the language
+  /// automatically.
+  @available(*, deprecated)
+  package var languageAuto: AudioTranscriptionConfigLanguageAuto?
+
+  /// BCP-47 language codes providing hints about the languages present in the audio. If omitted or
+  /// empty, defaults to automatic language detection.
+  package var languageCodes: [String]?
+
+  /// Deprecated: Use top-level `language_codes` instead. Specifies one or more languages in the
+  /// audio.
+  @available(*, deprecated)
+  package var languageHints: AudioTranscriptionConfigLanguageHints?
+
+  /// Configures transcription mode. Supported values: `VERBATIM`, `SMART`. If unspecified, defaults
+  /// to `VERBATIM` transcription. In `SMART` mode, the model performs disfluency removal
+  /// (eliminating filler words, repetitions, and false starts), light grammatical cleanup,
+  /// automatic formatting (paragraphs, bullet points, numbered lists), and minor user edits (inline
+  /// self-corrections). Timestamps and diarization are incompatible with mode `SMART`.
+  package var mode: Mode?
+
+  /// Configures word-level timestamp generation.
+  package var wordTimestamp: Bool?
+
+  /// Initializes a new `AudioTranscriptionConfig`.
+  package init() {}
+
+  enum CodingKeys: String, CodingKey {
+    case adaptationPhrases
+    case customVocabulary
+    case diarization
+    case languageAuto
+    case languageCodes
+    case languageHints
+    case mode
+    case wordTimestamp
+  }
+}

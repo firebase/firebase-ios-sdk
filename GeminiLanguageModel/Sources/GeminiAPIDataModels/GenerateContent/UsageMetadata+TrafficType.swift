@@ -15,15 +15,9 @@
 import Foundation
 
 extension UsageMetadata {
-  /// Output only. The traffic type for this request.
-  ///
-  /// ### Gemini Developer API
+  /// The traffic type for this request.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Output only. The traffic type for this request.
   package enum TrafficType: Codable, Sendable, Equatable, Hashable {
     /// The request was processed using Pay-As-You-Go quota.
     case onDemand
@@ -33,6 +27,9 @@ extension UsageMetadata {
 
     /// Type for Flex traffic.
     case onDemandFlex
+
+    /// Type for Off-Peak Pay-As-You-Go traffic.
+    case onDemandOffpeak
 
     /// Type for Provisioned Throughput traffic.
     case provisionedThroughput
@@ -52,6 +49,7 @@ extension UsageMetadata.TrafficType: RawRepresentable {
     case .onDemand: "ON_DEMAND"
     case .onDemandPriority: "ON_DEMAND_PRIORITY"
     case .onDemandFlex: "ON_DEMAND_FLEX"
+    case .onDemandOffpeak: "ON_DEMAND_OFFPEAK"
     case .provisionedThroughput: "PROVISIONED_THROUGHPUT"
     case .unrecognized(let value): value
     }
@@ -62,6 +60,7 @@ extension UsageMetadata.TrafficType: RawRepresentable {
     case "ON_DEMAND": self = .onDemand
     case "ON_DEMAND_PRIORITY": self = .onDemandPriority
     case "ON_DEMAND_FLEX": self = .onDemandFlex
+    case "ON_DEMAND_OFFPEAK": self = .onDemandOffpeak
     case "PROVISIONED_THROUGHPUT": self = .provisionedThroughput
     default: self = .unrecognized(rawValue)
     }

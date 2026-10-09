@@ -14,16 +14,14 @@
 
 import Foundation
 
-/// An internal data model for `ModelStage`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaModelStage`
-///
-/// ### Gemini Enterprise Agent Platform
+/// Model lifecycle stages.
 ///
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum ModelStage: Codable, Sendable, Equatable, Hashable {
+  /// The underlying model is subject to lots of tunings.
+  @available(*, deprecated)
+  case unstableExperimental
+
   /// Models in this stage are for experimental purposes only.
   case experimental
 
@@ -33,11 +31,12 @@ package enum ModelStage: Codable, Sendable, Equatable, Hashable {
   /// Models in this stage are considered stable and ready for production use.
   case stable
 
-  /// If the model is on this stage, it means that this model is on the path to
-  /// deprecation in near future. Only existing customers can use this model.
+  /// If the model is on this stage, it means that this model is on the path to deprecation in near
+  /// future. Only existing customers can use this model.
   case legacy
 
   /// Models in this stage are deprecated. These models cannot be used.
+  @available(*, deprecated)
   case deprecated
 
   /// Models in this stage are retired. These models cannot be used.
@@ -54,6 +53,7 @@ package enum ModelStage: Codable, Sendable, Equatable, Hashable {
 extension ModelStage: RawRepresentable {
   package var rawValue: String {
     switch self {
+    case .unstableExperimental: "UNSTABLE_EXPERIMENTAL"
     case .experimental: "EXPERIMENTAL"
     case .preview: "PREVIEW"
     case .stable: "STABLE"
@@ -70,9 +70,35 @@ extension ModelStage: RawRepresentable {
     case "PREVIEW": self = .preview
     case "STABLE": self = .stable
     case "LEGACY": self = .legacy
-    case "DEPRECATED": self = .deprecated
     case "RETIRED": self = .retired
-    default: self = .unrecognized(rawValue)
+    default: self = decodeDeprecatedCase(Self.self, rawValue: rawValue) ?? .unrecognized(rawValue)
+    }
+  }
+}
+
+// MARK: - Deprecated Cases
+
+// Referencing a deprecated case from `init(rawValue:)` would emit a deprecation warning.
+// Instead, deprecated cases are constructed in a deprecated witness of a non-deprecated protocol
+// requirement, which is called generically so that no deprecated declaration is referenced
+// directly.
+private protocol DeprecatedCaseDecoding {
+  static func deprecatedCase(rawValue: String) -> Self?
+}
+
+private func decodeDeprecatedCase<T: DeprecatedCaseDecoding>(
+  _: T.Type, rawValue: String
+) -> T? {
+  T.deprecatedCase(rawValue: rawValue)
+}
+
+extension ModelStage: DeprecatedCaseDecoding {
+  @available(*, deprecated)
+  fileprivate static func deprecatedCase(rawValue: String) -> Self? {
+    switch rawValue {
+    case "UNSTABLE_EXPERIMENTAL": .unstableExperimental
+    case "DEPRECATED": .deprecated
+    default: nil
     }
   }
 }

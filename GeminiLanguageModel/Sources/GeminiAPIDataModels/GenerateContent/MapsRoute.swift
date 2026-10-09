@@ -14,70 +14,32 @@
 
 import Foundation
 
-/// An internal data model for `MapsRoute`.
-///
-/// ### Gemini Developer API
+/// Route information from Google Maps.
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1GroundingChunkMapsRoute`
-///
-/// Route information from Google Maps.
-package struct MapsRoute: Codable, Sendable, Equatable, Hashable {
+package struct MapsRoute: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The total distance of the route, in meters.
-  ///
-  /// ### Gemini Developer API
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// The total distance of the route, in meters.
-  package let distanceMeters: Int?
+  package var distanceMeters: Int?
 
   /// The total duration of the route.
   ///
-  /// ### Gemini Developer API
-  ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// The total duration of the route.
-  package let duration: String?
+  package var duration: String?
 
-  /// An encoded polyline of the route. See
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
   /// An encoded polyline of the route. See
   /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-  package let encodedPolyline: String?
-
-  /// Creates a new `MapsRoute`.
   ///
-  /// - Parameters:
-  ///   - distanceMeters: The total distance of the route, in meters. (Gemini Enterprise Agent Platform only). For more details, see ``distanceMeters``.
-  ///   - duration: The total duration of the route. (Gemini Enterprise Agent Platform only). For more details, see ``duration``.
-  ///   - encodedPolyline: An encoded polyline of the route. See (Gemini Enterprise Agent Platform only). For more details, see ``encodedPolyline``.
-  package init(
-    distanceMeters: Int? = nil,
-    duration: String? = nil,
-    encodedPolyline: String? = nil
-  ) {
-    self.distanceMeters = distanceMeters
-    self.duration = duration
-    self.encodedPolyline = encodedPolyline
-  }
+  /// > Important: This property is not supported in the Gemini Developer API.
+  package var encodedPolyline: String?
+
+  /// Initializes a new `MapsRoute`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case distanceMeters = "distanceMeters"
-    case duration = "duration"
-    case encodedPolyline = "encodedPolyline"
+    case distanceMeters
+    case duration
+    case encodedPolyline
   }
 }

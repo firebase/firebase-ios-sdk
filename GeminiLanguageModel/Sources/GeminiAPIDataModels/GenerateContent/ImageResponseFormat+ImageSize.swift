@@ -15,7 +15,7 @@
 import Foundation
 
 extension ImageResponseFormat {
-  /// Optional. The size of the image output.
+  /// The size of the image output.
   package enum ImageSize: Codable, Sendable, Equatable, Hashable {
     /// 512px image size.
     case fiveTwelve

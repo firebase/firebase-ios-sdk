@@ -14,15 +14,7 @@
 
 import Foundation
 
-/// An internal data model for `Modality`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaModality`
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// Content modalities.
 package enum Modality: Codable, Sendable, Equatable, Hashable {
   /// Plain text.
   case text

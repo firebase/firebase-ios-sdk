@@ -14,13 +14,7 @@
 
 import Foundation
 
-/// An internal data model for `ServiceTier`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaServiceTier`
-///
-/// ### Gemini Enterprise Agent Platform
+/// Service tier for request processing.
 ///
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum ServiceTier: Codable, Sendable, Equatable, Hashable {
