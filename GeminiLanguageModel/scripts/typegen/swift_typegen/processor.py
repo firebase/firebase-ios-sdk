@@ -52,12 +52,8 @@ def get_primitive_type(prop_data: dict[str, Any]) -> str | None:
 
     fmt = prop_data.get("format")
     if t == "string":
-        if fmt in ("google-datetime", "date-time", "google-duration"):
-            return "String"
-        elif fmt == "byte":
-            return "Data"
-        else:
-            return "String"
+        # Other formats, including dates and durations, stay strings.
+        return "Data" if fmt == "byte" else "String"
     elif t == "integer":
         return "Int"
     elif t == "number":

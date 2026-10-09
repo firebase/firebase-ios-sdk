@@ -177,6 +177,12 @@ class TestSchemaProcessor(unittest.TestCase):
         prop_data = {"type": "string", "format": "byte"}
         self.assertEqual(get_primitive_type(prop_data), "Data")
 
+    def test_other_string_formats_map_to_string(self):
+        for fmt in ("google-datetime", "date-time", "google-duration", None):
+            with self.subTest(fmt=fmt):
+                prop_data = {"type": "string", "format": fmt}
+                self.assertEqual(get_primitive_type(prop_data), "String")
+
     def test_property_type_override_replaces_primitive_mapping(self):
         config = GeneratorConfig(
             property_type_overrides={"Part.thoughtSignature": "String"}
