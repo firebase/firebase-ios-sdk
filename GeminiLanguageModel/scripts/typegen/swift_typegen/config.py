@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-import os
 from typing import Any
 
 import yaml
@@ -143,10 +142,9 @@ class GeneratorConfig:
             A GeneratorConfig instance initialized from the file contents.
 
         Raises:
+            FileNotFoundError: If the overrides file does not exist.
             ValueError: If generatorConfig.backends is malformed.
         """
-        if not os.path.exists(path):
-            return cls()
         with open(path, "r", encoding="utf-8") as f:
             overrides = yaml.safe_load(f) or {}
         gen_config = overrides.get("generatorConfig") or {}

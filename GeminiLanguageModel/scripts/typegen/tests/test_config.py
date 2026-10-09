@@ -45,9 +45,9 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(config.excluded_schemas, set())
         self.assertEqual(config.excluded_properties, {})
 
-    def test_from_file_missing_returns_defaults(self):
-        config = GeneratorConfig.from_file("/nonexistent/overrides.yaml")
-        self.assertEqual(config, GeneratorConfig())
+    def test_from_file_missing_raises(self):
+        with self.assertRaises(FileNotFoundError):
+            GeneratorConfig.from_file("/nonexistent/overrides.yaml")
 
     def test_from_file_parses_generator_config(self):
         with tempfile.TemporaryDirectory() as tmp:

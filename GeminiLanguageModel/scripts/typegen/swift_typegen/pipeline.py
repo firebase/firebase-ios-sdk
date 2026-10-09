@@ -92,10 +92,6 @@ def load_config(overrides_file: str) -> GeneratorConfig:
             without it would generate a different, much smaller type set
             and prune the existing output.
     """
-    if not os.path.exists(overrides_file):
-        raise FileNotFoundError(
-            f"Overrides file not found at {overrides_file}"
-        )
     config = GeneratorConfig.from_file(overrides_file)
     print(f"Loaded generator configuration from {overrides_file}")
     return config
