@@ -29,11 +29,7 @@ struct SignInWithGameCenterResponse: AuthRPCResponse {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     localID = dictionary["localId"] as? String
-    if let approximateExpirationDate = dictionary["expiresIn"] as? String {
-      self
-        .approximateExpirationDate =
-        Date(timeIntervalSinceNow: (approximateExpirationDate as NSString).doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
     refreshToken = dictionary["refreshToken"] as? String
     playerID = dictionary["playerId"] as? String
     teamPlayerID = dictionary["teamPlayerId"] as? String

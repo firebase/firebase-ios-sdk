@@ -47,9 +47,8 @@ struct SecureTokenResponse: AuthRPCResponse {
     guard !accessToken.isEmpty else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
-    if let expiresIn = dictionary[kExpiresInKey] as? String {
-      approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
-        .doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(
+      expiresIn: dictionary[kExpiresInKey]
+    )
   }
 }
