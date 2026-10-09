@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed a race where an observer added while an upload or download task was completing
+  could be called twice for the success or failure event. This could crash `putDataAsync`,
+  `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
 - [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
   `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
   was set, breaking lookups in sets and dictionaries. (#16794)
