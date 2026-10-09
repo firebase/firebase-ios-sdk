@@ -2580,6 +2580,150 @@ TEST_F(SerializerTest,
             "customId");
 }
 
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithDeleteStage) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto delete_stage = std::make_shared<api::DeleteStage>();
+  api::Pipeline pipeline({delete_stage}, nullptr);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "delete");
+  EXPECT_EQ(stage_proto.args_size(), 0);
+  EXPECT_EQ(stage_proto.options_size(), 0);
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithUpdateStage) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  std::unordered_map<std::string, std::shared_ptr<api::Expr>> fields;
+  fields["title"] = std::make_shared<api::Constant>(Value("Updated"));
+  auto update_stage = std::make_shared<api::UpdateStage>(std::move(fields));
+  api::Pipeline pipeline({update_stage}, nullptr, /*atomic=*/true);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "update");
+  ASSERT_EQ(stage_proto.args_size(), 1);
+  EXPECT_EQ(stage_proto.args(0).map_value().fields().at("title").string_value(),
+            "Updated");
+  EXPECT_EQ(stage_proto.options_size(), 0);
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithInsertStage) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto doc_id_expr = std::make_shared<api::Field>("isbn");
+  auto insert_stage =
+      std::make_shared<api::InsertStage>("books_archive", doc_id_expr);
+  api::Pipeline pipeline({insert_stage}, nullptr);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "insert");
+  EXPECT_EQ(stage_proto.args_size(), 0);
+  EXPECT_EQ(stage_proto.options().at("collection").reference_value(),
+            "/books_archive");
+  EXPECT_EQ(stage_proto.options().at("document_id").field_reference_value(),
+            "isbn");
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithInPlaceInsertStage) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto insert_stage = std::make_shared<api::InsertStage>("", nullptr);
+  api::Pipeline pipeline({insert_stage}, nullptr, /*atomic=*/true);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "insert");
+  EXPECT_EQ(stage_proto.args_size(), 0);
+  EXPECT_EQ(stage_proto.options_size(), 0);
+}
+
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithInPlaceUpsertStage) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  std::unordered_map<std::string, std::shared_ptr<api::Expr>> fields;
+  fields["genre"] = std::make_shared<api::Constant>(Value("Sci-Fi"));
+  auto upsert_stage =
+      std::make_shared<api::UpsertStage>(std::move(fields), "", nullptr);
+  api::Pipeline pipeline({upsert_stage}, nullptr, /*atomic=*/true);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "upsert");
+  ASSERT_EQ(stage_proto.args_size(), 1);
+  EXPECT_EQ(stage_proto.args(0).map_value().fields().at("genre").string_value(),
+            "Sci-Fi");
+  EXPECT_EQ(stage_proto.options_size(), 0);
+}
+
+TEST_F(SerializerTest,
+       EncodesExecutePipelineRequestWithLiteralsSourceRepeatedly) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  std::unordered_map<std::string, std::shared_ptr<api::Expr>> doc1;
+  doc1["name"] = std::make_shared<api::Constant>(Value("Alice"));
+  doc1["age"] = std::make_shared<api::Constant>(Value(30));
+
+  std::vector<std::unordered_map<std::string, std::shared_ptr<api::Expr>>> docs{
+      std::move(doc1)};
+  auto literals_stage = std::make_shared<api::LiteralsSource>(std::move(docs));
+  api::Pipeline pipeline({literals_stage}, nullptr);
+
+  // Encode multiple times to verify LiteralsSource::to_proto() deep-clones
+  // values without use-after-free or double-free when request is destroyed.
+  for (int i = 0; i < 2; ++i) {
+    auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+    ByteString bytes = nanopb::MakeByteString(request);
+    auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+    ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+    const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+    EXPECT_EQ(stage_proto.name(), "literals");
+    ASSERT_EQ(stage_proto.args_size(), 1);
+    EXPECT_EQ(
+        stage_proto.args(0).map_value().fields().at("name").string_value(),
+        "Alice");
+    EXPECT_EQ(
+        stage_proto.args(0).map_value().fields().at("age").integer_value(), 30);
+    EXPECT_EQ(stage_proto.options_size(), 0);
+  }
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
 

@@ -125,7 +125,9 @@ public struct PipelineSource: @unchecked Sendable {
   ///
   /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`),
   /// nested collections,
-  /// or Firestore `Expression` objects.
+  /// or Firestore `Expression` objects. Write-only `FieldValue` sentinels (such as
+  /// `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
+  /// `CurrentTimestamp()` instead.
   ///
   /// ```swift
   /// // Example 1: Transform and project literal records
@@ -149,8 +151,8 @@ public struct PipelineSource: @unchecked Sendable {
   ///
   /// - Parameter data: An array of dictionaries representing document literals.
   /// - Returns: A `Pipeline` with the specified literal documents as its source.
-  public func literals(_ data: [[String: Any]]) -> Pipeline {
-    return factory([LiteralsSourceStage(data: data, db: db)], db)
+  public func literals(_ data: [[String: Sendable]]) -> Pipeline {
+    return factory([LiteralsSource(data: data)], db)
   }
 
   /// Specifies in-memory document dictionaries as variadic arguments for the pipeline data source.
@@ -163,13 +165,15 @@ public struct PipelineSource: @unchecked Sendable {
   ///
   /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`),
   /// nested collections,
-  /// or Firestore `Expression` objects.
+  /// or Firestore `Expression` objects. Write-only `FieldValue` sentinels (such as
+  /// `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
+  /// `CurrentTimestamp()` instead.
   ///
   /// ```swift
   /// // Example 1: Execute literals containing expressions
   /// let snapshot = try await db.pipeline()
   ///   .literals(
-  ///     ["id": "doc_1", "baseValue": 10, "doubled": Expression.constant(20)]
+  ///     ["id": "doc_1", "baseValue": 10, "doubled": Constant(10).multiply(2)]
   ///   )
   ///   .execute()
   ///
@@ -187,9 +191,13 @@ public struct PipelineSource: @unchecked Sendable {
   ///   .execute()
   /// ```
   ///
-  /// - Parameter data: Variadic dictionary arguments representing document literals.
+  /// - Parameters:
+  ///   - document: The first dictionary representing a document literal.
+  ///   - additionalDocuments: Optional additional dictionary arguments representing document
+  /// literals.
   /// - Returns: A `Pipeline` with the specified literal documents as its source.
-  public func literals(_ data: [String: Any]...) -> Pipeline {
-    return literals(data)
+  public func literals(_ document: [String: Sendable],
+                       _ additionalDocuments: [String: Sendable]...) -> Pipeline {
+    return literals([document] + additionalDocuments)
   }
 }

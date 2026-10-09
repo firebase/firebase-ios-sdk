@@ -76,7 +76,7 @@ public class Pipeline: @unchecked Sendable {
   let db: Firestore?
 
   var pipelineBridge: __PipelineBridge {
-    guard let db = db else {
+    guard let db else {
       fatalError("pipelineBridge cannot be accessed on a pipeline created without a database.")
     }
     return __PipelineBridge(stages: stages.map { $0.bridge }, db: db)
@@ -134,7 +134,7 @@ public class Pipeline: @unchecked Sendable {
   /// do {
   ///   let snapshot = try await db.pipeline()
   ///     .collection("books")
-  ///     .where(Field("genre").equal(Expression.constant("Sci-Fi")))
+  ///     .where(Field("genre").equal("Sci-Fi"))
   ///     .execute()
   ///   print("Results count: \(snapshot.results.count)")
   /// } catch {
@@ -146,7 +146,7 @@ public class Pipeline: @unchecked Sendable {
   ///   let options = Pipeline.ExecuteOptions(isAtomic: true)
   ///   let snapshot = try await db.pipeline()
   ///     .collection("books")
-  ///     .where(Field("rating").lessThan(Expression.constant(2.0)))
+  ///     .where(Field("rating").lessThan(2.0))
   ///     .delete()
   ///     .execute(options: options)
   ///   print("Deleted matching books atomically at: \(snapshot.executionTime)")
@@ -162,7 +162,7 @@ public class Pipeline: @unchecked Sendable {
   public func execute(options: Pipeline.ExecuteOptions = .init()) async throws -> Pipeline
     .Snapshot {
     // Check if isolated subcollection execution is being attempted.
-    guard let db = db else {
+    guard let db else {
       throw NSError(
         domain: "com.google.firebase.firestore",
         code: 3 /* kErrorInvalidArgument */,
@@ -1019,7 +1019,7 @@ public class Pipeline: @unchecked Sendable {
   /// // Example 1: Non-transactional deletion of filtered documents
   /// let snapshot = try await db.pipeline()
   ///   .collection("books")
-  ///   .where(Field("title").equal(Expression.constant("The Hitchhiker's Guide to the Galaxy")))
+  ///   .where(Field("title").equal("The Hitchhiker's Guide to the Galaxy"))
   ///   .delete()
   ///   .execute()
   ///
@@ -1053,10 +1053,10 @@ public class Pipeline: @unchecked Sendable {
   /// // Update multiple fields on matching documents
   /// let snapshot = try await db.pipeline()
   ///   .collection("books")
-  ///   .where(Field("genre").equal(Expression.constant("Sci-Fi")))
+  ///   .where(Field("genre").equal("Sci-Fi"))
   ///   .update(
-  ///     Expression.constant("Science Fiction").as("genre"),
-  ///     Expression.constant(true).as("featured")
+  ///     Constant("Science Fiction").as("genre"),
+  ///     Constant(true).as("featured")
   ///   )
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
@@ -1080,11 +1080,10 @@ public class Pipeline: @unchecked Sendable {
   /// ```swift
   /// // Update fields on a specific document using an array of transforms
   /// let snapshot = try await db.pipeline()
-  ///   .collection("books")
-  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .documents([db.collection("books").document("book1")])
   ///   .update([
-  ///     Expression.constant("Comedy Sci-Fi").as("genre"),
-  ///     Field("rating").add(Expression.constant(0.5)).as("rating")
+  ///     Constant("Comedy Sci-Fi").as("genre"),
+  ///     Field("rating").add(0.5).as("rating")
   ///   ])
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
@@ -1095,33 +1094,32 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [UpdateStage(fields: fields)], db: db)
   }
 
-  /// Appends an `insert` stage to the pipeline writing documents into the specified collection.
+  /// Appends an `insert` stage to the pipeline to create new documents in Firestore.
   ///
   /// The `insert` stage creates new documents in Firestore from the records produced by preceding
-  /// pipeline stages.
+  /// pipeline stages. If a target document already exists, the stage fails with `ALREADY_EXISTS`.
   ///
-  /// - Note: The `collectionPath` parameter is **required** because newly inserted documents do not
-  /// have an existing
-  ///   database location; an explicit destination collection path is necessary to determine where
-  /// the documents are written.
-  ///
-  /// If `documentIdExpression` is omitted or `nil`, Firestore automatically generates a unique
-  /// document ID. If provided,
-  /// the expression (such as a `Field` reference or constant `Expression`) resolves the document
-  /// ID.
+  /// The destination document path is resolved from `collectionPath` and `documentIdExpression`:
+  /// - When both `collectionPath` and `documentIdExpression` are provided, documents are inserted
+  ///   into `collectionPath` using the ID evaluated from `documentIdExpression`.
+  /// - When only `collectionPath` is provided, documents are inserted into `collectionPath` reusing
+  ///   the input document's existing ID (or an auto-generated ID if the input has no document ID,
+  ///   such as records from `literals`).
+  /// - When only `documentIdExpression` is provided, documents are inserted into the input
+  ///   document's parent collection using the ID evaluated from `documentIdExpression`.
+  /// - When neither is provided, the input document's existing path is used.
   ///
   /// ```swift
-  /// // Example 1: Insert with auto-generated document ID
-  /// let autoIdSnapshot = try await db.pipeline()
+  /// // Example 1: Insert into a backup collection
+  /// let backupSnapshot = try await db.pipeline()
   ///   .collection("books")
-  ///   .where(Field("genre").equal(Expression.constant("Bestseller")))
+  ///   .where(Field("genre").equal("Bestseller"))
   ///   .insert(collectionPath: "bestsellers_backup")
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   ///
   /// // Example 2: Insert with custom document ID derived from a field expression
   /// let customIdSnapshot = try await db.pipeline()
-  ///   .collection("books")
-  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .documents([db.collection("books").document("book1")])
   ///   .insert(
   ///     collectionPath: "books_archive",
   ///     documentIdExpression: Field("isbn")
@@ -1142,14 +1140,13 @@ public class Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameters:
-  ///   - collectionPath: The target collection path to insert documents into. This parameter is
-  /// required because
-  ///     newly created documents require an explicit destination collection.
-  ///   - documentIdExpression: An optional `Expression` resolving to the document ID. If `nil`,
-  /// Firestore auto-generates
-  ///     a unique document ID.
+  ///   - collectionPath: Optional target collection path to insert documents into. If `nil`, uses
+  ///     the input document's parent collection.
+  ///   - documentIdExpression: Optional `Expression` resolving to the document ID. If `nil`, reuses
+  ///     the input document's ID or auto-generates one for literal inputs.
   /// - Returns: A new `Pipeline` object with the `insert` stage appended.
-  public func insert(collectionPath: String, documentIdExpression: Expression? = nil) -> Pipeline {
+  public func insert(collectionPath: String? = nil,
+                     documentIdExpression: Expression? = nil) -> Pipeline {
     return Pipeline(
       stages: stages +
         [InsertStage(collectionPath: collectionPath, documentIdExpression: documentIdExpression)],
@@ -1167,11 +1164,10 @@ public class Pipeline: @unchecked Sendable {
   /// ```swift
   /// // Example: In-place upsert with variadic additional fields
   /// let snapshot = try await db.pipeline()
-  ///   .collection("books")
-  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .documents([db.collection("books").document("book1")])
   ///   .upsert(
-  ///     Expression.constant("Updated Genre").as("genre"),
-  ///     Field("views").add(Expression.constant(10)).as("views")
+  ///     Constant("Updated Genre").as("genre"),
+  ///     Field("views").add(10).as("views")
   ///   )
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
@@ -1194,8 +1190,8 @@ public class Pipeline: @unchecked Sendable {
   /// let inPlaceSnapshot = try await db.pipeline()
   ///   .documents([db.collection("books").document("new_upsert_doc_id")])
   ///   .upsert([
-  ///     Expression.constant("Sci-Fi").as("genre"),
-  ///     Expression.constant("New Book Title").as("title")
+  ///     Constant("Sci-Fi").as("genre"),
+  ///     Constant("New Book Title").as("title")
   ///   ])
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))
   /// ```
@@ -1223,14 +1219,13 @@ public class Pipeline: @unchecked Sendable {
   /// ```swift
   /// // Example 1: Target custom collection with custom document ID field and additional fields
   /// let targetSnapshot = try await db.pipeline()
-  ///   .collection("books")
-  ///   .where(Field("__name__").equal(Expression.constant("book1")))
+  ///   .documents([db.collection("books").document("book1")])
   ///   .upsert(
   ///     collectionPath: "books_archive",
   ///     documentIdExpression: Field("targetId"),
   ///     additionalFields: [
-  ///       Expression.constant("Upserted Genre").as("genre"),
-  ///       Expression.constant("Upserted Title").as("title")
+  ///       Constant("Upserted Genre").as("genre"),
+  ///       Constant("Upserted Title").as("title")
   ///     ]
   ///   )
   ///   .execute(options: Pipeline.ExecuteOptions(isAtomic: true))

@@ -114,6 +114,40 @@ class DocumentsSource: Stage {
   }
 }
 
+class LiteralsSource: Stage {
+  let name: String = "literals"
+  let bridge: __StageBridge
+  let errorMessage: String?
+
+  init(data: [[String: Sendable]]) {
+    if data.isEmpty {
+      errorMessage = "The 'literals' stage requires at least one document."
+      bridge = __LiteralsSourceStageBridge(data: [])
+      return
+    }
+    var errors: [String] = []
+    let bridgedData: [[String: __ExprBridge]] = data.map { doc in
+      var bridgedDoc: [String: __ExprBridge] = [:]
+      for (key, val) in doc {
+        let validationErrors = Helper.validateLiteralsValue(val, fieldPath: key)
+        if !validationErrors.isEmpty {
+          errors.append(contentsOf: validationErrors)
+          bridgedDoc[key] = Constant.nil.toBridge()
+        } else {
+          let expr = Helper.sendableToExpr(val)
+          if let error = expr.errorMessage {
+            errors.append(error)
+          }
+          bridgedDoc[key] = expr.toBridge()
+        }
+      }
+      return bridgedDoc
+    }
+    errorMessage = errors.isEmpty ? nil : errors.joined(separator: "\n")
+    bridge = __LiteralsSourceStageBridge(data: bridgedData)
+  }
+}
+
 class Where: Stage {
   let name: String = "where"
 
@@ -531,8 +565,10 @@ class UpdateStage: Stage {
 class InsertStage: Stage {
   let name: String = "insert"
   let bridge: __StageBridge
+  let errorMessage: String?
 
-  init(collectionPath: String, documentIdExpression: Expression?) {
+  init(collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
+    errorMessage = documentIdExpression?.errorMessage
     bridge = __InsertStageBridge(
       collectionPath: collectionPath,
       documentIdExpression: documentIdExpression?.toBridge()
@@ -548,8 +584,15 @@ class UpsertStage: Stage {
   init(additionalFields: [Selectable] = [], collectionPath: String? = nil,
        documentIdExpression: Expression? = nil) {
     let (map, error) = Helper.selectablesToMap(selectables: additionalFields)
+    var errors: [String] = []
     if let error = error {
-      errorMessage = error.localizedDescription
+      errors.append(error.localizedDescription)
+    }
+    if let docIdError = documentIdExpression?.errorMessage {
+      errors.append(docIdError)
+    }
+    if !errors.isEmpty {
+      errorMessage = errors.joined(separator: "\n")
       bridge = __UpsertStageBridge(
         additionalFields: [:],
         collectionPath: collectionPath,
@@ -563,22 +606,5 @@ class UpsertStage: Stage {
         documentIdExpression: documentIdExpression?.toBridge()
       )
     }
-  }
-}
-
-class LiteralsSourceStage: Stage {
-  let name: String = "literals"
-  let bridge: __StageBridge
-
-  init(data: [[String: Any]], db: Firestore) {
-    let bridgedData = data.map { doc in
-      doc.mapValues { val -> Any in
-        if let expr = val as? Expression {
-          return expr.toBridge()
-        }
-        return val
-      }
-    }
-    bridge = __LiteralsSourceStageBridge(data: bridgedData, firestore: db)
   }
 }

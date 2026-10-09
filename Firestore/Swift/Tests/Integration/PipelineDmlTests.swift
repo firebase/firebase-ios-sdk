@@ -339,6 +339,26 @@ class PipelineDmlTests: FSTIntegrationTestCase {
     XCTAssertEqual(targetDocs.documents[0].data()["title"] as? String, "SciFi")
   }
 
+  func testInsertWithoutCollectionPath() async throws {
+    let emptyColl = collectionRef()
+    let targetRef = collectionRef()
+    let db = targetRef.firestore
+    let docRef = targetRef.document("in_place_insert_id")
+
+    let snapshot = try await db.pipeline()
+      .literals([
+        ["__name__": docRef, "title": "Inserted Without CollectionPath"],
+      ])
+      .union(with: db.pipeline().collection(emptyColl.path))
+      .insert()
+      .execute(options: .init(isAtomic: true))
+    XCTAssertNotNil(snapshot)
+
+    let docSnap = try await docRef.getDocument()
+    XCTAssertTrue(docSnap.exists)
+    XCTAssertEqual(docSnap.data()?["title"] as? String, "Inserted Without CollectionPath")
+  }
+
   // MARK: - Upsert Stage (5 tests)
 
   func testUpsertUpdatesExistingDocumentWithVariadic() async throws {
@@ -446,7 +466,7 @@ class PipelineDmlTests: FSTIntegrationTestCase {
     XCTAssertEqual(docSnap.data()?["title"] as? String, "Copied Title")
   }
 
-  // MARK: - Literals Stage (3 tests, using .union(with:) to satisfy Firebase Security Rules)
+  // MARK: - Literals Stage (4 tests, using .union(with:) to satisfy Firebase Security Rules)
 
   func testLiteralsSourceBasicExecution() async throws {
     let emptyColl = collectionRef()
@@ -462,18 +482,44 @@ class PipelineDmlTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results.count, 2)
   }
 
+  func testLiteralsVariadicAndRepeatedExecution() async throws {
+    let emptyColl = collectionRef()
+    let db = emptyColl.firestore
+    let pipeline = db.pipeline()
+      .literals(
+        ["name": "Alice", "age": 30],
+        ["name": "Bob", "age": 25]
+      )
+      .union(with: db.pipeline().collection(emptyColl.path))
+
+    let snapshot1 = try await pipeline.execute()
+    XCTAssertEqual(snapshot1.results.count, 2)
+
+    let snapshot2 = try await pipeline.execute()
+    XCTAssertEqual(snapshot2.results.count, 2)
+  }
+
   func testLiteralsSourceWithExpressions() async throws {
     let emptyColl = collectionRef()
     let db = emptyColl.firestore
     let pipeline = db.pipeline()
       .literals([
-        ["base": 10, "computed": Constant(10).add(25)],
+        [
+          "base": 10,
+          "computed": Constant(10).add(25),
+          "nestedMap": ["innerExpr": Constant("hello").toUpper()],
+          "nestedArray": [1, Constant(2).multiply(3)] as [Sendable],
+        ],
       ])
       .union(with: db.pipeline().collection(emptyColl.path))
 
     let snapshot = try await pipeline.execute()
     XCTAssertEqual(snapshot.results.count, 1)
     XCTAssertEqual(snapshot.results[0].data["computed"] as? Int, 35)
+    let nestedMap = snapshot.results[0].data["nestedMap"] as? [String: Any]
+    XCTAssertEqual(nestedMap?["innerExpr"] as? String, "HELLO")
+    let nestedArray = snapshot.results[0].data["nestedArray"] as? [Int]
+    XCTAssertEqual(nestedArray, [1, 6])
   }
 
   func testLiteralsCombinedWithInsert() async throws {
@@ -497,5 +543,36 @@ class PipelineDmlTests: FSTIntegrationTestCase {
     XCTAssertTrue(docSnap.exists)
     XCTAssertEqual(docSnap.data()?["title"] as? String, "Literal Inserted")
     XCTAssertEqual(docSnap.data()?["year"] as? Int, 2026)
+  }
+
+  func testLiteralsEmptyArrayThrowsError() async throws {
+    let db = collectionRef().firestore
+    let pipeline = db.pipeline().literals([])
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Expected execute() to throw an error for empty literals.")
+    } catch {
+      XCTAssertTrue(
+        error.localizedDescription.contains("The 'literals' stage requires at least one document.")
+      )
+    }
+  }
+
+  func testLiteralsRejectsFieldValueSentinel() async throws {
+    let db = collectionRef().firestore
+    let pipeline = db.pipeline().literals([
+      ["a": ["b": FieldValue.serverTimestamp()]],
+    ])
+    do {
+      _ = try await pipeline.execute()
+      XCTFail("Expected execute() to throw an error for FieldValue sentinel in literals.")
+    } catch {
+      XCTAssertTrue(
+        error.localizedDescription.contains(
+          "Function literals() called with invalid data. FieldValue.serverTimestamp() can only be used with update() and set() (found in field a.b)"
+        ),
+        "Unexpected error: \(error.localizedDescription)"
+      )
+    }
   }
 }

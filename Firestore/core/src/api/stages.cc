@@ -173,6 +173,36 @@ google_firestore_v1_Pipeline_Stage DocumentsSource::to_proto() const {
   return result;
 }
 
+LiteralsSource::LiteralsSource(
+    std::vector<std::unordered_map<std::string, std::shared_ptr<Expr>>>
+        documents)
+    : documents_(std::move(documents)) {
+}
+
+google_firestore_v1_Pipeline_Stage LiteralsSource::to_proto() const {
+  google_firestore_v1_Pipeline_Stage result;
+  result.name = nanopb::MakeBytesArray(name());
+
+  nanopb::SetRepeatedField(
+      &result.args, &result.args_count, documents_,
+      [](const std::unordered_map<std::string, std::shared_ptr<Expr>>& doc) {
+        google_firestore_v1_Value map_val{};
+        map_val.which_value_type = google_firestore_v1_Value_map_value_tag;
+        nanopb::SetRepeatedField(
+            &map_val.map_value.fields, &map_val.map_value.fields_count, doc,
+            [](const std::pair<std::string, std::shared_ptr<Expr>>& entry) {
+              return _google_firestore_v1_MapValue_FieldsEntry{
+                  nanopb::MakeBytesArray(entry.first),
+                  entry.second->to_proto()};
+            });
+        return map_val;
+      });
+
+  result.options_count = 0;
+  result.options = nullptr;
+  return result;
+}
+
 google_firestore_v1_Pipeline_Stage AddFields::to_proto() const {
   google_firestore_v1_Pipeline_Stage result;
   result.name = nanopb::MakeBytesArray(name());
@@ -855,25 +885,6 @@ google_firestore_v1_Pipeline_Stage UpsertStage::to_proto() const {
         return _google_firestore_v1_Pipeline_Stage_OptionsEntry{
             nanopb::MakeBytesArray(entry.first), entry.second};
       });
-  return result;
-}
-
-LiteralsSource::LiteralsSource(std::vector<google_firestore_v1_Value> data)
-    : data_(std::move(data)) {
-}
-
-google_firestore_v1_Pipeline_Stage LiteralsSource::to_proto() const {
-  google_firestore_v1_Pipeline_Stage result;
-  result.name = nanopb::MakeBytesArray(name());
-
-  result.args_count = static_cast<pb_size_t>(data_.size());
-  result.args = nanopb::MakeArray<google_firestore_v1_Value>(result.args_count);
-  for (size_t i = 0; i < result.args_count; ++i) {
-    result.args[i] = data_[i];
-  }
-
-  result.options_count = 0;
-  result.options = nullptr;
   return result;
 }
 

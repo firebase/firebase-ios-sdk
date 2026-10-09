@@ -209,6 +209,25 @@ class DocumentsSource : public EvaluableStage {
   std::set<std::string> documents_;
 };
 
+class LiteralsSource : public Stage {
+ public:
+  explicit LiteralsSource(
+      std::vector<std::unordered_map<std::string, std::shared_ptr<Expr>>>
+          documents);
+  ~LiteralsSource() override = default;
+
+  google_firestore_v1_Pipeline_Stage to_proto() const override;
+
+  const std::string& name() const override {
+    static const std::string kName = "literals";
+    return kName;
+  }
+
+ private:
+  std::vector<std::unordered_map<std::string, std::shared_ptr<Expr>>>
+      documents_;
+};
+
 class AddFields : public Stage {
  public:
   explicit AddFields(
@@ -673,22 +692,6 @@ class UpsertStage : public Stage {
   std::unordered_map<std::string, std::shared_ptr<Expr>> fields_;
   std::string collection_path_;
   std::shared_ptr<Expr> document_id_expr_;
-};
-
-class LiteralsSource : public Stage {
- public:
-  explicit LiteralsSource(std::vector<google_firestore_v1_Value> data);
-  ~LiteralsSource() override = default;
-
-  google_firestore_v1_Pipeline_Stage to_proto() const override;
-
-  const std::string& name() const override {
-    static const std::string kName = "literals";
-    return kName;
-  }
-
- private:
-  std::vector<google_firestore_v1_Value> data_;
 };
 
 }  // namespace api

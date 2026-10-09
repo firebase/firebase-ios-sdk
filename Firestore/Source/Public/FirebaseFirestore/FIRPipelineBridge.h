@@ -118,6 +118,12 @@ NS_SWIFT_NAME(__DocumentsSourceStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__LiteralsSourceStageBridge)
+@interface __FIRLiteralsSourceStageBridge : __FIRStageBridge
+- (id)initWithData:(NSArray<NSDictionary<NSString *, __FIRExprBridge *> *> *)data;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__WhereStageBridge)
 @interface __FIRWhereStageBridge : __FIRStageBridge
 
@@ -250,7 +256,7 @@ NS_SWIFT_NAME(__UpdateStageBridge)
 NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__InsertStageBridge)
 @interface __FIRInsertStageBridge : __FIRStageBridge
-- (id)initWithCollectionPath:(NSString *)collectionPath
+- (id)initWithCollectionPath:(NSString *_Nullable)collectionPath
         documentIdExpression:(__FIRExprBridge *_Nullable)documentIdExpression;
 @end
 
@@ -260,12 +266,6 @@ NS_SWIFT_NAME(__UpsertStageBridge)
 - (id)initWithAdditionalFields:(NSDictionary<NSString *, __FIRExprBridge *> *)additionalFields
                 collectionPath:(NSString *_Nullable)collectionPath
           documentIdExpression:(__FIRExprBridge *_Nullable)documentIdExpression;
-@end
-
-NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(__LiteralsSourceStageBridge)
-@interface __FIRLiteralsSourceStageBridge : __FIRStageBridge
-- (id)initWithData:(NSArray<NSDictionary<NSString *, id> *> *)data firestore:(FIRFirestore *)db;
 @end
 
 NS_SWIFT_SENDABLE
