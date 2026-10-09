@@ -125,9 +125,25 @@
       }
 
       /// Information about a response from the Gemini service that cannot be used.
+      ///
+      /// This error occurs when a response cannot be decoded, or when a decoded response violates
+      /// an expectation of the Gemini language model, such as a function call without a name.
       public struct InvalidResponse: Sendable, CustomDebugStringConvertible {
         /// A debug description of what made the response invalid.
         public let debugDescription: String
+
+        /// The error that caused the response to be rejected, such as a `DecodingError`, if any.
+        public let underlyingError: (any Swift.Error & Sendable)?
+
+        /// Creates an invalid response error instance.
+        ///
+        /// - Parameters:
+        ///   - debugDescription: A debug description of what made the response invalid.
+        ///   - underlyingError: The error that caused the response to be rejected, if any.
+        init(debugDescription: String, underlyingError: (any Swift.Error & Sendable)? = nil) {
+          self.debugDescription = debugDescription
+          self.underlyingError = underlyingError
+        }
       }
 
       // MARK: - LocalizedError & CustomDebugStringConvertible

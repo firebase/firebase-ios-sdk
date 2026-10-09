@@ -124,6 +124,14 @@
           )
         }
 
+      case let decodingError as DecodingError:
+        return GeminiLanguageModel.Error.invalidResponse(
+          GeminiLanguageModel.Error.InvalidResponse(
+            debugDescription: invalidResponseDescription(for: decodingError),
+            underlyingError: decodingError
+          )
+        )
+
       default:
         return GeminiLanguageModel.Error.networkFailure(
           GeminiLanguageModel.Error.NetworkFailure(
@@ -131,6 +139,51 @@
           )
         )
       }
+    }
+
+    /// Returns a debug description for a response that failed to decode.
+    ///
+    /// The description includes the coding path of the value that failed to decode, such as
+    /// `candidates[0].content.parts[1]`, when one is available.
+    ///
+    /// - Parameter decodingError: The error thrown while decoding the response.
+    /// - Returns: A description of the decoding failure.
+    private static func invalidResponseDescription(for decodingError: DecodingError) -> String {
+      let context: DecodingError.Context
+      let codingPath: [any CodingKey]
+      switch decodingError {
+      case .typeMismatch(_, let errorContext), .valueNotFound(_, let errorContext),
+        .dataCorrupted(let errorContext):
+        context = errorContext
+        codingPath = errorContext.codingPath
+      case .keyNotFound(let key, let errorContext):
+        context = errorContext
+        codingPath = errorContext.codingPath + [key]
+      @unknown default:
+        return "Failed to decode the Gemini response: \(decodingError)"
+      }
+
+      guard !codingPath.isEmpty else {
+        return "Failed to decode the Gemini response: \(context.debugDescription)"
+      }
+      return "Failed to decode the Gemini response at `\(formattedCodingPath(codingPath))`: "
+        + context.debugDescription
+    }
+
+    /// Formats a coding path as a dot-separated key path with array indices in brackets.
+    ///
+    /// - Parameter codingPath: The coding path to format.
+    /// - Returns: A key path such as `candidates[0].content`.
+    private static func formattedCodingPath(_ codingPath: [any CodingKey]) -> String {
+      var path = ""
+      for key in codingPath {
+        if let index = key.intValue {
+          path += "[\(index)]"
+        } else {
+          path += path.isEmpty ? key.stringValue : ".\(key.stringValue)"
+        }
+      }
+      return path
     }
 
     /// Checks the given response chunk for guardrail violations or model refusals.
