@@ -51,8 +51,8 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B_developerAPI),
+    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B_developerAPI),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
@@ -592,9 +592,10 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.agentPlatform_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.agentPlatform_v1beta_global_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
+    (InstanceConfig.agentPlatform_v1beta_global, ModelNames.gemma4_26B_A4B_agentPlatform),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini2_5_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini2_5_FlashLite),
-    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
+    (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B_developerAPI),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.agentPlatform_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
