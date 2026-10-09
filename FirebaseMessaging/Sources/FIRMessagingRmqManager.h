@@ -22,8 +22,7 @@
  * This manages the RMQ persistent store.
  *
  * The store is used to de-duplicate sync messages (APNS messages with `content-available` set)
- * received by the client. Sync messages are deleted from the store once they expire, or once they
- * have been received via both APNS and MCS.
+ * received by the client. Sync messages are deleted from the store once they expire.
  *
  * All database operations run on a serial background queue.
  */
@@ -43,8 +42,7 @@
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID;
 
 /**
- *  Delete the expired sync messages from persistent store. Also deletes messages that have been
- *  delivered both via APNS and MCS.
+ *  Delete the expired sync messages from persistent store.
  */
 - (void)deleteExpiredOrFinishedSyncMessages;
 
