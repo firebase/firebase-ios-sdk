@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFunctions'
-  s.version          = '13.0.0'
+  s.version          = '13.1.0'
   s.summary          = 'Cloud Functions for Firebase'
 
   s.description      = <<-DESC
@@ -35,12 +35,12 @@ Cloud Functions for Firebase.
     'FirebaseFunctions/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 13.0.0'
-  s.dependency 'FirebaseCoreExtension', '~> 13.0.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
-  s.dependency 'FirebaseAuthInterop', '~> 13.0.0'
-  s.dependency 'FirebaseMessagingInterop', '~> 13.0.0'
-  s.dependency 'FirebaseSharedSwift', '~> 13.0.0'
+  s.dependency 'FirebaseCore', '~> 13.1.0'
+  s.dependency 'FirebaseCoreExtension', '~> 13.1.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.1.0'
+  s.dependency 'FirebaseAuthInterop', '~> 13.1.0'
+  s.dependency 'FirebaseMessagingInterop', '~> 13.1.0'
+  s.dependency 'FirebaseSharedSwift', '~> 13.1.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 4.0', '< 6.0'
 
   s.pod_target_xcconfig = {
