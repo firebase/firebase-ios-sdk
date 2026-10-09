@@ -255,6 +255,63 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapInvalidResponseFromTypeMismatchDecodingError() throws {
+      let json = #"{"candidates": [{"content": {"parts": "not an array"}}]}"#
+      let decodingError = try #require(makeDecodingError(decoding: json))
+
+      let mappedError = GeminiErrorMapper.map(decodingError)
+
+      let geminiError = try #require(
+        mappedError as? GeminiLanguageModel.Error,
+        "Expected GeminiLanguageModel.Error, got: \(type(of: mappedError))"
+      )
+      guard case .invalidResponse(let invalidResponse) = geminiError else {
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse, got: \(mappedError)")
+        return
+      }
+      #expect(invalidResponse.debugDescription.contains("`candidates[0].content.parts`"))
+      let underlyingError = try #require(invalidResponse.underlyingError as? DecodingError)
+      guard case .typeMismatch = underlyingError else {
+        Issue.record("Expected DecodingError.typeMismatch, got: \(underlyingError)")
+        return
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapInvalidResponseFromKeyNotFoundDecodingError() throws {
+      struct Response: Decodable {
+        let candidates: [Candidate]
+      }
+      let decodingError = try #require(makeDecodingError(decoding: "{}", as: Response.self))
+
+      let mappedError = GeminiErrorMapper.map(decodingError)
+
+      guard case GeminiLanguageModel.Error.invalidResponse(let invalidResponse) = mappedError else {
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse, got: \(mappedError)")
+        return
+      }
+      #expect(invalidResponse.debugDescription.contains("`candidates`"))
+      #expect(invalidResponse.underlyingError is DecodingError)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mapInvalidResponseFromMalformedJSONDecodingError() throws {
+      let decodingError = try #require(makeDecodingError(decoding: "not json"))
+
+      let mappedError = GeminiErrorMapper.map(decodingError)
+
+      guard case GeminiLanguageModel.Error.invalidResponse(let invalidResponse) = mappedError else {
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse, got: \(mappedError)")
+        return
+      }
+      #expect(!invalidResponse.debugDescription.contains("`"))
+      #expect(invalidResponse.underlyingError is DecodingError)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsForPromptSafety() {
       let promptFeedback = PromptFeedback { $0.blockReason = .safety }
       let chunk = GenerateContentResponse { $0.promptFeedback = promptFeedback }
@@ -447,6 +504,26 @@
 
       #expect(throws: LanguageModelError.self) {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
+      }
+    }
+
+    // MARK: - Helpers
+
+    /// Decodes the given JSON and returns the resulting `DecodingError`, if any.
+    ///
+    /// - Parameters:
+    ///   - json: The JSON string to decode.
+    ///   - type: The type to decode the JSON as.
+    /// - Returns: The `DecodingError` thrown while decoding, or `nil` if decoding succeeded.
+    private func makeDecodingError<T: Decodable>(
+      decoding json: String,
+      as type: T.Type = GenerateContentResponse.self
+    ) -> DecodingError? {
+      do {
+        _ = try JSONDecoder().decode(type, from: Data(json.utf8))
+        return nil
+      } catch {
+        return error as? DecodingError
       }
     }
   }
