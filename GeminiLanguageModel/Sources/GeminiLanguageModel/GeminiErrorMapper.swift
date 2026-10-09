@@ -143,7 +143,7 @@
         let blockReason = promptFeedback.blockReason
       {
         switch blockReason {
-        case .safety, .blocklist, .prohibitedContent, .imageSafety:
+        case .safety, .blocklist, .prohibitedContent, .imageSafety, .modelArmor, .jailbreak:
           throw LanguageModelError.guardrailViolation(
             LanguageModelError.GuardrailViolation(
               debugDescription: "Gemini blocked the prompt: \(blockReason)"
@@ -175,7 +175,7 @@
 
       switch finishReason {
       case .safety, .blocklist, .prohibitedContent, .spii, .imageSafety, .imageProhibitedContent,
-        .imageOther:
+        .imageOther, .modelArmor:
         throw LanguageModelError.guardrailViolation(
           LanguageModelError.GuardrailViolation(
             debugDescription: message ?? "Content generation blocked by safety filters."

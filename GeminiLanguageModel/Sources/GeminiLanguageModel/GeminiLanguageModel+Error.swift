@@ -33,6 +33,9 @@
       /// An error returned by the Gemini API indicating a client or request failure.
       case apiError(APIError)
 
+      /// An error that occurs when the Gemini service returns a response that cannot be used.
+      case invalidResponse(InvalidResponse)
+
       // MARK: - Payload Structures
 
       /// Information about the Gemini service being temporarily unavailable.
@@ -121,6 +124,12 @@
         }
       }
 
+      /// Information about a response from the Gemini service that cannot be used.
+      public struct InvalidResponse: Sendable, CustomDebugStringConvertible {
+        /// A debug description of what made the response invalid.
+        public let debugDescription: String
+      }
+
       // MARK: - LocalizedError & CustomDebugStringConvertible
 
       public var errorDescription: String? {
@@ -133,6 +142,8 @@
           modelNotFound.debugDescription
         case .apiError(let apiError):
           apiError.debugDescription
+        case .invalidResponse(let invalidResponse):
+          invalidResponse.debugDescription
         }
       }
 

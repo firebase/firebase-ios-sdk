@@ -256,26 +256,44 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsForPromptSafety() {
-      let promptFeedback = PromptFeedback(blockReason: .safety)
-      let chunk = GenerateContentResponse(promptFeedback: promptFeedback)
+      let promptFeedback = PromptFeedback { $0.blockReason = .safety }
+      let chunk = GenerateContentResponse { $0.promptFeedback = promptFeedback }
 
       #expect(throws: LanguageModelError.self) {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
       }
     }
 
+    @Test(arguments: [PromptFeedback.BlockReason.modelArmor, .jailbreak])
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func checkGuardrailsThrowsGuardrailViolationForPromptBlockReason(
+      _ blockReason: PromptFeedback.BlockReason
+    ) {
+      let promptFeedback = PromptFeedback { $0.blockReason = blockReason }
+      let chunk = GenerateContentResponse { $0.promptFeedback = promptFeedback }
+
+      do {
+        try GeminiErrorMapper.checkGuardrails(in: chunk)
+        Issue.record("Expected guardrailViolation error to be thrown")
+      } catch let LanguageModelError.guardrailViolation(violation) {
+        #expect(violation.debugDescription.contains("\(blockReason)"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+    }
+
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsRefusalForPromptOther() async throws {
-      let promptFeedback = PromptFeedback(blockReason: .other)
-      let chunk = GenerateContentResponse(promptFeedback: promptFeedback)
+      let blockReason = PromptFeedback.BlockReason.other
+      let promptFeedback = PromptFeedback { $0.blockReason = blockReason }
+      let chunk = GenerateContentResponse { $0.promptFeedback = promptFeedback }
 
       do {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
         Issue.record("Expected refusal error to be thrown")
       } catch let LanguageModelError.refusal(refusal) {
         let content = try await refusal.explanation.content
-        let blockReason = try #require(promptFeedback.blockReason)
         #expect(content.contains("\(blockReason)"))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
@@ -284,18 +302,38 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func checkGuardrailsThrowsForCandidateSafety() throws {
-      let candidate = Candidate(
-        finishReason: .safety,
-        finishMessage: "Safety policy triggered"
-      )
-      let chunk = GenerateContentResponse(candidates: [candidate])
+    func checkGuardrailsThrowsForCandidateSafety() {
+      let finishMessage = "Safety policy triggered"
+      let candidate = Candidate {
+        $0.finishReason = .safety
+        $0.finishMessage = finishMessage
+      }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
 
       do {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
         Issue.record("Expected guardrailViolation error to be thrown")
       } catch let LanguageModelError.guardrailViolation(violation) {
-        let finishMessage = try #require(candidate.finishMessage)
+        #expect(violation.debugDescription.contains(finishMessage))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func checkGuardrailsThrowsForCandidateModelArmor() {
+      let finishMessage = "Model Armor blocked the response"
+      let candidate = Candidate {
+        $0.finishReason = .modelArmor
+        $0.finishMessage = finishMessage
+      }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
+
+      do {
+        try GeminiErrorMapper.checkGuardrails(in: chunk)
+        Issue.record("Expected guardrailViolation error to be thrown")
+      } catch let LanguageModelError.guardrailViolation(violation) {
         #expect(violation.debugDescription.contains(finishMessage))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
@@ -305,18 +343,18 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsRefusalForCandidateRecitation() async throws {
-      let candidate = Candidate(
-        finishReason: .recitation,
-        finishMessage: "Recitation check failed"
-      )
-      let chunk = GenerateContentResponse(candidates: [candidate])
+      let finishMessage = "Recitation check failed"
+      let candidate = Candidate {
+        $0.finishReason = .recitation
+        $0.finishMessage = finishMessage
+      }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
 
       do {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
         Issue.record("Expected refusal error to be thrown")
       } catch let LanguageModelError.refusal(refusal) {
         let content = try await refusal.explanation.content
-        let finishMessage = try #require(candidate.finishMessage)
         #expect(content.contains(finishMessage))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
@@ -325,19 +363,19 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func checkGuardrailsThrowsUnsupportedLanguageForCandidateLanguage() throws {
-      let candidate = Candidate(
-        finishReason: .language,
-        finishMessage: "Language not supported"
-      )
-      let chunk = GenerateContentResponse(candidates: [candidate])
+    func checkGuardrailsThrowsUnsupportedLanguageForCandidateLanguage() {
+      let finishMessage = "Language not supported"
+      let candidate = Candidate {
+        $0.finishReason = .language
+        $0.finishMessage = finishMessage
+      }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
 
       do {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
         Issue.record("Expected unsupportedLanguageOrLocale error to be thrown")
       } catch let LanguageModelError.unsupportedLanguageOrLocale(unsupported) {
         #expect(unsupported.languageCode == Locale.LanguageCode("und"))
-        let finishMessage = try #require(candidate.finishMessage)
         #expect(unsupported.debugDescription == finishMessage)
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
@@ -347,8 +385,8 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsPassesForSafeContent() throws {
-      let candidate = Candidate(finishReason: .stop)
-      let chunk = GenerateContentResponse(candidates: [candidate])
+      let candidate = Candidate { $0.finishReason = .stop }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
 
       try GeminiErrorMapper.checkGuardrails(in: chunk)
     }
@@ -404,8 +442,8 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func checkGuardrailsThrowsRefusalForCandidateOtherWithoutMessage() {
-      let candidate = Candidate(finishReason: .other)
-      let chunk = GenerateContentResponse(candidates: [candidate])
+      let candidate = Candidate { $0.finishReason = .other }
+      let chunk = GenerateContentResponse { $0.candidates = [candidate] }
 
       #expect(throws: LanguageModelError.self) {
         try GeminiErrorMapper.checkGuardrails(in: chunk)
