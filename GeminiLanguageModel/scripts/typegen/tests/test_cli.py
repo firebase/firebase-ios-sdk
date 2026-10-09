@@ -14,6 +14,8 @@
 
 """Unit tests for swift_typegen.cli."""
 
+import contextlib
+import io
 import os
 import unittest
 
@@ -79,6 +81,11 @@ class TestCli(unittest.TestCase):
         self.assertEqual(options.access_level, "public")
         self.assertEqual(options.doc_wrap_width, 80)
         self.assertTrue(options.verbose)
+
+    def test_invalid_access_level_is_rejected(self):
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                parse_args(["--access-level", "pubic"])
 
     def test_strip_prefix_values_map_to_tuple(self):
         options = parse_args(["--strip-prefix", "B", "A"])

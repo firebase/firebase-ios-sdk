@@ -77,7 +77,8 @@ def parse_args(argv: list[str] | None = None) -> PipelineOptions:
     parser.add_argument(
         "--access-level",
         default="package",
-        help="Access level keyword for generated types (e.g. public, package).",
+        choices=("public", "package", "internal"),
+        help="Access level keyword for generated types.",
     )
     parser.add_argument(
         "--strip-prefix",

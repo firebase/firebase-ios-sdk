@@ -75,7 +75,7 @@ python generate_types.py
 | `--overrides-file` | `discovery_documents/firebasevertexai-overrides.yaml` | YAML overrides file path. |
 | `--output-dir` | `../../Sources/GeminiAPIDataModels/GenerateContent` | Output directory. |
 | `--roots` | `["GenerateContentRequest", ...]` | Roots to resolve. |
-| `--access-level` | `package` | Swift access control. |
+| `--access-level` | `package` | Swift access control: `public`, `package`, or `internal`. |
 | `--strip-prefix` | all `generatorConfig.backends` | Backend prefixes to strip and merge (pass with no values to disable). |
 | `--namespace` | `""` | Swift root namespace. |
 | `--shared-models-target` | `""` | Shared models target. |
