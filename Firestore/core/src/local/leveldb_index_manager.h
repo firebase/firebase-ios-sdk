@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_INDEX_MANAGER_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_INDEX_MANAGER_H_
 
+#include <optional>
 #include <queue>
 #include <set>
 #include <string>
@@ -187,8 +188,10 @@ class LevelDbIndexManager : public IndexManager {
       core::IndexedValues array_values,
       const std::vector<std::string>& lower_bounds,
       bool lower_bounds_inclusive,
+      const std::optional<std::string>& lower_bound_document_key,
       const std::vector<std::string>& upper_bounds,
       bool upper_bounds_inclusive,
+      const std::optional<std::string>& upper_bound_document_key,
       std::vector<std::string> not_in_values);
 
   /**
@@ -199,7 +202,9 @@ class LevelDbIndexManager : public IndexManager {
    */
   std::vector<IndexRange> CreateRange(
       const index::IndexEntry& lower_bound,
+      std::optional<std::string> lower_bound_document_key,
       const index::IndexEntry& upper_bound,
+      std::optional<std::string> upper_bound_document_key,
       std::vector<index::IndexEntry> not_in_bounds) const;
 
   /**
