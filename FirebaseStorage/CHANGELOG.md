@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
+  `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
+  was set, breaking lookups in sets and dictionaries. (#16794)
 - [fixed] Fixed a memory leak in `StorageReference.listAll(completion:)` where the completion
   handler, anything it captured, and partially listed results were never released after the
   listing failed. (#16814)
