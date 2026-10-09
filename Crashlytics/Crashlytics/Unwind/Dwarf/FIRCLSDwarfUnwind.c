@@ -81,6 +81,11 @@ bool FIRCLSDwarfParseCIERecord(DWARFCIERecord* cie, const void* ptr) {
     return false;
   }
 
+  if (ptr > endAddress) {
+    FIRCLSSDKLog("Error: CIE header extends past its length\n");
+    return false;
+  }
+
   cie->instructions.data = ptr;
   cie->instructions.length = (uint32_t)(endAddress - ptr);
 
@@ -216,6 +221,11 @@ bool FIRCLSDwarfParseFDERecord(DWARFFDERecord* fdeRecord,
     uintptr_t augmentationLength = (uintptr_t)FIRCLSParseULEB128AndAdvance(&ptr);
 
     ptr += augmentationLength;
+  }
+
+  if (ptr > endAddress) {
+    FIRCLSSDKLog("Error: FDE header extends past its length\n");
+    return false;
   }
 
   fdeRecord->instructions.data = ptr;

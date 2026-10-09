@@ -109,6 +109,43 @@
 
 #endif
 
+- (void)testParseFDERecordRejectsLengthShorterThanHeader {
+  // Build a minimal CIE followed by an FDE whose declared length is smaller than
+  // the fields the header actually carries. Without the bounds check, parsing the
+  // FDE header advances the cursor past the record end, so instructions.length is
+  // computed as a wrapped (uint32_t)(endAddress - ptr) of roughly 4 GB, which
+  // FIRCLSDwarfInstructionsEnumerate would then walk out of bounds.
+  uint8_t buffer[256];
+  memset(buffer, 0, sizeof(buffer));
+
+  // CIE at offset 0.
+  uint32_t cieLength = 9;
+  memcpy(buffer + 0, &cieLength, sizeof(cieLength));  // length (bytes after this field)
+  // bytes 4-7 are the CIE id, left as 0.
+  buffer[8] = 1;      // version
+  buffer[9] = 0x00;   // empty augmentation string
+  buffer[10] = 0x01;  // code alignment factor
+  buffer[11] = 0x01;  // data alignment factor
+  buffer[12] = 0x10;  // return address register
+
+  // FDE at offset 32.
+  const size_t fdeOffset = 32;
+  uint32_t fdeLength = 8;   // shorter than the 20 bytes of header that follow
+  uint32_t cieOffset = 36;  // points back to the CIE at offset 0
+  uint64_t startAddress = 0x1000;
+  uint64_t rangeSize = 0x100;
+  memcpy(buffer + fdeOffset + 0, &fdeLength, sizeof(fdeLength));
+  memcpy(buffer + fdeOffset + 4, &cieOffset, sizeof(cieOffset));
+  memcpy(buffer + fdeOffset + 8, &startAddress, sizeof(startAddress));
+  memcpy(buffer + fdeOffset + 16, &rangeSize, sizeof(rangeSize));
+
+  FIRCLSDwarfCFIRecord record;
+  memset(&record, 0, sizeof(record));
+
+  XCTAssertFalse(FIRCLSDwarfParseCFIFromFDERecord(&record, buffer + fdeOffset),
+                 @"An FDE whose length is shorter than its header must be rejected");
+}
+
 - (void)testGetSavedRegisterWithInvalidValues {
   FIRCLSThreadContext registers = {0};
   const FIRCLSDwarfRegister dRegister = {FIRCLSDwarfRegisterUnused, 0};
