@@ -14,64 +14,24 @@
 
 import Foundation
 
-/// An internal data model for `SearchEntryPoint`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaSearchEntryPoint`
-///
-/// Google search entry point.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1SearchEntryPoint`
-///
-/// An entry point for displaying Google Search results.
-///
-/// A `SearchEntryPoint` is populated when the grounding source for a model's
-/// response is Google Search. It provides information that you can use to
-/// display the search results in your application.
-package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable {
-  /// Optional. Web content snippet that can be embedded in a web page or an app webview.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Web content snippet that can be embedded in a web page or an app webview.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. An HTML snippet that can be embedded in a web page or an
-  /// application's webview. This snippet displays a search result, including the
-  /// title, URL, and a brief description of the search result.
-  package let renderedContent: String?
+/// An entry point for displaying Google Search results. A `SearchEntryPoint` is populated when the
+/// grounding source for a model's response is Google Search. It provides information that you can
+/// use to display the search results in your application.
+package struct SearchEntryPoint: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// An HTML snippet that can be embedded in a web page or an application's webview. This snippet
+  /// displays a search result, including the title, URL, and a brief description of the search
+  /// result.
+  package var renderedContent: String?
 
-  /// Optional. Base64 encoded JSON representing array of  tuple.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Base64 encoded JSON representing array of  tuple.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. A base64-encoded JSON object that contains a list of search
-  /// queries and their corresponding search URLs. This information can be used
-  /// to build a custom search UI.
-  package let sdkBlob: Data?
+  /// A base64-encoded JSON object that contains a list of search queries and their corresponding
+  /// search URLs. This information can be used to build a custom search UI.
+  package var sdkBlob: Data?
 
-  /// Creates a new `SearchEntryPoint`.
-  ///
-  /// - Parameters:
-  ///   - renderedContent: Optional. Web content snippet that can be embedded in a web page or an app webview. (behavior varies by backend). For more details, see ``renderedContent``.
-  ///   - sdkBlob: Optional. Base64 encoded JSON representing array of  tuple. (behavior varies by backend). For more details, see ``sdkBlob``.
-  package init(
-    renderedContent: String? = nil,
-    sdkBlob: Data? = nil
-  ) {
-    self.renderedContent = renderedContent
-    self.sdkBlob = sdkBlob
-  }
+  /// Initializes a new `SearchEntryPoint`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case renderedContent = "renderedContent"
-    case sdkBlob = "sdkBlob"
+    case renderedContent
+    case sdkBlob
   }
 }

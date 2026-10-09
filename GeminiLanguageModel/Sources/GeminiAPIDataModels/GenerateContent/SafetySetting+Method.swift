@@ -15,16 +15,10 @@
 import Foundation
 
 extension SafetySetting {
-  /// Optional. The method for blocking content. If not specified, the default
-  ///
-  /// ### Gemini Developer API
+  /// The method for blocking content. If not specified, the default behavior is to use the
+  /// probability score.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. The method for blocking content. If not specified, the default
-  /// behavior is to use the probability score.
   package enum Method: Codable, Sendable, Equatable, Hashable {
     /// The harm block method uses both probability and severity scores.
     case severity

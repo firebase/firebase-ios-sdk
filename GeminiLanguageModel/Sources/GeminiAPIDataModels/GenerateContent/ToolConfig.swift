@@ -14,57 +14,26 @@
 
 import Foundation
 
-/// An internal data model for `ToolConfig`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `ToolConfig`
-///
 /// Tool config. This config is shared for all tools provided in the request.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1ToolConfig`
-///
-/// Tool config. This config is shared for all tools provided in the request.
-package struct ToolConfig: Codable, Sendable, Equatable, Hashable {
-  /// Optional. Retrieval config.
-  package let retrievalConfig: RetrievalConfig?
+package struct ToolConfig: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Function calling config.
+  package var functionCallingConfig: FunctionCallingConfig?
 
-  /// Optional. Function calling config.
-  package let functionCallingConfig: FunctionCallingConfig?
-
-  /// Optional. If true, the API response will include the server-side tool calls and
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. If true, the API response will include the server-side tool calls and
-  /// responses within the `Content` message. This allows clients to
-  /// observe the server's tool interactions.
-  ///
-  /// ### Gemini Enterprise Agent Platform
+  /// If true, the API response will include the server-side tool calls and responses within the
+  /// `Content` message. This allows clients to observe the server's tool interactions.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package let includeServerSideToolInvocations: Bool?
+  package var includeServerSideToolInvocations: Bool?
 
-  /// Creates a new `ToolConfig`.
-  ///
-  /// - Parameters:
-  ///   - retrievalConfig: Optional. Retrieval config.
-  ///   - functionCallingConfig: Optional. Function calling config.
-  ///   - includeServerSideToolInvocations: Optional. If true, the API response will include the server-side tool calls and (Gemini Developer API only). For more details, see ``includeServerSideToolInvocations``.
-  package init(
-    retrievalConfig: RetrievalConfig? = nil,
-    functionCallingConfig: FunctionCallingConfig? = nil,
-    includeServerSideToolInvocations: Bool? = nil
-  ) {
-    self.retrievalConfig = retrievalConfig
-    self.functionCallingConfig = functionCallingConfig
-    self.includeServerSideToolInvocations = includeServerSideToolInvocations
-  }
+  /// Retrieval config.
+  package var retrievalConfig: RetrievalConfig?
+
+  /// Initializes a new `ToolConfig`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case retrievalConfig = "retrievalConfig"
-    case functionCallingConfig = "functionCallingConfig"
-    case includeServerSideToolInvocations = "includeServerSideToolInvocations"
+    case functionCallingConfig
+    case includeServerSideToolInvocations
+    case retrievalConfig
   }
 }

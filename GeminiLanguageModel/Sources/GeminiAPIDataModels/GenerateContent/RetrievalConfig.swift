@@ -14,56 +14,19 @@
 
 import Foundation
 
-/// An internal data model for `RetrievalConfig`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `RetrievalConfig`
-///
 /// Retrieval config.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1RetrievalConfig`
-///
-/// Retrieval config.
-package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
-  /// Optional. The location of the user.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The location of the user.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// The location of the user.
-  package let latLng: LatLng?
-
-  /// Optional. The language code of the user.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The language code of the user.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
+package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The language code of the user.
-  package let languageCode: String?
+  package var languageCode: String?
 
-  /// Creates a new `RetrievalConfig`.
-  ///
-  /// - Parameters:
-  ///   - latLng: Optional. The location of the user. (behavior varies by backend). For more details, see ``latLng``.
-  ///   - languageCode: Optional. The language code of the user. (behavior varies by backend). For more details, see ``languageCode``.
-  package init(
-    latLng: LatLng? = nil,
-    languageCode: String? = nil
-  ) {
-    self.latLng = latLng
-    self.languageCode = languageCode
-  }
+  /// The location of the user.
+  package var latLng: LatLng?
+
+  /// Initializes a new `RetrievalConfig`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case latLng = "latLng"
-    case languageCode = "languageCode"
+    case languageCode
+    case latLng
   }
 }

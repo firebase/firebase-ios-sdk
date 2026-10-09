@@ -15,18 +15,11 @@
 import Foundation
 
 extension ImageConfig {
-  /// Optional. Controls whether the model can generate people.
-  ///
-  /// ### Gemini Developer API
+  /// Controls whether the model can generate people.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Controls whether the model can generate people.
   package enum PersonGeneration: Codable, Sendable, Equatable, Hashable {
-    /// Allows the model to generate images of people, including adults and
-    /// children.
+    /// Allows the model to generate images of people, including adults and children.
     case all
 
     /// Allows the model to generate images of adults, but not children.

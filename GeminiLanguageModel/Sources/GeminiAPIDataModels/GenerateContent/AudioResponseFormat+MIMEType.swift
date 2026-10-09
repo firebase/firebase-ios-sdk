@@ -14,22 +14,26 @@
 
 import Foundation
 
-extension TextResponseFormat {
-  /// Optional. The MIME type of the text output.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The MIME type of the text output.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. The IANA standard MIME type of the response.
-  package enum MimeType: Codable, Sendable, Equatable, Hashable {
-    /// JSON output format.
-    case applicationJson
+extension AudioResponseFormat {
+  /// The MIME type of the audio output.
+  package enum MIMEType: Codable, Sendable, Equatable, Hashable {
+    /// MP3 audio format.
+    case mp3
 
-    /// Plain text output format.
-    case textPlain
+    /// OGG Opus audio format.
+    case oggOpus
+
+    /// Raw PCM (L16) audio format.
+    case l16
+
+    /// WAV audio format.
+    case wav
+
+    /// A-law audio format.
+    case alaw
+
+    /// Mu-law audio format.
+    case mulaw
 
     /// Unrecognized case.
     ///
@@ -40,19 +44,27 @@ extension TextResponseFormat {
 
 // MARK: - RawRepresentable Conformance
 
-extension TextResponseFormat.MimeType: RawRepresentable {
+extension AudioResponseFormat.MIMEType: RawRepresentable {
   package var rawValue: String {
     switch self {
-    case .applicationJson: "APPLICATION_JSON"
-    case .textPlain: "TEXT_PLAIN"
+    case .mp3: "AUDIO_MP3"
+    case .oggOpus: "AUDIO_OGG_OPUS"
+    case .l16: "AUDIO_L16"
+    case .wav: "AUDIO_WAV"
+    case .alaw: "AUDIO_ALAW"
+    case .mulaw: "AUDIO_MULAW"
     case .unrecognized(let value): value
     }
   }
 
   package init(rawValue: String) {
     switch rawValue {
-    case "APPLICATION_JSON": self = .applicationJson
-    case "TEXT_PLAIN": self = .textPlain
+    case "AUDIO_MP3": self = .mp3
+    case "AUDIO_OGG_OPUS": self = .oggOpus
+    case "AUDIO_L16": self = .l16
+    case "AUDIO_WAV": self = .wav
+    case "AUDIO_ALAW": self = .alaw
+    case "AUDIO_MULAW": self = .mulaw
     default: self = .unrecognized(rawValue)
     }
   }

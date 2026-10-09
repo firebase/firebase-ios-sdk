@@ -14,35 +14,37 @@
 
 import Foundation
 
-/// An internal data model for `HarmCategory`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaHarmCategory`
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
+/// Harm categories for safety settings and ratings.
 package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
-  /// **PaLM** - Negative or harmful comments targeting identity and/or protected
-  /// attribute.
+  /// **PaLM** - Negative or harmful comments targeting identity and/or protected attribute.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case derogatory
 
   /// **PaLM** - Content that is rude, disrespectful, or profane.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case toxicity
 
-  /// **PaLM** - Describes scenarios depicting violence against an individual or
-  /// group, or general descriptions of gore.
+  /// **PaLM** - Describes scenarios depicting violence against an individual or group, or general
+  /// descriptions of gore.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case violence
 
   /// **PaLM** - Contains references to sexual acts or other lewd content.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case sexual
 
   /// **PaLM** - Promotes unchecked medical advice.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case medical
 
-  /// **PaLM** - Dangerous content that promotes, facilitates, or encourages
-  /// harmful acts.
+  /// **PaLM** - Dangerous content that promotes, facilitates, or encourages harmful acts.
+  ///
+  /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
   case dangerous
 
   /// **Gemini** - Harassment content.
@@ -57,14 +59,34 @@ package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
   /// **Gemini** - Dangerous content.
   case dangerousContent
 
-  /// **Gemini** - Content that may be used to harm civic integrity.
-  /// DEPRECATED: use enable_enhanced_civic_answers instead.
+  /// **Gemini** - Content that may be used to harm civic integrity. DEPRECATED: use
+  /// enable_enhanced_civic_answers instead.
   @available(*, deprecated)
   case civicIntegrity
 
-  /// **Gemini** - Prompts attempting to bypass or subvert the model's safety
-  /// guidelines (jailbreak attempts).
+  /// **Gemini** - Prompts attempting to bypass or subvert the model's safety guidelines (jailbreak
+  /// attempts).
   case jailbreak
+
+  /// Images that contain hate speech.
+  ///
+  /// > Important: This case is not supported in the Gemini Developer API.
+  case imageHate
+
+  /// Images that contain dangerous content.
+  ///
+  /// > Important: This case is not supported in the Gemini Developer API.
+  case imageDangerousContent
+
+  /// Images that contain harassment.
+  ///
+  /// > Important: This case is not supported in the Gemini Developer API.
+  case imageHarassment
+
+  /// Images that contain sexually explicit content.
+  ///
+  /// > Important: This case is not supported in the Gemini Developer API.
+  case imageSexuallyExplicit
 
   /// Unrecognized case.
   ///
@@ -89,6 +111,10 @@ extension HarmCategory: RawRepresentable {
     case .dangerousContent: "HARM_CATEGORY_DANGEROUS_CONTENT"
     case .civicIntegrity: "HARM_CATEGORY_CIVIC_INTEGRITY"
     case .jailbreak: "HARM_CATEGORY_JAILBREAK"
+    case .imageHate: "HARM_CATEGORY_IMAGE_HATE"
+    case .imageDangerousContent: "HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT"
+    case .imageHarassment: "HARM_CATEGORY_IMAGE_HARASSMENT"
+    case .imageSexuallyExplicit: "HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT"
     case .unrecognized(let value): value
     }
   }
@@ -106,7 +132,37 @@ extension HarmCategory: RawRepresentable {
     case "HARM_CATEGORY_SEXUALLY_EXPLICIT": self = .sexuallyExplicit
     case "HARM_CATEGORY_DANGEROUS_CONTENT": self = .dangerousContent
     case "HARM_CATEGORY_JAILBREAK": self = .jailbreak
-    default: self = .unrecognized(rawValue)
+    case "HARM_CATEGORY_IMAGE_HATE": self = .imageHate
+    case "HARM_CATEGORY_IMAGE_DANGEROUS_CONTENT": self = .imageDangerousContent
+    case "HARM_CATEGORY_IMAGE_HARASSMENT": self = .imageHarassment
+    case "HARM_CATEGORY_IMAGE_SEXUALLY_EXPLICIT": self = .imageSexuallyExplicit
+    default: self = decodeDeprecatedCase(Self.self, rawValue: rawValue) ?? .unrecognized(rawValue)
+    }
+  }
+}
+
+// MARK: - Deprecated Cases
+
+// Referencing a deprecated case from `init(rawValue:)` would emit a deprecation warning.
+// Instead, deprecated cases are constructed in a deprecated witness of a non-deprecated protocol
+// requirement, which is called generically so that no deprecated declaration is referenced
+// directly.
+private protocol DeprecatedCaseDecoding {
+  static func deprecatedCase(rawValue: String) -> Self?
+}
+
+private func decodeDeprecatedCase<T: DeprecatedCaseDecoding>(
+  _: T.Type, rawValue: String
+) -> T? {
+  T.deprecatedCase(rawValue: rawValue)
+}
+
+extension HarmCategory: DeprecatedCaseDecoding {
+  @available(*, deprecated)
+  fileprivate static func deprecatedCase(rawValue: String) -> Self? {
+    switch rawValue {
+    case "HARM_CATEGORY_CIVIC_INTEGRITY": .civicIntegrity
+    default: nil
     }
   }
 }

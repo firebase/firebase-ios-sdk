@@ -15,16 +15,9 @@
 import Foundation
 
 extension GoogleSearch {
-  /// Optional. Sites with confidence level chosen & above this value will be blocked
-  ///
-  /// ### Gemini Developer API
+  /// Sites with confidence level chosen & above this value will be blocked from the search results.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Sites with confidence level chosen & above this value will be blocked
-  /// from the search results.
   package enum BlockingConfidence: Codable, Sendable, Equatable, Hashable {
     /// Blocks Low and above confidence URL that is risky.
     case lowAndAbove

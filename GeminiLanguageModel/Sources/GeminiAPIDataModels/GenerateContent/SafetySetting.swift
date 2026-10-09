@@ -14,81 +14,28 @@
 
 import Foundation
 
-/// An internal data model for `SafetySetting`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaSafetySetting`
-///
-/// Safety setting, affecting the safety-blocking behavior.
-///
-/// Passing a safety setting for a category changes the allowed probability that
-/// content is blocked.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1SafetySetting`
-///
-/// A safety setting that affects the safety-blocking behavior.
-///
-/// A SafetySetting consists of a
-/// harm category and a
-/// threshold for that
-/// category.
-package struct SafetySetting: Codable, Sendable, Equatable, Hashable {
-  /// Required. The category for this setting.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Required. The category for this setting.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
+/// A safety setting that affects the safety-blocking behavior. A SafetySetting consists of a harm
+/// category and a threshold for that category.
+package struct SafetySetting: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Required. The harm category to be blocked.
-  package let category: HarmCategory
+  package var category: HarmCategory?
 
-  /// Required. Controls the probability threshold at which harm is blocked.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Required. Controls the probability threshold at which harm is blocked.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Required. The threshold for blocking content. If the harm probability
-  /// exceeds this threshold, the content will be blocked.
-  package let threshold: Threshold
-
-  /// Optional. The method for blocking content. If not specified, the default
-  ///
-  /// ### Gemini Developer API
+  /// The method for blocking content. If not specified, the default behavior is to use the
+  /// probability score.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. The method for blocking content. If not specified, the default
-  /// behavior is to use the probability score.
-  package let method: Method?
+  package var method: Method?
 
-  /// Creates a new `SafetySetting`.
-  ///
-  /// - Parameters:
-  ///   - category: Required. The category for this setting. (behavior varies by backend). For more details, see ``category``.
-  ///   - threshold: Required. Controls the probability threshold at which harm is blocked. (behavior varies by backend). For more details, see ``threshold``.
-  ///   - method: Optional. The method for blocking content. If not specified, the default (Gemini Enterprise Agent Platform only). For more details, see ``method``.
-  package init(
-    category: HarmCategory,
-    threshold: Threshold,
-    method: Method? = nil
-  ) {
-    self.category = category
-    self.threshold = threshold
-    self.method = method
-  }
+  /// Required. The threshold for blocking content. If the harm probability exceeds this threshold,
+  /// the content will be blocked.
+  package var threshold: Threshold?
+
+  /// Initializes a new `SafetySetting`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case category = "category"
-    case threshold = "threshold"
-    case method = "method"
+    case category
+    case method
+    case threshold
   }
 }

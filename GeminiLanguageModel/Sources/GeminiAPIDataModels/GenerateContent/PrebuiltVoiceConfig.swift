@@ -14,41 +14,15 @@
 
 import Foundation
 
-/// An internal data model for `PrebuiltVoiceConfig`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaPrebuiltVoiceConfig`
-///
-/// The configuration for the prebuilt speaker to use.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1PrebuiltVoiceConfig`
-///
 /// Configuration for a prebuilt voice.
-package struct PrebuiltVoiceConfig: Codable, Sendable, Equatable, Hashable {
-  /// The name of the preset voice to use.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// The name of the preset voice to use.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
+package struct PrebuiltVoiceConfig: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The name of the prebuilt voice to use.
-  package let voiceName: String?
+  package var voiceName: String?
 
-  /// Creates a new `PrebuiltVoiceConfig`.
-  ///
-  /// - Parameters:
-  ///   - voiceName: The name of the preset voice to use. (behavior varies by backend). For more details, see ``voiceName``.
-  package init(
-    voiceName: String? = nil
-  ) {
-    self.voiceName = voiceName
-  }
+  /// Initializes a new `PrebuiltVoiceConfig`.
+  package init() {}
+
   enum CodingKeys: String, CodingKey {
-    case voiceName = "voiceName"
+    case voiceName
   }
 }

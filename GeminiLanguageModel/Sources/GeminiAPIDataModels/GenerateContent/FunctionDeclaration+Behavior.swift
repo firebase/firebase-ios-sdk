@@ -15,27 +15,16 @@
 import Foundation
 
 extension FunctionDeclaration {
-  /// Optional. Specifies the function Behavior.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. Specifies the function Behavior.
-  /// Currently only supported by the BidiGenerateContent method.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Specifies the function Behavior.
-  /// If not specified, the system keeps the current function call behavior.
-  /// This field is currently only supported by the BidiGenerateContent method.
+  /// Specifies the function Behavior. If not specified, the system keeps the current function call
+  /// behavior. This field is currently only supported by the BidiGenerateContent method.
   package enum Behavior: Codable, Sendable, Equatable, Hashable {
-    /// If set, the system will wait to receive the function response before
-    /// continuing the conversation.
+    /// If set, the system will wait to receive the function response before continuing the
+    /// conversation.
     case blocking
 
-    /// If set, the system will not wait to receive the function response.
-    /// Instead, it will attempt to handle function responses as they become
-    /// available while maintaining the conversation between the user and the
-    /// model.
+    /// If set, the system will not wait to receive the function response. Instead, it will attempt to
+    /// handle function responses as they become available while maintaining the conversation between
+    /// the user and the model.
     case nonBlocking
 
     /// Unrecognized case.

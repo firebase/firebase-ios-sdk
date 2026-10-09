@@ -15,15 +15,7 @@
 import Foundation
 
 extension ImageResponseFormat {
-  /// Optional. The delivery mode for the image output.
-  ///
-  /// ### Gemini Developer API
-  ///
-  /// Optional. The delivery mode for the image output.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Optional. Delivery mode for the generated content.
+  /// Delivery mode for the generated content.
   package enum Delivery: Codable, Sendable, Equatable, Hashable {
     /// Image data is returned inline in the response.
     case inline

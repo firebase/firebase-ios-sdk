@@ -15,15 +15,9 @@
 import Foundation
 
 extension SafetyRating {
-  /// Output only. The severity of harm for this category.
-  ///
-  /// ### Gemini Developer API
+  /// The severity of harm for this category.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  ///
-  /// ### Gemini Enterprise Agent Platform
-  ///
-  /// Output only. The severity of harm for this category.
   package enum Severity: Codable, Sendable, Equatable, Hashable {
     /// The harm severity is negligible.
     case negligible

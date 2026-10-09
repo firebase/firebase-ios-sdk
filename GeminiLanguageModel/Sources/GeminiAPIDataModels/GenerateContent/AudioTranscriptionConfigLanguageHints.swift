@@ -14,23 +14,21 @@
 
 import Foundation
 
-/// An internal data model for `UrlContext`.
-///
-/// ### Gemini Developer API
-///
-/// Type: `GoogleAiGenerativelanguageV1betaUrlContext`
-///
-/// Tool to support URL context retrieval.
-///
-/// ### Gemini Enterprise Agent Platform
-///
-/// Type: `GoogleCloudAiplatformV1beta1UrlContext`
-///
-/// Tool to support URL context.
-package struct UrlContext: Codable, Sendable, Equatable, Hashable {
+/// Deprecated: Use top-level `language_codes` instead. Provides hints to the model about possible
+/// languages present in the audio.
+@available(*, deprecated)
+package struct AudioTranscriptionConfigLanguageHints: Codable, Sendable, Equatable, Hashable,
+  Buildable
+{
+  /// Required. Deprecated: Use top-level `language_codes` instead. BCP-47 language codes. At least
+  /// one must be specified.
+  @available(*, deprecated)
+  package var languageCodes: [String]?
 
-  /// Creates a new `UrlContext`.
-  ///
-  package init() {
+  /// Initializes a new `AudioTranscriptionConfigLanguageHints`.
+  package init() {}
+
+  enum CodingKeys: String, CodingKey {
+    case languageCodes
   }
 }
