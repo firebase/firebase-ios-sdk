@@ -349,6 +349,29 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:nil];
 }
 
+- (void)reset {
+  [_DBManager deleteRecordWithBundleIdentifier:_bundleIdentifier namespace:_FIRNamespace];
+  [_userDefaultsManager resetUserDefaults];
+
+  _minimumFetchInterval = RCNDefaultMinimumFetchInterval;
+  _fetchTimeout = RCNHTTPDefaultConnectionTimeout;
+  _deviceContext = [[NSMutableDictionary alloc] init];
+  _customVariables = [[NSMutableDictionary alloc] init];
+  _successFetchTimes = [[NSMutableArray alloc] init];
+  _failureFetchTimes = [[NSMutableArray alloc] init];
+  _lastFetchStatus = FIRRemoteConfigFetchStatusNoFetchYet;
+  _lastFetchError = FIRRemoteConfigErrorUnknown;
+  _lastApplyTimeInterval = 0;
+  _lastSetDefaultsTimeInterval = 0;
+  _lastFetchedTemplateVersion = [_userDefaultsManager lastFetchedTemplateVersion];
+  _lastActiveTemplateVersion = [_userDefaultsManager lastActiveTemplateVersion];
+  _exponentialBackoffRetryInterval = 0;
+  _exponentialBackoffThrottleEndTime = 0;
+  _realtimeExponentialBackoffRetryInterval = 0;
+  _realtimeExponentialBackoffThrottleEndTime = 0;
+  _realtimeRetryCount = 0;
+}
+
 - (void)updateLastActiveTemplateVersion {
   _lastActiveTemplateVersion = _lastFetchedTemplateVersion;
   [_userDefaultsManager setLastActiveTemplateVersion:_lastActiveTemplateVersion];

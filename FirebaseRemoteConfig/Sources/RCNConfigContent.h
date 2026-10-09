@@ -61,6 +61,11 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
                   toSource:(RCNDBSource)source
               forNamespace:(NSString *)FIRNamespace;
 
+/// Deletes the fetched, active and default configs of a namespace, along with the fetched and
+/// active Personalization and rollout metadata, from memory and from the database.
+/// @return NO if the initial database load did not complete, in which case nothing is deleted.
+- (BOOL)resetForNamespace:(NSString *)FIRNamespace;
+
 /// Sets the fetched Personalization metadata to active.
 - (void)activatePersonalization;
 

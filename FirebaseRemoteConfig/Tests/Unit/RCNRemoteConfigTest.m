@@ -2221,4 +2221,120 @@ static NSString *UTCToLocal(NSString *utcTime) {
                                }];
 }
 
+#pragma mark - Reset
+
+/// Fetches and activates the config of the default and second namespace instances, with defaults
+/// and custom signals set.
+- (void)fetchAndActivateDefaultAndSecondNamespaceInstances {
+  for (int i = RCNTestRCInstanceDefault; i <= RCNTestRCInstanceSecondNamespace; i++) {
+    XCTestExpectation *expectation =
+        [self expectationWithDescription:[NSString stringWithFormat:@"Fetch and activate - %d", i]];
+    [_configInstances[i] setDefaults:@{[NSString stringWithFormat:@"key0-%d", i] : @"default"}];
+    [_configInstances[i] setCustomSignals:@{@"signal" : @"value"} withCompletion:nil];
+    FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
+    settings.minimumFetchInterval = 0;
+    settings.fetchTimeout = 10;
+    [_configInstances[i] setConfigSettings:settings];
+    [_configInstances[i] fetchAndActivateWithCompletionHandler:^(
+                             FIRRemoteConfigFetchAndActivateStatus status, NSError *error) {
+      XCTAssertEqual(status, FIRRemoteConfigFetchAndActivateStatusSuccessFetchedFromRemote);
+      XCTAssertNil(error);
+      [expectation fulfill];
+    }];
+  }
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)resetInstance:(FIRRemoteConfig *)config {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Reset"];
+  [config resetWithCompletionHandler:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertTrue([NSThread isMainThread]);
+    [expectation fulfill];
+  }];
+  [self waitForExpectations:@[ expectation ] timeout:_expectationTimeout];
+}
+
+- (void)testResetDeletesConfigsAndSettings {
+  [self fetchAndActivateDefaultAndSecondNamespaceInstances];
+  FIRRemoteConfig *config = _configInstances[RCNTestRCInstanceDefault];
+  XCTAssertEqual(config[@"key1-0"].source, FIRRemoteConfigSourceRemote);
+  XCTAssertNotNil(config.settings.lastETag);
+
+  [self resetInstance:config];
+
+  XCTAssertEqual(config[@"key1-0"].source, FIRRemoteConfigSourceStatic);
+  XCTAssertEqual(config[@"key0-0"].source, FIRRemoteConfigSourceStatic);
+  XCTAssertEqual([config allKeysFromSource:FIRRemoteConfigSourceRemote].count, 0);
+  XCTAssertEqual([config allKeysFromSource:FIRRemoteConfigSourceDefault].count, 0);
+  XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+  XCTAssertEqual(config.lastFetchTime.timeIntervalSince1970, 0);
+  XCTAssertEqual(config.configSettings.minimumFetchInterval, RCNDefaultMinimumFetchInterval);
+  XCTAssertEqual(config.configSettings.fetchTimeout, RCNHTTPDefaultConnectionTimeout);
+  XCTAssertNil(config.settings.lastETag);
+  XCTAssertEqual(config.settings.lastETagUpdateTime, 0);
+  XCTAssertEqualObjects(config.settings.lastFetchedTemplateVersion, @"0");
+  XCTAssertEqualObjects(config.settings.lastActiveTemplateVersion, @"0");
+  XCTAssertEqual(config.settings.customSignals.count, 0);
+  XCTAssertFalse([config.settings shouldThrottle]);
+}
+
+- (void)testResetDoesNotAffectOtherNamespaces {
+  [self fetchAndActivateDefaultAndSecondNamespaceInstances];
+  FIRRemoteConfig *otherConfig = _configInstances[RCNTestRCInstanceSecondNamespace];
+
+  [self resetInstance:_configInstances[RCNTestRCInstanceDefault]];
+
+  XCTAssertEqualObjects(otherConfig[@"key1-1"].stringValue, @"value1-1");
+  XCTAssertEqual(otherConfig[@"key1-1"].source, FIRRemoteConfigSourceRemote);
+  XCTAssertEqualObjects([otherConfig defaultValueForKey:@"key0-1"].stringValue, @"default");
+  XCTAssertEqual(otherConfig.lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+  XCTAssertNotNil(otherConfig.settings.lastETag);
+  XCTAssertEqualObjects(otherConfig.settings.customSignals, @{@"signal" : @"value"});
+}
+
+- (void)testResetDeletesPersistedConfigs {
+  [self fetchAndActivateDefaultAndSecondNamespaceInstances];
+  NSString *FQNamespace =
+      [NSString stringWithFormat:@"%@:%@", RCNTestsFIRNamespace, RCNTestsDefaultFIRAppName];
+  NSString *otherFQNamespace =
+      [NSString stringWithFormat:@"%@:%@", RCNTestsPerfNamespace, RCNTestsDefaultFIRAppName];
+
+  NSString *bundleIdentifier = _configInstances[RCNTestRCInstanceDefault].settings.bundleIdentifier;
+  XCTAssertGreaterThan(
+      [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:FQNamespace].count,
+      0);
+
+  [self resetInstance:_configInstances[RCNTestRCInstanceDefault]];
+
+  // A new content instance reloads the configs from the database, as on the next app launch.
+  RCNConfigContent *reloadedContent = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  XCTAssertNil(reloadedContent.fetchedConfig[FQNamespace]);
+  XCTAssertNil(reloadedContent.activeConfig[FQNamespace]);
+  XCTAssertNil(reloadedContent.defaultConfig[FQNamespace]);
+  XCTAssertEqual(reloadedContent.activeRolloutMetadata.count, 0);
+  XCTAssertEqualObjects([reloadedContent.activeConfig[otherFQNamespace][@"key1-1"] stringValue],
+                        @"value1-1");
+  XCTAssertEqual(
+      [_DBManager loadMetadataWithBundleIdentifier:bundleIdentifier namespace:FQNamespace].count,
+      0);
+}
+
+- (void)testResetNotifiesEmptyRolloutsState {
+  [self fetchAndActivateDefaultAndSecondNamespaceInstances];
+  FIRRemoteConfig *config = _configInstances[RCNTestRCInstanceDefault];
+  // The notification is posted by the instance behind the partial mock, so it is not filtered.
+  [self expectationForNotification:@"FIRRolloutsStateDidChangeNotification"
+                            object:nil
+                           handler:^BOOL(NSNotification *notification) {
+                             FIRRolloutsState *state =
+                                 notification.userInfo[@"FIRRolloutsStateDidChangeNotification"];
+                             return state.assignments.count == 0;
+                           }];
+
+  [self resetInstance:config];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 @end

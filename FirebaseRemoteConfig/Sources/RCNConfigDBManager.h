@@ -124,6 +124,9 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Remove all the records from a config content table.
 - (void)deleteAllRecordsFromTableWithSource:(RCNDBSource)source;
 
+/// Remove all the records from the Personalization and rollout tables.
+- (void)deleteAllRecordsFromPersonalizationAndRolloutTables;
+
 /// Remove all the records from experiment table with given key.
 /// @param key  The key of experiment data belongs to, which are defined in RCNConfigDefines.h.
 - (void)deleteExperimentTableForKey:(NSString *)key;

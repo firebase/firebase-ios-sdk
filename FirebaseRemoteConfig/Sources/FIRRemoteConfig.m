@@ -697,6 +697,37 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                 @"The plist file '%@' could not be found by Remote Config.", fileName);
 }
 
+#pragma mark - Reset
+
+- (void)resetWithCompletionHandler:(void (^_Nullable)(NSError *_Nullable error))completionHandler {
+  __weak FIRRemoteConfig *weakSelf = self;
+  dispatch_async(_queue, ^{
+    FIRRemoteConfig *strongSelf = weakSelf;
+    NSError *error = nil;
+    if (strongSelf && [strongSelf->_configContent resetForNamespace:strongSelf->_FIRNamespace]) {
+      [strongSelf->_settings reset];
+      [strongSelf->_configFetch recreateNetworkSession];
+      // Wait for the queued database deletions so that the reset survives app termination.
+      [strongSelf->_DBManager waitForDatabaseOperationQueue];
+      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000080", @"Remote Config has been reset.");
+      [strongSelf notifyRolloutsStateChange:@[]
+                              versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+    } else {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000081",
+                  @"Internal error resetting Remote Config.");
+      error = [NSError
+          errorWithDomain:FIRRemoteConfigErrorDomain
+                     code:FIRRemoteConfigErrorInternalError
+                 userInfo:@{NSLocalizedDescriptionKey : @"Failed to reset Remote Config."}];
+    }
+    if (completionHandler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        completionHandler(error);
+      });
+    }
+  });
+}
+
 #pragma mark - custom variables
 
 - (FIRRemoteConfigSettings *)configSettings {

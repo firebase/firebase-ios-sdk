@@ -184,6 +184,14 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     // TODO(ncooke3): Should `nil` be acceptable here in a Swift context?
     let _: FirebaseRemoteConfig.RemoteConfigValue? = config.defaultValue(forKey: nil)
 
+    config.reset(completionHandler: { (error: Error?) in })
+
+    config.reset()
+
+    Task {
+      let _: Void = try await config.reset()
+    }
+
     let _: FirebaseRemoteConfig.ConfigUpdateListenerRegistration = config
       .addOnConfigUpdateListener(
         remoteConfigUpdateCompletion: { (update: FirebaseRemoteConfig.RemoteConfigUpdate?,
