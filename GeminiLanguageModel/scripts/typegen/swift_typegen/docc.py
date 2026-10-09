@@ -20,7 +20,7 @@ import re
 import textwrap
 from typing import Any
 
-from .config import DEVELOPER_TAG, ENTERPRISE_TAG, provenance_key
+from swift_typegen import config as config_lib
 
 # Joins differing descriptions from two backends when merging schemas.
 VARIANT_SEPARATOR = "\n\nVariant:\n"
@@ -30,10 +30,18 @@ IMPORTANT_SEPARATOR = "\n\n> Important:"
 DEVELOPER_API_NAME = "Gemini Developer API"
 ENTERPRISE_API_NAME = "Gemini Enterprise Agent Platform"
 # Per-backend provenance fields read when annotating availability.
-_DEVELOPER_DESCRIPTION = provenance_key(DEVELOPER_TAG, "description")
-_ENTERPRISE_DESCRIPTION = provenance_key(ENTERPRISE_TAG, "description")
-_DEVELOPER_ORIGINAL_NAME = provenance_key(DEVELOPER_TAG, "original-name")
-_ENTERPRISE_ORIGINAL_NAME = provenance_key(ENTERPRISE_TAG, "original-name")
+_DEVELOPER_DESCRIPTION = config_lib.provenance_key(
+    config_lib.DEVELOPER_TAG, "description"
+)
+_ENTERPRISE_DESCRIPTION = config_lib.provenance_key(
+    config_lib.ENTERPRISE_TAG, "description"
+)
+_DEVELOPER_ORIGINAL_NAME = config_lib.provenance_key(
+    config_lib.DEVELOPER_TAG, "original-name"
+)
+_ENTERPRISE_ORIGINAL_NAME = config_lib.provenance_key(
+    config_lib.ENTERPRISE_TAG, "original-name"
+)
 
 
 def strip_doc_prefixes(text: str) -> str:

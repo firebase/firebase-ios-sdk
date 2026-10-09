@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.cli."""
-
 import contextlib
 import io
 import os
 import unittest
 
-from swift_typegen.cli import PACKAGE_ROOT, TYPEGEN_DIR, parse_args
+from swift_typegen import cli
 
 
 class TestCli(unittest.TestCase):
@@ -27,16 +25,16 @@ class TestCli(unittest.TestCase):
     def test_typegen_dir_contains_expected_directories(self):
         for name in ("swift_typegen", "templates", "discovery_documents"):
             self.assertTrue(
-                os.path.isdir(os.path.join(TYPEGEN_DIR, name)),
-                f"{name}/ not found under TYPEGEN_DIR={TYPEGEN_DIR}",
+                os.path.isdir(os.path.join(cli.TYPEGEN_DIR, name)),
+                f"{name}/ not found under TYPEGEN_DIR={cli.TYPEGEN_DIR}",
             )
 
     def test_default_paths_exist(self):
-        options = parse_args([])
+        options = cli.parse_args([])
         self.assertEqual(
             options.openapi_spec,
             os.path.join(
-                TYPEGEN_DIR,
+                cli.TYPEGEN_DIR,
                 "discovery_documents",
                 "firebasevertexai-openapi.yaml",
             ),
@@ -51,7 +49,7 @@ class TestCli(unittest.TestCase):
         self.assertEqual(
             options.output_dir,
             os.path.join(
-                PACKAGE_ROOT,
+                cli.PACKAGE_ROOT,
                 "Sources",
                 "GeminiAPIDataModels",
                 "GenerateContent",
@@ -60,7 +58,7 @@ class TestCli(unittest.TestCase):
         self.assertTrue(os.path.isdir(options.output_dir))
 
     def test_flags_map_to_options(self):
-        options = parse_args(
+        options = cli.parse_args(
             [
                 "--roots",
                 "A",
@@ -85,8 +83,8 @@ class TestCli(unittest.TestCase):
     def test_invalid_access_level_is_rejected(self):
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit):
-                parse_args(["--access-level", "pubic"])
+                cli.parse_args(["--access-level", "pubic"])
 
     def test_strip_prefix_values_map_to_tuple(self):
-        options = parse_args(["--strip-prefix", "B", "A"])
+        options = cli.parse_args(["--strip-prefix", "B", "A"])
         self.assertEqual(options.strip_prefixes, ("B", "A"))

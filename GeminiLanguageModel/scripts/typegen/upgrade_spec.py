@@ -28,7 +28,7 @@ import urllib.request
 
 import yaml
 
-from swift_typegen.config import GeneratorConfig
+from swift_typegen import config as config_lib
 
 DISCOVERY_URL = (
     "https://firebasevertexai.googleapis.com/$discovery/rest?version=v1beta"
@@ -469,7 +469,9 @@ def main(argv: list[str] | None = None) -> None:
 
     # 4. Extract shared standalone enums, named per configured backend
     print("Extracting shared standalone enums...")
-    backends = GeneratorConfig.from_file(args.overrides_file).backends
+    backends = config_lib.GeneratorConfig.from_file(
+        args.overrides_file
+    ).backends
     extract_standalone_enums(schemas, prefixes=[b.prefix for b in backends])
 
     # 5. Infer required properties

@@ -18,8 +18,8 @@ from __future__ import annotations
 
 from jinja2 import Environment, FileSystemLoader
 
-from .docc import docc_filter
-from .models import SwiftType
+from swift_typegen import docc
+from swift_typegen import models
 
 
 def create_environment(templates_dir: str) -> Environment:
@@ -37,11 +37,11 @@ def create_environment(templates_dir: str) -> Environment:
         lstrip_blocks=True,
         keep_trailing_newline=True,
     )
-    env.filters["docc"] = docc_filter
+    env.filters["docc"] = docc.docc_filter
     return env
 
 
-def output_filename(st: SwiftType, root_namespace: str) -> str:
+def output_filename(st: models.SwiftType, root_namespace: str) -> str:
     """Returns the Swift file name for a type, e.g. 'Candidate+FinishReason.swift'.
 
     Args:
@@ -82,7 +82,7 @@ class SwiftRenderer:
         self.root_namespace = root_namespace
         self.shared_models_target = shared_models_target
 
-    def render(self, st: SwiftType) -> tuple[str, str] | None:
+    def render(self, st: models.SwiftType) -> tuple[str, str] | None:
         """Renders a single Swift type.
 
         Args:

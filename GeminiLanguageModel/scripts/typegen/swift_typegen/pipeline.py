@@ -24,25 +24,13 @@ from typing import Any
 
 import yaml
 
-from .config import BACKEND_TAGS, Backend, GeneratorConfig
-from .graph import (
-    build_direct_dependency_graph,
-    find_cycle_nodes,
-    resolve_all_types,
-)
-from .merge import (
-    merge_schemas,
-    rename_schemas_and_refs,
-    strip_prefix_from_schemas,
-)
-from .models import SwiftType
-from .output import (
-    prune_stale_files,
-    run_swift_format,
-    write_files,
-)
-from .processor import SchemaProcessor
-from .render import SwiftRenderer
+from swift_typegen import config as config_lib
+from swift_typegen import graph
+from swift_typegen import merge
+from swift_typegen import models
+from swift_typegen import output
+from swift_typegen import processor
+from swift_typegen import render
 
 
 @dataclass(frozen=True)
@@ -78,7 +66,7 @@ class PipelineOptions:
     verbose: bool = False
 
 
-def load_config(overrides_file: str) -> GeneratorConfig:
+def load_config(overrides_file: str) -> config_lib.GeneratorConfig:
     """Loads the generator configuration from the overrides YAML file.
 
     Args:
@@ -92,14 +80,14 @@ def load_config(overrides_file: str) -> GeneratorConfig:
             without it would generate a different, much smaller type set
             and prune the existing output.
     """
-    config = GeneratorConfig.from_file(overrides_file)
+    config = config_lib.GeneratorConfig.from_file(overrides_file)
     print(f"Loaded generator configuration from {overrides_file}")
     return config
 
 
 def select_backends(
-    strip_prefixes: Sequence[str] | None, config: GeneratorConfig
-) -> list[Backend]:
+    strip_prefixes: Sequence[str] | None, config: config_lib.GeneratorConfig
+) -> list[config_lib.Backend]:
     """Selects the backends to strip and merge, in merge order.
 
     Merge order is always BACKEND_TAGS order (Developer API first),
@@ -128,7 +116,7 @@ def select_backends(
         selected = set(config.backends)
     else:
         selected = {config.backend_for_prefix(p) for p in strip_prefixes}
-    return sorted(selected, key=lambda b: BACKEND_TAGS.index(b.tag))
+    return sorted(selected, key=lambda b: config_lib.BACKEND_TAGS.index(b.tag))
 
 
 def load_spec(openapi_spec: str) -> dict[str, Any]:
@@ -176,9 +164,9 @@ def load_spec(openapi_spec: str) -> dict[str, Any]:
 
 def preprocess_backend(
     base_schemas: dict[str, Any],
-    backend: Backend | None,
+    backend: config_lib.Backend | None,
     roots: Sequence[str],
-    config: GeneratorConfig,
+    config: config_lib.GeneratorConfig,
 ) -> dict[str, Any]:
     """Produces the resolved schema set for a single backend.
 
@@ -198,7 +186,7 @@ def preprocess_backend(
     doc_schemas = copy.deepcopy(base_schemas)
     prefix = backend.prefix if backend is not None else ""
     if backend is not None:
-        doc_schemas = strip_prefix_from_schemas(
+        doc_schemas = merge.strip_prefix_from_schemas(
             doc_schemas,
             backend,
             divergences=config.type_divergences_resolutions,
@@ -208,8 +196,10 @@ def preprocess_backend(
             f" {len(doc_schemas)}"
         )
 
-    doc_schemas = rename_schemas_and_refs(doc_schemas, config.rename_mappings)
-    doc_resolved = resolve_all_types(
+    doc_schemas = merge.rename_schemas_and_refs(
+        doc_schemas, config.rename_mappings
+    )
+    doc_resolved = graph.resolve_all_types(
         doc_schemas,
         roots,
         excluded_schemas=config.excluded_schemas,
@@ -223,7 +213,7 @@ def preprocess_backend(
 
 
 def merge_backends(
-    resolved_by_doc: list[dict[str, Any]], config: GeneratorConfig
+    resolved_by_doc: list[dict[str, Any]], config: config_lib.GeneratorConfig
 ) -> dict[str, Any]:
     """Merges per-backend schema sets and drops manually implemented schemas.
 
@@ -238,7 +228,7 @@ def merge_backends(
     for doc_resolved in resolved_by_doc:
         for name, data in doc_resolved.items():
             if name in resolved:
-                resolved[name] = merge_schemas(
+                resolved[name] = merge.merge_schemas(
                     name,
                     resolved[name],
                     data,
@@ -254,7 +244,9 @@ def merge_backends(
     return resolved
 
 
-def check_cycles(resolved: dict[str, Any], config: GeneratorConfig) -> None:
+def check_cycles(
+    resolved: dict[str, Any], config: config_lib.GeneratorConfig
+) -> None:
     """Raises if any schemas contain each other by value.
 
     Args:
@@ -264,10 +256,10 @@ def check_cycles(resolved: dict[str, Any], config: GeneratorConfig) -> None:
     Raises:
         RuntimeError: If recursive schema cycles are detected.
     """
-    graph = build_direct_dependency_graph(
+    dependency_graph = graph.build_direct_dependency_graph(
         resolved, excluded_properties=config.excluded_properties
     )
-    cycle_nodes = find_cycle_nodes(graph)
+    cycle_nodes = graph.find_cycle_nodes(dependency_graph)
     if cycle_nodes:
         raise RuntimeError(
             f"Detected recursive schema cycles in: {sorted(list(cycle_nodes))}."
@@ -277,7 +269,7 @@ def check_cycles(resolved: dict[str, Any], config: GeneratorConfig) -> None:
 
 
 def write_types(
-    swift_types: list[SwiftType],
+    swift_types: list[models.SwiftType],
     options: PipelineOptions,
     preserved_files: Iterable[str],
 ) -> list[str]:
@@ -291,22 +283,22 @@ def write_types(
     Returns:
         List of paths to newly written Swift files.
     """
-    renderer = SwiftRenderer(
+    renderer = render.SwiftRenderer(
         options.templates_dir,
         options.access_level,
         options.namespace,
         shared_models_target=options.shared_models_target,
     )
     rendered = [r for r in map(renderer.render, swift_types) if r is not None]
-    written_files = write_files(
+    written_files = output.write_files(
         rendered, options.output_dir, verbose=options.verbose
     )
-    run_swift_format(written_files, verbose=options.verbose)
+    output.run_swift_format(written_files, verbose=options.verbose)
 
     preserved = set(preserved_files)
     if options.namespace:
         preserved.add(f"{options.namespace}.swift")
-    prune_stale_files(
+    output.prune_stale_files(
         options.output_dir, written_files, preserved, verbose=options.verbose
     )
     return written_files
@@ -341,10 +333,10 @@ def run(options: PipelineOptions) -> None:
 
     check_cycles(resolved, config)
 
-    processor = SchemaProcessor(
+    schema_processor = processor.SchemaProcessor(
         config=config, doc_wrap_width=options.doc_wrap_width
     )
-    swift_types = processor.process(resolved, options.namespace)
+    swift_types = schema_processor.process(resolved, options.namespace)
     print(
         f"Processing generated {len(swift_types)} distinct types"
         " (including nested enums/structs)."

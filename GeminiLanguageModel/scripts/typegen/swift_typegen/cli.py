@@ -19,7 +19,7 @@ from __future__ import annotations
 import argparse
 import os
 
-from .pipeline import PipelineOptions, run
+from swift_typegen import pipeline
 
 # Type generation root: scripts/typegen/swift_typegen/cli.py -> ../
 TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,7 +28,7 @@ TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PACKAGE_ROOT = os.path.dirname(os.path.dirname(TYPEGEN_DIR))
 
 
-def parse_args(argv: list[str] | None = None) -> PipelineOptions:
+def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
     """Parses command-line arguments into PipelineOptions.
 
     Args:
@@ -125,7 +125,7 @@ def parse_args(argv: list[str] | None = None) -> PipelineOptions:
     )
     args = parser.parse_args(argv)
 
-    return PipelineOptions(
+    return pipeline.PipelineOptions(
         openapi_spec=args.openapi_spec,
         templates_dir=args.templates_dir,
         output_dir=args.output_dir,
@@ -144,4 +144,4 @@ def parse_args(argv: list[str] | None = None) -> PipelineOptions:
 
 def main(argv: list[str] | None = None) -> None:
     """CLI entry point for Swift type generation from OpenAPI specifications."""
-    run(parse_args(argv))
+    pipeline.run(parse_args(argv))

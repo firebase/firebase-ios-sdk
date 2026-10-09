@@ -12,42 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.config."""
-
 import os
 import tempfile
 import unittest
 
-from swift_typegen.config import (
-    DEVELOPER_TAG,
-    ENTERPRISE_TAG,
-    Backend,
-    GeneratorConfig,
-    provenance_key,
-)
+from swift_typegen import config as config_lib
 
 
 class TestGeneratorConfig(unittest.TestCase):
 
     def test_provenance_key_builds_extension_key(self):
         self.assertEqual(
-            provenance_key(DEVELOPER_TAG, "description"),
+            config_lib.provenance_key(config_lib.DEVELOPER_TAG, "description"),
             "x-gl-developer-description",
         )
         self.assertEqual(
-            provenance_key(ENTERPRISE_TAG, "original-name"),
+            config_lib.provenance_key(
+                config_lib.ENTERPRISE_TAG, "original-name"
+            ),
             "x-ai-enterprise-original-name",
         )
 
     def test_generator_config_defaults(self):
-        config = GeneratorConfig()
+        config = config_lib.GeneratorConfig()
         self.assertEqual(config.type_overrides, {})
         self.assertEqual(config.excluded_schemas, set())
         self.assertEqual(config.excluded_properties, {})
 
     def test_from_file_missing_raises(self):
         with self.assertRaises(FileNotFoundError):
-            GeneratorConfig.from_file("/nonexistent/overrides.yaml")
+            config_lib.GeneratorConfig.from_file("/nonexistent/overrides.yaml")
 
     def test_from_file_parses_generator_config(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -64,7 +58,7 @@ class TestGeneratorConfig(unittest.TestCase):
                     "    - {prefix: EnterprisePrefix, tag: ai-enterprise}\n"
                     "  preservedFiles: [Manual.swift]\n"
                 )
-            config = GeneratorConfig.from_file(path)
+            config = config_lib.GeneratorConfig.from_file(path)
         self.assertEqual(config.excluded_schemas, {"A", "B"})
         self.assertEqual(config.manual_override_schemas, {"C"})
         self.assertEqual(config.rename_mappings, {"Old": "New"})
@@ -72,35 +66,35 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(
             config.backends,
             [
-                Backend("DeveloperPrefix", "gl-developer"),
-                Backend("EnterprisePrefix", "ai-enterprise"),
+                config_lib.Backend("DeveloperPrefix", "gl-developer"),
+                config_lib.Backend("EnterprisePrefix", "ai-enterprise"),
             ],
         )
         self.assertEqual(config.preserved_files, {"Manual.swift"})
 
     def test_backend_rejects_unknown_tag(self):
         with self.assertRaises(ValueError):
-            Backend(prefix="Prefix", tag="xx")
+            config_lib.Backend(prefix="Prefix", tag="xx")
 
     def test_backend_rejects_empty_prefix(self):
         with self.assertRaises(ValueError):
-            Backend(prefix="", tag="gl-developer")
+            config_lib.Backend(prefix="", tag="gl-developer")
 
     def test_rejects_duplicate_backend_prefixes(self):
         with self.assertRaisesRegex(ValueError, "prefix"):
-            GeneratorConfig(
+            config_lib.GeneratorConfig(
                 backends=[
-                    Backend("Same", "gl-developer"),
-                    Backend("Same", "ai-enterprise"),
+                    config_lib.Backend("Same", "gl-developer"),
+                    config_lib.Backend("Same", "ai-enterprise"),
                 ]
             )
 
     def test_rejects_duplicate_backend_tags(self):
         with self.assertRaisesRegex(ValueError, "tag"):
-            GeneratorConfig(
+            config_lib.GeneratorConfig(
                 backends=[
-                    Backend("One", "gl-developer"),
-                    Backend("Two", "gl-developer"),
+                    config_lib.Backend("One", "gl-developer"),
+                    config_lib.Backend("Two", "gl-developer"),
                 ]
             )
 
@@ -116,11 +110,11 @@ class TestGeneratorConfig(unittest.TestCase):
                     with open(path, "w", encoding="utf-8") as f:
                         f.write(f"generatorConfig:\n  backends:\n    - {entry}\n")
                     with self.assertRaisesRegex(ValueError, "backends entry"):
-                        GeneratorConfig.from_file(path)
+                        config_lib.GeneratorConfig.from_file(path)
 
     def test_backend_for_prefix(self):
-        config = GeneratorConfig(
-            backends=[Backend("DeveloperPrefix", "gl-developer")]
+        config = config_lib.GeneratorConfig(
+            backends=[config_lib.Backend("DeveloperPrefix", "gl-developer")]
         )
         self.assertEqual(
             config.backend_for_prefix("DeveloperPrefix").tag, "gl-developer"
@@ -132,7 +126,7 @@ class TestGeneratorConfig(unittest.TestCase):
         typegen_dir = os.path.dirname(
             os.path.dirname(os.path.abspath(__file__))
         )
-        config = GeneratorConfig.from_file(
+        config = config_lib.GeneratorConfig.from_file(
             os.path.join(
                 typegen_dir,
                 "discovery_documents",

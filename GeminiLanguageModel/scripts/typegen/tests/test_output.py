@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.output."""
-
 import contextlib
 import io
 import os
@@ -22,12 +20,7 @@ import tempfile
 import unittest
 from unittest import mock
 
-from swift_typegen.output import (
-    find_swift_format,
-    prune_stale_files,
-    run_swift_format,
-    write_files,
-)
+from swift_typegen import output
 
 
 class TestOutput(unittest.TestCase):
@@ -46,7 +39,7 @@ class TestOutput(unittest.TestCase):
         return path
 
     def test_write_files_writes_sources(self):
-        written = write_files(
+        written = output.write_files(
             [("A.swift", "struct A {}\n"), ("B.swift", "struct B {}\n")],
             self.out,
         )
@@ -59,12 +52,14 @@ class TestOutput(unittest.TestCase):
 
     def test_write_files_creates_output_dir(self):
         nested = os.path.join(self.out, "nested", "dir")
-        write_files([("A.swift", "")], nested)
+        output.write_files([("A.swift", "")], nested)
         self.assertTrue(os.path.exists(os.path.join(nested, "A.swift")))
 
     def test_write_files_removes_case_conflicting_files(self):
         self._touch("UrlContext.swift")
-        write_files([("URLContext.swift", "struct URLContext {}\n")], self.out)
+        output.write_files(
+            [("URLContext.swift", "struct URLContext {}\n")], self.out
+        )
         self.assertIn("URLContext.swift", os.listdir(self.out))
         self.assertNotIn("UrlContext.swift", os.listdir(self.out))
 
@@ -74,7 +69,9 @@ class TestOutput(unittest.TestCase):
         self._touch("Preserved.swift")
         self._touch("README.md")
 
-        prune_stale_files(self.out, [kept], preserved_files={"Preserved.swift"})
+        output.prune_stale_files(
+            self.out, [kept], preserved_files={"Preserved.swift"}
+        )
 
         self.assertEqual(
             sorted(os.listdir(self.out)),
@@ -93,7 +90,7 @@ class TestSwiftFormat(unittest.TestCase):
     @mock.patch("swift_typegen.output.shutil.which")
     def test_find_swift_format_prefers_path(self, which, run):
         which.side_effect = _which({"swift-format": "/bin/swift-format"})
-        self.assertEqual(find_swift_format(), "/bin/swift-format")
+        self.assertEqual(output.find_swift_format(), "/bin/swift-format")
         run.assert_not_called()
 
     @mock.patch("swift_typegen.output.os.path.exists", return_value=True)
@@ -104,7 +101,7 @@ class TestSwiftFormat(unittest.TestCase):
         run.return_value = subprocess.CompletedProcess(
             args=[], returncode=0, stdout="/Xcode/swift-format\n", stderr=""
         )
-        self.assertEqual(find_swift_format(), "/Xcode/swift-format")
+        self.assertEqual(output.find_swift_format(), "/Xcode/swift-format")
         run.assert_called_once()
         self.assertEqual(
             run.call_args.args[0], ["/usr/bin/xcrun", "--find", "swift-format"]
@@ -114,7 +111,7 @@ class TestSwiftFormat(unittest.TestCase):
     def test_run_swift_format_warns_when_missing(self, _):
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            run_swift_format(["A.swift"])
+            output.run_swift_format(["A.swift"])
         self.assertIn("swift-format not found", out.getvalue())
 
     @mock.patch("swift_typegen.output.subprocess.run")
@@ -128,11 +125,11 @@ class TestSwiftFormat(unittest.TestCase):
         )
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            run_swift_format(["A.swift"])
+            output.run_swift_format(["A.swift"])
         self.assertIn("exited with status 1: bad input", out.getvalue())
 
     @mock.patch("swift_typegen.output.find_swift_format")
     def test_run_swift_format_skips_empty_paths(self, find):
-        run_swift_format([])
+        output.run_swift_format([])
         find.assert_not_called()
 

@@ -18,15 +18,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from .config import (
-    BACKEND_TAGS,
-    DEVELOPER_TAG,
-    ENTERPRISE_TAG,
-    Backend,
-    provenance_key,
-)
-from .docc import VARIANT_SEPARATOR
-from .naming import apply_swift_acronyms
+from swift_typegen import config as config_lib
+from swift_typegen import docc
+from swift_typegen import naming
 
 
 def _annotate_backend(
@@ -43,8 +37,8 @@ def _annotate_backend(
         schema_data: Original schema definition.
         backend_tag: Backend extension tag (one of BACKEND_TAGS).
     """
-    description_key = provenance_key(backend_tag, "description")
-    enum_key = provenance_key(backend_tag, "enum")
+    description_key = config_lib.provenance_key(backend_tag, "description")
+    enum_key = config_lib.provenance_key(backend_tag, "enum")
     props = stripped.get("properties")
     if isinstance(props, dict):
         for p_data in props.values():
@@ -52,7 +46,9 @@ def _annotate_backend(
                 p_data[description_key] = p_data.get("description", "")
                 if isinstance(p_data.get("enum"), list):
                     p_data[enum_key] = list(p_data["enum"])
-    stripped[provenance_key(backend_tag, "original-name")] = schema_name
+    stripped[config_lib.provenance_key(backend_tag, "original-name")] = (
+        schema_name
+    )
     stripped[description_key] = schema_data.get("description", "")
     if isinstance(stripped.get("enum"), list):
         stripped[enum_key] = list(stripped["enum"])
@@ -119,8 +115,8 @@ def _merge_enums(
     else:
         merged.pop("enumDeprecated", None)
 
-    for tag in BACKEND_TAGS:
-        key = provenance_key(tag, "enum")
+    for tag in config_lib.BACKEND_TAGS:
+        key = config_lib.provenance_key(tag, "enum")
         tagged = [d[key] for d in (first, second) if key in d]
         if tagged:
             merged[key] = _ordered_union(tagged)
@@ -133,7 +129,7 @@ def _merge_descriptions(
     desc1 = first.get("description", "")
     desc2 = second.get("description", "")
     if desc1 and desc2 and desc1 != desc2:
-        merged["description"] = f"{desc1}{VARIANT_SEPARATOR}{desc2}"
+        merged["description"] = f"{desc1}{docc.VARIANT_SEPARATOR}{desc2}"
     elif desc2:
         merged["description"] = desc2
 
@@ -155,18 +151,18 @@ def _merge_provenance(
             (second) backend.
     """
     by_tag = (
-        (DEVELOPER_TAG, developer, enterprise),
-        (ENTERPRISE_TAG, enterprise, developer),
+        (config_lib.DEVELOPER_TAG, developer, enterprise),
+        (config_lib.ENTERPRISE_TAG, enterprise, developer),
     )
     for tag, own, other in by_tag:
-        name_key = provenance_key(tag, "original-name")
+        name_key = config_lib.provenance_key(tag, "original-name")
         if name_key in own:
             merged[name_key] = own[name_key]
         elif name_key in other:
             merged[name_key] = other[name_key]
 
     for tag, own, _ in by_tag:
-        description_key = provenance_key(tag, "description")
+        description_key = config_lib.provenance_key(tag, "description")
         merged[description_key] = own.get(description_key) or own.get(
             "description", ""
         )
@@ -175,7 +171,7 @@ def _merge_provenance(
 
 def strip_prefix_from_schemas(
     schemas: dict[str, Any],
-    backend: Backend,
+    backend: config_lib.Backend,
     divergences: dict[str, Any],
 ) -> dict[str, Any]:
     """Strips a backend vendor prefix from schema names and $ref targets.
@@ -260,7 +256,7 @@ def rename_schemas_and_refs(
     """
     effective_mappings = dict(mappings)
     for s_name in list(schemas.keys()):
-        acronym_name = apply_swift_acronyms(s_name, is_type=True)
+        acronym_name = naming.apply_swift_acronyms(s_name, is_type=True)
         if acronym_name != s_name and s_name not in effective_mappings:
             effective_mappings[s_name] = acronym_name
 

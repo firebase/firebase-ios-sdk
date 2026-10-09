@@ -12,16 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.graph."""
-
 import unittest
 
-from swift_typegen.graph import (
-    build_direct_dependency_graph,
-    find_cycle_nodes,
-    property_ref_target,
-    resolve_all_types,
-)
+from swift_typegen import graph
 
 
 class TestGraph(unittest.TestCase):
@@ -47,7 +40,7 @@ class TestGraph(unittest.TestCase):
                 "properties": {"content": {"type": "string"}},
             },
         }
-        resolved = resolve_all_types(
+        resolved = graph.resolve_all_types(
             schemas,
             ["Candidate"],
             excluded_schemas=set(),
@@ -68,7 +61,7 @@ class TestGraph(unittest.TestCase):
             "Kept": {"type": "object", "properties": {}},
             "Dropped": {"type": "object", "properties": {}},
         }
-        resolved = resolve_all_types(
+        resolved = graph.resolve_all_types(
             schemas,
             ["Root"],
             excluded_schemas={"Dropped"},
@@ -78,26 +71,28 @@ class TestGraph(unittest.TestCase):
 
     def test_property_ref_target(self):
         self.assertEqual(
-            property_ref_target({"$ref": "#/components/schemas/A"}), "A"
+            graph.property_ref_target({"$ref": "#/components/schemas/A"}), "A"
         )
         self.assertEqual(
-            property_ref_target(
+            graph.property_ref_target(
                 {"type": "array", "items": {"$ref": "#/components/schemas/B"}}
             ),
             "B",
         )
-        self.assertIsNone(property_ref_target({"type": "string"}))
+        self.assertIsNone(graph.property_ref_target({"type": "string"}))
         self.assertIsNone(
-            property_ref_target({"type": "array", "items": {"type": "string"}})
+            graph.property_ref_target(
+                {"type": "array", "items": {"type": "string"}}
+            )
         )
 
     def test_find_cycle_nodes_detects_self_referential_types(self):
-        graph = {
+        dependency_graph = {
             "Schema": {"Schema", "DataType"},
             "DataType": set(),
             "NonCyclic": set(),
         }
-        self.assertEqual(find_cycle_nodes(graph), {"Schema"})
+        self.assertEqual(graph.find_cycle_nodes(dependency_graph), {"Schema"})
 
         indirect_graph = {
             "A": {"B"},
@@ -105,7 +100,9 @@ class TestGraph(unittest.TestCase):
             "C": {"A"},
             "D": {"A"},
         }
-        self.assertEqual(find_cycle_nodes(indirect_graph), {"A", "B", "C"})
+        self.assertEqual(
+            graph.find_cycle_nodes(indirect_graph), {"A", "B", "C"}
+        )
 
     def test_direct_dependency_graph_ignores_array_indirection(self):
         resolved = {
@@ -121,7 +118,8 @@ class TestGraph(unittest.TestCase):
             },
             "Leaf": {"type": "object", "properties": {}},
         }
-        graph = build_direct_dependency_graph(resolved, excluded_properties={})
-        self.assertEqual(graph, {"Node": {"Leaf"}, "Leaf": set()})
-        self.assertEqual(find_cycle_nodes(graph), set())
-
+        dependency_graph = graph.build_direct_dependency_graph(
+            resolved, excluded_properties={}
+        )
+        self.assertEqual(dependency_graph, {"Node": {"Leaf"}, "Leaf": set()})
+        self.assertEqual(graph.find_cycle_nodes(dependency_graph), set())

@@ -94,8 +94,7 @@ config order.
 ### Code layout
 
 `generate_types.py` is a thin entry point. The implementation lives in the
-[`swift_typegen`](swift_typegen) package, which can also be run with
-`python -m swift_typegen` from `GeminiLanguageModel/scripts/typegen/`:
+[`swift_typegen`](swift_typegen) package:
 
 | Module | Responsibility |
 | :--- | :--- |

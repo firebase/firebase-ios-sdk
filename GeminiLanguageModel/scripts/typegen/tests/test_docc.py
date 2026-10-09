@@ -12,19 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.docc."""
-
 import unittest
 
-from swift_typegen.docc import (
-    docc_filter,
-    extract_summary_sentence,
-    format_init_description,
-    format_property_docc,
-    format_schema_docc,
-    strip_doc_prefixes,
-    wrap_docc,
-)
+from swift_typegen import docc
 
 
 class TestDocc(unittest.TestCase):
@@ -36,7 +26,7 @@ class TestDocc(unittest.TestCase):
             "x-gl-developer-original-name": "developerName",
             "x-ai-enterprise-original-name": "enterpriseName",
         }
-        dual_docc = format_property_docc(dual_prop_data)
+        dual_docc = docc.format_property_docc(dual_prop_data)
         self.assertEqual(dual_docc, "Enterprise description.")
         self.assertNotIn("### Gemini Developer API", dual_docc)
         self.assertNotIn("### Gemini Enterprise Agent Platform", dual_docc)
@@ -45,7 +35,7 @@ class TestDocc(unittest.TestCase):
             "x-gl-developer-description": "Developer-only description.",
             "x-gl-developer-original-name": "developerName",
         }
-        developer_docc = format_property_docc(developer_only_prop_data)
+        developer_docc = docc.format_property_docc(developer_only_prop_data)
         self.assertIn("Developer-only description.", developer_docc)
         self.assertNotIn("### Gemini Developer API", developer_docc)
         self.assertNotIn("### Gemini Enterprise Agent Platform", developer_docc)
@@ -61,7 +51,7 @@ class TestDocc(unittest.TestCase):
             "x-gl-developer-original-name": "DeveloperCandidate",
             "x-ai-enterprise-original-name": "EnterpriseCandidate",
         }
-        schema_docc = format_schema_docc(dual_schema_data)
+        schema_docc = docc.format_schema_docc(dual_schema_data)
         self.assertEqual(schema_docc, "Enterprise schema description.")
         self.assertNotIn("An internal data model for", schema_docc)
         self.assertNotIn("### Gemini Developer API", schema_docc)
@@ -71,7 +61,9 @@ class TestDocc(unittest.TestCase):
             "x-gl-developer-description": "Developer-only schema description.",
             "x-gl-developer-original-name": "DeveloperHarmCategory",
         }
-        developer_schema_docc = format_schema_docc(developer_only_schema_data)
+        developer_schema_docc = docc.format_schema_docc(
+            developer_only_schema_data
+        )
         self.assertEqual(
             developer_schema_docc,
             "Developer-only schema description.\n\n> Important: This type is"
@@ -89,7 +81,9 @@ class TestDocc(unittest.TestCase):
             ),
             "x-ai-enterprise-original-name": "EnterpriseCandidate",
         }
-        enterprise_schema_docc = format_schema_docc(enterprise_only_schema_data)
+        enterprise_schema_docc = docc.format_schema_docc(
+            enterprise_only_schema_data
+        )
         self.assertEqual(
             enterprise_schema_docc,
             "Enterprise-only schema description.\n\n> Important: This type is"
@@ -109,25 +103,26 @@ class TestDocc(unittest.TestCase):
             ),
         }
         self.assertEqual(
-            format_property_docc(prop_data),
+            docc.format_property_docc(prop_data),
             "Developer text.\n\n> Important: This property is not supported in"
             " the Gemini Enterprise Agent Platform.",
         )
         self.assertEqual(
-            format_property_docc({"description": "Optional. Shared.\n\nVariant:\nOther."}
+            docc.format_property_docc(
+                {"description": "Optional. Shared.\n\nVariant:\nOther."}
             ),
             "Shared.",
         )
 
     def test_format_init_description(self):
         self.assertEqual(
-            format_init_description(
+            docc.format_init_description(
                 {"description": "Optional. The count. More detail."}, "count"
             ),
             "The count.",
         )
         self.assertEqual(
-            format_init_description(
+            docc.format_init_description(
                 {"x-gl-developer-description": "Developer-only."},
                 "developerProp",
             ),
@@ -135,7 +130,7 @@ class TestDocc(unittest.TestCase):
             " ``developerProp``.",
         )
         self.assertEqual(
-            format_init_description(
+            docc.format_init_description(
                 {
                     "x-gl-developer-description": "Developer.",
                     "x-ai-enterprise-description": "Enterprise.",
@@ -146,13 +141,13 @@ class TestDocc(unittest.TestCase):
             " ``both``.",
         )
         self.assertEqual(
-            format_init_description({}, "empty"),
+            docc.format_init_description({}, "empty"),
             "For more details, see ``empty``.",
         )
 
     def test_format_init_description_enterprise_only(self):
         self.assertEqual(
-            format_init_description(
+            docc.format_init_description(
                 {"x-ai-enterprise-description": "Enterprise-only."},
                 "enterpriseProp",
             ),
@@ -162,7 +157,7 @@ class TestDocc(unittest.TestCase):
 
     def test_format_init_description_same_text_on_both_backends(self):
         self.assertEqual(
-            format_init_description(
+            docc.format_init_description(
                 {
                     "x-gl-developer-description": "Same.",
                     "x-ai-enterprise-description": "Same.",
@@ -174,26 +169,26 @@ class TestDocc(unittest.TestCase):
 
     def test_backend_only_property_without_description(self):
         self.assertEqual(
-            format_property_docc({"x-ai-enterprise-description": ""}),
+            docc.format_property_docc({"x-ai-enterprise-description": ""}),
             "> Important: This property is not supported in the Gemini"
             " Developer API.",
         )
 
     def test_strip_doc_prefixes(self):
         self.assertEqual(
-            strip_doc_prefixes("Optional. The maximum tokens."),
+            docc.strip_doc_prefixes("Optional. The maximum tokens."),
             "The maximum tokens.",
         )
         self.assertEqual(
-            strip_doc_prefixes("Output only. The candidate response."),
+            docc.strip_doc_prefixes("Output only. The candidate response."),
             "The candidate response.",
         )
         self.assertEqual(
-            strip_doc_prefixes("Optional. Output only. The count."),
+            docc.strip_doc_prefixes("Optional. Output only. The count."),
             "The count.",
         )
         self.assertEqual(
-            strip_doc_prefixes("Required. The contents."),
+            docc.strip_doc_prefixes("Required. The contents."),
             "Required. The contents.",
         )
 
@@ -203,7 +198,7 @@ class TestDocc(unittest.TestCase):
             " default value varies by model. Values can range from [0.0, 2.0]."
         )
         self.assertEqual(
-            extract_summary_sentence(desc),
+            docc.extract_summary_sentence(desc),
             "Controls the randomness of the output.",
         )
 
@@ -214,7 +209,7 @@ class TestDocc(unittest.TestCase):
             " `cachedContents/{cachedContent}`"
         )
         self.assertEqual(
-            extract_summary_sentence(desc_url),
+            docc.extract_summary_sentence(desc_url),
             "The name of the content"
             " [cached](https://ai.google.dev/gemini-api/docs/caching) to use as"
             " context to serve the prediction.",
@@ -224,7 +219,7 @@ class TestDocc(unittest.TestCase):
             "Required. The content of the current conversation with the model."
         )
         self.assertEqual(
-            extract_summary_sentence(desc_req),
+            docc.extract_summary_sentence(desc_req),
             "Required. The content of the current conversation with the model.",
         )
 
@@ -235,7 +230,7 @@ class TestDocc(unittest.TestCase):
             " degrees longitude. Unless specified otherwise, this object must"
             " conform to the WGS84 standard."
         )
-        wrapped = wrap_docc(long_prose, width=74)
+        wrapped = docc.wrap_docc(long_prose, width=74)
         for line in wrapped.split("\n"):
             self.assertLessEqual(len(line), 74)
 
@@ -243,18 +238,17 @@ class TestDocc(unittest.TestCase):
             "- First item that is quite long and should be wrapped cleanly"
             " across multiple lines without breaking words.\n- Second item."
         )
-        wrapped_list = wrap_docc(markdown_list, width=60)
+        wrapped_list = docc.wrap_docc(markdown_list, width=60)
         self.assertIn("- First item", wrapped_list)
         self.assertIn("- Second item.", wrapped_list)
 
     def test_docc_filter(self):
         text = "First paragraph.\n\nSecond paragraph."
-        filtered = docc_filter(text, indent_level=2)
+        filtered = docc.docc_filter(text, indent_level=2)
         expected = "  /// First paragraph.\n  ///\n  /// Second paragraph."
         self.assertEqual(filtered, expected)
 
         # Empty, None, or whitespace-only returns empty string
-        self.assertEqual(docc_filter(None), "")
-        self.assertEqual(docc_filter(""), "")
-        self.assertEqual(docc_filter("   \n\t  "), "")
-
+        self.assertEqual(docc.docc_filter(None), "")
+        self.assertEqual(docc.docc_filter(""), "")
+        self.assertEqual(docc.docc_filter("   \n\t  "), "")

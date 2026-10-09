@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.merge."""
-
 import contextlib
 import io
 import unittest
 
-from swift_typegen.config import Backend
-from swift_typegen.merge import (
-    merge_properties,
-    merge_schemas,
-    rename_schemas_and_refs,
-    strip_prefix_from_schemas,
-)
+from swift_typegen import config as config_lib
+from swift_typegen import merge
 
 
 class TestMerge(unittest.TestCase):
@@ -38,7 +31,7 @@ class TestMerge(unittest.TestCase):
             "type": "object",
             "properties": {"b": {"type": "string"}, "a": {"type": "string"}},
         }
-        merged = merge_schemas("Merged", schema1, schema2, divergences={})
+        merged = merge.merge_schemas("Merged", schema1, schema2, divergences={})
         self.assertEqual(list(merged["properties"]), ["a", "b", "c"])
 
     def test_merge_properties_applies_divergence_resolution(self):
@@ -46,7 +39,7 @@ class TestMerge(unittest.TestCase):
         prop2 = {"type": "array", "description": "Two."}
         divergences = {"Parent": {"field": {"type": "string"}}}
         with contextlib.redirect_stdout(io.StringIO()):
-            merged = merge_properties(
+            merged = merge.merge_properties(
                 "Parent", "field", prop1, prop2, divergences=divergences
             )
         self.assertEqual(merged["type"], "string")
@@ -54,7 +47,7 @@ class TestMerge(unittest.TestCase):
 
     def test_merge_properties_promotes_numeric_types(self):
         with contextlib.redirect_stdout(io.StringIO()):
-            merged = merge_properties(
+            merged = merge.merge_properties(
                 "Parent",
                 "count",
                 {"type": "integer", "format": "int32"},
@@ -78,8 +71,8 @@ class TestMerge(unittest.TestCase):
                 },
             },
         }
-        stripped = strip_prefix_from_schemas(
-            schemas, Backend(prefix, "gl-developer"), divergences={}
+        stripped = merge.strip_prefix_from_schemas(
+            schemas, config_lib.Backend(prefix, "gl-developer"), divergences={}
         )
         self.assertEqual(list(stripped), ["Candidate"])
         candidate = stripped["Candidate"]
@@ -107,8 +100,8 @@ class TestMerge(unittest.TestCase):
                 "properties": {"index": {"type": "integer"}},
             },
         }
-        candidate = strip_prefix_from_schemas(
-            schemas, Backend(prefix, "ai-enterprise"), divergences={}
+        candidate = merge.strip_prefix_from_schemas(
+            schemas, config_lib.Backend(prefix, "ai-enterprise"), divergences={}
         )["Candidate"]
         self.assertEqual(
             candidate["x-ai-enterprise-original-name"], f"{prefix}Candidate"
@@ -132,9 +125,9 @@ class TestMerge(unittest.TestCase):
         }
         divergences = {"Blob": {"size": {"type": "string"}}}
         with contextlib.redirect_stdout(io.StringIO()) as out:
-            stripped = strip_prefix_from_schemas(
+            stripped = merge.strip_prefix_from_schemas(
                 schemas,
-                Backend(prefix, "ai-enterprise"),
+                config_lib.Backend(prefix, "ai-enterprise"),
                 divergences=divergences,
             )
         self.assertEqual(list(stripped), ["Blob"])
@@ -156,7 +149,9 @@ class TestMerge(unittest.TestCase):
             "x-ai-enterprise-original-name": "EnterpriseThing",
             "properties": {},
         }
-        merged = merge_schemas("Thing", developer, enterprise, divergences={})
+        merged = merge.merge_schemas(
+            "Thing", developer, enterprise, divergences={}
+        )
         self.assertEqual(
             merged["x-gl-developer-original-name"], "DeveloperThing"
         )
@@ -188,7 +183,7 @@ class TestMerge(unittest.TestCase):
             "enumDescriptions": ["Unused.", "Stopped (Enterprise).", "Armor."],
             "enumDeprecated": [False, False, False],
         }
-        merged = merge_properties(
+        merged = merge.merge_properties(
             "Candidate", "finishReason", developer, enterprise, divergences={}
         )
         self.assertEqual(
@@ -231,7 +226,7 @@ class TestMerge(unittest.TestCase):
             ],
             "enumDescriptions": ["Unused.", "Image hate."],
         }
-        merged = merge_schemas(
+        merged = merge.merge_schemas(
             "HarmCategory", developer, enterprise, divergences={}
         )
         self.assertEqual(
@@ -264,9 +259,9 @@ class TestMerge(unittest.TestCase):
                 },
             },
         }
-        stripped = strip_prefix_from_schemas(
+        stripped = merge.strip_prefix_from_schemas(
             schemas,
-            Backend(prefix="Developer", tag="gl-developer"),
+            config_lib.Backend(prefix="Developer", tag="gl-developer"),
             divergences={},
         )
         self.assertEqual(
@@ -287,7 +282,7 @@ class TestMerge(unittest.TestCase):
                 },
             },
         }
-        renamed = rename_schemas_and_refs(schemas, {})
+        renamed = merge.rename_schemas_and_refs(schemas, {})
         self.assertIn("URLContext", renamed)
         self.assertEqual(renamed["URLContext"]["id"], "URLContext")
         self.assertEqual(

@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.pipeline."""
-
 import contextlib
 import dataclasses
 import io
@@ -24,20 +22,14 @@ from unittest import mock
 
 import yaml
 
-from swift_typegen.config import Backend, GeneratorConfig
-from swift_typegen.models import SwiftType
-from swift_typegen.pipeline import (
-    PipelineOptions,
-    load_config,
-    load_spec,
-    preprocess_backend,
-    run,
-    select_backends,
-    write_types,
-)
+from swift_typegen import config as config_lib
+from swift_typegen import models
+from swift_typegen import pipeline
 
-DEVELOPER = Backend("GoogleAiGenerativelanguageV1beta", "gl-developer")
-ENTERPRISE = Backend("GoogleCloudAiplatformV1beta1", "ai-enterprise")
+DEVELOPER = config_lib.Backend(
+    "GoogleAiGenerativelanguageV1beta", "gl-developer"
+)
+ENTERPRISE = config_lib.Backend("GoogleCloudAiplatformV1beta1", "ai-enterprise")
 
 TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES_DIR = os.path.join(TYPEGEN_DIR, "templates")
@@ -47,11 +39,11 @@ class TestLoadConfig(unittest.TestCase):
 
     def test_missing_overrides_file_raises(self):
         with self.assertRaises(FileNotFoundError):
-            load_config("/nonexistent/overrides.yaml")
+            pipeline.load_config("/nonexistent/overrides.yaml")
 
     def test_missing_spec_file_raises_with_upgrade_spec_hint(self):
         with self.assertRaisesRegex(FileNotFoundError, "upgrade_spec.py"):
-            load_spec("/nonexistent/openapi.yaml")
+            pipeline.load_spec("/nonexistent/openapi.yaml")
 
     def test_spec_without_schemas_raises(self):
         for contents in ("", "# only a comment\n", "components: {}\n"):
@@ -63,7 +55,7 @@ class TestLoadConfig(unittest.TestCase):
                     with self.assertRaisesRegex(
                         ValueError, "No components.schemas"
                     ):
-                        load_spec(path)
+                        pipeline.load_spec(path)
 
     def test_loads_existing_file(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -71,43 +63,50 @@ class TestLoadConfig(unittest.TestCase):
             with open(path, "w", encoding="utf-8") as f:
                 f.write("generatorConfig:\n  excludedSchemas: [A]\n")
             with contextlib.redirect_stdout(io.StringIO()):
-                config = load_config(path)
+                config = pipeline.load_config(path)
         self.assertEqual(config.excluded_schemas, {"A"})
 
 
 class TestSelectBackends(unittest.TestCase):
 
     def setUp(self):
-        self.config = GeneratorConfig(backends=[DEVELOPER, ENTERPRISE])
+        self.config = config_lib.GeneratorConfig(
+            backends=[DEVELOPER, ENTERPRISE]
+        )
 
     def test_none_selects_all_configured_backends(self):
         self.assertEqual(
-            select_backends(None, self.config), [DEVELOPER, ENTERPRISE]
+            pipeline.select_backends(None, self.config), [DEVELOPER, ENTERPRISE]
         )
 
     def test_none_without_configured_backends_raises(self):
         with self.assertRaisesRegex(ValueError, "--strip-prefix"):
-            select_backends(None, GeneratorConfig())
+            pipeline.select_backends(None, config_lib.GeneratorConfig())
 
     def test_empty_list_disables_stripping(self):
-        self.assertEqual(select_backends([], self.config), [])
-        self.assertEqual(select_backends([], GeneratorConfig()), [])
+        self.assertEqual(pipeline.select_backends([], self.config), [])
+        self.assertEqual(
+            pipeline.select_backends([], config_lib.GeneratorConfig()), []
+        )
 
     def test_merge_order_is_developer_api_first(self):
         self.assertEqual(
-            select_backends(
+            pipeline.select_backends(
                 [ENTERPRISE.prefix, DEVELOPER.prefix], self.config
             ),
             [DEVELOPER, ENTERPRISE],
         )
-        reversed_config = GeneratorConfig(backends=[ENTERPRISE, DEVELOPER])
+        reversed_config = config_lib.GeneratorConfig(
+            backends=[ENTERPRISE, DEVELOPER]
+        )
         self.assertEqual(
-            select_backends(None, reversed_config), [DEVELOPER, ENTERPRISE]
+            pipeline.select_backends(None, reversed_config),
+            [DEVELOPER, ENTERPRISE],
         )
 
     def test_duplicate_prefixes_are_selected_once(self):
         self.assertEqual(
-            select_backends(
+            pipeline.select_backends(
                 [ENTERPRISE.prefix, ENTERPRISE.prefix], self.config
             ),
             [ENTERPRISE],
@@ -115,7 +114,7 @@ class TestSelectBackends(unittest.TestCase):
 
     def test_unknown_prefix_raises(self):
         with self.assertRaises(ValueError):
-            select_backends(["Unknown"], self.config)
+            pipeline.select_backends(["Unknown"], self.config)
 
 
 class TestPreprocessBackend(unittest.TestCase):
@@ -139,8 +138,8 @@ class TestPreprocessBackend(unittest.TestCase):
             },
         }
         with contextlib.redirect_stdout(io.StringIO()):
-            resolved = preprocess_backend(
-                base_schemas, ENTERPRISE, ["Root"], GeneratorConfig()
+            resolved = pipeline.preprocess_backend(
+                base_schemas, ENTERPRISE, ["Root"], config_lib.GeneratorConfig()
             )
         self.assertEqual(set(resolved), {"Root", "Child"})
         self.assertEqual(
@@ -156,14 +155,14 @@ class TestPreprocessBackend(unittest.TestCase):
     def test_no_backend_leaves_names_unchanged(self):
         base_schemas = {"Root": {"type": "object", "properties": {}}}
         with contextlib.redirect_stdout(io.StringIO()):
-            resolved = preprocess_backend(
-                base_schemas, None, ["Root"], GeneratorConfig()
+            resolved = pipeline.preprocess_backend(
+                base_schemas, None, ["Root"], config_lib.GeneratorConfig()
             )
         self.assertEqual(list(resolved), ["Root"])
         self.assertNotIn("x-gl-developer-original-name", resolved["Root"])
 
 
-@mock.patch("swift_typegen.pipeline.run_swift_format")
+@mock.patch("swift_typegen.output.run_swift_format")
 class TestRunPipeline(unittest.TestCase):
     """End-to-end tests of run() and write_types() against a temp directory."""
 
@@ -209,7 +208,7 @@ class TestRunPipeline(unittest.TestCase):
                 }
             },
         )
-        self.options = PipelineOptions(
+        self.options = pipeline.PipelineOptions(
             openapi_spec=self.spec,
             templates_dir=TEMPLATES_DIR,
             output_dir=self.out,
@@ -227,7 +226,7 @@ class TestRunPipeline(unittest.TestCase):
 
     def test_run_merges_backends_and_prunes_stale_files(self, mock_format):
         with contextlib.redirect_stdout(io.StringIO()):
-            run(self.options)
+            pipeline.run(self.options)
         self.assertEqual(
             set(os.listdir(self.out)), {"Root.swift", "Manual.swift"}
         )
@@ -241,13 +240,11 @@ class TestRunPipeline(unittest.TestCase):
     def test_run_without_configured_backends_leaves_output_untouched(
         self, mock_format
     ):
-        write_yaml(
-            self.overrides, {"generatorConfig": {"preservedFiles": []}}
-        )
+        write_yaml(self.overrides, {"generatorConfig": {"preservedFiles": []}})
         before = sorted(os.listdir(self.out))
         with contextlib.redirect_stdout(io.StringIO()):
             with self.assertRaises(ValueError):
-                run(self.options)
+                pipeline.run(self.options)
         self.assertEqual(sorted(os.listdir(self.out)), before)
         mock_format.assert_not_called()
 
@@ -260,19 +257,23 @@ class TestRunPipeline(unittest.TestCase):
         before = sorted(os.listdir(self.out))
         with contextlib.redirect_stdout(io.StringIO()):
             with self.assertRaises(FileNotFoundError):
-                run(options)
+                pipeline.run(options)
         self.assertEqual(sorted(os.listdir(self.out)), before)
         mock_format.assert_not_called()
 
     def test_write_types_preserves_configured_and_namespace_files(
         self, mock_format
     ):
-        with open(os.path.join(self.out, "NS.swift"), "w", encoding="utf-8") as f:
+        with open(
+            os.path.join(self.out, "NS.swift"), "w", encoding="utf-8"
+        ) as f:
             f.write("// namespace\n")
         options = dataclasses.replace(self.options, namespace="NS")
-        swift_types = [SwiftType(name="Thing", namespace="NS", kind="struct")]
+        swift_types = [
+            models.SwiftType(name="Thing", namespace="NS", kind="struct")
+        ]
 
-        written = write_types(swift_types, options, ["Manual.swift"])
+        written = pipeline.write_types(swift_types, options, ["Manual.swift"])
 
         self.assertEqual(len(written), 1)
         self.assertEqual(

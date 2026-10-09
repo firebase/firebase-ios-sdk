@@ -19,21 +19,11 @@ from __future__ import annotations
 import os
 from typing import Any
 
-from .config import (
-    DEVELOPER_TAG,
-    ENTERPRISE_TAG,
-    GeneratorConfig,
-    provenance_key,
-)
-from .docc import (
-    format_enum_case_docc,
-    format_init_description,
-    format_property_docc,
-    format_schema_docc,
-)
-from .graph import property_ref_target, resolve_ref
-from .models import SwiftEnumCase, SwiftProperty, SwiftType
-from .naming import to_camel_case
+from swift_typegen import config as config_lib
+from swift_typegen import docc
+from swift_typegen import graph
+from swift_typegen import models
+from swift_typegen import naming
 
 
 def get_primitive_type(prop_data: dict[str, Any]) -> str | None:
@@ -106,7 +96,7 @@ class SchemaProcessor:
 
     def __init__(
         self,
-        config: GeneratorConfig,
+        config: config_lib.GeneratorConfig,
         doc_wrap_width: int = 100,
     ) -> None:
         """Initializes the processor with configuration and formatting bounds.
@@ -119,11 +109,11 @@ class SchemaProcessor:
         self.doc_wrap_width = doc_wrap_width
         self.top_wrap_width = max(20, doc_wrap_width - 4)
         self.member_wrap_width = max(20, doc_wrap_width - 6)
-        self.swift_types: list[SwiftType] = []
+        self.swift_types: list[models.SwiftType] = []
 
     def process(
         self, resolved_schemas: dict[str, Any], namespace: str = ""
-    ) -> list[SwiftType]:
+    ) -> list[models.SwiftType]:
         """Processes resolved schemas into a list of SwiftType instances.
 
         Args:
@@ -175,11 +165,11 @@ class SchemaProcessor:
     ) -> None:
         cases = self._build_enum_cases(data)
 
-        enum_st = SwiftType(
+        enum_st = models.SwiftType(
             name=actual_name,
             namespace=actual_namespace,
             kind="enum",
-            description=format_schema_docc(
+            description=docc.format_schema_docc(
                 data, wrap_width=self.top_wrap_width
             ),
             is_deprecated=data.get("deprecated", False),
@@ -195,11 +185,11 @@ class SchemaProcessor:
         actual_namespace: str,
         resolved_schemas: dict[str, Any],
     ) -> None:
-        st = SwiftType(
+        st = models.SwiftType(
             name=actual_name,
             namespace=actual_namespace,
             kind="struct",
-            description=format_schema_docc(
+            description=docc.format_schema_docc(
                 data, wrap_width=self.top_wrap_width
             ),
             is_deprecated=data.get("deprecated", False),
@@ -228,11 +218,11 @@ class SchemaProcessor:
             ):
                 continue
 
-            ref_target = property_ref_target(prop_data)
+            ref_target = graph.property_ref_target(prop_data)
             if ref_target in self.config.excluded_schemas:
                 continue
 
-            swift_prop_name = to_camel_case(prop_name, lower=True)
+            swift_prop_name = naming.to_camel_case(prop_name, lower=True)
 
             # A single-value enum is treated as a constant, so it is detected
             # before the enum branch to avoid emitting an unused nested enum.
@@ -248,7 +238,7 @@ class SchemaProcessor:
                 swift_type_str = ""  # Set from const_val below.
 
             elif "enum" in prop_data:
-                enum_name = to_camel_case(prop_name, lower=False)
+                enum_name = naming.to_camel_case(prop_name, lower=False)
                 enum_namespace = (
                     f"{actual_namespace}.{actual_name}"
                     if actual_namespace
@@ -256,11 +246,11 @@ class SchemaProcessor:
                 )
                 cases = self._build_enum_cases(prop_data)
 
-                enum_st = SwiftType(
+                enum_st = models.SwiftType(
                     name=enum_name,
                     namespace=enum_namespace,
                     kind="enum",
-                    description=format_property_docc(
+                    description=docc.format_property_docc(
                         prop_data, wrap_width=self.member_wrap_width
                     ),
                     is_deprecated=prop_data.get("deprecated", False),
@@ -273,7 +263,7 @@ class SchemaProcessor:
                 prop_data.get("type") == "object"
                 and "properties" in prop_data
             ):
-                nested_name = to_camel_case(prop_name, lower=False)
+                nested_name = naming.to_camel_case(prop_name, lower=False)
                 nested_namespace = (
                     f"{actual_namespace}.{actual_name}"
                     if actual_namespace
@@ -318,13 +308,13 @@ class SchemaProcessor:
                     swift_type_str = "JSONValue"
                     const_value = "nil"
 
-            init_desc = format_init_description(prop_data, swift_prop_name)
+            init_desc = docc.format_init_description(prop_data, swift_prop_name)
 
-            prop = SwiftProperty(
+            prop = models.SwiftProperty(
                 swift_name=swift_prop_name,
                 json_name=prop_name,
                 swift_type=swift_type_str,
-                description=format_property_docc(
+                description=docc.format_property_docc(
                     prop_data, wrap_width=self.member_wrap_width
                 ),
                 init_description=init_desc,
@@ -363,7 +353,7 @@ class SchemaProcessor:
             return prim
 
         if "$ref" in prop_data:
-            ref = resolve_ref(prop_data["$ref"])
+            ref = graph.resolve_ref(prop_data["$ref"])
             return self.config.type_overrides.get(ref, ref)
 
         if prop_data.get("type") == "array":
@@ -384,7 +374,9 @@ class SchemaProcessor:
 
         return "JSONValue"
 
-    def _build_enum_cases(self, data: dict[str, Any]) -> list[SwiftEnumCase]:
+    def _build_enum_cases(
+        self, data: dict[str, Any]
+    ) -> list[models.SwiftEnumCase]:
         """Builds Swift enum cases from an OpenAPI enum definition.
 
         Skips UNSPECIFIED/UNKNOWN sentinel values and strips the shared
@@ -403,13 +395,17 @@ class SchemaProcessor:
             "enumDescriptions", data.get("x-google-enum-descriptions", [])
         )
 
-        cases: list[SwiftEnumCase] = []
+        cases: list[models.SwiftEnumCase] = []
         prefix, _ = strip_enum_prefix(data["enum"])
         # Per-backend case lists are only meaningful when the enum was merged
         # from both backends; otherwise availability is documented at the
         # type or property level.
-        developer_cases = data.get(provenance_key(DEVELOPER_TAG, "enum"))
-        enterprise_cases = data.get(provenance_key(ENTERPRISE_TAG, "enum"))
+        developer_cases = data.get(
+            config_lib.provenance_key(config_lib.DEVELOPER_TAG, "enum")
+        )
+        enterprise_cases = data.get(
+            config_lib.provenance_key(config_lib.ENTERPRISE_TAG, "enum")
+        )
         track_backends = (
             developer_cases is not None and enterprise_cases is not None
         )
@@ -418,14 +414,16 @@ class SchemaProcessor:
             if is_sentinel_case(raw_val):
                 continue
 
-            case_swift_name = to_camel_case(raw_val[len(prefix) :], lower=True)
+            case_swift_name = naming.to_camel_case(
+                raw_val[len(prefix) :], lower=True
+            )
             raw_case_desc = (
                 enum_descriptions[idx]
                 if idx < len(enum_descriptions)
                 else None
             )
             case_description = (
-                format_enum_case_docc(
+                docc.format_enum_case_docc(
                     raw_case_desc,
                     in_developer=(
                         not track_backends or raw_val in developer_cases
@@ -444,7 +442,7 @@ class SchemaProcessor:
             )
 
             cases.append(
-                SwiftEnumCase(
+                models.SwiftEnumCase(
                     swift_name=case_swift_name,
                     raw_value=raw_val,
                     description=case_description,

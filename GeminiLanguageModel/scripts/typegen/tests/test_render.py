@@ -17,8 +17,8 @@
 import os
 import unittest
 
-from swift_typegen.models import SwiftEnumCase, SwiftProperty, SwiftType
-from swift_typegen.render import SwiftRenderer, output_filename
+from swift_typegen import models
+from swift_typegen import render
 
 TEMPLATES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "templates")
@@ -29,20 +29,20 @@ class TestTemplateRendering(unittest.TestCase):
     """Test suite for Jinja2 template rendering."""
 
     def test_render_struct_with_properties_and_oneof(self):
-        st = SwiftType(
+        st = models.SwiftType(
             name="TestConfig",
             namespace="GoogleAI",
             kind="struct",
             description="Configuration for tests.",
         )
         st.properties = [
-            SwiftProperty(
+            models.SwiftProperty(
                 swift_name="temperature",
                 json_name="temperature",
                 swift_type="Double",
                 description="Controls randomness.",
             ),
-            SwiftProperty(
+            models.SwiftProperty(
                 swift_name="topK",
                 json_name="top_k",
                 swift_type="Int",
@@ -52,14 +52,14 @@ class TestTemplateRendering(unittest.TestCase):
         st.has_oneof = True
         st.oneof_name = "Data"
         st.oneof_properties = [
-            SwiftProperty(
+            models.SwiftProperty(
                 swift_name="text",
                 json_name="text",
                 swift_type="String",
             ),
         ]
 
-        renderer = SwiftRenderer(
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR,
             access_level="package",
             root_namespace="GoogleAI",
@@ -85,13 +85,13 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertIn('case topK = "top_k"', content)
 
     def test_render_empty_struct(self):
-        st = SwiftType(
+        st = models.SwiftType(
             name="EmptyStruct",
             namespace="GoogleAI",
             kind="struct",
             description="An empty struct.",
         )
-        renderer = SwiftRenderer(
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="package", root_namespace="GoogleAI"
         )
         filename, content = renderer.render(st)
@@ -106,9 +106,11 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertNotIn("enum CodingKeys", content)
 
     def test_render_struct_with_const_property_defaults_when_missing(self):
-        st = SwiftType(name="Schema", namespace="GoogleAI", kind="struct")
+        st = models.SwiftType(
+            name="Schema", namespace="GoogleAI", kind="struct"
+        )
         st.properties = [
-            SwiftProperty(
+            models.SwiftProperty(
                 swift_name="kind",
                 json_name="kind",
                 swift_type="String",
@@ -116,13 +118,13 @@ class TestTemplateRendering(unittest.TestCase):
                 is_const=True,
                 const_value='"OBJECT"',
             ),
-            SwiftProperty(
+            models.SwiftProperty(
                 swift_name="title",
                 json_name="title",
                 swift_type="String",
             ),
         ]
-        renderer = SwiftRenderer(
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="package", root_namespace="GoogleAI"
         )
         _, content = renderer.render(st)
@@ -144,26 +146,26 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertNotIn("unrecognized", content)
 
     def test_render_enum_with_cases_and_deprecation(self):
-        et = SwiftType(
+        et = models.SwiftType(
             name="TestEnum",
             namespace="GoogleAI",
             kind="enum",
             description="Test enum description.",
         )
         et.cases = [
-            SwiftEnumCase(
+            models.SwiftEnumCase(
                 swift_name="activeCase",
                 raw_value="ACTIVE",
                 description="Active case.",
             ),
-            SwiftEnumCase(
+            models.SwiftEnumCase(
                 swift_name="deprecatedCase",
                 raw_value="DEPRECATED",
                 description="Deprecated case.",
                 is_deprecated=True,
             ),
         ]
-        renderer = SwiftRenderer(
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="public", root_namespace="GoogleAI"
         )
         filename, content = renderer.render(et)
@@ -195,9 +197,9 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertNotIn("DeprecatedCaseDecoding", content)
 
     def test_render_enum_without_deprecated_cases_omits_diagnose(self):
-        et = SwiftType(name="Plain", namespace="", kind="enum")
-        et.cases = [SwiftEnumCase(swift_name="one", raw_value="ONE")]
-        renderer = SwiftRenderer(
+        et = models.SwiftType(name="Plain", namespace="", kind="enum")
+        et.cases = [models.SwiftEnumCase(swift_name="one", raw_value="ONE")]
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="package", root_namespace=""
         )
         _, content = renderer.render(et)
@@ -206,20 +208,22 @@ class TestTemplateRendering(unittest.TestCase):
         self.assertNotIn("hasAttribute", content)
 
     def test_render_unknown_kind_returns_none(self):
-        st = SwiftType(name="Thing", namespace="", kind="class")
-        renderer = SwiftRenderer(
+        st = models.SwiftType(name="Thing", namespace="", kind="class")
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="package", root_namespace=""
         )
         self.assertIsNone(renderer.render(st))
 
     def test_rendered_files_include_do_not_edit_notice(self):
-        renderer = SwiftRenderer(
+        renderer = render.SwiftRenderer(
             TEMPLATES_DIR, access_level="package", root_namespace="GoogleAI"
         )
-        enum_type = SwiftType(name="Kind", namespace="GoogleAI", kind="enum")
-        enum_type.cases = [SwiftEnumCase(swift_name="a", raw_value="A")]
+        enum_type = models.SwiftType(
+            name="Kind", namespace="GoogleAI", kind="enum"
+        )
+        enum_type.cases = [models.SwiftEnumCase(swift_name="a", raw_value="A")]
         for st in (
-            SwiftType(name="Thing", namespace="GoogleAI", kind="struct"),
+            models.SwiftType(name="Thing", namespace="GoogleAI", kind="struct"),
             enum_type,
         ):
             with self.subTest(kind=st.kind):
@@ -231,11 +235,11 @@ class TestTemplateRendering(unittest.TestCase):
                 )
 
     def test_output_filename_joins_nested_namespaces(self):
-        st = SwiftType(
+        st = models.SwiftType(
             name="`Type`", namespace="GoogleAI.Schema.Items", kind="enum"
         )
         self.assertEqual(
-            output_filename(st, root_namespace="GoogleAI"),
+            render.output_filename(st, root_namespace="GoogleAI"),
             "Schema+Items+Type.swift",
         )
 

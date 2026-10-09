@@ -12,38 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for swift_typegen.processor."""
-
 from __future__ import annotations
 
 from typing import Any
 import unittest
 
-from swift_typegen.config import GeneratorConfig
-from swift_typegen.models import SwiftType
-from swift_typegen.processor import (
-    SchemaProcessor,
-    get_primitive_type,
-    is_sentinel_case,
-    strip_enum_prefix,
-)
+from swift_typegen import config as config_lib
+from swift_typegen import models
+from swift_typegen import processor
 
 
 def process(
     resolved: dict[str, Any],
     namespace: str = "",
-    config: GeneratorConfig | None = None,
-) -> list[SwiftType]:
+    config: config_lib.GeneratorConfig | None = None,
+) -> list[models.SwiftType]:
     """Processes schemas with an empty (or given) configuration."""
-    return SchemaProcessor(config or GeneratorConfig()).process(
-        resolved, namespace
-    )
+    return processor.SchemaProcessor(
+        config or config_lib.GeneratorConfig()
+    ).process(resolved, namespace)
 
 
 class TestSchemaProcessor(unittest.TestCase):
 
     def test_schema_processor_isolated_context(self):
-        config = GeneratorConfig(
+        config = config_lib.GeneratorConfig(
             excluded_properties={"Candidate": {"groundingMetadata"}},
             excluded_schemas={"ExcludedType"},
         )
@@ -70,17 +63,17 @@ class TestSchemaProcessor(unittest.TestCase):
             "MEDIA_RESOLUTION_MEDIUM",
             "MEDIA_RESOLUTION_HIGH",
         ]
-        prefix, filtered = strip_enum_prefix(cases)
+        prefix, filtered = processor.strip_enum_prefix(cases)
         self.assertEqual(prefix, "MEDIA_RESOLUTION_")
         self.assertEqual(filtered, cases)
 
         cases = ["low", "medium", "high"]
-        prefix, filtered = strip_enum_prefix(cases)
+        prefix, filtered = processor.strip_enum_prefix(cases)
         self.assertEqual(prefix, "")
         self.assertEqual(filtered, cases)
 
     def test_strip_enum_prefix_ignores_lowercase_sentinels(self):
-        prefix, filtered = strip_enum_prefix(
+        prefix, filtered = processor.strip_enum_prefix(
             ["unknown", "mode_fast", "mode_slow"]
         )
         self.assertEqual(prefix, "mode_")
@@ -94,10 +87,10 @@ class TestSchemaProcessor(unittest.TestCase):
             "x_unknown",
         ):
             with self.subTest(value=value):
-                self.assertTrue(is_sentinel_case(value))
+                self.assertTrue(processor.is_sentinel_case(value))
         for value in ("UNSPECIFIED_MODE", "KNOWN", "FAST"):
             with self.subTest(value=value):
-                self.assertFalse(is_sentinel_case(value))
+                self.assertFalse(processor.is_sentinel_case(value))
 
     def test_dotted_namespace_nesting(self):
         schema_data = {
@@ -133,7 +126,9 @@ class TestSchemaProcessor(unittest.TestCase):
         self.assertEqual(nested.namespace, "Part")
 
     def test_auto_exclusion_of_properties(self):
-        config = GeneratorConfig(excluded_schemas={"DynamicRetrievalConfig"})
+        config = config_lib.GeneratorConfig(
+            excluded_schemas={"DynamicRetrievalConfig"}
+        )
         schema_data = {
             "type": "object",
             "properties": {
@@ -196,16 +191,18 @@ class TestSchemaProcessor(unittest.TestCase):
 
     def test_byte_format_mapping(self):
         prop_data = {"type": "string", "format": "byte"}
-        self.assertEqual(get_primitive_type(prop_data), "Data")
+        self.assertEqual(processor.get_primitive_type(prop_data), "Data")
 
     def test_other_string_formats_map_to_string(self):
         for fmt in ("google-datetime", "date-time", "google-duration", None):
             with self.subTest(fmt=fmt):
                 prop_data = {"type": "string", "format": fmt}
-                self.assertEqual(get_primitive_type(prop_data), "String")
+                self.assertEqual(
+                    processor.get_primitive_type(prop_data), "String"
+                )
 
     def test_property_type_override_replaces_primitive_mapping(self):
-        config = GeneratorConfig(
+        config = config_lib.GeneratorConfig(
             property_type_overrides={"Part.thoughtSignature": "String"}
         )
         byte_prop = {"type": "string", "format": "byte"}
@@ -374,7 +371,7 @@ class TestSchemaProcessor(unittest.TestCase):
         )
 
     def test_excluded_properties(self):
-        config = GeneratorConfig(
+        config = config_lib.GeneratorConfig(
             excluded_properties={"GenerationConfig": {"_responseJsonSchema"}}
         )
         schema_data = {

@@ -19,7 +19,7 @@ This is a thin entry point; the implementation lives in the `swift_typegen`
 package alongside this script.
 """
 
-from swift_typegen.cli import main
+from swift_typegen import cli
 
 if __name__ == "__main__":
-    main()
+    cli.main()

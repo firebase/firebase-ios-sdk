@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for the Google Discovery to OpenAPI 3.1.0 upgrade script."""
-
 import contextlib
 import io
 import json
