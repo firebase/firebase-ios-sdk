@@ -26,11 +26,13 @@ from swift_typegen import output
 class TestOutput(unittest.TestCase):
 
     def setUp(self):
+        super().setUp()
         self.temp_dir = tempfile.TemporaryDirectory()
         self.out = self.temp_dir.name
 
     def tearDown(self):
         self.temp_dir.cleanup()
+        super().tearDown()
 
     def _touch(self, name: str) -> str:
         path = os.path.join(self.out, name)
@@ -84,7 +86,7 @@ class TestOutput(unittest.TestCase):
 
 def _which(available: dict[str, str]):
     """Returns a shutil.which replacement resolving only `available`."""
-    return lambda name: available.get(name)
+    return available.get
 
 
 class TestSwiftFormat(unittest.TestCase):

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 import copy
-from dataclasses import dataclass
+import dataclasses
 import os
 from typing import Any
 
@@ -33,7 +33,7 @@ from swift_typegen import processor
 from swift_typegen import render
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class PipelineOptions:
     """Options controlling a generation run (mirrors the CLI flags).
 
@@ -237,7 +237,7 @@ def merge_backends(
             else:
                 resolved[name] = data
 
-    for name in list(resolved.keys()):
+    for name in list(resolved):
         if name in config.manual_override_schemas:
             del resolved[name]
 

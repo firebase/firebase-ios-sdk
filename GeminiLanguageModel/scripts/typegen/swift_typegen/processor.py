@@ -137,6 +137,17 @@ class SchemaProcessor:
         namespace: str,
         resolved_schemas: dict[str, Any],
     ) -> None:
+        """Appends the Swift type(s) generated for a single schema.
+
+        A dotted name (e.g. 'Candidate.FinishReason') is split so that its last
+        component becomes the type name and the rest extends `namespace`.
+
+        Args:
+            name: The schema name, possibly dotted.
+            data: The resolved OpenAPI schema.
+            namespace: The root namespace, or an empty string for none.
+            resolved_schemas: All resolved schemas, keyed by name.
+        """
         actual_name = name
         actual_namespace = namespace or ""
         if "." in name:
@@ -149,7 +160,7 @@ class SchemaProcessor:
                 actual_namespace = ".".join(parent_parts)
 
         if "enum" in data:
-            self._process_enum(name, data, actual_name, actual_namespace)
+            self._process_enum(data, actual_name, actual_namespace)
             return
 
         self._process_struct(
@@ -158,11 +169,17 @@ class SchemaProcessor:
 
     def _process_enum(
         self,
-        name: str,
         data: dict[str, Any],
         actual_name: str,
         actual_namespace: str,
     ) -> None:
+        """Appends a Swift enum for a top-level enum schema.
+
+        Args:
+            data: The resolved OpenAPI enum schema.
+            actual_name: The Swift type name.
+            actual_namespace: The enclosing namespace, or an empty string.
+        """
         cases = self._build_enum_cases(data)
 
         enum_st = models.SwiftType(
@@ -185,6 +202,18 @@ class SchemaProcessor:
         actual_namespace: str,
         resolved_schemas: dict[str, Any],
     ) -> None:
+        """Appends a Swift struct for an object schema.
+
+        Inline enum and object properties are emitted as nested types and
+        appended alongside the struct.
+
+        Args:
+            name: The schema name, used to look up excluded properties.
+            data: The resolved OpenAPI object schema.
+            actual_name: The Swift type name.
+            actual_namespace: The enclosing namespace, or an empty string.
+            resolved_schemas: All resolved schemas, keyed by name.
+        """
         st = models.SwiftType(
             name=actual_name,
             namespace=actual_namespace,
@@ -278,7 +307,7 @@ class SchemaProcessor:
 
             else:
                 swift_type_str = self._resolve_swift_type_string(
-                    prop_name, prop_data, actual_name, actual_namespace
+                    prop_name, prop_data, actual_name
                 )
 
             is_prop_deprecated = bool(prop_data.get("deprecated", False))
@@ -337,8 +366,19 @@ class SchemaProcessor:
         prop_name: str,
         prop_data: dict[str, Any],
         parent_name: str,
-        namespace: str,
     ) -> str:
+        """Returns the Swift type for a property.
+
+        Resolution order: `propertyTypeOverrides` (keyed by
+        'Parent.property', then by property name), primitive types, `$ref`s
+        (with `typeOverrides` applied), arrays, and maps. Anything else is
+        `JSONValue`.
+
+        Args:
+            prop_name: The JSON property name.
+            prop_data: The OpenAPI property schema.
+            parent_name: The name of the schema declaring the property.
+        """
         full_key = f"{parent_name}.{prop_name}" if parent_name else prop_name
         if full_key in self.config.property_type_overrides:
             return self.config.property_type_overrides[full_key]
@@ -356,14 +396,14 @@ class SchemaProcessor:
         if prop_data.get("type") == "array":
             items_data = prop_data.get("items", {})
             item_type = self._resolve_swift_type_string(
-                prop_name, items_data, parent_name, namespace
+                prop_name, items_data, parent_name
             )
             return f"[{item_type}]"
 
         if prop_data.get("type") == "object":
             add_props = prop_data.get("additionalProperties", {})
             val_type = self._resolve_swift_type_string(
-                prop_name, add_props, parent_name, namespace
+                prop_name, add_props, parent_name
             )
             if val_type == "JSONValue":
                 return "JSONObject"

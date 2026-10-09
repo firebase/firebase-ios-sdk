@@ -22,7 +22,6 @@ from collections.abc import Sequence
 import copy
 import json
 import os
-import sys
 from typing import Any
 import urllib.request
 
@@ -299,7 +298,7 @@ def upgrade_nullables(node: Any) -> None:
         node: The schema object or tree node to convert.
     """
     if isinstance(node, dict):
-        if node.get("nullable") is True:
+        if node.get("nullable"):
             if "type" in node:
                 t = node["type"]
                 if isinstance(t, str):

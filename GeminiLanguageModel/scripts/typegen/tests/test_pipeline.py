@@ -70,6 +70,7 @@ class TestLoadConfig(unittest.TestCase):
 class TestSelectBackends(unittest.TestCase):
 
     def setUp(self):
+        super().setUp()
         self.config = config_lib.GeneratorConfig(
             backends=[DEVELOPER, ENTERPRISE]
         )
@@ -167,6 +168,7 @@ class TestRunPipeline(unittest.TestCase):
     """End-to-end tests of run() and write_types() against a temp directory."""
 
     def setUp(self):
+        super().setUp()
         self.temp_dir = tempfile.TemporaryDirectory()
         tmp = self.temp_dir.name
         self.out = os.path.join(tmp, "out")
@@ -223,6 +225,7 @@ class TestRunPipeline(unittest.TestCase):
 
     def tearDown(self):
         self.temp_dir.cleanup()
+        super().tearDown()
 
     def test_run_merges_backends_and_prunes_stale_files(self, mock_format):
         with contextlib.redirect_stdout(io.StringIO()):

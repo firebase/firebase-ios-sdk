@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Writes rendered Swift sources to disk, formats them, and prunes stale files."""
+"""Writes generated Swift files, formats them, and prunes stale files."""
 
 from __future__ import annotations
 

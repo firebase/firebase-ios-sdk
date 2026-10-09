@@ -16,10 +16,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import dataclasses
 
 
-@dataclass
+@dataclasses.dataclass
 class SwiftProperty:
     """Represents a property on a Swift struct or class.
 
@@ -51,7 +51,7 @@ class SwiftProperty:
         return self.swift_name.strip("`") != self.json_name
 
 
-@dataclass
+@dataclasses.dataclass
 class SwiftEnumCase:
     """Represents an enum case in a Swift enum declaration.
 
@@ -68,7 +68,7 @@ class SwiftEnumCase:
     is_deprecated: bool = False
 
 
-@dataclass
+@dataclasses.dataclass
 class SwiftType:
     """Represents a generated Swift type (struct, class, or enum).
 
@@ -90,8 +90,10 @@ class SwiftType:
     kind: str
     description: str | None = None
     is_deprecated: bool = False
-    properties: list[SwiftProperty] = field(default_factory=list)
-    cases: list[SwiftEnumCase] = field(default_factory=list)
+    properties: list[SwiftProperty] = dataclasses.field(default_factory=list)
+    cases: list[SwiftEnumCase] = dataclasses.field(default_factory=list)
     has_oneof: bool = False
     oneof_name: str | None = None
-    oneof_properties: list[SwiftProperty] = field(default_factory=list)
+    oneof_properties: list[SwiftProperty] = dataclasses.field(
+        default_factory=list
+    )

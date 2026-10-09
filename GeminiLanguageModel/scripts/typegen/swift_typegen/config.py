@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import dataclasses
 from typing import Any
 
 import yaml
@@ -47,7 +47,7 @@ def provenance_key(tag: str, field_name: str) -> str:
     return f"x-{tag}-{field_name}"
 
 
-@dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True)
 class Backend:
     """A backend whose schemas share a vendor prefix in the OpenAPI spec.
 
@@ -71,7 +71,7 @@ class Backend:
             )
 
 
-@dataclass
+@dataclasses.dataclass
 class GeneratorConfig:
     """Configuration options and overrides for Swift type generation.
 
@@ -91,15 +91,21 @@ class GeneratorConfig:
             must never be pruned as stale.
     """
 
-    type_overrides: dict[str, str] = field(default_factory=dict)
-    property_type_overrides: dict[str, Any] = field(default_factory=dict)
-    excluded_schemas: set[str] = field(default_factory=set)
-    manual_override_schemas: set[str] = field(default_factory=set)
-    type_divergences_resolutions: dict[str, Any] = field(default_factory=dict)
-    rename_mappings: dict[str, str] = field(default_factory=dict)
-    excluded_properties: dict[str, set[str]] = field(default_factory=dict)
-    backends: list[Backend] = field(default_factory=list)
-    preserved_files: set[str] = field(default_factory=set)
+    type_overrides: dict[str, str] = dataclasses.field(default_factory=dict)
+    property_type_overrides: dict[str, Any] = dataclasses.field(
+        default_factory=dict
+    )
+    excluded_schemas: set[str] = dataclasses.field(default_factory=set)
+    manual_override_schemas: set[str] = dataclasses.field(default_factory=set)
+    type_divergences_resolutions: dict[str, Any] = dataclasses.field(
+        default_factory=dict
+    )
+    rename_mappings: dict[str, str] = dataclasses.field(default_factory=dict)
+    excluded_properties: dict[str, set[str]] = dataclasses.field(
+        default_factory=dict
+    )
+    backends: list[Backend] = dataclasses.field(default_factory=list)
+    preserved_files: set[str] = dataclasses.field(default_factory=set)
 
     def __post_init__(self) -> None:
         for attr in ("prefix", "tag"):

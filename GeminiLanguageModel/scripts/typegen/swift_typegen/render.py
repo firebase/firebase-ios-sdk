@@ -16,13 +16,13 @@
 
 from __future__ import annotations
 
-from jinja2 import Environment, FileSystemLoader
+import jinja2
 
 from swift_typegen import docc
 from swift_typegen import models
 
 
-def create_environment(templates_dir: str) -> Environment:
+def create_environment(templates_dir: str) -> jinja2.Environment:
     """Creates the Jinja2 environment used to render Swift templates.
 
     Args:
@@ -31,8 +31,8 @@ def create_environment(templates_dir: str) -> Environment:
     Returns:
         A configured Jinja2 Environment with the `docc` filter registered.
     """
-    env = Environment(
-        loader=FileSystemLoader(templates_dir),
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(templates_dir),
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
@@ -42,7 +42,7 @@ def create_environment(templates_dir: str) -> Environment:
 
 
 def output_filename(st: models.SwiftType, root_namespace: str) -> str:
-    """Returns the Swift file name for a type, e.g. 'Candidate+FinishReason.swift'.
+    """Returns a type's Swift file name, e.g. 'Candidate+FinishReason.swift'.
 
     Args:
         st: The Swift type to name.
