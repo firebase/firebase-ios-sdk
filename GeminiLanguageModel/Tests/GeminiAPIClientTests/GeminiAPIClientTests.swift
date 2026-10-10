@@ -634,9 +634,7 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = CountTokensRequest(
-      contents: [Content(parts: [Part(data: .text("Count me"))], role: "user")]
-    )
+    let request = CountTokensRequest { $0.contents = [.text("Count me", role: "user")] }
     let response = try await client.countTokens(for: request)
 
     #expect(response.totalTokens == 42)
@@ -670,7 +668,7 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = CountTokensRequest(contents: [])
+    let request = CountTokensRequest { $0.contents = [] }
 
     do {
       _ = try await client.countTokens(for: request)
@@ -703,7 +701,7 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = CountTokensRequest(contents: [])
+    let request = CountTokensRequest { $0.contents = [] }
 
     await #expect(throws: DecodingError.self) {
       _ = try await client.countTokens(for: request)
@@ -956,9 +954,9 @@ struct GeminiAPIClientTests {
       proto.client?.urlProtocolDidFinishLoading(proto)
     }
 
-    let request = CountTokensRequest(
-      contents: [Content(parts: [Part(data: .text("Agent Platform count tokens"))], role: "user")]
-    )
+    let request = CountTokensRequest {
+      $0.contents = [.text("Agent Platform count tokens", role: "user")]
+    }
     let response = try await client.countTokens(for: request)
 
     #expect(response.totalTokens == 128)
@@ -967,9 +965,7 @@ struct GeminiAPIClientTests {
   // MARK: - Test Helpers
 
   private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
-    GenerateContentRequest(
-      contents: [Content(parts: [Part(data: .text(prompt))], role: "user")]
-    )
+    GenerateContentRequest { $0.contents = [.text(prompt, role: "user")] }
   }
 
   private func extractText(from response: GenerateContentResponse?) -> String? {

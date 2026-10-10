@@ -4,6 +4,9 @@
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
   malformed duration from the server. Requests that include an image that fails
   to convert now throw a `GenerateContentError` instead of crashing. (#16728)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used.
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
