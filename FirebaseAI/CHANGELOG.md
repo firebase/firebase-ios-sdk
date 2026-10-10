@@ -4,6 +4,10 @@
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
   malformed duration from the server. Requests that include an image that fails
   to convert now throw a `GenerateContentError` instead of crashing. (#16728)
+- [fixed] Fixed intermittent `400 INVALID_ARGUMENT` errors from the Gemini
+  Enterprise Agent Platform in multi-turn `GeminiLanguageModel` sessions, which
+  occurred when a thought signature from a previous text response was sent back
+  as a part containing no data. (#16886)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
