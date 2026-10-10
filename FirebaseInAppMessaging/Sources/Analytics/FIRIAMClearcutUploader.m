@@ -112,9 +112,9 @@ static NSString *FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills =
     _nextValidSendTimeInMills = (int64_t)[_userDefaults
         doubleForKey:FIRIAM_UserDefaultsKeyForNextValidClearcutUploadTimeInMills];
 
-    NSArray<FIRIAMClearcutLogRecord *> *availableLogs =
-        [logStorage popStillValidRecordsForUpTo:strategy.batchSendSize];
-    if (availableLogs.count) {
+    // Check for records left over from a prior session without removing them, so that the
+    // scheduled upload can pop and send them.
+    if ([logStorage hasStillValidRecords]) {
       [self scheduleNextSend];
     }
 
