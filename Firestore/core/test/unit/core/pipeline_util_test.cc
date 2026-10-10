@@ -17,14 +17,18 @@
 #include "Firestore/core/src/core/pipeline_util.h"
 
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/api/expressions.h"
 #include "Firestore/core/src/api/realtime_pipeline.h"
 #include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/core/bound.h"
+#include "Firestore/core/src/core/pipeline_run.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/test/unit/core/pipeline/utils.h"
 #include "Firestore/core/test/unit/testutil/expression_test_util.h"
@@ -265,6 +269,151 @@ TEST(PipelineUtilTest, TargetOrPipelineInUnorderedMap) {
   EXPECT_EQ(map.count(TargetOrPipeline(p_y)), 0);
   EXPECT_EQ(map.count(TargetOrPipeline(TestCoreTarget("coll/nonexistent"))), 0);
   EXPECT_EQ(map.count(TargetOrPipeline(TestPipeline(0))), 0);  // Empty pipeline
+}
+
+namespace {
+
+using model::PipelineInputOutputVector;
+
+// Documents sorted by (a, b, __name__), which is also their order by
+// (a, __name__) and by __name__ alone.
+PipelineInputOutputVector CursorTestDocs() {
+  return {testutil::Doc("k/1", 1000, testutil::Map("a", 1, "b", 1)),
+          testutil::Doc("k/2", 1000, testutil::Map("a", 2, "b", 1)),
+          testutil::Doc("k/3", 1000, testutil::Map("a", 2, "b", 2)),
+          testutil::Doc("k/4", 1000, testutil::Map("a", 2, "b", 2)),
+          testutil::Doc("k/5", 1000, testutil::Map("a", 3, "b", 1))};
+}
+
+// Returns a reference value for `path` in the database of TestSerializer(),
+// which is the value that pipelines evaluate `__name__` to.
+nanopb::Message<google_firestore_v1_Value> KeyRef(absl::string_view path) {
+  return testutil::Ref("test-project", path);
+}
+
+// Converts `query` to pipeline stages and runs them over `documents`.
+PipelineInputOutputVector RunQueryAsPipeline(
+    const core::Query& query, const PipelineInputOutputVector& documents) {
+  api::RealtimePipeline pipeline(ToPipelineStages(query), TestSerializer());
+  return RunPipeline(pipeline, documents);
+}
+
+// Returns the `documents` (which must be in query order) that `query` matches.
+PipelineInputOutputVector QueryMatches(
+    const core::Query& query, const PipelineInputOutputVector& documents) {
+  PipelineInputOutputVector result;
+  for (const auto& doc : documents) {
+    if (query.Matches(doc)) {
+      result.push_back(doc);
+    }
+  }
+  return result;
+}
+
+}  // namespace
+
+TEST(PipelineUtilTest, ToPipelineStagesInclusiveBoundsWithDocumentKeyCursor) {
+  // A document snapshot cursor has a value for every normalized ordering,
+  // including the implicit `__name__` ordering.
+  PipelineInputOutputVector docs = CursorTestDocs();
+  core::Query query =
+      testutil::Query("k").AddingOrderBy(testutil::OrderBy("a"));
+
+  core::Query start_at = query.StartingAt(
+      Bound::FromValue(testutil::Array(2, KeyRef("k/3")), /*inclusive=*/true));
+  EXPECT_THAT(
+      RunQueryAsPipeline(start_at, docs),
+      ReturnsDocs(PipelineInputOutputVector{docs[2], docs[3], docs[4]}));
+
+  core::Query end_at = query.EndingAt(
+      Bound::FromValue(testutil::Array(2, KeyRef("k/3")), /*inclusive=*/true));
+  EXPECT_THAT(
+      RunQueryAsPipeline(end_at, docs),
+      ReturnsDocs(PipelineInputOutputVector{docs[0], docs[1], docs[2]}));
+}
+
+TEST(PipelineUtilTest, ToPipelineStagesInclusiveBoundsWithPartialCursor) {
+  PipelineInputOutputVector docs = CursorTestDocs();
+  core::Query query = testutil::Query("k")
+                          .AddingOrderBy(testutil::OrderBy("a"))
+                          .AddingOrderBy(testutil::OrderBy("b"));
+
+  core::Query start_at = query.StartingAt(
+      Bound::FromValue(testutil::Array(2), /*inclusive=*/true));
+  EXPECT_THAT(RunQueryAsPipeline(start_at, docs),
+              ReturnsDocs(PipelineInputOutputVector{docs[1], docs[2], docs[3],
+                                                    docs[4]}));
+
+  core::Query end_at =
+      query.EndingAt(Bound::FromValue(testutil::Array(2), /*inclusive=*/true));
+  EXPECT_THAT(RunQueryAsPipeline(end_at, docs),
+              ReturnsDocs(PipelineInputOutputVector{docs[0], docs[1], docs[2],
+                                                    docs[3]}));
+}
+
+TEST(PipelineUtilTest, ToPipelineStagesInclusiveBoundsOnDocumentKeyOnly) {
+  PipelineInputOutputVector docs = CursorTestDocs();
+  core::Query query = testutil::Query("k");
+
+  core::Query start_at = query.StartingAt(
+      Bound::FromValue(testutil::Array(KeyRef("k/3")), /*inclusive=*/true));
+  EXPECT_THAT(
+      RunQueryAsPipeline(start_at, docs),
+      ReturnsDocs(PipelineInputOutputVector{docs[2], docs[3], docs[4]}));
+
+  core::Query end_at = query.EndingAt(
+      Bound::FromValue(testutil::Array(KeyRef("k/3")), /*inclusive=*/true));
+  EXPECT_THAT(
+      RunQueryAsPipeline(end_at, docs),
+      ReturnsDocs(PipelineInputOutputVector{docs[0], docs[1], docs[2]}));
+}
+
+TEST(PipelineUtilTest, ToPipelineStagesCursorsMatchQuerySemantics) {
+  PipelineInputOutputVector docs = CursorTestDocs();
+  core::Query by_key = testutil::Query("k");
+  core::Query by_a = by_key.AddingOrderBy(testutil::OrderBy("a"));
+  core::Query by_a_b = by_a.AddingOrderBy(testutil::OrderBy("b"));
+
+  std::vector<std::pair<core::Query, Bound>> cursors;
+  for (bool inclusive : {true, false}) {
+    cursors.emplace_back(
+        by_key, Bound::FromValue(testutil::Array(KeyRef("k/3")), inclusive));
+    cursors.emplace_back(by_a, Bound::FromValue(testutil::Array(2), inclusive));
+    cursors.emplace_back(
+        by_a, Bound::FromValue(testutil::Array(2, KeyRef("k/3")), inclusive));
+    cursors.emplace_back(by_a_b,
+                         Bound::FromValue(testutil::Array(2), inclusive));
+    cursors.emplace_back(by_a_b,
+                         Bound::FromValue(testutil::Array(2, 2), inclusive));
+    cursors.emplace_back(
+        by_a_b,
+        Bound::FromValue(testutil::Array(2, 2, KeyRef("k/4")), inclusive));
+  }
+
+  for (const auto& cursor : cursors) {
+    core::Query start_at = cursor.first.StartingAt(cursor.second);
+    EXPECT_THAT(RunQueryAsPipeline(start_at, docs),
+                ReturnsDocs(QueryMatches(start_at, docs)))
+        << start_at.ToString();
+
+    core::Query end_at = cursor.first.EndingAt(cursor.second);
+    EXPECT_THAT(RunQueryAsPipeline(end_at, docs),
+                ReturnsDocs(QueryMatches(end_at, docs)))
+        << end_at.ToString();
+  }
+}
+
+TEST(PipelineUtilTest,
+     ToPipelineStagesRejectsCursorWithMoreValuesThanOrderings) {
+  // The API rejects such cursors, so this only guards the conversion against
+  // reading past the end of the orderings, here (a, __name__).
+  core::Query query =
+      testutil::Query("k").AddingOrderBy(testutil::OrderBy("a"));
+  Bound cursor = Bound::FromValue(testutil::Array(2, KeyRef("k/3"), 3),
+                                  /*inclusive=*/true);
+
+  EXPECT_ANY_THROW(ToPipelineStages(query.StartingAt(cursor)));
+  EXPECT_ANY_THROW(ToPipelineStages(query.EndingAt(cursor)));
 }
 
 }  // namespace core
