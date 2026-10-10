@@ -1,6 +1,10 @@
 # Unreleased
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Fixed an issue where a user could be signed out after a request was
+  rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
+  was still valid. Auth now refreshes the token to check the session first.
+  (#16854)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone

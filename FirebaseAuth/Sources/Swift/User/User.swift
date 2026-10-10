@@ -904,7 +904,7 @@ extension User: NSSecureCoding {}
             let _ = try await self.backend.call(with: request)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
-            self.signOutIfTokenIsInvalid(withError: error)
+            await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
             User.callInMainThreadWithError(callback: completion, error: error)
           }
         }
@@ -1294,7 +1294,7 @@ extension User: NSSecureCoding {}
                   }
                   callback(nil)
                 } catch {
-                  self.signOutIfTokenIsInvalid(withError: error)
+                  await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
                   callback(error)
                 }
               }
@@ -1441,8 +1441,9 @@ extension User: NSSecureCoding {}
               )
               // Get account info to update cached user info.
               self.getAccountInfoRefreshingCache { user, error in
+                // `getAccountInfoRefreshingCache` has already checked whether this error should
+                // sign out the user.
                 if let error {
-                  self.signOutIfTokenIsInvalid(withError: error)
                   completion(error)
                   return
                 }
@@ -1454,7 +1455,7 @@ extension User: NSSecureCoding {}
                 completion(nil)
               }
             } catch {
-              self.signOutIfTokenIsInvalid(withError: error)
+              await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
               completion(error)
             }
           }
@@ -1505,7 +1506,7 @@ extension User: NSSecureCoding {}
             error: nil
           )
         } catch {
-          self.signOutIfTokenIsInvalid(withError: error)
+          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                           result: nil, error: error)
         }
@@ -1670,6 +1671,30 @@ extension User: NSSecureCoding {}
                         message: "Invalid user token detected, user is automatically signed out.")
       try? auth?.signOutByForce(withUserID: uid)
     }
+  }
+
+  /// Handles an error from a backend request that sent this user's ID token.
+  ///
+  /// `invalidUserToken` and `userTokenExpired` mean that the backend rejected the ID token sent
+  /// with the request, not necessarily that the session has ended. So instead of signing out,
+  /// force a token refresh, which signs the user out if the session has ended. Other errors are
+  /// handled by `signOutIfTokenIsInvalid(withError:)`.
+  /// - Parameter error: The error from the server.
+  func signOutIfSessionIsInvalid(afterIDTokenRequestError error: Error) async {
+    let code = (error as NSError).code
+    guard code == AuthErrorCode.invalidUserToken.rawValue ||
+      code == AuthErrorCode.userTokenExpired.rawValue else {
+      signOutIfTokenIsInvalid(withError: error)
+      return
+    }
+    // Skip the check if this user is no longer signed in.
+    guard auth?.currentUser?.uid == uid else {
+      return
+    }
+    AuthLog.logNotice(code: "I-AUT000032",
+                      message: "ID token rejected by the backend. Refreshing it to check whether " +
+                        "the user is still signed in.")
+    _ = try? await internalGetTokenAsync(forceRefresh: true, backend: backend)
   }
 
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.

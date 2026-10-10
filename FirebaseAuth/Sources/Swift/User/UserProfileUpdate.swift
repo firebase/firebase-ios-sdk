@@ -41,7 +41,7 @@ actor UserProfileUpdate {
       return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo,
                             credential: updatedOAuthCredential)
     } catch {
-      user.signOutIfTokenIsInvalid(withError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
   }
@@ -73,7 +73,7 @@ actor UserProfileUpdate {
         return user
       }
     } catch {
-      user.signOutIfTokenIsInvalid(withError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
 
@@ -113,7 +113,7 @@ actor UserProfileUpdate {
         try await setTokenService(user: user, tokenService: tokenService)
       }
     } catch {
-      user.signOutIfTokenIsInvalid(withError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
   }
@@ -139,7 +139,7 @@ actor UserProfileUpdate {
       user.isAnonymous = false
       user.update(withGetAccountInfoResponse: response)
     } catch {
-      user.signOutIfTokenIsInvalid(withError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
     if let error = user.updateKeychain() {
@@ -177,7 +177,7 @@ actor UserProfileUpdate {
       }
       return (accountInfoResponse.users?.first)!
     } catch {
-      user.signOutIfTokenIsInvalid(withError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
   }
