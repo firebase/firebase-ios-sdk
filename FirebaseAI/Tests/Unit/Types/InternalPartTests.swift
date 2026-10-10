@@ -17,6 +17,11 @@ import XCTest
 
 final class InternalPartTests: XCTestCase {
   let decoder = JSONDecoder()
+  let encoder = JSONEncoder()
+
+  override func setUp() {
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+  }
 
   func testDecodeTextPartWithThought() throws {
     let json = """
@@ -493,6 +498,140 @@ final class InternalPartTests: XCTestCase {
     }
     XCTAssertNil(codeExecutionResult.outcome)
     XCTAssertNil(codeExecutionResult.output)
+  }
+
+  func testDecodeTextPartWithSpeechMetadata() throws {
+    let json = """
+    {
+      "text": "Have a wonderful day!",
+      "speechMetadata": {
+        "speaker": "Joe",
+        "style": "cheerful and friendly"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .text(text) = part.data else {
+      XCTFail("Decoded part is not a text part.")
+      return
+    }
+    XCTAssertEqual(text, "Have a wonderful day!")
+    XCTAssertEqual(
+      part.speechMetadata,
+      SpeechMetadata(speaker: "Joe", style: "cheerful and friendly")
+    )
+  }
+
+  func testDecodeTextPartWithSpeechMetadata_speakerOnly() throws {
+    let json = """
+    {
+      "text": "How's it going today Jane?",
+      "speechMetadata": {
+        "speaker": "Joe"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .text(text) = part.data else {
+      XCTFail("Decoded part is not a text part.")
+      return
+    }
+    XCTAssertEqual(text, "How's it going today Jane?")
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata(speaker: "Joe"))
+  }
+
+  func testDecodeTextPartWithSpeechMetadata_styleOnly() throws {
+    let json = """
+    {
+      "text": "Have a wonderful day!",
+      "speechMetadata": {
+        "style": "cheerful and friendly"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .text(text) = part.data else {
+      XCTFail("Decoded part is not a text part.")
+      return
+    }
+    XCTAssertEqual(text, "Have a wonderful day!")
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata(style: "cheerful and friendly"))
+  }
+
+  func testEncodeTextPartWithSpeechMetadata() throws {
+    let part = InternalPart(
+      .text("Have a wonderful day!"),
+      speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful and friendly"),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+
+    let jsonData = try encoder.encode(part)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+        "speaker" : "Joe",
+        "style" : "cheerful and friendly"
+      },
+      "text" : "Have a wonderful day!"
+    }
+    """)
+  }
+
+  func testEncodeTextPartWithSpeechMetadata_speakerOnly() throws {
+    let part = InternalPart(
+      .text("How's it going today Jane?"),
+      speechMetadata: SpeechMetadata(speaker: "Joe"),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+
+    let jsonData = try encoder.encode(part)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+        "speaker" : "Joe"
+      },
+      "text" : "How's it going today Jane?"
+    }
+    """)
+  }
+
+  func testEncodeTextPartWithSpeechMetadata_styleOnly() throws {
+    let part = InternalPart(
+      .text("Have a wonderful day!"),
+      speechMetadata: SpeechMetadata(style: "cheerful and friendly"),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+
+    let jsonData = try encoder.encode(part)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+        "style" : "cheerful and friendly"
+      },
+      "text" : "Have a wonderful day!"
+    }
+    """)
   }
 
   func testEncodeUnsupportedPart_doesNotCrash() throws {
