@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Fixed an issue where the first call of an auth state or ID token
+  listener could report no user while the stored user was still loading.
+  (#16853)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone

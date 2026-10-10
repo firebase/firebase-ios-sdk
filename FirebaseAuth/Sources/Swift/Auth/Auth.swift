@@ -1343,6 +1343,9 @@ extension Auth: AuthInterop {
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
+  ///
+  /// If `Auth` is still loading the persisted user at startup, the initial invocation happens
+  /// after loading has finished.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
@@ -1384,6 +1387,9 @@ extension Auth: AuthInterop {
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
+  ///
+  /// If `Auth` is still loading the persisted user at startup, the initial invocation happens
+  /// after loading has finished.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
@@ -1401,8 +1407,17 @@ extension Auth: AuthInterop {
     objc_sync_enter(Auth.self)
     listenerHandles.add(listener)
     objc_sync_exit(Auth.self)
-    DispatchQueue.main.async {
-      listener(self, self._currentUser)
+    // Go through the serial work queue first, so the initial call runs after work that is
+    // already queued, such as loading the persisted user at startup. Otherwise a listener added
+    // right after `FirebaseApp.configure()` could get `nil` before the signed-in user is loaded.
+    // Read `_currentUser` on the work queue, where it's written.
+    kAuthGlobalWorkQueue.async { [weak self] in
+      guard let self else { return }
+      let currentUser = self._currentUser
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        listener(self, currentUser)
+      }
     }
     return handle
   }
