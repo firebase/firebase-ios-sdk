@@ -1668,7 +1668,7 @@ extension User: NSSecureCoding {}
       code == AuthErrorCode.userTokenExpired.rawValue {
       AuthLog.logNotice(code: "I-AUT000016",
                         message: "Invalid user token detected, user is automatically signed out.")
-      try? auth?.signOutByForce(withUserID: uid)
+      auth?.signOutAutomatically(withUserID: uid, error: error)
     }
   }
 
