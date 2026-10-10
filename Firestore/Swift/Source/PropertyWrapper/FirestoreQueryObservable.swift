@@ -162,7 +162,8 @@ class FirestoreQueryObservable<T>: ObservableObject {
 
   private func createListener(with handler: @escaping (QuerySnapshot?, Error?) -> Void)
     -> () -> Void {
-    return {
+    return { [weak self] in
+      guard let self else { return }
       var query: Query = self.firestore.collection(self.configuration.path)
 
       for predicate in self.configuration.predicates {
