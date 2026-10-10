@@ -47,13 +47,15 @@
       var pendingReasoningText: String?
       var pendingReasoningSignature: String?
 
-      /// Attaches a signature-only thought to the last part of the current model turn.
+      /// Round-trips a signature-only reasoning entry on a part that has data.
       ///
-      /// Gemini returns the signature of a text response on one of the response's own text parts,
-      /// which the executor records as a separate signature-only `.reasoning` entry. Round-tripping
-      /// it as a stand-alone `Part` with no data is rejected by the Gemini Enterprise Agent
-      /// Platform, so the signature is re-attached to the preceding model part instead. If there
-      /// is no suitable part, an empty thought part carries the signature so the part has data.
+      /// Gemini returns the signature of a text response on a trailing empty text part, which the
+      /// executor records as a separate signature-only `.reasoning` entry. Round-tripping it as a
+      /// stand-alone `Part` with no data is rejected by the Gemini Enterprise Agent Platform, so
+      /// the signature is re-attached to the last part of the current model turn instead (normally
+      /// the response text; a function call part if the signature arrived after the call). If
+      /// there is no suitable part, an empty thought part carries the signature so the part has
+      /// data.
       ///
       /// - Parameter signature: The opaque thought signature to round-trip.
       func attachTrailingSignature(_ signature: String) {
@@ -61,6 +63,7 @@
           let partIndex = turns[turnIndex].parts.indices.last,
           turns[turnIndex].parts[partIndex].thoughtSignature == nil
         {
+          // `Part` is immutable; copy every stored property. Update this if `Part` gains fields.
           let part = turns[turnIndex].parts[partIndex]
           turns[turnIndex].parts[partIndex] = Part(
             data: part.data,
@@ -115,8 +118,9 @@
           let text = try extractText(from: response.segments, in: entry)
           let part: Part
           if pendingReasoningText == nil, let signature = pendingReasoningSignature {
-            // A signature-only reasoning entry preceding a response came from the response's own
-            // text, so round-trip it on the text part rather than as a data-less thought part.
+            // A signature-only reasoning entry directly preceding a response is assumed to have
+            // come from the response's own text, so round-trip it on the text part rather than as
+            // a data-less thought part.
             part = Part(data: .text(text), thoughtSignature: signature)
             pendingReasoningSignature = nil
           } else {
