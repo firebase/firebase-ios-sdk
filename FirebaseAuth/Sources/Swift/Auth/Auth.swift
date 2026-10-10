@@ -1624,7 +1624,7 @@ extension Auth: AuthInterop {
   // MARK: Internal methods
 
   init(app: FirebaseApp,
-       keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal.shared,
+       keychainStorageProvider: AuthKeychainStorage = Auth.persistence.keychainStorage,
        backend: AuthBackend = .init(rpcIssuer: AuthBackendRPCIssuer()),
        authDispatcher: AuthDispatcher = .init()) {
     self.app = app
