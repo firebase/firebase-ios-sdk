@@ -1,0 +1,45 @@
+# Firebase iOS SDK Architecture Documentation
+# Reference for AI Agents to understand the core structural patterns.
+
+system: "Firebase Component System"
+description: "A dependency injection and service discovery mechanism used across Firebase SDKs."
+purpose: "Decouples Firebase products (e.g., Auth, Firestore) allowing them to interoperate without hard dependencies."
+
+core_entities:
+  FIRComponent:
+    description: "Defines a service/product. Encapsulates creation logic and dependencies."
+    attributes:
+      protocol: "The ObjC/Swift protocol this component implements."
+      instantiation_timing:
+        - lazy: "Created on first request (Default)."
+        - always_eager: "Created when App is configured."
+        - eager_in_default_app: "Created eagerly only for the default app."
+      creation_block: "Closure that instantiates the service, receiving the container."
+
+  FIRComponentContainer:
+    description: "Registry holding component instances per FIRApp."
+    access: "Available via `FirebaseApp.app().container`."
+    resolution: "Use `FIR_COMPONENT(Protocol, container)` (ObjC) or `ComponentType<T>.instance(for:in:)` (Swift)."
+
+  Interop:
+    description: "Protocols defined in `Interop/` to allow communication between SDKs."
+    usage: "Components should depend on Interop protocols, not concrete classes."
+
+registration_workflow:
+  1_define: "Create a `FIRComponent` (ObjC) or `Component` (Swift) definition."
+  2_protocol: "Ensure it provides a protocol (often an Interop protocol)."
+  3_register: "The component must be registered with Core (typically via `FIRApp` scanning or static registration)."
+  4_consume: "Other SDKs request the protocol from the container."
+
+code_patterns:
+  swift_dependency_fetching:
+    pattern: "ComponentType<Protocol>.instance(for: Protocol.self, in: app.container)"
+    example: "let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)"
+
+  objc_dependency_fetching:
+    pattern: "FIR_COMPONENT(Protocol, container)"
+    example: "id<FIRAuthInterop> auth = FIR_COMPONENT(FIRAuthInterop, app.container);"
+
+guidelines:
+  - "Do not instantiate services (like Auth, Firestore) directly in SDK code; use the container."
+  - "New products must register as components to participate in the lifecycle (e.g., receive app deletion events)."
