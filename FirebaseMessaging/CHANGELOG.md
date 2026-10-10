@@ -6,6 +6,10 @@
   caused by unused synchronous SQLite queries for outgoing RMQ IDs. (#16736)
 - [fixed] Stopped writing the ID of each received message to an unused database
   table that grew without bound. (#16870)
+- [fixed] Fixed a crash in token fetches and topic subscriptions, for up to
+  seven days, after a malformed device checkin response. Checkin responses are
+  now validated before they're saved, and saved values of an unexpected type
+  are ignored. (#16867)
 
 # 13.0.0
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene

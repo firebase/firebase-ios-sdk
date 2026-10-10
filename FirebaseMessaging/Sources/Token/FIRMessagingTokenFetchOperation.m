@@ -61,8 +61,11 @@ NSString *const kFIRMessagingFirebaseHeartbeatKey = @"X-firebase-client-log-type
 
 - (void)performTokenOperation {
   NSMutableURLRequest *request = [self tokenRequest];
-  NSString *checkinVersionInfo = self.checkinPreferences.versionInfo;
-  [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
+  // `setValue:forHTTPHeaderField:` throws for a value that isn't a string.
+  id checkinVersionInfo = self.checkinPreferences.versionInfo;
+  if ([checkinVersionInfo isKindOfClass:[NSString class]]) {
+    [request setValue:checkinVersionInfo forHTTPHeaderField:@"info"];
+  }
   [request setValue:[FIRApp firebaseUserAgent]
       forHTTPHeaderField:kFIRMessagingFirebaseUserAgentKey];
   [request setValue:@([self.heartbeatLogger heartbeatCodeForToday]).stringValue
