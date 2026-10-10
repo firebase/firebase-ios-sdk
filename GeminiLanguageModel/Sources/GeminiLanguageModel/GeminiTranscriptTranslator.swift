@@ -47,6 +47,38 @@
       var pendingReasoningText: String?
       var pendingReasoningSignature: String?
 
+      /// Attaches a signature-only thought to the last part of the current model turn.
+      ///
+      /// Gemini returns the signature of a text response on one of the response's own text parts,
+      /// which the executor records as a separate signature-only `.reasoning` entry. Round-tripping
+      /// it as a stand-alone `Part` with no data is rejected by the Gemini Enterprise Agent
+      /// Platform, so the signature is re-attached to the preceding model part instead. If there
+      /// is no suitable part, an empty thought part carries the signature so the part has data.
+      ///
+      /// - Parameter signature: The opaque thought signature to round-trip.
+      func attachTrailingSignature(_ signature: String) {
+        if let turnIndex = turns.indices.last, turns[turnIndex].role == "model",
+          let partIndex = turns[turnIndex].parts.indices.last,
+          turns[turnIndex].parts[partIndex].thoughtSignature == nil
+        {
+          let part = turns[turnIndex].parts[partIndex]
+          turns[turnIndex].parts[partIndex] = Part(
+            data: part.data,
+            toolCall: part.toolCall,
+            toolResponse: part.toolResponse,
+            thought: part.thought,
+            thoughtSignature: signature,
+            partMetadata: part.partMetadata,
+            mediaResolution: part.mediaResolution
+          )
+        } else {
+          appendPart(
+            Part(data: .text(""), thought: true, thoughtSignature: signature),
+            role: "model"
+          )
+        }
+      }
+
       /// Flushes any buffered reasoning thoughts or signature into a model part.
       func flushPendingReasoningIfNeeded() {
         if let text = pendingReasoningText {
@@ -59,14 +91,7 @@
             role: "model"
           )
         } else if let signature = pendingReasoningSignature {
-          appendPart(
-            Part(
-              data: nil,
-              thought: true,
-              thoughtSignature: signature
-            ),
-            role: "model"
-          )
+          attachTrailingSignature(signature)
         }
         pendingReasoningText = nil
         pendingReasoningSignature = nil
@@ -87,9 +112,18 @@
           appendPart(Part(data: .text(text)), role: "user")
 
         case .response(let response):
-          flushPendingReasoningIfNeeded()
           let text = try extractText(from: response.segments, in: entry)
-          appendPart(Part(data: .text(text)), role: "model")
+          let part: Part
+          if pendingReasoningText == nil, let signature = pendingReasoningSignature {
+            // A signature-only reasoning entry preceding a response came from the response's own
+            // text, so round-trip it on the text part rather than as a data-less thought part.
+            part = Part(data: .text(text), thoughtSignature: signature)
+            pendingReasoningSignature = nil
+          } else {
+            flushPendingReasoningIfNeeded()
+            part = Part(data: .text(text))
+          }
+          appendPart(part, role: "model")
 
         case .reasoning(let reasoning):
           let text = try extractOptionalText(from: reasoning.segments, in: entry)

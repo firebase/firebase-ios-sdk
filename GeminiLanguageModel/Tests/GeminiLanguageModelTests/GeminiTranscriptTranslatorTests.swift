@@ -93,7 +93,7 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func preservesThoughtSignatureWhenReasoningSegmentsEmpty() throws {
+    func attachesSignatureOnlyReasoningToFollowingResponsePart() throws {
       let signatureData = Data("sig-only".utf8)
       let transcript = Transcript(
         entries: [
@@ -120,11 +120,83 @@
 
       #expect(result.contents.count == 2)
       let modelParts = try #require(result.contents[1].parts)
-      #expect(modelParts.count == 2)
-      #expect(modelParts[0].thought == true)
+      #expect(modelParts.count == 1)
+      #expect(modelParts[0].data == .text("Hello!"))
       #expect(modelParts[0].thoughtSignature == "sig-only")
-      #expect(modelParts[0].data == nil)
-      #expect(modelParts[1].data == .text("Hello!"))
+      #expect(modelParts[0].thought == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func attachesTrailingSignatureOnlyReasoningToPrecedingResponsePart() throws {
+      let signatureData = Data("trailing-sig".utf8)
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [.text(Transcript.TextSegment(content: "Weather in Seattle?"))]
+            )
+          ),
+          .response(
+            Transcript.Response(
+              segments: [.text(Transcript.TextSegment(content: "It is 22°C and sunny."))]
+            )
+          ),
+          .reasoning(
+            Transcript.Reasoning(
+              segments: [],
+              signature: signatureData
+            )
+          ),
+          .prompt(
+            Transcript.Prompt(
+              segments: [.text(Transcript.TextSegment(content: "What about Miami?"))]
+            )
+          ),
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      #expect(result.contents.count == 3)
+      #expect(result.contents[1].role == "model")
+      let modelParts = try #require(result.contents[1].parts)
+      #expect(modelParts.count == 1)
+      #expect(modelParts[0].data == .text("It is 22°C and sunny."))
+      #expect(modelParts[0].thoughtSignature == "trailing-sig")
+      #expect(modelParts[0].thought == nil)
+      #expect(result.contents[2].role == "user")
+      #expect(result.contents[2].parts?.first?.data == .text("What about Miami?"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func signatureOnlyReasoningWithoutModelPartEmitsEmptyThoughtPart() throws {
+      let signatureData = Data("orphan-sig".utf8)
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [.text(Transcript.TextSegment(content: "Hi."))]
+            )
+          ),
+          .reasoning(
+            Transcript.Reasoning(
+              segments: [],
+              signature: signatureData
+            )
+          ),
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      #expect(result.contents.count == 2)
+      let modelParts = try #require(result.contents[1].parts)
+      #expect(modelParts.count == 1)
+      #expect(modelParts[0].thought == true)
+      #expect(modelParts[0].thoughtSignature == "orphan-sig")
+      #expect(modelParts[0].data == .text(""))
     }
 
     @Test
