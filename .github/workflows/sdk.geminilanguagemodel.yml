@@ -92,6 +92,42 @@ jobs:
           echo "</details>"
         } >> "$GITHUB_STEP_SUMMARY"
 
+  unit-tests:
+    name: unit-tests
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: xcode-27
+            xcode: Xcode_27.0
+          - os: xcode-27
+            xcode: Xcode_27.2
+          # Older toolchains compile out the FoundationModels-dependent code (it requires
+          # Swift 6.4+); these verify that the package still builds and its remaining tests pass.
+          - os: macos-26
+            xcode: Xcode_26.6
+          # Oldest Xcode version supported by Firebase.
+          - os: macos-15
+            xcode: Xcode_26.2
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      env:
+        XCODE: ${{ matrix.xcode }}
+      run: sudo xcode-select -s "/Applications/$XCODE.app/Contents/Developer"
+
+    - name: Run GeminiLanguageModel unit tests
+      working-directory: GeminiLanguageModel
+      # Skips the `*IntegrationTests` suites, which are covered by the `integration-tests` job.
+      # Some of them (e.g., unauthenticated request tests) make network requests even when no
+      # credentials are provided.
+      run: swift test --skip IntegrationTests
+
   integration-tests:
     name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
