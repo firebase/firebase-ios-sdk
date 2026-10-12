@@ -11,12 +11,12 @@
 - [feature] Added support for voice activity signals in the Live API. When
   automatic activity detection detects the start or end of user speech, Gemini
   3.x Live models send a `LiveServerVoiceActivity`, which is surfaced as
-  `LiveServerMessage.Payload.voiceActivity`.
+  `LiveServerMessage.Payload.voiceActivity`. (#16889)
 - [fixed] Fixed an issue where `LiveSession.responses` finished with a
   `LiveSessionUnsupportedMessageError` when the server sent a message type that
   the SDK doesn't support, such as the `voiceActivity` messages sent by Gemini
   3.x Live models for each spoken turn. Unsupported message types are now logged
-  and ignored.
+  and ignored. (#16889)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
