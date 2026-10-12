@@ -80,10 +80,9 @@ class AuthWebUtils {
   /// - Parameter urlString: URL string for domain
   static func extractDomain(urlString: String) -> String? {
     let lowercasedURLString = urlString.lowercased()
-    let urlStringWithScheme = lowercasedURLString.hasPrefix("http://") || lowercasedURLString.hasPrefix("https://")
-      ? urlString
-      : "https://" + urlString
-    
+    let urlStringWithScheme = lowercasedURLString.hasPrefix("http://") ||
+      lowercasedURLString.hasPrefix("https://") ? urlString : "https://" + urlString
+
     guard let url = URL(string: urlStringWithScheme), let host = url.host else {
       return nil
     }
