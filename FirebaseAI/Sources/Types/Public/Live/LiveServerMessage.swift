@@ -38,6 +38,9 @@ public struct LiveServerMessage: Sendable {
 
     /// Server will disconnect soon.
     case goingAwayNotice(LiveServerGoingAwayNotice)
+
+    /// Voice activity detected in the user audio stream.
+    case voiceActivity(LiveServerVoiceActivity)
   }
 
   /// The message sent from the server.
@@ -78,6 +81,8 @@ extension LiveServerMessage.Payload {
       self = .sessionResumptionUpdate(LiveSessionResumptionUpdate(msg))
     case let .goAway(msg):
       self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
+    case let .voiceActivity(msg):
+      self = .voiceActivity(LiveServerVoiceActivity(msg))
     }
   }
 }

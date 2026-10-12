@@ -82,6 +82,7 @@ Data types used in the FirebaseAI library.
 - **`LiveServerMessage.swift`**: Represents an update from the server (content, tool call, etc.).
 - **`LiveServerToolCall.swift`**: Request from server for client to execute function calls.
 - **`LiveServerToolCallCancellation.swift`**: Notification to cancel a previous function call.
+- **`LiveServerVoiceActivity.swift`**: Notification that the server detected the start or end of user speech (`VoiceActivityType`).
 - **`LiveSession.swift`**: Represents a live WebSocket session with methods to send real-time data.
 - **`LiveSessionErrors.swift`**: Public error structs related to live sessions.
 - **`SpeechConfig.swift`**: Controls the voice of the model during conversation.
@@ -121,6 +122,7 @@ Data types used in the FirebaseAI library.
 - **`BidiGenerateContentTranscription.swift`**: Transcribed text from audio input.
 - **`BidiGenerationConfig.swift`**: Config for live content generation.
 - **`BidiSpeechConfig.swift`**: Speech generation configuration.
+- **`BidiVoiceActivity.swift`**: Voice activity detected in the audio stream (start or end of user speech).
 - **`GoAway.swift`**: Notification from server that it will disconnect soon.
 - **`LiveSessionService.swift`**: Actor managing connection and communication for a `LiveSession`.
 - **`VoiceConfig.swift`**: Configuration for the speaker's voice.
