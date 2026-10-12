@@ -1,8 +1,9 @@
 # agents.md - Context for AI Assisted Development
 
-This file highlights key aspects of the development environment, coding practices, and
-architectural patterns covered in this repo. When an agents.md file is present in a product's
-subdirectory, prefer using the workflow defined there.
+This file highlights key aspects of the development environment, coding
+practices, and architectural patterns covered in this repo. When an agents.md
+file is present in a product's subdirectory, prefer using the workflow defined
+there.
 
 ## Setup Commands
 
@@ -104,6 +105,10 @@ Thorough testing is essential for maintaining the quality and stability of the F
     *   When adding a new feature, include tests to validate the new or modified APIs.
 *   **Tests as Documentation**: Well-written tests can serve as examples of how to use an API.
 *   **Code Coverage**: Aim for good code coverage to ensure all critical paths are tested.
+*   **Preventing Timeout Masking in Tests**: When using `waitForExpectations(timeout:)`
+    in XCTest, always ensure `expectation.fulfill()` is called (e.g., via `defer`)
+    even if the test fails inside a callback. Otherwise, failures will manifest
+    as obscure 10-second timeouts instead of clear, actionable error messages.
 
 ### Running Tests
 
