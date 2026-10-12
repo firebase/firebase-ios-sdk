@@ -38,9 +38,6 @@ public struct LiveServerMessage: Sendable {
 
     /// Server will disconnect soon.
     case goingAwayNotice(LiveServerGoingAwayNotice)
-
-    /// Voice activity detected in the user audio stream.
-    case voiceActivity(LiveServerVoiceActivity)
   }
 
   /// The message sent from the server.
@@ -82,7 +79,9 @@ extension LiveServerMessage.Payload {
     case let .goAway(msg):
       self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
     case let .voiceActivity(msg):
-      self = .voiceActivity(LiveServerVoiceActivity(msg))
+      // surfaced through `.content` (instead of a dedicated case) to avoid a source-breaking change
+      // to exhaustive switch statements over `Payload`
+      self = .content(LiveServerContent(voiceActivity: msg))
     }
   }
 }

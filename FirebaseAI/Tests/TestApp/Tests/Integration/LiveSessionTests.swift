@@ -716,17 +716,13 @@ private extension LiveSession {
     -> TurnWithVoiceActivity? {
     let turn = try await withTimeout(seconds: timeout) {
       var turn = TurnWithVoiceActivity()
-      for try await response in self.responses {
-        switch response.payload {
-        case let .voiceActivity(voiceActivity):
+      for try await content in self.responsesOf(LiveServerContent.self) {
+        if let voiceActivity = content.voiceActivity {
           turn.voiceActivities.append(voiceActivity)
-        case let .content(content):
-          turn.transcript += content.outputAudioText()
-          if content.isTurnComplete, !turn.transcript.isEmpty {
-            return turn
-          }
-        default:
-          continue
+        }
+        turn.transcript += content.outputAudioText()
+        if content.isTurnComplete, !turn.transcript.isEmpty {
+          return turn
         }
       }
       return turn
@@ -827,10 +823,6 @@ private extension LiveSession {
         }
       case let .goingAwayNotice(goingAway):
         if let casted = goingAway as? T {
-          return casted
-        }
-      case let .voiceActivity(voiceActivity):
-        if let casted = voiceActivity as? T {
           return casted
         }
       }

@@ -163,14 +163,47 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     """
     let liveServerMessage = try decodeLiveServerMessage(json)
 
-    guard case let .voiceActivity(voiceActivity) = liveServerMessage.payload else {
-      XCTFail("Expected a voiceActivity payload, but got \(liveServerMessage.payload) instead.")
-      return
-    }
+    let content = try liveServerContent(from: liveServerMessage)
+    let voiceActivity = try XCTUnwrap(content.voiceActivity)
     XCTAssertEqual(voiceActivity.type, .activityEnd)
     let usageMetadata = try XCTUnwrap(liveServerMessage.usageMetadata)
     XCTAssertEqual(usageMetadata.promptTokenCount, 10)
     XCTAssertEqual(usageMetadata.totalTokenCount, 10)
+  }
+
+  func testLiveServerMessage_voiceActivity_isDeliveredAsOtherwiseEmptyContent() throws {
+    let liveServerMessage = try decodeLiveServerMessage("""
+    {
+      "voiceActivity" : {
+        "type" : "ACTIVITY_START",
+        "audioOffset" : "2.520s"
+      }
+    }
+    """)
+
+    let content = try liveServerContent(from: liveServerMessage)
+    XCTAssertNotNil(content.voiceActivity)
+    XCTAssertNil(content.modelTurn)
+    XCTAssertFalse(content.isTurnComplete)
+    XCTAssertFalse(content.wasInterrupted)
+    XCTAssertFalse(content.isGenerationComplete)
+    XCTAssertNil(content.groundingMetadata)
+    XCTAssertNil(content.inputAudioTranscription)
+    XCTAssertNil(content.outputAudioTranscription)
+  }
+
+  func testLiveServerMessage_serverContent_hasNoVoiceActivity() throws {
+    let liveServerMessage = try decodeLiveServerMessage("""
+    {
+      "serverContent" : {
+        "turnComplete" : true
+      }
+    }
+    """)
+
+    let content = try liveServerContent(from: liveServerMessage)
+    XCTAssertNil(content.voiceActivity)
+    XCTAssertTrue(content.isTurnComplete)
   }
 
   // MARK: - Helpers
@@ -188,15 +221,21 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     return try XCTUnwrap(LiveServerMessage(from: serverMessage))
   }
 
-  private func decodeLiveServerVoiceActivity(_ json: String) throws -> LiveServerVoiceActivity {
-    let liveServerMessage = try decodeLiveServerMessage(json)
-    guard case let .voiceActivity(voiceActivity) = liveServerMessage.payload else {
+  private func liveServerContent(from liveServerMessage: LiveServerMessage) throws
+    -> LiveServerContent {
+    guard case let .content(content) = liveServerMessage.payload else {
       return try XCTUnwrap(
         nil,
-        "Expected a voiceActivity payload, but got \(liveServerMessage.payload) instead."
+        "Expected a content payload, but got \(liveServerMessage.payload) instead."
       )
     }
 
-    return voiceActivity
+    return content
+  }
+
+  private func decodeLiveServerVoiceActivity(_ json: String) throws -> LiveServerVoiceActivity {
+    let content = try liveServerContent(from: decodeLiveServerMessage(json))
+
+    return try XCTUnwrap(content.voiceActivity, "Expected the content to have a voice activity.")
   }
 }

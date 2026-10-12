@@ -43,10 +43,10 @@ public struct VoiceActivityType: DecodableProtoEnum, Hashable, Sendable {
 
 /// Server notification indicating voice activity was detected in the input audio stream.
 ///
-/// This message is sent when the server's automatic activity detection (enabled by default, see
-/// ``ActivityDetectionConfig``) detects that the user started or stopped speaking. For example, it
-/// can be used to drive a voice activity indicator, or to handle the user interrupting the model
-/// (barge-in) on the client.
+/// Voice activity is detected by the server's automatic activity detection (enabled by default,
+/// see ``ActivityDetectionConfig``) when the user starts or stops speaking, and is delivered
+/// through ``LiveServerContent/voiceActivity``. For example, it can be used to drive a voice
+/// activity indicator, or to handle the user interrupting the model (barge-in) on the client.
 @available(watchOS, unavailable)
 public struct LiveServerVoiceActivity: Sendable {
   let bidiVoiceActivity: BidiVoiceActivity
