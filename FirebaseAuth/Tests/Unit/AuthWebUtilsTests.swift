@@ -62,4 +62,21 @@ class AuthWebUtilsTests: XCTestCase {
     let domain = AuthWebUtils.extractDomain(urlString: urlString)
     XCTAssertEqual(domain, "example.com")
   }
+
+  /** @fn testRandomStringLengthAndCharacterSet
+   @brief Test case for verifying the length and allowed character set of random strings.
+   */
+  func testRandomStringLengthAndCharacterSet() {
+    let allowed = CharacterSet(
+      charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    )
+    let first = AuthWebUtils.randomString(withLength: 43)
+    let second = AuthWebUtils.randomString(withLength: 43)
+    XCTAssertEqual(first.count, 43)
+    XCTAssertEqual(second.count, 43)
+    XCTAssertNotEqual(first, second)
+    XCTAssertTrue(first.unicodeScalars.allSatisfy { allowed.contains($0) })
+    XCTAssertTrue(second.unicodeScalars.allSatisfy { allowed.contains($0) })
+    XCTAssertEqual(AuthWebUtils.randomString(withLength: 0), "")
+  }
 }
