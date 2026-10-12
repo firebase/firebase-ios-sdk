@@ -15,7 +15,6 @@
 import FirebaseAILogic
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CitationTests: XCTestCase {
   let decoder = JSONDecoder()
 
@@ -100,7 +99,7 @@ final class CitationTests: XCTestCase {
     XCTAssertNil(citation.publicationDate)
   }
 
-  func testDecodeCitation_missingEndIndex_throws() throws {
+  func testDecodeCitation_missingEndIndex_success() throws {
     let json = """
     {
       "startIndex" : 10
@@ -108,6 +107,8 @@ final class CitationTests: XCTestCase {
     """
     let jsonData = try XCTUnwrap(json.data(using: .utf8))
 
-    XCTAssertThrowsError(try decoder.decode(Citation.self, from: jsonData))
+    let citation = try decoder.decode(Citation.self, from: jsonData)
+    XCTAssertEqual(citation.startIndex, 10)
+    XCTAssertEqual(citation.endIndex, 10)
   }
 }

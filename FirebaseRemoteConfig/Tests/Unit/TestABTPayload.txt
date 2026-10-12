@@ -15,5 +15,6 @@
     {
       "experimentId": "exp_1"
     }
-  ]
+  ],
+  "affectedParameterKeys": ["test_key_1"]
 }

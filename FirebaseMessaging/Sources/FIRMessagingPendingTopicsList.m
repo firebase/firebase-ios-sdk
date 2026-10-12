@@ -87,15 +87,22 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
 
 @property(nonatomic, strong) FIRMessagingTopicBatch *currentBatch;
 @property(nonatomic, strong) NSMutableSet<NSString *> *topicsInFlight;
+@property(nonatomic, readonly) dispatch_queue_t commandQueue;
 
 @end
 
 @implementation FIRMessagingPendingTopicsList
 
 - (instancetype)init {
+  return
+      [self initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
+}
+
+- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue {
   if (self = [super init]) {
     _topicBatches = [NSMutableArray array];
     _topicsInFlight = [NSMutableSet set];
+    _commandQueue = queue;
   }
   return self;
 }
@@ -179,7 +186,7 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
     if (self.currentBatch == lastBatch && !topicExistedBefore) {
       // Add this topic to our ongoing operations
       FIRMessaging_WEAKIFY(self);
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+      dispatch_async(self.commandQueue, ^{
         FIRMessaging_STRONGIFY(self);
         [self resumeOperationsIfNeeded];
       });
@@ -223,49 +230,45 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
     [self.topicsInFlight addObject:topic];
   }
   FIRMessaging_WEAKIFY(self);
-  [self.delegate
-            pendingTopicsList:self
-      requestedUpdateForTopic:topic
-                       action:self.currentBatch.action
-                   completion:^(NSError *error) {
-                     dispatch_async(
-                         dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-                           FIRMessaging_STRONGIFY(self);
-                           @synchronized(self) {
-                             [self.topicsInFlight removeObject:topic];
+  [self.delegate pendingTopicsList:self
+           requestedUpdateForTopic:topic
+                            action:self.currentBatch.action
+                        completion:^(NSError *error) {
+                          dispatch_async(self.commandQueue, ^{
+                            FIRMessaging_STRONGIFY(self);
+                            @synchronized(self) {
+                              [self.topicsInFlight removeObject:topic];
 
-                             BOOL recoverableError = [self subscriptionErrorIsRecoverable:error];
-                             if (!error || !recoverableError) {
-                               // Notify our handlers and remove the topic from our batch
-                               NSMutableArray *handlers = self.currentBatch.topicHandlers[topic];
-                               if (handlers.count) {
-                                 dispatch_async(dispatch_get_main_queue(), ^{
-                                   for (FIRMessagingTopicOperationCompletion handler in handlers) {
-                                     handler(error);
-                                   }
-                                   [handlers removeAllObjects];
-                                 });
-                               }
-                               [self.currentBatch.topics removeObject:topic];
-                               [self.currentBatch.topicHandlers removeObjectForKey:topic];
-                               if (self.currentBatch.topics.count == 0) {
-                                 // All topic updates successfully finished in this batch, move on
-                                 // to the next batch
-                                 [self.topicBatches removeObject:self.currentBatch];
-                                 self.currentBatch = nil;
-                               }
-                               [self.delegate pendingTopicsListDidUpdate:self];
-                               FIRMessaging_WEAKIFY(self);
-                               dispatch_async(
-                                   dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
-                                   ^{
-                                     FIRMessaging_STRONGIFY(self);
-                                     [self resumeOperationsIfNeeded];
-                                   });
-                             }
-                           }
-                         });
-                   }];
+                              BOOL recoverableError = [self subscriptionErrorIsRecoverable:error];
+                              if (!error || !recoverableError) {
+                                // Notify our handlers and remove the topic from our batch
+                                NSMutableArray *handlers = self.currentBatch.topicHandlers[topic];
+                                if (handlers.count) {
+                                  dispatch_async(dispatch_get_main_queue(), ^{
+                                    for (FIRMessagingTopicOperationCompletion handler in handlers) {
+                                      handler(error);
+                                    }
+                                    [handlers removeAllObjects];
+                                  });
+                                }
+                                [self.currentBatch.topics removeObject:topic];
+                                [self.currentBatch.topicHandlers removeObjectForKey:topic];
+                                if (self.currentBatch.topics.count == 0) {
+                                  // All topic updates successfully finished in this batch, move on
+                                  // to the next batch
+                                  [self.topicBatches removeObject:self.currentBatch];
+                                  self.currentBatch = nil;
+                                }
+                                [self.delegate pendingTopicsListDidUpdate:self];
+                                FIRMessaging_WEAKIFY(self);
+                                dispatch_async(self.commandQueue, ^{
+                                  FIRMessaging_STRONGIFY(self);
+                                  [self resumeOperationsIfNeeded];
+                                });
+                              }
+                            }
+                          });
+                        }];
 }
 
 @end

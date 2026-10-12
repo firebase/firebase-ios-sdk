@@ -274,6 +274,7 @@ if(APPLE)
     firestore_core PUBLIC
     "-framework Foundation"
     "-framework SystemConfiguration"
+    "-framework Network"
     FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
@@ -330,6 +331,7 @@ add_subdirectory(test/unit/bundle)
 add_subdirectory(test/unit/credentials)
 add_subdirectory(test/unit/core)
 add_subdirectory(test/unit/immutable)
+add_subdirectory(test/unit/index)
 add_subdirectory(test/unit/local)
 add_subdirectory(test/unit/model)
 add_subdirectory(test/unit/objc)

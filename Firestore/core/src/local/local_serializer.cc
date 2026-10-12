@@ -242,13 +242,19 @@ Message<firestore_client_Target> LocalSerializer::EncodeTargetData(
   result->resume_token =
       nanopb::CopyBytesArray(target_data.resume_token().get());
 
-  const Target& target = target_data.target();
-  if (target.IsDocumentQuery()) {
+  const core::TargetOrPipeline& target = target_data.target_or_pipeline();
+  if (target.IsPipeline()) {
+    result->which_target_type = firestore_client_Target_pipeline_query_tag;
+    result->pipeline_query.which_pipeline_type =
+        google_firestore_v1_Target_PipelineQueryTarget_structured_pipeline_tag;
+    result->pipeline_query.structured_pipeline =
+        rpc_serializer_.EncodeRealtimePipeline(target.pipeline());
+  } else if (target.target().IsDocumentQuery()) {
     result->which_target_type = firestore_client_Target_documents_tag;
-    result->documents = rpc_serializer_.EncodeDocumentsTarget(target);
+    result->documents = rpc_serializer_.EncodeDocumentsTarget(target.target());
   } else {
     result->which_target_type = firestore_client_Target_query_tag;
-    result->query = rpc_serializer_.EncodeQueryTarget(target);
+    result->query = rpc_serializer_.EncodeQueryTarget(target.target());
   }
 
   return result;
@@ -268,17 +274,27 @@ TargetData LocalSerializer::DecodeTargetData(
       rpc_serializer_.DecodeVersion(reader->context(),
                                     proto.last_limbo_free_snapshot_version);
   ByteString resume_token(proto.resume_token);
-  Target target;
+  core::TargetOrPipeline target;
 
   switch (proto.which_target_type) {
+    case firestore_client_Target_pipeline_query_tag: {
+      const auto result = rpc_serializer_.DecodePipelineTarget(
+          reader->context(), proto.pipeline_query);
+      if (!result.has_value()) {
+        reader->Fail("Unable to decode pipeline target");
+      } else {
+        target = result.value();
+      }
+      break;
+    }
     case firestore_client_Target_query_tag:
-      target =
-          rpc_serializer_.DecodeQueryTarget(reader->context(), proto.query);
+      target = core::TargetOrPipeline(
+          rpc_serializer_.DecodeQueryTarget(reader->context(), proto.query));
       break;
 
     case firestore_client_Target_documents_tag:
-      target = rpc_serializer_.DecodeDocumentsTarget(reader->context(),
-                                                     proto.documents);
+      target = core::TargetOrPipeline(rpc_serializer_.DecodeDocumentsTarget(
+          reader->context(), proto.documents));
       break;
 
     default:

@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <unordered_set>
 #include <utility>
 
@@ -65,7 +66,7 @@ Status Transaction::RecordVersion(const Document& doc) {
     HARD_FAIL("Unexpected document type in transaction: %s", doc.ToString());
   }
 
-  absl::optional<SnapshotVersion> existing_version = GetVersion(doc->key());
+  std::optional<SnapshotVersion> existing_version = GetVersion(doc->key());
   if (existing_version.has_value()) {
     if (doc_version != existing_version.value()) {
       // This transaction will fail no matter what.
@@ -129,7 +130,7 @@ void Transaction::WriteMutations(std::vector<Mutation>&& mutations) {
 }
 
 Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
-  absl::optional<SnapshotVersion> version = GetVersion(key);
+  std::optional<SnapshotVersion> version = GetVersion(key);
   if (written_docs_.count(key) == 0 && version.has_value()) {
     if (version.value() == SnapshotVersion::None()) {
       return Precondition::Exists(false);
@@ -143,7 +144,7 @@ Precondition Transaction::CreatePrecondition(const DocumentKey& key) {
 
 StatusOr<Precondition> Transaction::CreateUpdatePrecondition(
     const DocumentKey& key) {
-  absl::optional<SnapshotVersion> version = GetVersion(key);
+  std::optional<SnapshotVersion> version = GetVersion(key);
   // The first time a document is written, we want to take into account the
   // read time and existence.
   if (written_docs_.count(key) == 0 && version.has_value()) {
@@ -243,13 +244,13 @@ void Transaction::EnsureCommitNotCalled() {
               "update callback has been invoked.");
 }
 
-absl::optional<SnapshotVersion> Transaction::GetVersion(
+std::optional<SnapshotVersion> Transaction::GetVersion(
     const DocumentKey& key) const {
   auto found = read_versions_.find(key);
   if (found != read_versions_.end()) {
     return found->second;
   }
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace core

@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/document_key.h"
 
+#include <optional>
 #include <ostream>
 #include <utility>
 
@@ -113,15 +114,15 @@ bool DocumentKey::HasCollectionGroup(absl::string_view collection_group) const {
          collection_id_opt.value() == collection_group;
 }
 
-absl::optional<std::string> DocumentKey::GetCollectionGroup() const {
+std::optional<std::string> DocumentKey::GetCollectionGroup() const {
   const size_t size = path().size();
   if (size < 2) {
-    return absl::nullopt;
+    return std::nullopt;
   }
   return path()[size - 2];
 }
 
-size_t DocumentKeyHash::operator()(const DocumentKey& key) const {
+size_t DocumentKeyHash::operator()(const DocumentKey& key) const noexcept {
   return util::Hash(key.path());
 }
 

@@ -26,10 +26,20 @@ NSString *const kFPRSlowFrameCounterName = @"_fr_slo";
 NSString *const kFPRTotalFramesCounterName = @"_fr_tot";
 
 // Note: This was previously 60 FPS, but that resulted in 90% +  of all frames collected to be
-// flagged as slow frames, and so the threshold for iOS is being changed to 59 FPS.
-// TODO(b/73498642): Make these configurable.
+// flagged as slow frames, and so the threshold for iOS is 59 FPS.
+// b/545164487 tracks any changes / next steps for ProMotion devices - where the frame rate can be
+// as high as 120 FPS.
 CFTimeInterval const kFPRSlowFrameThreshold = 1.0 / 59.0;  // Anything less than 59 FPS is slow.
 CFTimeInterval const kFPRFrozenFrameThreshold = 700.0 / 1000.0;
+
+#if TARGET_OS_TV
+/** Default/fallback FPS value used when UIScreen.maximumFramesPerSecond is unavailable or invalid.
+ */
+static const NSInteger kFPRDefaultFPS = 60;
+
+/** Epsilon value to avoid floating point comparison issues (e.g., 59.94 vs 60) on tvOS. */
+static const CFTimeInterval kFPRSlowFrameEpsilon = 0.001;
+#endif
 
 /** Constant that indicates an invalid time. */
 CFAbsoluteTime const kFPRInvalidTime = -1.0;
@@ -71,6 +81,9 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   }
 }
 
+@implementation FPRScreenTraceHolder
+@end
+
 @implementation FPRScreenTraceTracker {
   /** Instance variable storing the total frames observed so far. */
   atomic_int_fast64_t _totalFramesCount;
@@ -80,6 +93,16 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   /** Instance variable storing the frozen frames observed so far. */
   atomic_int_fast64_t _frozenFramesCount;
+
+#if TARGET_OS_TV
+  /** Cached maximum frames per second from UIScreen on tvOS. */
+  NSInteger _cachedMaxFPS;
+#endif
+
+  /** Cached slow frame budget. On iOS, uses kFPRSlowFrameThreshold (59 FPS).
+   *  On tvOS, computed dynamically from UIScreen.maximumFramesPerSecond.
+   */
+  CFTimeInterval _cachedSlowBudget;
 }
 
 @dynamic totalFramesCount;
@@ -98,11 +121,8 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 - (instancetype)init {
   self = [super init];
   if (self) {
-    // Weakly retain viewController, use pointer hashing.
-    NSMapTableOptions keyOptions = NSMapTableWeakMemory | NSMapTableObjectPointerPersonality;
-    // Strongly retain the FIRTrace.
-    NSMapTableOptions valueOptions = NSMapTableStrongMemory;
-    _activeScreenTraces = [NSMapTable mapTableWithKeyOptions:keyOptions valueOptions:valueOptions];
+    _activeScreenTraces = [[NSMutableDictionary alloc] init];
+    _activeScreenTracesLock = [[NSRecursiveLock alloc] init];
 
     _previouslyVisibleViewControllers = nil;  // Will be set when there is data.
     _screenTraceTrackerSerialQueue =
@@ -112,6 +132,24 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
     atomic_store_explicit(&_totalFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_frozenFramesCount, 0, memory_order_relaxed);
     atomic_store_explicit(&_slowFramesCount, 0, memory_order_relaxed);
+
+#if TARGET_OS_TV
+    // Initialize slow budget and maxFPS values with defaults for tvOS.
+    // On tvOS, refresh rate depends on the connected display mode (e.g. 50 Hz vs 60 Hz).
+    _cachedMaxFPS = kFPRDefaultFPS;
+    _cachedSlowBudget = 1.0 / (CFTimeInterval)kFPRDefaultFPS;
+
+    if ([NSThread isMainThread]) {
+      [self updateCachedSlowBudget];
+    } else {
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        [self updateCachedSlowBudget];
+      });
+    }
+#else
+    _cachedSlowBudget = kFPRSlowFrameThreshold;
+#endif
+
     _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkStep)];
     [_displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSRunLoopCommonModes];
 
@@ -126,6 +164,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
                                              selector:@selector(appWillResignActiveNotification:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:[UIApplication sharedApplication]];
+
+#if TARGET_OS_TV
+    // On tvOS, the refresh rate can change when the user switches display modes or connects to
+    // different displays. Listen for mode changes to recompute the slow budget.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenModeDidChangeNotification:)
+                                                 name:UIScreenModeDidChangeNotification
+                                               object:nil];
+#endif
   }
   return self;
 }
@@ -139,6 +186,11 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:UIApplicationWillResignActiveNotification
                                                 object:[UIApplication sharedApplication]];
+#if TARGET_OS_TV
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:UIScreenModeDidChangeNotification
+                                                object:nil];
+#endif
 }
 
 - (void)appDidBecomeActiveNotification:(NSNotification *)notification {
@@ -168,11 +220,15 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
 
   dispatch_group_async(self.screenTraceTrackerDispatchGroup, self.screenTraceTrackerSerialQueue, ^{
     self.previouslyVisibleViewControllers = [NSPointerArray weakObjectsPointerArray];
-    id visibleViewControllersEnumerator = [self.activeScreenTraces keyEnumerator];
-    id visibleViewController = nil;
-    while (visibleViewController = [visibleViewControllersEnumerator nextObject]) {
-      [self.previouslyVisibleViewControllers addPointer:(__bridge void *)(visibleViewController)];
+    [self.activeScreenTracesLock lock];
+    NSArray<FPRScreenTraceHolder *> *holders = [self.activeScreenTraces allValues];
+    for (FPRScreenTraceHolder *holder in holders) {
+      UIViewController *vc = holder.viewController;
+      if (vc) {
+        [self.previouslyVisibleViewControllers addPointer:(__bridge void *)(vc)];
+      }
     }
+    [self.activeScreenTracesLock unlock];
 
     for (id visibleViewController in self.previouslyVisibleViewControllers) {
       [self stopScreenTraceForViewController:visibleViewController
@@ -183,13 +239,54 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
   });
 }
 
+#if TARGET_OS_TV
+/** Handles the UIScreenModeDidChangeNotification. Recomputes the cached slow budget when the screen
+ *  mode changes on tvOS.
+ *
+ *  @param notification The NSNotification object.
+ */
+- (void)screenModeDidChangeNotification:(NSNotification *)notification {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [self updateCachedSlowBudget];
+  });
+}
+#endif
+
+/** Updates the cached slow budget. On tvOS, recomputes from UIScreen.maximumFramesPerSecond.
+ *  On iOS, maintains kFPRSlowFrameThreshold.
+ *  This method must be called on the main thread - and is available on iOS only for verification.
+ */
+- (void)updateCachedSlowBudget {
+  NSAssert([NSThread isMainThread], @"updateCachedSlowBudget must be called on main thread");
+#if TARGET_OS_TV
+  UIScreen *mainScreen = [UIScreen mainScreen];
+  NSInteger maxFPS = 0;
+  if (mainScreen) {
+    maxFPS = mainScreen.maximumFramesPerSecond;
+  }
+  if (maxFPS > 0) {
+    _cachedMaxFPS = maxFPS;
+    _cachedSlowBudget = 1.0 / (CFTimeInterval)maxFPS;
+  } else {
+    // Fallback to default FPS if maximumFramesPerSecond is unavailable or invalid.
+    _cachedMaxFPS = kFPRDefaultFPS;
+    _cachedSlowBudget = 1.0 / (CFTimeInterval)kFPRDefaultFPS;
+  }
+#else
+  // TODO(b/545164487): Updating this is likely the first step for ProMotion devices.
+  // https://github.com/firebase/firebase-ios-sdk/issues/10220#issuecomment-1248632304
+  _cachedSlowBudget = kFPRSlowFrameThreshold;
+#endif
+}
+
 #pragma mark - Frozen, slow and good frames
 
 - (void)displayLinkStep {
   static CFAbsoluteTime previousTimestamp = kFPRInvalidTime;
   CFAbsoluteTime currentTimestamp = self.displayLink.timestamp;
+  // Use the cached slow budget where needed - currently only on tvOS.
   RecordFrameType(currentTimestamp, previousTimestamp, &_slowFramesCount, &_frozenFramesCount,
-                  &_totalFramesCount);
+                  &_totalFramesCount, _cachedSlowBudget);
   previousTimestamp = currentTimestamp;
 }
 
@@ -201,20 +298,30 @@ static NSString *FPRScreenTraceNameForViewController(UIViewController *viewContr
  *  @param slowFramesCounter The value of the slowFramesCount before this function was called.
  *  @param frozenFramesCounter The value of the frozenFramesCount before this function was called.
  *  @param totalFramesCounter The value of the totalFramesCount before this function was called.
+ *  @param slowBudget The frame duration threshold above which a frame is considered slow.
  */
 FOUNDATION_STATIC_INLINE
 void RecordFrameType(CFAbsoluteTime currentTimestamp,
                      CFAbsoluteTime previousTimestamp,
                      atomic_int_fast64_t *slowFramesCounter,
                      atomic_int_fast64_t *frozenFramesCounter,
-                     atomic_int_fast64_t *totalFramesCounter) {
+                     atomic_int_fast64_t *totalFramesCounter,
+                     CFTimeInterval slowBudget) {
   CFTimeInterval frameDuration = currentTimestamp - previousTimestamp;
   if (previousTimestamp == kFPRInvalidTime) {
     return;
   }
+#if TARGET_OS_TV
+  // On tvOS, use cached slowBudget with epsilon to avoid floating point comparison issues
+  // (e.g., 59.94 vs 60 Hz displays).
+  if (frameDuration > slowBudget + kFPRSlowFrameEpsilon) {
+    atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
+  }
+#else
   if (frameDuration > kFPRSlowFrameThreshold) {
     atomic_fetch_add_explicit(slowFramesCounter, 1, memory_order_relaxed);
   }
+#endif
   if (frameDuration > kFPRFrozenFrameThreshold) {
     atomic_fetch_add_explicit(frozenFramesCounter, 1, memory_order_relaxed);
   }
@@ -240,16 +347,32 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     return;
   }
 
-  // If there's a trace for this viewController, don't do anything.
-  if (![self.activeScreenTraces objectForKey:viewController]) {
+  [self.activeScreenTracesLock lock];
+  [self cleanupStaleTraces];
+
+  NSValue *key = [NSValue valueWithNonretainedObject:viewController];
+  FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
+  if (holder && holder.viewController != viewController) {
+    // Stale entry due to pointer reuse. Remove it.
+    [self.activeScreenTraces removeObjectForKey:key];
+    holder = nil;
+  }
+
+  if (!holder) {
     NSString *traceName = FPRScreenTraceNameForViewController(viewController);
     FIRTrace *newTrace = [[FIRTrace alloc] initInternalTraceWithName:traceName];
     [newTrace start];
     [newTrace setIntValue:currentTotalFrames forMetric:kFPRTotalFramesCounterName];
     [newTrace setIntValue:currentFrozenFrames forMetric:kFPRFrozenFrameCounterName];
     [newTrace setIntValue:currentSlowFrames forMetric:kFPRSlowFrameCounterName];
-    [self.activeScreenTraces setObject:newTrace forKey:viewController];
+
+    holder = [[FPRScreenTraceHolder alloc] init];
+    holder.viewController = viewController;
+    holder.trace = newTrace;
+
+    [self.activeScreenTraces setObject:holder forKey:key];
   }
+  [self.activeScreenTracesLock unlock];
 }
 
 /** Stops a screen trace for the given UIViewController instance if it exist. This method does NOT
@@ -265,7 +388,27 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
                       currentTotalFrames:(int64_t)currentTotalFrames
                      currentFrozenFrames:(int64_t)currentFrozenFrames
                        currentSlowFrames:(int64_t)currentSlowFrames {
-  FIRTrace *previousScreenTrace = [self.activeScreenTraces objectForKey:viewController];
+  if (viewController == nil) {
+    return;
+  }
+  NSValue *key = [NSValue valueWithNonretainedObject:viewController];
+
+  [self.activeScreenTracesLock lock];
+  FPRScreenTraceHolder *holder = [self.activeScreenTraces objectForKey:key];
+  if (holder) {
+    [self.activeScreenTraces removeObjectForKey:key];
+    if (holder.viewController != viewController) {
+      // Stale entry due to pointer reuse.
+      holder = nil;
+    }
+  }
+  [self.activeScreenTracesLock unlock];
+
+  if (!holder) {
+    return;
+  }
+
+  FIRTrace *previousScreenTrace = holder.trace;
 
   // Get a diff between the counters now and what they were at trace start.
   int64_t actualTotalFrames =
@@ -300,7 +443,6 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
     // The trace did not collect any data. Don't log it.
     [previousScreenTrace cancel];
   }
-  [self.activeScreenTraces removeObjectForKey:viewController];
 }
 
 #pragma mark - Filtering for screen traces
@@ -340,6 +482,19 @@ void RecordFrameType(CFAbsoluteTime currentTimestamp,
            [viewController isMemberOfClass:[UISplitViewController class]] ||
            [viewController isMemberOfClass:[UIPageViewController class]] ||
            [viewController isKindOfClass:[UIInputViewController class]]);
+}
+
+- (void)cleanupStaleTraces {
+  [self.activeScreenTracesLock lock];
+  NSMutableArray *keysToRemove = [NSMutableArray array];
+  [self.activeScreenTraces
+      enumerateKeysAndObjectsUsingBlock:^(NSValue *key, FPRScreenTraceHolder *holder, BOOL *stop) {
+        if (holder.viewController == nil) {
+          [keysToRemove addObject:key];
+        }
+      }];
+  [self.activeScreenTraces removeObjectsForKeys:keysToRemove];
+  [self.activeScreenTracesLock unlock];
 }
 
 #pragma mark - Screen Traces swizzling hooks

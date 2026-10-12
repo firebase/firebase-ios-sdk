@@ -1,3 +1,41 @@
+# Unreleased
+- [fixed] Fixed a crash when the Remote Config fetch response contains a
+  non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
+  `entries`, `personalizationMetadata`, `rolloutMetadata`,
+  `experimentDescriptions` or a server `error`) have unexpected JSON types.
+  (#16800)
+
+# 12.17.0
+- [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
+  retained the `FIRRemoteConfig` instance indefinitely (#16413).
+- [fixed] Fixed an issue where Remote Config activation would hang indefinitely
+  when used with a named Firebase app instance. (#16354)
+
+# 12.13.0
+- [fixed] Remote Config Realtime updates now trigger when a parameter's experiment
+  or variant assignment changes, ensuring more accurate A/B test analytics and
+  consistent user experiences.
+
+# 12.12.0
+- [added] Introduced a new `configUpdates` property to `RemoteConfig` that
+  provides an `AsyncSequence` for consuming real-time config updates.
+  This offers a modern, Swift Concurrency-native alternative to the existing
+  closure-based listener.
+
+# 12.10.0
+- [issue] A workaround to restore service if Remote Config data remains empty
+  after a device restore is to publish a new version of your Remote Config template
+  in the Firebase console to force a full synchronization. This issue can occur if
+  the app was opened with an older SDK version (< 12.6.0) before upgrading. An automatic
+  fix for this scenario is currently under development. (#15764)
+
+# 12.6.0
+- [fixed] Fixed a bug where Remote Config does not work after a restore
+  of a previous backup of the device. (#14459)
+- [fixed] Fixed a data race condition on the global database status flag
+  by synchronizing all read and write operations. (#14715)
+
 # 12.3.0
 - [fixed] Add missing GoogleUtilities dependency to fix SwiftPM builds when
   building dynamically linked libraries. (#15276)

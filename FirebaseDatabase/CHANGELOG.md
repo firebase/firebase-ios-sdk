@@ -1,3 +1,22 @@
+# Unreleased
+- [fixed] Ignore malformed realtime server push, control, and handshake
+  messages instead of crashing when a frame or one of its fields has an
+  unexpected JSON type. (#16750)
+
+# 12.19.0
+- [fixed] Reconnect after significant system clock changes so that
+  `.info/serverTimeOffset` is refreshed. (#363)
+
+# 12.17.0
+- [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
+  in push ID generation. (#16415)
+- [fixed] Fixed a potential crash when receiving non-text WebSocket frames.
+  (#16414)
+
+# 12.7.0
+- [fixed] Fix `Fatal Exception: FirebaseDatabasePersistenceFailure`. (#4493)
+- [fixed] Concurrency crash in FView. (#15514)
+
 # 11.9.0
 - [fixed] Fix connection failure issue introduced in 10.27.0 by restoring the
   Socket Rocket implementation instead of `NSURLSessionWebSocket`. Note that
@@ -71,7 +90,7 @@
   when used in `queryOrderedByKey` queries (#7403).
 
 # 7.5.0
-- [added] Implmement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
+- [added] Implement `queryStartingAfterValue` and `queryEndingBeforeValue` for FirebaseDatabase query pagination.
 - [added] Added `DatabaseQuery#getData` which returns data from the server when cache is stale (#7110).
 
 # 7.2.0

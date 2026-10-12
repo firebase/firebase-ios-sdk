@@ -21,11 +21,15 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/api/realtime_pipeline.h"  // Added for RealtimePipeline
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // Added for QueryOrPipeline
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
+#include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/mutation_batch.h"
+#include "Firestore/core/src/remote/serializer.h"  // Added for Serializer
 #include "Firestore/core/test/unit/local/counting_query_engine.h"
 #include "gtest/gtest.h"
 
@@ -59,10 +63,19 @@ class LocalStoreTestHelper {
 
 using FactoryFunc = std::unique_ptr<LocalStoreTestHelper> (*)();
 
+// Parameters for LocalStore tests, combining helper factory and pipeline flag.
+struct LocalStoreTestParams {
+  FactoryFunc local_store_helper_factory;
+  bool use_pipeline;
+};
+
 class LocalStoreTestBase : public testing::Test {
  protected:
   explicit LocalStoreTestBase(
       std::unique_ptr<LocalStoreTestHelper>&& test_helper);
+
+  // Helper to convert a Query to a RealtimePipeline.
+  api::RealtimePipeline ConvertQueryToPipeline(const core::Query& query);
 
   bool IsGcEager() const {
     return test_helper_->IsGcEager();
@@ -89,7 +102,7 @@ class LocalStoreTestBase : public testing::Test {
       std::vector<model::FieldIndex>&& new_field_indexes);
   model::TargetId AllocateQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);
-  local::QueryResult ExecuteQuery(const core::Query& query);
+  absl::optional<model::DocumentSet> ExecuteQuery(const core::Query& query);
   void SetIndexAutoCreationEnabled(bool is_enabled);
   void DeleteAllIndexes() const;
   void SetMinCollectionSizeToAutoCreateIndex(size_t new_min);
@@ -108,11 +121,12 @@ class LocalStoreTestBase : public testing::Test {
   std::unique_ptr<Persistence> persistence_;
   CountingQueryEngine query_engine_;
   LocalStore local_store_;
+  bool should_use_pipeline_ = false;  // Flag for pipeline usage
   std::vector<model::MutationBatch> batches_;
   model::DocumentMap last_changes_;
 
   model::TargetId last_target_id_ = 0;
-  local::QueryResult last_query_result_;
+  absl::optional<model::DocumentSet> last_query_result_;
 };
 
 /**
@@ -126,10 +140,10 @@ class LocalStoreTestBase : public testing::Test {
  *                                 testing::Values(MyNewLocalStoreTestHelper));
  */
 
-class LocalStoreTest : public LocalStoreTestBase,
-                       public testing::WithParamInterface<FactoryFunc> {
+class LocalStoreTest
+    : public LocalStoreTestBase,
+      public testing::WithParamInterface<LocalStoreTestParams> {
  public:
-  // `GetParam()` must return a factory function.
   LocalStoreTest();
 };
 
@@ -151,20 +165,19 @@ class LocalStoreTest : public LocalStoreTestBase,
 
 /**
  * Asserts that the last ExecuteQuery results contain the docs in the given
- * array.
+ * array in the same order.
  */
-#define FSTAssertQueryReturned(...)                                         \
-  do {                                                                      \
-    std::vector<std::string> expected_keys = {__VA_ARGS__};                 \
-    ASSERT_EQ(last_query_result_.documents().size(), expected_keys.size()); \
-    auto expected_keys_iterator = expected_keys.begin();                    \
-    for (const auto& kv : last_query_result_.documents()) {                 \
-      const DocumentKey& actual_key = kv.first;                             \
-      DocumentKey expected_key = Key(*expected_keys_iterator);              \
-      ASSERT_EQ(actual_key, expected_key);                                  \
-      ++expected_keys_iterator;                                             \
-    }                                                                       \
-    last_query_result_ = QueryResult{};                                     \
+#define FSTAssertQueryReturned(...)                              \
+  do {                                                           \
+    std::vector<std::string> expected_keys = {__VA_ARGS__};      \
+    ASSERT_EQ(last_query_result_->size(), expected_keys.size()); \
+    auto expected_keys_iterator = expected_keys.begin();         \
+    for (const auto& doc : *last_query_result_) {                \
+      const DocumentKey& actual_key = doc.get().key();           \
+      DocumentKey expected_key = Key(*expected_keys_iterator);   \
+      ASSERT_EQ(actual_key, expected_key);                       \
+      ++expected_keys_iterator;                                  \
+    }                                                            \
   } while (0)
 
 /** Asserts that the given keys were removed. */

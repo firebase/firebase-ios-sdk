@@ -30,7 +30,6 @@ private let kURLResponseErrorCodeInternalError = "auth/internal-error"
 private let kFIRAuthErrorMessageMalformedJWT =
   "Failed to parse JWT. Check the userInfo dictionary for the full token."
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthErrorUtils {
   static let internalErrorDomain = "FIRAuthInternalErrorDomain"
   static let userInfoDeserializedResponseKey = "FIRAuthErrorUserInfoDeserializedResponseKey"
@@ -602,5 +601,9 @@ class AuthErrorUtils {
     let message = "The reCAPTCHA SDK action class creation failed. See " +
       "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
     return error(code: .recaptchaActionCreationFailed, message: message)
+  }
+
+  static func passwordDoesNotMeetRequirementsError(message: String?) -> Error {
+    return error(code: .passwordDoesNotMeetRequirements, message: message)
   }
 }

@@ -19,7 +19,6 @@
   import WebKit
 
   /// Defines a delegate for AuthWebViewController
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   protocol AuthWebViewControllerDelegate: AnyObject {
     /// Notifies the delegate that the web view controller is being cancelled by the user.
     /// - Parameter webViewController: The web view controller in question.
@@ -47,14 +46,26 @@
                  completion: @escaping (URL?, Error?) -> Void)
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthWebViewController: UIViewController,
     WKNavigationDelegate {
     // MARK: - Properties
 
     private var url: URL
     weak var delegate: AuthWebViewControllerDelegate?
-    private weak var webView: AuthWebView?
+
+    private let webView: WKWebView = {
+      let webView = WKWebView(frame: .zero)
+      webView.isOpaque = false
+      webView.backgroundColor = .clear
+      webView.scrollView.isOpaque = false
+      webView.scrollView.backgroundColor = .clear
+      webView.scrollView.bounces = false
+      webView.scrollView.alwaysBounceVertical = false
+      webView.scrollView.alwaysBounceHorizontal = false
+      return webView
+    }()
+
+    private let spinner = UIActivityIndicatorView(style: .medium)
 
     // MARK: - Initialization
 
@@ -71,11 +82,14 @@
 
     // MARK: - View Lifecycle
 
-    override func loadView() {
-      let webView = AuthWebView(frame: UIScreen.main.bounds)
-      webView.webView.navigationDelegate = self
-      view = webView
-      self.webView = webView
+    override func viewDidLoad() {
+      super.viewDidLoad()
+      view.backgroundColor = .white
+
+      webView.navigationDelegate = self
+      view.addSubview(webView)
+      view.addSubview(spinner)
+
       navigationItem.leftBarButtonItem = UIBarButtonItem(
         barButtonSystemItem: .cancel,
         target: self,
@@ -83,9 +97,15 @@
       )
     }
 
+    override func viewDidLayoutSubviews() {
+      super.viewDidLayoutSubviews()
+      webView.frame = view.bounds
+      spinner.center = CGPoint(x: view.bounds.midX, y: view.bounds.midY)
+    }
+
     override func viewDidAppear(_ animated: Bool) {
       super.viewDidAppear(animated)
-      webView?.webView.load(URLRequest(url: url))
+      webView.load(URLRequest(url: url))
     }
 
     // MARK: - Actions
@@ -108,13 +128,13 @@
 
     func webView(_ webView: WKWebView,
                  didStartProvisionalNavigation navigation: WKNavigation!) {
-      self.webView?.spinner.isHidden = false
-      self.webView?.spinner.startAnimating()
+      spinner.isHidden = false
+      spinner.startAnimating()
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-      self.webView?.spinner.isHidden = true
-      self.webView?.spinner.stopAnimating()
+      spinner.isHidden = true
+      spinner.stopAnimating()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
@@ -172,7 +192,19 @@
 
     private var url: URL
     weak var delegate: AuthWebViewControllerDelegate?
-    private weak var webView: AuthWebView?
+
+    private let webView: WKWebView = {
+      let webView = WKWebView(frame: .zero)
+      webView.wantsLayer = true
+      return webView
+    }()
+
+    private let spinner: NSProgressIndicator = {
+      let spinner = NSProgressIndicator()
+      spinner.style = .spinning
+      spinner.isIndeterminate = true
+      return spinner
+    }()
 
     // MARK: - Initialization
 
@@ -190,15 +222,31 @@
     // MARK: - View Lifecycle
 
     override func loadView() {
-      let webView = AuthWebView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
-      webView.webView.navigationDelegate = self
-      view = webView
-      self.webView = webView
+      view = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
+      view.wantsLayer = true
+      view.layer?.backgroundColor = NSColor.white.cgColor
+
+      webView.navigationDelegate = self
+
+      view.addSubview(webView)
+      view.addSubview(spinner)
+    }
+
+    override func viewDidLayout() {
+      super.viewDidLayout()
+
+      webView.frame = view.bounds
+      spinner.frame = NSRect(
+        x: view.bounds.midX - 16,
+        y: view.bounds.midY - 16,
+        width: 32,
+        height: 32
+      )
     }
 
     override func viewDidAppear() {
       super.viewDidAppear()
-      webView?.webView.load(URLRequest(url: url))
+      webView.load(URLRequest(url: url))
     }
 
     // MARK: - Public Methods
@@ -222,13 +270,13 @@
 
     func webView(_ webView: WKWebView,
                  didStartProvisionalNavigation navigation: WKNavigation!) {
-      self.webView?.spinner.isHidden = false
-      self.webView?.spinner.startAnimation(nil)
+      spinner.isHidden = false
+      spinner.startAnimation(nil)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-      self.webView?.spinner.isHidden = true
-      self.webView?.spinner.stopAnimation(nil)
+      spinner.isHidden = true
+      spinner.stopAnimation(nil)
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,

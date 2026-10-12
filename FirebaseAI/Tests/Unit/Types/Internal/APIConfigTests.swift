@@ -16,71 +16,70 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class APIConfigTests: XCTestCase {
   let defaultLocation = "us-central1"
   let globalLocation = "global"
 
-  func testInitialize_vertexAI_prod_v1() {
+  func testInitialize_agentPlatform_prod_v1() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: defaultLocation),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: defaultLocation),
       version: .v1
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .agentPlatform(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://firebasevertexai.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .agentPlatform, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
-  func testInitialize_vertexAI_prod_v1beta() {
+  func testInitialize_agentPlatform_prod_v1beta() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyProd, location: defaultLocation),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: defaultLocation),
       version: .v1beta
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .agentPlatform(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://firebasevertexai.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .agentPlatform, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
 
-  func testInitialize_vertexAI_staging_v1() {
+  func testInitialize_agentPlatform_staging_v1() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: defaultLocation),
+      service: .agentPlatform(endpoint: .firebaseProxyStaging, location: defaultLocation),
       version: .v1
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .agentPlatform(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .agentPlatform, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1")
   }
 
-  func testInitialize_vertexAI_staging_v1beta() {
+  func testInitialize_agentPlatform_staging_v1beta() {
     let apiConfig = APIConfig(
-      service: .vertexAI(endpoint: .firebaseProxyStaging, location: defaultLocation),
+      service: .agentPlatform(endpoint: .firebaseProxyStaging, location: defaultLocation),
       version: .v1beta
     )
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: endpoint, location: location):
+    case let .agentPlatform(endpoint: endpoint, location: location):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
       XCTAssertEqual(location, defaultLocation)
     case .googleAI:
-      XCTFail("Expected .vertexAI, got .googleAI")
+      XCTFail("Expected .agentPlatform, got .googleAI")
     }
     XCTAssertEqual(apiConfig.version.rawValue, "v1beta")
   }
@@ -91,8 +90,8 @@ final class APIConfigTests: XCTestCase {
     )
 
     switch apiConfig.service {
-    case .vertexAI:
-      XCTFail("Expected .googleAI, got .vertexAI")
+    case .agentPlatform:
+      XCTFail("Expected .googleAI, got .agentPlatform")
     case let .googleAI(endpoint: endpoint):
       XCTAssertEqual(endpoint.rawValue, "https://staging-firebasevertexai.sandbox.googleapis.com")
     }
@@ -103,8 +102,8 @@ final class APIConfigTests: XCTestCase {
     let apiConfig = APIConfig(service: .googleAI(endpoint: .googleAIBypassProxy), version: .v1beta)
 
     switch apiConfig.service {
-    case .vertexAI:
-      XCTFail("Expected .googleAI, got .vertexAI")
+    case .agentPlatform:
+      XCTFail("Expected .googleAI, got .agentPlatform")
     case let .googleAI(endpoint: endpoint):
       XCTAssertEqual(endpoint.rawValue, "https://generativelanguage.googleapis.com")
     }

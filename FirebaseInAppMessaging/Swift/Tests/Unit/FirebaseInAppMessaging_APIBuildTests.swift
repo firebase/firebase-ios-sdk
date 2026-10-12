@@ -266,7 +266,6 @@ final class FirebaseInAppMessaging_APIBuildTests: XCTestCase {
       _ = swiftDelegate as InAppMessagingDisplayDelegate
     }
 
-    @available(iOS 13, tvOS 13, *)
     struct MyView: View {
       var body: some View {
         Text("Hello, world!")

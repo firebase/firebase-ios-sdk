@@ -20,8 +20,11 @@ import Foundation
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 internal import FirebaseCoreExtension
 
+#if compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+  @_exported import GeminiLanguageModel
+#endif // compiler(>=6.4) && canImport(FoundationModels) && canImport(GeminiLanguageModel)
+
 /// The Firebase AI SDK provides access to Gemini models directly from your app.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public final class FirebaseAI: Sendable {
   // MARK: - Public APIs
 
@@ -29,7 +32,7 @@ public final class FirebaseAI: Sendable {
   ///
   /// - Parameters:
   ///   - app: A custom `FirebaseApp` used for initialization; if not specified, uses the default
-  ///     ``FirebaseApp``.
+  ///     `FirebaseApp`.
   ///   - backend: The backend API for the Firebase AI SDK; if not specified, uses the default
   ///     ``Backend/googleAI()`` (Gemini Developer API).
   ///   - useLimitedUseAppCheckTokens: When sending tokens to the backend, this option enables
@@ -59,25 +62,26 @@ public final class FirebaseAI: Sendable {
 
   /// Initializes a generative model with the given parameters.
   ///
-  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/vertex-ai/gemini-models) for
+  /// - Note: Refer to [Gemini models](https://firebase.google.com/docs/ai-logic/models) for
   /// guidance on choosing an appropriate model for your use case.
   ///
   /// - Parameters:
   ///   - modelName: The name of the model to use; see
   ///     [available model names
-  ///     ](https://firebase.google.com/docs/vertex-ai/gemini-models#available-model-names) for a
+  ///     ](https://firebase.google.com/docs/ai-logic/models#available-model-names) for a
   ///     list of supported model names.
   ///   - generationConfig: The content generation parameters your model should use.
   ///   - safetySettings: A value describing what types of harmful content your model should allow.
-  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any `Tool` specified in the request.
+  ///   - tools: A list of ``GenerativeModel/Tool`` objects that the model may use to generate the
+  ///     next response.
+  ///   - toolConfig: Tool configuration for any ``GenerativeModel/Tool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
   public func generativeModel(modelName: String,
                               generationConfig: GenerationConfig? = nil,
                               safetySettings: [SafetySetting]? = nil,
-                              tools: [Tool]? = nil,
+                              tools: [GenerativeModel.Tool]? = nil,
                               toolConfig: ToolConfig? = nil,
                               systemInstruction: ModelContent? = nil,
                               requestOptions: RequestOptions = RequestOptions())
@@ -86,7 +90,7 @@ public final class FirebaseAI: Sendable {
       && !modelName.starts(with: GenerativeModel.gemmaModelNamePrefix) {
       AILog.warning(code: .unsupportedGeminiModel, """
       Unsupported Gemini model "\(modelName)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Gemini model names.
+      https://firebase.google.com/docs/ai-logic/models for a list of supported Gemini model names.
       """)
     }
 
@@ -104,34 +108,40 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// Initializes an ``ImagenModel`` with the given parameters.
+  /// **[Public Preview]** Initializes a new `TemplateGenerativeModel`.
   ///
-  /// - Note: Refer to [Imagen models](https://firebase.google.com/docs/vertex-ai/models) for
-  /// guidance on choosing an appropriate model for your use case.
+  /// > Warning: This API is a public preview and may be subject to change.
+  ///
+  /// Server prompt templates let you store prompts, schemas, tools, and configurations on the
+  /// server, decoupling prompt iteration from app release cycles.
+  ///
+  /// > Note: If your Firebase project enforces
+  /// [template-only
+  /// mode](https://firebase.google.com/docs/ai-logic/server-prompt-templates/template-only-mode),
+  /// all Gemini requests in the project must use server prompt templates via
+  /// `templateGenerativeModel`; standard requests will be rejected with an unauthorized (403)
+  /// error.
   ///
   /// - Parameters:
-  ///   - modelName: The name of the Imagen 3 model to use.
-  ///   - generationConfig: Configuration options for generating images with Imagen.
-  ///   - safetySettings: Settings describing what types of potentially harmful content your model
-  ///     should allow.
+  ///   - tools: An optional list of ``TemplateTool``s that the model may use to generate responses.
+  ///     Tools must be declared in the template's frontmatter. In client code, pass
+  ///     ``TemplateTool/functionDeclarations(_:)`` to provide or override schema definitions for
+  ///     functions declared in the template, or ``TemplateTool/googleMaps()`` to enable Grounding
+  ///     with Google Maps.
+  ///   - toolConfig: Tool configuration for tools specified in the request (such as providing a
+  ///     ``RetrievalConfig`` with user location and language code for Grounding with Google Maps).
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  public func imagenModel(modelName: String, generationConfig: ImagenGenerationConfig? = nil,
-                          safetySettings: ImagenSafetySettings? = nil,
-                          requestOptions: RequestOptions = RequestOptions()) -> ImagenModel {
-    if !modelName.starts(with: ImagenModel.imagenModelNamePrefix) {
-      AILog.warning(code: .unsupportedImagenModel, """
-      Unsupported Imagen model "\(modelName)"; see \
-      https://firebase.google.com/docs/vertex-ai/models for a list supported Imagen model names.
-      """)
-    }
-
-    return ImagenModel(
-      modelResourceName: modelResourceName(modelName: modelName),
+  /// - Returns: A new ``TemplateGenerativeModel`` instance.
+  public func templateGenerativeModel(tools: [TemplateTool]? = nil,
+                                      toolConfig: TemplateToolConfig? = nil,
+                                      requestOptions: RequestOptions = RequestOptions())
+    -> TemplateGenerativeModel {
+    return TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
-      generationConfig: generationConfig,
-      safetySettings: safetySettings,
-      requestOptions: requestOptions
+      tools: tools,
+      toolConfig: toolConfig,
+      requestOptions: requestOptions,
     )
   }
 
@@ -148,16 +158,16 @@ public final class FirebaseAI: Sendable {
   /// - Parameters:
   ///   - modelName: The name of the model to use.
   ///   - generationConfig: The content generation parameters your model should use.
-  ///   - tools: A list of ``Tool`` objects that the model may use to generate the next response.
-  ///   - toolConfig: Tool configuration for any ``Tool`` specified in the request.
+  ///   - tools: A list of ``GenerativeModel/Tool`` objects that the model may use to generate the
+  ///     next response.
+  ///   - toolConfig: Tool configuration for any ``GenerativeModel/Tool`` specified in the request.
   ///   - systemInstruction: Instructions that direct the model to behave a certain way; currently
   ///     only text content is supported.
   ///   - requestOptions: Configuration parameters for sending requests to the backend.
-  @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
   @available(watchOS, unavailable)
   public func liveModel(modelName: String,
                         generationConfig: LiveGenerationConfig? = nil,
-                        tools: [Tool]? = nil,
+                        tools: [GenerativeModel.Tool]? = nil,
                         toolConfig: ToolConfig? = nil,
                         systemInstruction: ModelContent? = nil,
                         requestOptions: RequestOptions = RequestOptions()) -> LiveGenerativeModel {
@@ -248,25 +258,25 @@ public final class FirebaseAI: Sendable {
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid model name "\(modelName)" specified; see \
-      https://firebase.google.com/docs/vertex-ai/gemini-model#available-models for a list of \
+      https://firebase.google.com/docs/ai-logic/models#available-model-names for a list of \
       available models.
       """)
     }
 
     switch apiConfig.service {
-    case let .vertexAI(endpoint: _, location: location):
-      return vertexAIModelResourceName(modelName: modelName, location: location)
+    case let .agentPlatform(endpoint: _, location: location):
+      return agentPlatformModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
 
-  private func vertexAIModelResourceName(modelName: String, location: String) -> String {
+  private func agentPlatformModelResourceName(modelName: String, location: String) -> String {
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
       Invalid location "\(location)" specified; see \
-      https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations \
+      https://firebase.google.com/docs/ai-logic/locations#available-locations \
       for a list of available locations.
       """)
     }
@@ -277,11 +287,18 @@ public final class FirebaseAI: Sendable {
 
   private func developerModelResourceName(modelName: String) -> String {
     switch apiConfig.service.endpoint {
-    case .firebaseProxyStaging, .firebaseProxyProd:
-      let projectID = firebaseInfo.projectID
-      return "projects/\(projectID)/models/\(modelName)"
-    case .googleAIBypassProxy:
-      return "models/\(modelName)"
+    case .firebaseProxyProd:
+      return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+    #if DEBUG
+      case .googleAIBypassProxy:
+        return "models/\(modelName)"
+      case .firebaseProxyStaging:
+        return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
+      case .agentPlatformStagingBypassProxy:
+        fatalError(
+          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
+        )
+    #endif // DEBUG
     }
   }
 

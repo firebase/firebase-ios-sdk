@@ -25,7 +25,6 @@ private let kIDTokenKey = "idToken"
 /// The key for the "localID" value in the request.
 private let kLocalIDKey = "localId"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = DeleteAccountResponse
 

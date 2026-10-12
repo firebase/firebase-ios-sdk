@@ -19,7 +19,6 @@ import XCTest
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
 // for instructions on running them manually.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class FunctionCallingSnippets: XCTestCase {
   override func setUpWithError() throws {
     try FirebaseApp.configureDefaultAppForSnippets()
@@ -101,7 +100,7 @@ final class FunctionCallingSnippets: XCTestCase {
     // Send the response(s) from the function back to the model so that the model can use it
     // to generate its final response.
     let finalResponse = try await chat.sendMessage(
-      [ModelContent(role: "function", parts: functionResponses)]
+      [ModelContent(role: "user", parts: functionResponses)]
     )
 
     // Log the text response.

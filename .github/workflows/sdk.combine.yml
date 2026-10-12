@@ -1,0 +1,79 @@
+# Copyright 2020 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: sdk.combine
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    # Combine sources
+    - 'FirebaseCombineSwift/**'
+
+    # Podspecs
+    - 'FirebaseCombineSwift.podspec'
+
+    # This workflow
+    - '.github/workflows/sdk.combine.yml'
+
+    # Rebuild on Ruby infrastructure changes.
+    - 'Gemfile'
+
+    # Dependencies
+    - 'FirebaseCore/**'
+    - 'FirebaseTestingSupport/**'
+    - 'FirebaseAuth/**'
+    - 'FirebaseFunctions/**'
+    - 'FirebaseStorage/**'
+    # - 'Firestore/**' # (Disabled to avoid building Firestore in presubmits)
+
+  schedule:
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
+    - cron:  '0 7 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  xcodebuild:
+    if: github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: CombineSwift
+      platform: iOS
+      method: xcodebuild
+      setup_command: scripts/install_prereqs.sh CombineSwift iOS xcodebuild
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  storage-combine-integration:
+    if: github.event.pull_request.head.repo.fork == false
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: StorageCombine
+      platform: all
+      method: xcodebuild
+      setup_command: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/storage-db-plist.gpg \
+          FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.h.gpg \
+          FirebaseStorage/Tests/ObjCIntegration/Credentials.h "$plist_secret"
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Storage/Credentials.swift.gpg \
+          FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}

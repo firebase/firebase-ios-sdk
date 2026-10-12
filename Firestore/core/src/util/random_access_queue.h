@@ -56,7 +56,7 @@ class RandomAccessQueue {
     PushBackAll(other);
   }
 
-  RandomAccessQueue(RandomAccessQueue&& other) = default;
+  RandomAccessQueue(RandomAccessQueue&& other) noexcept = default;
 
   RandomAccessQueue& operator=(const RandomAccessQueue& other) {
     queue_.clear();
@@ -65,7 +65,7 @@ class RandomAccessQueue {
     return *this;
   }
 
-  RandomAccessQueue& operator=(RandomAccessQueue&& other) = default;
+  RandomAccessQueue& operator=(RandomAccessQueue&& other) noexcept = default;
 
   /**
    * Adds an element to the back of this queue, if it is not already present.

@@ -19,7 +19,6 @@ import XCTest
 // These snippet tests are intentionally skipped in CI jobs; see the README file in this directory
 // for instructions on running them manually.
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 final class LiveSnippets: XCTestCase {
   override func setUpWithError() throws {
@@ -31,11 +30,11 @@ final class LiveSnippets: XCTestCase {
   }
 
   func sendAudioReceiveAudio() async throws {
-    // Initialize the Vertex AI Gemini API backend service
+    // Initialize the Agent Platform Gemini API backend service
     // Set the location to `us-central1` (the flash-live model is only supported in that location)
     // Create a `LiveGenerativeModel` instance with the flash-live model (only model that supports
     // the Live API)
-    let model = FirebaseAI.firebaseAI(backend: .vertexAI(location: "us-central1")).liveModel(
+    let model = FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1")).liveModel(
       modelName: "gemini-2.0-flash-exp",
       // Configure the model to respond with audio
       generationConfig: LiveGenerationConfig(
@@ -216,9 +215,6 @@ final class LiveSnippets: XCTestCase {
 
     // Set parameter values in a `LiveGenerationConfig` (example values shown here)
     let config = LiveGenerationConfig(
-      temperature: 0.9,
-      topP: 0.1,
-      topK: 16,
       maxOutputTokens: 200,
       responseModalities: [.audio],
       speech: SpeechConfig(voiceName: "Fenrir")

@@ -37,7 +37,7 @@ struct ErrorDetails {
     return isErrorInfo() && reason == "SERVICE_DISABLED" && domain == "googleapis.com"
   }
 
-  func isVertexAIInFirebaseServiceDisabledErrorDetails() -> Bool {
+  func isFirebaseAILogicServiceDisabledErrorDetails() -> Bool {
     guard isServiceDisabledError() else {
       return false
     }
@@ -141,4 +141,14 @@ enum RPCStatus: String, Decodable {
 enum InvalidCandidateError: Error {
   case emptyContent(underlyingError: Error)
   case malformedContent(underlyingError: Error)
+}
+
+struct UnrecognizedRPCError: Error {
+  let responseBody: String
+}
+
+extension UnrecognizedRPCError: LocalizedError {
+  var errorDescription: String? {
+    return "Unrecognized error payload: \(responseBody)"
+  }
 }

@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct InlineData: Codable, Equatable, Sendable {
   let mimeType: String
   let data: Data
@@ -25,7 +24,6 @@ struct InlineData: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FileData: Codable, Equatable, Sendable {
   let fileURI: String
   let mimeType: String
@@ -41,7 +39,6 @@ struct FileData: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionCall: Equatable, Sendable {
   let name: String
   let args: JSONObject
@@ -54,7 +51,6 @@ struct FunctionCall: Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FunctionResponse: Codable, Equatable, Sendable {
   let name: String
   let response: JSONObject
@@ -67,7 +63,6 @@ struct FunctionResponse: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ExecutableCode: Codable, Equatable, Sendable {
   struct Language: CodableProtoEnum, Sendable, Equatable {
     enum Kind: String {
@@ -90,7 +85,6 @@ struct ExecutableCode: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CodeExecutionResult: Codable, Equatable, Sendable {
   struct Outcome: CodableProtoEnum, Sendable, Equatable {
     enum Kind: String {
@@ -115,7 +109,6 @@ struct CodeExecutionResult: Codable, Equatable, Sendable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct ErrorPart: Part, Error {
   let error: Error
 
@@ -129,7 +122,6 @@ struct ErrorPart: Part, Error {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCall: Codable {
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -143,22 +135,28 @@ extension FunctionCall: Codable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ErrorPart: Codable {
   init(from decoder: any Decoder) throws {
-    fatalError("Decoding an ErrorPart is not supported.")
+    throw DecodingError.dataCorrupted(DecodingError.Context(
+      codingPath: decoder.codingPath,
+      debugDescription: "Decoding an ErrorPart is not supported."
+    ))
   }
 
   func encode(to encoder: any Encoder) throws {
-    fatalError("Encoding an ErrorPart is not supported.")
+    throw EncodingError.invalidValue(self, EncodingError.Context(
+      codingPath: encoder.codingPath,
+      debugDescription: "Cannot encode a part that failed to convert: \(error)"
+    ))
   }
 }
 
 // MARK: - Equatable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ErrorPart: Equatable {
   static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
-    fatalError("Comparing ErrorParts for equality is not supported.")
+    // `Error` is not `Equatable`; compare descriptions so that comparing `ModelContent` values
+    // that contain an `ErrorPart` does not trap.
+    return String(reflecting: lhs.error) == String(reflecting: rhs.error)
   }
 }

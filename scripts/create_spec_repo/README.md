@@ -11,13 +11,13 @@ with sources of
 where [SpecsTesting](https://github.com/firebase/SpecsTesting) is generated from the head of the
 main branch of [firebase-ios-sdk repo](https://github.com/firebase/firebase-ios-sdk).
 
-The [prerelease workflow](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease.yml#L11-L46)
+The [prerelease_cocoapods workflow](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease_cocoapods.yml#L11-L46)
 will update the [SpecsTesting repo](https://github.com/firebase/SpecsTesting) nightly from the
 head of the main branch.
 In order to let presubmit tests run on the latest podspec repo, [SpecsTesting repo](https://github.com/firebase/SpecsTesting)
 will be updated when a PR with changed podspecs is merged.
 When this PR is merged, changed podspecs will be `pod repo push`ed to the podspec repo in
-[postsubmit tests](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease.yml#L48-L94).
+[postsubmit tests](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease_cocoapods.yml#L48-L94).
 
 Since `pod spec lint` will test podspecs with remote sources. One PR with changes on multiple
 podspecs are not encouraged. Changes with multiple podspecs, including their dependencies, might
@@ -38,7 +38,7 @@ job in presubmit.
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
       with:
-        ruby-version: '2.7'
+        ruby-version: '3.4.1'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
@@ -46,6 +46,6 @@ job in presubmit.
 
 ```
 
-Once a PR is merged, [`update_SpecsTesting_repo` job](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease.yml#L48)
-in the [prerelease workflow](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease.yml)
+Once a PR is merged, [`update_SpecsTesting_repo` job](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease_cocoapods.yml#L48)
+in the [prerelease_cocoapods workflow](https://github.com/firebase/firebase-ios-sdk/blob/main/.github/workflows/prerelease_cocoapods.yml)
 will automatically `pod repo push` changed podspecs in postsubmits,

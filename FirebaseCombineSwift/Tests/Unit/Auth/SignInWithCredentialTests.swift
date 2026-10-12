@@ -545,14 +545,14 @@ class SignInWithCredentialTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     let userSignInExpectation = expectation(description: "User signed in")
 
-    let emailCrendential = EmailAuthProvider.credential(
+    let emailCredential = EmailAuthProvider.credential(
       withEmail: Self.email,
       link: Self.fakeEmailSignInlink
     )
 
     // when
     Auth.auth()
-      .signIn(with: emailCrendential)
+      .signIn(with: emailCredential)
       .sink { completion in
         switch completion {
         case .finished:
@@ -586,14 +586,14 @@ class SignInWithCredentialTests: XCTestCase {
     var cancellables = Set<AnyCancellable>()
     let userSignInExpectation = expectation(description: "User disabled")
 
-    let emailCrendential = EmailAuthProvider.credential(
+    let emailCredential = EmailAuthProvider.credential(
       withEmail: Self.email,
       link: Self.fakeEmailSignInlink
     )
 
     // when
     Auth.auth()
-      .signIn(with: emailCrendential)
+      .signIn(with: emailCredential)
       .sink { completion in
         if case let .failure(error as NSError) = completion {
           XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey])

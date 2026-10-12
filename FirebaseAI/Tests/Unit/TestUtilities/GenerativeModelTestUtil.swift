@@ -20,7 +20,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 enum GenerativeModelTestUtil {
   /// Returns an HTTP request handler
   static func httpRequestHandler(forResource name: String,
@@ -30,10 +30,12 @@ enum GenerativeModelTestUtil {
                                  timeout: TimeInterval = RequestOptions().timeout,
                                  appCheckToken: String? = nil,
                                  authToken: String? = nil,
-                                 dataCollection: Bool = true) throws -> ((URLRequest) throws -> (
-    URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
-  )) {
+                                 dataCollection: Bool = true,
+                                 isTemplateRequest: Bool = false) throws
+    -> ((URLRequest) throws -> (
+      URLResponse,
+      AsyncLineSequence<URL.AsyncBytes>?
+    )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
     #if os(watchOS)
@@ -45,12 +47,19 @@ enum GenerativeModelTestUtil {
       )
       return { request in
         let requestURL = try XCTUnwrap(request.url)
-        XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        if isTemplateRequest {
+          XCTAssertEqual(
+            requestURL.path.occurrenceCount(of: "templates/test-template:template"),
+            1
+          )
+        } else {
+          XCTAssertEqual(requestURL.path.occurrenceCount(of: "models/"), 1)
+        }
         XCTAssertEqual(request.timeoutInterval, timeout)
         let apiClientTags = try XCTUnwrap(request.value(forHTTPHeaderField: "x-goog-api-client"))
           .components(separatedBy: " ")
-        XCTAssert(apiClientTags.contains(GenerativeAIService.languageTag))
-        XCTAssert(apiClientTags.contains(GenerativeAIService.firebaseVersionTag))
+        XCTAssert(apiClientTags.contains(Constants.languageTag))
+        XCTAssert(apiClientTags.contains(Constants.firebaseVersionTag))
         XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), appCheckToken)
 
         let firebaseAppID = request.value(forHTTPHeaderField: "X-Firebase-AppId")
@@ -59,6 +68,9 @@ enum GenerativeModelTestUtil {
           try? XCTUnwrap(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String)
         XCTAssertEqual(firebaseAppID, dataCollection ? "My app ID" : nil)
         XCTAssertEqual(appVersion, dataCollection ? expectedAppVersion : nil)
+
+        let bundleID = request.value(forHTTPHeaderField: "x-ios-bundle-identifier")
+        XCTAssertEqual(bundleID, Bundle.main.bundleIdentifier)
 
         if let authToken {
           XCTAssertEqual(
@@ -77,6 +89,46 @@ enum GenerativeModelTestUtil {
         return (response, fileURL.lines)
       }
     #endif // os(watchOS)
+  }
+
+  /// Returns an HTTP request handler that responds with the provided `body`.
+  ///
+  /// The body is written to a temporary file so that it is served line by line, in the same way as
+  /// the fixture files used by `httpRequestHandler(forResource:withExtension:subdirectory:)`.
+  static func httpRequestHandler(body: String, statusCode: Int = 200) throws
+    -> ((URLRequest) throws -> (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)) {
+    // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
+    // https://developer.apple.com/documentation/foundation/urlprotocol for details.
+    #if os(watchOS)
+      throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
+    #else // os(watchOS)
+      let fileURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("mock-response-\(UUID().uuidString).txt")
+      try XCTUnwrap(body.data(using: .utf8)).write(to: fileURL)
+      return { request in
+        let requestURL = try XCTUnwrap(request.url)
+        let response = try XCTUnwrap(HTTPURLResponse(
+          url: requestURL,
+          statusCode: statusCode,
+          httpVersion: nil,
+          headerFields: nil
+        ))
+        return (response, fileURL.lines)
+      }
+    #endif // os(watchOS)
+  }
+
+  static func collectTextFromStream(_ stream: AsyncThrowingStream<
+    GenerateContentResponse,
+    Error
+  >) async throws -> String {
+    var content = ""
+    for try await response in stream {
+      if let text = response.text {
+        content += text
+      }
+    }
+    return content
   }
 
   static func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
@@ -125,5 +177,43 @@ private extension String {
   /// Returns the number of occurrences of `substring` in the `String`.
   func occurrenceCount(of substring: String) -> Int {
     return components(separatedBy: substring).count - 1
+  }
+}
+
+extension URLRequest {
+  func extractBodyData() throws -> Data? {
+    if let body = httpBody {
+      return body
+    }
+
+    guard let stream = httpBodyStream else {
+      return nil
+    }
+
+    stream.open()
+    defer { stream.close() }
+
+    let bufferSize = 1024
+    let buffer = UnsafeMutablePointer<UInt8>.allocate(capacity: bufferSize)
+    defer { buffer.deallocate() }
+
+    var data = Data()
+    while stream.hasBytesAvailable {
+      let bytesRead = stream.read(buffer, maxLength: bufferSize)
+
+      if bytesRead < 0 {
+        if let error = stream.streamError {
+          throw error
+        }
+        XCTFail("Unknown error while reading `httpBodyStream`.")
+        return nil
+      } else if bytesRead == 0 {
+        break
+      }
+
+      data.append(buffer, count: bytesRead)
+    }
+
+    return data
   }
 }

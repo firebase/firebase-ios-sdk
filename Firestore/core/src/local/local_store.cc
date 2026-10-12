@@ -439,7 +439,7 @@ bool LocalStore::ShouldPersistTargetData(const TargetData& new_target_data,
 }
 
 absl::optional<TargetData> LocalStore::GetTargetData(
-    const core::Target& target) {
+    const core::TargetOrPipeline& target) {
   auto target_id = target_id_by_target_.find(target);
   if (target_id != target_id_by_target_.end()) {
     return target_data_by_target_[target_id->second];
@@ -502,14 +502,16 @@ BatchId LocalStore::GetHighestUnacknowledgedBatchId() {
   });
 }
 
-TargetData LocalStore::AllocateTarget(Target target) {
+TargetData LocalStore::AllocateTarget(
+    const core::TargetOrPipeline& target_or_pipeline) {
   TargetData target_data = persistence_->Run("Allocate target", [&] {
-    absl::optional<TargetData> cached = target_cache_->GetTarget(target);
+    absl::optional<TargetData> cached =
+        target_cache_->GetTarget(target_or_pipeline);
     // TODO(mcg): freshen last accessed date if cached exists?
     if (!cached) {
-      cached = TargetData(std::move(target), target_id_generator_.NextId(),
-                          persistence_->current_sequence_number(),
-                          QueryPurpose::Listen);
+      cached = TargetData(
+          std::move(target_or_pipeline), target_id_generator_.NextId(),
+          persistence_->current_sequence_number(), QueryPurpose::Listen);
       target_cache_->AddTarget(*cached);
     }
     return *cached;
@@ -520,7 +522,7 @@ TargetData LocalStore::AllocateTarget(Target target) {
   TargetId target_id = target_data.target_id();
   if (target_data_by_target_.find(target_id) == target_data_by_target_.end()) {
     target_data_by_target_[target_id] = target_data;
-    target_id_by_target_[target_data.target()] = target_id;
+    target_id_by_target_[target_data.target_or_pipeline()] = target_id;
   }
 
   return target_data;
@@ -547,14 +549,15 @@ void LocalStore::ReleaseTarget(TargetId target_id) {
     // Note: This also updates the target cache.
     persistence_->reference_delegate()->RemoveTarget(target_data);
     target_data_by_target_.erase(target_id);
-    target_id_by_target_.erase(target_data.target());
+    target_id_by_target_.erase(target_data.target_or_pipeline());
   });
 }
 
-QueryResult LocalStore::ExecuteQuery(const Query& query,
-                                     bool use_previous_results) {
+QueryResult LocalStore::ExecuteQuery(
+    const core::QueryOrPipeline& query_or_pipeline, bool use_previous_results) {
   return persistence_->Run("ExecuteQuery", [&] {
-    absl::optional<TargetData> target_data = GetTargetData(query.ToTarget());
+    absl::optional<TargetData> target_data =
+        GetTargetData(query_or_pipeline.ToTargetOrPipeline());
     SnapshotVersion last_limbo_free_snapshot_version;
     DocumentKeySet remote_keys;
 
@@ -565,7 +568,7 @@ QueryResult LocalStore::ExecuteQuery(const Query& query,
     }
 
     model::DocumentMap documents = query_engine_->GetDocumentsMatchingQuery(
-        query,
+        query_or_pipeline,
         use_previous_results ? last_limbo_free_snapshot_version
                              : SnapshotVersion::None(),
         use_previous_results ? remote_keys : DocumentKeySet{});
@@ -609,7 +612,8 @@ DocumentMap LocalStore::ApplyBundledDocuments(
     const MutableDocumentMap& bundled_documents, const std::string& bundle_id) {
   // Allocates a target to hold all document keys from the bundle, such that
   // they will not get garbage collected right away.
-  TargetData umbrella_target = AllocateTarget(NewUmbrellaTarget(bundle_id));
+  TargetData umbrella_target =
+      AllocateTarget(core::TargetOrPipeline(NewUmbrellaTarget(bundle_id)));
   return persistence_->Run("Apply bundle documents", [&] {
     DocumentKeySet keys;
     DocumentUpdateMap document_updates;
@@ -642,7 +646,8 @@ void LocalStore::SaveNamedQuery(const bundle::NamedQuery& query,
   // associated read time if users use it to listen. NOTE: this also means if no
   // corresponding target exists, the new target will remain active and will not
   // get collected, unless users happen to unlisten the query.
-  TargetData existing = AllocateTarget(query.bundled_query().target());
+  TargetData existing =
+      AllocateTarget(core::TargetOrPipeline(query.bundled_query().target()));
   int target_id = existing.target_id();
 
   return persistence_->Run("Save named query", [&] {

@@ -16,23 +16,25 @@
 public struct Backend {
   // MARK: - Public API
 
-  /// Initializes a `Backend` configured for the Gemini API in Vertex AI.
+  /// Initializes a `Backend` configured for the Agent Platform Gemini API.
+  ///
+  /// > Note: The Agent Platform Gemini API was formerly known as Vertex AI.
   ///
   /// - Parameters:
-  ///   - location: The region identifier, defaulting to `us-central1`; see
-  ///     [Vertex AI locations]
-  ///     (https://firebase.google.com/docs/vertex-ai/locations?platform=ios#available-locations)
-  ///     for a list of supported locations.
-  public static func vertexAI(location: String = "us-central1") -> Backend {
+  ///   - location: The region identifier, defaulting to `global`; see
+  ///     [available locations][1] for a list of supported locations.
+  ///
+  /// [1]: https://firebase.google.com/docs/ai-logic/locations?api=vertex#available-locations
+  public static func agentPlatform(location: String = "global") -> Backend {
     return Backend(
       apiConfig: APIConfig(
-        service: .vertexAI(endpoint: .firebaseProxyProd, location: location),
+        service: .agentPlatform(endpoint: .firebaseProxyProd, location: location),
         version: .v1beta
       )
     )
   }
 
-  /// Initializes a `Backend` configured for the Google Developer API.
+  /// Initializes a `Backend` configured for the Gemini Developer API.
   public static func googleAI() -> Backend {
     return Backend(
       apiConfig: APIConfig(

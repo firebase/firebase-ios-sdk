@@ -51,6 +51,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/order_by.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_path.h"
@@ -228,8 +229,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   auto async_listener = AsyncEventListener<ViewSnapshot>::Create(
       firestore->client()->user_executor(), std::move(view_listener));
 
-  std::shared_ptr<QueryListener> query_listener =
-      firestore->client()->ListenToQuery(query, internalOptions, async_listener);
+  std::shared_ptr<QueryListener> query_listener = firestore->client()->ListenToQuery(
+      core::QueryOrPipeline(query), internalOptions, async_listener);
 
   return [[FSTListenerRegistration alloc]
       initWithRegistration:absl::make_unique<QueryListenerRegistration>(firestore->client(),

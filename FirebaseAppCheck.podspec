@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '12.5.0'
+  s.version          = '13.1.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/Firebase'
 
   ios_deployment_target = '15.0'
-  osx_deployment_target = '10.15'
+  osx_deployment_target = '11.0'
   tvos_deployment_target = '15.0'
-  watchos_deployment_target = '7.0'
+  watchos_deployment_target = '8.0'
 
   s.swift_version = '5.9'
 
@@ -44,14 +44,15 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'AppCheckCore', '~> 11.0'
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.5.0'
-  s.dependency 'FirebaseCore', '~> 12.5.0'
-  s.dependency 'GoogleUtilities/Environment', '~> 8.1'
-  s.dependency 'GoogleUtilities/UserDefaults', '~> 8.1'
+  s.dependency 'AppCheckCore', '~> 12.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.1.0'
+  s.dependency 'FirebaseCore', '~> 13.1.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
-    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheck'
   }
 
   s.test_spec 'unit' do |unit_tests|
@@ -93,7 +94,13 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
+      'SharedTestUtilities/ExceptionCatcher.[mh]'
     ]
+    swift_unit_tests.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppCheck/Tests/Unit/Swift/FirebaseAppCheck-unit-Bridging-Header.h'
+    }
+
+    swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 13.1.0'
   end
 
 end

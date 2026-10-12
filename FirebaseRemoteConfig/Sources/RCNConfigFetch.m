@@ -516,13 +516,16 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (!data) {
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
         // There may still be a difference between fetched and active config
-        FIRRemoteConfigUpdate *update =
-            [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                           withUpdate:update
-                                            withError:nil
-                                    completionHandler:completionHandler
-                              updateCompletionHandler:updateCompletionHandler];
+        [strongSelf->_content
+            getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                      completionHandler:^(FIRRemoteConfigUpdate *update) {
+                        [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                    withUpdate:update
+                                                     withError:nil
+                                             completionHandler:completionHandler
+                                       updateCompletionHandler:updateCompletionHandler];
+                      }];
+        return;
       }
 
       // Config fetch succeeded.
@@ -533,29 +536,62 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                                             error:&retError];
       if (retError) {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042",
-                    @"RCN Fetch failure: %@. Could not parse response data as JSON", error);
+                    @"RCN Fetch failure: %@. Could not parse response data as JSON", retError);
+      }
+
+      // Reject a response that isn't a dictionary, or whose nested fields don't have the JSON
+      // types the parsers below expect, before any of it is applied.
+      NSString *typeErrStr = nil;
+      if (fetchedConfig && ![fetchedConfig isKindOfClass:[NSDictionary class]]) {
+        typeErrStr =
+            [NSString stringWithFormat:@"RCN Fetch failure: Unexpected JSON response type: %@",
+                                       [fetchedConfig class]];
+      } else if (fetchedConfig) {
+        NSString *invalidField = [strongSelf fieldWithUnexpectedTypeInFetchResponse:fetchedConfig];
+        if (invalidField) {
+          typeErrStr = [NSString
+              stringWithFormat:@"RCN Fetch failure: Unexpected JSON type for response field: %@",
+                               invalidField];
+        }
+      }
+      if (typeErrStr) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000042", @"%@", typeErrStr);
+        [strongSelf->_settings updateMetadataWithFetchSuccessStatus:NO templateVersion:nil];
+        strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
+        strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
+        NSError *typeError = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
+                                                 code:FIRRemoteConfigErrorInternalError
+                                             userInfo:@{NSLocalizedDescriptionKey : typeErrStr}];
+        [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
+                                    withUpdate:nil
+                                     withError:typeError
+                             completionHandler:completionHandler
+                       updateCompletionHandler:updateCompletionHandler];
+        return;
       }
 
       // Check and log if we received an error from the server
       if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
         NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
         NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
-        if (errDict[RCNFetchResponseKeyErrorCode]) {
-          errStr = [errStr
-              stringByAppendingString:[NSString
-                                          stringWithFormat:@"code: %@",
-                                                           errDict[RCNFetchResponseKeyErrorCode]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorStatus]) {
-          errStr = [errStr stringByAppendingString:
-                               [NSString stringWithFormat:@". Status: %@",
-                                                          errDict[RCNFetchResponseKeyErrorStatus]]];
-        }
-        if (errDict[RCNFetchResponseKeyErrorMessage]) {
-          errStr =
-              [errStr stringByAppendingString:
-                          [NSString stringWithFormat:@". Message: %@",
-                                                     errDict[RCNFetchResponseKeyErrorMessage]]];
+        if ([errDict isKindOfClass:[NSDictionary class]]) {
+          if (errDict[RCNFetchResponseKeyErrorCode]) {
+            errStr = [errStr
+                stringByAppendingString:
+                    [NSString stringWithFormat:@"code: %@", errDict[RCNFetchResponseKeyErrorCode]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorStatus]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Status: %@",
+                                                       errDict[RCNFetchResponseKeyErrorStatus]]];
+          }
+          if (errDict[RCNFetchResponseKeyErrorMessage]) {
+            errStr =
+                [errStr stringByAppendingString:
+                            [NSString stringWithFormat:@". Message: %@",
+                                                       errDict[RCNFetchResponseKeyErrorMessage]]];
+          }
         }
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
         NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
@@ -581,7 +617,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                                        fetchedConfig[RCNFetchResponseKeyExperimentDescriptions]];
         }
 
-        strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        @synchronized(strongSelf) {
+          strongSelf->_templateVersionNumber = [strongSelf getTemplateVersionNumber:fetchedConfig];
+        }
       } else {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000063",
                     @"Empty response with no fetched config.");
@@ -594,17 +632,22 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
-      FIRRemoteConfigUpdate *update =
-          [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
-
-      [strongSelf->_settings
-          updateMetadataWithFetchSuccessStatus:YES
-                               templateVersion:strongSelf->_templateVersionNumber];
-      return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
-                                         withUpdate:update
-                                          withError:nil
-                                  completionHandler:completionHandler
-                            updateCompletionHandler:updateCompletionHandler];
+      NSString *templateVersionNumber;
+      @synchronized(strongSelf) {
+        templateVersionNumber = strongSelf->_templateVersionNumber;
+      }
+      [strongSelf->_content
+          getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                    completionHandler:^(FIRRemoteConfigUpdate *update) {
+                      [strongSelf->_settings
+                          updateMetadataWithFetchSuccessStatus:YES
+                                               templateVersion:templateVersionNumber];
+                      [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
+                                                  withUpdate:update
+                                                   withError:nil
+                                           completionHandler:completionHandler
+                                     updateCompletionHandler:updateCompletionHandler];
+                    }];
     });
   };
 
@@ -689,6 +732,33 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
   }
 
   return @"0";
+}
+
+/// Returns the key of the first nested field in the fetch response whose value doesn't have the
+/// JSON type that the personalization, rollout and experiment parsers expect, or nil if every
+/// field that is present is well-formed. Missing fields are allowed.
+- (nullable NSString *)fieldWithUnexpectedTypeInFetchResponse:(NSDictionary *)fetchedConfig {
+  id personalizationMetadata = fetchedConfig[RCNFetchResponseKeyPersonalizationMetadata];
+  if (personalizationMetadata && ![personalizationMetadata isKindOfClass:[NSDictionary class]]) {
+    return RCNFetchResponseKeyPersonalizationMetadata;
+  }
+  // Rollout metadata and experiment descriptions are arrays of JSON objects.
+  for (NSString *key in
+       @[ RCNFetchResponseKeyRolloutMetadata, RCNFetchResponseKeyExperimentDescriptions ]) {
+    id metadataList = fetchedConfig[key];
+    if (!metadataList) {
+      continue;
+    }
+    if (![metadataList isKindOfClass:[NSArray class]]) {
+      return key;
+    }
+    for (id metadata in metadataList) {
+      if (![metadata isKindOfClass:[NSDictionary class]]) {
+        return key;
+      }
+    }
+  }
+  return nil;
 }
 
 @end

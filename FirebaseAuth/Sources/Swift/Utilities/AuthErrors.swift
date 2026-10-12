@@ -336,6 +336,9 @@ import Foundation
   /// Indicates that the reCAPTCHA SDK actions class failed to create.
   case recaptchaActionCreationFailed = 17210
 
+  /// Indicates that the password does not meet the project's password policy.
+  case passwordDoesNotMeetRequirements = 17211
+
   /// Indicates an error occurred while attempting to access the keychain.
   case keychainError = 17995
 
@@ -528,6 +531,8 @@ import Foundation
       return kErrorSiteKeyMissing
     case .recaptchaActionCreationFailed:
       return kErrorRecaptchaActionCreationFailed
+    case .passwordDoesNotMeetRequirements:
+      return kErrorPasswordDoesNotMeetRequirements
     }
   }
 
@@ -719,6 +724,8 @@ import Foundation
       return "ERROR_RECAPTCHA_SITE_KEY_MISSING"
     case .recaptchaActionCreationFailed:
       return "ERROR_RECAPTCHA_ACTION_CREATION_FAILED"
+    case .passwordDoesNotMeetRequirements:
+      return "ERROR_PASSWORD_DOES_NOT_MEET_REQUIREMENTS"
     }
   }
 }
@@ -996,3 +1003,5 @@ private let kErrorSiteKeyMissing =
 private let kErrorRecaptchaActionCreationFailed =
   "The reCAPTCHA SDK action class failed to initialize. See " +
   "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
+
+private let kErrorPasswordDoesNotMeetRequirements = "Missing password requirements."

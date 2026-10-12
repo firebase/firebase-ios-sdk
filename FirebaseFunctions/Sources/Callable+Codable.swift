@@ -217,7 +217,7 @@ public enum StreamResponse<Message: Decodable & Sendable, Result: Decodable & Se
   }
 }
 
-@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 public extension Callable where Request: Sendable, Response: Sendable {
   /// Creates a stream that yields responses from the streaming callable function.
   ///
@@ -273,7 +273,7 @@ public extension Callable where Request: Sendable, Response: Sendable {
     }
 
     return AsyncThrowingStream { continuation in
-      Task {
+      let task = Task {
         do {
           for try await response in callable.stream(encoded) {
             do {
@@ -320,6 +320,9 @@ public extension Callable where Request: Sendable, Response: Sendable {
           continuation.finish(throwing: error)
         }
         continuation.finish()
+      }
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }

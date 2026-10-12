@@ -16,7 +16,6 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class CitationMetadataTests: XCTestCase {
   let decoder = JSONDecoder()
 
@@ -56,9 +55,9 @@ final class CitationMetadataTests: XCTestCase {
     XCTAssertEqual(citation, expectedCitation)
   }
 
-  // MARK: - Vertex AI Format Decoding
+  // MARK: - Agent Platform Gemini API Format Decoding
 
-  func testDecodeCitationMetadata_vertexAIFormat() throws {
+  func testDecodeCitationMetadata_agentPlatformFormat() throws {
     let json = """
     {
       "citations": [\(citationJSON)]

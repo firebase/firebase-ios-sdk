@@ -15,7 +15,6 @@
 import Foundation
 
 /// Response message for BidiGenerateContent RPC call.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 struct BidiGenerateContentServerMessage: Sendable {
   /// The type of the message.
@@ -35,6 +34,9 @@ struct BidiGenerateContentServerMessage: Sendable {
     /// and should be cancelled.
     case toolCallCancellation(BidiGenerateContentToolCallCancellation)
 
+    /// Update with the state needed to resume the session.
+    case sessionResumptionUpdate(BidiSessionResumptionUpdate)
+
     /// Server will disconnect soon.
     case goAway(GoAway)
   }
@@ -48,7 +50,6 @@ struct BidiGenerateContentServerMessage: Sendable {
 
 // MARK: - Decodable
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 extension BidiGenerateContentServerMessage: Decodable {
   enum CodingKeys: String, CodingKey {
@@ -56,6 +57,7 @@ extension BidiGenerateContentServerMessage: Decodable {
     case serverContent
     case toolCall
     case toolCallCancellation
+    case sessionResumptionUpdate
     case goAway
     case usageMetadata
   }
@@ -83,6 +85,11 @@ extension BidiGenerateContentServerMessage: Decodable {
       forKey: .toolCallCancellation
     ) {
       messageType = .toolCallCancellation(toolCallCancellation)
+    } else if let sessionResumptionUpdate = try container.decodeIfPresent(
+      BidiSessionResumptionUpdate.self,
+      forKey: .sessionResumptionUpdate
+    ) {
+      messageType = .sessionResumptionUpdate(sessionResumptionUpdate)
     } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
       messageType = .goAway(goAway)
     } else {

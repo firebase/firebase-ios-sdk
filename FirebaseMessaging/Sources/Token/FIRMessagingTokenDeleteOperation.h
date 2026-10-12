@@ -24,8 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
                                    scope:(nullable NSString *)scope
                       checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
                               instanceID:(nullable NSString *)instanceID
-                                  action:(FIRMessagingTokenAction)action
-                         heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
+                                  action:(FIRMessagingTokenAction)action;
 
 @end
 

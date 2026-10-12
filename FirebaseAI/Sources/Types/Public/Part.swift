@@ -17,7 +17,6 @@ import Foundation
 /// A discrete piece of data in a media format interpretable by an AI model.
 ///
 /// Within a single value of ``Part``, different data types may not mix.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
   /// Indicates whether this `Part` is a summary of the model's internal thinking process.
   ///
@@ -28,7 +27,6 @@ public protocol Part: PartsRepresentable, Codable, Sendable, Equatable {
 }
 
 /// A text part containing a string value.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct TextPart: Part {
   /// Text value.
   public let text: String
@@ -59,9 +57,8 @@ public struct TextPart: Part {
 /// > Important: Only small files can be sent as inline data because of limits on total request
 /// sizes;
 ///  see [input files and requirements
-///  ](https://firebase.google.com/docs/vertex-ai/input-file-requirements#provide-file-as-inline-data)
+///  ](https://firebase.google.com/docs/ai-logic/input-file-requirements#provide-file-as-inline-data)
 ///  for more details and size limits.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct InlineDataPart: Part {
   let inlineData: InlineData
   let _isThought: Bool?
@@ -79,16 +76,16 @@ public struct InlineDataPart: Part {
   /// Creates an inline data part from data and a MIME type.
   ///
   /// > Important: Supported input types depend on the model on the model being used; see [input
-  ///  files and requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements)
+  ///  files and requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements)
   ///  for more details.
   ///
   /// - Parameters:
   ///   - data: The data representation of an image, video, audio or document; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported media types.
   ///   - mimeType: The IANA standard MIME type of the data, for example, `"image/jpeg"` or
   ///     `"video/mp4"`; see [input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(data: Data, mimeType: String) {
     self.init(InlineData(data: data, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
@@ -102,7 +99,6 @@ public struct InlineDataPart: Part {
 }
 
 /// File data stored in Cloud Storage for Firebase, referenced by URI.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FileDataPart: Part {
   let fileData: FileData
   let _isThought: Bool?
@@ -119,7 +115,7 @@ public struct FileDataPart: Part {
   ///     `"gs://bucket-name/path/image.jpg"`.
   ///   - mimeType: The IANA standard MIME type of the uploaded file, for example, `"image/jpeg"`
   ///     or `"video/mp4"`; see [supported input files and
-  ///     requirements](https://firebase.google.com/docs/vertex-ai/input-file-requirements) for
+  ///     requirements](https://firebase.google.com/docs/ai-logic/input-file-requirements) for
   ///     supported values.
   public init(uri: String, mimeType: String) {
     self.init(FileData(fileURI: uri, mimeType: mimeType), isThought: nil, thoughtSignature: nil)
@@ -133,7 +129,6 @@ public struct FileDataPart: Part {
 }
 
 /// A predicted function call returned from the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallPart: Part {
   let functionCall: FunctionCall
   let _isThought: Bool?
@@ -190,7 +185,6 @@ public struct FunctionCallPart: Part {
 /// Contains a string representing the `FunctionDeclaration.name` and a structured JSON object
 /// containing any output from the function is used as context to the model. This should contain the
 /// result of a ``FunctionCallPart`` made based on model prediction.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionResponsePart: Part {
   let functionResponse: FunctionResponse
   let _isThought: Bool?
@@ -241,7 +235,6 @@ public struct FunctionResponsePart: Part {
 }
 
 /// A part containing code that was executed by the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ExecutableCodePart: Part {
   /// The language of the code in an ``ExecutableCodePart``.
   public struct Language: Sendable, Equatable, CustomStringConvertible {
@@ -296,7 +289,6 @@ public struct ExecutableCodePart: Part {
 }
 
 /// The result of executing code.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CodeExecutionResultPart: Part {
   /// The outcome of a code execution.
   public struct Outcome: Sendable, Equatable, CustomStringConvertible {

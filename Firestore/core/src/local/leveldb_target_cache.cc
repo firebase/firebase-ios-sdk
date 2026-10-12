@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_target_cache.h"
 
+#include <optional>
 #include <string>
 #include <unordered_set>
 #include <utility>
@@ -48,7 +49,7 @@ using model::TargetId;
 using nanopb::Message;
 using nanopb::StringReader;
 
-absl::optional<Message<firestore_client_TargetGlobal>>
+std::optional<Message<firestore_client_TargetGlobal>>
 LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
   std::string key = LevelDbTargetGlobalKey::Key();
   std::string value;
@@ -60,7 +61,7 @@ LevelDbTargetCache::TryReadMetadata(leveldb::DB* db) {
   auto result = Message<firestore_client_TargetGlobal>::TryParse(&reader);
   if (!reader.ok()) {
     if (reader.status().code() == Error::kErrorNotFound) {
-      return absl::nullopt;
+      return std::nullopt;
     } else {
       HARD_FAIL("ReadMetadata: failed loading key %s with status: %s", key,
                 reader.status().ToString());
@@ -102,7 +103,8 @@ void LevelDbTargetCache::Start() {
 void LevelDbTargetCache::AddTarget(const TargetData& target_data) {
   Save(target_data);
 
-  const std::string& canonical_id = target_data.target().CanonicalId();
+  const std::string& canonical_id =
+      target_data.target_or_pipeline().CanonicalId();
   std::string index_key =
       LevelDbQueryTargetKey::Key(canonical_id, target_data.target_id());
   std::string empty_buffer;
@@ -129,19 +131,20 @@ void LevelDbTargetCache::RemoveTarget(const TargetData& target_data) {
   std::string key = LevelDbTargetKey::Key(target_id);
   db_->current_transaction()->Delete(key);
 
-  std::string index_key =
-      LevelDbQueryTargetKey::Key(target_data.target().CanonicalId(), target_id);
+  std::string index_key = LevelDbQueryTargetKey::Key(
+      target_data.target_or_pipeline().CanonicalId(), target_id);
   db_->current_transaction()->Delete(index_key);
 
   metadata_->target_count--;
   SaveMetadata();
 }
 
-absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
+std::optional<TargetData> LevelDbTargetCache::GetTarget(
+    const core::TargetOrPipeline& target_or_pipeline) {
   // Scan the query-target index starting with a prefix starting with the given
-  // target's canonical_id. Note that this is a scan rather than a get because
-  // canonical_ids are not required to be unique per target.
-  const std::string& canonical_id = target.CanonicalId();
+  // target's or pipeline's canonical_id. Note that this is a scan rather than
+  // a get because canonical_ids are not required to be unique per target.
+  const std::string& canonical_id = target_or_pipeline.CanonicalId();
   auto index_iterator = db_->current_transaction()->NewIterator();
   std::string index_prefix = LevelDbQueryTargetKey::KeyPrefix(canonical_id);
   index_iterator->Seek(index_prefix);
@@ -157,6 +160,9 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
   for (; index_iterator->Valid(); index_iterator->Next()) {
     // Only consider rows matching exactly the specific canonical_id of
     // interest.
+    auto kk = index_iterator->key();
+    (void)kk;
+
     if (!absl::StartsWith(index_iterator->key(), index_prefix) ||
         !row_key.Decode(index_iterator->key()) ||
         canonical_id != row_key.canonical_id()) {
@@ -177,15 +183,15 @@ absl::optional<TargetData> LevelDbTargetCache::GetTarget(const Target& target) {
       continue;
     }
 
-    // Finally after finding a potential match, check that the target is
-    // actually equal to the requested target.
+    // Finally after finding a potential match, check that the target or
+    // pipeline is actually equal to the requested one.
     TargetData target_data = DecodeTarget(target_iterator->value());
-    if (target_data.target() == target) {
+    if (target_data.target_or_pipeline() == target_or_pipeline) {
       return target_data;
     }
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void LevelDbTargetCache::EnumerateSequenceNumbers(

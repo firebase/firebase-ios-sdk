@@ -113,18 +113,16 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
             [session webSocketTaskWithRequest:req];
         self.webSocketTask = task;
 
-        if (@available(watchOS 7.0, *)) {
-            [[NSNotificationCenter defaultCenter]
-                addObserverForName:WKApplicationWillResignActiveNotification
-                            object:nil
-                             queue:opQueue
-                        usingBlock:^(NSNotification *_Nonnull note) {
-                          FFLog(@"I-RDB083015",
-                                @"Received watchOS background notification, "
-                                @"closing web socket.");
-                          [self onClosed];
-                        }];
-        }
+        [[NSNotificationCenter defaultCenter]
+            addObserverForName:WKApplicationWillResignActiveNotification
+                        object:nil
+                         queue:opQueue
+                    usingBlock:^(NSNotification *_Nonnull note) {
+                      FFLog(@"I-RDB083015",
+                            @"Received watchOS background notification, "
+                            @"closing web socket.");
+                      [self onClosed];
+                    }];
 #else
         // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
         // they are passed via NSURLRequest.
@@ -309,6 +307,17 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)handleIncomingFrame:(NSString *)message {
+    // The realtime protocol only uses text frames. SocketRocket delivers an
+    // NSData for a binary frame (and the watchOS task delivers a nil string),
+    // neither of which responds to the NSString selectors used below, so a
+    // server sending such a frame would crash the client. Ignore anything that
+    // is not a text frame.
+    if (![message isKindOfClass:[NSString class]]) {
+        FFWarn(@"I-RDB083021",
+               @"(wsc:%@) Ignoring non-text frame received on stream.",
+               self.connectionId);
+        return;
+    }
     [self resetKeepAlive];
     if (self.buffering) {
         [self appendFrame:message];

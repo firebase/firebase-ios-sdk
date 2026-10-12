@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, PrewarmDetectionMode) {
 };
 
 /** A typedef for ensuring that config names are one of the below specified strings. */
-typedef NSString* const FPRConfigName;
+typedef NSString *const FPRConfigName;
 
 /**
  * Class that manages the configurations used by firebase performance SDK. This class abstracts the
@@ -50,6 +50,10 @@ FOUNDATION_EXTERN FPRConfigName kFPRConfigDataCollectionEnabled;
 
 /** The config KVC name string for the instrumentationEnabled property. */
 FOUNDATION_EXTERN FPRConfigName kFPRConfigInstrumentationEnabled;
+
+/** Class names to skip when registering swizzling instrumentors. Read from the
+ * `firebase_performance_swizzle_denylist` array in Info.plist. Defaults to an empty array. */
+@property(nonatomic, readonly) NSArray<NSString *> *swizzleClassDenylist;
 
 /** Log source against which the Fireperf events are recorded. */
 @property(nonatomic, readonly) int logSource;

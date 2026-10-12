@@ -19,7 +19,6 @@ import Foundation
  * A snapshot contains a task, storage reference, metadata (if it exists),
  * progress, and an error (if one occurred).
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageTaskSnapshot) open class StorageTaskSnapshot: NSObject {
   /**
    * The task this snapshot represents.
@@ -51,6 +50,9 @@ import Foundation
    */
   @objc public let status: StorageTaskStatus
 
+  /// The internal state of the task when this snapshot was created.
+  let state: StorageTaskState
+
   // MARK: NSObject overrides
 
   @objc override public var description: String {
@@ -75,6 +77,7 @@ import Foundation
     self.progress = progress
     self.error = error
     self.metadata = metadata
+    self.state = state
 
     switch state {
     case .queueing, .running, .resuming: status = StorageTaskStatus.resume

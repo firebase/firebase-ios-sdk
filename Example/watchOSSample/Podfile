@@ -5,7 +5,7 @@ source 'https://cdn.cocoapods.org/'
 use_frameworks!
 
 target 'SampleWatchAppWatchKitExtension' do
-  platform :watchos, '7.0'
+  platform :watchos, '8.0'
 
   pod 'FirebaseCore', :path => '../../'
   pod 'FirebaseCoreInternal', :path => '../../'
@@ -30,6 +30,6 @@ target 'SampleWatchAppWatchKitExtension' do
 end
 
 target 'ServiceExtension' do
-  platform :watchos, '7.0'
+  platform :watchos, '8.0'
   pod 'FirebaseMessaging', :path => '../../'
 end

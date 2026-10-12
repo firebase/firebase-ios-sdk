@@ -21,6 +21,7 @@
 #include <utility>
 
 #include "Firestore/Protos/nanopb/firestore/local/maybe_document.nanopb.h"
+#include "Firestore/core/src/core/pipeline_util.h"  // Added
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
@@ -34,6 +35,7 @@
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/util/background_queue.h"
 #include "Firestore/core/src/util/executor.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_util.h"
 #include "leveldb/db.h"
@@ -175,7 +177,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetAllExisting(
     DocumentVersionMap&& remote_map,
-    const core::Query& query,
+    const core::QueryOrPipeline& query,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   BackgroundQueue tasks(executor_.get());
   AsyncResults<std::pair<DocumentKey, MutableDocument>> results;
@@ -214,8 +216,8 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
   MutableDocumentMap result;
   for (auto path = collections.cbegin();
        path != collections.cend() && result.size() < limit; path++) {
-    const auto remote_docs =
-        GetDocumentsMatchingQuery(Query(*path), offset, limit - result.size());
+    const auto remote_docs = GetDocumentsMatchingQuery(
+        core::QueryOrPipeline(Query(*path)), offset, limit - result.size());
     for (const auto& doc : remote_docs) {
       result = result.insert(doc.first, doc.second);
     }
@@ -224,27 +226,41 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetAll(
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const model::IndexOffset& offset,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   absl::optional<QueryContext> context;
-  return GetDocumentsMatchingQuery(query, offset, context, limit, mutated_docs);
+  return GetDocumentsMatchingQuery(query_or_pipeline, offset, context, limit,
+                                   mutated_docs);
 }
 
 MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const model::IndexOffset& offset,
     absl::optional<QueryContext>& context,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   // Use the query path as a prefix for testing if a document matches the query.
+  model::ResourcePath path;
+  if (query_or_pipeline.IsPipeline()) {
+    const auto& collection =
+        core::GetPipelineCollection(query_or_pipeline.pipeline());
+    if (!collection.has_value()) {
+      LOG_WARN(
+          "LevelDbRemoteDocumentCache: No collection found for pipeline %s",
+          query_or_pipeline.ToString());
+      return MutableDocumentMap();
+    }
+    path = model::ResourcePath::FromString(collection.value());
+  } else {
+    path = query_or_pipeline.query().path();
+  }
 
   // Execute an index-free query and filter by read time. This is safe since
   // all document changes to queries that have a
   // last_limbo_free_snapshot_version (`since_read_time`) have a read time
   // set.
-  auto path = query.path();
   std::string start_key =
       LevelDbRemoteDocumentReadTimeKey::KeyPrefix(path, offset.read_time());
   auto it = db_->current_transaction()->NewIterator();
@@ -279,8 +295,7 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
     context.value().IncrementDocumentReadCount(remote_map.size());
   }
 
-  return LevelDbRemoteDocumentCache::GetAllExisting(std::move(remote_map),
-                                                    query, mutated_docs);
+  return GetAllExisting(std::move(remote_map), query_or_pipeline, mutated_docs);
 }
 
 MutableDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(

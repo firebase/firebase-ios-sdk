@@ -19,10 +19,9 @@ import Foundation
 /// Messages are streamed through ``LiveSession/responses``, and can be sent through either the
 /// dedicated realtime API function (such as ``LiveSession/sendAudioRealtime(_:)`` and
 /// ``LiveSession/sendTextRealtime(_:)``), or through the incremental API (such as
-/// ``LiveSession/sendContent(_:turnComplete:)-6x3ae``).
+/// ``LiveSession/sendContent(_:turnComplete:)-(PartsRepresentable...,_)``).
 ///
 /// To create an instance of this class, see ``LiveGenerativeModel``.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 public final class LiveSession: Sendable {
   private let service: LiveSessionService
@@ -54,13 +53,13 @@ public final class LiveSession: Sendable {
   ///
   /// To learn more about audio formats, and the required state they should be provided in, see the
   /// docs on
-  /// [Supported audio formats](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api#supported-audio-formats).
+  /// [Supported media
+  /// formats](https://firebase.google.com/docs/ai-logic/live-api/limits-and-specs#media-formats).
   ///
   /// - Parameters:
   ///   - audio: Raw 16-bit PCM audio at 16Hz, used to update the model on the client's
   ///     conversation.
   public func sendAudioRealtime(_ audio: Data) async {
-    // TODO: (b/443984790) address when we add RealtimeInputConfig support
     let message = BidiGenerateContentRealtimeInput(
       audio: InlineData(data: audio, mimeType: "audio/pcm")
     )
@@ -72,7 +71,7 @@ public final class LiveSession: Sendable {
   /// Instead of raw video data, the model expects individual frames of the video,
   /// sent as images.
   ///
-  /// If your video has audio, send it seperately through ``LiveSession/sendAudioRealtime(_:)``.
+  /// If your video has audio, send it separately through ``LiveSession/sendAudioRealtime(_:)``.
   ///
   /// For better performance, frames can also be sent at a lower rate than the video;
   /// even as low as 1 frame per second.
@@ -95,6 +94,37 @@ public final class LiveSession: Sendable {
   ///   - text: Text content to append to the current client's conversation.
   public func sendTextRealtime(_ text: String) async {
     let message = BidiGenerateContentRealtimeInput(text: text)
+    await service.send(.realtimeInput(message))
+  }
+
+  /// Manually marks the start of user activity, using the realtime API.
+  ///
+  /// The start of user activity is effectively the start of a user's turn, but depending on the
+  /// configuration defined in ``RealtimeInputConfig``, it may not be interpreted as an
+  /// interruption. An example of the start of user activity could be the user speaking
+  /// (not silence).
+  ///
+  /// Should be followed with a call to ``LiveSession/sendStopActivityRealtime()``, after all the
+  /// data has been sent for the user's turn.
+  ///
+  /// Only required when automatic activity detection is disabled via
+  /// ``ActivityDetectionConfig/disabled()``.
+  public func sendStartActivityRealtime() async {
+    let message = BidiGenerateContentRealtimeInput(activityStart: .init())
+    await service.send(.realtimeInput(message))
+  }
+
+  /// Manually marks the end of user activity, using the realtime API.
+  ///
+  /// The end of user activity is effectively the end of a user's turn, and signals that the model
+  /// can start sending responses.
+  ///
+  /// Should follow after a previous call to ``LiveSession/sendStartActivityRealtime()``.
+  ///
+  /// Only required when automatic activity detection is disabled via
+  /// ``ActivityDetectionConfig/disabled()``.
+  public func sendStopActivityRealtime() async {
+    let message = BidiGenerateContentRealtimeInput(activityEnd: .init())
     await service.send(.realtimeInput(message))
   }
 
@@ -125,7 +155,7 @@ public final class LiveSession: Sendable {
   /// content.
   ///
   /// - Parameters:
-  ///   - content: Content to append to the current conversation with the model  (see
+  ///   - parts: Content to append to the current conversation with the model  (see
   ///     ``PartsRepresentable`` for conforming types).
   ///   - turnComplete: Whether the server should start generating content with the currently
   ///     accumulated prompt, or await additional messages before starting generation. By default,
@@ -146,5 +176,21 @@ public final class LiveSession: Sendable {
     await service.close()
   }
 
-  // TODO: b(445716402) Add a start method when we support session resumption
+  /// Resumes an existing live session with the server.
+  ///
+  /// This closes the current WebSocket connection and establishes a new one using
+  /// the same configuration (URI, headers, model, system instruction, tools, etc.)
+  /// as the original session.
+  ///
+  /// To obtain a valid handle, ensure you pass an instance of
+  /// ``SessionResumptionConfig`` to ``LiveGenerativeModel/connect(sessionResumption:)``,
+  /// and then listen for the hande provided from a ``LiveSessionResumptionUpdate``
+  /// server message.
+  ///
+  /// - Parameters:
+  ///   - sessionResumption: The configuration for session resumption,
+  ///   such as the handle to the previous session state to restore.
+  public func resumeSession(sessionResumption: SessionResumptionConfig? = nil) async throws {
+    try await service.connect(sessionResumption: sessionResumption)
+  }
 }

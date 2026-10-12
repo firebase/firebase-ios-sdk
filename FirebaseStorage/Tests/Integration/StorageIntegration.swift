@@ -613,6 +613,35 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testCancelUpload() throws {
+    let expectation = self.expectation(description: #function)
+    let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
+    let data = Data(count: 1024 * 1024)
+
+    let task = ref.putData(data)
+    var fulfilled = false
+
+    task.observe(StorageTaskStatus.failure) { snapshot in
+      if !fulfilled {
+        fulfilled = true
+        let expected = "User cancelled the upload/download."
+        if let error = snapshot.error {
+          let errorDescription = error.localizedDescription
+          XCTAssertEqual(errorDescription, expected)
+          let code = (error as NSError).code
+          XCTAssertEqual(code, StorageErrorCode.cancelled.rawValue)
+        }
+        expectation.fulfill()
+      }
+    }
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      task.cancel()
+    }
+
+    waitForExpectations()
+  }
+
   private func assertMetadata(actualMetadata: StorageMetadata,
                               expectedContentType: String,
                               expectedCustomMetadata: [String: String]) {

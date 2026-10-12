@@ -14,22 +14,20 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension UserInfoImpl: NSSecureCoding {}
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserInfoImpl) // objc Needed for decoding old versions
 class UserInfoImpl: NSObject, UserInfo {
   /// A convenience factory method for constructing a `UserInfo` instance from data
   /// returned by the getAccountInfo endpoint.
   /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
-  /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
+  /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint, or `nil`
+  ///   if the response entry has no `providerID`.
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponse
     .ProviderUserInfo)
-    -> UserInfoImpl {
+    -> UserInfoImpl? {
     guard let providerID = providerUserInfo.providerID else {
-      // This was a crash in ObjC implementation. Should providerID be not nullable?
-      fatalError("Missing providerID from GetAccountInfoResponse.ProviderUserInfo")
+      return nil
     }
     return UserInfoImpl(withProviderID: providerID,
                         userID: providerUserInfo.federatedID ?? "",

@@ -82,8 +82,14 @@ class IteratorAdaptorTest : public testing::Test {
   }
 
   template <typename T>
-  class InlineStorageIter : public std::iterator<std::input_iterator_tag, T> {
+  class InlineStorageIter {
    public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+
     T* operator->() const {
       return get();
     }
@@ -567,9 +573,14 @@ TEST_F(IteratorAdaptorTest, IteratorPtrHasRandomAccessMethods) {
   EXPECT_EQ(88, value2);
 }
 
-class MyInputIterator
-    : public std::iterator<std::input_iterator_tag, const int*> {
+class MyInputIterator {
  public:
+  using iterator_category = std::input_iterator_tag;
+  using value_type = const int*;
+  using difference_type = std::ptrdiff_t;
+  using pointer = const int**;
+  using reference = const int*;
+
   explicit MyInputIterator(int* x) : x_(x) {
   }
   const int* operator*() const {
@@ -1074,26 +1085,26 @@ TEST_F(IteratorAdaptorTest, ViewTypeParameterConstVsNonConst) {
   typedef value_view_type<const M>::type VVC;
 
   // key_view:
-  KV ABSL_ATTRIBUTE_UNUSED kv1 = key_view(m);     // lvalue
-  KVC ABSL_ATTRIBUTE_UNUSED kv2 = key_view(m);    // conversion to const
-  KVC ABSL_ATTRIBUTE_UNUSED kv3 = key_view(cm);   // const from const lvalue
-  KVC ABSL_ATTRIBUTE_UNUSED kv4 = key_view(M());  // const from rvalue
+  [[maybe_unused]] KV kv1 = key_view(m);     // lvalue
+  [[maybe_unused]] KVC kv2 = key_view(m);    // conversion to const
+  [[maybe_unused]] KVC kv3 = key_view(cm);   // const from const lvalue
+  [[maybe_unused]] KVC kv4 = key_view(M());  // const from rvalue
   // Direct initialization (without key_view function)
-  KV ABSL_ATTRIBUTE_UNUSED kv5(m);
-  KVC ABSL_ATTRIBUTE_UNUSED kv6(m);
-  KVC ABSL_ATTRIBUTE_UNUSED kv7(cm);
-  KVC ABSL_ATTRIBUTE_UNUSED kv8((M()));
+  [[maybe_unused]] KV kv5(m);
+  [[maybe_unused]] KVC kv6(m);
+  [[maybe_unused]] KVC kv7(cm);
+  [[maybe_unused]] KVC kv8((M()));
 
   // value_view:
-  VV ABSL_ATTRIBUTE_UNUSED vv1 = value_view(m);     // lvalue
-  VVC ABSL_ATTRIBUTE_UNUSED vv2 = value_view(m);    // conversion to const
-  VVC ABSL_ATTRIBUTE_UNUSED vv3 = value_view(cm);   // const from const lvalue
-  VVC ABSL_ATTRIBUTE_UNUSED vv4 = value_view(M());  // const from rvalue
+  [[maybe_unused]] VV vv1 = value_view(m);     // lvalue
+  [[maybe_unused]] VVC vv2 = value_view(m);    // conversion to const
+  [[maybe_unused]] VVC vv3 = value_view(cm);   // const from const lvalue
+  [[maybe_unused]] VVC vv4 = value_view(M());  // const from rvalue
   // Direct initialization (without value_view function)
-  VV ABSL_ATTRIBUTE_UNUSED vv5(m);
-  VVC ABSL_ATTRIBUTE_UNUSED vv6(m);
-  VVC ABSL_ATTRIBUTE_UNUSED vv7(cm);
-  VVC ABSL_ATTRIBUTE_UNUSED vv8((M()));
+  [[maybe_unused]] VV vv5(m);
+  [[maybe_unused]] VVC vv6(m);
+  [[maybe_unused]] VVC vv7(cm);
+  [[maybe_unused]] VVC vv8((M()));
 }
 
 TEST_F(IteratorAdaptorTest, EmptyAndSize) {

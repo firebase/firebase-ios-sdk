@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& os, const Overlay& result) {
   return os << result.ToString();
 }
 
-std::size_t Overlay::Hash() const {
+std::size_t Overlay::Hash() const noexcept {
   if (mutation_.is_valid()) {
     return util::Hash(largest_batch_id_, mutation_);
   } else {
@@ -48,7 +48,7 @@ std::string Overlay::ToString() const {
                       ", mutation=", util::ToString(mutation_), ")");
 }
 
-std::size_t OverlayHash::operator()(const Overlay& overlay) const {
+std::size_t OverlayHash::operator()(const Overlay& overlay) const noexcept {
   return overlay.Hash();
 }
 

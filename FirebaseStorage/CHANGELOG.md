@@ -1,3 +1,42 @@
+# Unreleased
+- [fixed] Fixed a race where an observer added while an upload or download task was completing
+  could be called twice for the success or failure event. This could crash `putDataAsync`,
+  `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
+- [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
+  `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
+  was set, breaking lookups in sets and dictionaries. (#16794)
+- [fixed] Fixed a memory leak in `StorageReference.listAll(completion:)` where the completion
+  handler, anything it captured, and partially listed results were never released after the
+  listing failed. (#16814)
+
+# 12.19.0
+- [fixed] Fixed an issue where constructing a download URL could fail or produce
+  an invalid path if the storage bucket name contained special characters. (#16529)
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection
+  when tokens are present will now explicitly fail with an `unauthenticated`
+  error instead of silently omitting the tokens and proceeding. (#16536)
+- [added] Added a DEBUG-only `allowInsecureTokenAttachment` property on `Storage` to
+  allow insecure token attachment over HTTP for physical device testing. (#16536)
+
+# 12.17.0
+- [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck
+  tokens are no longer attached to outbound requests if the connection is made over HTTP to a
+  non-loopback host. (#16395)
+- [fixed] Fixed an issue where `putFile` could fail on the iOS Simulator with `POSIX errno 40`
+  (`EMSGSIZE`) due to a QUIC bug in background sessions, and improved error formatting
+  for `NSPOSIXErrorDomain` errors. (#16351)
+- [fixed] Fixed a race condition in Storage task cancellation and improved Swift 6 strict
+  concurrency compliance for `StorageTask`. (#16353)
+- [fixed] Fixed a crash that could occur when parsing malformed `gs://` URLs, and improved
+  validation for HTTP download URLs provided to `Storage.reference(forURL:)`. (#16243)
+
+# 12.12.1
+- [fixed] Fixed `InstanceCache` keying by bucket only, which caused named apps sharing a
+  storage bucket with the default app to use the wrong auth context. (#16039)
+
+# 12.9.0
+- [fixed] Fix "weak never mutated" build warning introduced in Xcode 26.2.
+
 # 12.0.0
 - [removed] **Breaking change**: Removed the following unused API,
   `StorageMetadata.storageReference`.

@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAILogic
+@testable import FirebaseAILogic
 import Foundation
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class GenerationConfigTests: XCTestCase {
   let encoder = JSONEncoder()
 
@@ -42,23 +41,11 @@ final class GenerationConfigTests: XCTestCase {
   }
 
   func testEncodeGenerationConfig_allOptions() throws {
-    let temperature: Float = 0.5
-    let topP: Float = 0.75
-    let topK = 40
-    let candidateCount = 2
     let maxOutputTokens = 256
-    let presencePenalty: Float = 0.5
-    let frequencyPenalty: Float = 0.75
     let stopSequences = ["END", "DONE"]
     let responseMIMEType = "application/json"
     let generationConfig = GenerationConfig(
-      temperature: temperature,
-      topP: topP,
-      topK: topK,
-      candidateCount: candidateCount,
       maxOutputTokens: maxOutputTokens,
-      presencePenalty: presencePenalty,
-      frequencyPenalty: frequencyPenalty,
       stopSequences: stopSequences,
       responseMIMEType: responseMIMEType,
       responseSchema: .array(items: .string()),
@@ -70,10 +57,7 @@ final class GenerationConfigTests: XCTestCase {
     let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
     XCTAssertEqual(json, """
     {
-      "candidateCount" : \(candidateCount),
-      "frequencyPenalty" : \(frequencyPenalty),
       "maxOutputTokens" : \(maxOutputTokens),
-      "presencePenalty" : \(presencePenalty),
       "responseMimeType" : "\(responseMIMEType)",
       "responseModalities" : [
         "TEXT",
@@ -90,10 +74,7 @@ final class GenerationConfigTests: XCTestCase {
       "stopSequences" : [
         "END",
         "DONE"
-      ],
-      "temperature" : \(temperature),
-      "topK" : \(topK),
-      "topP" : \(topP)
+      ]
     }
     """)
   }
@@ -152,5 +133,210 @@ final class GenerationConfigTests: XCTestCase {
       }
     }
     """)
+  }
+
+  func testEncodeGenerationConfig_thinkingConfig() throws {
+    let testCases: [(ThinkingConfig, String)] = [
+      (ThinkingConfig(thinkingBudget: 0), "\"thinkingBudget\" : 0"),
+      (ThinkingConfig(thinkingBudget: 1024), "\"thinkingBudget\" : 1024"),
+      (ThinkingConfig(thinkingBudget: 1024, includeThoughts: true), """
+      "includeThoughts" : true,
+          "thinkingBudget" : 1024
+      """),
+      (ThinkingConfig(thinkingLevel: .minimal), "\"thinkingLevel\" : \"MINIMAL\""),
+      (ThinkingConfig(thinkingLevel: .low), "\"thinkingLevel\" : \"LOW\""),
+      (ThinkingConfig(thinkingLevel: .medium), "\"thinkingLevel\" : \"MEDIUM\""),
+      (ThinkingConfig(thinkingLevel: .high), "\"thinkingLevel\" : \"HIGH\""),
+      (ThinkingConfig(thinkingLevel: .medium, includeThoughts: true), """
+      "includeThoughts" : true,
+          "thinkingLevel" : \"MEDIUM\"
+      """),
+      (ThinkingConfig(thinkingLevel: .medium, includeThoughts: false), """
+      "includeThoughts" : false,
+          "thinkingLevel" : \"MEDIUM\"
+      """),
+    ]
+
+    for (thinkingConfig, expectedJSONSnippet) in testCases {
+      let generationConfig = GenerationConfig(thinkingConfig: thinkingConfig)
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        "thinkingConfig" : {
+          \(expectedJSONSnippet)
+        }
+      }
+      """)
+    }
+  }
+
+  func testEncodeGenerationConfig_speechConfig() throws {
+    let testCases: [(SpeechConfig, String)] = [
+      (SpeechConfig(voiceName: "Aoede"), """
+      "speechConfig" : {
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(voiceName: "Aoede", languageCode: "en-US"), """
+      "speechConfig" : {
+          "languageCode" : "en-US",
+          "voiceConfig" : {
+            "prebuiltVoiceConfig" : {
+              "voiceName" : "Aoede"
+            }
+          }
+        }
+      """),
+      (SpeechConfig(multiSpeakerVoiceConfig: MultiSpeakerVoiceConfig(speakerVoiceConfigs: [
+        SpeakerVoiceConfig(
+          speaker: "Speaker1",
+          voiceName: "Puck"
+        ),
+        SpeakerVoiceConfig(
+          speaker: "Speaker2",
+          voiceName: "Charon"
+        ),
+      ])), """
+      "speechConfig" : {
+          "multiSpeakerVoiceConfig" : {
+            "speakerVoiceConfigs" : [
+              {
+                "speaker" : "Speaker1",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Puck"
+                  }
+                }
+              },
+              {
+                "speaker" : "Speaker2",
+                "voiceConfig" : {
+                  "prebuiltVoiceConfig" : {
+                    "voiceName" : "Charon"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      """),
+    ]
+
+    for (speechConfig, expectedJSONSnippet) in testCases {
+      let generationConfig = GenerationConfig(speechConfig: speechConfig)
+      let jsonData = try encoder.encode(generationConfig)
+      let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+      XCTAssertEqual(json, """
+      {
+        \(expectedJSONSnippet)
+      }
+      """)
+    }
+  }
+
+  // MARK: - GenerationConfig Merging
+
+  func testMerge_bothNil() {
+    let result = GenerationConfig.merge(nil, with: nil)
+
+    XCTAssertNil(result)
+  }
+
+  func testMerge_baseNil() throws {
+    let thinkingConfig = ThinkingConfig(thinkingLevel: .high, includeThoughts: true)
+    let overrides = GenerationConfig(
+      maxOutputTokens: 2048,
+      stopSequences: ["stop"],
+      responseMIMEType: "application/json",
+      responseModalities: [.text],
+      thinkingConfig: thinkingConfig
+    )
+
+    let result = try XCTUnwrap(GenerationConfig.merge(nil, with: overrides))
+
+    XCTAssertEqual(result.maxOutputTokens, 2048)
+    XCTAssertEqual(result.stopSequences, ["stop"])
+    XCTAssertEqual(result.responseMIMEType, "application/json")
+    XCTAssertEqual(result.responseModalities, [.text])
+    XCTAssertEqual(result.thinkingConfig, thinkingConfig)
+  }
+
+  func testMerge_overridesNil() throws {
+    let thinkingConfig = ThinkingConfig(thinkingLevel: .minimal, includeThoughts: false)
+    let overrides = GenerationConfig(
+      maxOutputTokens: 1024,
+      stopSequences: ["test"],
+      responseModalities: [.image],
+      thinkingConfig: thinkingConfig
+    )
+
+    let result = try XCTUnwrap(GenerationConfig.merge(nil, with: overrides))
+
+    XCTAssertEqual(result.maxOutputTokens, 1024)
+    XCTAssertEqual(result.stopSequences, ["test"])
+    XCTAssertNil(result.responseMIMEType)
+    XCTAssertEqual(result.responseModalities, [.image])
+    XCTAssertEqual(result.thinkingConfig, thinkingConfig)
+  }
+
+  func testMerge_mergesProperties() throws {
+    let base = GenerationConfig(
+      responseMIMEType: "text/plain"
+    )
+    let overrides = GenerationConfig(
+      responseMIMEType: "application/json",
+      thinkingConfig: ThinkingConfig(thinkingBudget: 1024)
+    )
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(result.responseMIMEType, "application/json")
+    XCTAssertEqual(result.thinkingConfig?.thinkingBudget, 1024)
+  }
+
+  func testMerge_responseSchema() throws {
+    let base = GenerationConfig(responseSchema: .integer())
+    let overrides = GenerationConfig(responseSchema: .string())
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+
+    let schema = try XCTUnwrap(result.responseSchema)
+    XCTAssertEqual(schema.type, "STRING")
+  }
+
+  func testMerge_responseSchema_fallbackToBase() throws {
+    let base = GenerationConfig(responseSchema: .string())
+    let overrides = GenerationConfig(maxOutputTokens: 100)
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+
+    let schema = try XCTUnwrap(result.responseSchema)
+    XCTAssertEqual(schema.type, "STRING")
+  }
+
+  func testMerge_speechConfig() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(speechConfig: SpeechConfig(
+      voiceName: "Puck",
+      languageCode: "en-US"
+    ))
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(
+      result.speechConfig,
+      SpeechConfig(voiceName: "Puck", languageCode: "en-US").speechConfig
+    )
+  }
+
+  func testMerge_speechConfig_fallbackToBase() throws {
+    let base = GenerationConfig(speechConfig: SpeechConfig(voiceName: "Kore"))
+    let overrides = GenerationConfig(maxOutputTokens: 55)
+
+    let result = try XCTUnwrap(GenerationConfig.merge(base, with: overrides))
+    XCTAssertEqual(result.speechConfig, SpeechConfig(voiceName: "Kore").speechConfig)
   }
 }

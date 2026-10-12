@@ -20,6 +20,7 @@
 #include <sstream>
 #include <string>
 
+#include "absl/strings/escaping.h"
 #include "absl/strings/string_view.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -101,6 +102,7 @@ TEST(StringFormatTest, Bool) {
 TEST(StringFormatTest, NullPointer) {
   // pointers implicitly convert to bool. Make sure this doesn't happen here.
   EXPECT_EQ("Hello null", StringFormat("Hello %s", nullptr));
+  EXPECT_EQ("test=6e756c6c", StringFormat("test=%x", nullptr));
 }
 
 TEST(StringFormatTest, NonNullPointer) {
@@ -125,6 +127,18 @@ TEST(StringFormatTest, Mixed) {
 
 TEST(StringFormatTest, Hex) {
   EXPECT_EQ("test=42", StringFormat("test=%x", "B"));
+  EXPECT_EQ("test=", StringFormat("test=%x", absl::string_view()));
+  EXPECT_EQ("test=0041", StringFormat("test=%x", absl::string_view("\0A", 2)));
+
+  char buffer[] = {'A', 'B'};  // no null terminator
+  absl::string_view slice(buffer, 2);
+  EXPECT_EQ("test=4142", StringFormat("test=%x", slice));
+}
+
+TEST(StringFormatTest, BytesToHexStringEmpty) {
+  absl::string_view empty;
+  std::string hex = absl::BytesToHexString(empty);
+  EXPECT_EQ("", hex);
 }
 
 TEST(StringFormatTest, Literal) {

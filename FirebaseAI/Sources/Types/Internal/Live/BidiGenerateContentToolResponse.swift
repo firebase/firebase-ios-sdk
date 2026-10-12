@@ -22,7 +22,6 @@ import Foundation
 /// calling happens by exchanging the `Content` parts, while in the bidi
 /// GenerateContent APIs function calling happens over these dedicated set of
 /// messages.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiGenerateContentToolResponse: Encodable {
   /// The response to the function calls.

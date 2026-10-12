@@ -23,13 +23,7 @@ import XCTest
 
 // TODO(#14405): Migrate to Swift Testing and parameterize tests.
 final class IntegrationTests: XCTestCase {
-  // Set temperature, topP and topK to lowest allowed values to make responses more deterministic.
-  let generationConfig = GenerationConfig(
-    temperature: 0.0,
-    topP: 0.0,
-    topK: 1,
-    responseMIMEType: "text/plain"
-  )
+  let generationConfig = GenerationConfig(responseMIMEType: "text/plain")
   let systemInstruction = ModelContent(
     role: "system",
     parts: "You are a friendly and helpful assistant."
@@ -51,9 +45,9 @@ final class IntegrationTests: XCTestCase {
 
   override func setUp() async throws {
     userID1 = try await TestHelpers.getUserID()
-    vertex = FirebaseAI.firebaseAI(backend: .vertexAI())
+    vertex = FirebaseAI.firebaseAI(backend: .agentPlatform())
     model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       tools: [],
@@ -69,7 +63,7 @@ final class IntegrationTests: XCTestCase {
   func testCountTokens_text() async throws {
     let prompt = "Why is the sky blue?"
     model = vertex.generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: [
         SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove, method: .severity),
@@ -100,7 +94,7 @@ final class IntegrationTests: XCTestCase {
 
       let response = try await model.countTokens(image)
 
-      XCTAssertEqual(response.totalTokens, 266)
+      XCTAssertEqual(response.totalTokens, 1128)
       XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
       let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
         $0.modality == .text
@@ -109,7 +103,7 @@ final class IntegrationTests: XCTestCase {
       let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
         $0.modality == .image
       })
-      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+      XCTAssertEqual(imagePromptTokenDetails.tokenCount, 1120)
     }
   #endif // canImport(UIKit)
 
@@ -119,7 +113,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
     XCTAssertEqual(response.promptTokensDetails.count, 2) // Image prompt + system instruction
     let textPromptTokensDetails = try XCTUnwrap(response.promptTokensDetails.first {
       $0.modality == .text
@@ -128,7 +122,7 @@ final class IntegrationTests: XCTestCase {
     let imagePromptTokenDetails = try XCTUnwrap(response.promptTokensDetails.first {
       $0.modality == .image
     })
-    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 258)
+    XCTAssertEqual(imagePromptTokenDetails.tokenCount, 1120)
   }
 
   func testCountTokens_image_fileData_requiresAuth_signedIn() async throws {
@@ -137,7 +131,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_userSignedIn() async throws {
@@ -147,7 +141,7 @@ final class IntegrationTests: XCTestCase {
 
     let response = try await model.countTokens(fileData)
 
-    XCTAssertEqual(response.totalTokens, 266)
+    XCTAssertEqual(response.totalTokens, 1128)
   }
 
   func testCountTokens_image_fileData_requiresUserAuth_wrongUser_permissionDenied() async throws {
@@ -173,7 +167,7 @@ final class IntegrationTests: XCTestCase {
       parameters: ["x": .integer(), "y": .integer()]
     )
     model = vertex.generativeModel(
-      modelName: "gemini-2.0-flash",
+      modelName: ModelNames.gemini3_1_FlashLite,
       tools: [.functionDeclarations([sumDeclaration])],
       toolConfig: .init(functionCallingConfig: .any(allowedFunctionNames: ["sum"]))
     )
@@ -184,7 +178,7 @@ final class IntegrationTests: XCTestCase {
     let response = try await model.countTokens([
       ModelContent(role: "user", parts: prompt),
       ModelContent(role: "model", parts: sumCall),
-      ModelContent(role: "function", parts: sumResponse),
+      ModelContent(role: "user", parts: sumResponse),
     ])
 
     XCTAssertGreaterThan(response.totalTokens, 0)
@@ -196,8 +190,8 @@ final class IntegrationTests: XCTestCase {
 
   func testCountTokens_appCheckNotConfigured_shouldFail() async throws {
     let app = try XCTUnwrap(FirebaseApp.app(name: FirebaseAppNames.appCheckNotConfigured))
-    let vertex = FirebaseAI.firebaseAI(app: app, backend: .vertexAI())
-    let model = vertex.generativeModel(modelName: "gemini-2.0-flash")
+    let vertex = FirebaseAI.firebaseAI(app: app, backend: .agentPlatform(location: "us-central1"))
+    let model = vertex.generativeModel(modelName: ModelNames.gemini2_5_Flash)
     let prompt = "Why is the sky blue?"
 
     do {

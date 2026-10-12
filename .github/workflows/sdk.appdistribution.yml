@@ -1,0 +1,50 @@
+name: sdk.appdistribution
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseAppDistribution**'
+    - '.github/workflows/sdk.appdistribution.yml'
+    - '.github/workflows/_spm.yml'
+    - '.github/workflows/_cocoapods.yml'
+    - '.github/workflows/_catalyst.yml'
+    - '.github/workflows/_cocoapods.cron.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
+    - cron: '0 9 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+  spm:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: AppDistributionUnit
+      platforms: iOS
+
+  catalyst:
+    uses: ./.github/workflows/_catalyst.yml
+    with:
+      product: FirebaseAppDistribution
+      target: FirebaseAppDistribution-Unit-unit
+
+  pod_lib_lint:
+    uses: ./.github/workflows/_cocoapods.yml
+    with:
+      product: FirebaseAppDistribution
+      platforms: iOS # App Distro only supports iOS.
+
+  appdistribution-cron-only:
+    needs: pod_lib_lint
+    uses: ./.github/workflows/_cocoapods.cron.yml
+    with:
+      product: FirebaseAppDistribution
+      platforms: '[ "ios" ]'
+      flags: '[ "--use-static-frameworks" ]'

@@ -16,7 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -28,12 +34,22 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing
 
 // FIRAppCheckDebugProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed;
 
 // FIRAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 
 // FIRDeviceCheckProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
+
+// FIRRecaptchaProvider.m
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderIncompleteFIROptions;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageRecaptchaProviderMissingSiteKey;
+FOUNDATION_EXPORT NSString *const
+    kFIRLoggerAppCheckMessageRecaptchaProviderMissingRecaptchaEnterpriseSDK;
+
+// FIRDefaultProviderFactory.m
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDeviceCheckProviderUnavailable;
 
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
 

@@ -47,7 +47,8 @@ class MemoryTargetCache : public TargetCache {
 
   void RemoveTarget(const TargetData& target_data) override;
 
-  absl::optional<TargetData> GetTarget(const core::Target& target) override;
+  absl::optional<TargetData> GetTarget(
+      const core::TargetOrPipeline& target_or_pipeline) override;
 
   void EnumerateSequenceNumbers(
       const SequenceNumberCallback& callback) override;
@@ -99,8 +100,8 @@ class MemoryTargetCache : public TargetCache {
   /** The last received snapshot version. */
   model::SnapshotVersion last_remote_snapshot_version_;
 
-  /** Maps a target to the data about that query. */
-  std::unordered_map<core::Target, TargetData> targets_;
+  /** Maps a target or pipeline to the data about that query. */
+  std::unordered_map<core::TargetOrPipeline, TargetData> targets_;
 
   /**
    * A ordered bidirectional mapping between documents and the remote target

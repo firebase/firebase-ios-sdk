@@ -59,7 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @discussion     This method is thread-safe. However, it is not guaranteed to
  *                  return on the main thread.
  */
-- (void)subscribeWithToken:(NSString *)token
+- (void)subscribeWithToken:(nullable NSString *)token
                      topic:(NSString *)topic
                    options:(nullable NSDictionary *)options
                    handler:(FIRMessagingTopicOperationCompletion)handler;
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  @discussion     This method is thread-safe. However, it is not guaranteed to
  *                  return on the main thread.
  */
-- (void)unsubscribeWithToken:(NSString *)token
+- (void)unsubscribeWithToken:(nullable NSString *)token
                        topic:(NSString *)topic
                      options:(nullable NSDictionary *)options
                      handler:(FIRMessagingTopicOperationCompletion)handler;

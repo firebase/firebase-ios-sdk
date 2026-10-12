@@ -22,6 +22,7 @@
 #include <thread>
 #include <vector>
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/leveldb_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
@@ -66,12 +67,12 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
                                    const model::IndexOffset& offset,
                                    size_t limit) const override;
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>& context,
       absl::optional<size_t> limit = absl::nullopt,
@@ -86,7 +87,7 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
    */
   model::MutableDocumentMap GetAllExisting(
       model::DocumentVersionMap&& remote_map,
-      const core::Query& query,
+      const core::QueryOrPipeline& query,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const;
 
   model::MutableDocument DecodeMaybeDocument(

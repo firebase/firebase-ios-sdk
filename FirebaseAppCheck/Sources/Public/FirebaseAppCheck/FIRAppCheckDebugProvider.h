@@ -54,11 +54,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// etc.
 /// 3. Configure  `AppCheckDebugProviderFactory` before `FirebaseApp.configure()`
 /// `AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())`
-/// 4. Add an environment variable to the scheme with a name `FIRAAppCheckDebugToken` and value like
-/// `$(MY_APP_CHECK_DEBUG_TOKEN)`.
+/// 4. Add an environment variable to the scheme with a name
+///    `AppCheckDebugToken` and value like `$(APP_CHECK_DEBUG_TOKEN)`.
 /// 5. Configure the build script to pass the debug token as the environment variable, e.g.:
 /// `xcodebuild test -scheme InstallationsExample -workspace InstallationsExample.xcworkspace \
-/// MY_APP_CHECK_DEBUG_TOKEN=$(MY_SECRET_ON_CI)`
+/// APP_CHECK_DEBUG_TOKEN=$(MY_SECRET_ON_CI)`
 ///
 NS_SWIFT_NAME(AppCheckDebugProvider)
 @interface FIRAppCheckDebugProvider : NSObject <FIRAppCheckProvider>
@@ -71,7 +71,8 @@ NS_SWIFT_NAME(AppCheckDebugProvider)
 - (NSString *)localDebugToken;
 
 /** Returns the currently used App Check debug token. The priority:
- *  - `FIRAAppCheckDebugToken` env variable value
+ *  - `AppCheckDebugToken` env variable value
+ *  - `FIRAAppCheckDebugToken` env variable value (deprecated)
  *  - A previously generated token, stored locally on the device
  *  - A newly generated random token. The generated token will be stored
  *    locally for future use

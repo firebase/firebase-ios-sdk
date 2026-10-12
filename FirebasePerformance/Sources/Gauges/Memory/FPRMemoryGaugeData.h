@@ -24,10 +24,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** @brief Time at which memory data was measured. */
 @property(nonatomic, readonly) NSDate *collectionTime;
 
-/** @brief Heap memory that is used. */
+/** @brief Memory used by the app, in bytes. */
 @property(nonatomic, readonly) u_long heapUsed;
 
-/** @brief Heap memory that is available. */
+/** @brief Memory available to the app, in bytes. */
 @property(nonatomic, readonly) u_long heapAvailable;
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -36,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
  * Creates an instance of memory gauge data with the provided information.
  *
  * @param collectionTime Time at which the gauge data was collected.
- * @param heapUsed Heap memory that is used.
- * @param heapAvailable Heap memory that is available.
+ * @param heapUsed Memory used by the app, in bytes.
+ * @param heapAvailable Memory available to the app, in bytes.
  * @return Instance of memory gauge data.
  */
 - (instancetype)initWithCollectionTime:(NSDate *)collectionTime

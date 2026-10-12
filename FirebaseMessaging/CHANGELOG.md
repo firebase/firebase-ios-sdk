@@ -1,3 +1,54 @@
+# Unreleased
+- [fixed] Reduced main-thread work when setting the APNs token: the APNs
+  environment check no longer queries the App Store receipt, and the keychain is
+  read once instead of up to twice. (#16726)
+- [fixed] Fixed a potential main-thread hang during `FirebaseApp.configure()`
+  caused by unused synchronous SQLite queries for outgoing RMQ IDs. (#16736)
+- [fixed] Stopped writing the ID of each received message to an unused database
+  table that grew without bound. (#16870)
+- [fixed] Fixed a crash in token fetches and topic subscriptions, for up to
+  seven days, after a malformed device checkin response. Checkin responses are
+  now validated before they're saved, and saved values of an unexpected type
+  are ignored. (#16867)
+
+# 13.0.0
+- [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
+  delegates. (#15987)
+- [changed] **Breaking Change**: Scene delegates take priority over app delegates for
+  automatic deep link routing. (#15987)
+- [fixed] Fixed an issue where `NSSecureCoding` was not enforced when
+  archiving and unarchiving registration tokens in the keychain. (#16511)
+
+# 12.19.0
+- [fixed] Fix an issue where `messaging:didReceiveRegistrationToken:` was no
+  longer called at app launch when a token was cached. (#16581)
+- [fixed] Fix an issue where cached FCM registration tokens were falsely
+  invalidated due to locale changes when
+  `FirebaseMessagingInstallationIdEnabled` was set to `YES`. (#16572)
+- [fixed] Fix a potential crash when parsing malformed FCM payloads with
+  unexpected non-numeric fields. (#16533)
+
+# 12.18.0
+- [fixed] Fix an issue where new FCM registration processing was not invoked
+  when `FirebaseMessagingInstallationIdEnabled` was set to `YES` and a legacy token
+  existed in cache. (#16429)
+- [changed] Deprecate token-related APIs (`tokenWithCompletion:`,
+  `deleteTokenWithCompletion:`, `retrieveFCMTokenForSenderID:completion:`,
+  `deleteFCMTokenForSenderID:completion:`, `FCMToken`,
+  `messaging:didReceiveRegistrationToken:`, and
+  `FIRMessagingRegistrationTokenRefreshedNotification`) in favor of the new
+  FID-based registration APIs. (#16466)
+
+# 12.17.0
+- [fixed] Reject path separators in file extensions for downloaded image
+  attachments. (#16387)
+
+# 12.16.0
+- [added] Add support for the new FCM registration API. (#16133)
+
+# 12.8.0
+- [fixed] Fix missing database crash on launch. (#14880)
+
 # 12.1.0
 - [fixed] Fix Xcode 26 crash from missing `NSUserActivityTypeBrowsingWeb`
   symbol. Note that this fix isn't in the 12.1.0 zip and Carthage

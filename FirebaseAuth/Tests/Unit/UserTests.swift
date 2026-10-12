@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
   let kFacebookAccessToken = "FACEBOOK_ACCESS_TOKEN"
@@ -60,6 +59,41 @@ class UserTests: RPCBaseTests {
     auth = nil
     FirebaseApp.resetApps()
     super.tearDown()
+  }
+
+  /** @fn testUserWithProviderUserInfoMissingProviderIDIgnoresEntry
+      @brief Tests that a getAccountInfo provider entry lacking a `providerId`
+          is skipped rather than crashing @c User construction.
+   */
+  func testUserWithProviderUserInfoMissingProviderIDIgnoresEntry() throws {
+    let providerUserInfos: [[String: String]] = [
+      [
+        "providerId": GoogleAuthProvider.id,
+        "federatedId": "GOOGLE_ID",
+        "email": kEmail,
+      ],
+      [
+        // A malformed backend response entry with no `providerId`.
+        "federatedId": "NO_PROVIDER_ID",
+        "email": kEmail,
+      ],
+    ]
+
+    rpcIssuer?.fakeGetAccountProviderJSON = [[
+      "providerUserInfo": providerUserInfos,
+      "localId": kLocalID,
+      "email": kEmail,
+      "emailVerified": true,
+    ]]
+
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      // The entry without a providerId is dropped; the valid entry remains.
+      XCTAssertEqual(user.providerData.count, 1)
+      XCTAssertEqual(user.providerData.first?.providerID, GoogleAuthProvider.id)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
   }
 
   /** @fn testUserPropertiesAndNSSecureCoding

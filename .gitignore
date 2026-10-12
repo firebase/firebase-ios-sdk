@@ -31,10 +31,6 @@ FirebaseMessaging/Apps/SampleStandaloneWatchApp/SampleStandaloneWatchAppWatchApp
 FirebaseStorage/Tests/ObjCIntegration/Credentials.h
 FirebaseStorage/Tests/Integration/Credentials.swift
 
-# FirebaseMLModelDownloader integration tests GoogleService-Info.plist
-FirebaseMLModelDownloader/Tests/Integration/Resources/GoogleService-Info.plist
-FirebaseMLModelDownloader/Apps/Sample/**/GoogleService-Info.plist
-
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist
 
@@ -45,6 +41,7 @@ Secrets.tar
 
 # Xcode
 build/
+.index-build/
 *.pbxuser
 !default.pbxuser
 *.mode1v3
@@ -155,6 +152,8 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/ui-debug.log
 /Example/FirestoreSample/firestore-debug.log
 /Example/FirestoreSample/firebase-debug.log
+Firestore/Example/GoogleService-Info.plist
+Firestore/Example/App/GoogleService-Info.plist
 
 # generated Terraform docs
 .terraform/*
@@ -164,3 +163,6 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 
 # FirebaseVertexAI test data
 vertexai-sdk-test-data
+
+
+/.agents/MEMORY.md

@@ -574,7 +574,7 @@ model::SnapshotVersion Reader::ReadSnapshotVersion() {
  */
 std::string InvalidKey(leveldb::Slice key) {
   std::string result;
-  absl::Base64Escape(MakeStringView(key), &result);
+  result = absl::Base64Escape(MakeStringView(key));
   return result;
 }
 

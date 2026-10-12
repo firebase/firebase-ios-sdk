@@ -20,7 +20,6 @@
   import WebKit
 
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthURLPresenter: NSObject,
     SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
     /// Presents an URL to interact with user.
@@ -51,6 +50,7 @@
           self.webViewController = AuthWebViewController(url: url, delegate: self)
           if let webViewController = self.webViewController {
             let navController = UINavigationController(rootViewController: webViewController)
+            navController.modalPresentationStyle = .fullScreen
             if let fakeUIDelegate = self.fakeUIDelegate {
               fakeUIDelegate.present(navController, animated: true)
             } else {

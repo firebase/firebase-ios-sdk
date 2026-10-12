@@ -95,12 +95,10 @@ static NSString *const kEventExtensionJson = @"extension_js";
                                              selector:@selector(appWillBecomeInactive:)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      [[NSNotificationCenter defaultCenter] addObserver:self
-                                               selector:@selector(appWillBecomeInactive:)
-                                                   name:UISceneWillDeactivateNotification
-                                                 object:nil];
-    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(appWillBecomeInactive:)
+                                                 name:UISceneWillDeactivateNotification
+                                               object:nil];
 
     @try {
       [self loadFromCachePath:cachePath];

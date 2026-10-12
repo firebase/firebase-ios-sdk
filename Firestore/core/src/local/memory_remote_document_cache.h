@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added
 #include "Firestore/core/src/immutable/sorted_map.h"
 #include "Firestore/core/src/local/memory_index_manager.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
@@ -54,12 +55,12 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
                                    const model::IndexOffset&,
                                    size_t) const override;
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
   model::MutableDocumentMap GetDocumentsMatchingQuery(
-      const core::Query& query,
+      const core::QueryOrPipeline& query_or_pipeline,
       const model::IndexOffset& offset,
       absl::optional<QueryContext>&,
       absl::optional<size_t> limit = absl::nullopt,

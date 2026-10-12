@@ -57,20 +57,24 @@
       let expectation = self.expectation(description: "delegate method and notification are called")
       assertTokenWithAuthorizedEntity()
 
-      let notificationExpectation = self.expectation(forNotification: NSNotification.Name
-        .MessagingRegistrationTokenRefreshed,
-        object: nil,
-        handler: nil)
+      let notificationExpectation = self.expectation(forNotification: NSNotification.Name(
+        "FIRMessagingRegistrationTokenRefreshedNotification"
+      ),
+      object: nil,
+      handler: nil)
 
       let testDelegate = fakeAppDelegate()
       messaging.delegate = testDelegate
       testDelegate.delegateIsCalled = false
 
-      messaging.deleteFCMToken(forSenderID: tokenAuthorizedEntity(), completion: { error in
-        XCTAssertNil(error)
-        XCTAssertTrue(testDelegate.delegateIsCalled)
-        expectation.fulfill()
-      })
+      (messaging as LegacyMessaging).deleteFCMToken(
+        forSenderID: tokenAuthorizedEntity(),
+        completion: { error in
+          XCTAssertNil(error)
+          XCTAssertTrue(testDelegate.delegateIsCalled)
+          expectation.fulfill()
+        }
+      )
       wait(for: [expectation, notificationExpectation], timeout: 5)
     }
 
@@ -78,15 +82,16 @@
       let expectation = self.expectation(description: "delegate method and notification are called")
       assertDefaultToken()
 
-      let notificationExpectation = self.expectation(forNotification: NSNotification.Name
-        .MessagingRegistrationTokenRefreshed,
-        object: nil,
-        handler: nil)
+      let notificationExpectation = self.expectation(forNotification: NSNotification.Name(
+        "FIRMessagingRegistrationTokenRefreshedNotification"
+      ),
+      object: nil,
+      handler: nil)
 
       let testDelegate = fakeAppDelegate()
       messaging?.delegate = testDelegate
       testDelegate.delegateIsCalled = false
-      messaging.deleteToken { error in
+      (messaging as LegacyMessaging?)?.deleteToken { error in
         XCTAssertNil(error)
         XCTAssertTrue(testDelegate.delegateIsCalled)
         expectation.fulfill()
@@ -98,10 +103,11 @@
       let expectation = self.expectation(description: "delegate method and notification are called")
       assertDefaultToken()
 
-      let notificationExpectation = self.expectation(forNotification: NSNotification.Name
-        .MessagingRegistrationTokenRefreshed,
-        object: nil,
-        handler: nil)
+      let notificationExpectation = self.expectation(forNotification: NSNotification.Name(
+        "FIRMessagingRegistrationTokenRefreshedNotification"
+      ),
+      object: nil,
+      handler: nil)
 
       let testDelegate = fakeAppDelegate()
       messaging?.delegate = testDelegate
@@ -119,18 +125,19 @@
     func assertTokenWithAuthorizedEntity() {
       let expectation = self.expectation(description: "tokenWithAuthorizedEntity")
 
-      messaging.retrieveFCMToken(forSenderID: tokenAuthorizedEntity()) { token, error in
-        XCTAssertNil(error)
-        XCTAssertNotNil(token)
-        expectation.fulfill()
-      }
+      (messaging as LegacyMessaging)
+        .retrieveFCMToken(forSenderID: tokenAuthorizedEntity()) { token, error in
+          XCTAssertNil(error)
+          XCTAssertNotNil(token)
+          expectation.fulfill()
+        }
       wait(for: [expectation], timeout: 5)
     }
 
     func assertDefaultToken() {
       let expectation = self.expectation(description: "getToken")
 
-      messaging.token { token, error in
+      (messaging as LegacyMessaging).token { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
         expectation.fulfill()
@@ -145,4 +152,15 @@
       return app.options.gcmSenderID
     }
   }
+
+  protocol LegacyMessaging {
+    func token(completion: @escaping @Sendable (String?, Error?) -> Void)
+    func deleteToken(completion: @escaping @Sendable (Error?) -> Void)
+    func retrieveFCMToken(forSenderID senderID: String,
+                          completion: @escaping @Sendable (String?, Error?) -> Void)
+    func deleteFCMToken(forSenderID senderID: String,
+                        completion: @escaping @Sendable (Error?) -> Void)
+  }
+
+  extension Messaging: LegacyMessaging {}
 #endif // !os(OSX)

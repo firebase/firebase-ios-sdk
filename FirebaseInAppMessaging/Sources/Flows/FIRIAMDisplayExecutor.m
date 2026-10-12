@@ -355,19 +355,13 @@
   [alert addAction:defaultAction];
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (@available(iOS 13.0, tvOS 13.0, *)) {
-      UIWindowScene *foregroundedScene =
-          [[UIApplication sharedApplication] fir_foregroundWindowScene];
+    UIWindowScene *foregroundedScene =
+        [[UIApplication sharedApplication] fir_foregroundWindowScene];
 
-      if (foregroundedScene == nil) {
-        return;
-      }
-      self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
-#if TARGET_OS_IOS || TARGET_OS_TV
-    } else {
-      self.alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-#endif
+    if (foregroundedScene == nil) {
+      return;
     }
+    self.alertWindow = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
     UIViewController *alertViewController = [[UIViewController alloc] init];
     self.alertWindow.rootViewController = alertViewController;
     self.alertWindow.hidden = NO;

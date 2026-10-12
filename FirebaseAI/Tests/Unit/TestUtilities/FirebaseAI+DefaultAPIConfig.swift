@@ -14,10 +14,9 @@
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FirebaseAI {
-  static let defaultVertexAIAPIConfig = APIConfig(
-    service: .vertexAI(endpoint: .firebaseProxyProd, location: "us-central1"),
+  static let defaultAgentPlatformAPIConfig = APIConfig(
+    service: .agentPlatform(endpoint: .firebaseProxyProd, location: "us-central1"),
     version: .v1beta
   )
 }

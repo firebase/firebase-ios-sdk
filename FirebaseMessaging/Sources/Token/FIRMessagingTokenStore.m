@@ -19,6 +19,7 @@
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
+#import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 
@@ -100,39 +101,113 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
   // Check if it is saved as an archived FIRMessagingTokenInfo, otherwise return nil.
   FIRMessagingTokenInfo *tokenInfo = nil;
   if (item) {
+    // The error-return policy covers decoder-detected failures; this guards exceptions from
+    // -initWithCoder: implementations or unanticipated archive shapes in persisted, externally
+    // writable keychain data.
     @try {
+      NSError *error = nil;
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:item
-                                                                                  error:nil];
-      unarchiver.requiresSecureCoding = NO;
-      [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
-      tokenInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-      [unarchiver finishDecoding];
+                                                                                  error:&error];
+      if (unarchiver) {
+        unarchiver.requiresSecureCoding = YES;
+        [unarchiver setClass:[FIRMessagingTokenInfo class] forClassName:@"FIRInstanceIDTokenInfo"];
+        tokenInfo = [unarchiver decodeObjectOfClass:[FIRMessagingTokenInfo class]
+                                             forKey:NSKeyedArchiveRootObjectKey];
+        if (!tokenInfo && unarchiver.error) {
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                                  @"Failed to decode token info from Keychain item; error: %@",
+                                  unarchiver.error);
+        }
+        [unarchiver finishDecoding];
+      } else {
+        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                                @"Unable to parse token info from Keychain item; error: %@", error);
+        tokenInfo = nil;
+      }
     } @catch (NSException *exception) {
-      FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
-                              @"Unable to parse token info from Keychain item; item was in an "
-                              @"invalid format");
+      FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreExceptionUnarchivingTokenInfo,
+                              @"Exception thrown during token info unarchiving: %@", exception);
       tokenInfo = nil;
-    } @finally {
     }
   }
   return tokenInfo;
 }
 
 #pragma mark - Save
+
++ (nullable NSData *)archivedDataWithTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
+                                         error:(NSError **)outError {
+  if (!tokenInfo) {
+    if (outError) {
+      *outError =
+          [NSError errorWithDomain:FIRMessagingErrorDomain
+                              code:FIRMessagingErrorUnknown
+                          userInfo:@{NSLocalizedDescriptionKey : @"tokenInfo cannot be nil."}];
+    }
+    return nil;
+  }
+  NSData *tokenInfoData = nil;
+  NSError *error = nil;
+  @try {
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+    [archiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
+    [archiver encodeObject:tokenInfo forKey:NSKeyedArchiveRootObjectKey];
+    [archiver finishEncoding];
+    tokenInfoData = archiver.encodedData;
+    error = archiver.error;
+    if (!tokenInfoData && !error) {
+      error = [NSError
+          errorWithDomain:FIRMessagingErrorDomain
+                     code:FIRMessagingErrorUnknown
+                 userInfo:@{NSLocalizedDescriptionKey : @"Archiving failed to produce data."}];
+    }
+  } @catch (NSException *exception) {
+    tokenInfoData = nil;
+    error = [NSError errorWithDomain:FIRMessagingErrorDomain
+                                code:FIRMessagingErrorUnknown
+                            userInfo:@{
+                              NSLocalizedDescriptionKey : exception.reason
+                                  ?: @"An exception occurred during archiving."
+                            }];
+  }
+  if (outError) {
+    *outError = error;
+  }
+  return tokenInfoData;
+}
+
 // Token Infos will be saved under these Keychain keys:
 // Account: <Main App Bundle ID> (e.g. com.mycompany.myapp)
 // Service: <Sender ID>:<Scope> (e.g. 1234567890:*)
 - (void)saveTokenInfo:(FIRMessagingTokenInfo *)tokenInfo
               handler:(void (^)(NSError *))handler {  // Keep the cachetime up-to-date.
+  if (!tokenInfo) {
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler([NSError
+            errorWithDomain:FIRMessagingErrorDomain
+                       code:FIRMessagingErrorUnknown
+                   userInfo:@{NSLocalizedDescriptionKey : @"tokenInfo cannot be nil."}]);
+      });
+    }
+    return;
+  }
   tokenInfo.cacheTime = [NSDate date];
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  // TODO(chliangGoogle: Use the new API and secureCoding protocol.
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *error = nil;
+  NSData *tokenInfoData = [[self class] archivedDataWithTokenInfo:tokenInfo error:&error];
+  if (!tokenInfoData || error) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
+                            @"Failed to securely archive token info: %@", error);
+    if (handler) {
+      // The keychain write below delivers its handler on the main queue. Match that here so a
+      // caller sees one calling context regardless of which step failed.
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(error);
+      });
+    }
+    return;
+  }
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
                                                             scope:tokenInfo.scope];
@@ -140,15 +215,18 @@ static NSString *const kFIRMessagingTokenKeychainId = @"com.google.iid-tokens";
 }
 
 - (void)saveTokenInfoInCache:(FIRMessagingTokenInfo *)tokenInfo {
+  if (!tokenInfo) {
+    return;
+  }
   tokenInfo.cacheTime = [NSDate date];
-  // TODO(chliangGoogle): Use the new API and secureCoding protocol.
   // Always write to the Keychain, so that the cacheTime is up-to-date.
-  NSData *tokenInfoData;
-  [NSKeyedArchiver setClassName:@"FIRInstanceIDTokenInfo" forClass:[FIRMessagingTokenInfo class]];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  tokenInfoData = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *error = nil;
+  NSData *tokenInfoData = [[self class] archivedDataWithTokenInfo:tokenInfo error:&error];
+  if (!tokenInfoData || error) {
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeTokenStoreErrorArchivingTokenInfo,
+                            @"Failed to securely archive token info for cache: %@", error);
+    return;
+  }
   NSString *account = FIRMessagingAppIdentifier();
   NSString *service = [[self class] serviceKeyForAuthorizedEntity:tokenInfo.authorizedEntity
                                                             scope:tokenInfo.scope];

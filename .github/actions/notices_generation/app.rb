@@ -16,6 +16,7 @@
 
 require 'cocoapods'
 require 'digest'
+require 'open3'
 require 'optparse'
 require 'plist'
 require 'tmpdir'
@@ -67,7 +68,7 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
       if source == "https://cdn.cocoapods.org/"
         next
       end
-      `pod repo add #{Digest::MD5.hexdigest source} #{source}`
+      system('pod', 'repo', 'add', Digest::SHA256.hexdigest(source), source)
     end
   end
   output += "use_frameworks! :linkage => :static\n"
@@ -77,11 +78,18 @@ def create_podfile(path: , sources: , target: , pods: [], min_ios_version: , sea
   for pod in pods do
     if search_local_pod_version
       # `pod search` will search a pod locally and generate a corresonding pod
-      # config in a Podfile with `grep`, e.g.
-      # pod search Firebase | grep "pod.*" -m 1
+      # config in a Podfile with ruby match, e.g.
+      # pod search Firebase
       # will generate
       # pod 'Firebase', '~> 9.0.0'
-      output += `pod search "#{pod}" | grep "pod.*" -m 1`
+      stdout, status = Open3.capture2('pod', 'search', pod)
+      match = status.success? ? stdout.match(/pod '.*/) : nil
+      if match
+        output += "#{match[0]}\n"
+      else
+        puts "Warning: pod search failed or found no match for '#{pod}'. Falling back to unversioned pod."
+        output += "pod \'#{pod}\'\n"
+      end
     else
       output += "pod \'#{pod}\'\n"
     end

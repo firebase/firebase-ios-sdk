@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <map>
+#include <optional>
 #include <set>
 #include <unordered_map>
 
@@ -50,40 +51,6 @@ using nanopb::MakeStringView;
 using nanopb::Message;
 using nanopb::ReleaseFieldOwnership;
 using nanopb::SetRepeatedField;
-
-struct MapEntryKeyCompare {
-  bool operator()(const google_firestore_v1_MapValue_FieldsEntry& entry,
-                  absl::string_view segment) const {
-    return nanopb::MakeStringView(entry.key) < segment;
-  }
-  bool operator()(absl::string_view segment,
-                  const google_firestore_v1_MapValue_FieldsEntry& entry) const {
-    return segment < nanopb::MakeStringView(entry.key);
-  }
-};
-
-/**
- * Finds an entry by key in the provided map value. Returns `nullptr` if the
- * entry does not exist.
- */
-google_firestore_v1_MapValue_FieldsEntry* FindEntry(
-    const google_firestore_v1_Value& value, absl::string_view segment) {
-  if (!IsMap(value)) {
-    return nullptr;
-  }
-  const google_firestore_v1_MapValue& map_value = value.map_value;
-
-  // MapValues in iOS are always stored in sorted order.
-  auto found = std::equal_range(map_value.fields,
-                                map_value.fields + map_value.fields_count,
-                                segment, MapEntryKeyCompare());
-
-  if (found.first == found.second) {
-    return nullptr;
-  }
-
-  return found.first;
-}
 
 size_t CalculateSizeOfUnion(
     const google_firestore_v1_MapValue& map_value,
@@ -275,7 +242,8 @@ FieldMask ObjectValue::ExtractFieldMask(
     const google_firestore_v1_MapValue_FieldsEntry& entry = value.fields[i];
     FieldPath current_path{MakeString(entry.key)};
 
-    if (!IsMap(entry.value)) {
+    // BSON types do not need to extract reserved keys such as '__regex__', etc.
+    if (!IsMap(entry.value) || IsBsonType(entry.value)) {
       fields.insert(std::move(current_path));
       continue;
     }
@@ -295,7 +263,7 @@ FieldMask ObjectValue::ExtractFieldMask(
   return FieldMask(std::move(fields));
 }
 
-absl::optional<google_firestore_v1_Value> ObjectValue::Get(
+std::optional<google_firestore_v1_Value> ObjectValue::Get(
     const FieldPath& path) const {
   if (path.empty()) {
     return *value_;
@@ -305,16 +273,16 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
   for (const std::string& segment : path) {
     google_firestore_v1_MapValue_FieldsEntry* entry =
         FindEntry(nested_value, segment);
-    if (!entry) return absl::nullopt;
+    if (!entry) return std::nullopt;
     nested_value = entry->value;
   }
   return nested_value;
 }
 
-absl::optional<google_firestore_v1_Value> ObjectValue::Get(
+std::optional<google_firestore_v1_Value> ObjectValue::Get(
     const std::string& key) const {
   google_firestore_v1_MapValue_FieldsEntry* entry = FindEntry(*value_, key);
-  if (!entry) return absl::nullopt;
+  if (!entry) return std::nullopt;
   return entry->value;
 }
 
@@ -342,7 +310,7 @@ void ObjectValue::SetAll(TransformMap data) {
 
   for (auto& it : data) {
     const FieldPath& path = it.first;
-    absl::optional<Message<google_firestore_v1_Value>> value =
+    std::optional<Message<google_firestore_v1_Value>> value =
         std::move(it.second);
 
     if (!parent.IsImmediateParentOf(path)) {

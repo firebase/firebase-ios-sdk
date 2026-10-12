@@ -176,8 +176,12 @@
   if (_generatedClass) {
     if (_swizzledObject == nil) {
       // The swizzled object has been deallocated already, so the generated class can be disposed
-      // now.
-      objc_disposeClassPair(_generatedClass);
+      // now. Defer disposal to ensure that objc_rootDealloc of the swizzled object has completed
+      // and any weak references have been zeroed.
+      Class generatedClass = _generatedClass;
+      dispatch_async(dispatch_get_main_queue(), ^{
+        objc_disposeClassPair(generatedClass);
+      });
       return;
     }
 

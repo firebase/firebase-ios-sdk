@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "absl/types/optional.h"
@@ -130,6 +131,9 @@ using MutationByDocumentKeyMap = std::
 using TransformMap =
     std::map<FieldPath,
              absl::optional<nanopb::Message<google_firestore_v1_Value>>>;
+
+using PipelineInputOutput = MutableDocument;
+using PipelineInputOutputVector = std::vector<PipelineInputOutput>;
 
 }  // namespace model
 }  // namespace firestore

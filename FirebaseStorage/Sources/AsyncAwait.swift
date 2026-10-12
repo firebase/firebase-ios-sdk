@@ -14,7 +14,6 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension StorageReference {
   /// Asynchronously downloads the object at the StorageReference to a Data object in memory.
   /// A Data object of the provided max size will be allocated, so ensure that the device has

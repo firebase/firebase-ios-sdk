@@ -65,35 +65,41 @@ void QueryEngine::Initialize(LocalDocumentsView* local_documents) {
 }
 
 const DocumentMap QueryEngine::GetDocumentsMatchingQuery(
-    const Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const SnapshotVersion& last_limbo_free_snapshot_version,
     const DocumentKeySet& remote_keys) const {
   HARD_ASSERT(local_documents_view_ && index_manager_,
               "Initialize() not called");
 
   const absl::optional<DocumentMap> index_result =
-      PerformQueryUsingIndex(query);
+      PerformQueryUsingIndex(query_or_pipeline);
   if (index_result.has_value()) {
     return index_result.value();
   }
 
   const absl::optional<DocumentMap> key_result = PerformQueryUsingRemoteKeys(
-      query, remote_keys, last_limbo_free_snapshot_version);
+      query_or_pipeline, remote_keys, last_limbo_free_snapshot_version);
   if (key_result.has_value()) {
     return key_result.value();
   }
 
   absl::optional<QueryContext> context = QueryContext();
-  auto full_scan_result = ExecuteFullCollectionScan(query, context);
+  auto full_scan_result = ExecuteFullCollectionScan(query_or_pipeline, context);
   if (index_auto_creation_enabled_) {
-    CreateCacheIndexes(query, context.value(), full_scan_result.size());
+    CreateCacheIndexes(query_or_pipeline, context.value(),
+                       full_scan_result.size());
   }
   return full_scan_result;
 }
 
-void QueryEngine::CreateCacheIndexes(const core::Query& query,
+void QueryEngine::CreateCacheIndexes(const core::QueryOrPipeline& query,
                                      const QueryContext& context,
                                      size_t result_size) const {
+  if (query.IsPipeline()) {
+    LOG_DEBUG("SDK will skip creating cache indexes for pipelines.");
+    return;
+  }
+
   if (context.GetDocumentReadCount() <
       index_auto_creation_min_collection_size_) {
     LOG_DEBUG(
@@ -111,7 +117,7 @@ void QueryEngine::CreateCacheIndexes(const core::Query& query,
 
   if (context.GetDocumentReadCount() >
       relative_index_read_cost_per_document_ * result_size) {
-    index_manager_->CreateTargetIndexes(query.ToTarget());
+    index_manager_->CreateTargetIndexes(query.query().ToTarget());
     LOG_DEBUG(
         "The SDK decides to create cache indexes for query: %s, as using cache "
         "indexes may help improve performance.",
@@ -124,7 +130,13 @@ void QueryEngine::SetIndexAutoCreationEnabled(bool is_enabled) {
 }
 
 absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
-    const Query& query) const {
+    const core::QueryOrPipeline& query_or_pipeline) const {
+  if (query_or_pipeline.IsPipeline()) {
+    LOG_DEBUG("Skipping using indexes for pipelines.");
+    return absl::nullopt;
+  }
+
+  const auto& query = query_or_pipeline.query();
   if (query.MatchesAllDocuments()) {
     // Don't use indexes for queries that can be executed by scanning the
     // collection.
@@ -150,7 +162,7 @@ absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
     // in such cases.
     const Query query_with_limit =
         query.WithLimitToFirst(core::Target::kNoLimit);
-    return PerformQueryUsingIndex(query_with_limit);
+    return PerformQueryUsingIndex(core::QueryOrPipeline(query_with_limit));
   }
 
   auto keys = index_manager_->GetDocumentsMatchingTarget(target);
@@ -167,24 +179,26 @@ absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
       local_documents_view_->GetDocuments(remote_keys);
   model::IndexOffset offset = index_manager_->GetMinOffset(target);
 
-  DocumentSet previous_results = ApplyQuery(query, indexedDocuments);
-  if (NeedsRefill(query, previous_results, remote_keys, offset.read_time())) {
+  DocumentSet previous_results =
+      ApplyQuery(query_or_pipeline, indexedDocuments);
+  if (NeedsRefill(query_or_pipeline, previous_results, remote_keys,
+                  offset.read_time())) {
     // A limit query whose boundaries change due to local edits can be re-run
     // against the cache by excluding the limit. This ensures that all documents
     // that match the query's filters are included in the result set. The SDK
     // can then apply the limit once all local edits are incorporated.
     const Query query_with_limit =
         query.WithLimitToFirst(core::Target::kNoLimit);
-    return PerformQueryUsingIndex(query_with_limit);
+    return PerformQueryUsingIndex(core::QueryOrPipeline(query_with_limit));
   }
 
   // Retrieve all results for documents that were updated since the last
   // remote snapshot that did not contain any Limbo documents.
-  return AppendRemainingResults(previous_results, query, offset);
+  return AppendRemainingResults(previous_results, query_or_pipeline, offset);
 }
 
 absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
-    const Query& query,
+    const core::QueryOrPipeline& query,
     const DocumentKeySet& remote_keys,
     const SnapshotVersion& last_limbo_free_snapshot_version) const {
   // Queries that match all documents don't benefit from using key-based
@@ -203,9 +217,8 @@ absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
   DocumentMap documents = local_documents_view_->GetDocuments(remote_keys);
   DocumentSet previous_results = ApplyQuery(query, documents);
 
-  if ((query.has_limit_to_first() || query.has_limit_to_last()) &&
-      NeedsRefill(query, previous_results, remote_keys,
-                  last_limbo_free_snapshot_version)) {
+  if ((query.has_limit()) && NeedsRefill(query, previous_results, remote_keys,
+                                         last_limbo_free_snapshot_version)) {
     return absl::nullopt;
   }
 
@@ -219,7 +232,7 @@ absl::optional<DocumentMap> QueryEngine::PerformQueryUsingRemoteKeys(
       model::IndexOffset::CreateSuccessor(last_limbo_free_snapshot_version));
 }
 
-DocumentSet QueryEngine::ApplyQuery(const Query& query,
+DocumentSet QueryEngine::ApplyQuery(const core::QueryOrPipeline& query,
                                     const DocumentMap& documents) const {
   // Sort the documents and re-apply the query filter since previously matching
   // documents do not necessarily still match the query.
@@ -237,10 +250,18 @@ DocumentSet QueryEngine::ApplyQuery(const Query& query,
 }
 
 bool QueryEngine::NeedsRefill(
-    const Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const DocumentSet& sorted_previous_results,
     const DocumentKeySet& remote_keys,
     const SnapshotVersion& limbo_free_snapshot_version) const {
+  // TODO(pipeline): For pipelines it is simple for now, we refill for all
+  // limit/offset. we should implement a similar approach for query at some
+  // point.
+  if (query_or_pipeline.IsPipeline()) {
+    return query_or_pipeline.has_limit();
+  }
+
+  const auto& query = query_or_pipeline.query();
   if (!query.has_limit()) {
     // Queries without limits do not need to be refilled.
     return false;
@@ -273,7 +294,8 @@ bool QueryEngine::NeedsRefill(
 }
 
 const DocumentMap QueryEngine::ExecuteFullCollectionScan(
-    const Query& query, absl::optional<QueryContext>& context) const {
+    const core::QueryOrPipeline& query,
+    absl::optional<QueryContext>& context) const {
   LOG_DEBUG("Using full collection scan to execute query: %s",
             query.ToString());
   return local_documents_view_->GetDocumentsMatchingQuery(
@@ -282,7 +304,7 @@ const DocumentMap QueryEngine::ExecuteFullCollectionScan(
 
 const DocumentMap QueryEngine::AppendRemainingResults(
     const DocumentSet& indexed_results,
-    const Query& query,
+    const core::QueryOrPipeline& query,
     const model::IndexOffset& offset) const {
   // Retrieve all results for documents that were updated since the offset.
   DocumentMap remaining_results =

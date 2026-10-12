@@ -19,7 +19,7 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelGoogleAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
   let safetyRatingsNegligible: [SafetyRating] = [
@@ -58,7 +58,7 @@ final class GenerativeModelGoogleAITests: XCTestCase {
   ].sorted()
   let testModelName = "test-model"
   let testModelResourceName = "projects/test-project-id/models/test-model"
-  let apiConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
   let googleAISubdirectory = "mock-responses/googleai"
 

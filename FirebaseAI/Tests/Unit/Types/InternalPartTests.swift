@@ -15,7 +15,6 @@
 @testable import FirebaseAILogic
 import XCTest
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 final class InternalPartTests: XCTestCase {
   let decoder = JSONDecoder()
 
@@ -494,5 +493,28 @@ final class InternalPartTests: XCTestCase {
     }
     XCTAssertNil(codeExecutionResult.outcome)
     XCTAssertNil(codeExecutionResult.output)
+  }
+
+  func testEncodeUnsupportedPart_doesNotCrash() throws {
+    let json = """
+    {
+      "futurePartType": {"key": "value"},
+      "thought": true,
+      "thoughtSignature": "sig"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+    XCTAssertNil(part.data)
+
+    // Parts received from the server are sent back as history in chat sessions.
+    let encodedData = try JSONEncoder().encode(part)
+
+    let encodedJSON = try XCTUnwrap(
+      JSONSerialization.jsonObject(with: encodedData) as? [String: Any]
+    )
+    XCTAssertEqual(encodedJSON.count, 2)
+    XCTAssertEqual(encodedJSON["thought"] as? Bool, true)
+    XCTAssertEqual(encodedJSON["thoughtSignature"] as? String, "sig")
   }
 }

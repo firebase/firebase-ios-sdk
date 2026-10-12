@@ -77,8 +77,11 @@ FirebaseAppCheckCredentialsProvider::~FirebaseAppCheckCredentialsProvider() {
 
 void FirebaseAppCheckCredentialsProvider::GetToken(
     TokenListener<std::string> completion) {
-  std::weak_ptr<Contents> weak_contents = contents_;
-  if (contents_->app_check) {
+  // Capture self via a shared_ptr to ensure that the credentials provider
+  // is not deallocated while the getToken request is outstanding.
+  std::shared_ptr<FirebaseAppCheckCredentialsProvider> self =
+      shared_from_this();
+  if (self->contents_->app_check) {
     void (^get_token_callback)(id<FIRAppCheckTokenResultInterop>) =
         ^(id<FIRAppCheckTokenResultInterop> result) {
           if (result.error != nil) {
@@ -90,13 +93,13 @@ void FirebaseAppCheckCredentialsProvider::GetToken(
 
     // Retrieve a cached or generate a new FAC Token. If forcingRefresh == YES
     // always generates a new token and updates the cache.
-    [contents_->app_check getTokenForcingRefresh:force_refresh_
-                                      completion:get_token_callback];
+    [self->contents_->app_check getTokenForcingRefresh:self->force_refresh_
+                                            completion:get_token_callback];
   } else {
     // If there's no AppCheck provider, call back immediately with a nil token.
     completion(std::string{""});
   }
-  force_refresh_ = false;
+  self->force_refresh_ = false;
 }
 
 void FirebaseAppCheckCredentialsProvider::SetCredentialChangeListener(

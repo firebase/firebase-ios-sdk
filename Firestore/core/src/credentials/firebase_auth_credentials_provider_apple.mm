@@ -81,26 +81,23 @@ void FirebaseAuthCredentialsProvider::GetToken(
   // fail if there is a token change while the request is outstanding.
   int initial_token_counter = contents_->token_counter;
 
-  std::weak_ptr<Contents> weak_contents = contents_;
+  // Capture self via a shared_ptr to ensure that the credentials provider
+  // is not deallocated while the getToken request is outstanding.
+  std::shared_ptr<FirebaseAuthCredentialsProvider> self = shared_from_this();
   void (^get_token_callback)(NSString*, NSError*) =
       ^(NSString* _Nullable token, NSError* _Nullable error) {
-        std::shared_ptr<Contents> contents = weak_contents.lock();
-        if (!contents) {
-          return;
-        }
-
-        std::unique_lock<std::mutex> lock(contents->mutex);
-        if (initial_token_counter != contents->token_counter) {
+        std::unique_lock<std::mutex> lock(self->contents_->mutex);
+        if (initial_token_counter != self->contents_->token_counter) {
           // Cancel the request since the user changed while the request was
           // outstanding so the response is likely for a previous user (which
           // user, we can't be sure).
           LOG_DEBUG("GetToken aborted due to token change.");
-          return GetToken(completion);
+          return self->GetToken(completion);
         } else {
           if (error == nil) {
             if (token != nil) {
-              completion(
-                  AuthToken{util::MakeString(token), contents->current_user});
+              completion(AuthToken{util::MakeString(token),
+                                   self->contents_->current_user});
             } else {
               completion(AuthToken::Unauthenticated());
             }

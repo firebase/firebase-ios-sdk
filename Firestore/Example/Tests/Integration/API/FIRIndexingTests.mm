@@ -34,7 +34,6 @@
 // Clears persistence for each test method to have a clean start.
 - (void)setUp {
   [super setUp];
-  self.db = [self firestore];
   XCTestExpectation *exp = [self expectationWithDescription:@"clear persistence"];
   [self.db clearPersistenceWithCompletion:^(NSError *) {
     [exp fulfill];

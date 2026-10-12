@@ -564,7 +564,7 @@ class FirestoreEncoderTests: XCTestCase {
       .failsEncodingWithJSONEncoder()
   }
 
-  func testDecodingDocumentIDWithConfictingFieldsDoesNotThrow() throws {
+  func testDecodingDocumentIDWithConflictingFieldsDoesNotThrow() throws {
     struct Model: Codable, Equatable {
       var name: String
       @DocumentID var docId: DocumentReference?

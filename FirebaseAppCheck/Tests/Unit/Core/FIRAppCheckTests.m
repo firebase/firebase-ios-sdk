@@ -405,7 +405,7 @@ extern void FIRResetLogger(void);
   userInfo[NSUnderlyingErrorKey] = underlyingError;
   userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
 
-  return [NSError errorWithDomain:GACAppCheckErrorDomain code:code userInfo:userInfo];
+  return [NSError errorWithDomain:@"com.google.app_check_core" code:code userInfo:userInfo];
 }
 
 - (FIRAppCheckToken *)validToken {

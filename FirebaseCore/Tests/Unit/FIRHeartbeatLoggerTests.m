@@ -125,8 +125,7 @@
               }];
 }
 
-- (void)testFlushingAsync_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload API_AVAILABLE(
-    ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
+- (void)testFlushingAsync_UsingV2API_WhenHeartbeatsAreStored_ReturnsNonEmptyPayload {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
@@ -158,8 +157,7 @@
   [self assertHeartbeatsPayloadIsEmpty:heartbeatsPayload];
 }
 
-- (void)testFlushingAsync_UsingV2API_WhenNoHeartbeatsAreStored_ReturnsEmptyPayload API_AVAILABLE(
-    ios(13.0), macosx(10.15), macCatalyst(13.0), tvos(13.0), watchos(6.0)) {
+- (void)testFlushingAsync_UsingV2API_WhenNoHeartbeatsAreStored_ReturnsEmptyPayload {
   // Given
   FIRHeartbeatLogger *heartbeatLogger = self.heartbeatLogger;
   // When

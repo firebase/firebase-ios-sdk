@@ -43,7 +43,8 @@
 
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
-                                                           appIDModel:appIDModel];
+                                                           appIDModel:appIDModel
+                                                              appInfo:[[NSDictionary alloc] init]];
 
   NSString *name = @"exception_model_report";
   self.reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];

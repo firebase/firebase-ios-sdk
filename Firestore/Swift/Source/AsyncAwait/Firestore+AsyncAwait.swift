@@ -21,7 +21,6 @@
 #endif // SWIFT_PACKAGE
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Firestore {
   /// Loads a Firestore bundle into the local cache.
   /// - Parameter bundleData: Data from the bundle to be loaded.
@@ -102,7 +101,7 @@ public extension Firestore {
   /// explicitly specified in the `updateBlock` parameter.
   /// - Returns Returns the value returned in the `updateBlock` parameter if no errors occurred.
   func runTransaction(_ updateBlock: @escaping (Transaction, NSErrorPointer)
-    -> Any?) async throws -> Any? {
+    -> sending Any?) async throws -> sending Any? {
     // This needs to be wrapped in order to express a nullable return value upon success.
     // See https://github.com/firebase/firebase-ios-sdk/issues/9426 for more details.
     return try await withCheckedThrowingContinuation { continuation in

@@ -417,6 +417,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *testCollection = [self collectionRefwithTestDocs:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -573,6 +576,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityWithArrayMembership {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *collRef = [self collectionRefwithTestDocs:@{
     @"doc1" : @{@"key" : @"a", @"sort" : @0, @"v" : @[ @0 ]},
     @"doc2" : @{@"key" : @"b", @"sort" : @1, @"v" : @[ @0, @1, @3 ]},
@@ -959,6 +965,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 - (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
+  XCTSkipIf([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise,
+            @"Skipping this test in enterprise mode.");
+
   FIRCollectionReference *collRef = [self collectionRef];
 
   FIRQuery *query = [[collRef queryWhereField:@"key"

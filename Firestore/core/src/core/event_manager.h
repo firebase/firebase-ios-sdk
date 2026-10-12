@@ -71,7 +71,8 @@ class EventManager : public SyncEngineCallback {
   // Implements `QueryEventCallback`.
   void HandleOnlineStateChange(model::OnlineState online_state) override;
   void OnViewSnapshots(std::vector<core::ViewSnapshot>&& snapshots) override;
-  void OnError(const core::Query& query, const util::Status& error) override;
+  void OnError(const core::QueryOrPipeline& query,
+               const util::Status& error) override;
 
  private:
   /**
@@ -128,7 +129,7 @@ class EventManager : public SyncEngineCallback {
 
   QueryEventSource* query_event_source_ = nullptr;
   model::OnlineState online_state_ = model::OnlineState::Unknown;
-  std::unordered_map<core::Query, QueryListenersInfo> queries_;
+  std::unordered_map<core::QueryOrPipeline, QueryListenersInfo> queries_;
   std::unordered_set<std::shared_ptr<EventListener<util::Empty>>>
       snapshots_in_sync_listeners_;
 };

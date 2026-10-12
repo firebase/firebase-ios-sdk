@@ -70,6 +70,8 @@
 @property(nonatomic, strong, readwrite) FQuerySpec *query;
 @property(nonatomic, strong) FViewProcessor *processor;
 @property(nonatomic, strong) FViewCache *viewCache;
+
+// All accesses must be guarded by @synchronized(self.eventRegistrations)
 @property(nonatomic, strong) NSMutableArray *eventRegistrations;
 @property(nonatomic, strong) FEventGenerator *eventGenerator;
 
@@ -165,11 +167,15 @@
 }
 
 - (BOOL)isEmpty {
-    return self.eventRegistrations.count == 0;
+    @synchronized(self.eventRegistrations) {
+        return self.eventRegistrations.count == 0;
+    }
 }
 
 - (void)addEventRegistration:(id<FEventRegistration>)eventRegistration {
-    [self.eventRegistrations addObject:eventRegistration];
+    @synchronized(self.eventRegistrations) {
+        [self.eventRegistrations addObject:eventRegistration];
+    }
 }
 
 /**
@@ -181,31 +187,33 @@
 - (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
                          cancelError:(NSError *)cancelError {
     NSMutableArray *cancelEvents = [[NSMutableArray alloc] init];
-    if (cancelError != nil) {
-        NSAssert(eventRegistration == nil,
-                 @"A cancel should cancel all event registrations.");
-        FPath *path = self.query.path;
-        for (id<FEventRegistration> registration in self.eventRegistrations) {
-            FCancelEvent *maybeEvent =
-                [registration createCancelEventFromError:cancelError path:path];
-            if (maybeEvent) {
-                [cancelEvents addObject:maybeEvent];
+    @synchronized(self.eventRegistrations) {
+        if (cancelError != nil) {
+            NSAssert(eventRegistration == nil,
+                     @"A cancel should cancel all event registrations.");
+            FPath *path = self.query.path;
+            for (id<FEventRegistration> registration in self
+                     .eventRegistrations) {
+                FCancelEvent *maybeEvent =
+                    [registration createCancelEventFromError:cancelError
+                                                        path:path];
+                if (maybeEvent) {
+                    [cancelEvents addObject:maybeEvent];
+                }
             }
         }
-    }
 
-    if (eventRegistration) {
-        NSUInteger i = 0;
-        while (i < self.eventRegistrations.count) {
-            id<FEventRegistration> existing = self.eventRegistrations[i];
-            if ([existing matches:eventRegistration]) {
-                [self.eventRegistrations removeObjectAtIndex:i];
-            } else {
-                i++;
-            }
+        if (eventRegistration) {
+            NSIndexSet *indexesToRemove =
+                [self.eventRegistrations indexesOfObjectsPassingTest:^BOOL(
+                                             id<FEventRegistration> existing,
+                                             NSUInteger idx, BOOL *stop) {
+                  return [existing matches:eventRegistration];
+                }];
+            [self.eventRegistrations removeObjectsAtIndexes:indexesToRemove];
+        } else {
+            [self.eventRegistrations removeAllObjects];
         }
-    } else {
-        [self.eventRegistrations removeAllObjects];
     }
     return cancelEvents;
 }
@@ -270,7 +278,10 @@
                          registration:(id<FEventRegistration>)registration {
     NSArray *registrations;
     if (registration == nil) {
-        registrations = [[NSArray alloc] initWithArray:self.eventRegistrations];
+        @synchronized(self.eventRegistrations) {
+            registrations =
+                [[NSArray alloc] initWithArray:self.eventRegistrations];
+        }
     } else {
         registrations = [[NSArray alloc] initWithObjects:registration, nil];
     }

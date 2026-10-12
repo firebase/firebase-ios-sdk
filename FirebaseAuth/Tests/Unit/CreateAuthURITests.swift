@@ -17,7 +17,6 @@ import XCTest
 
 @testable import FirebaseAuth
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class CreateAuthURITests: RPCBaseTests {
   /** @var kContinueURITestKey
       @brief The key for the "continueUri" value in the request.

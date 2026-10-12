@@ -177,6 +177,10 @@ class MutableDocument {
     return *value_;
   }
 
+  std::shared_ptr<ObjectValue> shared_data() const {
+    return value_;
+  }
+
   /**
    * Returns the value at the given path or absl::nullopt. If the path is empty,
    * an identical copy of the FieldValue is returned.
@@ -190,19 +194,19 @@ class MutableDocument {
   }
 
   bool is_valid_document() const {
-    return document_type_ != DocumentType ::kInvalid;
+    return document_type_ != DocumentType::kInvalid;
   }
 
   bool is_found_document() const {
-    return document_type_ == DocumentType ::kFoundDocument;
+    return document_type_ == DocumentType::kFoundDocument;
   }
 
   bool is_no_document() const {
-    return document_type_ == DocumentType ::kNoDocument;
+    return document_type_ == DocumentType::kNoDocument;
   }
 
   bool is_unknown_document() const {
-    return document_type_ == DocumentType ::kUnknownDocument;
+    return document_type_ == DocumentType::kUnknownDocument;
   }
 
   size_t Hash() const;

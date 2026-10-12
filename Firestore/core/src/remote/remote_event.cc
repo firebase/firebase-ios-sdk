@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/remote_event.h"
 
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -219,9 +220,9 @@ create_existence_filter_mismatch_info_for_testing_hooks(
     int local_cache_count,
     const ExistenceFilterWatchChange& existence_filter,
     const DatabaseId& database_id,
-    absl::optional<BloomFilter> bloom_filter,
+    std::optional<BloomFilter> bloom_filter,
     BloomFilterApplicationStatus status) {
-  absl::optional<TestingHooks::BloomFilterInfo> bloom_filter_info;
+  std::optional<TestingHooks::BloomFilterInfo> bloom_filter_info;
   if (existence_filter.filter().bloom_filter_parameters().has_value()) {
     const BloomFilterParameters& bloom_filter_parameters =
         existence_filter.filter().bloom_filter_parameters().value();
@@ -237,6 +238,46 @@ create_existence_filter_mismatch_info_for_testing_hooks(
           std::move(bloom_filter_info)};
 }
 
+std::optional<model::ResourcePath> GetSingleDocumentPath(
+    const core::TargetOrPipeline target_or_pipeline) {
+  if (target_or_pipeline.IsPipeline()) {
+    if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
+        core::PipelineSourceType::kDocuments) {
+      const auto& documents =
+          core::GetPipelineDocuments(target_or_pipeline.pipeline());
+      if (documents.has_value() && documents.value().size() == 1) {
+        return model::ResourcePath::FromString(documents.value()[0]);
+      }
+    }
+  } else if (target_or_pipeline.target().IsDocumentQuery()) {
+    return target_or_pipeline.target().path();
+  }
+
+  return std::nullopt;
+}
+
+std::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
+    const core::TargetOrPipeline target_or_pipeline) {
+  if (target_or_pipeline.IsPipeline()) {
+    if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
+        core::PipelineSourceType::kDocuments) {
+      const auto& documents =
+          core::GetPipelineDocuments(target_or_pipeline.pipeline());
+      if (documents.has_value()) {
+        std::vector<model::ResourcePath> results;
+        for (const std::string& document : documents.value()) {
+          results.push_back(model::ResourcePath::FromString(document));
+        }
+        return results;
+      }
+    }
+  } else if (target_or_pipeline.target().IsDocumentQuery()) {
+    return std::vector<model::ResourcePath>{target_or_pipeline.target().path()};
+  }
+
+  return std::nullopt;
+}
+
 }  // namespace
 
 void WatchChangeAggregator::HandleExistenceFilter(
@@ -244,31 +285,17 @@ void WatchChangeAggregator::HandleExistenceFilter(
   TargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  absl::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
+  std::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
   if (target_data) {
-    const Target& target = target_data->target();
-    if (target.IsDocumentQuery()) {
-      if (expected_count == 0) {
-        // The existence filter told us the document does not exist. We deduce
-        // that this document does not exist and apply a deleted document to our
-        // updates. Without applying this deleted document there might be
-        // another query that will raise this document as part of a snapshot
-        // until it is resolved, essentially exposing inconsistency between
-        // queries.
-        DocumentKey key{target.path()};
-        RemoveDocumentFromTarget(
-            target_id, key,
-            MutableDocument::NoDocument(key, SnapshotVersion::None()));
-      } else {
-        HARD_ASSERT(expected_count == 1,
-                    "Single document existence filter with count: %s",
-                    expected_count);
-      }
-    } else {
+    const core::TargetOrPipeline& target_or_pipeline =
+        target_data->target_or_pipeline();
+
+    auto single_doc_path = GetSingleDocumentPath(target_or_pipeline);
+    if (!single_doc_path.has_value()) {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
         // Apply bloom filter to identify and mark removed documents.
-        absl::optional<BloomFilter> bloom_filter =
+        std::optional<BloomFilter> bloom_filter =
             ParseBloomFilter(existence_filter);
         BloomFilterApplicationStatus status =
             bloom_filter.has_value()
@@ -292,16 +319,33 @@ void WatchChangeAggregator::HandleExistenceFilter(
                 target_metadata_provider_->GetDatabaseId(),
                 std::move(bloom_filter), status));
       }
+    } else {
+      if (expected_count == 0) {
+        // The existence filter told us the document does not exist. We deduce
+        // that this document does not exist and apply a deleted document to our
+        // updates. Without applying this deleted document there might be
+        // another query that will raise this document as part of a snapshot
+        // until it is resolved, essentially exposing inconsistency between
+        // queries.
+        DocumentKey key{std::move(single_doc_path.value())};
+        RemoveDocumentFromTarget(
+            target_id, key,
+            MutableDocument::NoDocument(key, SnapshotVersion::None()));
+      } else {
+        HARD_ASSERT(expected_count == 1,
+                    "Single document existence filter with count: %s",
+                    expected_count);
+      }
     }
   }
 }
 
-absl::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
+std::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
     const ExistenceFilterWatchChange& existence_filter) {
-  const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
+  const std::optional<BloomFilterParameters>& bloom_filter_parameters =
       existence_filter.filter().bloom_filter_parameters();
   if (!bloom_filter_parameters.has_value()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   util::StatusOr<BloomFilter> maybe_bloom_filter =
@@ -311,13 +355,13 @@ absl::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
   if (!maybe_bloom_filter.ok()) {
     LOG_WARN("Creating BloomFilter failed: %s",
              maybe_bloom_filter.status().error_message());
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
 
   if (bloom_filter.bit_count() == 0) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return bloom_filter;
@@ -350,7 +394,7 @@ int WatchChangeAggregator::FilterRemovedDocuments(
 
     if (!bloom_filter.MightContain(document_path)) {
       RemoveDocumentFromTarget(target_id, key,
-                               /*updatedDocument=*/absl::nullopt);
+                               /*updatedDocument=*/std::nullopt);
       removalCount++;
     }
   }
@@ -365,22 +409,25 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     TargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    absl::optional<TargetData> target_data =
+    std::optional<TargetData> target_data =
         TargetDataForActiveTarget(target_id);
     if (target_data) {
-      if (target_state.current() && target_data->target().IsDocumentQuery()) {
+      auto doc_paths = GetDocumentPaths(target_data->target_or_pipeline());
+      if (target_state.current() && doc_paths.has_value()) {
         // Document queries for document that don't exist can produce an empty
         // result set. To update our local cache, we synthesize a document
         // delete if we have not previously received the document. This resolves
         // the limbo state of the document, removing it from
         // SyncEngine::limbo_document_refs_.
-        DocumentKey key{target_data->target().path()};
-        if (pending_document_updates_.find(key) ==
-                pending_document_updates_.end() &&
-            !TargetContainsDocument(target_id, key)) {
-          RemoveDocumentFromTarget(
-              target_id, key,
-              MutableDocument::NoDocument(key, snapshot_version));
+        for (const model::ResourcePath& single_doc_path : doc_paths.value()) {
+          DocumentKey key{std::move(single_doc_path)};
+          if (pending_document_updates_.find(key) ==
+                  pending_document_updates_.end() &&
+              !TargetContainsDocument(target_id, key)) {
+            RemoveDocumentFromTarget(
+                target_id, key,
+                MutableDocument::NoDocument(key, snapshot_version));
+          }
         }
       }
 
@@ -401,7 +448,7 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     bool is_only_limbo_target = true;
 
     for (TargetId target_id : entry.second) {
-      absl::optional<TargetData> target_data =
+      std::optional<TargetData> target_data =
           TargetDataForActiveTarget(target_id);
       if (target_data &&
           target_data->purpose() != QueryPurpose::LimboResolution) {
@@ -450,7 +497,7 @@ void WatchChangeAggregator::AddDocumentToTarget(
 void WatchChangeAggregator::RemoveDocumentFromTarget(
     TargetId target_id,
     const DocumentKey& key,
-    const absl::optional<MutableDocument>& updated_document) {
+    const std::optional<MutableDocument>& updated_document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -494,15 +541,15 @@ TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
 }
 
 bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
-  return TargetDataForActiveTarget(target_id) != absl::nullopt;
+  return TargetDataForActiveTarget(target_id) != std::nullopt;
 }
 
-absl::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
+std::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
     TargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
-             ? absl::optional<TargetData>{}
+             ? std::optional<TargetData>{}
              : target_metadata_provider_->GetTargetDataForTarget(target_id);
 }
 
@@ -521,7 +568,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existing_keys) {
-    RemoveDocumentFromTarget(target_id, key, absl::nullopt);
+    RemoveDocumentFromTarget(target_id, key, std::nullopt);
   }
 }
 

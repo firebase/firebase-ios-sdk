@@ -19,9 +19,11 @@
 #import <GoogleUtilities/GULUserDefaults.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingRmqManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Tests/UnitTests/FIRMessagingFakeKeychain.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 #import "FirebaseMessaging/Tests/UnitTests/XCTestCase+FIRMessagingRmqManagerTests.h"
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
@@ -47,6 +49,13 @@ static NSString *const kFakeSenderID = @"123456789123";
 /// Kicks off required calls for some messaging tests.
 - (void)start;
 - (void)setupRmqManager;
+
+@end
+
+@interface FIRMessagingPubSub (ExposedForTest)
+
+@property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
+@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 
 @end
 
@@ -96,6 +105,7 @@ static NSString *const kFakeSenderID = @"123456789123";
     _messaging = [[FIRMessaging alloc] initWithAnalytics:nil
                                             userDefaults:userDefaults
                                          heartbeatLogger:nil];
+
     if (withRMQManager) {
       [_messaging start];
     }
@@ -109,11 +119,27 @@ static NSString *const kFakeSenderID = @"123456789123";
     _mockMessagingClass = OCMClassMock([FIRMessaging class]);
     OCMStub([_mockMessagingClass messaging]).andReturn(_mockMessaging);
     OCMStub([_mockTokenManager fcmSenderID]).andReturn(kFakeSenderID);
+
+    // Inject fake keychain to prevent Keychain operations hitting the real system keychain,
+    // which fails on headless CI environments (e.g. error -34018).
+    FIRMessagingFakeKeychain *fakeKeychain = [[FIRMessagingFakeKeychain alloc] init];
+    id tokenStore = [_messaging.tokenManager valueForKey:@"_tokenStore"];
+    [tokenStore setValue:fakeKeychain forKey:@"keychain"];
+    id checkinStore = [_messaging.tokenManager valueForKey:@"checkinStore"];
+    [checkinStore setValue:fakeKeychain forKey:@"keychain"];
   }
   return self;
 }
 
 - (void)cleanupAfterTest:(XCTestCase *)testCase {
+  FIRMessagingPendingTopicsList *pendingTopicUpdates = _messaging.pubsub.pendingTopicUpdates;
+  @synchronized(pendingTopicUpdates) {
+    pendingTopicUpdates.delegate = nil;
+  }
+  [_messaging.tokenManager stopAllTokenOperations];
+  [_messaging.pubsub.topicOperations cancelAllOperations];
+  [_messaging.pubsub.topicOperations waitUntilAllOperationsAreFinished];
+
   [_messaging.rmq2Manager removeDatabase];
   [testCase waitForDrainDatabaseQueueForRmqManager:_messaging.rmq2Manager];
   [_messaging.messagingUserDefaults removePersistentDomainForName:kFIRMessagingDefaultsTestDomain];

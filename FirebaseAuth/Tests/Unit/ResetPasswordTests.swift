@@ -17,7 +17,6 @@ import XCTest
 
 @testable import FirebaseAuth
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class ResetPasswordTests: RPCBaseTests {
   let kTestOOBCode = "OOBCode"
   let kTestNewPassword = "newPassword:-)"

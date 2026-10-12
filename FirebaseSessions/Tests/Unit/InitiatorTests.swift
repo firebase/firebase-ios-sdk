@@ -31,7 +31,7 @@ class InitiatorTests: XCTestCase {
   override func setUp() {
     super.setUp()
     appInfo = MockApplicationInfo()
-    cache = SettingsCache()
+    cache = SettingsCache(namespace: "namespace_" + String(describing: Self.self))
     cache.removeCache() // just reinstantiating cache isn't enough because of persistence
     downloader = MockSettingsDownloader(successResponse: validSettings)
     remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)

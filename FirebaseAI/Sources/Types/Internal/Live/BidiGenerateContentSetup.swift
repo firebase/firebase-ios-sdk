@@ -20,7 +20,6 @@ import Foundation
 ///
 /// Clients should wait for a `BidiGenerateContentSetupComplete` message before
 /// sending any additional messages.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiGenerateContentSetup: Encodable {
   /// The fully qualified name of the publisher model.
@@ -42,7 +41,7 @@ struct BidiGenerateContentSetup: Encodable {
   /// A `Tool` is a piece of code that enables the system to interact with
   /// external systems to perform an action, or set of actions, outside of
   /// knowledge and scope of the model.
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
 
   let toolConfig: ToolConfig?
 
@@ -56,13 +55,24 @@ struct BidiGenerateContentSetup: Encodable {
   /// turn.
   let outputAudioTranscription: BidiAudioTranscriptionConfig?
 
+  /// Configuration for the session resumption mechanism.
+  let sessionResumption: BidiSessionResumptionConfig?
+
+  /// If included, the server will compress the context window to fit the given length.
+  let contextWindowCompression: BidiContextWindowCompressionConfig?
+
+  let realtimeInputConfig: BidiRealtimeInputConfig?
+
   init(model: String,
        generationConfig: BidiGenerationConfig? = nil,
        systemInstruction: ModelContent? = nil,
-       tools: [Tool]? = nil,
+       tools: [GenerativeModel.Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        inputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
-       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil) {
+       outputAudioTranscription: BidiAudioTranscriptionConfig? = nil,
+       sessionResumption: BidiSessionResumptionConfig? = nil,
+       contextWindowCompression: BidiContextWindowCompressionConfig? = nil,
+       realtimeInputConfig: BidiRealtimeInputConfig? = nil) {
     self.model = model
     self.generationConfig = generationConfig
     self.systemInstruction = systemInstruction
@@ -70,9 +80,17 @@ struct BidiGenerateContentSetup: Encodable {
     self.toolConfig = toolConfig
     self.inputAudioTranscription = inputAudioTranscription
     self.outputAudioTranscription = outputAudioTranscription
+    self.sessionResumption = sessionResumption
+    self.contextWindowCompression = contextWindowCompression
+    self.realtimeInputConfig = realtimeInputConfig
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 struct BidiAudioTranscriptionConfig: Encodable {}
+
+@available(watchOS, unavailable)
+struct BidiSessionResumptionConfig: Encodable {
+  let handle: String?
+  let transparent: Bool?
+}

@@ -16,7 +16,10 @@
 
 #import "Firestore/Example/Tests/SpecTests/FSTSpecTests.h"
 
+#import <FirebaseFirestore/FIRDecimal128Value.h>
+#import <FirebaseFirestore/FIRFieldValue.h>
 #import <FirebaseFirestore/FIRFirestoreErrors.h>
+#import <FirebaseFirestore/FIRInt32Value.h>
 
 #include <stddef.h>
 
@@ -66,6 +69,7 @@
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/filesystem.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/json_reader.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/status.h"
@@ -117,6 +121,7 @@ using firebase::firestore::testutil::Version;
 using firebase::firestore::util::ByteStreamCpp;
 using firebase::firestore::util::DirectoryIterator;
 using firebase::firestore::util::Executor;
+using firebase::firestore::util::JsonReader;
 using firebase::firestore::util::MakeNSString;
 using firebase::firestore::util::MakeString;
 using firebase::firestore::util::MakeStringPtr;
@@ -157,6 +162,9 @@ static NSString *const kMultiClientTag = @"multi-client";
 // A tag for tests that is assigned to the perf tests in "perf_spec.json". These tests are only run
 // if `kRunBenchmarkTests` is set to 'YES'.
 static NSString *const kBenchmarkTag = @"benchmark";
+
+// A tag for tests that should skip its pipeline run.
+static NSString *const kNoPipelineConversion = @"no-pipeline-conversion";
 
 NSString *const kEagerGC = @"eager-gc";
 
@@ -209,6 +217,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 @interface FSTSpecTests ()
 @property(nonatomic, strong, nullable) FSTSyncEngineTestDriver *driver;
 
+- (id)parseSpecValue:(id)value;
+
 @end
 
 @implementation FSTSpecTests {
@@ -236,11 +246,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     return NO;
   } else if (!kRunBenchmarkTests && [tags containsObject:kBenchmarkTag]) {
     return NO;
+  } else if (self.usePipelineMode && [tags containsObject:kNoPipelineConversion]) {
+    return NO;
   }
   return YES;
 }
 
 - (void)setUpForSpecWithConfig:(NSDictionary *)config {
+  _convertToPipeline = [self usePipelineMode];  // Call new method
   _reader = FSTTestUserDataReader();
   std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
@@ -261,6 +274,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                    eagerGC:_useEagerGCForMemory
+                                         convertToPipeline:_convertToPipeline  // Pass the flag
                                                initialUser:User::Unauthenticated()
                                          outstandingWrites:{}
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -282,7 +296,112 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return [self class] == [FSTSpecTests class];
 }
 
+// Default implementation for pipeline mode. Subclasses can override.
+- (BOOL)usePipelineMode {
+  return NO;
+}
+
 #pragma mark - Methods for constructing objects from specs.
+
+- (id)parseSpecValue:(id)value {
+  if ([value isKindOfClass:[NSArray class]]) {
+    NSArray *array = (NSArray *)value;
+    NSMutableArray *result = [NSMutableArray arrayWithCapacity:array.count];
+    for (id item in array) {
+      [result addObject:[self parseSpecValue:item]];
+    }
+    return result;
+  }
+
+  if ([value isKindOfClass:[NSDictionary class]]) {
+    NSDictionary *dict = (NSDictionary *)value;
+
+    id decimalVal = dict[@"__decimal128__"];
+    if (decimalVal) {
+      if ([decimalVal isKindOfClass:[NSDictionary class]] && decimalVal[@"stringValue"]) {
+        return [[FIRDecimal128Value alloc] initWithValue:decimalVal[@"stringValue"]];
+      } else if ([decimalVal isKindOfClass:[NSString class]]) {
+        return [[FIRDecimal128Value alloc] initWithValue:decimalVal];
+      }
+    }
+
+    id intVal = dict[@"__int__"];
+    if (intVal) {
+      if ([intVal isKindOfClass:[NSDictionary class]] && intVal[@"integerValue"]) {
+        return [[FIRInt32Value alloc] initWithValue:[intVal[@"integerValue"] intValue]];
+      } else if ([intVal respondsToSelector:@selector(intValue)]) {
+        return [[FIRInt32Value alloc] initWithValue:[intVal intValue]];
+      }
+    }
+
+    NSString *methodName = dict[@"_methodName"] ?: dict[@"methodName"];
+    if (methodName) {
+      id rawOperand = dict[@"_operand"] ?: dict[@"operand"];
+      id operand = rawOperand ? [self parseSpecValue:rawOperand] : nil;
+
+      if ([methodName isEqualToString:@"increment"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleIncrement:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerIncrement:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleIncrement:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerIncrement:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleIncrement:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"minimum"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleMinimum:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerMinimum:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleMinimum:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerMinimum:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleMinimum:[operand doubleValue]];
+        }
+      } else if ([methodName isEqualToString:@"maximum"]) {
+        if ([operand isKindOfClass:[NSNumber class]]) {
+          NSNumber *num = (NSNumber *)operand;
+          if (CFGetTypeID((CFTypeRef)num) != CFBooleanGetTypeID() &&
+              CFNumberIsFloatType((CFNumberRef)num)) {
+            return [FIRFieldValue fieldValueForDoubleMaximum:[num doubleValue]];
+          } else {
+            return [FIRFieldValue fieldValueForIntegerMaximum:[num longLongValue]];
+          }
+        } else if ([operand isKindOfClass:[FIRDecimal128Value class]]) {
+          return [FIRFieldValue
+              fieldValueForDoubleMaximum:[((FIRDecimal128Value *)operand).value doubleValue]];
+        } else if ([operand isKindOfClass:[FIRInt32Value class]]) {
+          return [FIRFieldValue fieldValueForIntegerMaximum:((FIRInt32Value *)operand).value];
+        } else if ([operand isKindOfClass:[NSString class]]) {
+          return [FIRFieldValue fieldValueForDoubleMaximum:[operand doubleValue]];
+        }
+      }
+    }
+
+    NSMutableDictionary *result = [NSMutableDictionary dictionaryWithCapacity:dict.count];
+    for (NSString *key in dict) {
+      result[key] = [self parseSpecValue:dict[key]];
+    }
+    return result;
+  }
+
+  return value;
+}
 
 - (Query)parseQuery:(id)querySpec {
   if ([querySpec isKindOfClass:[NSString class]]) {
@@ -311,7 +430,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
       for (NSArray<id> *filter in filters) {
         std::string key = MakeString(filter[0]);
         std::string op = MakeString(filter[1]);
-        Message<google_firestore_v1_Value> value = [_reader parsedQueryValue:filter[2]];
+        Message<google_firestore_v1_Value> value =
+            [_reader parsedQueryValue:[self parseSpecValue:filter[2]]];
         query = query.AddingFilter(Filter(key, op, std::move(value)));
       }
     }
@@ -377,7 +497,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSDictionary *options = jsonDoc[@"options"];
 
   XCTAssert([jsonDoc[@"key"] isKindOfClass:[NSString class]]);
-  Message<google_firestore_v1_Value> data = [_reader parsedQueryValue:jsonDoc[@"value"]];
+  Message<google_firestore_v1_Value> data =
+      [_reader parsedQueryValue:[self parseSpecValue:jsonDoc[@"value"]]];
   MutableDocument doc =
       Doc(MakeString((NSString *)jsonDoc[@"key"]), version.longLongValue, std::move(data));
   if ([options[@"hasLocalMutations"] boolValue] == YES) {
@@ -429,11 +550,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)doSet:(NSArray *)setSpec {
-  [self.driver writeUserMutation:FSTTestSetMutation(setSpec[0], setSpec[1])];
+  [self.driver writeUserMutation:FSTTestSetMutation(setSpec[0], [self parseSpecValue:setSpec[1]])];
 }
 
 - (void)doPatch:(NSArray *)patchSpec {
-  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0], patchSpec[1], {})];
+  [self.driver writeUserMutation:FSTTestPatchMutation(patchSpec[0],
+                                                      [self parseSpecValue : patchSpec[1]], {})];
 }
 
 - (void)doDelete:(NSString *)key {
@@ -500,9 +622,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   } else if (watchEntity[@"doc"]) {
     NSDictionary *docSpec = watchEntity[@"doc"];
     DocumentKey key = FSTTestDocKey(docSpec[@"key"]);
-    absl::optional<ObjectValue> value = [docSpec[@"value"] isKindOfClass:[NSNull class]]
-                                            ? absl::optional<ObjectValue>{}
-                                            : FSTTestObjectValue(docSpec[@"value"]);
+    absl::optional<ObjectValue> value =
+        [docSpec[@"value"] isKindOfClass:[NSNull class]]
+            ? absl::optional<ObjectValue>{}
+            : FSTTestObjectValue([self parseSpecValue:docSpec[@"value"]]);
     SnapshotVersion version = [self parseVersion:docSpec[@"version"]];
     MutableDocument doc;
     if (value) {
@@ -572,7 +695,29 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 @"'keepInQueue=true' is not supported on iOS and should only be set in "
                 @"multi-client tests");
 
-  MutationResult mutationResult(version, Message<google_firestore_v1_ArrayValue>{});
+  Message<google_firestore_v1_ArrayValue> transformResults;
+  NSArray *resultsSpec = spec[@"transformResults"];
+  if (resultsSpec) {
+    const auto &database_info = [self.driver databaseInfo];
+    BundleSerializer bundle_serializer(remote::Serializer(database_info.database_id()));
+
+    transformResults = Message<google_firestore_v1_ArrayValue>{};
+    transformResults->values_count = static_cast<pb_size_t>(resultsSpec.count);
+    transformResults->values =
+        nanopb::MakeArray<google_firestore_v1_Value>(transformResults->values_count);
+    for (NSUInteger i = 0; i < resultsSpec.count; ++i) {
+      NSData *jsonData = [NSJSONSerialization dataWithJSONObject:resultsSpec[i]
+                                                         options:0
+                                                           error:nil];
+      std::string jsonStr((const char *)jsonData.bytes, jsonData.length);
+      nlohmann::json jsonVal = nlohmann::json::parse(jsonStr);
+      JsonReader reader;
+      Message<google_firestore_v1_Value> val = bundle_serializer.DecodeValue(reader, jsonVal);
+      transformResults->values[i] = *val.release();
+    }
+  }
+
+  MutationResult mutationResult(version, std::move(transformResults));
   std::vector<MutationResult> mutationResults;
   mutationResults.emplace_back(std::move(mutationResult));
   [self.driver receiveWriteAckWithVersion:version mutationResults:std::move(mutationResults)];
@@ -645,6 +790,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
                                                    eagerGC:_useEagerGCForMemory
+                                         convertToPipeline:_convertToPipeline  // Pass the flag
                                                initialUser:currentUser
                                          outstandingWrites:outstandingWrites
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -721,8 +867,42 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
-  Query expectedQuery = [self parseQuery:expected[@"query"]];
-  XCTAssertEqual(actual.query, expectedQuery);
+  // The 'expected' query from JSON is always a standard Query.
+  Query expectedJSONQuery = [self parseQuery:expected[@"query"]];
+  core::QueryOrPipeline actualQueryOrPipeline = actual.queryOrPipeline;
+
+  if (_convertToPipeline) {
+    XCTAssertTrue(actualQueryOrPipeline.IsPipeline(),
+                  @"In pipeline mode, actual event query should be a pipeline. Actual: %@",
+                  MakeNSString(actualQueryOrPipeline.ToString()));
+
+    // Convert the expected JSON Query to a RealtimePipeline for comparison.
+    std::vector<std::shared_ptr<api::EvaluableStage>> expectedStages =
+        core::ToPipelineStages(expectedJSONQuery);
+    // TODO(specstest): Need access to the database_id for the serializer.
+    // Assuming self.driver.databaseInfo is accessible and provides it.
+    // This might require making databaseInfo public or providing a getter in
+    // FSTSyncEngineTestDriver. For now, proceeding with the assumption it's available.
+    auto serializer = absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+    api::RealtimePipeline expectedPipeline(std::move(expectedStages), std::move(serializer));
+    auto expectedQoPForComparison =
+        core::QueryOrPipeline(expectedPipeline);  // Wrap expected pipeline
+
+    XCTAssertEqual(actualQueryOrPipeline.CanonicalId(), expectedQoPForComparison.CanonicalId(),
+                   @"Pipeline canonical IDs do not match. Actual: %@, Expected: %@",
+                   MakeNSString(actualQueryOrPipeline.CanonicalId()),
+                   MakeNSString(expectedQoPForComparison.CanonicalId()));
+
+  } else {
+    XCTAssertFalse(actualQueryOrPipeline.IsPipeline(),
+                   @"In non-pipeline mode, actual event query should be a Query. Actual: %@",
+                   MakeNSString(actualQueryOrPipeline.ToString()));
+    XCTAssertTrue(actualQueryOrPipeline.query() == expectedJSONQuery,
+                  @"Queries do not match. Actual: %@, Expected: %@",
+                  MakeNSString(actualQueryOrPipeline.query().ToString()),
+                  MakeNSString(expectedJSONQuery.ToString()));
+  }
+
   if ([expected[@"errorCode"] integerValue] != 0) {
     XCTAssertNotNil(actual.error);
     XCTAssertEqual(actual.error.code, [expected[@"errorCode"] integerValue]);
@@ -787,14 +967,43 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   XCTAssertEqual(events.count, expectedEvents.count);
   events =
       [events sortedArrayUsingComparator:^NSComparisonResult(FSTQueryEvent *q1, FSTQueryEvent *q2) {
-        return WrapCompare(q1.query.CanonicalId(), q2.query.CanonicalId());
+        // Use QueryOrPipeline's CanonicalId for sorting
+        return WrapCompare(q1.queryOrPipeline.CanonicalId(), q2.queryOrPipeline.CanonicalId());
       }];
-  expectedEvents = [expectedEvents
-      sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *left, NSDictionary *right) {
-        Query leftQuery = [self parseQuery:left[@"query"]];
-        Query rightQuery = [self parseQuery:right[@"query"]];
-        return WrapCompare(leftQuery.CanonicalId(), rightQuery.CanonicalId());
-      }];
+  expectedEvents = [expectedEvents sortedArrayUsingComparator:^NSComparisonResult(
+                                       NSDictionary *left, NSDictionary *right) {
+    // Expected query from JSON is always a core::Query.
+    // For sorting consistency with actual events (which might be pipelines),
+    // we convert the expected query to QueryOrPipeline then get its CanonicalId.
+    // If _convertToPipeline is true, this will effectively sort expected items
+    // by their pipeline canonical ID.
+    Query leftJSONQuery = [self parseQuery:left[@"query"]];
+    core::QueryOrPipeline leftQoP;
+    if (self->_convertToPipeline) {
+      std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+          core::ToPipelineStages(leftJSONQuery);
+      auto serializer =
+          absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+      leftQoP =
+          core::QueryOrPipeline(api::RealtimePipeline(std::move(stages), std::move(serializer)));
+    } else {
+      leftQoP = core::QueryOrPipeline(leftJSONQuery);
+    }
+
+    Query rightJSONQuery = [self parseQuery:right[@"query"]];
+    core::QueryOrPipeline rightQoP;
+    if (self->_convertToPipeline) {
+      std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+          core::ToPipelineStages(rightJSONQuery);
+      auto serializer =
+          absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+      rightQoP =
+          core::QueryOrPipeline(api::RealtimePipeline(std::move(stages), std::move(serializer)));
+    } else {
+      rightQoP = core::QueryOrPipeline(rightJSONQuery);
+    }
+    return WrapCompare(leftQoP.CanonicalId(), rightQoP.CanonicalId());
+  }];
 
   NSUInteger i = 0;
   for (; i < expectedEvents.count && i < events.count; ++i) {
@@ -849,14 +1058,27 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
             NSArray *queriesJson = queryData[@"queries"];
             std::vector<TargetData> queries;
             for (id queryJson in queriesJson) {
-              Query query = [self parseQuery:queryJson];
-
               QueryPurpose purpose = QueryPurpose::Listen;
               if ([queryData objectForKey:@"targetPurpose"] != nil) {
                 purpose = [self parseQueryPurpose:queryData[@"targetPurpose"]];
               }
 
-              TargetData target_data(query.ToTarget(), targetID, 0, purpose);
+              core::TargetOrPipeline top;
+              Query query = [self parseQuery:queryJson];
+
+              if (self->_convertToPipeline &&
+                  purpose != firebase::firestore::local::QueryPurpose::LimboResolution) {
+                std::vector<std::shared_ptr<api::EvaluableStage>> stages =
+                    core::ToPipelineStages(query);
+                auto serializer =
+                    absl::make_unique<remote::Serializer>(self.driver.databaseInfo.database_id());
+                top = core::TargetOrPipeline(
+                    api::RealtimePipeline(std::move(stages), std::move(serializer)));
+              } else {
+                top = core::TargetOrPipeline(query.ToTarget());
+              }
+
+              TargetData target_data(top, targetID, 0, purpose);
               if ([queryData objectForKey:@"resumeToken"] != nil) {
                 target_data = target_data.WithResumeToken(
                     MakeResumeToken(queryData[@"resumeToken"]), SnapshotVersion::None());
@@ -980,9 +1202,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     // is ever made to be consistent.
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
     const TargetData &actual = found->second;
-
+    auto left = actual.target_or_pipeline();
+    auto right = targetData.target_or_pipeline();
+    auto left_p = left.IsPipeline();
+    auto right_p = right.IsPipeline();
+    XCTAssertEqual(left_p, right_p);
+    XCTAssertEqual(left, right);
     XCTAssertEqual(actual.purpose(), targetData.purpose());
-    XCTAssertEqual(actual.target(), targetData.target());
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
@@ -1037,16 +1263,34 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSMutableArray<NSDictionary *> *parsedSpecs = [NSMutableArray array];
   BOOL exclusiveMode = NO;
 
-  // TODO(wilhuff): Fix this when running spec tests using a real device
-  auto source_file = Path::FromUtf8(__FILE__);
+  Path source_file = Path::FromUtf8(__FILE__);
   Path json_ext = Path::FromUtf8(".json");
   auto spec_dir = source_file.Dirname();
-  auto json_dir = spec_dir.AppendUtf8("json");
+  Path source_json_dir = spec_dir.AppendUtf8("json");
+  Path json_dir;
+
+  if (firebase::firestore::util::Filesystem::Default()->IsDirectory(source_json_dir).ok()) {
+    json_dir = source_json_dir;
+  } else {
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSString *jsonPath = [bundle pathForResource:@"json" ofType:nil];
+    if (jsonPath) {
+      json_dir = Path::FromUtf8([jsonPath UTF8String]);
+    } else {
+      // If files are flattened, they are at the root of the bundle resources
+      json_dir = Path::FromUtf8([[bundle resourcePath] UTF8String]);
+    }
+  }
 
   auto iter = DirectoryIterator::Create(json_dir);
   for (; iter->Valid(); iter->Next()) {
     Path entry = iter->file();
     if (!entry.HasExtension(json_ext)) {
+      continue;
+    }
+
+    // Skip Bloom Filter golden files if we are iterating over the root bundle
+    if (entry.Basename().native_value().find("Validation_BloomFilterTest") != std::string::npos) {
       continue;
     }
 

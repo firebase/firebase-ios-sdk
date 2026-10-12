@@ -40,7 +40,8 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/Protos/objc' \
     ':(exclude)Firestore/third_party/abseil-cpp' \
     ':(exclude)GoogleDataTransport/ProtoSupport' \
-    ':(exclude)ReleaseTooling/Template/NOTICES'
+    ':(exclude)ReleaseTooling/Template/NOTICES' \
+    ':(exclude)Carthage/**'
 
 if [[ $? == 0 ]]; then
   echo "ERROR: Trailing whitespace found in the files above. Please fix."

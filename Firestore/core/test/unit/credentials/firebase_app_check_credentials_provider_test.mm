@@ -97,8 +97,9 @@ TEST(FirebaseAppCheckCredentialsProviderTest, GetTokenNoProvider) {
   auto token_promise = std::make_shared<std::promise<std::string>>();
 
   FIRApp* app = testutil::AppForUnitTesting();
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, nil);
-  credentials_provider.GetToken(
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, nil);
+  credentials_provider->GetToken(
       [token_promise](util::StatusOr<std::string> result) {
         EXPECT_TRUE(result.ok());
         const std::string& token = result.ValueOrDie();
@@ -115,8 +116,9 @@ TEST(FirebaseAppCheckCredentialsProviderTest, GetToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check =
       [[FSTAppCheckFake alloc] initWithToken:@"fake token"];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
-  credentials_provider.GetToken([](util::StatusOr<std::string> result) {
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
+  credentials_provider->GetToken([](util::StatusOr<std::string> result) {
     EXPECT_TRUE(result.ok());
     const std::string& token = result.ValueOrDie();
     EXPECT_EQ("fake token", token);
@@ -127,20 +129,22 @@ TEST(FirebaseAppCheckCredentialsProviderTest, SetListener) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check =
       [[FSTAppCheckFake alloc] initWithToken:@"fake token"];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
-  credentials_provider.SetCredentialChangeListener(
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
+  credentials_provider->SetCredentialChangeListener(
       [](std::string token) { EXPECT_EQ("", token); });
 
-  credentials_provider.SetCredentialChangeListener(nullptr);
+  credentials_provider->SetCredentialChangeListener(nullptr);
 }
 
 TEST(FirebaseAppCheckCredentialsProviderTest, InvalidateToken) {
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check =
       [[FSTAppCheckFake alloc] initWithToken:@"fake token"];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
-  credentials_provider.InvalidateToken();
-  credentials_provider.GetToken(
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
+  credentials_provider->InvalidateToken();
+  credentials_provider->GetToken(
       [&app_check](util::StatusOr<std::string> result) {
         EXPECT_TRUE(result.ok());
         EXPECT_TRUE(app_check.forceRefreshTriggered);
@@ -154,9 +158,10 @@ TEST(FirebaseAppCheckCredentialsProviderTest, ListenForTokenChanges) {
 
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:@""];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
 
-  credentials_provider.SetCredentialChangeListener(
+  credentials_provider->SetCredentialChangeListener(
       [token_promise](const std::string& result) {
         if (result != "") {
           token_promise->set_value(result);
@@ -186,9 +191,10 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
 
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:@""];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
 
-  credentials_provider.SetCredentialChangeListener(
+  credentials_provider->SetCredentialChangeListener(
       [token_promise](const std::string& result) {
         if (result != "") {
           token_promise->set_value(result);
@@ -227,9 +233,10 @@ TEST(FirebaseAppCheckCredentialsProviderTest,
 
   FIRApp* app = testutil::AppForUnitTesting();
   FSTAppCheckFake* app_check = [[FSTAppCheckFake alloc] initWithToken:@""];
-  FirebaseAppCheckCredentialsProvider credentials_provider(app, app_check);
+  auto credentials_provider =
+      std::make_shared<FirebaseAppCheckCredentialsProvider>(app, app_check);
 
-  credentials_provider.SetCredentialChangeListener(
+  credentials_provider->SetCredentialChangeListener(
       [token_promise](const std::string& result) {
         if (result != "") {
           token_promise->set_value(result);

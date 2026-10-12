@@ -110,7 +110,7 @@ inline bool operator>=(const DocumentKey& lhs, const DocumentKey& rhs) {
 }
 
 struct DocumentKeyHash {
-  size_t operator()(const DocumentKey& key) const;
+  size_t operator()(const DocumentKey& key) const noexcept;
 };
 
 }  // namespace model

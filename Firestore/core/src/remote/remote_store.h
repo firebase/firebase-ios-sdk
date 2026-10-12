@@ -21,6 +21,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "Firestore/core/src/api/pipeline.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -202,6 +203,9 @@ class RemoteStore : public TargetMetadataProvider,
   void RunAggregateQuery(const core::Query& query,
                          const std::vector<model::AggregateField>& aggregates,
                          api::AggregateQueryCallback&& result_callback);
+
+  void RunPipeline(const api::Pipeline& pipeline,
+                   util::StatusOrCallback<api::PipelineSnapshot> callback);
 
   void OnWatchStreamOpen() override;
   void OnWatchStreamChange(

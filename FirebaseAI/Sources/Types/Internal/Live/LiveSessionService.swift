@@ -13,22 +13,16 @@
 // limitations under the License.
 
 import Foundation
-
-// TODO: remove @preconcurrency when we update to Swift 6
-// for context, see
-// https://forums.swift.org/t/why-does-sending-a-sendable-value-risk-causing-data-races/73074
-@preconcurrency import FirebaseAppCheckInterop
-@preconcurrency import FirebaseAuthInterop
+import os.log
 
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
 /// Using an actor will make it easier to adopt session resumption, as we have an isolated place for
-/// mainting mutablity, which is backed by Swift concurrency implicity; allowing us to avoid various
-/// edge-case issues with dead-locks and data races.
+/// maintaining mutability, which is backed by Swift concurrency implicitly; allowing us to avoid
+/// various edge-case issues with dead-locks and data races.
 ///
 /// This mainly comes into play when we don't want to block developers from sending messages while a
 /// session is being reloaded.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 actor LiveSessionService {
   let responses: AsyncThrowingStream<LiveServerMessage, Error>
@@ -36,8 +30,8 @@ actor LiveSessionService {
     .Continuation
 
   // to ensure messages are sent in order, since swift actors are reentrant
-  private let messageQueue: AsyncStream<BidiGenerateContentClientMessage>
-  private let messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
+  private var messageQueue: AsyncStream<BidiGenerateContentClientMessage>
+  private var messageQueueContinuation: AsyncStream<BidiGenerateContentClientMessage>.Continuation
 
   let modelResourceName: String
   let generationConfig: LiveGenerationConfig?
@@ -45,7 +39,7 @@ actor LiveSessionService {
   let apiConfig: APIConfig
   let firebaseInfo: FirebaseInfo
   let requestOptions: RequestOptions
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
 
@@ -54,7 +48,7 @@ actor LiveSessionService {
   private let jsonEncoder = JSONEncoder()
   private let jsonDecoder = JSONDecoder()
 
-  /// Long running task that that wraps around the websocket, propogating messages through the
+  /// Long running task that that wraps around the websocket, propagating messages through the
   /// public stream.
   private var responsesTask: Task<Void, Never>?
 
@@ -67,7 +61,7 @@ actor LiveSessionService {
        urlSession: URLSession,
        apiConfig: APIConfig,
        firebaseInfo: FirebaseInfo,
-       tools: [Tool]?,
+       tools: [GenerativeModel.Tool]?,
        toolConfig: ToolConfig?,
        systemInstruction: ModelContent?,
        requestOptions: RequestOptions) {
@@ -89,6 +83,11 @@ actor LiveSessionService {
     messageQueueTask?.cancel()
     webSocket?.disconnect()
 
+    // we only finish the streams when the actor deinits; while the actor is still in scope, the
+    // user could continue using the streams via resumeSession (even after calling close)
+    messageQueueContinuation.finish()
+    responseContinuation.finish()
+
     webSocket = nil
     responsesTask = nil
     messageQueueTask = nil
@@ -105,15 +104,15 @@ actor LiveSessionService {
 
   /// Start a new connection to the backend.
   ///
-  /// Seperated into its own function to make it easier to surface a way to call it seperately when
+  /// Separated into its own function to make it easier to surface a way to call it separately when
   /// resuming the same session.
   ///
   /// This function will yield until the websocket is ready to communicate with the client.
-  func connect() async throws {
+  func connect(sessionResumption: SessionResumptionConfig? = nil) async throws {
     close()
 
     let stream = try await setupWebsocket()
-    try await waitForSetupComplete(stream: stream)
+    try await waitForSetupComplete(stream: stream, sessionResumption: sessionResumption)
     spawnMessageTasks(stream: stream)
   }
 
@@ -138,10 +137,8 @@ actor LiveSessionService {
   /// - Server sends back `BidiGenerateContentSetupComplete` when it's ready
   ///
   /// This function will yield until the setup is complete.
-  private func waitForSetupComplete(stream: MappedStream<
-    URLSessionWebSocketTask.Message,
-    Data
-  >) async throws {
+  private func waitForSetupComplete(stream: MappedStream<URLSessionWebSocketTask.Message, Data>,
+                                    sessionResumption: SessionResumptionConfig?) async throws {
     guard let webSocket else { return }
 
     do {
@@ -152,7 +149,10 @@ actor LiveSessionService {
         tools: tools,
         toolConfig: toolConfig,
         inputAudioTranscription: generationConfig?.inputAudioTranscription,
-        outputAudioTranscription: generationConfig?.outputAudioTranscription
+        outputAudioTranscription: generationConfig?.outputAudioTranscription,
+        sessionResumption: sessionResumption?.bidiSessionResumptionConfig,
+        contextWindowCompression: generationConfig?.contextWindowCompression,
+        realtimeInputConfig: generationConfig?.realtimeInputConfig
       )
       let data = try jsonEncoder.encode(BidiGenerateContentClientMessage.setup(setup))
       try await webSocket.send(.data(data))
@@ -229,10 +229,18 @@ actor LiveSessionService {
   ///  - `messageQueueTask`: Listen to messages from the client and send them through the websocket.
   private func spawnMessageTasks(stream: MappedStream<URLSessionWebSocketTask.Message, Data>) {
     guard let webSocket else { return }
+    // we create a new messageQueue since the iterator below will cancel the old one when the
+    // task is cancelled. this will cause issues when trying to restart a session via resumeSession
+    (messageQueue, messageQueueContinuation) = AsyncStream.makeStream()
 
     responsesTask = Task {
       do {
         for try await message in stream {
+          #if DEBUG
+            if #available(macOS 11.0, *) {
+              logServerMessage(message)
+            }
+          #endif
           let response = try decodeServerMessage(message)
 
           if case .setupComplete = response.messageType {
@@ -273,7 +281,23 @@ actor LiveSessionService {
     }
   }
 
-  /// Checks if an error should be propogated up, and maps it accordingly.
+  #if DEBUG
+    @available(macOS 11.0, *)
+    private func logServerMessage(_ message: Data) {
+      guard AILog.additionalLoggingEnabled() else { return }
+
+      guard let message = JSONSerialization.prettyString(with: message) else { return }
+
+      os_log(.debug, log: AILog.logObject, """
+      \(AILog.service) Received a message from the server in a LiveSession:
+      ----- LiveServerMessage -----
+      \(message, privacy: .private)
+      ------------------------
+      """)
+    }
+  #endif
+
+  /// Checks if an error should be propagated up, and maps it accordingly.
   ///
   /// Some errors have public api alternatives. This function will ensure they're mapped
   /// accordingly.
@@ -348,7 +372,7 @@ actor LiveSessionService {
   private nonisolated func createWebsocket() async throws -> AsyncWebSocket {
     let host = apiConfig.service.endpoint.rawValue.withoutPrefix("https://")
     let urlString = switch apiConfig.service {
-    case let .vertexAI(_, location: location):
+    case let .agentPlatform(_, location: location):
       "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).LlmBidiService/BidiGenerateContent/locations/\(location)"
     case .googleAI:
       "wss://\(host)/ws/google.firebase.vertexai.\(apiConfig.version.rawValue).GenerativeService/BidiGenerateContent"
@@ -364,39 +388,7 @@ actor LiveSessionService {
     }
     var urlRequest = URLRequest(url: url)
     urlRequest.timeoutInterval = requestOptions.timeout
-    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
-      forHTTPHeaderField: "x-goog-api-client"
-    )
-    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await appCheck.fetchAppCheckToken(
-        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-        domain: "LiveSessionService"
-      )
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        AILog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
-      forcingRefresh: false
-    ) {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
-
-    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
-      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
-      }
-    }
+    try await firebaseInfo.applyHeaders(to: &urlRequest)
 
     return AsyncWebSocket(urlSession: urlSession, urlRequest: urlRequest)
   }

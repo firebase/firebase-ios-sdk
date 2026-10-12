@@ -21,7 +21,6 @@ import Foundation
 #endif
 
 /// Manage Storage's fetcherService
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 actor StorageFetcherService {
   static let shared = StorageFetcherService()
 
@@ -45,7 +44,14 @@ actor StorageFetcherService {
         googleAppID: app.options.googleAppID,
         callbackQueue: storage.callbackQueue,
         authProvider: storage.auth,
-        appCheck: storage.appCheck
+        appCheck: storage.appCheck,
+        allowInsecureTokenAttachment: { [weak storage] in
+          #if DEBUG
+            return storage?.allowInsecureTokenAttachment ?? false
+          #else
+            return false
+          #endif
+        }
       )
       fetcherService.authorizer = authorizer
       if storage.usesEmulator {
@@ -63,6 +69,11 @@ actor StorageFetcherService {
     testBlock = block
     if let _fetcherService {
       _fetcherService.testBlock = testBlock
+    }
+    for bucketMap in fetcherServiceMap.values {
+      for fetcherService in bucketMap.values {
+        fetcherService.testBlock = testBlock
+      }
     }
   }
 

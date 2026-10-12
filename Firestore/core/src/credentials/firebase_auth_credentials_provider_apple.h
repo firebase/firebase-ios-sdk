@@ -53,7 +53,8 @@ namespace credentials {
  * For non-Apple desktop build, this is right now just a stub.
  */
 class FirebaseAuthCredentialsProvider
-    : public CredentialsProvider<AuthToken, User> {
+    : public CredentialsProvider<AuthToken, User>,
+      public std::enable_shared_from_this<FirebaseAuthCredentialsProvider> {
  public:
   // TODO(zxu123): Provide a ctor to accept the C++ Firebase Games App, which
   // deals all platforms. Right now, only works for FIRApp*.

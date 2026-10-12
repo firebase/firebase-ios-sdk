@@ -46,7 +46,7 @@
   NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
   return [bundle.resourcePath stringByAppendingPathComponent:@"Data"];
 #else
-  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  NSBundle* bundle = [NSBundle bundleForClass:[self class]];
   return bundle.resourcePath;
 #endif
 }

@@ -16,7 +16,6 @@ import XCTest
 
 @testable import FirebaseAILogic
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 @available(watchOS, unavailable)
 final class VoiceConfigTests: XCTestCase {
   let encoder = JSONEncoder()
@@ -27,8 +26,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_prebuiltVoice() throws {
-    let voice = VoiceConfig.prebuiltVoiceConfig(
-      PrebuiltVoiceConfig(voiceName: "Zephyr")
+    let voice = ProtoVoiceConfig.prebuiltVoiceConfig(
+      ProtoPrebuiltVoiceConfig(voiceName: "Zephyr")
     )
 
     let jsonData = try encoder.encode(voice)
@@ -44,8 +43,8 @@ final class VoiceConfigTests: XCTestCase {
   }
 
   func testEncodeVoiceConfig_customVoice() throws {
-    let voice = VoiceConfig.customVoiceConfig(
-      CustomVoiceConfig(customVoiceSample: Data(repeating: 5, count: 5))
+    let voice = ProtoVoiceConfig.customVoiceConfig(
+      ProtoCustomVoiceConfig(customVoiceSample: Data(repeating: 5, count: 5))
     )
 
     let jsonData = try encoder.encode(voice)

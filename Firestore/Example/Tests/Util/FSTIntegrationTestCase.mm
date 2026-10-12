@@ -86,6 +86,7 @@ static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
 static NSString *defaultDatabaseId = @"(default)";
+static NSString *enterpriseDatabaseId = @"enterprise";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
@@ -183,6 +184,28 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
  * See Firestore/README.md for detailed setup instructions or comments below for which specific
  * values trigger which configurations.
  */
++ (FSTBackendEdition)backendEdition {
+  NSString *backendEditionStr = [[NSProcessInfo processInfo] environment][@"BACKEND_EDITION"];
+  if (backendEditionStr && [backendEditionStr isEqualToString:@"enterprise"]) {
+    return FSTBackendEditionEnterprise;
+  } else {
+    return FSTBackendEditionStandard;
+  }
+}
+
++ (FSTTargetBackend)targetBackend {
+  NSString *targetBackendStr = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  if ([targetBackendStr isEqualToString:@"nightly"]) {
+    return FSTTargetBackendNightly;
+  } else if ([targetBackendStr isEqualToString:@"emulator"]) {
+    return FSTTargetBackendEmulator;
+  } else if ([targetBackendStr isEqualToString:@"qa"]) {
+    return FSTTargetBackendQA;
+  } else {
+    return FSTTargetBackendProd;
+  }
+}
+
 + (void)setUpDefaults {
   if (defaultSettings) return;
 
@@ -192,6 +215,12 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   NSString *databaseId = [[NSProcessInfo processInfo] environment][@"TARGET_DATABASE_ID"];
   if (databaseId) {
     defaultDatabaseId = databaseId;
+  } else {
+    if ([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise) {
+      defaultDatabaseId = enterpriseDatabaseId;
+    } else {
+      defaultDatabaseId = @"(default)";
+    }
   }
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
@@ -206,7 +235,15 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     } else if ([targetBackend isEqualToString:@"qa"]) {
       host = @"staging-firestore.sandbox.googleapis.com";
     } else if ([targetBackend isEqualToString:@"nightly"]) {
-      host = @"test-firestore.sandbox.googleapis.com";
+      // Workaround for UberProxy auth blocking external IPs (e.g. GitHub Actions runners) on
+      // test-firestore.sandbox.googleapis.com (b/552991017). Regional nightly endpoints are
+      // exempted; select the region matching where the test database is located in
+      // firestore-sdk-nightly (enterprise is in us-central1, default is in nam5).
+      if ([FSTIntegrationTestCase backendEdition] == FSTBackendEditionEnterprise) {
+        host = @"us-central1-test-firestore.sandbox.googleapis.com";
+      } else {
+        host = @"nam5-test-firestore.sandbox.googleapis.com";
+      }
     } else if ([targetBackend isEqualToString:@"prod"]) {
       host = @"firestore.googleapis.com";
     } else {
@@ -271,6 +308,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     return @"(default)";
   }
   return defaultDatabaseId;
+}
+
++ (void)switchToEnterpriseMode {
+  defaultDatabaseId = enterpriseDatabaseId;
 }
 
 + (bool)isRunningAgainstEmulator {

@@ -244,7 +244,7 @@ CGFloat FETCH_MIN_INTERVALS = 1;
   OCMStub([self.mockTimeFetcher currentTimestampInSeconds]).andReturn(200);
   OCMStub([self.mockBookkeeper lastFetchTime]).andReturn(0);
 
-  // We don't expect fetchMessages: for self.mockMessageFetcher to be triggred
+  // We don't expect fetchMessages: for self.mockMessageFetcher to be triggered
   OCMReject([self.mockMessageFetcher fetchMessagesWithImpressionList:[OCMArg any]
                                                       withCompletion:[OCMArg any]]);
   [self.flow checkAndFetchForInitialAppLaunch:NO];

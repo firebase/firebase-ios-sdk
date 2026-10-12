@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/memory_remote_document_cache.h"
 
+#include "Firestore/core/src/core/pipeline_util.h"  // Added
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/local/memory_persistence.h"
@@ -24,6 +25,7 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/overlay.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -86,25 +88,37 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
 }
 
 MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const model::IndexOffset& offset,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   absl::optional<QueryContext> context;
-  return GetDocumentsMatchingQuery(query, offset, context, limit, mutated_docs);
+  return GetDocumentsMatchingQuery(query_or_pipeline, offset, context, limit,
+                                   mutated_docs);
 }
 
 MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query_or_pipeline,
     const model::IndexOffset& offset,
     absl::optional<QueryContext>&,
     absl::optional<size_t>,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   MutableDocumentMap results;
 
-  // Documents are ordered by key, so we can use a prefix scan to narrow down
-  // the documents we need to match the query against.
-  auto path = query.path();
+  model::ResourcePath path;
+  if (query_or_pipeline.IsPipeline()) {
+    const auto& collection =
+        core::GetPipelineCollection(query_or_pipeline.pipeline());
+    if (!collection.has_value()) {
+      LOG_WARN("RemoteDocumentCache: No collection found for pipeline %s",
+               query_or_pipeline.ToString());
+      return results;
+    }
+    path = model::ResourcePath::FromString(collection.value());
+  } else {
+    path = query_or_pipeline.query().path();
+  }
+
   DocumentKey prefix{path.Append("")};
   size_t immediate_children_path_length = path.size() + 1;
   for (auto it = docs_.lower_bound(prefix); it != docs_.end(); ++it) {
@@ -125,7 +139,7 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
     }
 
     if (mutated_docs.find(document.key()) == mutated_docs.end() &&
-        !query.Matches(document)) {
+        !query_or_pipeline.Matches(document)) {
       continue;
     }
 

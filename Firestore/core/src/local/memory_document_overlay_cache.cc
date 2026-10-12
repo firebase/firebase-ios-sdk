@@ -18,6 +18,7 @@
 
 #include <cstdlib>
 #include <map>
+#include <optional>
 
 #include "Firestore/core/src/util/hard_assert.h"
 
@@ -33,11 +34,11 @@ using model::Overlay;
 using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 
-absl::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
+std::optional<Overlay> MemoryDocumentOverlayCache::GetOverlay(
     const DocumentKey& key) const {
   const auto overlays_iter = overlays_.find(key);
   if (overlays_iter == overlays_.end()) {
-    return absl::nullopt;
+    return std::nullopt;
   } else {
     return overlays_iter->second;
   }

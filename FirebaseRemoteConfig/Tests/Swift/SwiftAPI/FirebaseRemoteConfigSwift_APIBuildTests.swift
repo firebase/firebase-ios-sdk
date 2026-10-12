@@ -144,16 +144,14 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
 
     config.activate()
 
-    if #available(iOS 13.0, *) {
-      Task {
-        let _: Void = try await config.ensureInitialized()
-        let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config.fetch()
-        let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config
-          .fetch(withExpirationDuration: TimeInterval(100))
-        let _: FirebaseRemoteConfig.RemoteConfigFetchAndActivateStatus = try await config
-          .fetchAndActivate()
-        let _: Bool = try await config.activate()
-      }
+    Task {
+      let _: Void = try await config.ensureInitialized()
+      let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config.fetch()
+      let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config
+        .fetch(withExpirationDuration: TimeInterval(100))
+      let _: FirebaseRemoteConfig.RemoteConfigFetchAndActivateStatus = try await config
+        .fetchAndActivate()
+      let _: Bool = try await config.activate()
     }
 
     let _: FirebaseRemoteConfig.RemoteConfigValue = config["key"]

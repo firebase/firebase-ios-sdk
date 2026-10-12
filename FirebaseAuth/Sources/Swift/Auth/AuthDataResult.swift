@@ -14,14 +14,12 @@
 
 import Foundation
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthDataResult: NSSecureCoding {}
 
 /// Helper object that contains the result of a successful sign-in, link and reauthenticate
 /// action.
 ///
 /// It contains references to a `User` instance and an `AdditionalUserInfo` instance.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
   /// The signed in user.
   @objc public let user: User

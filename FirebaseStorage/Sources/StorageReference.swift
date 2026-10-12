@@ -17,7 +17,6 @@ import Foundation
 /// `StorageReference` represents a reference to a Google Cloud Storage object. Developers can
 /// upload and download objects, as well as get/set object metadata, and delete an object at the
 /// path. See the [Cloud docs](https://cloud.google.com/storage/)  for more details.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageReference) open class StorageReference: NSObject {
   // MARK: - Public APIs
 
@@ -316,15 +315,24 @@ import Foundation
     var prefixes = [StorageReference]()
     var items = [StorageReference]()
 
-    weak var weakSelf = self
+    #if swift(>=6.2)
+      weak let weakSelf = self
+    #else
+      weak var weakSelf = self
+    #endif
 
     var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
       if let error {
+        // Break the retain cycle: this closure captures `paginatedCompletion`, which holds it.
+        paginatedCompletion = nil
         completion(nil, error)
         return
       }
-      guard let strongSelf = weakSelf else { return }
+      guard let strongSelf = weakSelf else {
+        paginatedCompletion = nil
+        return
+      }
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }

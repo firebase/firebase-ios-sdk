@@ -17,6 +17,7 @@
 #include "Firestore/core/src/local/memory_index_manager.h"
 
 #include <algorithm>
+#include <optional>
 #include <set>
 #include <unordered_map>
 #include <vector>
@@ -107,15 +108,15 @@ IndexManager::IndexType MemoryIndexManager::GetIndexType(const core::Target&) {
   return IndexManager::IndexType::NONE;
 }
 
-absl::optional<std::vector<model::DocumentKey>>
+std::optional<std::vector<model::DocumentKey>>
 MemoryIndexManager::GetDocumentsMatchingTarget(const core::Target&) {
   // Field indices are not supported with memory persistence.
-  return absl::nullopt;
+  return std::nullopt;
 }
 
-absl::optional<std::string> MemoryIndexManager::GetNextCollectionGroupToUpdate()
+std::optional<std::string> MemoryIndexManager::GetNextCollectionGroupToUpdate()
     const {
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 void MemoryIndexManager::UpdateCollectionGroup(const std::string&,

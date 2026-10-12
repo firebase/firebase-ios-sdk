@@ -84,7 +84,9 @@ def main(args)
   command.push('--analyze') if analyze
 
   command.push(*pod_args)
-  puts command.join(' ')
+  # Quote arguments containing curly braces to ensure they are treated as literal strings
+  # by the shell when the command is copy-pasted, preventing unintended brace expansion.
+  puts command.map { |arg| arg =~ /[{}]/ ? "'#{arg}'" : arg }.join(' ')
 
   # Run the lib lint command in a thread.
   pod_lint_status = 1

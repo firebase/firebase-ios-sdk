@@ -14,14 +14,12 @@
 
 import Foundation
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct CountTokensRequest {
   let modelResourceName: String
 
   let generateContentRequest: GenerateContentRequest
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: GenerativeAIRequest {
   typealias Response = CountTokensResponse
 
@@ -29,15 +27,18 @@ extension CountTokensRequest: GenerativeAIRequest {
 
   var apiConfig: APIConfig { generateContentRequest.apiConfig }
 
-  var url: URL {
+  func getURL() throws -> URL {
     let version = apiConfig.version.rawValue
     let endpoint = apiConfig.service.endpoint.rawValue
-    return URL(string: "\(endpoint)/\(version)/\(modelResourceName):countTokens")!
+    let urlString = "\(endpoint)/\(version)/\(modelResourceName):countTokens"
+    guard let url = URL(string: urlString) else {
+      throw AILog.makeInternalError(message: "Malformed URL: \(urlString)", code: .malformedURL)
+    }
+    return url
   }
 }
 
 /// The model's response to a count tokens request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct CountTokensResponse: Sendable {
   /// The total number of tokens in the input given to the model as a prompt.
   public let totalTokens: Int
@@ -48,9 +49,8 @@ public struct CountTokensResponse: Sendable {
 
 // MARK: - Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensRequest: Encodable {
-  enum VertexCodingKeys: CodingKey {
+  enum AgentPlatformCodingKeys: CodingKey {
     case contents
     case systemInstruction
     case tools
@@ -63,15 +63,15 @@ extension CountTokensRequest: Encodable {
 
   func encode(to encoder: any Encoder) throws {
     switch apiConfig.service {
-    case .vertexAI:
-      try encodeForVertexAI(to: encoder)
+    case .agentPlatform:
+      try encodeForAgentPlatform(to: encoder)
     case .googleAI:
       try encodeForDeveloper(to: encoder)
     }
   }
 
-  private func encodeForVertexAI(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: VertexCodingKeys.self)
+  private func encodeForAgentPlatform(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: AgentPlatformCodingKeys.self)
     try container.encode(generateContentRequest.contents, forKey: .contents)
     try container.encodeIfPresent(
       generateContentRequest.systemInstruction, forKey: .systemInstruction
@@ -88,7 +88,6 @@ extension CountTokensRequest: Encodable {
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension CountTokensResponse: Decodable {
   enum CodingKeys: CodingKey {
     case totalTokens

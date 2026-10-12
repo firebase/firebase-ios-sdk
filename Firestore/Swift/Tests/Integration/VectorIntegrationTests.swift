@@ -19,7 +19,6 @@ import FirebaseFirestore
 import Foundation
 
 // iOS 15 required for test implementation, not vector feature
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VectorIntegrationTests: FSTIntegrationTestCase {
   func testWriteAndReadVectorEmbeddings() async throws {
     let collection = collectionRef()
@@ -52,7 +51,7 @@ class VectorIntegrationTests: FSTIntegrationTestCase {
     )
   }
 
-  @available(iOS 15, tvOS 15, macOS 12.0, macCatalyst 13, watchOS 7, *)
+  @available(macOS 12.0, *)
   func testSdkOrdersVectorFieldSameWayAsBackend() async throws {
     let collection = collectionRef()
 

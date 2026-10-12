@@ -15,7 +15,6 @@
 import Foundation
 
 /// Task which provides the ability to delete an object in Firebase Storage.
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageGetMetadataTask {
   static func getMetadataTask(reference: StorageReference,
                               queue: DispatchQueue,

@@ -59,21 +59,21 @@ final class AppCheckE2ETests: XCTestCase {
     XCTAssertNotNil(debugProvider)
   }
 
-  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
+  @available(watchOS 9.0, *)
   func testInitDeviceCheckProvider() throws {
     let deviceCheckProvider = DeviceCheckProvider(app: app)
 
     XCTAssertNotNil(deviceCheckProvider)
   }
 
-  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
+  @available(watchOS 9.0, *)
   func testDeviceCheckProviderFactoryCreate() throws {
     let deviceCheckProvider = DeviceCheckProviderFactory().createProvider(with: app)
 
     XCTAssertNotNil(deviceCheckProvider)
   }
 
-  @available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *)
+  @available(macOS 11.3, watchOS 9.0, *)
   func testInitAppAttestProvider() throws {
     let appAttestProvider = AppAttestProvider(app: app)
 

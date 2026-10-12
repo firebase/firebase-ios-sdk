@@ -15,7 +15,6 @@
 import Foundation
 
 /// A Task that lists the entries under a StorageReference
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 enum StorageListTask {
   static func listTask(reference: StorageReference,
                        queue: DispatchQueue,

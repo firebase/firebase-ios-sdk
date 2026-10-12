@@ -186,7 +186,7 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query,
     const model::IndexOffset& offset,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
@@ -195,7 +195,7 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
 }
 
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
-    const core::Query& query,
+    const core::QueryOrPipeline& query,
     const model::IndexOffset& offset,
     absl::optional<QueryContext>& context,
     absl::optional<size_t> limit,

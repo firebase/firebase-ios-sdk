@@ -16,9 +16,12 @@
 
 #include "Firestore/core/src/core/sync_engine.h"
 
+#include <optional>
+
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/bundle/bundle_element.h"
 #include "Firestore/core/src/bundle/bundle_loader.h"
+#include "Firestore/core/src/core/pipeline_util.h"
 #include "Firestore/core/src/core/sync_engine_callback.h"
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/core/transaction_runner.h"
@@ -104,13 +107,15 @@ void SyncEngine::AssertCallbackExists(absl::string_view source) {
               "Tried to call '%s' before callback was registered.", source);
 }
 
-TargetId SyncEngine::Listen(Query query, bool should_listen_to_remote) {
+TargetId SyncEngine::Listen(QueryOrPipeline query,
+                            bool should_listen_to_remote) {
   AssertCallbackExists("Listen");
 
   HARD_ASSERT(query_views_by_query_.find(query) == query_views_by_query_.end(),
               "We already listen to query: %s", query.ToString());
 
-  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetData target_data =
+      local_store_->AllocateTarget(query.ToTargetOrPipeline());
   TargetId target_id = target_data.target_id();
   nanopb::ByteString resume_token = target_data.resume_token();
 
@@ -128,16 +133,18 @@ TargetId SyncEngine::Listen(Query query, bool should_listen_to_remote) {
 }
 
 ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
-    const Query& query, TargetId target_id, nanopb::ByteString resume_token) {
+    const QueryOrPipeline& query,
+    TargetId target_id,
+    nanopb::ByteString resume_token) {
   QueryResult query_result =
       local_store_->ExecuteQuery(query, /* use_previous_results= */ true);
 
   // If there are already queries mapped to the target id, create a synthesized
   // target change to apply the sync state from those queries to the new query.
   auto current_sync_state = SyncState::None;
-  absl::optional<TargetChange> synthesized_current_change;
+  std::optional<TargetChange> synthesized_current_change;
   if (queries_by_target_.find(target_id) != queries_by_target_.end()) {
-    const Query& mirror_query = queries_by_target_[target_id][0];
+    const QueryOrPipeline& mirror_query = queries_by_target_[target_id][0];
     current_sync_state =
         query_views_by_query_[mirror_query]->view().sync_state();
   }
@@ -163,27 +170,30 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   return view_change.snapshot().value();
 }
 
-void SyncEngine::ListenToRemoteStore(Query query) {
+void SyncEngine::ListenToRemoteStore(QueryOrPipeline query) {
   AssertCallbackExists("ListenToRemoteStore");
-  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  TargetData target_data =
+      local_store_->AllocateTarget(query.ToTargetOrPipeline());
   remote_store_->Listen(std::move(target_data));
 }
 
-void SyncEngine::StopListening(const Query& query,
+void SyncEngine::StopListening(const QueryOrPipeline& query,
                                bool should_stop_remote_listening) {
   AssertCallbackExists("StopListening");
   StopListeningAndReleaseTarget(query, /** last_listen= */ true,
                                 should_stop_remote_listening);
 }
 
-void SyncEngine::StopListeningToRemoteStoreOnly(const Query& query) {
+void SyncEngine::StopListeningToRemoteStoreOnly(const QueryOrPipeline& query) {
   AssertCallbackExists("StopListeningToRemoteStoreOnly");
   StopListeningAndReleaseTarget(query, /** last_listen= */ false,
                                 /** should_stop_remote_listening= */ true);
 }
 
 void SyncEngine::StopListeningAndReleaseTarget(
-    const Query& query, bool last_listen, bool should_stop_remote_listening) {
+    const QueryOrPipeline& query,
+    bool last_listen,
+    bool should_stop_remote_listening) {
   auto query_view = query_views_by_query_[query];
   HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
 
@@ -210,13 +220,13 @@ void SyncEngine::StopListeningAndReleaseTarget(
 }
 
 void SyncEngine::RemoveAndCleanupTarget(TargetId target_id, Status status) {
-  for (const Query& query : queries_by_target_.at(target_id)) {
+  for (const QueryOrPipeline& query : queries_by_target_.at(target_id)) {
     query_views_by_query_.erase(query);
     if (!status.ok()) {
       sync_engine_callback_->OnError(query, status);
       if (ErrorIsInteresting(status)) {
-        LOG_WARN("Listen for query at %s failed: %s",
-                 query.path().CanonicalString(), status.error_message());
+        LOG_WARN("Listen for query at %s failed: %s", query.CanonicalId(),
+                 status.error_message());
       }
     }
   }
@@ -240,7 +250,7 @@ void SyncEngine::WriteMutations(std::vector<model::Mutation>&& mutations,
   mutation_callbacks_[current_user_].insert(
       std::make_pair(result.batch_id(), std::move(callback)));
 
-  EmitNewSnapshotsAndNotifyLocalStore(result.changes(), absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(result.changes(), std::nullopt);
   remote_store_->FillWritePipeline();
 }
 
@@ -299,7 +309,7 @@ void SyncEngine::HandleCredentialChange(const credentials::User& user) {
     // Notify local store and emit any resulting events from swapping out the
     // mutation queue.
     DocumentMap changes = local_store_->HandleUserChange(user);
-    EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+    EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
   }
 
   // Notify remote store so it can restart its streams.
@@ -399,7 +409,7 @@ void SyncEngine::HandleSuccessfulWrite(
   TriggerPendingWriteCallbacks(batch_result.batch().batch_id());
 
   DocumentMap changes = local_store_->AcknowledgeBatch(batch_result);
-  EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
 }
 
 void SyncEngine::HandleRejectedWrite(
@@ -422,7 +432,7 @@ void SyncEngine::HandleRejectedWrite(
 
   TriggerPendingWriteCallbacks(batch_id);
 
-  EmitNewSnapshotsAndNotifyLocalStore(changes, absl::nullopt);
+  EmitNewSnapshotsAndNotifyLocalStore(changes, std::nullopt);
 }
 
 void SyncEngine::HandleOnlineStateChange(model::OnlineState online_state) {
@@ -504,7 +514,7 @@ void SyncEngine::FailOutstandingPendingWriteCallbacks(
 
 void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     const DocumentMap& changes,
-    const absl::optional<RemoteEvent>& maybe_remote_event) {
+    const std::optional<RemoteEvent>& maybe_remote_event) {
   std::vector<ViewSnapshot> new_snapshots;
   std::vector<LocalViewChanges> document_changes_in_all_views;
 
@@ -522,7 +532,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
                                                      view_doc_changes);
     }
 
-    absl::optional<TargetChange> target_changes;
+    std::optional<TargetChange> target_changes;
     bool targetIsPendingReset = false;
     if (maybe_remote_event.has_value()) {
       const RemoteEvent& remote_event = maybe_remote_event.value();
@@ -602,9 +612,9 @@ void SyncEngine::PumpEnqueuedLimboResolutions() {
     active_limbo_resolutions_by_target_.emplace(limbo_target_id,
                                                 LimboResolution{key});
     active_limbo_targets_by_key_.emplace(key, limbo_target_id);
-    remote_store_->Listen(TargetData(Query(key.path()).ToTarget(),
-                                     limbo_target_id, kIrrelevantSequenceNumber,
-                                     QueryPurpose::LimboResolution));
+    remote_store_->Listen(TargetData(
+        TargetOrPipeline(Query(key.path()).ToTarget()), limbo_target_id,
+        kIrrelevantSequenceNumber, QueryPurpose::LimboResolution));
   }
 }
 
@@ -623,7 +633,7 @@ void SyncEngine::RemoveLimboTarget(const DocumentKey& key) {
   PumpEnqueuedLimboResolutions();
 }
 
-absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
+std::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     const bundle::BundleMetadata& metadata,
     bundle::BundleReader& reader,
     api::LoadBundleTask& result_task) {
@@ -637,7 +647,7 @@ absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
                reader.reader_status().error_message());
       result_task.SetError(reader.reader_status());
-      return absl::nullopt;
+      return std::nullopt;
     }
 
     // No more elements from reader.
@@ -653,7 +663,7 @@ absl::optional<BundleLoader> SyncEngine::ReadIntoLoader(
       LOG_WARN("Failed to AddElement() to bundle loader with error %s",
                maybe_progress.status().error_message());
       result_task.SetError(maybe_progress.status());
-      return absl::nullopt;
+      return std::nullopt;
     }
 
     if (maybe_progress.ValueOrDie().has_value()) {
@@ -697,7 +707,7 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   }
 
   EmitNewSnapshotsAndNotifyLocalStore(changes.ConsumeValueOrDie(),
-                                      absl::nullopt);
+                                      std::nullopt);
 
   result_task->SetSuccess(SuccessProgress(bundle_metadata));
 }

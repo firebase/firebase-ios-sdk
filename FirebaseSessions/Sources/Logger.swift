@@ -15,6 +15,7 @@
 
 import Foundation
 
+internal import FirebaseCore
 internal import FirebaseCoreExtension
 
 ///

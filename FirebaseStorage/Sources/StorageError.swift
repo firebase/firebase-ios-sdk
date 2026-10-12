@@ -23,7 +23,6 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
  * https://cloud.google.com/storage/docs/json_api/v1/status-codes
  * This is never publicly exposed to end developers (as they will simply see an NSError).
  */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStorageErrorCode) public enum StorageErrorCode: Int, Swift.Error {
   case unknown = -13000
   case objectNotFound = -13010
@@ -78,8 +77,15 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     case 404: StorageError.objectNotFound(
         object: ref.path.object ?? "<object-entity-internal-error>", serverError: errorDictionary
       )
-    default: StorageError.unknown(
-        message: "Unexpected \(serverError.code) code from backend", serverError: errorDictionary
+    case _ where serverError.domain == NSPOSIXErrorDomain:
+      StorageError.unknown(
+        message: "POSIX errno \(serverError.code) (\(serverError.localizedDescription))",
+        serverError: errorDictionary
+      )
+    default:
+      StorageError.unknown(
+        message: "Unexpected \(serverError.code) code from backend",
+        serverError: errorDictionary
       )
     }
     return storageError as NSError
@@ -103,7 +109,6 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
 }
 
 /// Firebase Storage errors
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public enum StorageError: Error, CustomNSError {
   case unknown(message: String, serverError: [String: Any])
   case objectNotFound(object: String, serverError: [String: Any])

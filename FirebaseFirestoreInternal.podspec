@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '12.5.0'
+  s.version          = '13.1.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -17,7 +17,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   }
 
   s.ios.deployment_target = '15.0'
-  s.osx.deployment_target = '10.15'
+  s.osx.deployment_target = '11.0'
   s.tvos.deployment_target = '15.0'
 
   s.swift_version = '5.9'
@@ -69,6 +69,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/include/**/*.h',
     'Firestore/core/src/**/*.h',
     'Firestore/third_party/nlohmann_json/json.hpp',
+    'Firestore/third_party/re2/**/*.h',
   ]
   s.requires_arc = [
     'Firestore/Source/**/*',
@@ -91,10 +92,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     "#{s.module_name}_Privacy" => 'Firestore/Source/Resources/PrivacyInfo.xcprivacy'
   }
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 12.5.0'
-  s.dependency 'FirebaseCore', '~> 12.5.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.1.0'
+  s.dependency 'FirebaseCore', '~> 13.1.0'
 
-  abseil_version = '~> 1.20240722.0'
+  abseil_version = '~> 1.20250512.2'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/container/flat_hash_map', abseil_version
@@ -104,18 +105,18 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-Core', '~> 1.69.0'
-  s.dependency 'gRPC-C++', '~> 1.69.0'
-  s.dependency 'leveldb-library', '~> 1.22'
+  s.dependency 'gRPC-Core', '~> 1.83.1'
+  s.dependency 'gRPC-C++', '~> 1.83.1'
+  s.dependency 'leveldb-library', '>= 1.22.6', '< 1.23'
   s.dependency 'nanopb', '~> 3.30910.0'
 
-  s.ios.frameworks = 'SystemConfiguration', 'UIKit'
-  s.osx.frameworks = 'SystemConfiguration'
-  s.tvos.frameworks = 'SystemConfiguration', 'UIKit'
+  s.ios.frameworks = 'SystemConfiguration', 'UIKit', 'Network'
+  s.osx.frameworks = 'SystemConfiguration', 'Network'
+  s.tvos.frameworks = 'SystemConfiguration', 'UIKit', 'Network'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17',
     'CLANG_CXX_LIBRARY' => 'libc++',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +
@@ -127,7 +128,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
       '"${PODS_TARGET_SRCROOT}" ' +
       '"${PODS_TARGET_SRCROOT}/Firestore/Source/Public" ' +
       '"${PODS_ROOT}/nanopb" ' +
-      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb"'
+      '"${PODS_TARGET_SRCROOT}/Firestore/Protos/nanopb" ' +
+      '"${PODS_TARGET_SRCROOT}/Firestore/third_party/re2" ',
+    'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseFirestoreInternal'
   }
 
   s.compiler_flags = '$(inherited) -Wreorder -Werror=reorder -Wno-comma'

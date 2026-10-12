@@ -15,7 +15,6 @@
 import Foundation
 
 /// Represents token counting info for a single modality.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ModalityTokenCount: Sendable {
   /// The modality associated with this token count.
   public let modality: ContentModality
@@ -25,7 +24,6 @@ public struct ModalityTokenCount: Sendable {
 }
 
 /// Content part modality.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case text = "TEXT"
@@ -59,7 +57,6 @@ public struct ContentModality: DecodableProtoEnum, Hashable, Sendable {
 
 // MARK: Codable Conformances
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ModalityTokenCount: Decodable {
   enum CodingKeys: CodingKey {
     case modality

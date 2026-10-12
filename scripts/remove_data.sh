@@ -16,10 +16,20 @@ set -xe
 
 SDK="$1"
 
-DIR="${SDK}"
-
-if [[ ! -z "$LEGACY" ]]; then
-  DIR="${SDK}/Legacy${SDK}Quickstart"
+if [[ -z "$SDK" ]]; then
+  echo "Error: SDK name not provided." >&2
+  echo "Usage: $0 <SDKName>" >&2
+  exit 1
 fi
 
-rm -f quickstart-ios/"${DIR}"/GoogleService-Info.plist
+DIR="${SDK}"
+
+TARGET_DIR="quickstart-ios/${DIR}"
+
+if [[ ! -d "$TARGET_DIR" ]]; then
+  echo "Error: Directory '$TARGET_DIR' not found." >&2
+  echo "Please provide a valid SDK name." >&2
+  exit 1
+fi
+
+rm -f "${TARGET_DIR}"/GoogleService-Info.plist

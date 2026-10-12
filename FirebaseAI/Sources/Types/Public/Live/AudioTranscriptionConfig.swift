@@ -18,7 +18,6 @@
 /// While there are not currently any options, this will likely change in the future. For now, just
 /// providing an instance of this struct will enable audio transcriptions for the corresponding
 /// input or output fields.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
 @available(watchOS, unavailable)
 public struct AudioTranscriptionConfig: Sendable {
   let audioTranscriptionConfig: BidiAudioTranscriptionConfig

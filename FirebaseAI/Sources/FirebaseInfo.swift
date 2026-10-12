@@ -20,7 +20,6 @@ import Foundation
 @preconcurrency import FirebaseCore
 
 /// Firebase data used by FirebaseAI
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct FirebaseInfo: Sendable {
   let appCheck: AppCheckInterop?
   let auth: AuthInterop?

@@ -241,7 +241,7 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
     GrpcConnection::UseInsecureChannel(MakeString(settings.host));
   }
 
-  DatabaseId database_id(MakeString(projectID));
+  DatabaseId database_id(MakeString(projectID), MakeString([FSTIntegrationTestCase databaseID]));
 
   _databaseInfo =
       DatabaseInfo(database_id, "test-key", MakeString(settings.host), settings.sslEnabled);

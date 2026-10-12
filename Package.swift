@@ -1,6 +1,6 @@
-// swift-tools-version:6.0
-// The swift-tools-version declares the minimum version of Swift required to
-// build this package.
+// swift-tools-version:6.2.1
+// The swift-tools-version declares the minimum version of the Swift toolchain required to
+// build this package. Note: Firebase requires Xcode 26.2+, which includes the Swift 6.2.3 compiler.
 
 // Copyright 2020 Google LLC
 //
@@ -16,21 +16,59 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if compiler(<6.2.3)
+  #error("Firebase requires Swift 6.2.3 or higher. Please upgrade to Xcode 26.2 or later.")
+#endif // compiler(<6.2.3)
+
 import PackageDescription
 
-let firebaseVersion = "12.5.0"
+let firebaseVersion = "13.1.0"
+
+/// If you don't use Firestore in your app, you can disable the "Firestore" trait to reduce
+/// the number of dependencies fetched by SwiftPM during package resolution.
+let firestoreTrait = Trait(
+  name: "Firestore",
+  description: "Enables Firestore support and its underlying dependencies (gRPC, Abseil)."
+)
+
+/// Package traits allow developers to opt out of features, including their dependencies.
+///
+/// In a `Package.swift`:
+/// ```swift
+/// .package(
+///   url: "https://github.com/firebase/firebase-ios-sdk.git",
+///   from: "13.0.0",
+///   traits: [
+///     // Leave empty (or list only non-Firestore traits) to opt out.
+///   ]
+/// )
+/// ```
+///
+/// In Xcode (26.4+):
+/// - Select your project -> Package Dependencies -> in the Traits dropdown for Firebase,
+///   uncheck any unwanted traits.
+let packageTraits = Set<Trait>([
+  firestoreTrait,
+  // All traits are enabled by default.
+  .default(enabledTraits: [firestoreTrait.name]),
+])
+
+let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
-  products: [
-    .library(
-      name: "FirebaseAI",
-      targets: [
-        "FirebaseAI",
-        "FirebaseAILogic",
-      ]
-    ),
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v8)],
+  products: packageProducts(),
+  traits: packageTraits,
+  dependencies: packageDependencies(),
+  targets: packageTargets(),
+  cxxLanguageStandard: CXXLanguageStandard.gnucxx17
+)
+
+// MARK: - Package Manifest Builders
+
+func packageProducts() -> [Product] {
+  return [
     .library(
       name: "FirebaseAILogic",
       targets: [
@@ -114,10 +152,6 @@ let package = Package(
       targets: ["FirebaseMessaging"]
     ),
     .library(
-      name: "FirebaseMLModelDownloader",
-      targets: ["FirebaseMLModelDownloader"]
-    ),
-    .library(
       name: "FirebasePerformance",
       targets: ["FirebasePerformanceTarget"]
     ),
@@ -129,32 +163,31 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
-  ],
-  dependencies: [
+  ]
+}
+
+func packageDependencies() -> [Package.Dependency] {
+  return [
     .package(
       url: "https://github.com/google/promises.git",
-      "2.4.0" ..< "3.0.0"
-    ),
-    .package(
-      url: "https://github.com/apple/swift-protobuf.git",
-      "1.19.0" ..< "2.0.0"
+      "2.4.1" ..< "3.0.0"
     ),
     googleAppMeasurementDependency(),
     .package(
       url: "https://github.com/google/GoogleDataTransport.git",
-      "10.1.0" ..< "11.0.0"
+      "10.1.1" ..< "11.0.0"
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.1.0" ..< "9.0.0"
+      "8.1.4" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "3.4.1" ..< "6.0.0"
+      "4.0.0" ..< "6.0.0"
     ),
     .package(
       url: "https://github.com/firebase/nanopb.git",
-      "2.30910.0" ..< "2.30911.0"
+      "2.30910.1" ..< "2.30911.0"
     ),
     abseilDependency(),
     grpcDependency(),
@@ -164,7 +197,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/firebase/leveldb.git",
-      "1.22.2" ..< "1.23.0"
+      "1.22.5" ..< "1.23.0"
     ),
     .package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
@@ -174,10 +207,12 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "101.0.0" ..< "102.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git",
-             "11.0.1" ..< "12.0.0"),
-  ],
-  targets: [
+    appCheckDependency(),
+  ]
+}
+
+func packageTargets() -> [Target] {
+  var targets: [Target] = [
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -188,12 +223,7 @@ let package = Package(
 
     .target(
       name: "FirebaseAILogic",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseAuthInterop",
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-      ],
+      dependencies: firebaseAILogicDependencies(),
       path: "FirebaseAI/Sources"
     ),
     .testTarget(
@@ -203,6 +233,10 @@ let package = Package(
         "FirebaseStorage",
       ],
       path: "FirebaseAI/Tests/Unit",
+      exclude: [
+        "README.md",
+        "Snippets/README.md",
+      ],
       resources: [
         .copy("vertexai-sdk-test-data/mock-responses"),
         .process("Resources"),
@@ -210,16 +244,6 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../../"),
       ]
-    ),
-    .target(
-      name: "FirebaseAI",
-      dependencies: ["FirebaseAILogic"],
-      path: "FirebaseAI/Wrapper/Sources"
-    ),
-    .testTarget(
-      name: "FirebaseAIUnit",
-      dependencies: ["FirebaseAI"],
-      path: "FirebaseAI/Wrapper/Tests"
     ),
 
     // MARK: - Firebase Core
@@ -348,8 +372,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/12.5.0/FirebaseAnalytics.zip",
-      checksum: "7ff922682f5d47e6add687979b3126f391c7d2e8f367599d4ec8d2a58dce8cc9"
+      url: "https://dl.google.com/firebase/ios/swiftpm/13.0.1/FirebaseAnalytics.zip",
+      checksum: "0122046d46caca4795e3c71b56c68ad5549d892853815c028854f02e9fe14ed7"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -521,9 +545,6 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
-        "PhoneAuthProviderTests.swift",
-        "AuthNotificationManagerTests.swift",
         // TODO: The following tests run in CocoaPods only, until mixed language or separate target.
         "ObjCAPITests.m",
         "ObjCGlobalTests.m",
@@ -544,7 +565,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
-        "FirebaseFirestoreTarget",
+        .target(name: "FirebaseFirestoreTarget", condition: .when(traits: ["Firestore"])),
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -555,68 +576,11 @@ let package = Package(
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
-    .target(
-      name: "FirebaseCrashlytics",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseInstallations",
-        "FirebaseSessions",
-        "FirebaseRemoteConfigInterop",
-        "FirebaseCrashlyticsSwift",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "FBLPromises", package: "Promises"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "Crashlytics",
-      exclude: [
-        "run",
-        "CHANGELOG.md",
-        "LICENSE",
-        "README.md",
-        "ProtoSupport/",
-        "UnitTests/",
-        "generate_project.sh",
-        "upload-symbols",
-        "CrashlyticsInputFiles.xcfilelist",
-        "third_party/libunwind/LICENSE",
-        "Crashlytics/Rollouts/",
-      ],
-      sources: [
-        "Crashlytics/",
-        "Protogen/",
-        "Shared/",
-        "third_party/libunwind/dwarf.h",
-      ],
-      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
-      publicHeadersPath: "Crashlytics/Public",
-      cSettings: [
-        .headerSearchPath(".."),
-        .define("DISPLAY_VERSION", to: firebaseVersion),
-        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define(
-          "CLS_SDK_NAME",
-          to: "Crashlytics macOS SDK",
-          .when(platforms: [.macOS, .macCatalyst])
-        ),
-        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ],
-      linkerSettings: [
-        .linkedFramework("Security"),
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-      ]
-    ),
+    firebaseCrashlyticsTarget(),
     .target(
       name: "FirebaseCrashlyticsSwift",
       dependencies: ["FirebaseRemoteConfigInterop"],
-      path: "Crashlytics",
-      sources: [
-        "Crashlytics/Rollouts/",
-      ]
+      path: "Crashlytics/Crashlytics/Rollouts"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsSwiftUnit",
@@ -864,33 +828,6 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseMLModelDownloader",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-        "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-        .product(name: "SwiftProtobuf", package: "swift-protobuf"),
-      ],
-      path: "FirebaseMLModelDownloader/Sources",
-      exclude: [
-        "proto/firebase_ml_log_sdk.proto",
-      ],
-      cSettings: [
-        .define("FIRMLModelDownloader_VERSION", to: firebaseVersion),
-      ],
-      swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
-      ]
-    ),
-    .testTarget(
-      name: "FirebaseMLModelDownloaderUnit",
-      dependencies: ["FirebaseMLModelDownloader"],
-      path: "FirebaseMLModelDownloader/Tests/Unit"
-    ),
-
-    .target(
       name: "FirebaseMessaging",
       dependencies: [
         "FirebaseCore",
@@ -1001,6 +938,7 @@ let package = Package(
     .target(
       name: "SharedTestUtilities",
       dependencies: ["FirebaseCore",
+                     "FirebaseCoreExtension",
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
@@ -1127,7 +1065,6 @@ let package = Package(
         // - https://github.com/firebase/firebase-ios-sdk/issues/15276
         // - https://github.com/firebase/firebase-ios-sdk/pull/15287
         .product(name: "nanopb", package: "nanopb"),
-        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
@@ -1246,13 +1183,15 @@ let package = Package(
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
-        "FirebaseFirestoreCombineSwift",
+        .target(name: "FirebaseFirestoreCombineSwift",
+                condition: .when(traits: ["Firestore"])),
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseFirestoreTarget",
+        .target(name: "FirebaseFirestoreTarget",
+                condition: .when(traits: ["Firestore"])),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1293,7 +1232,8 @@ let package = Package(
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
-        "FirebaseFirestoreTarget",
+        .target(name: "FirebaseFirestoreTarget",
+                condition: .when(traits: ["Firestore"])),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1304,7 +1244,8 @@ let package = Package(
         "FirebaseRemoteConfig",
         "FirebaseStorage",
       ],
-      path: "SwiftPMTests/objc-import-test"
+      path: "SwiftPMTests/objc-import-test",
+      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"]))]
     ),
     .testTarget(
       name: "version-test",
@@ -1324,6 +1265,7 @@ let package = Package(
               "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "AppCheckCore", package: "app-check"),
+              .product(name: "AppCheckRecaptchaProvider", package: "app-check"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
               .product(name: "GULUserDefaults", package: "GoogleUtilities"),
             ],
@@ -1369,8 +1311,16 @@ let package = Package(
     ),
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
-      dependencies: ["FirebaseAppCheck"],
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseCoreExtension",
+        "SharedTestUtilities",
+        .product(name: "AppCheckCore", package: "app-check"),
+      ],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ],
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
@@ -1396,11 +1346,92 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-  ] + firestoreTargets(),
-  cxxLanguageStandard: CXXLanguageStandard.gnucxx14
-)
+    .testTarget(
+      name: "FirebaseFirestoreTests",
+      dependencies: [
+        "Firebase",
+        "FirebaseCore",
+        "FirebaseFirestoreTarget",
+      ],
+      path: "Firestore/Swift/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../../"),
+      ]
+    ),
+  ]
+  targets.append(contentsOf: firestoreTargets())
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    targets.append(contentsOf: geminiLanguageModelTargets())
+  #endif
+
+  return targets
+}
 
 // MARK: - Helper Functions
+
+func firebaseCrashlyticsTarget() -> Target {
+  var cSettings: [CSetting] = [
+    .headerSearchPath(".."),
+    .define("DISPLAY_VERSION", to: firebaseVersion),
+    .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+    .define(
+      "CLS_SDK_NAME", to: "Crashlytics macOS SDK",
+      .when(platforms: [.macOS, .macCatalyst])
+    ),
+    .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+    .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+    .define("PB_FIELD_32BIT", to: "1"),
+    .define("PB_NO_PACKED_STRUCTS", to: "1"),
+    .define("PB_ENABLE_MALLOC", to: "1"),
+  ]
+
+  if Context.environment["FIREBASE_IS_NIGHTLY_TESTING"] != nil {
+    cSettings += [.define("FIREBASE_IS_NIGHTLY_TESTING", to: "1")]
+  }
+
+  return .target(
+    name: "FirebaseCrashlytics",
+    dependencies: [
+      "FirebaseCore",
+      "FirebaseInstallations",
+      "FirebaseSessions",
+      "FirebaseRemoteConfigInterop",
+      "FirebaseCrashlyticsSwift",
+      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+      .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      .product(name: "FBLPromises", package: "Promises"),
+      .product(name: "nanopb", package: "nanopb"),
+    ],
+    path: "Crashlytics",
+    exclude: [
+      "run",
+      "CHANGELOG.md",
+      "LICENSE",
+      "README.md",
+      "ProtoSupport",
+      "UnitTests",
+      "generate_project.sh",
+      "upload-symbols",
+      "CrashlyticsInputFiles.xcfilelist",
+      "third_party/libunwind/LICENSE",
+      "Crashlytics/Rollouts",
+    ],
+    sources: [
+      "Crashlytics",
+      "Protogen",
+      "Shared",
+      "third_party/libunwind/dwarf.h",
+    ],
+    resources: [.process("Resources/PrivacyInfo.xcprivacy")],
+    publicHeadersPath: "Crashlytics/Public",
+    cSettings: cSettings,
+    linkerSettings: [
+      .linkedFramework("Security"),
+      .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+    ]
+  )
+}
 
 func googleAppMeasurementDependency() -> Package.Dependency {
   let appMeasurementURL = "https://github.com/google/GoogleAppMeasurement.git"
@@ -1411,7 +1442,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "12.5.0")
+  return .package(url: appMeasurementURL, "13.0.1" ..< "13.1.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1419,15 +1450,15 @@ func abseilDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20240722.0" ..< "0.20240723.0"
+      "0.20250512.1" ..< "0.20250513.0"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2024072200.0" ..< "1.2024072300.0"
+      "1.2025051202.0" ..< "1.2025051300.0"
     )
   }
 
@@ -1439,36 +1470,48 @@ func grpcDependency() -> Package.Dependency {
 
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.69.0" ..< "1.70.0")
+  if shouldUseSourceFirestore {
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.83.1" ..< "1.84.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.69.0" ..< "1.70.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.83.1" ..< "1.84.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
 }
 
 func firestoreWrapperTarget() -> Target {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return .target(
       name: "FirebaseFirestoreTarget",
-      dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .visionOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+      dependencies: [
+        .target(
+          name: "FirebaseFirestore",
+          condition: .when(
+            platforms: [.iOS, .tvOS, .macOS, .visionOS, .macCatalyst],
+            traits: ["Firestore"]
+          )
+        ),
+      ],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
+      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"]))]
     )
   }
 
   return .target(
     name: "FirebaseFirestoreTarget",
     dependencies: [.target(name: "FirebaseFirestore",
-                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst]))],
+                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst],
+                                            traits: ["Firestore"]))],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
-    cSettings: [.define("FIREBASE_BINARY_FIRESTORE", to: "1")]
+    cSettings: [
+      .define("FIREBASE_BINARY_FIRESTORE", to: "1"),
+      .define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"])),
+    ]
   )
 }
 
 func firestoreTargets() -> [Target] {
-  if Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
+  if shouldUseSourceFirestore {
     return [
       .target(
         name: "FirebaseFirestoreInternalWrapper",
@@ -1477,8 +1520,10 @@ func firestoreTargets() -> [Target] {
           "FirebaseCore",
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
-          .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
-          .product(name: "gRPC-cpp", package: "grpc-ios"),
+          .product(name: "abseil", package: "abseil-cpp-SwiftPM",
+                   condition: .when(traits: ["Firestore"])),
+          .product(name: "gRPC-cpp", package: "grpc-ios",
+                   condition: .when(traits: ["Firestore"])),
         ],
         path: "Firestore",
         exclude: [
@@ -1524,6 +1569,7 @@ func firestoreTargets() -> [Target] {
           .headerSearchPath("../"),
           .headerSearchPath("Source/Public/FirebaseFirestore"),
           .headerSearchPath("Protos/nanopb"),
+          .headerSearchPath("third_party/re2"),
           .define("PB_FIELD_32BIT", to: "1"),
           .define("PB_NO_PACKED_STRUCTS", to: "1"),
           .define("PB_ENABLE_MALLOC", to: "1"),
@@ -1535,6 +1581,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .visionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
+          .linkedFramework("Network"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1585,8 +1632,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/12.4.0/rc0/FirebaseFirestoreInternal.zip",
-        checksum: "58b916624c01a56c5de694cfc9c5cc7aabcafb13b54e7bde8c83bacc51a3460d"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/rc2/FirebaseFirestoreInternal.zip",
+        checksum: "599c9d8e053361d0712144741d9270c8a9ebeaf033a20b88d4d27fef08949363"
       )
     }
   }()
@@ -1597,17 +1644,20 @@ func firestoreTargets() -> [Target] {
       dependencies: [
         .target(
           name: "FirebaseFirestoreInternalWrapper",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
+                           traits: ["Firestore"])
         ),
         .product(
           name: "abseil",
           package: "abseil-cpp-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
+                           traits: ["Firestore"])
         ),
         .product(
           name: "gRPC-C++",
           package: "grpc-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
+                           traits: ["Firestore"])
         ),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
@@ -1624,6 +1674,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedFramework("Network"),
         .linkedLibrary("c++"),
       ]
     ),
@@ -1631,11 +1682,109 @@ func firestoreTargets() -> [Target] {
       name: "FirebaseFirestoreInternalWrapper",
       dependencies: [.target(
         name: "FirebaseFirestoreInternal",
-        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
+                         traits: ["Firestore"])
       )],
       path: "FirebaseFirestoreInternal",
       publicHeadersPath: "."
     ),
     firestoreInternalTarget,
   ]
+}
+
+func firebaseAILogicDependencies() -> [Target.Dependency] {
+  var dependencies: [Target.Dependency] = [
+    // Direct dependency on AppCheck for automatic token acquisition and
+    // management.
+    "FirebaseAppCheck",
+    // Despite the direct dependency on App Check, the AI Logic SDK still
+    // uses AppCheck through the interop.
+    "FirebaseAppCheckInterop",
+    "FirebaseAuthInterop",
+    "FirebaseCore",
+    "FirebaseCoreExtension",
+  ]
+
+  #if compiler(>=6.4) && canImport(FoundationModels)
+    dependencies.append("GeminiLanguageModel")
+  #endif // compiler(>=6.4) && canImport(FoundationModels)
+
+  return dependencies
+}
+
+#if compiler(>=6.4) && canImport(FoundationModels)
+  func geminiLanguageModelTargets() -> [Target] {
+    let swiftSettings: [SwiftSetting] = [
+      .enableUpcomingFeature("ExistentialAny"),
+      .enableUpcomingFeature("InternalImportsByDefault"),
+      .enableUpcomingFeature("MemberImportVisibility"),
+      .swiftLanguageMode(.v6),
+    ]
+
+    return [
+      .target(
+        name: "GeminiLanguageModel",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiLanguageModel",
+        swiftSettings: swiftSettings
+      ),
+      .testTarget(
+        name: "GeminiLanguageModelTests",
+        dependencies: [
+          "GeminiLanguageModel",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        swiftSettings: swiftSettings
+      ),
+      .target(
+        name: "GeminiAPIClient",
+        dependencies: [
+          "GeminiAPIDataModels",
+        ],
+        path: "GeminiLanguageModel/Sources/GeminiAPIClient",
+        swiftSettings: swiftSettings
+      ),
+      .testTarget(
+        name: "GeminiAPIClientTests",
+        dependencies: [
+          "GeminiAPIClient",
+          "GeminiTestUtilities",
+        ],
+        path: "GeminiLanguageModel/Tests/GeminiAPIClientTests",
+        swiftSettings: swiftSettings
+      ),
+      .target(
+        name: "GeminiAPIDataModels",
+        path: "GeminiLanguageModel/Sources/GeminiAPIDataModels",
+        swiftSettings: [
+          .enableUpcomingFeature("ExistentialAny"),
+          .enableUpcomingFeature("MemberImportVisibility"),
+          .swiftLanguageMode(.v6),
+        ]
+      ),
+      .target(
+        name: "GeminiTestUtilities",
+        path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        swiftSettings: swiftSettings,
+      ),
+    ]
+  }
+#endif // compiler(>=6.4) && canImport(FoundationModels)
+
+func appCheckDependency() -> Package.Dependency {
+  let appCheckURL = "https://github.com/google/app-check.git"
+
+  if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
+    return .package(path: localPath)
+  }
+
+  if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
+    return .package(url: appCheckURL, branch: branch)
+  }
+
+  return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
 }

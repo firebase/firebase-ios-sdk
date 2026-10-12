@@ -28,7 +28,6 @@ private let kAccessTokenKey = "access_token"
 
 private let kIDTokenKey = "id_token"
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 struct SecureTokenResponse: AuthRPCResponse {
   var approximateExpirationDate: Date?
   var refreshToken: String?

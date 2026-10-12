@@ -304,6 +304,7 @@
   c = FIRAuthErrorCodeInvalidRecaptchaVersion;
   c = FIRAuthErrorCodeInvalidReqType;
   c = FIRAuthErrorCodeRecaptchaSDKNotLinked;
+  c = FIRAuthErrorCodePasswordDoesNotMeetRequirements;
   c = FIRAuthErrorCodeKeychainError;
   c = FIRAuthErrorCodeInternalError;
   c = FIRAuthErrorCodeMalformedJWT;

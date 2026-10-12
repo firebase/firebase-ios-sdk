@@ -12,21 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
-import FirebaseAuthInterop
-import FirebaseCore
 import Foundation
 import os.log
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 struct GenerativeAIService {
-  /// The language of the SDK in the format `gl-<language>/<version>`.
-  static let languageTag = "gl-swift/5"
-
-  /// The Firebase SDK version in the format `fire/<version>`.
-  static let firebaseVersionTag = "fire/\(FirebaseVersion())"
-
-  private let firebaseInfo: FirebaseInfo
+  let firebaseInfo: FirebaseInfo
 
   private let urlSession: URLSession
 
@@ -39,7 +29,9 @@ struct GenerativeAIService {
     let urlRequest = try await urlRequest(request: request)
 
     #if DEBUG
-      printCURLCommand(from: urlRequest)
+      if #available(macOS 11.0, *) {
+        printCURLCommand(from: urlRequest)
+      }
     #endif
 
     let data: Data
@@ -67,99 +59,74 @@ struct GenerativeAIService {
     return try parseResponse(T.Response.self, from: data)
   }
 
-  @available(macOS 12.0, *)
+  @available(macOS 12.0, watchOS 8.0, *)
   func loadRequestStream<T: GenerativeAIRequest>(request: T)
     -> AsyncThrowingStream<T.Response, Error> where T: Sendable {
     return AsyncThrowingStream { continuation in
-      Task {
-        let urlRequest: URLRequest
+      let task = Task {
         do {
-          urlRequest = try await self.urlRequest(request: request)
-        } catch {
-          continuation.finish(throwing: error)
-          return
-        }
+          let urlRequest = try await self.urlRequest(request: request)
 
-        #if DEBUG
-          printCURLCommand(from: urlRequest)
-        #endif
+          #if DEBUG
+            printCURLCommand(from: urlRequest)
+          #endif
 
-        let stream: URLSession.AsyncBytes
-        let rawResponse: URLResponse
-        do {
+          let stream: URLSession.AsyncBytes
+          let rawResponse: URLResponse
           (stream, rawResponse) = try await urlSession.bytes(for: urlRequest)
-        } catch {
-          continuation.finish(throwing: error)
-          return
-        }
 
-        // Verify the status code is 200
-        let response: HTTPURLResponse
-        do {
-          response = try httpResponse(urlResponse: rawResponse)
-        } catch {
-          continuation.finish(throwing: error)
-          return
-        }
+          let response = try httpResponse(urlResponse: rawResponse)
 
-        // Verify the status code is 200
-        guard response.statusCode == 200 else {
-          AILog.error(
-            code: .loadRequestStreamResponseError,
-            "The server responded with an error: \(response)"
-          )
-          var responseBody = ""
-          for try await line in stream.lines {
-            responseBody += line + "\n"
-          }
-
-          AILog.error(
-            code: .loadRequestStreamResponseErrorPayload,
-            "Response payload: \(responseBody)"
-          )
-          continuation.finish(throwing: parseError(responseBody: responseBody))
-
-          return
-        }
-
-        // Received lines that are not server-sent events (SSE); these are not prefixed with "data:"
-        var extraLines = ""
-
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        for try await line in stream.lines {
-          AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
-
-          if line.hasPrefix("data:") {
-            // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
-            let jsonText = String(line.dropFirst(5))
-            let data: Data
-            do {
-              data = try jsonData(jsonText: jsonText)
-            } catch {
-              continuation.finish(throwing: error)
-              return
+          // Verify the status code is 200
+          guard response.statusCode == 200 else {
+            AILog.error(
+              code: .loadRequestStreamResponseError,
+              "The server responded with an error: \(response)"
+            )
+            var responseBody = ""
+            for try await line in stream.lines {
+              responseBody += line + "\n"
             }
 
-            // Handle the content.
-            do {
+            AILog.error(
+              code: .loadRequestStreamResponseErrorPayload,
+              "Response payload: \(responseBody)"
+            )
+            continuation.finish(throwing: parseError(responseBody: responseBody))
+            return
+          }
+
+          // Received lines that are not server-sent events (SSE); these are not prefixed with
+          // "data:"
+          var extraLines = ""
+
+          for try await line in stream.lines {
+            AILog.debug(code: .loadRequestStreamResponseLine, "Stream response: \(line)")
+
+            if line.hasPrefix("data:") {
+              // We can assume 5 characters since it's utf-8 encoded, removing `data:`.
+              let jsonText = String(line.dropFirst(5))
+              let data = try jsonData(jsonText: jsonText)
               let content = try parseResponse(T.Response.self, from: data)
               continuation.yield(content)
-            } catch {
-              continuation.finish(throwing: error)
-              return
+            } else {
+              extraLines += line
             }
-          } else {
-            extraLines += line
           }
-        }
 
-        if extraLines.count > 0 {
-          continuation.finish(throwing: parseError(responseBody: extraLines))
-          return
-        }
+          if extraLines.count > 0 {
+            continuation.finish(throwing: parseError(responseBody: extraLines))
+            return
+          }
 
-        continuation.finish(throwing: nil)
+          continuation.finish(throwing: nil)
+        } catch {
+          continuation.finish(throwing: error)
+        }
+      }
+
+      continuation.onTermination = { @Sendable _ in
+        task.cancel()
       }
     }
   }
@@ -167,41 +134,13 @@ struct GenerativeAIService {
   // MARK: - Private Helpers
 
   private func urlRequest<T: GenerativeAIRequest>(request: T) async throws -> URLRequest {
-    var urlRequest = URLRequest(url: request.url)
+    var urlRequest = try URLRequest(url: request.getURL())
     urlRequest.httpMethod = "POST"
-    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
-      forHTTPHeaderField: "x-goog-api-client"
+    let additionalClientTags = TaskLocals.isHybridRequest ? ["hybrid"] : []
+    try await firebaseInfo.applyHeaders(
+      to: &urlRequest,
+      additionalClientTags: additionalClientTags
     )
-    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await appCheck.fetchAppCheckToken(
-        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-        domain: "GenerativeAIService"
-      )
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        AILog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
-      forcingRefresh: false
-    ) {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
-
-    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
-      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
-      }
-    }
 
     let encoder = JSONEncoder()
     urlRequest.httpBody = try encoder.encode(request)
@@ -253,8 +192,8 @@ struct GenerativeAIService {
       logRPCError(rpcError)
       return rpcError
     } catch {
-      // TODO: Return an error about an unrecognized error payload with the response body
-      return error
+      let responseString = String(data: responseData, encoding: .utf8) ?? ""
+      return UnrecognizedRPCError(responseBody: responseString)
     }
   }
 
@@ -262,9 +201,9 @@ struct GenerativeAIService {
   // These errors do not produce specific GenerateContentError or CountTokensError cases.
   private func logRPCError(_ error: BackendError) {
     let projectID = firebaseInfo.projectID
-    if error.isVertexAIInFirebaseServiceDisabledError() {
-      AILog.error(code: .vertexAIInFirebaseAPIDisabled, """
-      The Firebase AI SDK requires the Firebase AI API \
+    if error.isFirebaseAILogicServiceDisabledError() {
+      AILog.error(code: .agentPlatformInFirebaseAPIDisabled, """
+      The Firebase AI Logic SDK requires the Firebase AI Logic API \
       (`firebasevertexai.googleapis.com`) to be enabled in your Firebase project. Enable this API \
       by visiting the Firebase Console at
       https://console.firebase.google.com/project/\(projectID)/genai/ and clicking "Get started". \
@@ -290,6 +229,7 @@ struct GenerativeAIService {
   }
 
   #if DEBUG
+    @available(macOS 11.0, *)
     private func cURLCommand(from request: URLRequest) -> String {
       var returnValue = "curl "
       if let allHeaders = request.allHTTPHeaderFields {
@@ -309,6 +249,7 @@ struct GenerativeAIService {
       return returnValue
     }
 
+    @available(macOS 11.0, *)
     private func printCURLCommand(from request: URLRequest) {
       guard AILog.additionalLoggingEnabled() else {
         return

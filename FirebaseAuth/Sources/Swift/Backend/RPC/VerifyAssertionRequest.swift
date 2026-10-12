@@ -79,7 +79,6 @@ private let kLastNameKey = "lastName"
 
 /// Represents the parameters for the verifyAssertion endpoint.
 /// See https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyAssertionResponse
 

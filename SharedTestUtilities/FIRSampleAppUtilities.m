@@ -22,7 +22,11 @@
 #import <SafariServices/SafariServices.h>
 #endif
 
+#if SWIFT_PACKAGE
+#import <FirebaseCoreInternal.h>
+#else
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#endif
 
 NSString *const kGoogleAppIDPlistKey = @"GOOGLE_APP_ID";
 // Dummy plist GOOGLE_APP_ID

@@ -30,6 +30,8 @@ NSString *const CreatedAtKey = @"created_at";
 NSString *const GoogleAppIDKey = @"google_app_id";
 NSString *const BuildInstanceID = @"build_instance_id";
 NSString *const AppVersion = @"app_version";
+NSString *const FirebaseCrashlyticsMachDefaultBehaviorKey =
+    @"FirebaseCrashlyticsMachDefaultBehavior";
 
 @interface FIRCLSSettings ()
 
@@ -40,15 +42,39 @@ NSString *const AppVersion = @"app_version";
 
 @property(nonatomic) BOOL isCacheKeyExpired;
 
+@property(nonatomic) dispatch_queue_t deletionQueue;
+
 @end
 
 @implementation FIRCLSSettings
 
 - (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
-                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel {
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                            appInfo:(NSDictionary *)appInfo {
+  return
+      [self initWithFileManager:fileManager
+                     appIDModel:appIDModel
+                        appInfo:appInfo
+                  deletionQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
+}
+
+- (instancetype)initWithFileManager:(FIRCLSFileManager *)fileManager
+                         appIDModel:(FIRCLSApplicationIdentifierModel *)appIDModel
+                            appInfo:(NSDictionary *)appInfo
+                      deletionQueue:(dispatch_queue_t)deletionQueue {
   self = [super init];
   if (!self) {
     return nil;
+  }
+
+  // Configure the Mach exception message receiving behavior from Info.plist the mach exception
+  // message receiving behavior
+  self.machExceptionDefaultBehavior = false;
+  id crashlyticsMachDefaultBehavior =
+      [appInfo objectForKey:FirebaseCrashlyticsMachDefaultBehaviorKey];
+  if ([crashlyticsMachDefaultBehavior isKindOfClass:[NSString class]] ||
+      [crashlyticsMachDefaultBehavior isKindOfClass:[NSNumber class]]) {
+    self.machExceptionDefaultBehavior = [crashlyticsMachDefaultBehavior boolValue];
   }
 
   _fileManager = fileManager;
@@ -56,6 +82,8 @@ NSString *const AppVersion = @"app_version";
 
   _settingsDictionary = nil;
   _isCacheKeyExpired = NO;
+
+  _deletionQueue = deletionQueue;
 
   return self;
 }
@@ -190,7 +218,7 @@ NSString *const AppVersion = @"app_version";
 
 - (void)deleteCachedSettings {
   __weak FIRCLSSettings *weakSelf = self;
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+  dispatch_async(_deletionQueue, ^{
     __strong FIRCLSSettings *strongSelf = weakSelf;
     if ([strongSelf.fileManager fileExistsAtPath:strongSelf.fileManager.settingsFilePath]) {
       [strongSelf.fileManager removeItemAtPath:strongSelf.fileManager.settingsFilePath];

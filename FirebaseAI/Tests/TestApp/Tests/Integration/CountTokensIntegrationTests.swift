@@ -24,13 +24,7 @@ import Testing
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
   let generationConfig = GenerationConfig(
-    temperature: 1.2,
-    topP: 0.95,
-    topK: 32,
-    candidateCount: 1,
     maxOutputTokens: 8192,
-    presencePenalty: 1.5,
-    frequencyPenalty: 1.75,
     stopSequences: ["cat", "dog", "bird"]
   )
   let safetySettings = [
@@ -45,11 +39,11 @@ struct CountTokensIntegrationTests {
     parts: "You are a friendly and helpful assistant."
   )
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_text(_ config: InstanceConfig) async throws {
     let prompt = "Why is the sky blue?"
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings
     )
@@ -63,10 +57,10 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_text_systemInstruction(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: generationConfig,
       safetySettings: safetySettings,
       systemInstruction: systemInstruction
@@ -81,10 +75,10 @@ struct CountTokensIntegrationTests {
     #expect(promptTokensDetails.tokenCount == response.totalTokens)
   }
 
-  @Test(arguments: InstanceConfig.allConfigs)
+  @Test(arguments: InstanceConfig.defaultConfigs)
   func countTokens_jsonSchema(_ config: InstanceConfig) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
-      modelName: ModelNames.gemini2Flash,
+      modelName: ModelNames.gemini3_1_FlashLite,
       generationConfig: GenerationConfig(
         responseMIMEType: "application/json",
         responseSchema: Schema.object(properties: [
@@ -101,7 +95,7 @@ struct CountTokensIntegrationTests {
     let response = try await model.countTokens(prompt)
 
     switch config.apiConfig.service {
-    case .vertexAI:
+    case .agentPlatform:
       #expect(response.totalTokens == 65)
     case .googleAI:
       // The Developer API erroneously ignores the `responseSchema` when counting tokens, resulting

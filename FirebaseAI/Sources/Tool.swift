@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CoreLocation
 import Foundation
 
 /// Structured representation of a function declaration.
 ///
-/// This `FunctionDeclaration` is a representation of a block of code that can be used as a ``Tool``
-/// by the model and executed by the client.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+/// This `FunctionDeclaration` is a representation of a block of code that can be used as a
+/// ``GenerativeModel/Tool`` by the model and executed by the client.
 public struct FunctionDeclaration: Sendable {
   /// The name of the function.
   let name: String
@@ -27,7 +27,7 @@ public struct FunctionDeclaration: Sendable {
   let description: String
 
   /// Describes the parameters to this function; must be of type `DataType.object`.
-  let parameters: Schema?
+  let parameters: Schema
 
   /// Constructs a new `FunctionDeclaration`.
   ///
@@ -56,103 +56,46 @@ public struct FunctionDeclaration: Sendable {
 /// > Important: When using this feature, you are required to comply with the
 /// "Grounding with Google Search" usage requirements for your chosen API provider:
 /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-/// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
+/// or the Agent Platform Gemini API (see
+/// [Service Terms](https://cloud.google.com/terms/service-terms)
 /// section within the Service Specific Terms).
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct GoogleSearch: Sendable {
   public init() {}
 }
 
-/// A helper tool that the model may use when generating responses.
-///
-/// A `Tool` is a piece of code that enables the system to interact with external systems to perform
-/// an action, or set of actions, outside of knowledge and scope of the model.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-public struct Tool: Sendable {
-  /// A list of `FunctionDeclarations` available to the model.
-  let functionDeclarations: [FunctionDeclaration]?
+public extension GenerativeModel {
+  /// A helper tool that the model may use when generating responses.
+  ///
+  /// A `Tool` is a piece of code that enables the system to interact with external systems to
+  /// perform an action, or set of actions, outside of knowledge and scope of the model.
+  struct Tool: Sendable {
+    /// A list of `FunctionDeclarations` available to the model.
+    let functionDeclarations: [FunctionDeclaration]?
 
-  /// Specifies the Google Search configuration.
-  let googleSearch: GoogleSearch?
+    /// Specifies the Google Search configuration.
+    let googleSearch: GoogleSearch?
 
-  let codeExecution: CodeExecution?
-  let urlContext: URLContext?
+    /// Specifies the Google Maps configuration.
+    let googleMaps: GoogleMaps?
 
-  init(functionDeclarations: [FunctionDeclaration]? = nil,
-       googleSearch: GoogleSearch? = nil,
-       urlContext: URLContext? = nil,
-       codeExecution: CodeExecution? = nil) {
-    self.functionDeclarations = functionDeclarations
-    self.googleSearch = googleSearch
-    self.urlContext = urlContext
-    self.codeExecution = codeExecution
-  }
+    let codeExecution: CodeExecution?
+    let urlContext: URLContext?
 
-  /// Creates a tool that allows the model to perform function calling.
-  ///
-  /// Function calling can be used to provide data to the model that was not known at the time it
-  /// was trained (for example, the current date or weather conditions) or to allow it to interact
-  /// with external systems (for example, making an API request or querying/updating a database).
-  /// For more details and use cases, see [Function calling using the Gemini
-  /// API](http://firebase.google.com/docs/vertex-ai/function-calling?platform=ios).
-  ///
-  /// - Parameters:
-  ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
-  ///   used for function calling.
-  ///   The model or system does not execute the function. Instead the defined function may be
-  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
-  ///   model may decide to call none, some or all of the declared functions; this behavior may be
-  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
-  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
-  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
-  ///   `"function"`; this response contains the result of executing the function on the client,
-  ///   providing generation context for the model's next turn.
-  public static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration]) -> Tool {
-    return self.init(functionDeclarations: functionDeclarations)
-  }
-
-  /// Creates a tool that allows the model to use Grounding with Google Search.
-  ///
-  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
-  /// access and incorporate up-to-date information from the web into it's responses.
-  ///
-  /// > Important: When using this feature, you are required to comply with the
-  /// "Grounding with Google Search" usage requirements for your chosen API provider:
-  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
-  /// or Vertex AI Gemini API (see [Service Terms](https://cloud.google.com/terms/service-terms)
-  /// section within the Service Specific Terms).
-  ///
-  /// - Parameters:
-  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
-  ///     of tools enables the model to use Google Search.
-  ///
-  /// - Returns: A `Tool` configured for Google Search.
-  public static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> Tool {
-    return self.init(googleSearch: googleSearch)
-  }
-
-  /// Creates a tool that allows you to provide additional context to the models in the form of
-  /// public web URLs.
-  ///
-  /// By including URLs in your request, the Gemini model will access the content from those pages
-  /// to inform and enhance its response.
-  ///
-  /// > Warning: URL context is a **Public Preview** feature, which means that it is not subject to
-  /// > any SLA or deprecation policy and could change in backwards-incompatible ways.
-  public static func urlContext() -> Tool {
-    return self.init(urlContext: URLContext())
-  }
-
-  /// Creates a tool that allows the model to execute code.
-  ///
-  /// For more details, see ``CodeExecution``.
-  public static func codeExecution() -> Tool {
-    return self.init(codeExecution: CodeExecution())
+    init(functionDeclarations: [FunctionDeclaration]? = nil,
+         googleSearch: GoogleSearch? = nil,
+         googleMaps: GoogleMaps? = nil,
+         urlContext: URLContext? = nil,
+         codeExecution: CodeExecution? = nil) {
+      self.functionDeclarations = functionDeclarations
+      self.googleSearch = googleSearch
+      self.googleMaps = googleMaps
+      self.urlContext = urlContext
+      self.codeExecution = codeExecution
+    }
   }
 }
 
 /// Configuration for specifying function calling behavior.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 public struct FunctionCallingConfig: Sendable {
   /// Defines the execution behavior for function calling by defining the execution mode.
   enum Mode: String {
@@ -197,19 +140,141 @@ public struct FunctionCallingConfig: Sendable {
   }
 }
 
-/// Tool configuration for any `Tool` specified in the request.
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+/// Tool configuration for any ``GenerativeModel/Tool`` specified in the request.
 public struct ToolConfig: Sendable {
   let functionCallingConfig: FunctionCallingConfig?
+  let retrievalConfig: RetrievalConfig?
 
-  public init(functionCallingConfig: FunctionCallingConfig? = nil) {
+  public init(functionCallingConfig: FunctionCallingConfig? = nil,
+              retrievalConfig: RetrievalConfig? = nil) {
     self.functionCallingConfig = functionCallingConfig
+    self.retrievalConfig = retrievalConfig
+  }
+}
+
+/// Configuration for grounding retrieval tools, such as Grounding with Google Maps.
+///
+/// Use `RetrievalConfig` inside ``ToolConfig`` or ``TemplateToolConfig`` to provide optional
+/// location coordinates and language preferences to bias and localize search results.
+public struct RetrievalConfig: Sendable, Encodable {
+  /// The geographic location coordinates used to bias the retrieval search.
+  let location: CLLocationCoordinate2D?
+  /// The BCP 47 language code of the user (for example, `"en_US"`).
+  let languageCode: String?
+
+  /// Constructs a new `RetrievalConfig`.
+  ///
+  /// - Parameters:
+  ///   - location: Geographic coordinates used to bias results towards the user's location.
+  ///   - languageCode: A BCP 47 language code to localize responses.
+  public init(location: CLLocationCoordinate2D? = nil, languageCode: String? = nil) {
+    self.location = location
+    self.languageCode = languageCode
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encodeIfPresent(languageCode, forKey: .languageCode)
+    if let location = location {
+      var latLngContainer = container.nestedContainer(keyedBy: LatLngKeys.self, forKey: .location)
+      try latLngContainer.encode(location.latitude, forKey: .latitude)
+      try latLngContainer.encode(location.longitude, forKey: .longitude)
+    }
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case location = "latLng"
+    case languageCode
+  }
+
+  enum LatLngKeys: String, CodingKey {
+    case latitude
+    case longitude
+  }
+}
+
+extension CLLocationCoordinate2D: @retroactive @unchecked Sendable {}
+
+// MARK: - Tool Conveniences
+
+public extension GenerativeModel.Tool {
+  /// Creates a tool that allows the model to perform function calling.
+  ///
+  /// Function calling can be used to provide data to the model that was not known at the time it
+  /// was trained (for example, the current date or weather conditions) or to allow it to interact
+  /// with external systems (for example, making an API request or querying/updating a database).
+  /// For more details and use cases, see [Function calling using the Gemini
+  /// API](https://firebase.google.com/docs/ai-logic/function-calling).
+  ///
+  /// - Parameters:
+  ///   - functionDeclarations: A list of `FunctionDeclarations` available to the model that can be
+  ///   used for function calling.
+  ///   The model or system does not execute the function. Instead the defined function may be
+  ///   returned as a ``FunctionCallPart`` with arguments to the client side for execution. The
+  ///   model may decide to call none, some or all of the declared functions; this behavior may be
+  ///   configured by specifying a ``ToolConfig`` when instantiating the model. When a
+  ///   ``FunctionCallPart`` is received, the next conversation turn may contain a
+  ///   ``FunctionResponsePart`` in ``ModelContent/parts`` with a ``ModelContent/role`` of
+  ///   `"user"`; this response contains the result of executing the function on the client,
+  ///   providing generation context for the model's next turn.
+  static func functionDeclarations(_ functionDeclarations: [FunctionDeclaration])
+    -> GenerativeModel.Tool {
+    return self.init(functionDeclarations: functionDeclarations)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Search.
+  ///
+  /// Grounding with Google Search can be used to allow the model to connect to Google Search to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Search" usage requirements for your chosen API provider:
+  /// [Gemini Developer API](https://ai.google.dev/gemini-api/terms#grounding-with-google-search)
+  /// or the Agent Platform Gemini API (see
+  /// [Service Terms](https://cloud.google.com/terms/service-terms)
+  /// section within the Service Specific Terms).
+  ///
+  /// - Parameters:
+  ///   - googleSearch: An empty ``GoogleSearch`` object. The presence of this object in the list
+  ///     of tools enables the model to use Google Search.
+  ///
+  /// - Returns: A ``GenerativeModel/Tool`` configured for Google Search.
+  static func googleSearch(_ googleSearch: GoogleSearch = GoogleSearch()) -> GenerativeModel.Tool {
+    return self.init(googleSearch: googleSearch)
+  }
+
+  /// Creates a tool that allows the model to use Grounding with Google Maps.
+  ///
+  /// Grounding with Google Maps can be used to allow the model to connect to Google Maps to
+  /// access and incorporate up-to-date information from the web into it's responses.
+  ///
+  /// > Important: When using this feature, you are required to comply with the
+  /// "Grounding with Google Maps" usage requirements for your chosen API provider.
+  ///
+  /// - Returns: A ``GenerativeModel/Tool`` configured for Google Maps.
+  static func googleMaps() -> GenerativeModel.Tool {
+    return self.init(googleMaps: GoogleMaps())
+  }
+
+  /// Creates a tool that allows you to provide additional context to the models in the form of
+  /// public web URLs.
+  ///
+  /// By including URLs in your request, the Gemini model will access the content from those pages
+  /// to inform and enhance its response.
+  static func urlContext() -> GenerativeModel.Tool {
+    return self.init(urlContext: URLContext())
+  }
+
+  /// Creates a tool that allows the model to execute code.
+  ///
+  /// For more details, see ``CodeExecution``.
+  static func codeExecution() -> GenerativeModel.Tool {
+    return self.init(codeExecution: CodeExecution())
   }
 }
 
 // MARK: - Codable Conformance
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionDeclaration: Encodable {
   enum CodingKeys: String, CodingKey {
     case name
@@ -221,21 +286,16 @@ extension FunctionDeclaration: Encodable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(name, forKey: .name)
     try container.encode(description, forKey: .description)
-    try container.encode(parameters, forKey: .parameters)
+    try container.encodeIfPresent(parameters, forKey: .parameters)
   }
 }
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
-extension Tool: Encodable {}
+extension GenerativeModel.Tool: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension FunctionCallingConfig.Mode: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension GoogleSearch: Encodable {}
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
 extension ToolConfig: Encodable {}

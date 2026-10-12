@@ -239,6 +239,26 @@
   }];
 }
 
+- (void)testUpdateExperimentsWithNilExperimentController {
+  RCNConfigExperiment *experiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                                              experimentController:nil];
+
+  NSData *payloadData = [[self class] payloadDataFromTestFile];
+  experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
+
+  XCTestExpectation *expectation = [self
+      expectationWithDescription:@"Completion handler is called when experimentController is nil"];
+
+  [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(0));
+    XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 #pragma mark Helpers.
 
 - (ABTExperimentPayload *)deserializeABTData:(NSData *)payload {

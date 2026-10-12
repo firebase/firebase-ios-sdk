@@ -21,7 +21,7 @@ import XCTest
   import UIKit // For UIImage extensions.
 #endif
 
-@available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, watchOS 8.0, *)
+@available(*, deprecated)
 final class APITests: XCTestCase {
   func codeSamples() async throws {
     let app = FirebaseApp.app()
@@ -44,14 +44,14 @@ final class APITests: XCTestCase {
     // Instantiate Firebase AI SDK - Default App
     let firebaseAI = FirebaseAI.firebaseAI()
     let _ = FirebaseAI.firebaseAI(backend: .googleAI())
-    let _ = FirebaseAI.firebaseAI(backend: .vertexAI())
-    let _ = FirebaseAI.firebaseAI(backend: .vertexAI(location: "my-location"))
+    let _ = FirebaseAI.firebaseAI(backend: .agentPlatform())
+    let _ = FirebaseAI.firebaseAI(backend: .agentPlatform(location: "my-location"))
 
     // Instantiate Firebase AI SDK - Custom App
     let _ = FirebaseAI.firebaseAI(app: app!)
     let _ = FirebaseAI.firebaseAI(app: app!, backend: .googleAI())
-    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI())
-    let _ = FirebaseAI.firebaseAI(app: app!, backend: .vertexAI(location: "my-location"))
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .agentPlatform())
+    let _ = FirebaseAI.firebaseAI(app: app!, backend: .agentPlatform(location: "my-location"))
 
     // Permutations without optional arguments.
 
@@ -176,11 +176,118 @@ final class APITests: XCTestCase {
     // Usage Metadata
     guard let usageMetadata = response.usageMetadata else { fatalError() }
     let _: Int = usageMetadata.promptTokenCount
+    let _: Int = usageMetadata.cachedContentTokenCount
     let _: Int = usageMetadata.candidatesTokenCount
     let _: Int = usageMetadata.totalTokenCount
 
     // Computed Properties
     let _: String? = response.text
     let _: [FunctionCallPart] = response.functionCalls
+  }
+
+  func testGenerateContentResponseWithCacheMetadata() throws {
+    let json = """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Hello world!" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 100,
+        "cachedContentTokenCount": 50,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 170,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [
+          { "modality": "TEXT", "tokenCount": 50 }
+        ],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
+
+    let decoder = JSONDecoder()
+    let response = try decoder.decode(GenerateContentResponse.self, from: json)
+
+    guard let usageMetadata = response.usageMetadata else {
+      XCTFail("Missing usageMetadata")
+      return
+    }
+
+    XCTAssertEqual(usageMetadata.promptTokenCount, 100)
+    XCTAssertEqual(usageMetadata.cachedContentTokenCount, 50)
+    XCTAssertEqual(usageMetadata.candidatesTokenCount, 20)
+    XCTAssertEqual(usageMetadata.totalTokenCount, 170)
+
+    XCTAssertEqual(usageMetadata.cacheTokensDetails.count, 1)
+    let cacheDetail = usageMetadata.cacheTokensDetails.first
+    XCTAssertEqual(cacheDetail?.modality, .text)
+    XCTAssertEqual(cacheDetail?.tokenCount, 50)
+  }
+
+  func testFinishReason_decoding() throws {
+    let decoder = JSONDecoder()
+    let testCases: [FinishReason] = [
+      .language,
+      .unexpectedToolCall,
+      .tooManyToolCalls,
+      .missingThoughtSignature,
+      .malformedResponse,
+      .imageSafety,
+      .imageProhibitedContent,
+      .imageOther,
+      .noImage,
+      .imageRecitation,
+    ]
+
+    for expectedReason in testCases {
+      let reasonString = expectedReason.rawValue
+      let json = createResponseJSON(finishReason: reasonString)
+      let response = try decoder.decode(GenerateContentResponse.self, from: json)
+      XCTAssertEqual(
+        response.candidates.first?.finishReason,
+        expectedReason,
+        "Failed to decode finishReason '\(reasonString)'"
+      )
+    }
+  }
+
+  // Helper function to create JSON for GenerateContentResponse with a specific finish reason
+  private func createResponseJSON(finishReason: String) -> Data {
+    return """
+    {
+      "candidates": [
+        {
+          "content": {
+            "parts": [
+              { "text": "Test reply" }
+            ],
+            "role": "model"
+          },
+          "finishReason": "\(finishReason)",
+          "index": 0,
+          "safetyRatings": []
+        }
+      ],
+      "usageMetadata": {
+        "promptTokenCount": 10,
+        "cachedContentTokenCount": 0,
+        "candidatesTokenCount": 5,
+        "totalTokenCount": 15,
+        "promptTokensDetails": [],
+        "cacheTokensDetails": [],
+        "candidatesTokensDetails": []
+      }
+    }
+    """.data(using: .utf8)!
   }
 }

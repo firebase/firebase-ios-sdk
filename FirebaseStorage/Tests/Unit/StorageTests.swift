@@ -23,7 +23,6 @@ import SharedTestUtilities
 
 import XCTest
 
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StorageTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -229,6 +228,27 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(storage.app.name, copy.app.name)
   }
 
+  func testHashIsIndependentOfCallbackQueue() throws {
+    let app = try getApp(bucket: "bucket")
+    // Use an uncached instance so that changing its callback queue doesn't affect other tests.
+    let storage = Storage(app: app, bucket: "bucket")
+    let ref = storage.reference(withPath: "path/to/object")
+    let storageHash = storage.hash
+    let refHash = ref.hash
+
+    let copy = try XCTUnwrap(storage.copy() as? Storage)
+    copy.callbackQueue = DispatchQueue(label: "com.google.firebase.storage.tests.callbackQueue1")
+    let copyRef = copy.reference(withPath: "path/to/object")
+    XCTAssertEqual(storage, copy)
+    XCTAssertEqual(storage.hash, copy.hash)
+    XCTAssertEqual(ref, copyRef)
+    XCTAssertEqual(ref.hash, copyRef.hash)
+
+    storage.callbackQueue = DispatchQueue(label: "com.google.firebase.storage.tests.callbackQueue2")
+    XCTAssertEqual(storage.hash, storageHash)
+    XCTAssertEqual(ref.hash, refHash)
+  }
+
   func testTranslateRetryTime() {
     // The 1st retry attempt runs after 1 second.
     // The 2nd retry attempt is delayed by 2 seconds (3s total)
@@ -255,6 +275,20 @@ class StorageTests: XCTestCase {
     storage.maxOperationRetryTime = 11
     XCTAssertEqual(storage.maxOperationRetryTime, 11)
     XCTAssertEqual(storage.maxOperationRetryInterval, 8)
+  }
+
+  func testPOSIXErrorFormatting() throws {
+    let app = try getApp(bucket: "bucket")
+    let storage = Storage.storage(app: app)
+    let ref = storage.reference(withPath: "ios/public/testPOSIX40")
+    let posixError = NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
+    let storageError = StorageErrorCode.error(withServerError: posixError, ref: ref)
+    XCTAssertEqual(storageError.domain, StorageErrorDomain)
+    XCTAssertEqual(storageError.code, StorageErrorCode.unknown.rawValue)
+    XCTAssertEqual(
+      storageError.userInfo[NSLocalizedDescriptionKey] as? String,
+      "POSIX errno 40 (The operation couldn’t be completed. Message too long)"
+    )
   }
 
   // MARK: Private Helpers

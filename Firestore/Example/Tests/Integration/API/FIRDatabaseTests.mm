@@ -1195,7 +1195,7 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testCanQueueWritesWhileOffline {
-  XCTestExpectation *writeEpectation = [self expectationWithDescription:@"successful write"];
+  XCTestExpectation *writeExpectation = [self expectationWithDescription:@"successful write"];
   XCTestExpectation *networkExpectation = [self expectationWithDescription:@"enable network"];
 
   FIRDocumentReference *doc = [self documentRef];
@@ -1208,7 +1208,7 @@ using firebase::firestore::util::TimerId;
     [doc setData:data
         completion:^(NSError *error) {
           XCTAssertNil(error);
-          [writeEpectation fulfill];
+          [writeExpectation fulfill];
         }];
 
     [firestore enableNetworkWithCompletion:^(NSError *error) {
@@ -1490,8 +1490,10 @@ using firebase::firestore::util::TimerId;
 
 - (void)testRestartFirestoreLeadsToNewInstance {
   FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
-  FIRFirestore *sameInstance = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app
+                                                 database:[FSTIntegrationTestCase databaseID]];
+  FIRFirestore *sameInstance = [FIRFirestore firestoreForApp:app
+                                                    database:[FSTIntegrationTestCase databaseID]];
   firestore.settings = [FSTIntegrationTestCase settings];
 
   XCTAssertEqual(firestore, sameInstance);
@@ -1503,7 +1505,8 @@ using firebase::firestore::util::TimerId;
   [self terminateFirestore:firestore];
 
   // Create a new instance, check it's a different instance.
-  FIRFirestore *newInstance = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *newInstance = [FIRFirestore firestoreForApp:app
+                                                   database:[FSTIntegrationTestCase databaseID]];
   newInstance.settings = [FSTIntegrationTestCase settings];
   XCTAssertNotEqual(firestore, newInstance);
 
@@ -1515,7 +1518,8 @@ using firebase::firestore::util::TimerId;
 
 - (void)testAppDeleteLeadsToFirestoreTermination {
   FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app
+                                                 database:[FSTIntegrationTestCase databaseID]];
   firestore.settings = [FSTIntegrationTestCase settings];
   NSDictionary<NSString *, id> *data =
       @{@"owner" : @{@"name" : @"Jonny", @"email" : @"abc@xyz.com"}};
@@ -1529,7 +1533,8 @@ using firebase::firestore::util::TimerId;
 // Ensures b/172958106 doesn't regress.
 - (void)testDeleteAppWorksWhenLastReferenceToFirestoreIsInListener {
   FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app
+                                                 database:[FSTIntegrationTestCase databaseID]];
 
   FIRDocumentReference *doc = [firestore documentWithPath:@"abc/123"];
   // Make sure there is a listener.
@@ -1548,7 +1553,8 @@ using firebase::firestore::util::TimerId;
 
 - (void)testTerminateCanBeCalledMultipleTimes {
   FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app
+                                                 database:[FSTIntegrationTestCase databaseID]];
 
   [firestore terminateWithCompletion:[self completionForExpectationWithName:@"Terminate1"]];
   [self awaitExpectations];
@@ -1565,7 +1571,8 @@ using firebase::firestore::util::TimerId;
 
 - (void)testCanRemoveListenerAfterTermination {
   FIRApp *app = AppForUnitTesting(MakeString([FSTIntegrationTestCase projectID]));
-  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app];
+  FIRFirestore *firestore = [FIRFirestore firestoreForApp:app
+                                                 database:[FSTIntegrationTestCase databaseID]];
   firestore.settings = [FSTIntegrationTestCase settings];
 
   FIRDocumentReference *doc = [[firestore collectionWithPath:@"rooms"] documentWithAutoID];
