@@ -8,6 +8,10 @@
   Enterprise Agent Platform in multi-turn `GeminiLanguageModel` sessions, which
   occurred when a thought signature from a previous text response was sent back
   as a part containing no data. (#16886)
+- [fixed] Fixed a "switch must be exhaustive" compiler warning when building
+  `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
+  `Transcript.Entry.data` entries continue to throw
+  `LanguageModelError.unsupportedTranscriptContent`.
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
