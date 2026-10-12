@@ -1,4 +1,5 @@
 # Unreleased
+- [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
 
