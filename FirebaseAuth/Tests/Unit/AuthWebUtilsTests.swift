@@ -78,5 +78,6 @@ class AuthWebUtilsTests: XCTestCase {
     XCTAssertTrue(first.unicodeScalars.allSatisfy { allowed.contains($0) })
     XCTAssertTrue(second.unicodeScalars.allSatisfy { allowed.contains($0) })
     XCTAssertEqual(AuthWebUtils.randomString(withLength: 0), "")
+    XCTAssertEqual(AuthWebUtils.randomString(withLength: -1), "")
   }
 }

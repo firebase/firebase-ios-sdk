@@ -17,7 +17,7 @@ import Foundation
 class AuthWebUtils {
   static func randomString(withLength length: Int) -> String {
     guard length > 0 else { return "" }
-    let alphabet = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_")
+    let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
     var randomString = ""
     randomString.reserveCapacity(length)
     for _ in 0 ..< length {
