@@ -205,7 +205,7 @@
               entry,
               description: "Data transcript entries are not supported."
             )
-        #endif // canImport(FoundationModels, _version: 2.1)
+        #endif  // canImport(FoundationModels, _version: 2.1)
 
         @unknown default:
           throw makeUnsupportedError(

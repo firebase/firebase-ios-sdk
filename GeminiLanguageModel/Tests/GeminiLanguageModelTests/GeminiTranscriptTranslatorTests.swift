@@ -696,7 +696,7 @@
           Issue.record("Unexpected error thrown: \(error)")
         }
       }
-    #endif
+    #endif  // canImport(FoundationModels, _version: 2.1)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
