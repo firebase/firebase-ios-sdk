@@ -11,7 +11,7 @@
 - [fixed] Fixed a "switch must be exhaustive" compiler warning when building
   `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
   `Transcript.Entry.data` entries continue to throw
-  `LanguageModelError.unsupportedTranscriptContent`.
+  `LanguageModelError.unsupportedTranscriptContent`. (#16890)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
