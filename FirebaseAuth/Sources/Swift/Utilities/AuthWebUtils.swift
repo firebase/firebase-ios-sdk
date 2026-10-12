@@ -16,19 +16,11 @@ import Foundation
 
 class AuthWebUtils {
   static func randomString(withLength length: Int) -> String {
-    var bytes = [UInt8](repeating: 0, count: length)
-    let status = SecRandomCopyBytes(kSecRandomDefault, length, &bytes)
-    if status != errSecSuccess {
-      for i in 0 ..< length {
-        bytes[i] = UInt8(arc4random_uniform(256))
-      }
-    }
-
     let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-    let alphabetChars = Array(alphabet)
     var randomString = ""
-    for byte in bytes {
-      randomString.append(alphabetChars[Int(byte % 64)])
+    randomString.reserveCapacity(length)
+    for _ in 0 ..< length {
+      randomString.append(alphabet.randomElement()!)
     }
     return randomString
   }
