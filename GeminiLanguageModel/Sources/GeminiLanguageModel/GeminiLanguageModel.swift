@@ -77,9 +77,9 @@
     ///
     /// ### Image input
     ///
-    /// With the `vision` capability, prompts can include image attachments, such as
-    /// `Attachment(cgImage)` or `Attachment(imageURL: fileURL)`. Images are sent inline with the
-    /// request:
+    /// With the `vision` capability, prompts can include image attachments created from a
+    /// `CGImage`, a `CIImage`, a `CVPixelBuffer`, or a file URL, such as `Attachment(cgImage)` or
+    /// `Attachment(imageURL: fileURL)`. Images are sent inline with the request:
     ///
     /// - PNG, JPEG, WebP, HEIC, and HEIF files that don't need rotating are sent unchanged.
     /// - All other images are rotated to their display orientation and re-encoded as JPEG.

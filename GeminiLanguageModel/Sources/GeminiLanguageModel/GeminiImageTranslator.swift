@@ -20,21 +20,30 @@
   import ImageIO
   import UniformTypeIdentifiers
 
+  #if canImport(CoreImage)
+    import CoreImage
+  #endif  // canImport(CoreImage)
+
   /// Translates Foundation Models image attachments into Gemini API part data.
   ///
   /// Images are sent to Gemini as inline data:
   ///
   /// - File URLs whose bytes are already in a Gemini-supported format (PNG, JPEG, WebP, HEIC, or
   ///   HEIF) and that need no rotation are sent unchanged.
-  /// - All other images (`CGImage` and `CVPixelBuffer` sources, other file formats, and images
-  ///   with a non-`.up` orientation) are rotated to their display orientation and re-encoded as
-  ///   JPEG, matching the format used by `Transcript`'s `Codable` conformance.
+  /// - All other images (`CGImage`, `CIImage`, and `CVPixelBuffer` sources, other file formats,
+  ///   and images with a non-`.up` orientation) are rotated to their display orientation and
+  ///   re-encoded as JPEG, matching the format used by `Transcript`'s `Codable` conformance.
+  ///
+  /// For files that contain several images, the first image is used, matching
+  /// `Transcript.ImageAttachment`, which reads both its orientation and its pixels from the first
+  /// image.
   ///
   /// Non-file URLs aren't supported.
   ///
-  /// Only CoreGraphics, ImageIO, and UniformTypeIdentifiers are used so that the translation
-  /// works on every platform that supports Foundation Models, including watchOS, which lacks
-  /// CoreImage.
+  /// Images are encoded using only CoreGraphics, ImageIO, and UniformTypeIdentifiers so that the
+  /// translation works on every platform that supports Foundation Models, including watchOS,
+  /// which lacks CoreImage. Where CoreImage is available, it's only used to reject `CIImage`
+  /// sources that can't be rendered.
   @available(iOS 27.0, macOS 27.0, watchOS 27.0, visionOS 27.0, *)
   @available(tvOS, unavailable)
   enum GeminiImageTranslator {
@@ -60,7 +69,8 @@
         switch self {
         case .unsupportedURL(let url):
           let scheme = url.scheme.map { "\"\($0)\"" } ?? "no"
-          return "Image attachments are only supported for file URLs, not URLs with \(scheme) scheme."
+          return
+            "Image attachments are only supported for file URLs, not URLs with \(scheme) scheme."
         case .unreadableFile(let url):
           return "The image file couldn't be read: \(url.path)"
         case .undecodableImage:
@@ -105,6 +115,14 @@
       // URL-backed attachments are loaded from their file bytes instead.
       let orientation = attachment.orientation
       guard let url = attachment.url else {
+        #if canImport(CoreImage)
+          // Reading `cgImage` also traps for `CIImage` sources with an empty or infinite extent,
+          // such as `CIImage.empty()` or an uncropped `CIImage(color:)`.
+          let extent = attachment.ciImage.extent
+          guard !extent.isEmpty, !extent.isInfinite else {
+            throw .undecodableImage
+          }
+        #endif  // canImport(CoreImage)
         return try .inlineData(jpegBlob(for: attachment.cgImage, orientation: orientation))
       }
       guard url.isFileURL else {
@@ -113,14 +131,17 @@
       return try .inlineData(blob(forFileAt: url, orientation: orientation))
     }
 
+    // MARK: - Private Helpers
+
     /// Creates a blob from the image file at the given URL.
     ///
     /// - Parameters:
     ///   - url: The file URL of the image.
-    ///   - orientation: The display orientation of the image.
+    ///   - orientation: The display orientation of the image, as resolved by
+    ///     `Transcript.ImageAttachment`.
     /// - Returns: A blob containing either the original file bytes or a re-encoded JPEG.
     /// - Throws: A ``TranslationError`` if the file can't be read, decoded, or encoded.
-    static func blob(
+    private static func blob(
       forFileAt url: URL,
       orientation: CGImagePropertyOrientation
     ) throws(TranslationError) -> Blob {
@@ -135,18 +156,22 @@
 
     /// Creates a blob from encoded image data.
     ///
-    /// The data is sent unchanged when it's in a pass-through format, `orientation` is `.up`, and
-    /// the data has no embedded non-default orientation. Otherwise, the primary image is decoded,
-    /// rotated to its display orientation, and re-encoded as JPEG. An explicit `orientation` takes
-    /// precedence over any orientation embedded in the data, matching
-    /// `Transcript.ImageAttachment`.
+    /// The data is sent unchanged when it's in a pass-through format, its primary image is its
+    /// first image, `orientation` is `.up`, and the first image has no embedded non-default
+    /// orientation. Otherwise, the first image is decoded, rotated to its display orientation, and
+    /// re-encoded as JPEG.
+    ///
+    /// `orientation` must be resolved the way `Transcript.ImageAttachment` resolves it: an
+    /// explicit orientation if one was given, or else the first image's embedded orientation. An
+    /// `orientation` of `.up` for an image with a different embedded orientation is treated as an
+    /// explicit override.
     ///
     /// - Parameters:
     ///   - data: The encoded image data.
-    ///   - orientation: The display orientation of the image.
+    ///   - orientation: The display orientation of the first image.
     /// - Returns: A blob containing either `data` or a re-encoded JPEG.
     /// - Throws: A ``TranslationError`` if the data can't be decoded or encoded.
-    static func blob(
+    private static func blob(
       forImageData data: Data,
       orientation: CGImagePropertyOrientation
     ) throws(TranslationError) -> Blob {
@@ -155,9 +180,13 @@
       else {
         throw .undecodableImage
       }
-      // Files such as HEIC can contain several images, and the primary one isn't always first.
-      let index = CGImageSourceGetPrimaryImageIndex(source)
-      if orientation == .up, !hasEmbeddedOrientation(source, at: index),
+      // `Transcript.ImageAttachment` reads both its orientation and its pixels from the first
+      // image, even when a file such as a HEIC designates a different primary image. The first
+      // image is used here too, and files are only passed through when Gemini would decode the
+      // same image.
+      let index = 0
+      if orientation == .up, CGImageSourceGetPrimaryImageIndex(source) == index,
+        !hasEmbeddedOrientation(source, at: index),
         let typeIdentifier = CGImageSourceGetType(source),
         let type = UTType(typeIdentifier as String),
         let mimeType = passThroughMIMETypes[type]
@@ -179,7 +208,7 @@
     ///   - orientation: The display orientation of the image.
     /// - Returns: A blob containing the JPEG-encoded image.
     /// - Throws: ``TranslationError/encodingFailed`` if the image can't be rotated or encoded.
-    static func jpegBlob(
+    private static func jpegBlob(
       for image: CGImage,
       orientation: CGImagePropertyOrientation
     ) throws(TranslationError) -> Blob {
@@ -204,8 +233,6 @@
       }
       return Blob(mimeType: jpegMIMEType, data: data as Data)
     }
-
-    // MARK: - Private Helpers
 
     /// Returns whether an image in the source has an embedded orientation other than `.up`.
     ///
