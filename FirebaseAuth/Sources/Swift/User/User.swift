@@ -1478,21 +1478,29 @@ extension User: NSSecureCoding {}
                                          idToken: accessToken,
                                          requestConfiguration: requestConfiguration)
       Task {
+        let response: SignUpNewUserResponse
         do {
           #if os(iOS)
             guard let auth = self.auth else {
               fatalError("Internal Auth error: missing auth instance on user")
             }
-            let response = try await auth.injectRecaptcha(request: request,
-                                                          action: AuthRecaptchaAction
-                                                            .signUpPassword)
+            response = try await auth.injectRecaptcha(request: request,
+                                                      action: AuthRecaptchaAction
+                                                        .signUpPassword)
           #else
-            let response = try await self.backend.call(with: request)
+            response = try await self.backend.call(with: request)
           #endif
-          guard let refreshToken = response.refreshToken,
-                let idToken = response.idToken else {
-            fatalError("Internal auth error: Invalid SignUpNewUserResponse")
-          }
+        } catch {
+          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: nil, error: error)
+          return
+        }
+        guard let refreshToken = response.refreshToken,
+              let idToken = response.idToken else {
+          fatalError("Internal auth error: Invalid SignUpNewUserResponse")
+        }
+        do {
           // Update the new token and refresh user info again.
           try await self.updateTokenAndRefreshUser(
             idToken: idToken,
@@ -1506,7 +1514,6 @@ extension User: NSSecureCoding {}
             error: nil
           )
         } catch {
-          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                           result: nil, error: error)
         }
@@ -1675,10 +1682,12 @@ extension User: NSSecureCoding {}
 
   /// Handles an error from a backend request that sent this user's ID token.
   ///
-  /// `invalidUserToken` and `userTokenExpired` mean that the backend rejected the ID token sent
-  /// with the request, not necessarily that the session has ended. So instead of signing out,
-  /// force a token refresh, which signs the user out if the session has ended. Other errors are
-  /// handled by `signOutIfTokenIsInvalid(withError:)`.
+  /// The backend returns `INVALID_ID_TOKEN` (`invalidUserToken`) when the ID token's `exp`
+  /// timestamp has passed and `TOKEN_EXPIRED` (`userTokenExpired`) when the account's
+  /// `valid_since` timestamp is newer than the token's issue time. Neither error necessarily means
+  /// that the session has ended, so instead of signing out, force a token refresh, which signs the
+  /// user out if the session has ended. Other errors are handled by
+  /// `signOutIfTokenIsInvalid(withError:)`.
   /// - Parameter error: The error from the server.
   func signOutIfSessionIsInvalid(afterIDTokenRequestError error: Error) async {
     let code = (error as NSError).code
@@ -1688,7 +1697,7 @@ extension User: NSSecureCoding {}
       return
     }
     // Skip the check if this user is no longer signed in.
-    guard auth?.currentUser?.uid == uid else {
+    guard auth?.currentUser === self else {
       return
     }
     AuthLog.logNotice(code: "I-AUT000032",

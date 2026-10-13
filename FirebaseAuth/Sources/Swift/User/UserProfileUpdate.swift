@@ -22,28 +22,29 @@ actor UserProfileUpdate {
                                          requestConfiguration: user.requestConfiguration)
     credential.prepare(request)
     request.accessToken = accessToken
+    let response: VerifyAssertionResponse
     do {
-      let response = try await user.backend.call(with: request)
-      guard let idToken = response.idToken,
-            let refreshToken = response.refreshToken,
-            let providerID = response.providerID else {
-        fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-      }
-      try await updateTokenAndRefreshUser(user: user,
-                                          idToken: idToken,
-                                          refreshToken: refreshToken,
-                                          expirationDate: response.approximateExpirationDate)
-      let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
-      let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
-                                                  profile: response.profile,
-                                                  username: response.username,
-                                                  isNewUser: response.isNewUser)
-      return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo,
-                            credential: updatedOAuthCredential)
+      response = try await user.backend.call(with: request)
     } catch {
       await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
       throw error
     }
+    guard let idToken = response.idToken,
+          let refreshToken = response.refreshToken,
+          let providerID = response.providerID else {
+      fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+    }
+    try await updateTokenAndRefreshUser(user: user,
+                                        idToken: idToken,
+                                        refreshToken: refreshToken,
+                                        expirationDate: response.approximateExpirationDate)
+    let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+    let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
+                                                profile: response.profile,
+                                                username: response.username,
+                                                isNewUser: response.isNewUser)
+    return AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo,
+                          credential: updatedOAuthCredential)
   }
 
   func unlink(user: User, fromProvider provider: String) async throws -> User {

@@ -539,6 +539,36 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testUpdateEmailInvalidIDTokenWhenUserNoLongerCurrentSkipsRefresh
+      @brief Tests that when @c updateEmail:completion: fails with @c INVALID_ID_TOKEN on a stale
+          @c User instance after the current user has changed, no token refresh is sent and the
+          current user stays signed in.
+   */
+  func testUpdateEmailInvalidIDTokenWhenUserNoLongerCurrentSkipsRefresh() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { staleUser in
+      self.signInWithEmailPasswordReturnFakeUser { currentUser in
+        XCTAssertNotIdentical(staleUser, currentUser)
+        XCTAssertEqual(staleUser.uid, currentUser.uid)
+        self.rpcIssuer.respondBlock = {
+          self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+          return try self.rpcIssuer.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+        }
+        staleUser.updateEmail(to: self.kNewEmail) { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidUserToken.rawValue)
+          // No refresh was sent and the new current user is still signed in.
+          XCTAssertTrue(self.rpcIssuer.request is SetAccountInfoRequest)
+          XCTAssertIdentical(self.auth?.currentUser, currentUser)
+          expectation.fulfill()
+        }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
   #if os(iOS)
 
     /** @fn testUpdatePhoneSuccess
