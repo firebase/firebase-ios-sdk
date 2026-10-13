@@ -63,20 +63,40 @@ class AuthWebUtilsTests: XCTestCase {
     XCTAssertEqual(domain, "example.com")
   }
 
-  /** @fn testRandomStringLengthAndCharacterSet
-   @brief Test case for verifying the length and allowed character set of random strings.
+  /** @fn testRandomStringLength
+   @brief Test case for verifying the length of random strings.
    */
-  func testRandomStringLengthAndCharacterSet() {
-    let allowed = CharacterSet(
-      charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
-    )
+  func testRandomStringLength() {
     let first = AuthWebUtils.randomString(withLength: 43)
     let second = AuthWebUtils.randomString(withLength: 43)
     XCTAssertEqual(first.count, 43)
     XCTAssertEqual(second.count, 43)
+  }
+
+  /** @fn testRandomStringRandomness
+   @brief Test case for verifying that consecutive calls produce different strings.
+   */
+  func testRandomStringRandomness() {
+    let first = AuthWebUtils.randomString(withLength: 43)
+    let second = AuthWebUtils.randomString(withLength: 43)
     XCTAssertNotEqual(first, second)
+  }
+
+  /** @fn testRandomStringCharacterSet
+   @brief Test case for verifying the allowed character set of random strings.
+   */
+  func testRandomStringCharacterSet() {
+    let allowed = CharacterSet(
+      charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+    )
+    let first = AuthWebUtils.randomString(withLength: 43)
     XCTAssertTrue(first.unicodeScalars.allSatisfy { allowed.contains($0) })
-    XCTAssertTrue(second.unicodeScalars.allSatisfy { allowed.contains($0) })
+  }
+
+  /** @fn testRandomStringEdgeCaseLengths
+   @brief Test case for verifying behavior with edge case lengths (e.g., zero or negative).
+   */
+  func testRandomStringEdgeCaseLengths() {
     XCTAssertEqual(AuthWebUtils.randomString(withLength: 0), "")
     XCTAssertEqual(AuthWebUtils.randomString(withLength: -1), "")
   }
