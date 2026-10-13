@@ -729,5 +729,227 @@
       let modelParts = try #require(modelTurn.parts)
       #expect(modelParts.first?.thoughtSignature == "test-sig")
     }
+
+    // MARK: - Image Attachments
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesPromptWithImageBetweenTextPreservingOrder() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [
+                Self.textSegment("Before"),
+                try Self.imageSegment(),
+                Self.textSegment("After"),
+              ]
+            )
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      #expect(result.contents.count == 1)
+      let userTurn = try #require(result.contents.first)
+      #expect(userTurn.role == "user")
+      let parts = try #require(userTurn.parts)
+      #expect(parts.count == 3)
+      #expect(parts[0].data == .text("Before"))
+      #expect(Self.isJPEGInlineData(parts[1].data))
+      #expect(parts[2].data == .text("After"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func mergesAdjacentTextSegmentsAroundImages() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [
+                Self.textSegment("Compare "),
+                Self.textSegment("these:"),
+                try Self.imageSegment(),
+                try Self.imageSegment(color: .blue),
+                Self.textSegment("Be "),
+                Self.textSegment("brief."),
+              ]
+            )
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 4)
+      #expect(parts[0].data == .text("Compare these:"))
+      #expect(Self.isJPEGInlineData(parts[1].data))
+      #expect(Self.isJPEGInlineData(parts[2].data))
+      #expect(parts[1].data != parts[2].data)
+      #expect(parts[3].data == .text("Be brief."))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func imageOnlyPromptOmitsEmptyTextParts() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [
+                Self.textSegment(""),
+                try Self.imageSegment(),
+                Self.textSegment(""),
+              ]
+            )
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 1)
+      #expect(Self.isJPEGInlineData(parts[0].data))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func emptyTextOnlyPromptStillProducesSingleTextPart() throws {
+      let transcript = Transcript(
+        entries: [.prompt(Transcript.Prompt(segments: [Self.textSegment("")]))]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 1)
+      #expect(parts[0].data == .text(""))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func multipleTextSegmentsWithoutImagesProduceSingleTextPart() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(segments: [Self.textSegment("Hello, "), Self.textSegment("world!")])
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 1)
+      #expect(parts[0].data == .text("Hello, world!"))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func attachmentLabelIsNotSentToModel() throws {
+      let label = "barcode-image"
+      let transcript = Transcript(
+        entries: [
+          .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: label)]))
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 1)
+      guard case .inlineData(let blob) = parts[0].data else {
+        Issue.record("Expected inline data, got \(String(describing: parts[0].data)).")
+        return
+      }
+      #expect(blob.displayName == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func promptWithRemoteImageURLThrowsUnsupportedTranscriptContent() throws {
+      let url = try #require(URL(string: "gs://cloud-samples-data/generative-ai/image/scones.jpg"))
+      let prompt = Transcript.Prompt(
+        segments: [
+          Self.textSegment("Describe this image."),
+          .attachment(
+            Transcript.AttachmentSegment(content: .image(Transcript.ImageAttachment(imageURL: url)))
+          ),
+        ]
+      )
+      let transcript = Transcript(entries: [.prompt(prompt)])
+
+      do {
+        _ = try GeminiTranscriptTranslator.translate(transcript)
+        Issue.record("Expected unsupportedTranscriptContent error")
+      } catch LanguageModelError.unsupportedTranscriptContent(let context) {
+        #expect(context.unsupportedContent == [.prompt(prompt)])
+        #expect(context.debugDescription.contains(url.absoluteString))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func imageInInstructionsThrowsUnsupportedTranscriptContent() throws {
+      let instructions = Transcript.Instructions(
+        segments: [try Self.imageSegment()],
+        toolDefinitions: []
+      )
+      let transcript = Transcript(entries: [.instructions(instructions)])
+
+      #expect(throws: LanguageModelError.self) {
+        try GeminiTranscriptTranslator.translate(transcript)
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func imageInResponseThrowsUnsupportedTranscriptContent() throws {
+      let response = Transcript.Response(segments: [try Self.imageSegment()])
+      let transcript = Transcript(
+        entries: [
+          .prompt(Transcript.Prompt(segments: [Self.textSegment("Draw a picture.")])),
+          .response(response),
+        ]
+      )
+
+      #expect(throws: LanguageModelError.self) {
+        try GeminiTranscriptTranslator.translate(transcript)
+      }
+    }
+
+    // MARK: - Helpers
+
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func textSegment(_ content: String) -> Transcript.Segment {
+      .text(Transcript.TextSegment(content: content))
+    }
+
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func imageSegment(
+      color: TestImages.Color = .red,
+      label: String? = nil
+    ) throws -> Transcript.Segment {
+      let image = try TestImages.solid(color, width: 16, height: 16)
+      return .attachment(
+        Transcript.AttachmentSegment(
+          content: .image(Transcript.ImageAttachment(image)),
+          label: label
+        )
+      )
+    }
+
+    private static func isJPEGInlineData(_ data: Part.PartData?) -> Bool {
+      guard case .inlineData(let blob) = data else {
+        return false
+      }
+      return blob.mimeType == "image/jpeg" && !blob.data.isEmpty
+    }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
