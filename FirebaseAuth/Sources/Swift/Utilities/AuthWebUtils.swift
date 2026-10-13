@@ -79,9 +79,10 @@ class AuthWebUtils {
   /// Strips url of scheme and path string to extract domain name
   /// - Parameter urlString: URL string for domain
   static func extractDomain(urlString: String) -> String? {
-    let lowercasedURLString = urlString.lowercased()
+    let trimmedURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+    let lowercasedURLString = trimmedURLString.lowercased()
     let urlStringWithScheme = lowercasedURLString.hasPrefix("http://") ||
-      lowercasedURLString.hasPrefix("https://") ? urlString : "https://" + urlString
+      lowercasedURLString.hasPrefix("https://") ? trimmedURLString : "https://" + trimmedURLString
 
     guard let url = URL(string: urlStringWithScheme), let host = url.host else {
       return nil
@@ -121,7 +122,7 @@ class AuthWebUtils {
     }
     for supportedAuthDomain in Self.supportedAuthDomains {
       for domain in response.authorizedDomains ?? [] {
-        if domain.hasSuffix(supportedAuthDomain) {
+        if domain.hasSuffix(supportedAuthDomain), domain.count > supportedAuthDomain.count {
           authDomain = domain
           break
         }
