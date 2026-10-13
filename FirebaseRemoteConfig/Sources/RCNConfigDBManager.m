@@ -1140,6 +1140,18 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   });
 }
 
+- (void)deleteAllRecordsFromPersonalizationAndRolloutTables {
+  __weak RCNConfigDBManager *weakSelf = self;
+  dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      return;
+    }
+    [strongSelf executeQuery:"DELETE FROM " RCNTableNamePersonalization];
+    [strongSelf executeQuery:"DELETE FROM " RCNTableNameRollout];
+  });
+}
+
 - (void)deleteExperimentTableForKey:(NSString *)key {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{

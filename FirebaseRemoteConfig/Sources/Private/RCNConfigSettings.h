@@ -139,6 +139,10 @@
 /// retry interval in the response.
 - (void)updateRealtimeBackoffTimeWithInterval:(NSTimeInterval)realtimeRetryInterval;
 
+/// Restores the default fetch settings and deletes the stored fetch metadata (ETag, fetch times,
+/// template versions, custom signals) and throttling state for this namespace.
+- (void)reset;
+
 /// Update last active template version from last fetched template version.
 - (void)updateLastActiveTemplateVersion;
 

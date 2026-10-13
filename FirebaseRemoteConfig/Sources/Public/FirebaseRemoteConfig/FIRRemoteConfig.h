@@ -410,6 +410,41 @@ NS_SWIFT_NAME(RemoteConfig)
 ///                         nil if the key doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
+#pragma mark - Reset
+
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 180000)
+/// Deletes all activated, fetched and default configs and resets all Remote Config settings of
+/// this instance, as if the app had never fetched a config.
+///
+/// The stored fetch metadata (ETag, fetch times and template versions), throttling state and
+/// custom signals are deleted, and `configSettings` is restored to its default values. The next
+/// fetch therefore downloads the full config template.
+///
+/// Use this to clear Remote Config state on sign-out or before UI tests that rely on the in-app
+/// default values. Avoid calling it while a fetch is in progress, because the fetch can store its
+/// result after the reset completes.
+///
+/// @param completionHandler Reset operation callback, invoked on the main queue with an error if
+///                          the reset could not be performed.
+- (void)resetWithCompletionHandler:
+    (void (^_Nullable NS_SWIFT_SENDABLE)(NSError *_Nullable error))completionHandler;
+#else
+/// Deletes all activated, fetched and default configs and resets all Remote Config settings of
+/// this instance, as if the app had never fetched a config.
+///
+/// The stored fetch metadata (ETag, fetch times and template versions), throttling state and
+/// custom signals are deleted, and `configSettings` is restored to its default values. The next
+/// fetch therefore downloads the full config template.
+///
+/// Use this to clear Remote Config state on sign-out or before UI tests that rely on the in-app
+/// default values. Avoid calling it while a fetch is in progress, because the fetch can store its
+/// result after the reset completes.
+///
+/// @param completionHandler Reset operation callback, invoked on the main queue with an error if
+///                          the reset could not be performed.
+- (void)resetWithCompletionHandler:(void (^_Nullable)(NSError *_Nullable error))completionHandler;
+#endif
+
 #pragma mark - Real-time Config Updates
 
 /// Completion handler invoked by `addOnConfigUpdateListener` when there is an update to
