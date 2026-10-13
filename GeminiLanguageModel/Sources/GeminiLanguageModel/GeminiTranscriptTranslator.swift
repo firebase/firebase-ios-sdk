@@ -93,8 +93,9 @@
 
         case .prompt(let prompt):
           flushPendingReasoningIfNeeded()
-          let text = try extractText(from: prompt.segments, in: entry)
-          appendPart(Part { $0.data = .text(text) }, role: "user")
+          for part in try extractPromptParts(from: prompt.segments, in: entry) {
+            appendPart(part, role: "user")
+          }
 
         case .response(let response):
           let text = try extractText(from: response.segments, in: entry)
@@ -311,6 +312,94 @@
           entry,
           description: "Unsupported segment in tool output."
         )
+      }
+    }
+
+    /// Extracts the Gemini parts for the segments of a prompt entry.
+    ///
+    /// Segment order is preserved: each contiguous run of text segments becomes one text part and
+    /// each image attachment becomes one inline data part. Empty text runs are dropped when the
+    /// prompt contains an image; a prompt without images always produces exactly one text part,
+    /// even if it's empty.
+    ///
+    /// - Parameters:
+    ///   - segments: The prompt segments to translate.
+    ///   - entry: The enclosing transcript entry for error reporting.
+    /// - Returns: The parts for the prompt, in order.
+    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if unsupported segments are
+    ///   found or an image attachment can't be translated.
+    private static func extractPromptParts(
+      from segments: [Transcript.Segment],
+      in entry: Transcript.Entry
+    ) throws -> [Part] {
+      var parts: [Part] = []
+      var pendingText: String?
+      var containsImage = false
+
+      func flushPendingText() {
+        if let text = pendingText {
+          parts.append(Part(data: .text(text)))
+          pendingText = nil
+        }
+      }
+
+      for segment in segments {
+        switch segment {
+        case .text(let textSegment):
+          pendingText = (pendingText ?? "") + textSegment.content
+        case .attachment(let attachmentSegment):
+          switch attachmentSegment.content {
+          case .image(let imageAttachment):
+            flushPendingText()
+            parts.append(Part(data: try translateImage(imageAttachment, in: entry)))
+            containsImage = true
+          default:
+            throw makeUnsupportedError(
+              entry,
+              description: "Data attachment segments in prompts are not supported."
+            )
+          }
+        case .structure:
+          throw makeUnsupportedError(
+            entry,
+            description: "Structured segments in transcript are not supported."
+          )
+        @unknown default:
+          throw makeUnsupportedError(
+            entry,
+            description: "Unsupported transcript segment."
+          )
+        }
+      }
+      flushPendingText()
+
+      guard containsImage else {
+        return parts.isEmpty ? [Part(data: .text(""))] : parts
+      }
+      return parts.filter { part in
+        if case .text(let text) = part.data {
+          return !text.isEmpty
+        }
+        return true
+      }
+    }
+
+    /// Translates an image attachment into Gemini part data.
+    ///
+    /// - Parameters:
+    ///   - imageAttachment: The image attachment to translate.
+    ///   - entry: The enclosing transcript entry for error reporting.
+    /// - Returns: The part data for the image.
+    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if the image can't be
+    ///   translated.
+    private static func translateImage(
+      _ imageAttachment: Transcript.ImageAttachment,
+      in entry: Transcript.Entry
+    ) throws -> Part.PartData {
+      do {
+        return try GeminiImageTranslator.partData(for: imageAttachment)
+      } catch let error as GeminiImageTranslator.TranslationError {
+        throw makeUnsupportedError(entry, description: error.description)
       }
     }
 
