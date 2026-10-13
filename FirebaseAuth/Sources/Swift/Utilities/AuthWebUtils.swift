@@ -80,22 +80,15 @@ class AuthWebUtils {
   /// Strips url of scheme and path string to extract domain name
   /// - Parameter urlString: URL string for domain
   static func extractDomain(urlString: String) -> String? {
-    var domain = urlString
+    let trimmedURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+    let lowercasedURLString = trimmedURLString.lowercased()
+    let urlStringWithScheme = lowercasedURLString.hasPrefix("http://") ||
+      lowercasedURLString.hasPrefix("https://") ? trimmedURLString : "https://" + trimmedURLString
 
-    // Check for the presence of a scheme (e.g., http:// or https://)
-    if domain.prefix(7).caseInsensitiveCompare("http://") == .orderedSame {
-      domain = String(domain.dropFirst(7))
-    } else if domain.prefix(8).caseInsensitiveCompare("https://") == .orderedSame {
-      domain = String(domain.dropFirst(8))
+    guard let url = URL(string: urlStringWithScheme), let host = url.host else {
+      return nil
     }
-
-    // Remove trailing slashes
-    domain = (domain as NSString).standardizingPath as String
-
-    // Split the URL by "/". The domain is the first component after removing the scheme.
-    let urlComponents = domain.components(separatedBy: "/")
-
-    return urlComponents.first
+    return host
   }
 
   static func fetchAuthDomain(withRequestConfiguration requestConfiguration: AuthRequestConfiguration,
@@ -130,9 +123,7 @@ class AuthWebUtils {
     }
     for supportedAuthDomain in Self.supportedAuthDomains {
       for domain in response.authorizedDomains ?? [] {
-        let index = domain.count - supportedAuthDomain.count
-        if index >= 2, domain.hasSuffix(supportedAuthDomain),
-           domain.count >= supportedAuthDomain.count + 2 {
+        if domain.hasSuffix(supportedAuthDomain), domain.count > supportedAuthDomain.count {
           authDomain = domain
           break
         }
@@ -208,6 +199,6 @@ class AuthWebUtils {
   }
 
   static var supportedAuthDomains: [String] {
-    return ["firebaseapp.com", "web.app"]
+    return [".firebaseapp.com", ".web.app"]
   }
 }
