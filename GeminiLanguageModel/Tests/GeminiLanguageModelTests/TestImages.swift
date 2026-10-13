@@ -14,6 +14,7 @@
 
 #if canImport(FoundationModels) && compiler(>=6.4)
   import CoreGraphics
+  import CoreVideo
   import Foundation
   import ImageIO
   import UniformTypeIdentifiers
@@ -49,6 +50,10 @@
         } ?? .black
       }
 
+      /// Returns the squared Euclidean distance between this color and a sample in RGB space.
+      ///
+      /// - Parameter sample: The sample's red, green, and blue components, each from 0 to 1.
+      /// - Returns: The squared distance.
       private func squaredDistance(to sample: (Double, Double, Double)) -> Double {
         let (red, green, blue) = components
         let deltas = [Double(red) - sample.0, Double(green) - sample.1, Double(blue) - sample.2]
@@ -69,7 +74,7 @@
       let description: String
     }
 
-    // MARK: - Creating images
+    // MARK: - Creating Images
 
     /// Creates an image filled with a single color.
     ///
@@ -161,7 +166,19 @@
       }
     }
 
-    // MARK: - Encoding and decoding
+    // MARK: - Encoding and Decoding
+
+    /// Returns whether ImageIO can encode images of the given type on the current platform.
+    ///
+    /// Encoder availability varies by platform and between devices and simulators (for example,
+    /// HEIC and BMP), so tests that encode fixtures should filter their arguments with this.
+    ///
+    /// - Parameter type: The image format, such as `.heic`.
+    /// - Returns: `true` if `CGImageDestination` supports the type.
+    static func canEncode(_ type: UTType) -> Bool {
+      let identifiers = CGImageDestinationCopyTypeIdentifiers() as? [String] ?? []
+      return identifiers.contains(type.identifier)
+    }
 
     /// Encodes an image in the given format.
     ///
@@ -192,6 +209,79 @@
         throw ImageError(description: "Can't encode the image as \(type.identifier).")
       }
       return data as Data
+    }
+
+    /// Redraws an image into a 16-bit floating-point bitmap with the given color space.
+    ///
+    /// Use this to create images in extended-range or HDR color spaces, such as those produced
+    /// by camera capture or half-float pixel buffers.
+    ///
+    /// - Parameters:
+    ///   - image: The image to redraw.
+    ///   - colorSpaceName: The name of the color space, such as `CGColorSpace.extendedSRGB`.
+    /// - Returns: The redrawn image.
+    static func redraw(_ image: CGImage, inColorSpaceNamed colorSpaceName: CFString) throws
+      -> CGImage
+    {
+      let bitmapInfo =
+        CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.floatComponents.rawValue
+        | CGImageByteOrderInfo.order16Little.rawValue
+      guard let colorSpace = CGColorSpace(name: colorSpaceName),
+        let context = CGContext(
+          data: nil,
+          width: image.width,
+          height: image.height,
+          bitsPerComponent: 16,
+          bytesPerRow: 0,
+          space: colorSpace,
+          bitmapInfo: bitmapInfo
+        )
+      else {
+        throw ImageError(description: "Can't create a bitmap context in \(colorSpaceName).")
+      }
+      context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+      guard let redrawn = context.makeImage() else {
+        throw ImageError(description: "Can't create an image in \(colorSpaceName).")
+      }
+      return redrawn
+    }
+
+    /// Creates a 32-bit BGRA pixel buffer containing an image.
+    ///
+    /// - Parameter image: The image to copy into the pixel buffer.
+    /// - Returns: The pixel buffer.
+    static func pixelBuffer(from image: CGImage) throws -> CVPixelBuffer {
+      var pixelBuffer: CVPixelBuffer?
+      let status = CVPixelBufferCreate(
+        kCFAllocatorDefault,
+        image.width,
+        image.height,
+        kCVPixelFormatType_32BGRA,
+        nil,
+        &pixelBuffer
+      )
+      guard status == kCVReturnSuccess, let pixelBuffer else {
+        throw ImageError(description: "Can't create a pixel buffer (status \(status)).")
+      }
+      CVPixelBufferLockBaseAddress(pixelBuffer, [])
+      defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+      let bitmapInfo =
+        CGImageAlphaInfo.premultipliedFirst.rawValue | CGImageByteOrderInfo.order32Little.rawValue
+      guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+        let context = CGContext(
+          data: CVPixelBufferGetBaseAddress(pixelBuffer),
+          width: image.width,
+          height: image.height,
+          bitsPerComponent: 8,
+          bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
+          space: colorSpace,
+          bitmapInfo: bitmapInfo
+        )
+      else {
+        throw ImageError(description: "Can't create a bitmap context for the pixel buffer.")
+      }
+      context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+      return pixelBuffer
     }
 
     /// Writes data to a new uniquely named file in the temporary directory.
@@ -271,8 +361,15 @@
       )
     }
 
-    // MARK: - Private helpers
+    // MARK: - Private Helpers
 
+    /// Creates an 8-bit sRGB image by drawing into a new bitmap context.
+    ///
+    /// - Parameters:
+    ///   - width: The image width, in pixels.
+    ///   - height: The image height, in pixels.
+    ///   - body: A closure that draws the image content into a bottom-left-origin context.
+    /// - Returns: The drawn image.
     private static func draw(
       width: Int,
       height: Int,
@@ -298,13 +395,22 @@
       return image
     }
 
+    /// Fills a rectangle with an opaque color.
+    ///
+    /// - Parameters:
+    ///   - context: The context to draw into.
+    ///   - color: The fill color.
+    ///   - rect: The rectangle to fill, in the context's coordinate space.
     private static func fill(_ context: CGContext, _ color: Color, _ rect: CGRect) {
       let (red, green, blue) = color.components
       context.setFillColor(red: red, green: green, blue: blue, alpha: 1)
       context.fill(rect)
     }
 
-    /// Returns RGBA pixel data for an image, with the first row at the top of the image.
+    /// Returns 8-bit sRGB RGBA pixel data for an image, with the first row at the top.
+    ///
+    /// - Parameter image: The image to read.
+    /// - Returns: The pixel data, 4 bytes per pixel.
     private static func rgbaPixels(of image: CGImage) throws -> [UInt8] {
       let width = image.width
       let height = image.height
