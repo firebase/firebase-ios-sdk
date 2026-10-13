@@ -53,14 +53,25 @@ jobs:
             command: ${{ github.event_name == 'schedule' && 'test' || 'build-for-testing' }}
             # `build-for-testing` does not support `--exclude`.
             test_filter_arg: ${{ github.event_name == 'schedule' && '--exclude IntegrationTests-SPM/LiveSessionTests --exclude IntegrationTests-SPM/GeminiLanguageModelTests' || '' }}
-            log_prefix: ${{ github.event_name == 'schedule' && 'xcodebuild' || 'xcodebuild-build-for-testing' }}
           - name: standard
             os: xcode-27
             target: iOS
             xcode: Xcode_27.0
             command: test
             test_filter_arg: --exclude IntegrationTests-SPM/LiveSessionTests --exclude IntegrationTests-SPM/GeminiLanguageModelTests
-            log_prefix: xcodebuild
+          # Live tests run separately from the standard tests to isolate them (#16493).
+          - name: live
+            os: xcode-27
+            target: iOS
+            xcode: Xcode_27.0
+            command: test
+            test_filter_arg: --filter IntegrationTests-SPM/LiveSessionTests
+          - name: gemini-language-model
+            os: xcode-27
+            target: iOS
+            xcode: Xcode_27.0
+            command: test
+            test_filter_arg: --filter IntegrationTests-SPM/GeminiLanguageModelTests
     runs-on: ${{ matrix.os }}
     needs: spm
     env:
@@ -83,54 +94,7 @@ jobs:
       if: failure()
       uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       with:
-        name: ${{ matrix.log_prefix }}-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
-        path: xcodebuild-*.log
-        retention-days: 2
-
-  testapp-integration-live:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-    runs-on: xcode-27
-    needs: spm
-    env:
-      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FIREBASE_APP_CHECK_BRANCH: main
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      with:
-        persist-credentials: false
-    - name: Run live integration tests
-      run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_27.0 --filter IntegrationTests-SPM/LiveSessionTests AI
-    - name: Upload xcodebuild logs
-      if: failure()
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-      with:
-        name: xcodebuild-live-iOS-xcode-27-Xcode_27.0.log
-        path: xcodebuild-*.log
-        retention-days: 2
-
-  testapp-integration-gemini-language-model:
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
-    runs-on: xcode-27
-    needs: spm
-    env:
-      GEMINI_LANGUAGE_MODEL: 1
-      TEST_RUNNER_FIRAAppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
-      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FIREBASE_APP_CHECK_BRANCH: main
-    steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      with:
-        persist-credentials: false
-    - name: Run Gemini Language Model integration tests
-      run: scripts/repo.sh test --secrets ./scripts/secrets/AI.json --platforms iOS --xcode Xcode_27.0 --filter IntegrationTests-SPM/GeminiLanguageModelTests AI
-    - name: Upload xcodebuild logs
-      if: failure()
-      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-      with:
-        name: xcodebuild-gemini-language-model-iOS-xcode-27-Xcode_27.0.log
+        name: xcodebuild-${{ matrix.name }}-${{ matrix.target }}-${{ matrix.os }}-${{ matrix.xcode }}.log
         path: xcodebuild-*.log
         retention-days: 2
 
