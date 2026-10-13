@@ -1907,6 +1907,10 @@ extension Auth: AuthInterop {
     guard let accessToken = _currentUser?.rawAccessToken() else {
       return
     }
+    // Bound the delay before any use. A delay from an expiration date that isn't finite or is too
+    // far in the future would otherwise crash the conversion to `Int`, or postpone the refresh for
+    // too long. Such a delay becomes 0, which refreshes the token right away.
+    let delay = AuthTokenLifetime.boundedRefreshDelay(delay)
     let intDelay = Int(ceil(delay))
     if retry {
       AuthLog.logInfo(code: "I-AUT000003", message: "Token auto-refresh re-scheduled in " +

@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.0.0"
+let firebaseVersion = "13.1.0"
 
 /// If you don't use Firestore in your app, you can disable the "Firestore" trait to reduce
 /// the number of dependencies fetched by SwiftPM during package resolution.
