@@ -62,4 +62,22 @@ class AuthWebUtilsTests: XCTestCase {
     let domain = AuthWebUtils.extractDomain(urlString: urlString)
     XCTAssertEqual(domain, "example.com")
   }
+
+  /** @fn testExtractDomainWithWhitespace
+   @brief Test case for extracting the domain from a URL with leading/trailing whitespace.
+   */
+  func testExtractDomainWithWhitespace() {
+    let urlString = "   https://www.example.com/path   "
+    let domain = AuthWebUtils.extractDomain(urlString: urlString)
+    XCTAssertEqual(domain, "www.example.com")
+  }
+
+  /** @fn testExtractDomainWithPathTraversal
+   @brief Test case for extracting the domain from a URL attempting path traversal.
+   */
+  func testExtractDomainWithPathTraversal() {
+    let urlString = "https://evil.com/../trusted.com"
+    let domain = AuthWebUtils.extractDomain(urlString: urlString)
+    XCTAssertEqual(domain, "evil.com")
+  }
 }
