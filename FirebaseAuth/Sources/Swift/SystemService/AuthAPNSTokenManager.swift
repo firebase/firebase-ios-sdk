@@ -50,27 +50,49 @@
     ///
     /// This function is internal to make visible for tests.
     func getTokenInternal(callback: @escaping @Sendable (Result<AuthAPNSToken, Error>) -> Void) {
-      if let token = tokenStore {
-        callback(.success(token))
-        return
+      enum Action {
+        case invokeImmediately(AuthAPNSToken)
+        case appendOnly
+        case startRegistration(Int)
       }
-      if pendingCallbacks.count > 0 {
-        pendingCallbacks.append(callback)
-        return
+      let action: Action = lock.withLock {
+        if let token = _tokenStore {
+          return .invokeImmediately(token)
+        }
+        if !pendingCallbacks.isEmpty {
+          pendingCallbacks.append(callback)
+          return .appendOnly
+        }
+        pendingRequestGeneration += 1
+        pendingCallbacks = [callback]
+        return .startRegistration(pendingRequestGeneration)
       }
-      pendingRequestGeneration += 1
-      let requestGeneration = pendingRequestGeneration
-      pendingCallbacks = [callback]
 
-      DispatchQueue.main.async {
-        self.application.registerForRemoteNotifications()
-      }
-      let deadline = DispatchTime.now() + timeout
-      kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
-        // Only cancel if this is still the active request and it has not completed.
-        guard requestGeneration == self.pendingRequestGeneration,
-              !self.pendingCallbacks.isEmpty else { return }
-        self.callback(.failure(AuthErrorUtils.missingAppTokenError(underlyingError: nil)))
+      switch action {
+      case let .invokeImmediately(token):
+        callback(.success(token))
+      case .appendOnly:
+        return
+      case let .startRegistration(requestGeneration):
+        DispatchQueue.main.async {
+          self.application.registerForRemoteNotifications()
+        }
+        let deadline = DispatchTime.now() + timeout
+        kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
+          // Only cancel if this is still the active request and it has not completed.
+          let callbacksToCancel: [(Result<AuthAPNSToken, Error>) -> Void] = self.lock.withLock {
+            guard requestGeneration == self.pendingRequestGeneration,
+                  !self.pendingCallbacks.isEmpty else { return [] }
+            let callbacks = self.pendingCallbacks
+            self.pendingCallbacks = []
+            return callbacks
+          }
+          guard !callbacksToCancel.isEmpty else { return }
+          let error = AuthErrorUtils.missingAppTokenError(underlyingError: nil)
+          for callback in callbacksToCancel {
+            callback(.failure(error))
+          }
+        }
       }
     }
 
@@ -93,11 +115,11 @@
     /// a token with the automatically detected type.
     var token: AuthAPNSToken? {
       get {
-        tokenStore
+        lock.withLock { _tokenStore }
       }
       set(setToken) {
         guard let setToken else {
-          tokenStore = nil
+          lock.withLock { _tokenStore = nil }
           return
         }
         var newToken = setToken
@@ -106,13 +128,23 @@
             .sandbox
           newToken = AuthAPNSToken(withData: setToken.data, type: detectedTokenType)
         }
-        tokenStore = newToken
-        callback(.success(newToken))
+        let callbacksToInvoke: [(Result<AuthAPNSToken, Error>) -> Void] = lock.withLock {
+          _tokenStore = newToken
+          let callbacks = pendingCallbacks
+          pendingCallbacks = []
+          return callbacks
+        }
+        for callback in callbacksToInvoke {
+          callback(.success(newToken))
+        }
       }
     }
 
     /// Should only be written to in tests
-    var tokenStore: AuthAPNSToken?
+    var tokenStore: AuthAPNSToken? {
+      get { lock.withLock { _tokenStore } }
+      set { lock.withLock { _tokenStore = newValue } }
+    }
 
     /// Cancels any pending `getTokenWithCallback:` request.
     /// - Parameter error: The error to return .
@@ -122,12 +154,17 @@
 
     /// Enable unit test faking.
     var application: AuthAPNSTokenApplication
+    private let lock = NSLock()
+    private var _tokenStore: AuthAPNSToken?
     private var pendingCallbacks: [(Result<AuthAPNSToken, Error>) -> Void] = []
     private var pendingRequestGeneration = 0
 
     private func callback(_ result: Result<AuthAPNSToken, Error>) {
-      let pendingCallbacks = self.pendingCallbacks
-      self.pendingCallbacks = []
+      let pendingCallbacks: [(Result<AuthAPNSToken, Error>) -> Void] = lock.withLock {
+        let callbacks = self.pendingCallbacks
+        self.pendingCallbacks = []
+        return callbacks
+      }
       for callback in pendingCallbacks {
         callback(result)
       }

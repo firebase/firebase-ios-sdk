@@ -277,6 +277,38 @@
       }
     }
 
+    /** @fn testConcurrentGetTokenInternalCallbacksAllCompleteOnTimeout
+        @brief Tests that concurrent callers to `getTokenInternal` across multiple threads do not
+            drop callbacks when registration times out.
+     */
+    func testConcurrentGetTokenInternalCallbacksAllCompleteOnTimeout() throws {
+      let waiterCount = 50
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: 0.05
+      )
+      let manager = try XCTUnwrap(manager)
+      let expectation = self.expectation(description: #function)
+      expectation.expectedFulfillmentCount = waiterCount
+
+      DispatchQueue.concurrentPerform(iterations: waiterCount) { _ in
+        manager.getTokenInternal { result in
+          switch result {
+          case let .success(token):
+            XCTFail("Unexpected success: \(token)")
+          case let .failure(error):
+            XCTAssertEqual(
+              error as NSError,
+              AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+            )
+          }
+          expectation.fulfill()
+        }
+      }
+
+      waitForExpectations(timeout: 2)
+    }
+
     /** @fn testCancel
         @brief Tests cancelling the pending callbacks.
      */
