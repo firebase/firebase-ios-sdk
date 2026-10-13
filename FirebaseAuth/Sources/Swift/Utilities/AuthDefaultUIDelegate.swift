@@ -108,7 +108,7 @@
       title = "Sign In"
       isReleasedWhenClosed = false
       center()
-      level = .floating
+      level = .normal
       styleMask = [.titled, .closable, .miniaturizable, .resizable]
     }
 
@@ -158,6 +158,7 @@
     }
 
     func dismiss(completion: (() -> Void)? = nil) {
+      authWindow?.authViewController = nil
       authWindow?.close()
       authWindow = nil
       completion?()

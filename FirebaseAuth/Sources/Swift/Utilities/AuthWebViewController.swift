@@ -12,13 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Foundation
+import WebKit
+
 #if os(iOS)
-
-  import Foundation
   import UIKit
-  import WebKit
+#elseif os(macOS)
+  import AppKit
+#endif
 
+#if os(iOS) || os(macOS)
   /// Defines a delegate for AuthWebViewController
+  @available(iOS 13, macOS 10.15, *)
   protocol AuthWebViewControllerDelegate: AnyObject {
     /// Notifies the delegate that the web view controller is being cancelled by the user.
     /// - Parameter webViewController: The web view controller in question.
@@ -27,12 +32,14 @@
     /// Determines if a URL should be handled by the delegate.
     /// - Parameter url: The URL to handle.
     /// - Returns: Whether the URL could be handled or not.
-    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
+    func webViewController(_ controller: AuthWebViewController,
+                           canHandle url: URL) -> Bool
 
     /// Notifies the delegate that the web view controller failed to load a page.
     /// - Parameter webViewController: The web view controller in question.
     /// - Parameter error: The error that has occurred.
-    func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
+    func webViewController(_ controller: AuthWebViewController,
+                           didFailWithError error: Error)
 
     /// Presents an URL to interact with user.
     /// - Parameter url: The URL to present.
@@ -46,6 +53,9 @@
                  completion: @escaping (URL?, Error?) -> Void)
   }
 
+#endif // os(iOS) || os(macOS)
+
+#if os(iOS)
   class AuthWebViewController: UIViewController,
     WKNavigationDelegate {
     // MARK: - Properties
@@ -151,46 +161,28 @@
   }
 
 #elseif os(macOS)
+  private final class AuthBackgroundView: NSView {
+    override func viewDidChangeEffectiveAppearance() {
+      super.viewDidChangeEffectiveAppearance()
+      updateBackgroundColor()
+    }
 
-  import AppKit
-  import Foundation
-  import WebKit
+    func updateBackgroundColor() {
+      wantsLayer = true
 
-  /// Defines a delegate for AuthWebViewController
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  protocol AuthWebViewControllerDelegate: AnyObject {
-    /// Notifies the delegate that the web view controller is being cancelled by the user.
-    /// - Parameter webViewController: The web view controller in question.
-    func webViewControllerDidCancel(_ controller: AuthWebViewController)
-
-    /// Determines if a URL should be handled by the delegate.
-    /// - Parameter url: The URL to handle.
-    /// - Returns: Whether the URL could be handled or not.
-    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
-
-    /// Notifies the delegate that the web view controller failed to load a page.
-    /// - Parameter webViewController: The web view controller in question.
-    /// - Parameter error: The error that has occurred.
-    func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
-
-    /// Presents an URL to interact with user.
-    /// - Parameter url: The URL to present.
-    /// - Parameter uiDelegate: The UI delegate to present view controller.
-    /// - Parameter completion: A block to be called either synchronously if the presentation fails
-    /// to start, or asynchronously in future on an unspecified thread once the presentation
-    /// finishes.
-    func present(_ url: URL,
-                 uiDelegate: AuthUIDelegate?,
-                 callbackMatcher: @escaping (URL?) -> Bool,
-                 completion: @escaping (URL?, Error?) -> Void)
+      effectiveAppearance.performAsCurrentDrawingAppearance {
+        layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
+      }
+    }
   }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(macOS 11.0, *)
   class AuthWebViewController: NSViewController,
     WKNavigationDelegate {
     // MARK: - Properties
 
     private var url: URL
+    private var hasLoaded = false
     weak var delegate: AuthWebViewControllerDelegate?
 
     private let webView: WKWebView = {
@@ -222,9 +214,12 @@
     // MARK: - View Lifecycle
 
     override func loadView() {
-      view = NSView(frame: NSRect(x: 0, y: 0, width: 800, height: 600))
-      view.wantsLayer = true
-      view.layer?.backgroundColor = NSColor.white.cgColor
+      let backgroundView = AuthBackgroundView(
+        frame: NSRect(x: 0, y: 0, width: 800, height: 600)
+      )
+
+      backgroundView.updateBackgroundColor()
+      view = backgroundView
 
       webView.navigationDelegate = self
 
@@ -246,6 +241,10 @@
 
     override func viewDidAppear() {
       super.viewDidAppear()
+
+      guard !hasLoaded else { return }
+      hasLoaded = true
+
       webView.load(URLRequest(url: url))
     }
 
@@ -289,6 +288,12 @@
       // Forward notification to our delegate.
       self.webView(webView, didFinish: navigation)
       delegate?.webViewController(self, didFailWithError: error)
+    }
+
+    func webView(_ webView: WKWebView,
+                 didFailProvisionalNavigation navigation: WKNavigation!,
+                 withError error: Error) {
+      self.webView(webView, didFail: navigation, withError: error)
     }
   }
 

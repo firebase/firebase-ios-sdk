@@ -223,106 +223,10 @@ import Foundation
     )
   }
 
-  #if os(iOS)
-    /// Used to obtain an auth credential via a mobile web flow.
+  #if os(iOS) || os(macOS)
+    /// Used to obtain an auth credential via a web flow.
     ///
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
-    /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
-    /// thread when the mobile web flow is completed.
-    open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
-                                completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-      guard let urlTypes = auth.mainBundleUrlTypes,
-            AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-                                                    urlTypes: urlTypes) else {
-        fatalError(
-          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-        )
-      }
-      kAuthGlobalWorkQueue.async { [weak self] in
-        guard let self = self else { return }
-        let eventID = AuthWebUtils.randomString(withLength: 10)
-        let sessionID = AuthWebUtils.randomString(withLength: 10)
-
-        let callbackOnMainThread: ((AuthCredential?, Error?) -> Void) = { credential, error in
-          if let completion {
-            DispatchQueue.main.async {
-              completion(credential, error)
-            }
-          }
-        }
-        Task {
-          do {
-            guard let headfulLiteURL = try await self.getHeadfulLiteUrl(eventID: eventID,
-                                                                        sessionID: sessionID) else {
-              fatalError(
-                "FirebaseAuth Internal Error: Both error and headfulLiteURL return are nil"
-              )
-            }
-            let callbackMatcher: (URL?) -> Bool = { callbackURL in
-              AuthWebUtils.isExpectedCallbackURL(callbackURL,
-                                                 eventID: eventID,
-                                                 authType: "signInWithRedirect",
-                                                 callbackScheme: self.callbackScheme)
-            }
-            self.auth.authURLPresenter.present(headfulLiteURL,
-                                               uiDelegate: uiDelegate,
-                                               callbackMatcher: callbackMatcher) { callbackURL, error in
-              if let error {
-                callbackOnMainThread(nil, error)
-                return
-              }
-              guard let callbackURL else {
-                fatalError("FirebaseAuth Internal Error: Both error and callbackURL return are nil")
-              }
-              let (oAuthResponseURLString, error) = self.oAuthResponseForURL(url: callbackURL)
-              if let error {
-                callbackOnMainThread(nil, error)
-                return
-              }
-              guard let oAuthResponseURLString else {
-                fatalError(
-                  "FirebaseAuth Internal Error: Both error and oAuthResponseURLString return are nil"
-                )
-              }
-              let credential = OAuthCredential(withProviderID: self.providerID,
-                                               sessionID: sessionID,
-                                               OAuthResponseURLString: oAuthResponseURLString)
-              callbackOnMainThread(credential, nil)
-            }
-          } catch {
-            callbackOnMainThread(nil, error)
-          }
-        }
-      }
-    }
-
-    /// Used to obtain an auth credential via a mobile web flow.
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
-    /// - Parameter completionHandler: Optionally; a block which is invoked
-    /// asynchronously on the main thread when the mobile web flow is
-    /// completed.
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    @objc(getCredentialWithUIDelegate:completion:)
-    @MainActor
-    open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
-      return try await withCheckedThrowingContinuation { continuation in
-        getCredentialWith(uiDelegate) { credential, error in
-          if let credential = credential {
-            continuation.resume(returning: credential)
-          } else {
-            continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
-          }
-        }
-      }
-    }
-  #endif
-
-  #if os(macOS)
-    /// Used to obtain an auth credential via a web flow on macOS.
-    ///
-    /// This method is available on macOS only.
+    /// This method is available on iOS and macOS.
     /// - Parameter uiDelegate: An optional UI delegate used to present the web flow.
     /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
     /// thread when the web flow is completed.
@@ -393,8 +297,8 @@ import Foundation
       }
     }
 
-    /// Used to obtain an auth credential via a web flow on macOS.
-    /// This method is available on macOS only.
+    /// Used to obtain an auth credential via a web flow.
+    /// This method is available on iOS and macOS.
     /// - Parameter uiDelegate: An optional UI delegate used to present the web flow.
     /// - Parameter completionHandler: Optionally; a block which is invoked
     /// asynchronously on the main thread when the web flow is
@@ -408,7 +312,12 @@ import Foundation
           if let credential = credential {
             continuation.resume(returning: credential)
           } else {
-            continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
+            let fallbackError = error ?? NSError(
+              domain: AuthErrorDomain,
+              code: AuthErrorCode.internalError.rawValue,
+              userInfo: [NSLocalizedDescriptionKey: "An unknown error occurred."]
+            )
+            continuation.resume(throwing: fallbackError)
           }
         }
       }
