@@ -1,8 +1,8 @@
 # 13.1.0
 - [feature] `GeminiLanguageModel` now supports image input (the `vision`
   capability). Prompts can include image attachments created from a `CGImage`,
-  a `CVPixelBuffer`, or a file URL; images from remote URLs aren't supported
-  yet. (#16895)
+  a `CIImage`, a `CVPixelBuffer`, or a file URL; images from remote URLs aren't
+  supported yet. (#16895)
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
   for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
   in multi-speaker synthesis and sustained speech delivery styling. See the

@@ -180,6 +180,18 @@
       return identifiers.contains(type.identifier)
     }
 
+    /// An image to encode as one frame of an image file.
+    struct Frame {
+      /// The image.
+      let image: CGImage
+
+      /// An optional orientation to embed in the frame's metadata.
+      var orientation: CGImagePropertyOrientation?
+
+      /// Whether the frame is the file's primary image.
+      var isPrimary = false
+    }
+
     /// Encodes an image in the given format.
     ///
     /// - Parameters:
@@ -192,23 +204,74 @@
       as type: UTType,
       orientation: CGImagePropertyOrientation? = nil
     ) throws -> Data {
+      try encode([Frame(image: image, orientation: orientation)], as: type)
+    }
+
+    /// Encodes several images into a single file in the given format.
+    ///
+    /// - Parameters:
+    ///   - frames: The images to encode, in order, with their per-image metadata.
+    ///   - type: The image format, such as `.heic`.
+    /// - Returns: The encoded image data.
+    static func encode(_ frames: [Frame], as type: UTType) throws -> Data {
       let data = NSMutableData()
       guard
         let destination = CGImageDestinationCreateWithData(
-          data as CFMutableData, type.identifier as CFString, 1, nil
+          data as CFMutableData, type.identifier as CFString, frames.count, nil
         )
       else {
         throw ImageError(description: "Can't create an image destination for \(type.identifier).")
       }
-      var properties: [CFString: Any] = [:]
-      if let orientation {
-        properties[kCGImagePropertyOrientation] = orientation.rawValue
+      for frame in frames {
+        var properties: [CFString: Any] = [:]
+        if let orientation = frame.orientation {
+          properties[kCGImagePropertyOrientation] = orientation.rawValue
+        }
+        if frame.isPrimary {
+          // The primary image must be marked on the image itself; ImageIO ignores this key in the
+          // destination's file-level properties.
+          properties[kCGImagePropertyPrimaryImage] = true
+        }
+        CGImageDestinationAddImage(destination, frame.image, properties as CFDictionary)
       }
-      CGImageDestinationAddImage(destination, image, properties as CFDictionary)
       guard CGImageDestinationFinalize(destination) else {
         throw ImageError(description: "Can't encode the image as \(type.identifier).")
       }
       return data as Data
+    }
+
+    /// Creates an image whose pixels are fully transparent white.
+    ///
+    /// The pixels are stored unpremultiplied as `(255, 255, 255, 0)`, so code that ignores the
+    /// alpha channel sees white rather than black.
+    ///
+    /// - Parameters:
+    ///   - width: The image width, in pixels.
+    ///   - height: The image height, in pixels.
+    /// - Returns: The transparent image.
+    static func transparentWhite(width: Int = 32, height: Int = 32) throws -> CGImage {
+      let pixels = (0..<(width * height * 4)).map { offset -> UInt8 in
+        offset % 4 == 3 ? 0 : 255
+      }
+      guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+        let provider = CGDataProvider(data: Data(pixels) as CFData),
+        let image = CGImage(
+          width: width,
+          height: height,
+          bitsPerComponent: 8,
+          bitsPerPixel: 32,
+          bytesPerRow: width * 4,
+          space: colorSpace,
+          bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue),
+          provider: provider,
+          decode: nil,
+          shouldInterpolate: false,
+          intent: .defaultIntent
+        )
+      else {
+        throw ImageError(description: "Can't create a transparent white image.")
+      }
+      return image
     }
 
     /// Redraws an image into a 16-bit floating-point bitmap with the given color space.

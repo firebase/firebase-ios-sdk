@@ -23,6 +23,10 @@
   import Testing
   import UniformTypeIdentifiers
 
+  #if canImport(CoreImage)
+    import CoreImage
+  #endif  // canImport(CoreImage)
+
   @testable import GeminiLanguageModel
 
   @Suite("GeminiImageTranslator Tests", .requireFoundationModels)
@@ -223,7 +227,7 @@
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func transparencyIsCompositedOntoBlack() throws {
-      let image = try Self.makeTransparentImage()
+      let image = try TestImages.transparentWhite()
       let attachment = Transcript.ImageAttachment(image)
 
       let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
@@ -231,6 +235,34 @@
       let decoded = try TestImages.decode(blob.data)
       #expect(try TestImages.quadrantColors(of: decoded).topLeft == .black)
     }
+
+    #if canImport(CoreImage)
+      @Test(arguments: orientationCases.filter { [.up, .right].contains($0.orientation) })
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func ciImageIsRotatedAndReencodedAsJPEG(_ testCase: OrientationCase) throws {
+        let ciImage = CIImage(cgImage: try Self.makeQuadrantImage())
+        let attachment = Transcript.ImageAttachment(ciImage, orientation: testCase.orientation)
+
+        let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+        #expect(blob.mimeType == "image/jpeg")
+        #expect(TestImages.embeddedOrientation(of: blob.data) == nil)
+        try Self.expectDisplayLayout(of: blob.data, matches: testCase)
+      }
+
+      @Test(arguments: ["empty", "infinite"])
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func unrenderableCIImageThrowsUndecodableImage(extent: String) throws {
+        // Reading `cgImage` for these attachments traps, so they must be rejected beforehand.
+        let ciImage =
+          extent == "empty" ? CIImage.empty() : CIImage(color: CIColor(red: 1, green: 0, blue: 0))
+        let attachment = Transcript.ImageAttachment(ciImage)
+
+        #expect(throws: GeminiImageTranslator.TranslationError.undecodableImage) {
+          try GeminiImageTranslator.partData(for: attachment)
+        }
+      }
+    #endif  // canImport(CoreImage)
 
     // MARK: - File URLs
 
@@ -342,6 +374,48 @@
       try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
     }
 
+    @Test(.enabled(if: TestImages.canEncode(.heic)))
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func firstImageIsUsedWhenPrimaryImageIsNotFirst() throws {
+      let fileData = try TestImages.encode(
+        [
+          TestImages.Frame(image: Self.makeQuadrantImage()),
+          TestImages.Frame(image: TestImages.solid(.white), orientation: .right, isPrimary: true),
+        ],
+        as: .heic
+      )
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
+      defer { try? FileManager.default.removeItem(at: url) }
+      let attachment = Transcript.ImageAttachment(imageURL: url)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      // The file isn't passed through, since Gemini would decode the primary image instead.
+      #expect(blob.mimeType == "image/jpeg")
+      try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
+    }
+
+    @Test(.enabled(if: TestImages.canEncode(.heic)))
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func firstImageOrientationIsAppliedWhenPrimaryImageIsNotFirst() throws {
+      let rightCase = try #require(Self.orientationCases.first { $0.orientation == .right })
+      let fileData = try TestImages.encode(
+        [
+          TestImages.Frame(image: Self.makeQuadrantImage(), orientation: .right),
+          TestImages.Frame(image: TestImages.solid(.white), isPrimary: true),
+        ],
+        as: .heic
+      )
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
+      defer { try? FileManager.default.removeItem(at: url) }
+      let attachment = Transcript.ImageAttachment(imageURL: url)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      #expect(blob.mimeType == "image/jpeg")
+      try Self.expectDisplayLayout(of: blob.data, matches: rightCase)
+    }
+
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func missingFileThrowsUnreadableFile() throws {
@@ -411,26 +485,6 @@
         width: 128,
         height: 64
       )
-    }
-
-    /// Creates a fully transparent 32x32 image.
-    ///
-    /// - Returns: The transparent image.
-    private static func makeTransparentImage() throws -> CGImage {
-      let colorSpace = try #require(CGColorSpace(name: CGColorSpace.sRGB))
-      let context = try #require(
-        CGContext(
-          data: nil,
-          width: 32,
-          height: 32,
-          bitsPerComponent: 8,
-          bytesPerRow: 0,
-          space: colorSpace,
-          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        )
-      )
-      context.clear(CGRect(x: 0, y: 0, width: 32, height: 32))
-      return try #require(context.makeImage())
     }
 
     /// Returns an image with its embedded orientation applied by ImageIO.
