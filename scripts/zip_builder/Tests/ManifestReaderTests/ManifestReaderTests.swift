@@ -131,7 +131,7 @@ struct ManifestReaderTests {
     let loader = PackageGraphLoader(packagePath: repoRoot)
     let graph = try await loader.loadGraph()
     let configFile = repoRoot
-      .appendingPathComponent("zip_builder.json")
+      .appendingPathComponent("zip_builder.jsonc")
     let config = try ConfigResolver.resolve(from: configFile, graph: graph)
     let plan = try BuildPlanResolver.resolveBuildPlan(from: graph, config: config)
 
@@ -895,7 +895,7 @@ struct ManifestReaderTests {
     let loader = PackageGraphLoader(packagePath: repoRoot)
     let graph = try await loader.loadGraph()
     let configFile = repoRoot
-      .appendingPathComponent("zip_builder.json")
+      .appendingPathComponent("zip_builder.jsonc")
     let config = try ConfigResolver.resolve(from: configFile, graph: graph)
 
     let (aggregates, subtargetMap, submodules) = try BuildPlanResolver.resolveAggregates(
@@ -951,7 +951,7 @@ struct ManifestReaderTests {
     let loader = PackageGraphLoader(packagePath: repoRoot)
     let graph = try await loader.loadGraph()
     let configFile = repoRoot
-      .appendingPathComponent("zip_builder.json")
+      .appendingPathComponent("zip_builder.jsonc")
     let baseConfig = try ConfigResolver.resolve(from: configFile, graph: graph)
 
     let rootPackageIdentities = Set(graph.rootPackages.map(\.identity))
@@ -1289,7 +1289,7 @@ struct ManifestReaderTests {
     let loader = PackageGraphLoader(packagePath: repoRoot)
     let graph = try await loader.loadGraph()
     let configFile = repoRoot
-      .appendingPathComponent("zip_builder.json")
+      .appendingPathComponent("zip_builder.jsonc")
     let config = try ConfigResolver.resolve(from: configFile, graph: graph)
 
     let options = BuildOptions(
@@ -1320,7 +1320,7 @@ struct ManifestReaderTests {
     let loader = PackageGraphLoader(packagePath: repoRoot)
     let graph = try await loader.loadGraph()
     let configFile = repoRoot
-      .appendingPathComponent("zip_builder.json")
+      .appendingPathComponent("zip_builder.jsonc")
     let baseConfig = try ConfigResolver.resolve(from: configFile, graph: graph)
 
     let options = BuildOptions(

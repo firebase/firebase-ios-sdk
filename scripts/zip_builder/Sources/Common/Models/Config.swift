@@ -25,18 +25,20 @@ public typealias Version = TSCUtility.Version
 ///
 /// ### File System Discovery
 /// When resolving a configuration locally, `PlanningEngine` searches the file system for a
-/// JSON configuration file in the following order:
-/// 1. **Explicit Path**: The custom file path passed via `-c` / `--config <path>`, if specified.
-/// 2. **Package Root**: `zip_builder.json` inside the target SwiftPM package directory
-///    (`<package-path>/zip_builder.json`).
-/// 3. **Working Directory**: `zip_builder.json` in the current working directory
-///    (`./zip_builder.json`).
+/// JSON or JSONC configuration file in the following order:
+/// 1. **Explicit Path**: The custom file path passed via `-c` / `--config <path>` (supports `.json`
+///    and `.jsonc`), if specified.
+/// 2. **Package Root**: `zip_builder.jsonc` or `zip_builder.json` inside the target SwiftPM
+///    package directory (`<package-path>/zip_builder.jsonc` or `<package-path>/zip_builder.json`).
+/// 3. **Working Directory**: `zip_builder.jsonc` or `zip_builder.json` in the current working
+///    directory (`./zip_builder.jsonc` or `./zip_builder.json`).
 ///
 /// ### Resolution Precedence
 /// Regardless if a configuration file is found, `ConfigResolver` resolves each
 /// property using the following precedence (from highest to lowest):
 /// 1. **CLI Overrides (`BuildOptions`)**: Command-line flags and options passed at invocation.
-/// 2. **Configuration File (`zip_builder.json`)**: Values explicitly declared in the JSON file.
+/// 2. **Configuration File (`zip_builder.jsonc` / `zip_builder.json`)**: Values explicitly declared
+///    in the configuration file.
 /// 3. **Package Manifest (`Package.swift`)**: Inferred values for `projectName`, `version`,
 ///    baseline `deploymentTargets`, `products`, per-product platforms, and
 ///    `aggregatePackageNames`.

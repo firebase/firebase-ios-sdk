@@ -421,7 +421,7 @@ struct PlanningEngineTests {
       .deletingLastPathComponent()
       .deletingLastPathComponent()
 
-    let defaultConfigFile = repoRoot.appendingPathComponent("zip_builder.json")
+    let defaultConfigFile = repoRoot.appendingPathComponent("zip_builder.jsonc")
     #expect(FileManager.default.fileExists(atPath: defaultConfigFile.path))
 
     let logger = Logger(label: "test")
@@ -434,5 +434,33 @@ struct PlanningEngineTests {
     #expect(resolvedPlan.config.projectName == "Firebase")
     #expect(resolvedPlan.config.bundleIdPrefix == "com.google.firebase")
     #expect(!resolvedPlan.products.isEmpty)
+  }
+
+  @Test
+  func productConfigFileSupportsJsonAndJsoncExtensions() throws {
+    let tempDir = FileManager.default.temporaryDirectory
+      .appendingPathComponent("test_jsonc_\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+
+    let contentWithComments = """
+    {
+      // Single-line comment in config
+      "projectName": "CustomProject",
+      "bundleIdPrefix": "com.custom.sdk"
+    }
+    """
+
+    let jsonURL = tempDir.appendingPathComponent("zip_builder.json")
+    let jsoncURL = tempDir.appendingPathComponent("zip_builder.jsonc")
+    try contentWithComments.write(to: jsonURL, atomically: true, encoding: .utf8)
+    try contentWithComments.write(to: jsoncURL, atomically: true, encoding: .utf8)
+
+    let parsedJson = try ProductConfigFile.load(from: jsonURL)
+    let parsedJsonc = try ProductConfigFile.load(from: jsoncURL)
+
+    #expect(parsedJson.projectName == "CustomProject")
+    #expect(parsedJson.bundleIdPrefix == "com.custom.sdk")
+    #expect(parsedJsonc == parsedJson)
   }
 }

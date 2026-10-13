@@ -23,14 +23,14 @@ import Logging
 /// `Package.swift` and product configuration.
 public enum PlanningEngine: Sendable {
   private static let logger = Logger(label: "zip-builder.planning-engine")
-  private static let defaultConfigFileName = "zip_builder.json"
+  private static let defaultConfigFileNames = ["zip_builder.jsonc", "zip_builder.json"]
 
   /// Resolves the active `BuildPlan` using URLs and unified `BuildOptions`.
   ///
   /// - Parameters:
   ///   - planURL: Optional URL pointing to a pre-resolved JSON build plan file.
   ///   - packageURL: Root package directory URL containing `Package.swift`.
-  ///   - configURL: Optional file URL pointing to a custom product configuration JSON.
+  ///   - configURL: Optional file URL pointing to a custom product configuration JSON/JSONC file.
   ///   - options: Unified build and resolution options (filtering, overrides).
   ///   - logger: Active logger instance.
   /// - Returns: Fully resolved and scoped `BuildPlan`.
@@ -202,13 +202,14 @@ public enum PlanningEngine: Sendable {
     }
   }
 
-  /// Resolves the URL for the `zip_builder.json` configuration file following the default search
-  /// hierarchy.
+  /// Resolves the URL for the `zip_builder.jsonc` or `zip_builder.json` configuration file
+  /// following the default search hierarchy.
   ///
   /// The search order is:
   /// 1. The explicit `configURL` if provided.
-  /// 2. `zip_builder.json` located within the root package directory (`packageURL`).
-  /// 3. `zip_builder.json` located in the current working directory.
+  /// 2. `zip_builder.jsonc` or `zip_builder.json` located within the root package directory
+  ///    (`packageURL`).
+  /// 3. `zip_builder.jsonc` or `zip_builder.json` located in the current working directory.
   ///
   /// - Parameters:
   ///   - configURL: An optional explicit URL pointing to a configuration file.
@@ -219,15 +220,19 @@ public enum PlanningEngine: Sendable {
       return configURL
     }
 
-    let packageConfig = packageURL.appendingPathComponent(defaultConfigFileName)
-    if FileManager.default.fileExists(atPath: packageConfig.path) {
-      return packageConfig
+    for fileName in defaultConfigFileNames {
+      let packageConfig = packageURL.appendingPathComponent(fileName)
+      if FileManager.default.fileExists(atPath: packageConfig.path) {
+        return packageConfig
+      }
     }
 
-    let cwdConfig = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-      .appendingPathComponent(defaultConfigFileName)
-    if FileManager.default.fileExists(atPath: cwdConfig.path) {
-      return cwdConfig
+    let cwdURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    for fileName in defaultConfigFileNames {
+      let cwdConfig = cwdURL.appendingPathComponent(fileName)
+      if FileManager.default.fileExists(atPath: cwdConfig.path) {
+        return cwdConfig
+      }
     }
 
     return nil

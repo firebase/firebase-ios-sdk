@@ -24,8 +24,8 @@ public struct ManifestOptions: ParsableArguments, Sendable {
   @Option(name: .shortAndLong, help: "Path to Package.swift directory.")
   public var packagePath: String = "."
 
-  /// Optional file path to custom `zip_builder.json` configuration file.
-  @Option(name: .shortAndLong, help: "Optional path to JSON configuration file.")
+  /// Optional file path to custom `zip_builder.jsonc` or `zip_builder.json` configuration file.
+  @Option(name: .shortAndLong, help: "Optional path to JSON/JSONC configuration file.")
   public var config: String? = nil
 
   /// Optional project name override.
