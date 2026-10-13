@@ -32,7 +32,7 @@ actor UserProfileUpdate {
     guard let idToken = response.idToken,
           let refreshToken = response.refreshToken,
           let providerID = response.providerID else {
-      fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+      fatalError("Internal Auth Error: missing token in VerifyAssertionResponse")
     }
     try await updateTokenAndRefreshUser(user: user,
                                         idToken: idToken,
