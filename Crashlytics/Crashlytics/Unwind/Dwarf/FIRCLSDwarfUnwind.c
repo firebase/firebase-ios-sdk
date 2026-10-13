@@ -220,6 +220,15 @@ bool FIRCLSDwarfParseFDERecord(DWARFFDERecord* fdeRecord,
   if (FIRCLSDwarfCIEHasAugmentationData(cieRecord)) {
     uintptr_t augmentationLength = (uintptr_t)FIRCLSParseULEB128AndAdvance(&ptr);
 
+    // Bound the augmentation length against the bytes remaining in the record
+    // before advancing. Adding an unchecked, attacker-controlled length to ptr
+    // could overflow the pointer arithmetic and wrap it back below endAddress,
+    // slipping past the check below.
+    if (ptr > endAddress || augmentationLength > (uintptr_t)(endAddress - ptr)) {
+      FIRCLSSDKLog("Error: FDE augmentation data extends past its length\n");
+      return false;
+    }
+
     ptr += augmentationLength;
   }
 
