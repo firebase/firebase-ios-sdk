@@ -126,7 +126,7 @@ public enum HeaderSearchPathBuilder: Sendable {
         searchPaths.insert(path)
       }
     }
-    
+
     return Array(searchPaths).sorted()
   }
 

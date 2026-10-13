@@ -18,7 +18,7 @@ import Foundation
 
 public extension KeyedDecodingContainer {
   /// Decodes a value if present, returning `nil` if the key is missing or the value is null.
-  /// 
+  ///
   /// The decoded type is inferred from the call site.
   func decodeIfPresent<T: Decodable>(_ key: Key) throws -> T? {
     try decodeIfPresent(T.self, forKey: key)
