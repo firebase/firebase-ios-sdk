@@ -16,11 +16,12 @@ import Foundation
 
 class AuthWebUtils {
   static func randomString(withLength length: Int) -> String {
+    guard length > 0 else { return "" }
+    let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
     var randomString = ""
+    randomString.reserveCapacity(length)
     for _ in 0 ..< length {
-      let randomValue = UInt32(arc4random_uniform(26) + 65)
-      guard let randomCharacter = Unicode.Scalar(randomValue) else { continue }
-      randomString += String(Character(randomCharacter))
+      randomString.append(alphabet.randomElement()!)
     }
     return randomString
   }

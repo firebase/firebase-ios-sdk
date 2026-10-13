@@ -1,4 +1,5 @@
 # Unreleased
+- [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
 - [fixed] Fixed a crash loop when the backend sent a very large token
