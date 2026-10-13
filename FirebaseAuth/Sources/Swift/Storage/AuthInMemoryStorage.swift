@@ -38,7 +38,7 @@ final class AuthInMemoryStorage: AuthKeychainStorage {
 
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
     let key = ItemKey(query)
-    guard let data = items.value()[key] else {
+    guard let data = items.withLock({ $0[key] }) else {
       return errSecItemNotFound
     }
     // Match the shape `SecItemCopyMatching` returns for `kSecMatchLimit` > 1 with
