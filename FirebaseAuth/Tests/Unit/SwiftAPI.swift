@@ -75,6 +75,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
+  func authPersistence() {
+    let _: AuthPersistence = Auth.persistence
+    Auth.persistence = .keychain
+    Auth.persistence = .inMemory
+  }
+
   func authProperties(auth: Auth) {
     let _: Bool = auth.shareAuthStateAcrossDevices
     if let _: FirebaseApp = auth.app,

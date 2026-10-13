@@ -79,7 +79,7 @@ class AuthComponent: NSObject, Library, ComponentLifecycleMaintainer {
       if let keychainServiceName = Auth.deleteKeychainServiceNameForAppName(app.name) {
         let keychain = AuthKeychainServices(
           service: keychainServiceName,
-          storage: AuthKeychainStorageReal.shared
+          storage: Auth.persistence.keychainStorage
         )
         let userKey = "\(app.name)_firebase_user"
         try? keychain.removeData(forKey: userKey)
