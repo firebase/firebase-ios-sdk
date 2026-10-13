@@ -81,8 +81,11 @@
     /// `CGImage`, a `CIImage`, a `CVPixelBuffer`, or a file URL, such as `Attachment(cgImage)` or
     /// `Attachment(imageURL: fileURL)`. Images are sent inline with the request:
     ///
-    /// - PNG, JPEG, WebP, HEIC, and HEIF files that don't need rotating are sent unchanged.
-    /// - All other images are rotated to their display orientation and re-encoded as JPEG.
+    /// - PNG, JPEG, WebP, HEIC, and HEIF files that don't need rotating are sent unchanged, unless
+    ///   the file contains several images and its primary image isn't the first one.
+    /// - All other images are rotated to their display orientation and re-encoded as JPEG. For
+    ///   files that contain several images, the first image is used, matching
+    ///   `Transcript.ImageAttachment`.
     ///
     /// Current limitations:
     ///
