@@ -21,6 +21,9 @@
   `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
   `Transcript.Entry.data` entries continue to throw
   `LanguageModelError.unsupportedTranscriptContent`. (#16890)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
