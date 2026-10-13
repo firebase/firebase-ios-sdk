@@ -108,16 +108,8 @@
       title = "Sign In"
       isReleasedWhenClosed = false
       center()
-      level = .floating
+      level = .normal
       styleMask = [.titled, .closable, .miniaturizable, .resizable]
-    }
-
-    override func close() {
-      if let authVC = authViewController as? AuthWebViewController {
-        authVC.handleWindowClose()
-      }
-
-      super.close()
     }
   }
 
@@ -158,6 +150,7 @@
     }
 
     func dismiss(completion: (() -> Void)? = nil) {
+      authWindow?.authViewController = nil
       authWindow?.close()
       authWindow = nil
       completion?()

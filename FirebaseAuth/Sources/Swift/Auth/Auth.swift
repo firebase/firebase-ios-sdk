@@ -1639,8 +1639,11 @@ extension Auth: AuthInterop {
 
     firebaseAppName = app.name
 
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       authURLPresenter = AuthURLPresenter()
+    #endif
+
+    #if os(iOS)
       settings = AuthSettings()
       GULAppDelegateSwizzler.proxyOriginalDelegateIncludingAPNSMethods()
       GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
@@ -2350,15 +2353,12 @@ extension Auth: AuthInterop {
     /// The manager for remote notifications used by phone number auth.
     var notificationManager: AuthNotificationManager!
 
+  #endif
+
+  #if os(iOS) || os(macOS)
     /// An object that takes care of presenting URLs via the auth instance.
     var authURLPresenter: AuthWebViewControllerDelegate
-
-  #elseif os(macOS)
-
-    /// An object that takes care of presenting URLs via the auth instance.
-    var authURLPresenter: AuthWebViewControllerDelegate
-
-  #endif // TARGET_OS_IOS
+  #endif
 
   // MARK: Private properties
 
