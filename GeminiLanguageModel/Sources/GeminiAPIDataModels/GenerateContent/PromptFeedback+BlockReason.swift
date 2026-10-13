@@ -22,7 +22,7 @@ extension PromptFeedback {
   /// Optional. If set, the prompt was blocked and no candidates are returned.
   /// Rephrase the prompt.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Output only. The reason why the prompt was blocked.
   package enum BlockReason: Codable, Sendable, Equatable, Hashable {

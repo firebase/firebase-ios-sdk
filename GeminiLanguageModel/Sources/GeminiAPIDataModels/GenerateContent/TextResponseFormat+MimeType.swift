@@ -21,7 +21,7 @@ extension TextResponseFormat {
   ///
   /// Optional. The MIME type of the text output.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The IANA standard MIME type of the response.
   package enum MimeType: Codable, Sendable, Equatable, Hashable {

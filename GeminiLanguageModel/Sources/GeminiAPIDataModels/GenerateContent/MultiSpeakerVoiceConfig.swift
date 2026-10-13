@@ -22,7 +22,7 @@ import Foundation
 ///
 /// The configuration for the multi-speaker setup.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1MultiSpeakerVoiceConfig`
 ///
@@ -34,7 +34,7 @@ package struct MultiSpeakerVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Required. All the enabled speaker voices.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Required. A list of configurations for the voices of the speakers. Exactly
   /// two speaker voice configurations must be provided.

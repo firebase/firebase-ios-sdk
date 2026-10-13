@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Candidate for the logprobs token and score.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1LogprobsResultCandidate`
 ///
@@ -34,7 +34,7 @@ package struct LogprobsResultCandidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// The candidate’s token string value.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The token's string representation.
   package let token: String?
@@ -45,7 +45,7 @@ package struct LogprobsResultCandidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// The candidate’s token id value.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The token's numerical ID. While the `token` field provides
   /// the string representation of the token, the `token_id` is the numerical
@@ -60,7 +60,7 @@ package struct LogprobsResultCandidate: Codable, Sendable, Equatable, Hashable {
   ///
   /// The candidate's log probability.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The log probability of this token. A higher value indicates
   /// that the model was more confident in this token. The log probability can

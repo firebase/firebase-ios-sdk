@@ -20,9 +20,9 @@ import Foundation
 ///
 /// Type: `ToolType`
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
-/// > Important: This type is not supported in the Gemini Enterprise API.
+/// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum ToolType: Codable, Sendable, Equatable, Hashable {
   /// Google search tool, maps to Tool.google_search.search_types.web_search.
   case googleSearchWeb

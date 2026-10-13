@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Configuration for text output format.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1TextResponseFormat`
 ///
@@ -34,7 +34,7 @@ package struct TextResponseFormat: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The MIME type of the text output.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. The IANA standard MIME type of the response.
   package let mimeType: MimeType?

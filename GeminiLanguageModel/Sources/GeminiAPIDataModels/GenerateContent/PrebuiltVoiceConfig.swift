@@ -22,7 +22,7 @@ import Foundation
 ///
 /// The configuration for the prebuilt speaker to use.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1PrebuiltVoiceConfig`
 ///
@@ -34,7 +34,7 @@ package struct PrebuiltVoiceConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// The name of the preset voice to use.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The name of the prebuilt voice to use.
   package let voiceName: String?

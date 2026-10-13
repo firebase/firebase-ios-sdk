@@ -22,7 +22,7 @@ import Foundation
 ///
 /// Retrieval config.
 ///
-/// ### Gemini Enterprise API
+/// ### Gemini Enterprise Agent Platform
 ///
 /// Type: `GoogleCloudAiplatformV1beta1RetrievalConfig`
 ///
@@ -34,7 +34,7 @@ package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The location of the user.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The location of the user.
   package let latLng: LatLng?
@@ -45,7 +45,7 @@ package struct RetrievalConfig: Codable, Sendable, Equatable, Hashable {
   ///
   /// Optional. The language code of the user.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The language code of the user.
   package let languageCode: String?

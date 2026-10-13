@@ -21,7 +21,7 @@ extension ImageConfig {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Controls whether prominent people (celebrities) generation is allowed. If
   /// used with personGeneration, personGeneration enum would take precedence.

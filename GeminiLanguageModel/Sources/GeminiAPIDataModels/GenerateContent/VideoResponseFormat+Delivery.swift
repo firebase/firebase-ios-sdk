@@ -21,7 +21,7 @@ extension VideoResponseFormat {
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// Optional. Delivery mode for the generated content.
   package enum Delivery: Codable, Sendable, Equatable, Hashable {

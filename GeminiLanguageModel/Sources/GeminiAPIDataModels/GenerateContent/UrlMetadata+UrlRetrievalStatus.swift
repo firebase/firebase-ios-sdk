@@ -21,7 +21,7 @@ extension UrlMetadata {
   ///
   /// Status of the url retrieval.
   ///
-  /// ### Gemini Enterprise API
+  /// ### Gemini Enterprise Agent Platform
   ///
   /// The status of the URL retrieval.
   package enum UrlRetrievalStatus: Codable, Sendable, Equatable, Hashable {

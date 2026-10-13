@@ -132,6 +132,20 @@ typedef enum {
 
 @end
 
+// Returns the status of a response to a request we sent. The response is
+// server-controlled, so a missing or non-string status is reported as a
+// failure, which every caller treats as an ordinary failed request. That also
+// covers the nil body substituted for a malformed one in
+// onDataMessage:withMessage:. A nil status is not safe to pass along instead:
+// +[FUtilities errorForStatus:andReason:] crashes when both are nil.
+static NSString *statusFromResponse(NSDictionary *response) {
+    NSString *status = [response objectForKey:kFWPResponseForActionStatus];
+    if (![status isKindOfClass:[NSString class]]) {
+        return kFWPResponseForActionStatusFailed;
+    }
+    return status;
+}
+
 @implementation FPersistentConnection
 
 - (id)initWithRepoInfo:(FRepoInfo *)repoInfo
@@ -362,18 +376,47 @@ typedef enum {
 
 - (void)onDataMessage:(FConnection *)fconnection
           withMessage:(NSDictionary *)message {
-    if (message[kFWPRequestNumber] != nil) {
-        // this is a response to a request we sent
-        NSNumber *rn = [NSNumber
-            numberWithInt:[[message objectForKey:kFWPRequestNumber] intValue]];
+    // The data envelope is parsed from server JSON; ignore it unless it is a
+    // JSON object, otherwise the keyed subscripts below crash the client.
+    if (![message isKindOfClass:[NSDictionary class]]) {
+        FFWarn(@"I-RDB034047",
+               @"Ignoring data message that is not a JSON object: %@", message);
+        return;
+    }
+    id requestNumber = [message objectForKey:kFWPRequestNumber];
+    if (requestNumber != nil) {
+        // this is a response to a request we sent. The request number is
+        // server-controlled; a non-numeric value does not respond to -intValue.
+        if (![requestNumber isKindOfClass:[NSNumber class]] &&
+            ![requestNumber isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034053",
+                  @"Ignoring response with malformed request number: %@",
+                  message);
+            return;
+        }
+        NSNumber *rn = [NSNumber numberWithInt:[requestNumber intValue]];
         if ([self.requestCBHash objectForKey:rn]) {
             void (^callback)(NSDictionary *) =
                 [self.requestCBHash objectForKey:rn];
             [self.requestCBHash removeObjectForKey:rn];
 
             if (callback) {
+                // The response body is server-controlled. Every callback reads
+                // it with -objectForKey:, so pass it along only when it is a
+                // JSON object; otherwise substitute nil rather than crash the
+                // client. The callbacks read their status through
+                // statusFromResponse, so the request then fails normally.
+                id responseData = [message objectForKey:kFWPResponseForRNData];
+                if (responseData != nil &&
+                    ![responseData isKindOfClass:[NSDictionary class]]) {
+                    FFLog(@"I-RDB034054",
+                          @"Ignoring response body that is not a JSON object: "
+                          @"%@",
+                          message);
+                    responseData = nil;
+                }
                 // dispatch_async(self.dispatchQueue, ^{
-                callback([message objectForKey:kFWPResponseForRNData]);
+                callback(responseData);
                 //});
             }
         }
@@ -645,8 +688,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
            sensitive:YES
             callback:^(NSDictionary *data) {
               self->connectionState = ConnectionStateConnected;
-              NSString *status =
-                  [data objectForKey:kFWPResponseForActionStatus];
+              NSString *status = statusFromResponse(data);
               id responseData = [data objectForKey:kFWPResponseForActionData];
               if (responseData == nil) {
                   responseData = @"error";
@@ -716,8 +758,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                 body:request
            sensitive:NO
             callback:^(NSDictionary *data) {
-              NSString *status =
-                  [data objectForKey:kFWPResponseForActionStatus];
+              NSString *status = statusFromResponse(data);
               NSString *errorReason =
                   [data objectForKey:kFWPResponseForActionData];
               callback(status, errorReason);
@@ -743,8 +784,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                   [self.outstandingPuts removeObjectForKey:index];
 
                   if (onComplete != nil) {
-                      NSString *status =
-                          [data objectForKey:kFWPResponseForActionStatus];
+                      NSString *status = statusFromResponse(data);
                       NSString *errorReason =
                           [data objectForKey:kFWPResponseForActionData];
                       if (self.unackedListensCount == 0) {
@@ -784,8 +824,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
               FOutstandingGet *currentGet = self.outstandingGets[index];
               if (currentGet == get) {
                   [self.outstandingGets removeObjectForKey:index];
-                  NSString *status =
-                      [data objectForKey:kFWPResponseForActionStatus];
+                  NSString *status = statusFromResponse(data);
                   id resultData = [data objectForKey:kFWPResponseForActionData];
                   if (resultData == (id)[NSNull null]) {
                       resultData = nil;
@@ -935,7 +974,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
       // only trigger actions if the listen hasn't been removed (and maybe
       // readded)
       if (currentListenSpec == listenSpec) {
-          NSString *status = [response objectForKey:kFWPRequestStatus];
+          NSString *status = statusFromResponse(response);
           if (![status isEqualToString:@"ok"]) {
               [self removeListen:query];
           }
@@ -1034,6 +1073,16 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
 
 - (void)onDataPushWithAction:(NSString *)action andBody:(NSDictionary *)body {
     FFLog(@"I-RDB034029", @"handleServerMessage: %@, %@", action, body);
+    // action and body are server-controlled JSON; ignore the push unless they
+    // are a string and a JSON object, otherwise -isEqualToString: and the keyed
+    // access below crash the client.
+    if (![action isKindOfClass:[NSString class]] ||
+        ![body isKindOfClass:[NSDictionary class]]) {
+        FFWarn(@"I-RDB034048",
+               @"Ignoring malformed server push (action: %@, body: %@)", action,
+               body);
+        return;
+    }
     id<FPersistentConnectionDelegate> delegate = self.delegate;
     if ([action isEqualToString:kFWPAsyncServerDataUpdate] ||
         [action isEqualToString:kFWPAsyncServerDataMerge]) {
@@ -1043,19 +1092,36 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
             [body objectForKey:kFWPAsyncServerDataUpdateBodyData]) {
             NSString *path =
                 [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+            if (![path isKindOfClass:[NSString class]]) {
+                FFLog(@"I-RDB034049",
+                      @"Ignoring data update with non-string path: %@", body);
+                return;
+            }
             id payloadData =
                 [body objectForKey:kFWPAsyncServerDataUpdateBodyData];
+            // A merge is applied to the cache key by key, so its data has to
+            // be a JSON object.
+            if (isMerge && ![payloadData isKindOfClass:[NSDictionary class]]) {
+                FFLog(@"I-RDB034057",
+                      @"Ignoring merge update with non-dictionary data: %@",
+                      body);
+                return;
+            }
+            id tagId = [body objectForKey:kFWPAsyncServerDataUpdateBodyTag];
+            if (tagId != nil && ![tagId isKindOfClass:[NSNumber class]]) {
+                FFLog(@"I-RDB034056",
+                      @"Ignoring data update with malformed tag: %@", body);
+                return;
+            }
             if (isMerge && [payloadData isKindOfClass:[NSDictionary class]] &&
                 [payloadData count] == 0) {
                 // ignore empty merge
             } else {
-                [delegate
-                    onDataUpdate:self
-                         forPath:path
-                         message:payloadData
-                         isMerge:isMerge
-                           tagId:[body objectForKey:
-                                           kFWPAsyncServerDataUpdateBodyTag]];
+                [delegate onDataUpdate:self
+                               forPath:path
+                               message:payloadData
+                               isMerge:isMerge
+                                 tagId:tagId];
             }
         } else {
             FFLog(
@@ -1067,10 +1133,37 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
         NSString *path = body[kFWPAsyncServerDataUpdateBodyPath];
         NSArray *ranges = body[kFWPAsyncServerDataUpdateBodyData];
         NSNumber *tag = body[kFWPAsyncServerDataUpdateBodyTag];
+        if (![path isKindOfClass:[NSString class]] ||
+            ![ranges isKindOfClass:[NSArray class]] ||
+            (tag != nil && ![tag isKindOfClass:[NSNumber class]])) {
+            FFLog(@"I-RDB034050",
+                  @"Ignoring range merge with malformed path, ranges, or tag: "
+                  @"%@",
+                  body);
+            return;
+        }
         NSMutableArray *rangeMerges = [NSMutableArray array];
-        for (NSDictionary *range in ranges) {
-            NSString *startString = range[kFWPAsyncServerDataUpdateStartPath];
-            NSString *endString = range[kFWPAsyncServerDataUpdateEndPath];
+        for (id range in ranges) {
+            NSString *startString =
+                [range isKindOfClass:[NSDictionary class]]
+                    ? range[kFWPAsyncServerDataUpdateStartPath]
+                    : nil;
+            NSString *endString = [range isKindOfClass:[NSDictionary class]]
+                                      ? range[kFWPAsyncServerDataUpdateEndPath]
+                                      : nil;
+            // A nil bound means "unbounded", so a malformed range would
+            // silently widen the merge and overwrite more of the local cache
+            // than the server intended. Reject the whole message rather than
+            // apply a partial or widened merge.
+            if (![range isKindOfClass:[NSDictionary class]] ||
+                (startString != nil &&
+                 ![startString isKindOfClass:[NSString class]]) ||
+                (endString != nil &&
+                 ![endString isKindOfClass:[NSString class]])) {
+                FFLog(@"I-RDB034055",
+                      @"Ignoring range merge with a malformed range: %@", body);
+                return;
+            }
             id updateData = range[kFWPAsyncServerDataUpdateRangeMerge];
             id<FNode> updates = [FSnapshotUtilities nodeFrom:updateData];
             FPath *start = (startString != nil)
@@ -1087,14 +1180,24 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
     } else if ([action isEqualToString:kFWPAsyncServerAuthRevoked]) {
         NSString *status = [body objectForKey:kFWPResponseForActionStatus];
         NSString *reason = [body objectForKey:kFWPResponseForActionData];
+        if (![status isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034051",
+                  @"Ignoring auth revoked with non-string status: %@", body);
+            return;
+        }
         [self onAuthRevokedWithStatus:status andReason:reason];
     } else if ([action isEqualToString:kFWPASyncServerListenCancelled]) {
         NSString *pathString =
             [body objectForKey:kFWPAsyncServerDataUpdateBodyPath];
+        if (![pathString isKindOfClass:[NSString class]]) {
+            FFLog(@"I-RDB034052",
+                  @"Ignoring listen cancel with non-string path: %@", body);
+            return;
+        }
         [self onListenRevoked:[[FPath alloc] initWith:pathString]];
     } else if ([action isEqualToString:kFWPAsyncServerSecurityDebug]) {
         NSString *msg = [body objectForKey:@"msg"];
-        if (msg != nil) {
+        if ([msg isKindOfClass:[NSString class]]) {
             NSArray *msgs = [msg componentsSeparatedByString:@"\n"];
             for (NSString *m in msgs) {
                 FFWarn(@"I-RDB034031", @"%@", m);
@@ -1247,8 +1350,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                     body:request
                sensitive:NO
                 callback:^(NSDictionary *data) {
-                  NSString *status =
-                      [data objectForKey:kFWPResponseForActionStatus];
+                  NSString *status = statusFromResponse(data);
                   NSString *errorReason =
                       [data objectForKey:kFWPResponseForActionData];
                   BOOL statusOk =
@@ -1317,8 +1419,7 @@ static void reachabilityCallback(SCNetworkReachabilityRef ref,
                 body:requestData
            sensitive:YES
             callback:^(NSDictionary *data) {
-              NSString *status =
-                  [data objectForKey:kFWPResponseForActionStatus];
+              NSString *status = statusFromResponse(data);
               id responseData = [data objectForKey:kFWPResponseForActionData];
               if (responseData == nil) {
                   responseData = @"Response data was empty.";
