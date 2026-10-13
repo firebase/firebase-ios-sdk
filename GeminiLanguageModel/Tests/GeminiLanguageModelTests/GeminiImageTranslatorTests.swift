@@ -14,6 +14,7 @@
 
 #if canImport(FoundationModels) && compiler(>=6.4)
   import CoreGraphics
+  import CoreVideo
   import Foundation
   import FoundationModels
   import GeminiAPIDataModels
@@ -28,15 +29,44 @@
   struct GeminiImageTranslatorTests {
     /// The expected result of displaying the standard quadrant image in a given orientation.
     struct OrientationCase: Sendable, CustomTestStringConvertible {
+      /// The display orientation applied to the standard quadrant image.
       let orientation: CGImagePropertyOrientation
+
+      /// The expected width of the displayed image, in pixels.
       let width: Int
+
+      /// The expected height of the displayed image, in pixels.
       let height: Int
+
+      /// The expected color of the displayed image's top-left quadrant.
       let topLeft: TestImages.Color
+
+      /// The expected color of the displayed image's top-right quadrant.
       let topRight: TestImages.Color
+
+      /// The expected color of the displayed image's bottom-left quadrant.
       let bottomLeft: TestImages.Color
+
+      /// The expected color of the displayed image's bottom-right quadrant.
       let bottomRight: TestImages.Color
 
+      /// A short description of the case shown in test results.
       var testDescription: String { "orientation \(orientation.rawValue)" }
+    }
+
+    /// An image file format used as a test fixture.
+    struct FileFormat: Sendable, CustomTestStringConvertible {
+      /// The image type.
+      let type: UTType
+
+      /// The file extension for fixture files.
+      let pathExtension: String
+
+      /// The MIME type Gemini expects for the format.
+      let mimeType: String
+
+      /// A short description of the format shown in test results.
+      var testDescription: String { type.identifier }
     }
 
     /// Expected display layouts of a 128x64 image with red, green, blue, and yellow quadrants
@@ -76,7 +106,43 @@
       ),
     ]
 
-    // MARK: - In-memory images
+    /// The expected layout of the standard quadrant image when displayed upright.
+    static let uprightCase = orientationCases[0]
+
+    /// The orientation cases that require rotating or flipping the image.
+    static let rotatedOrientationCases = orientationCases.filter { $0.orientation != .up }
+
+    /// Formats that can be sent without re-encoding and can be encoded on this platform.
+    static let passThroughFormats = [
+      FileFormat(type: .png, pathExtension: "png", mimeType: "image/png"),
+      FileFormat(type: .jpeg, pathExtension: "jpg", mimeType: "image/jpeg"),
+      FileFormat(type: .heic, pathExtension: "heic", mimeType: "image/heic"),
+    ].filter { TestImages.canEncode($0.type) }
+
+    /// Formats that must be re-encoded and can be encoded on this platform.
+    static let reencodedFormats = [
+      FileFormat(type: .tiff, pathExtension: "tiff", mimeType: "image/tiff"),
+      FileFormat(type: .gif, pathExtension: "gif", mimeType: "image/gif"),
+      FileFormat(type: .bmp, pathExtension: "bmp", mimeType: "image/bmp"),
+    ].filter { TestImages.canEncode($0.type) }
+
+    /// Formats with embedded orientation metadata that can be encoded on this platform.
+    static let orientableFormats = [
+      FileFormat(type: .jpeg, pathExtension: "jpg", mimeType: "image/jpeg"),
+      FileFormat(type: .heic, pathExtension: "heic", mimeType: "image/heic"),
+    ].filter { TestImages.canEncode($0.type) }
+
+    /// Color spaces that can't be represented in an 8-bit JPEG.
+    static let extendedRangeAndHDRColorSpaceNames: [String] = [
+      CGColorSpace.extendedSRGB,
+      CGColorSpace.extendedLinearSRGB,
+      CGColorSpace.extendedDisplayP3,
+      CGColorSpace.itur_2100_PQ,
+      CGColorSpace.itur_2100_HLG,
+      CGColorSpace.displayP3_PQ,
+    ].map { $0 as String }
+
+    // MARK: - In-Memory Images
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -108,6 +174,52 @@
       try Self.expectDisplayLayout(of: blob.data, matches: testCase)
     }
 
+    @Test(arguments: orientationCases.filter { [.up, .right].contains($0.orientation) })
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func pixelBufferIsRotatedAndReencodedAsJPEG(_ testCase: OrientationCase) throws {
+      let pixelBuffer = try TestImages.pixelBuffer(from: Self.makeQuadrantImage())
+      let attachment = Transcript.ImageAttachment(pixelBuffer, orientation: testCase.orientation)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      #expect(blob.mimeType == "image/jpeg")
+      #expect(TestImages.embeddedOrientation(of: blob.data) == nil)
+      try Self.expectDisplayLayout(of: blob.data, matches: testCase)
+    }
+
+    @Test(arguments: extendedRangeAndHDRColorSpaceNames)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func extendedRangeAndHDRImagesAreConvertedToSRGB(colorSpaceName: String) throws {
+      let image = try TestImages.redraw(
+        Self.makeQuadrantImage(),
+        inColorSpaceNamed: colorSpaceName as CFString
+      )
+      let attachment = Transcript.ImageAttachment(image)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      #expect(blob.mimeType == "image/jpeg")
+      let decoded = try TestImages.decode(blob.data)
+      #expect(decoded.colorSpace?.name == CGColorSpace.sRGB)
+      try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func standardRangeColorSpaceIsPreserved() throws {
+      let image = try TestImages.redraw(
+        Self.makeQuadrantImage(),
+        inColorSpaceNamed: CGColorSpace.displayP3
+      )
+      let attachment = Transcript.ImageAttachment(image)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      let decoded = try TestImages.decode(blob.data)
+      #expect(decoded.colorSpace?.name == CGColorSpace.displayP3)
+      try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
+    }
+
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func transparencyIsCompositedOntoBlack() throws {
@@ -122,27 +234,17 @@
 
     // MARK: - File URLs
 
-    @Test(
-      arguments: [
-        (UTType.png, "png", "image/png"),
-        (UTType.jpeg, "jpg", "image/jpeg"),
-        (UTType.heic, "heic", "image/heic"),
-      ]
-    )
+    @Test(arguments: passThroughFormats)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func supportedFileIsPassedThroughUnchanged(
-      type: UTType,
-      pathExtension: String,
-      expectedMIMEType: String
-    ) throws {
-      let fileData = try TestImages.encode(Self.makeQuadrantImage(), as: type)
-      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: pathExtension)
+    func supportedFileIsPassedThroughUnchanged(format: FileFormat) throws {
+      let fileData = try TestImages.encode(Self.makeQuadrantImage(), as: format.type)
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: format.pathExtension)
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
 
       let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
 
-      #expect(blob.mimeType == expectedMIMEType)
+      #expect(blob.mimeType == format.mimeType)
       #expect(blob.data == fileData)
     }
 
@@ -160,11 +262,11 @@
       #expect(blob.data == fileData)
     }
 
-    @Test(arguments: [(UTType.tiff, "tiff"), (UTType.gif, "gif"), (UTType.bmp, "bmp")])
+    @Test(arguments: reencodedFormats)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func unsupportedFileFormatIsReencodedAsJPEG(type: UTType, pathExtension: String) throws {
-      let fileData = try TestImages.encode(Self.makeQuadrantImage(), as: type)
-      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: pathExtension)
+    func unsupportedFileFormatIsReencodedAsJPEG(format: FileFormat) throws {
+      let fileData = try TestImages.encode(Self.makeQuadrantImage(), as: format.type)
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: format.pathExtension)
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
 
@@ -172,18 +274,21 @@
 
       #expect(blob.mimeType == "image/jpeg")
       #expect(TestImages.type(of: blob.data) == .jpeg)
-      try Self.expectDisplayLayout(of: blob.data, matches: Self.orientationCases[0])
+      try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
     }
 
-    @Test(arguments: orientationCases.filter { $0.orientation != .up })
+    @Test(arguments: rotatedOrientationCases, orientableFormats)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func fileWithEmbeddedOrientationIsRotatedAndReencoded(_ testCase: OrientationCase) throws {
+    func fileWithEmbeddedOrientationIsRotatedAndReencoded(
+      _ testCase: OrientationCase,
+      format: FileFormat
+    ) throws {
       let fileData = try TestImages.encode(
         Self.makeQuadrantImage(),
-        as: .jpeg,
+        as: format.type,
         orientation: testCase.orientation
       )
-      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "jpg")
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: format.pathExtension)
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
 
@@ -195,7 +300,7 @@
       try Self.expectDisplayLayout(of: blob.data, matches: testCase)
     }
 
-    @Test(arguments: orientationCases.filter { $0.orientation != .up })
+    @Test(arguments: rotatedOrientationCases)
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rotationMatchesImageIOOrientationTransform(_ testCase: OrientationCase) throws {
       let fileData = try TestImages.encode(
@@ -234,7 +339,7 @@
       #expect(blob.mimeType == "image/jpeg")
       #expect(blob.data != fileData)
       #expect(TestImages.embeddedOrientation(of: blob.data) == nil)
-      try Self.expectDisplayLayout(of: blob.data, matches: Self.orientationCases[0])
+      try Self.expectDisplayLayout(of: blob.data, matches: Self.uprightCase)
     }
 
     @Test
@@ -261,7 +366,7 @@
       }
     }
 
-    // MARK: - Remote URLs
+    // MARK: - Non-File URLs
 
     @Test(
       arguments: [
@@ -270,7 +375,7 @@
       ]
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func remoteURLThrowsUnsupportedURL(urlString: String) throws {
+    func nonFileURLThrowsUnsupportedURL(urlString: String) throws {
       let url = try #require(URL(string: urlString))
       let attachment = Transcript.ImageAttachment(imageURL: url)
 
@@ -279,8 +384,24 @@
       }
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func unsupportedURLDescriptionIncludesSchemeButNotURL() throws {
+      let url = try #require(URL(string: "https://example.com/image.png?token=secret"))
+      let error = GeminiImageTranslator.TranslationError.unsupportedURL(url)
+
+      let description = error.description
+
+      #expect(description.contains("\"https\""))
+      #expect(!description.contains("example.com"))
+      #expect(!description.contains("secret"))
+    }
+
     // MARK: - Helpers
 
+    /// Creates the standard 128x64 test image with red, green, blue, and yellow quadrants.
+    ///
+    /// - Returns: The quadrant image, in its upright orientation.
     private static func makeQuadrantImage() throws -> CGImage {
       try TestImages.quadrants(
         topLeft: .red,
@@ -292,6 +413,9 @@
       )
     }
 
+    /// Creates a fully transparent 32x32 image.
+    ///
+    /// - Returns: The transparent image.
     private static func makeTransparentImage() throws -> CGImage {
       let colorSpace = try #require(CGColorSpace(name: CGColorSpace.sRGB))
       let context = try #require(
@@ -310,6 +434,9 @@
     }
 
     /// Returns an image with its embedded orientation applied by ImageIO.
+    ///
+    /// - Parameter data: Encoded image data with an embedded orientation.
+    /// - Returns: The image in its display orientation, as rendered by ImageIO.
     private static func imageIOOrientedImage(from data: Data) throws -> CGImage {
       let source = try #require(CGImageSourceCreateWithData(data as CFData, nil))
       let options: [CFString: Any] = [
@@ -322,6 +449,11 @@
       )
     }
 
+    /// Returns the blob from inline part data.
+    ///
+    /// - Parameter partData: The translated part data.
+    /// - Returns: The inline data blob.
+    /// - Throws: An error if `partData` isn't inline data.
     private static func inlineBlob(_ partData: Part.PartData) throws -> Blob {
       guard case .inlineData(let blob) = partData else {
         throw TestImages.ImageError(description: "Expected inline data, got \(partData).")
@@ -329,6 +461,12 @@
       return blob
     }
 
+    /// Records issues unless encoded image data has the expected size and quadrant colors.
+    ///
+    /// - Parameters:
+    ///   - data: The encoded image data to check.
+    ///   - testCase: The expected size and quadrant colors.
+    ///   - sourceLocation: The source location to attribute issues to.
     private static func expectDisplayLayout(
       of data: Data,
       matches testCase: OrientationCase,

@@ -353,10 +353,18 @@
             flushPendingText()
             parts.append(Part(data: try translateImage(imageAttachment, in: entry)))
             containsImage = true
-          default:
+          // `Transcript.Attachment.data` was added in the Xcode 27.2 SDK (FoundationModels 2.1).
+          #if canImport(FoundationModels, _version: 2.1)
+            case .data:
+              throw makeUnsupportedError(
+                entry,
+                description: "Data attachment segments in prompts are not supported."
+              )
+          #endif  // canImport(FoundationModels, _version: 2.1)
+          @unknown default:
             throw makeUnsupportedError(
               entry,
-              description: "Data attachment segments in prompts are not supported."
+              description: "Unsupported attachment segment in prompt."
             )
           }
         case .structure:
@@ -398,7 +406,7 @@
     ) throws -> Part.PartData {
       do {
         return try GeminiImageTranslator.partData(for: imageAttachment)
-      } catch let error as GeminiImageTranslator.TranslationError {
+      } catch {
         throw makeUnsupportedError(entry, description: error.description)
       }
     }

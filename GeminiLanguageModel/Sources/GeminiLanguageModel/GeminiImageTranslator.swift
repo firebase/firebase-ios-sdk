@@ -30,7 +30,7 @@
   ///   with a non-`.up` orientation) are rotated to their display orientation and re-encoded as
   ///   JPEG, matching the format used by `Transcript`'s `Codable` conformance.
   ///
-  /// Remote (non-file) URLs aren't supported.
+  /// Non-file URLs aren't supported.
   ///
   /// Only CoreGraphics, ImageIO, and UniformTypeIdentifiers are used so that the translation
   /// works on every platform that supports Foundation Models, including watchOS, which lacks
@@ -53,10 +53,14 @@
       case encodingFailed
 
       /// A developer-facing description of the error.
+      ///
+      /// URLs other than file URLs are described by their scheme only, since the full URL may be
+      /// very long (e.g., a `data:` URL) or contain credentials (e.g., a signed URL).
       var description: String {
         switch self {
         case .unsupportedURL(let url):
-          return "Image attachments with remote URLs aren't supported: \(url.absoluteString)"
+          let scheme = url.scheme.map { "\"\($0)\"" } ?? "no"
+          return "Image attachments are only supported for file URLs, not URLs with \(scheme) scheme."
         case .unreadableFile(let url):
           return "The image file couldn't be read: \(url.path)"
         case .undecodableImage:
@@ -91,9 +95,11 @@
     ///
     /// - Parameter attachment: The image attachment to translate.
     /// - Returns: Inline image data for a Gemini `Part`.
-    /// - Throws: A ``TranslationError`` if the attachment references a remote URL, or if the image
-    ///   can't be read, decoded, or encoded.
-    static func partData(for attachment: Transcript.ImageAttachment) throws -> Part.PartData {
+    /// - Throws: A ``TranslationError`` if the attachment references a non-file URL, or if the
+    ///   image can't be read, decoded, or encoded.
+    static func partData(
+      for attachment: Transcript.ImageAttachment
+    ) throws(TranslationError) -> Part.PartData {
       // Reading `orientation` is safe for every attachment source. Reading `cgImage` isn't: it
       // traps for URL-backed attachments whose image couldn't be loaded (e.g., `gs://` URLs), so
       // URL-backed attachments are loaded from their file bytes instead.
@@ -102,7 +108,7 @@
         return try .inlineData(jpegBlob(for: attachment.cgImage, orientation: orientation))
       }
       guard url.isFileURL else {
-        throw TranslationError.unsupportedURL(url)
+        throw .unsupportedURL(url)
       }
       return try .inlineData(blob(forFileAt: url, orientation: orientation))
     }
@@ -114,12 +120,15 @@
     ///   - orientation: The display orientation of the image.
     /// - Returns: A blob containing either the original file bytes or a re-encoded JPEG.
     /// - Throws: A ``TranslationError`` if the file can't be read, decoded, or encoded.
-    static func blob(forFileAt url: URL, orientation: CGImagePropertyOrientation) throws -> Blob {
+    static func blob(
+      forFileAt url: URL,
+      orientation: CGImagePropertyOrientation
+    ) throws(TranslationError) -> Blob {
       let data: Data
       do {
         data = try Data(contentsOf: url)
       } catch {
-        throw TranslationError.unreadableFile(url)
+        throw .unreadableFile(url)
       }
       return try blob(forImageData: data, orientation: orientation)
     }
@@ -127,8 +136,8 @@
     /// Creates a blob from encoded image data.
     ///
     /// The data is sent unchanged when it's in a pass-through format, `orientation` is `.up`, and
-    /// the data has no embedded non-default orientation. Otherwise, the image is decoded, rotated
-    /// to its display orientation, and re-encoded as JPEG. An explicit `orientation` takes
+    /// the data has no embedded non-default orientation. Otherwise, the primary image is decoded,
+    /// rotated to its display orientation, and re-encoded as JPEG. An explicit `orientation` takes
     /// precedence over any orientation embedded in the data, matching
     /// `Transcript.ImageAttachment`.
     ///
@@ -137,15 +146,18 @@
     ///   - orientation: The display orientation of the image.
     /// - Returns: A blob containing either `data` or a re-encoded JPEG.
     /// - Throws: A ``TranslationError`` if the data can't be decoded or encoded.
-    static func blob(forImageData data: Data, orientation: CGImagePropertyOrientation) throws
-      -> Blob
-    {
+    static func blob(
+      forImageData data: Data,
+      orientation: CGImagePropertyOrientation
+    ) throws(TranslationError) -> Blob {
       guard let source = CGImageSourceCreateWithData(data as CFData, nil),
         CGImageSourceGetCount(source) > 0
       else {
-        throw TranslationError.undecodableImage
+        throw .undecodableImage
       }
-      if orientation == .up, !hasEmbeddedOrientation(source),
+      // Files such as HEIC can contain several images, and the primary one isn't always first.
+      let index = CGImageSourceGetPrimaryImageIndex(source)
+      if orientation == .up, !hasEmbeddedOrientation(source, at: index),
         let typeIdentifier = CGImageSourceGetType(source),
         let type = UTType(typeIdentifier as String),
         let mimeType = passThroughMIMETypes[type]
@@ -154,8 +166,8 @@
       }
       // `CGImageSourceCreateImageAtIndex` returns the stored pixels without applying the embedded
       // orientation, consistent with `Transcript.ImageAttachment.cgImage`.
-      guard let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
-        throw TranslationError.undecodableImage
+      guard let image = CGImageSourceCreateImageAtIndex(source, index, nil) else {
+        throw .undecodableImage
       }
       return try jpegBlob(for: image, orientation: orientation)
     }
@@ -167,9 +179,10 @@
     ///   - orientation: The display orientation of the image.
     /// - Returns: A blob containing the JPEG-encoded image.
     /// - Throws: ``TranslationError/encodingFailed`` if the image can't be rotated or encoded.
-    static func jpegBlob(for image: CGImage, orientation: CGImagePropertyOrientation) throws
-      -> Blob
-    {
+    static func jpegBlob(
+      for image: CGImage,
+      orientation: CGImagePropertyOrientation
+    ) throws(TranslationError) -> Blob {
       let orientedImage = try orientedOpaqueImage(from: image, orientation: orientation)
       let data = NSMutableData()
       guard
@@ -180,24 +193,30 @@
           nil
         )
       else {
-        throw TranslationError.encodingFailed
+        throw .encodingFailed
       }
       let properties: [CFString: Any] = [
         kCGImageDestinationLossyCompressionQuality: jpegCompressionQuality
       ]
       CGImageDestinationAddImage(destination, orientedImage, properties as CFDictionary)
       guard CGImageDestinationFinalize(destination) else {
-        throw TranslationError.encodingFailed
+        throw .encodingFailed
       }
       return Blob(mimeType: jpegMIMEType, data: data as Data)
     }
 
     // MARK: - Private Helpers
 
-    /// Returns whether the image source has an embedded orientation other than `.up`.
-    private static func hasEmbeddedOrientation(_ source: CGImageSource) -> Bool {
+    /// Returns whether an image in the source has an embedded orientation other than `.up`.
+    ///
+    /// - Parameters:
+    ///   - source: The image source to inspect.
+    ///   - index: The index of the image in the source.
+    /// - Returns: `true` if the image's metadata specifies a non-default orientation.
+    private static func hasEmbeddedOrientation(_ source: CGImageSource, at index: Int) -> Bool {
       guard
-        let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+        let properties = CGImageSourceCopyPropertiesAtIndex(source, index, nil)
+          as? [CFString: Any],
         let rawOrientation = properties[kCGImagePropertyOrientation] as? NSNumber
       else {
         return false
@@ -207,8 +226,8 @@
 
     /// Draws an image into an opaque bitmap, applying the transform for its display orientation.
     ///
-    /// Drawing into an opaque context composites any transparency onto black, matching the JPEG
-    /// output of `Transcript`'s `Codable` conformance.
+    /// The bitmap is filled with black before drawing, so any transparency is composited onto
+    /// black, matching the JPEG output of `Transcript`'s `Codable` conformance.
     ///
     /// - Parameters:
     ///   - image: The image, with pixels stored in the given orientation.
@@ -218,47 +237,74 @@
     private static func orientedOpaqueImage(
       from image: CGImage,
       orientation: CGImagePropertyOrientation
-    ) throws -> CGImage {
+    ) throws(TranslationError) -> CGImage {
       let width = CGFloat(image.width)
       let height = CGFloat(image.height)
       let swapsDimensions: Bool
       switch orientation {
+      case .up, .upMirrored, .down, .downMirrored:
+        swapsDimensions = false
       case .left, .leftMirrored, .right, .rightMirrored:
         swapsDimensions = true
-      default:
-        swapsDimensions = false
       }
       let outputWidth = swapsDimensions ? image.height : image.width
       let outputHeight = swapsDimensions ? image.width : image.height
 
-      let colorSpace: CGColorSpace
-      if let imageColorSpace = image.colorSpace, imageColorSpace.model == .rgb {
-        colorSpace = imageColorSpace
-      } else if let sRGB = CGColorSpace(name: CGColorSpace.sRGB) {
-        colorSpace = sRGB
-      } else {
-        throw TranslationError.encodingFailed
+      let context = try makeOpaqueContext(
+        width: outputWidth,
+        height: outputHeight,
+        preferredColorSpace: image.colorSpace
+      )
+      context.setFillColor(red: 0, green: 0, blue: 0, alpha: 1)
+      context.fill(CGRect(x: 0, y: 0, width: outputWidth, height: outputHeight))
+      context.concatenate(displayTransform(for: orientation, width: width, height: height))
+      context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+      guard let orientedImage = context.makeImage() else {
+        throw .encodingFailed
       }
-      guard
-        let context = CGContext(
+      return orientedImage
+    }
+
+    /// Creates an 8-bit opaque RGB bitmap context.
+    ///
+    /// The preferred color space is used when it's a standard-range, non-HDR RGB color space (such
+    /// as sRGB or Display P3). Otherwise, including for extended-range and HDR color spaces, which
+    /// can't be represented in an 8-bit JPEG, sRGB is used.
+    ///
+    /// - Parameters:
+    ///   - width: The width of the context, in pixels.
+    ///   - height: The height of the context, in pixels.
+    ///   - preferredColorSpace: The color space of the source image, if any.
+    /// - Returns: The bitmap context.
+    /// - Throws: ``TranslationError/encodingFailed`` if no bitmap context can be created.
+    private static func makeOpaqueContext(
+      width: Int,
+      height: Int,
+      preferredColorSpace: CGColorSpace?
+    ) throws(TranslationError) -> CGContext {
+      func makeContext(_ colorSpace: CGColorSpace) -> CGContext? {
+        CGContext(
           data: nil,
-          width: outputWidth,
-          height: outputHeight,
+          width: width,
+          height: height,
           bitsPerComponent: 8,
           bytesPerRow: 0,
           space: colorSpace,
           bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
         )
-      else {
-        throw TranslationError.encodingFailed
       }
 
-      context.concatenate(displayTransform(for: orientation, width: width, height: height))
-      context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
-      guard let orientedImage = context.makeImage() else {
-        throw TranslationError.encodingFailed
+      if let preferredColorSpace, preferredColorSpace.model == .rgb,
+        !CGColorSpaceUsesExtendedRange(preferredColorSpace), !preferredColorSpace.isHDR(),
+        let context = makeContext(preferredColorSpace)
+      {
+        return context
       }
-      return orientedImage
+      guard let sRGB = CGColorSpace(name: CGColorSpace.sRGB), let context = makeContext(sRGB)
+      else {
+        throw .encodingFailed
+      }
+      return context
     }
 
     /// Returns the transform that maps an image drawn at `(0, 0, width, height)` to its display
@@ -298,8 +344,6 @@
       case .left:
         // Rotate 90° counterclockwise.
         return CGAffineTransform(a: 0, b: 1, c: -1, d: 0, tx: height, ty: 0)
-      @unknown default:
-        return .identity
       }
     }
   }

@@ -883,16 +883,36 @@
       )
       let transcript = Transcript(entries: [.prompt(prompt)])
 
-      do {
-        _ = try GeminiTranscriptTranslator.translate(transcript)
-        Issue.record("Expected unsupportedTranscriptContent error")
-      } catch LanguageModelError.unsupportedTranscriptContent(let context) {
-        #expect(context.unsupportedContent == [.prompt(prompt)])
-        #expect(context.debugDescription.contains(url.absoluteString))
-      } catch {
-        Issue.record("Unexpected error thrown: \(error)")
-      }
+      let context = try Self.unsupportedTranscriptContent(translating: transcript)
+
+      #expect(context.unsupportedContent == [.prompt(prompt)])
+      #expect(context.debugDescription.contains("\"gs\""))
+      #expect(!context.debugDescription.contains(url.absoluteString))
     }
+
+    #if canImport(FoundationModels, _version: 2.1)
+      @Test
+      @available(macOS 27.2, iOS 27.2, watchOS 27.2, visionOS 27.2, *)
+      @available(tvOS, unavailable)
+      func promptWithDataAttachmentThrowsUnsupportedTranscriptContent() throws {
+        let dataAttachment = Transcript.DataAttachment(
+          contentType: .json,
+          content: Data(#"{"key":"value"}"#.utf8)
+        )
+        let prompt = Transcript.Prompt(
+          segments: [
+            Self.textSegment("Summarize this data."),
+            .attachment(Transcript.AttachmentSegment(content: .data(dataAttachment))),
+          ]
+        )
+        let transcript = Transcript(entries: [.prompt(prompt)])
+
+        let context = try Self.unsupportedTranscriptContent(translating: transcript)
+
+        #expect(context.unsupportedContent == [.prompt(prompt)])
+        #expect(context.debugDescription.contains("Data attachment"))
+      }
+    #endif  // canImport(FoundationModels, _version: 2.1)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -903,9 +923,9 @@
       )
       let transcript = Transcript(entries: [.instructions(instructions)])
 
-      #expect(throws: LanguageModelError.self) {
-        try GeminiTranscriptTranslator.translate(transcript)
-      }
+      let context = try Self.unsupportedTranscriptContent(translating: transcript)
+
+      #expect(context.unsupportedContent == [.instructions(instructions)])
     }
 
     @Test
@@ -919,18 +939,47 @@
         ]
       )
 
-      #expect(throws: LanguageModelError.self) {
-        try GeminiTranscriptTranslator.translate(transcript)
-      }
+      let context = try Self.unsupportedTranscriptContent(translating: transcript)
+
+      #expect(context.unsupportedContent == [.response(response)])
     }
 
     // MARK: - Helpers
 
+    /// Translates a transcript that is expected to fail with `unsupportedTranscriptContent`.
+    ///
+    /// - Parameter transcript: The transcript to translate.
+    /// - Returns: The context of the thrown `unsupportedTranscriptContent` error.
+    /// - Throws: An error if translation succeeds or throws a different error.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func unsupportedTranscriptContent(
+      translating transcript: Transcript
+    ) throws -> LanguageModelError.UnsupportedTranscriptContent {
+      let error = try #require(throws: LanguageModelError.self) {
+        try GeminiTranscriptTranslator.translate(transcript)
+      }
+      guard case .unsupportedTranscriptContent(let context) = error else {
+        Issue.record("Expected unsupportedTranscriptContent, got \(error).")
+        throw error
+      }
+      return context
+    }
+
+    /// Creates a text segment.
+    ///
+    /// - Parameter content: The text of the segment.
+    /// - Returns: The text segment.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private static func textSegment(_ content: String) -> Transcript.Segment {
       .text(Transcript.TextSegment(content: content))
     }
 
+    /// Creates an attachment segment containing a small solid-color image.
+    ///
+    /// - Parameters:
+    ///   - color: The color that fills the image.
+    ///   - label: An optional label for the attachment.
+    /// - Returns: The attachment segment.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private static func imageSegment(
       color: TestImages.Color = .red,
@@ -945,6 +994,10 @@
       )
     }
 
+    /// Returns whether part data is non-empty inline JPEG data.
+    ///
+    /// - Parameter data: The part data to check.
+    /// - Returns: `true` if `data` is inline data with the `image/jpeg` MIME type.
     private static func isJPEGInlineData(_ data: Part.PartData?) -> Bool {
       guard case .inlineData(let blob) = data else {
         return false
