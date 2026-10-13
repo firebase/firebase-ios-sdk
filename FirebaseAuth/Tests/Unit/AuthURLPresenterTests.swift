@@ -12,14 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
   import Foundation
   import XCTest
 
   @testable import FirebaseAuth
   import FirebaseCore
-  import SafariServices
+
+  #if os(iOS)
+    import SafariServices
+    import UIKit
+  #elseif os(macOS)
+    import AppKit
+  #endif
 
   class AuthURLPresenterTests: XCTestCase {
     /** @fn testFIRAuthURLPresenterNonNilUIDelegate
@@ -42,7 +48,15 @@
       presenter.fakeUIDelegate = FakeUIDelegate(presenter, presenterExpectation)
 
       let presenterURL = try XCTUnwrap(URL(string: "https://presenter.url"))
-      let uiDelegate = useDefaultUIDelegate ? AuthDefaultUIDelegate(withViewController: nil) : nil
+      #if os(macOS)
+        let uiDelegate: AuthUIDelegate? = useDefaultUIDelegate
+          ? AuthDefaultUIDelegate()
+          : nil
+      #else
+        let uiDelegate: AuthUIDelegate? = useDefaultUIDelegate
+          ? AuthDefaultUIDelegate(withViewController: nil)
+          : nil
+      #endif
 
       let callbackMatcherExpectation = expectation(description: "callback matcher expectation")
       let callbackMatcher: (URL?) -> Bool = { callbackURL in
@@ -64,12 +78,21 @@
                         callbackMatcher: callbackMatcher,
                         completion: completion)
 
+      // Wait for asynchronous presentation to finish before triggering the callback.
+      wait(for: [presenterExpectation], timeout: 5)
+
       // Close the presented content and trigger callbacks.
-      XCTAssertTrue(presenter.canHandle(url: presenterURL))
+      let handledExpectation = expectation(description: "URL handled")
+      kAuthGlobalWorkQueue.async {
+        XCTAssertTrue(presenter.canHandle(url: presenterURL))
+        handledExpectation.fulfill()
+      }
 
-      waitForExpectations(timeout: 5)
+      wait(for: [handledExpectation, callbackMatcherExpectation, completionExpectation], timeout: 5)
+    }
 
-      class FakeUIDelegate: NSObject, AuthUIDelegate {
+    private class FakeUIDelegate: NSObject, AuthUIDelegate {
+      #if os(iOS)
         func present(_ viewControllerToPresent: UIViewController,
                      animated flag: Bool,
                      completion: (() -> Void)? = nil) {
@@ -82,22 +105,41 @@
             let safariViewController = viewControllerToPresent as? SFSafariViewController
             let delegate = safariViewController?.delegate as? AuthURLPresenter
           #endif
-          XCTAssertEqual(delegate, presenter)
+          XCTAssertTrue(delegate === presenter)
           presenterExpectation.fulfill()
+          completion?()
         }
 
         func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-          XCTFail("implement me")
+          completion?()
         }
 
-        init(_ presenter: AuthURLPresenter, _ expectation: XCTestExpectation) {
-          self.presenter = presenter
-          presenterExpectation = expectation
+      #elseif os(macOS)
+        @objc(presentViewController:completion:)
+        func present(_ viewControllerToPresent: NSViewController,
+                     completion: (() -> Void)?) {
+          let webViewController = viewControllerToPresent as? AuthWebViewController
+          let delegate = webViewController?.delegate as? AuthURLPresenter
+
+          XCTAssertTrue(delegate === presenter)
+          presenterExpectation.fulfill()
+          completion?()
         }
 
-        let presenter: AuthURLPresenter
-        let presenterExpectation: XCTestExpectation
+        @objc(dismissViewControllerWithCompletion:)
+        func dismiss(completion: (() -> Void)?) {
+          completion?()
+        }
+      #endif
+
+      init(_ presenter: AuthURLPresenter, _ expectation: XCTestExpectation) {
+        self.presenter = presenter
+        presenterExpectation = expectation
       }
+
+      let presenter: AuthURLPresenter
+      let presenterExpectation: XCTestExpectation
     }
   }
-#endif
+
+#endif // os(iOS) || os(macOS)

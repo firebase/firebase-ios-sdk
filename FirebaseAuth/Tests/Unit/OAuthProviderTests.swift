@@ -18,7 +18,7 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
   class OAuthProviderTests: RPCBaseTests {
     static let kFakeAuthorizedDomain = "test.firebaseapp.com"
     static let kFakeAuthorizedWebDomain = "test.web.app"

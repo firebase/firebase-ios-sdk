@@ -12,16 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
   import Foundation
-  import SafariServices
-  import UIKit
   import WebKit
 
+  #if os(iOS)
+    import SafariServices
+    import UIKit
+  #elseif os(macOS)
+    import AppKit
+  #endif
+
   /// A Class responsible for presenting URL via SFSafariViewController or WKWebView.
-  class AuthURLPresenter: NSObject,
-    SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
+  @available(iOS 13, macOS 10.15, *)
+  class AuthURLPresenter: NSObject, AuthWebViewControllerDelegate {
     /// Presents an URL to interact with user.
     /// - Parameter url: The URL to present.
     /// - Parameter uiDelegate: The UI delegate to present view controller.
@@ -32,42 +37,61 @@
                  uiDelegate: AuthUIDelegate?,
                  callbackMatcher: @escaping (URL?) -> Bool,
                  completion: @escaping (URL?, Error?) -> Void) {
-      if isPresenting {
-        // Unable to start a new presentation on top of another.
-        // Invoke the new completion closure and leave the old one as-is
-        // to be invoked when the presentation finishes.
-        DispatchQueue.main.async {
-          completion(nil, AuthErrorUtils.webContextCancelledError(message: nil))
+      kAuthGlobalWorkQueue.async {
+        if self.isPresenting {
+          // Unable to start a new presentation on top of another.
+          // Invoke the new completion closure and leave the old one as-is
+          // to be invoked when the presentation finishes.
+          DispatchQueue.main.async {
+            completion(nil, AuthErrorUtils.webContextCancelledError(message: nil))
+          }
+          return
         }
-        return
-      }
-      isPresenting = true
-      self.callbackMatcher = callbackMatcher
-      self.completion = completion
-      DispatchQueue.main.async {
-        self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
-        #if targetEnvironment(macCatalyst)
-          self.webViewController = AuthWebViewController(url: url, delegate: self)
-          if let webViewController = self.webViewController {
-            let navController = UINavigationController(rootViewController: webViewController)
-            navController.modalPresentationStyle = .fullScreen
-            if let fakeUIDelegate = self.fakeUIDelegate {
-              fakeUIDelegate.present(navController, animated: true)
-            } else {
-              self.uiDelegate?.present(navController, animated: true)
+        self.isPresenting = true
+        self.callbackMatcher = callbackMatcher
+        self.completion = completion
+        DispatchQueue.main.async {
+          self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
+          #if os(macOS)
+            self.webViewController = AuthWebViewController(url: url, delegate: self)
+
+            if let webViewController = self.webViewController {
+              if let presentingDelegate = self.fakeUIDelegate ?? self.uiDelegate {
+                presentingDelegate.present(webViewController)
+              } else {
+                kAuthGlobalWorkQueue.async {
+                  self.finishPresentation(
+                    withURL: nil,
+                    error: AuthErrorUtils.webContextCancelledError(
+                      message: "No UI delegate available to present the login flow."
+                    )
+                  )
+                }
+              }
             }
-          }
-        #else
-          self.safariViewController = SFSafariViewController(url: url)
-          self.safariViewController?.delegate = self
-          if let safariViewController = self.safariViewController {
-            if let fakeUIDelegate = self.fakeUIDelegate {
-              fakeUIDelegate.present(safariViewController, animated: true)
-            } else {
-              self.uiDelegate?.present(safariViewController, animated: true)
+          #elseif targetEnvironment(macCatalyst)
+            self.webViewController = AuthWebViewController(url: url, delegate: self)
+            if let webViewController = self.webViewController {
+              let navController = UINavigationController(rootViewController: webViewController)
+              navController.modalPresentationStyle = .fullScreen
+              if let fakeUIDelegate = self.fakeUIDelegate {
+                fakeUIDelegate.present(navController, animated: true)
+              } else {
+                self.uiDelegate?.present(navController, animated: true)
+              }
             }
-          }
-        #endif
+          #else
+            self.safariViewController = SFSafariViewController(url: url)
+            self.safariViewController?.delegate = self
+            if let safariViewController = self.safariViewController {
+              if let fakeUIDelegate = self.fakeUIDelegate {
+                fakeUIDelegate.present(safariViewController, animated: true)
+              } else {
+                self.uiDelegate?.present(safariViewController, animated: true)
+              }
+            }
+          #endif
+        }
       }
     }
 
@@ -82,20 +106,6 @@
         return true
       }
       return false
-    }
-
-    // MARK: SFSafariViewControllerDelegate
-
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-      kAuthGlobalWorkQueue.async {
-        if controller == self.safariViewController {
-          self.safariViewController = nil
-          // TODO: Ensure that the SFSafariViewController is actually removed from the screen
-          // before invoking finishPresentation
-          self.finishPresentation(withURL: nil,
-                                  error: AuthErrorUtils.webContextCancelledError(message: nil))
-        }
-      }
     }
 
     // MARK: AuthWebViewControllerDelegate
@@ -137,13 +147,15 @@
     /// The callback URL matcher for the current presentation, if one is active.
     private var callbackMatcher: ((URL) -> Bool)?
 
-    /// The SFSafariViewController used for the current presentation, if any.
-    private var safariViewController: SFSafariViewController?
+    #if os(iOS)
+      /// The SFSafariViewController used for the current presentation, if any.
+      private var safariViewController: SFSafariViewController?
+    #endif
 
     /// The `AuthWebViewController` used for the current presentation, if any.
     private var webViewController: AuthWebViewController?
 
-    /// The UIDelegate used to present the SFSafariViewController.
+    /// The UIDelegate used to present the web authentication controller.
     var uiDelegate: AuthUIDelegate?
 
     /// The completion handler for the current presentation, if one is active.
@@ -165,25 +177,72 @@
       self.uiDelegate = nil
       let completion = self.completion
       self.completion = nil
-      let safariViewController = self.safariViewController
-      self.safariViewController = nil
+      #if os(iOS)
+        let safariViewController = self.safariViewController
+        self.safariViewController = nil
+      #endif
       let webViewController = self.webViewController
       self.webViewController = nil
-      if safariViewController != nil || webViewController != nil {
-        DispatchQueue.main.async {
-          uiDelegate?.dismiss(animated: true) {
-            self.isPresenting = false
-            if let completion {
-              completion(url, error)
+
+      #if os(macOS)
+        if let webViewController {
+          let presentingDelegate = fakeUIDelegate ?? uiDelegate
+
+          DispatchQueue.main.async {
+            webViewController.finishAuthFlow()
+
+            if let presentingDelegate {
+              presentingDelegate.dismiss {
+                kAuthGlobalWorkQueue.async {
+                  self.isPresenting = false
+                  completion?(url, error)
+                }
+              }
+            } else {
+              kAuthGlobalWorkQueue.async {
+                self.isPresenting = false
+                completion?(url, error)
+              }
             }
           }
+        } else {
+          isPresenting = false
+          completion?(url, error)
         }
-      } else {
-        isPresenting = false
-        if let completion {
-          completion(url, error)
+      #else
+        if safariViewController != nil || webViewController != nil {
+          DispatchQueue.main.async {
+            uiDelegate?.dismiss(animated: true) {
+              kAuthGlobalWorkQueue.async {
+                self.isPresenting = false
+                completion?(url, error)
+              }
+            }
+          }
+        } else {
+          isPresenting = false
+          completion?(url, error)
+        }
+      #endif
+    }
+  }
+
+  #if os(iOS)
+    extension AuthURLPresenter: SFSafariViewControllerDelegate {
+      // MARK: SFSafariViewControllerDelegate
+
+      func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
+        kAuthGlobalWorkQueue.async {
+          if controller == self.safariViewController {
+            self.safariViewController = nil
+            // TODO: Ensure that the SFSafariViewController is actually removed from the screen
+            // before invoking finishPresentation
+            self.finishPresentation(withURL: nil,
+                                    error: AuthErrorUtils.webContextCancelledError(message: nil))
+          }
         }
       }
     }
-  }
-#endif
+  #endif
+
+#endif // os(iOS) || os(macOS)

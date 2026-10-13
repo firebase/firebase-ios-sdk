@@ -20,7 +20,9 @@ import XCTest
 import FirebaseAuth
 import FirebaseCore
 
-#if !os(macOS)
+#if os(macOS)
+  import AppKit
+#else
   import UIKit
 #endif
 
@@ -102,12 +104,14 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       let provider = OAuthProvider(providerID: "abc")
       provider.getCredentialWith(nil) { credential, error in
         auth.signIn(with: credential!) { result, error in
         }
       }
+    #endif
+    #if os(iOS)
       auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif
@@ -168,10 +172,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
     try await auth.updateCurrentUser(user)
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       let provider = OAuthProvider(providerID: "abc")
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: credential)
+    #endif
+    #if os(iOS)
       _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
       #if !targetEnvironment(macCatalyst)
         try await auth.initializeRecaptchaConfig()
@@ -331,6 +337,26 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
+  #if os(macOS)
+    func FIRAuthUIDelegate_macOS_h() {
+      class AuthUIImpl: NSObject, AuthUIDelegate {
+        @objc(presentViewController:completion:)
+        func present(_ viewControllerToPresent: NSViewController,
+                     completion: (() -> Void)?) {
+          completion?()
+        }
+
+        @objc(dismissViewControllerWithCompletion:)
+        func dismiss(completion: (() -> Void)?) {
+          completion?()
+        }
+      }
+      let obj = AuthUIImpl()
+      obj.present(NSViewController(), completion: nil)
+      obj.dismiss(completion: nil)
+    }
+  #endif
+
   func FIREmailAuthProvider_h() {
     _ = EmailAuthProvider.credential(withEmail: "e@email.com", password: "password")
     _ = EmailAuthProvider.credential(withEmail: "e@email.com", link: "link")
@@ -340,7 +366,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  #if os(iOS)
+  #if os(iOS) || os(macOS)
     func FIRFederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         // TODO: Document this API breakage - needing to add this function for classes implementing
@@ -469,7 +495,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     // `auth` defaults to `nil`
     let provider = OAuthProvider(providerID: "id")
     let _: String = provider.providerID
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       let _: (AuthProviderID, String, String?) -> OAuthCredential =
         OAuthProvider.credential(providerID:idToken:accessToken:)
       // `accessToken` defaults to `nil`
@@ -493,7 +519,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   func FIROAuthProvider_h() async throws {
     let provider = OAuthProvider(providerID: "abc")
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
       _ = try await provider.credential(with: provider as? AuthUIDelegate)

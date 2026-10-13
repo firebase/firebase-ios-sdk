@@ -223,13 +223,13 @@ import Foundation
     )
   }
 
-  #if os(iOS)
-    /// Used to obtain an auth credential via a mobile web flow.
+  #if os(iOS) || os(macOS)
+    /// Used to obtain an auth credential via a web flow.
     ///
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    /// This method is available on iOS and macOS.
+    /// - Parameter uiDelegate: An optional UI delegate used to present the web flow.
     /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
-    /// thread when the mobile web flow is completed.
+    /// thread when the web flow is completed.
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
                                 completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
@@ -297,11 +297,11 @@ import Foundation
       }
     }
 
-    /// Used to obtain an auth credential via a mobile web flow.
-    /// This method is available on iOS only.
-    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    /// Used to obtain an auth credential via a web flow.
+    /// This method is available on iOS and macOS.
+    /// - Parameter uiDelegate: An optional UI delegate used to present the web flow.
     /// - Parameter completionHandler: Optionally; a block which is invoked
-    /// asynchronously on the main thread when the mobile web flow is
+    /// asynchronously on the main thread when the web flow is
     /// completed.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
@@ -312,7 +312,12 @@ import Foundation
           if let credential = credential {
             continuation.resume(returning: credential)
           } else {
-            continuation.resume(throwing: error!) // TODO: Change to ?? and generate unknown error
+            let fallbackError = error ?? NSError(
+              domain: AuthErrorDomain,
+              code: AuthErrorCode.internalError.rawValue,
+              userInfo: [NSLocalizedDescriptionKey: "An unknown error occurred."]
+            )
+            continuation.resume(throwing: fallbackError)
           }
         }
       }
