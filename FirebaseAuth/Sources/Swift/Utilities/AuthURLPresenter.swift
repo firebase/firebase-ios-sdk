@@ -54,11 +54,10 @@
           self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
           #if os(macOS)
             self.webViewController = AuthWebViewController(url: url, delegate: self)
+
             if let webViewController = self.webViewController {
-              if let fakeUIDelegate = self.fakeUIDelegate {
-                fakeUIDelegate.present(webViewController)
-              } else if let resolvedUIDelegate = self.uiDelegate {
-                resolvedUIDelegate.present(webViewController)
+              if let presentingDelegate = self.fakeUIDelegate ?? self.uiDelegate {
+                presentingDelegate.present(webViewController)
               } else {
                 kAuthGlobalWorkQueue.async {
                   self.finishPresentation(
@@ -186,9 +185,20 @@
       self.webViewController = nil
 
       #if os(macOS)
-        if webViewController != nil, let uiDelegate {
+        if let webViewController {
+          let presentingDelegate = fakeUIDelegate ?? uiDelegate
+
           DispatchQueue.main.async {
-            uiDelegate.dismiss {
+            webViewController.finishAuthFlow()
+
+            if let presentingDelegate {
+              presentingDelegate.dismiss {
+                kAuthGlobalWorkQueue.async {
+                  self.isPresenting = false
+                  completion?(url, error)
+                }
+              }
+            } else {
               kAuthGlobalWorkQueue.async {
                 self.isPresenting = false
                 completion?(url, error)

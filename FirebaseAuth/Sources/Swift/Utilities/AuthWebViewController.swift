@@ -183,6 +183,8 @@ import WebKit
 
     private var url: URL
     private var hasLoaded = false
+    private var windowCloseObserver: NSObjectProtocol?
+    private var hasFinished = false
     weak var delegate: AuthWebViewControllerDelegate?
 
     private let webView: WKWebView = {
@@ -211,6 +213,12 @@ import WebKit
       fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+      if let observer = windowCloseObserver {
+        NotificationCenter.default.removeObserver(observer)
+      }
+    }
+
     // MARK: - View Lifecycle
 
     override func loadView() {
@@ -225,12 +233,42 @@ import WebKit
 
       view.addSubview(webView)
       view.addSubview(spinner)
+
+      let cancelButton = NSButton(
+        title: "Cancel",
+        target: self,
+        action: #selector(cancelOperation(_:))
+      )
+
+      cancelButton.keyEquivalent = "\u{1b}"
+      cancelButton.translatesAutoresizingMaskIntoConstraints = false
+
+      view.addSubview(cancelButton)
+
+      NSLayoutConstraint.activate([
+        cancelButton.trailingAnchor.constraint(
+          equalTo: view.trailingAnchor,
+          constant: -16
+        ),
+        cancelButton.bottomAnchor.constraint(
+          equalTo: view.bottomAnchor,
+          constant: -16
+        ),
+      ])
     }
 
     override func viewDidLayout() {
       super.viewDidLayout()
 
-      webView.frame = view.bounds
+      let bottomInset: CGFloat = 56
+
+      webView.frame = NSRect(
+        x: 0,
+        y: bottomInset,
+        width: view.bounds.width,
+        height: max(0, view.bounds.height - bottomInset)
+      )
+
       spinner.frame = NSRect(
         x: view.bounds.midX - 16,
         y: view.bounds.midY - 16,
@@ -242,17 +280,32 @@ import WebKit
     override func viewDidAppear() {
       super.viewDidAppear()
 
+      observeWindowClose()
+
       guard !hasLoaded else { return }
       hasLoaded = true
 
       webView.load(URLRequest(url: url))
     }
 
+    @objc override func cancelOperation(_ sender: Any?) {
+      handleWindowClose()
+    }
+
     // MARK: - Public Methods
 
     func handleWindowClose() {
-      // Called when user closes the window manually using standard macOS controls
+      guard !hasFinished else { return }
+      hasFinished = true
+      removeWindowCloseObserver()
+
       delegate?.webViewControllerDidCancel(self)
+    }
+
+    func finishAuthFlow() {
+      guard !hasFinished else { return }
+      hasFinished = true
+      removeWindowCloseObserver()
     }
 
     // MARK: - WKNavigationDelegate
@@ -294,6 +347,31 @@ import WebKit
                  didFailProvisionalNavigation navigation: WKNavigation!,
                  withError error: Error) {
       self.webView(webView, didFail: navigation, withError: error)
+    }
+
+    // MARK: - Private Methods
+
+    private func observeWindowClose() {
+      guard !hasFinished,
+            windowCloseObserver == nil,
+            let window = view.window else {
+        return
+      }
+
+      windowCloseObserver = NotificationCenter.default.addObserver(
+        forName: NSWindow.willCloseNotification,
+        object: window,
+        queue: .main
+      ) { [weak self] _ in
+        self?.handleWindowClose()
+      }
+    }
+
+    private func removeWindowCloseObserver() {
+      if let observer = windowCloseObserver {
+        NotificationCenter.default.removeObserver(observer)
+        windowCloseObserver = nil
+      }
     }
   }
 

@@ -111,14 +111,6 @@
       level = .normal
       styleMask = [.titled, .closable, .miniaturizable, .resizable]
     }
-
-    override func close() {
-      if let authVC = authViewController as? AuthWebViewController {
-        authVC.handleWindowClose()
-      }
-
-      super.close()
-    }
   }
 
   /// Class responsible for providing a default AuthUIDelegate.
