@@ -306,12 +306,15 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _fetchedRolloutMetadata = [[NSArray alloc] init];
     _activeRolloutMetadata = [[NSArray alloc] init];
   }
-  for (NSNumber *source in
-       @[ @(RCNDBSourceFetched), @(RCNDBSourceActive), @(RCNDBSourceDefault) ]) {
-    [_DBManager deleteRecordFromMainTableWithNamespace:FIRNamespace
-                                      bundleIdentifier:_bundleIdentifier
-                                            fromSource:(RCNDBSource)source.integerValue];
-  }
+  [_DBManager deleteRecordFromMainTableWithNamespace:FIRNamespace
+                                    bundleIdentifier:_bundleIdentifier
+                                          fromSource:RCNDBSourceFetched];
+  [_DBManager deleteRecordFromMainTableWithNamespace:FIRNamespace
+                                    bundleIdentifier:_bundleIdentifier
+                                          fromSource:RCNDBSourceActive];
+  [_DBManager deleteRecordFromMainTableWithNamespace:FIRNamespace
+                                    bundleIdentifier:_bundleIdentifier
+                                          fromSource:RCNDBSourceDefault];
   [_DBManager deleteAllRecordsFromPersonalizationAndRolloutTables];
   return YES;
 }
