@@ -401,6 +401,14 @@
       }
     }
 
+    /// Concatenates the text segments of a non-prompt transcript entry.
+    ///
+    /// - Parameters:
+    ///   - segments: The segments of an instructions, response, or reasoning entry.
+    ///   - entry: The enclosing transcript entry for error reporting.
+    /// - Returns: The concatenated text, which may be empty.
+    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if any segment isn't a text
+    ///   segment.
     private static func extractText(
       from segments: [Transcript.Segment],
       in entry: Transcript.Entry
@@ -430,6 +438,14 @@
       return text
     }
 
+    /// Concatenates the text segments of a non-prompt transcript entry, if there are any.
+    ///
+    /// - Parameters:
+    ///   - segments: The segments of an instructions, response, or reasoning entry.
+    ///   - entry: The enclosing transcript entry for error reporting.
+    /// - Returns: The concatenated text, or `nil` if it's empty.
+    /// - Throws: `LanguageModelError.unsupportedTranscriptContent` if any segment isn't a text
+    ///   segment.
     private static func extractOptionalText(
       from segments: [Transcript.Segment],
       in entry: Transcript.Entry

@@ -250,13 +250,30 @@
         try Self.expectDisplayLayout(of: blob.data, matches: testCase)
       }
 
-      @Test(arguments: ["empty", "infinite"])
+      /// A `CIImage` whose extent can't be rendered into a bitmap.
+      enum UnrenderableCIImage: String, CaseIterable, Sendable {
+        /// An image with an empty extent.
+        case empty
+
+        /// An image with an infinite extent.
+        case infinite
+
+        /// The image to attach.
+        var ciImage: CIImage {
+          switch self {
+          case .empty:
+            CIImage.empty()
+          case .infinite:
+            CIImage(color: CIColor(red: 1, green: 0, blue: 0))
+          }
+        }
+      }
+
+      @Test(arguments: UnrenderableCIImage.allCases)
       @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-      func unrenderableCIImageThrowsUndecodableImage(extent: String) throws {
+      func unrenderableCIImageThrowsUndecodableImage(_ image: UnrenderableCIImage) throws {
         // Reading `cgImage` for these attachments traps, so they must be rejected beforehand.
-        let ciImage =
-          extent == "empty" ? CIImage.empty() : CIImage(color: CIColor(red: 1, green: 0, blue: 0))
-        let attachment = Transcript.ImageAttachment(ciImage)
+        let attachment = Transcript.ImageAttachment(image.ciImage)
 
         #expect(throws: GeminiImageTranslator.TranslationError.undecodableImage) {
           try GeminiImageTranslator.partData(for: attachment)
@@ -376,6 +393,29 @@
 
     @Test(.enabled(if: TestImages.canEncode(.heic)))
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func imageAttachmentReadsFirstImageOfMultiImageFile() throws {
+      // The translator relies on `Transcript.ImageAttachment` reading both its orientation and its
+      // pixels from the first image. This test fails if a future OS version changes that.
+      let fileData = try TestImages.encode(
+        [
+          TestImages.Frame(image: Self.makeQuadrantImage()),
+          TestImages.Frame(image: TestImages.solid(.white), orientation: .right, isPrimary: true),
+        ],
+        as: .heic
+      )
+      try #require(TestImages.primaryImageIndex(of: fileData) == 1)
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
+      defer { try? FileManager.default.removeItem(at: url) }
+
+      let attachment = Transcript.ImageAttachment(imageURL: url)
+
+      #expect(attachment.orientation == .up)
+      #expect(attachment.cgImage.width == 128)
+      #expect(attachment.cgImage.height == 64)
+    }
+
+    @Test(.enabled(if: TestImages.canEncode(.heic)))
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func firstImageIsUsedWhenPrimaryImageIsNotFirst() throws {
       let fileData = try TestImages.encode(
         [
@@ -384,6 +424,7 @@
         ],
         as: .heic
       )
+      try #require(TestImages.primaryImageIndex(of: fileData) == 1)
       let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
@@ -406,6 +447,7 @@
         ],
         as: .heic
       )
+      try #require(TestImages.primaryImageIndex(of: fileData) == 1)
       let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)

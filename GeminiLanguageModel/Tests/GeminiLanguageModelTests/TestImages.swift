@@ -401,6 +401,17 @@
       return orientation.uint32Value
     }
 
+    /// Returns the index of the primary image in encoded image data.
+    ///
+    /// - Parameter data: The encoded image data.
+    /// - Returns: The primary image index, or `nil` if the data can't be read.
+    static func primaryImageIndex(of data: Data) -> Int? {
+      guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
+        return nil
+      }
+      return CGImageSourceGetPrimaryImageIndex(source)
+    }
+
     /// Returns the colors at the centers of an image's four quadrants.
     ///
     /// - Parameter image: The image to sample.

@@ -943,6 +943,7 @@
       let context = try Self.unsupportedTranscriptContent(translating: transcript)
 
       #expect(context.unsupportedContent == [.response(response)])
+      #expect(context.debugDescription == "Attachment segments are only supported in prompts.")
     }
 
     // MARK: - Helpers
