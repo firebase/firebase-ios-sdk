@@ -74,6 +74,7 @@ enum AILog {
     case decodedInvalidProtoDurationString = 3028
     case decodedInvalidProtoDurationSeconds = 3029
     case decodedInvalidProtoDurationNanoseconds = 3030
+    case liveSessionUnrecognizedVoiceActivityType = 3031
 
     // SDK State Errors
     case generateContentResponseNoCandidates = 4000
