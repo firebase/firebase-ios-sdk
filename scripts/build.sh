@@ -202,6 +202,18 @@ else
   spm_watchos_deployment_target="8.0"
 fi
 
+# Extra flags for SPM `test` runs.
+#
+# By default, xcodebuild collects verbose simulator diagnostics (`simctl
+# diagnose`) after a test run that records a failure or a runtime issue, such
+# as a SwiftUI runtime warning. On Xcode 27, that collection can stall until
+# its 10 minute timeout even when every test passes, which pushes CI attempts
+# past their timeout. The result bundle still has the test logs and failures
+# without these diagnostics, so don't collect them.
+spm_test_flags=(
+  -collect-test-diagnostics never
+)
+
 ios_device_flags=(
   -destination 'generic/platform=iOS'
 )
@@ -823,6 +835,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme "$product" \
       "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       TVOS_DEPLOYMENT_TARGET=15.0 \
       test
@@ -832,6 +845,7 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -scheme "$product" \
       "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=15.0 \
       MACOSX_DEPLOYMENT_TARGET="$spm_macosx_deployment_target" \
       TVOS_DEPLOYMENT_TARGET=15.0 \

@@ -1303,6 +1303,8 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     @objc(initializeRecaptchaConfigWithCompletion:)
     open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
       Task {
@@ -1323,11 +1325,19 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     open func initializeRecaptchaConfig() async throws {
-      // Trigger recaptcha verification flow to initialize the recaptcha client and
-      // config. Recaptcha token will be returned.
       let verifier = AuthRecaptchaVerifier.shared(auth: self)
-      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+      try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+      // Like the web SDK, only initialize the reCAPTCHA client when a provider uses reCAPTCHA.
+      // Otherwise there's no site key and nothing to initialize.
+      guard verifier.isAnyProviderEnabled() else {
+        return
+      }
+      // Trigger recaptcha verification flow to initialize the recaptcha client. Recaptcha token
+      // will be returned.
+      _ = try await verifier.verify(forceRefresh: false, action: AuthRecaptchaAction.defaultAction)
     }
   #endif
 
@@ -1907,6 +1917,10 @@ extension Auth: AuthInterop {
     guard let accessToken = _currentUser?.rawAccessToken() else {
       return
     }
+    // Bound the delay before any use. A delay from an expiration date that isn't finite or is too
+    // far in the future would otherwise crash the conversion to `Int`, or postpone the refresh for
+    // too long. Such a delay becomes 0, which refreshes the token right away.
+    let delay = AuthTokenLifetime.boundedRefreshDelay(delay)
     let intDelay = Int(ceil(delay))
     if retry {
       AuthLog.logInfo(code: "I-AUT000003", message: "Token auto-refresh re-scheduled in " +

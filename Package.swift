@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.0.0"
+let firebaseVersion = "13.1.0"
 
 /// If you don't use Firestore in your app, you can disable the "Firestore" trait to reduce
 /// the number of dependencies fetched by SwiftPM during package resolution.
@@ -179,7 +179,7 @@ func packageDependencies() -> [Package.Dependency] {
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "8.1.3" ..< "9.0.0"
+      "8.1.4" ..< "9.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -1738,6 +1738,10 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
           "GeminiTestUtilities",
         ],
         path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        exclude: [
+          "IntegrationTests/README.md",
+          "README.md",
+        ],
         swiftSettings: swiftSettings
       ),
       .target(
@@ -1769,6 +1773,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       .target(
         name: "GeminiTestUtilities",
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        exclude: ["README.md"],
         swiftSettings: swiftSettings,
       ),
     ]
