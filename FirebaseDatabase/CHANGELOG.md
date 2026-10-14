@@ -1,4 +1,6 @@
 # 13.1.0
+- [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
+  threads could generate duplicate push IDs. (#16768)
 - [fixed] Fixed an issue where transactions could fail with a maxretry error when
   every child of a node had a priority. (#16769)
 - [fixed] Fixed an issue where observers could miss events, and keep showing stale
