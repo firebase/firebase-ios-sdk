@@ -1,4 +1,9 @@
 # Unreleased
+- [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
+  for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
+  in multi-speaker synthesis and sustained speech delivery styling. See the
+  [speech generation guide](https://firebase.google.com/docs/ai-logic/generate-speech)
+  for more details.
 - [fixed] Fixed crashes when a chat session's history contained parts with
   unrecognized data or code execution parts received from the server, when
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
