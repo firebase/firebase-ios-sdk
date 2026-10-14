@@ -2248,6 +2248,112 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
   }
 
+  /** @fn testAuthStateChangesInitialCallbackWaitsForStoredUser
+      @brief Tests that the initial call of a listener added while @c Auth is still loading the
+          stored user reports that user, not nil.
+   */
+  func testAuthStateChangesInitialCallbackWaitsForStoredUser() throws {
+    // Save a signed-in user to a keychain for a new `Auth` instance to load at startup.
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    // Hold the work queue, so the new instance is still loading the user when the listener is
+    // added.
+    let workQueueHold = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workQueueHold.wait()
+    }
+    let restoringAuth = Auth(app: app,
+                             keychainStorageProvider: keychainStorage,
+                             backend: authBackend)
+    let expectation = self.expectation(description: "initial")
+    var listenerUsers: [User?] = []
+    let handle = restoringAuth.addStateDidChangeListener { _, listenerUser in
+      XCTAssertTrue(Thread.isMainThread)
+      listenerUsers.append(listenerUser)
+      if listenerUsers.count == 1 {
+        expectation.fulfill()
+      }
+    }
+    // Let the main queue run, as it would in an app, before the user is loaded.
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.2))
+    workQueueHold.signal()
+    waitForExpectations(timeout: 5)
+
+    // Let any remaining calls run.
+    waitForAuthGlobalWorkQueueDrain()
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+    XCTAssertEqual(listenerUsers.count, 1)
+    XCTAssertEqual(listenerUsers.first??.uid, user.uid)
+    restoringAuth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testAuthStateChangesInitialCallbackAfterSignOut
+      @brief Tests that the initial call of a listener added right before @c signOut() reports the
+          user as of when the call runs, not the signed-out user.
+   */
+  func testAuthStateChangesInitialCallbackAfterSignOut() throws {
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(auth)
+    var listenerUsers: [User?] = []
+    let handle = auth.addStateDidChangeListener { listenerAuth, listenerUser in
+      XCTAssertEqual(listenerUser, listenerAuth.currentUser)
+      listenerUsers.append(listenerUser)
+    }
+    // Sign out in the same main queue turn, before the initial call runs.
+    try auth.signOut()
+    // `signOut()` waited for the work queue, so the initial call and the sign-out notification are
+    // already on the main queue. Let them run.
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+
+    XCTAssertEqual(listenerUsers.map { $0?.uid }, [nil])
+    auth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testAuthStateChangesInitialCallbackAfterSignOutAtStartup
+      @brief Tests that a listener added while @c Auth is loading the stored user, followed right
+          away by @c signOut(), isn't called with the signed-out user.
+   */
+  func testAuthStateChangesInitialCallbackAfterSignOutAtStartup() throws {
+    // Save a signed-in user to a keychain for a new `Auth` instance to load at startup.
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    let restoringAuth = Auth(app: app,
+                             keychainStorageProvider: keychainStorage,
+                             backend: authBackend)
+    var listenerUsers: [User?] = []
+    let handle = restoringAuth.addStateDidChangeListener { listenerAuth, listenerUser in
+      XCTAssertEqual(listenerUser, listenerAuth.currentUser)
+      listenerUsers.append(listenerUser)
+    }
+    // Sign out before the main queue runs, for example to clear a user left in the keychain by an
+    // earlier install. `signOut()` waits for the stored user to load first.
+    try restoringAuth.signOut()
+    // The notification for the loaded user, the initial call, and the sign-out notification are
+    // already on the main queue. Let them run.
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+
+    XCTAssertEqual(listenerUsers.map { $0?.uid }, [nil])
+    restoringAuth.removeStateDidChangeListener(handle)
+  }
+
   /** @fn testUseEmulator
       @brief Tests the @c useEmulatorWithHost:port: method.
    */

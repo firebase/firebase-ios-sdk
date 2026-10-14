@@ -3,6 +3,9 @@
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Fixed an issue where the first call of an auth state or ID token
+  listener could report no user while the stored user was still loading.
+  (#16853)
 - [fixed] Improved robustness when parsing malformed reCAPTCHA config and
   backend error details from the server. (#16728)
 - [fixed] When reCAPTCHA isn't enabled for any provider,
