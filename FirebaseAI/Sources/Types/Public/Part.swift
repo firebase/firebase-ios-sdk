@@ -31,19 +31,8 @@ public struct TextPart: Part {
   /// Text value.
   public let text: String
 
-  /// **[Public Preview]** Optional speech metadata configuring the speaker and delivery style for
-  /// speech synthesis.
-  ///
-  /// When using a Gemini text-to-speech model, this metadata controls turn-level delivery style
-  /// and speaker assignment for multi-speaker audio generation.
-  ///
-  /// > Important: When using a multi-speaker configuration, `speechMetadata` with a matching
-  /// > `speaker` is required on every ``TextPart``. Omitting `speaker` in a multi-speaker request
-  /// > results in a backend error.
-  ///
-  /// For more details, see the
-  /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
-  public let speechMetadata: SpeechMetadata?
+  /// Optional speech metadata configuring the speaker and delivery style for speech synthesis.
+  let speechMetadata: SpeechMetadata?
 
   public var isThought: Bool { _isThought ?? false }
 
@@ -59,7 +48,19 @@ public struct TextPart: Part {
     self.init(text, speechMetadata: nil, isThought: nil, thoughtSignature: nil)
   }
 
-  /// Creates a text part with a string value and optional speech metadata.
+  /// **[Public Preview]** Creates a text part with a string value and optional speech metadata.
+  ///
+  /// > Warning: The `speechMetadata` parameter is in public preview and may be subject to change.
+  ///
+  /// When using a Gemini text-to-speech model, `speechMetadata` controls the delivery style of
+  /// this turn and, in multi-speaker requests, which speaker voices it.
+  ///
+  /// > Important: When using a multi-speaker configuration, `speechMetadata` with a matching
+  /// > `speaker` is required on every ``TextPart``. Omitting `speaker` in a multi-speaker request
+  /// > causes the request to fail.
+  ///
+  /// For more details, see the
+  /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
   ///
   /// - Parameters:
   ///   - text: The text string. For speech generation, this represents the verbatim transcript

@@ -31,8 +31,8 @@ public struct SpeakerVoiceConfig: Sendable {
   /// Creates a configuration for a speaker using a voice name.
   ///
   /// - Parameters:
-  ///   - speaker: The unique name or identifier of the speaker (for example, `"Alice"`). This name
-  ///     must be passed to ``SpeechMetadata/init(speaker:style:)`` for this speaker's turns.
+  ///   - speaker: The unique name or identifier of the speaker (for example, `"Alice"`). Pass this
+  ///     name to ``SpeechMetadata/init(speaker:style:)`` for this speaker's turns.
   ///   - voiceName: The name of the preset voice to assign to this speaker.
   ///
   ///     For a list of available voices, see the documentation on

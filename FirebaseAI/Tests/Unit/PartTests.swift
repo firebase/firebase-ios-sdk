@@ -63,6 +63,22 @@ final class PartTests: XCTestCase {
     XCTAssertEqual(part.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
   }
 
+  func testDecodeTextPart_withEmptySpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let json = """
+    {
+      "speechMetadata" : {},
+      "text" : "\(expectedText)"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(TextPart.self, from: jsonData)
+
+    XCTAssertEqual(part.text, expectedText)
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata())
+  }
+
   func testDecodeInlineDataPart() throws {
     let imageBase64 = try PartTests.blueSquareImage()
     let mimeType = "image/png"
@@ -260,6 +276,23 @@ final class PartTests: XCTestCase {
       "speechMetadata" : {
         "speaker" : "Joe",
         "style" : "cheerful"
+      },
+      "text" : "\(expectedText)"
+    }
+    """)
+  }
+
+  func testEncodeTextPart_withEmptySpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let textPart = TextPart(expectedText, speechMetadata: SpeechMetadata())
+
+    let jsonData = try encoder.encode(textPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+
       },
       "text" : "\(expectedText)"
     }

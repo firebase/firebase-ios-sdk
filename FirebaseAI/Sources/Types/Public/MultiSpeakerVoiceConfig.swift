@@ -21,9 +21,9 @@ import Foundation
 /// Enables the model to generate audio containing multiple distinct speakers, alternating voices
 /// dynamically based on the `speaker` specified in each turn's ``SpeechMetadata``.
 ///
-/// > Important: When using multi-speaker generation, every ``TextPart`` in the request prompt must
-/// > include ``SpeechMetadata`` with a `speaker` matching one of the configured speakers. Omitting
-/// > `speaker` in a multi-speaker request results in a backend error.
+/// > Important: When using a multi-speaker configuration, every ``TextPart`` in the request prompt
+/// > must include ``SpeechMetadata`` with a `speaker` matching one of the configured speakers.
+/// > Omitting `speaker` in a multi-speaker request causes the request to fail.
 ///
 /// > Warning: Multi-speaker configurations are not currently supported by the Live API, such as
 /// > ``LiveGenerationConfig``.

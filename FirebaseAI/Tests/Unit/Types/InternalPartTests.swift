@@ -570,6 +570,26 @@ final class InternalPartTests: XCTestCase {
     XCTAssertEqual(part.speechMetadata, SpeechMetadata(style: "cheerful and friendly"))
   }
 
+  func testDecodeTextPartWithSpeechMetadata_empty() throws {
+    let json = """
+    {
+      "text": "Have a wonderful day!",
+      "speechMetadata": {}
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(InternalPart.self, from: jsonData)
+
+    XCTAssertNil(part.isThought)
+    guard case let .text(text) = part.data else {
+      XCTFail("Decoded part is not a text part.")
+      return
+    }
+    XCTAssertEqual(text, "Have a wonderful day!")
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata())
+  }
+
   func testEncodeTextPartWithSpeechMetadata() throws {
     let part = InternalPart(
       .text("Have a wonderful day!"),
@@ -628,6 +648,27 @@ final class InternalPartTests: XCTestCase {
     {
       "speechMetadata" : {
         "style" : "cheerful and friendly"
+      },
+      "text" : "Have a wonderful day!"
+    }
+    """)
+  }
+
+  func testEncodeTextPartWithSpeechMetadata_empty() throws {
+    let part = InternalPart(
+      .text("Have a wonderful day!"),
+      speechMetadata: SpeechMetadata(),
+      isThought: nil,
+      thoughtSignature: nil
+    )
+
+    let jsonData = try encoder.encode(part)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+
       },
       "text" : "Have a wonderful day!"
     }

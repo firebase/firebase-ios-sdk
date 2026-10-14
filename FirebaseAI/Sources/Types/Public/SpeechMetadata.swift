@@ -16,17 +16,14 @@
 ///
 /// > Warning: This API is a public preview and may be subject to change.
 ///
-/// When generating audio using Gemini text-to-speech (TTS) models, the input text in a
-/// ``TextPart`` is treated strictly as a verbatim transcript. ``SpeechMetadata`` attaches
-/// structured turn-level instructions to control speaker assignment and speech delivery.
+/// When generating audio, Gemini text-to-speech (TTS) models treat the input text in a
+/// ``TextPart`` strictly as a verbatim transcript. ``SpeechMetadata`` attaches structured
+/// turn-level instructions to control speaker assignment and speech delivery.
 ///
 /// For more details on speech generation, see the
 /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
 public struct SpeechMetadata: Sendable, Equatable, Hashable {
   /// The unique name or identifier of the speaker for multi-speaker synthesis.
-  ///
-  /// > Important: When using a multi-speaker configuration, `speaker` is required on every
-  /// > ``TextPart``. Omitting `speaker` in a multi-speaker request results in a backend error.
   let speaker: String?
 
   /// The sustained delivery style instruction for speech synthesis.
@@ -58,7 +55,7 @@ public struct SpeechMetadata: Sendable, Equatable, Hashable {
   ///       `<laugh>`, `<sigh>`, `<cough>`, `<breath>`, or `<short pause>`), rather than in
   ///       `style`.
   ///
-  ///     See [audio tags](https://firebase.google.com/docs/ai-logic/generate-speech#audio-tags)
+  ///     See [vocal tags](https://firebase.google.com/docs/ai-logic/generate-speech#audio-tags)
   ///     for more details. Defaults to `nil`.
   public init(speaker: String? = nil, style: String? = nil) {
     self.speaker = speaker

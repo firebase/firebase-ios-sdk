@@ -63,10 +63,9 @@ public struct SpeechConfig: Sendable {
   ///   - multiSpeakerVoiceConfig: The configuration detailing multiple speakers and their
   ///     corresponding voices.
   ///
-  ///     > Important: When using a multi-speaker configuration, each dialogue turn in the
-  ///     > request prompt must be passed as a separate ``TextPart`` with ``SpeechMetadata``
-  ///     > specifying a `speaker` matching one of the configured speakers. `speaker` is required
-  ///     > on every part in a multi-speaker request.
+  ///     > Important: When using a multi-speaker configuration, pass each dialogue turn as a
+  ///     > separate ``TextPart`` with ``SpeechMetadata`` that specifies a `speaker` matching one of
+  ///     > the configured speakers. Every part in a multi-speaker request requires a `speaker`.
   ///
   ///     See the documentation on
   ///     [multi-speaker](https://firebase.google.com/docs/ai-logic/generate-speech#multi-speaker)
