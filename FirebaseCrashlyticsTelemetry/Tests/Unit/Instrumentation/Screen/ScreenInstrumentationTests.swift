@@ -27,8 +27,6 @@ final class ScreenInstrumentationTests: XCTestCase {
     try super.setUpWithError()
     mockLogger = MockLogger()
     instrumentation = ScreenInstrumentation(logger: mockLogger.logger)
-    // Buffer for listening task to be set up
-    try await Task.sleep(nanoseconds: 10_000_000)
   }
 
   override func tearDown() async throws {
@@ -209,11 +207,31 @@ final class ScreenInstrumentationTests: XCTestCase {
         expectation.fulfill()
       }
     }
-    _ = customInstrumentation
-    try await Task.sleep(nanoseconds: 10_000_000)
 
     postScreenEvent(id: UUID(), name: "CallbackScreen", type: .appear)
     await fulfillment(of: [expectation], timeout: 2.0)
+    _ = customInstrumentation
+  }
+
+  // MARK: - Lifecycle & Deallocation
+
+  func test_deallocation_releasesInstanceAndStopsProcessingNotifications() async throws {
+    let localLogger = MockLogger()
+    var localInstrumentation: ScreenInstrumentation? = ScreenInstrumentation(
+      logger: localLogger.logger
+    )
+    weak var weakInstrumentation = localInstrumentation
+
+    // Wait briefly so configure(with:) has spawned listeningTask on the actor
+    try await Task.sleep(nanoseconds: 10_000_000)
+
+    localInstrumentation = nil
+    XCTAssertNil(weakInstrumentation, "ScreenInstrumentation should be deallocated when released")
+
+    // Posting an event after deallocation should not emit logs to localLogger
+    postScreenEvent(id: UUID(), name: "AfterDeinitScreen", type: .appear)
+    try await Task.sleep(nanoseconds: 80_000_000)
+    XCTAssertEqual(localLogger.exportedLogs().count, 0)
   }
 
   // MARK: - End-to-End Test with ViewLifecycleHarness
