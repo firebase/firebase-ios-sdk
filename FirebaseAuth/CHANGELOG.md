@@ -1,6 +1,31 @@
-# Unreleased
+# 13.1.0
+- [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
+- [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Fixed an issue where the first call of an auth state or ID token
+  listener could report no user while the stored user was still loading.
+  (#16853)
+- [fixed] Improved robustness when parsing malformed reCAPTCHA config and
+  backend error details from the server. (#16728)
+- [fixed] When reCAPTCHA isn't enabled for any provider,
+  `initializeRecaptchaConfig()` now only loads the configuration and returns
+  without an error, matching the web SDK. (#16757)
+- [fixed] Fixed an issue where a user could be signed out after a request was
+  rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
+  was still valid. Auth now refreshes the token to check the session first.
+  (#16854)
+- [fixed] Fixed a crash loop when the backend sent a very large token
+  lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
+  to one hour, and invalid saved expiration dates are ignored. (#16866)
+- [fixed] Fixed crashes when the backend sent a multi-factor enrollment
+  without an enrollment ID, or a TOTP enrollment response without a shared
+  secret key. Such enrollments are now skipped, and such TOTP responses fail
+  with an error. (#16904)
+- [fixed] Fixed a data race in the APNs token manager that could leave a phone
+  number verification waiting indefinitely, or make it fall back to reCAPTCHA
+  unnecessarily, when it overlapped with another verification or with the APNs
+  token arriving. (#16902)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
