@@ -63,6 +63,9 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
 
   /// Allocates a zero-initialized nanopb `pb_bytes_array_t` with the given byte count.
   /// Allocated memory should be released with `pb_free` or `pb_release` later.
+  /// - Note: Because `pb_size_t` is 4 bytes (`PB_FIELD_32BIT=1`), the buffer passed to `populate`
+  ///   is 4-byte aligned, not 8-byte aligned. Use `storeBytes(of:toByteOffset:as:)` or
+  ///   `copyMemory(from:)` rather than `bindMemory(to:)` for types requiring 8-byte alignment.
   /// - Parameters:
   ///   - size: The size of the byte payload (e.g. 16 for TraceId, 8 for SpanId).
   ///   - populate: A closure to populate the raw byte buffer.
