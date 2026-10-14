@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a crash in `purgeOutstandingWrites` when the server had already
+  acknowledged a write that the SDK hadn't processed yet. (#5161)
 - [fixed] Fixed a crash in `getData` when the server returned an error without
   a reason. (#16718)
 - [fixed] Ignore malformed realtime server push, control, and handshake
