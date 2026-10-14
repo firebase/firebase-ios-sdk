@@ -4,6 +4,26 @@
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
   malformed duration from the server. Requests that include an image that fails
   to convert now throw a `GenerateContentError` instead of crashing. (#16728)
+- [fixed] Fixed intermittent `400 INVALID_ARGUMENT` errors from the Gemini
+  Enterprise Agent Platform in multi-turn `GeminiLanguageModel` sessions, which
+  occurred when a thought signature from a previous text response was sent back
+  as a part containing no data. (#16886)
+- [feature] Added support for voice activity signals in the Live API. When
+  automatic activity detection detects the start or end of user speech, Gemini
+  3.x Live models send a `LiveServerVoiceActivity`, which is surfaced as
+  `LiveServerContent.voiceActivity`. (#16889)
+- [fixed] Fixed an issue where `LiveSession.responses` finished with a
+  `LiveSessionUnsupportedMessageError` when the server sent a message type that
+  the SDK doesn't support, such as the `voiceActivity` messages sent by Gemini
+  3.x Live models for each spoken turn. Unsupported message types are now logged
+  and ignored. (#16889)
+- [fixed] Fixed a "switch must be exhaustive" compiler warning when building
+  `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
+  `Transcript.Entry.data` entries continue to throw
+  `LanguageModelError.unsupportedTranscriptContent`. (#16890)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to

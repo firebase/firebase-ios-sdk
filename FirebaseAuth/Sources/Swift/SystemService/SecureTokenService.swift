@@ -220,9 +220,21 @@ final class SecureTokenService: NSObject, NSSecureCoding, Sendable {
                                            forKey: Self.kAccessTokenKey) as? String else {
       return nil
     }
-    let accessTokenExpirationDate = coder.decodeObject(
+    var accessTokenExpirationDate = coder.decodeObject(
       of: [NSDate.self], forKey: Self.kAccessTokenExpirationDateKey
     ) as? Date
+    // Earlier versions saved an expiration date for any token lifetime from the backend. Drop a
+    // date that isn't finite or is too far in the future, so that the token gets refreshed and
+    // the new expiration date gets saved.
+    if let expirationDate = accessTokenExpirationDate,
+       !AuthTokenLifetime.isInRange(expirationDate: expirationDate) {
+      AuthLog.logWarning(
+        code: "I-AUT000034",
+        message: "Ignoring an invalid saved access token expiration date. " +
+          "The access token will be refreshed."
+      )
+      accessTokenExpirationDate = nil
+    }
     // requestConfiguration is filled in after User is set by Auth.protectedDataInitialization.
     self.init(withRequestConfiguration: nil,
               accessToken: accessToken,

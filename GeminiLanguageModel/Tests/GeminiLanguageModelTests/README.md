@@ -8,7 +8,7 @@ mapping, and backend integration.
 
 ```bash
 # Run all unit tests (fast, ~0.04s, skips integration tests)
-swift test --skip Integration
+swift test --skip IntegrationTests
 
 # Run all tests in this target (including integration tests)
 swift test --filter GeminiLanguageModelTests
