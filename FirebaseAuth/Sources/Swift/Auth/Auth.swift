@@ -1303,6 +1303,8 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     @objc(initializeRecaptchaConfigWithCompletion:)
     open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
       Task {
@@ -1323,11 +1325,19 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     open func initializeRecaptchaConfig() async throws {
-      // Trigger recaptcha verification flow to initialize the recaptcha client and
-      // config. Recaptcha token will be returned.
       let verifier = AuthRecaptchaVerifier.shared(auth: self)
-      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+      try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+      // Like the web SDK, only initialize the reCAPTCHA client when a provider uses reCAPTCHA.
+      // Otherwise there's no site key and nothing to initialize.
+      guard verifier.isAnyProviderEnabled() else {
+        return
+      }
+      // Trigger recaptcha verification flow to initialize the recaptcha client. Recaptcha token
+      // will be returned.
+      _ = try await verifier.verify(forceRefresh: false, action: AuthRecaptchaAction.defaultAction)
     }
   #endif
 

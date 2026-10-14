@@ -3,6 +3,11 @@
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Improved robustness when parsing malformed reCAPTCHA config and
+  backend error details from the server. (#16728)
+- [fixed] When reCAPTCHA isn't enabled for any provider,
+  `initializeRecaptchaConfig()` now only loads the configuration and returns
+  without an error, matching the web SDK. (#16757)
 - [fixed] Fixed an issue where a user could be signed out after a request was
   rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
   was still valid. Auth now refreshes the token to check the session first.
