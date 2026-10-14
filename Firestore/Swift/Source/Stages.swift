@@ -181,6 +181,41 @@ class AddFields: Stage {
   }
 }
 
+class AddWindowFields: Stage {
+  let name: String = "add_window_fields"
+  let bridge: __StageBridge
+  private var window: WindowSpec
+  private var fields: [Sendable]
+  private var options: [String: Sendable]?
+  let errorMessage: String?
+
+  init(window: WindowSpec, fields: [Sendable], options: [String: Sendable]? = nil) {
+    self.window = window
+    self.fields = fields
+    self.options = options
+
+    let (fieldsBridgeMap, error) = Helper.windowFieldsToMap(fields: fields)
+    if let error = error {
+      errorMessage = error.localizedDescription
+      // Return a dummy bridge to prevent crash during invalid setup
+      bridge = __AddWindowFieldsStageBridge(
+        window: WindowSpec.partition([] as [Expression]).toBridge(),
+        fields: [:],
+        options: nil
+      )
+    } else {
+      errorMessage = nil
+      let bridgeOptions = options?.mapValues { Helper.sendableToExpr($0).toBridge() }
+      bridge = __AddWindowFieldsStageBridge(
+        window: window.toBridge(),
+        fields: fieldsBridgeMap,
+        options: bridgeOptions
+      )
+    }
+  }
+}
+
+
 class RemoveFieldsStage: Stage {
   let name: String = "remove_fields"
   let bridge: __StageBridge
@@ -271,7 +306,7 @@ class Aggregate: Stage {
       self.groups = map
     }
 
-    let (accumulatorsMap, error) = Helper.aliasedAggregatesToMap(accumulators: accumulators)
+    let (accumulatorBridgesMap, error) = Helper.windowFieldsToMap(fields: accumulators)
     if let error = error {
       errorMessage = error.localizedDescription
       bridge = __AggregateStageBridge(accumulators: [:], groups: [:])
@@ -279,7 +314,6 @@ class Aggregate: Stage {
     }
 
     errorMessage = nil
-    let accumulatorBridgesMap = accumulatorsMap.mapValues { $0.bridge }
     bridge = __AggregateStageBridge(
       accumulators: accumulatorBridgesMap,
       groups: self.groups.mapValues { Helper.sendableToExpr($0).toBridge() }
