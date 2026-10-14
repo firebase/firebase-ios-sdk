@@ -4,6 +4,13 @@
   discarded. (#16863)
 - [fixed] Fixed a potential crash when the server sent a data message with an
   `error`. (#16863)
+- [fixed] Fixed a crash in `purgeOutstandingWrites` when the server had already
+  acknowledged a write that the SDK hadn't processed yet. (#5161)
+- [fixed] Fixed a crash in `getData` when the server returned an error without
+  a reason. (#16718)
+- [fixed] Ignore malformed realtime server push, control, and handshake
+  messages instead of crashing when a frame or one of its fields has an
+  unexpected JSON type. (#16750)
 
 # 12.19.0
 - [fixed] Reconnect after significant system clock changes so that
