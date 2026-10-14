@@ -251,16 +251,14 @@
           }
         }
       }
-      var siteKey = ""
+      var siteKey: String?
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
       if isRecaptchaEnabled {
-        if let recaptchaKey = response.recaptchaKey {
-          let keys = recaptchaKey.components(separatedBy: "/")
-          guard keys.count == 4, !keys[3].isEmpty else {
-            throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
-          }
-          siteKey = keys[3]
+        guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
+              keys.count == 4, !keys[3].isEmpty else {
+          throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
         }
+        siteKey = keys[3]
       }
       let config = AuthRecaptchaConfig(siteKey: siteKey, enablementStatus: enablementStatus)
 

@@ -1461,26 +1461,55 @@ class AuthTests: RPCBaseTests {
     }
 
     /** @fn testRecaptchaConfigMalformedSiteKeyThrows
-        @brief Malformed recaptchaKey values are rejected with an error instead of crashing or
-            producing an empty site key.
+        @brief Malformed, missing, or non-string recaptchaKey values are rejected with an error
+            instead of crashing or producing an empty site key.
      */
     func testRecaptchaConfigMalformedSiteKeyThrows() async throws {
-      for recaptchaKey in ["", "456", "projects/123/keys/", "projects/123/keys/456/extra", "///"] {
-        rpcIssuer.fakeRecaptchaConfigJSON = [
-          "recaptchaKey": recaptchaKey,
+      // `nil` leaves `recaptchaKey` out of the response.
+      let recaptchaKeys: [Any?] = ["", "456", "projects/123/keys/", "projects/123/keys/456/extra",
+                                   "///", NSNull(), 123, nil]
+      for recaptchaKey in recaptchaKeys {
+        var json: [String: Any] = [
           "recaptchaEnforcementState": [
             ["provider": "PHONE_PROVIDER", "enforcementState": "ENFORCE"],
           ],
         ]
+        json["recaptchaKey"] = recaptchaKey
+        rpcIssuer.fakeRecaptchaConfigJSON = json
         let verifier = freshRecaptchaVerifier()
         do {
           try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
-          XCTFail("Expected an error for recaptchaKey '\(recaptchaKey)'")
+          XCTFail("Expected an error for recaptchaKey '\(recaptchaKey ?? "<missing>")'")
         } catch {
           XCTAssertEqual((error as NSError).code, AuthErrorCode.recaptchaNotEnabled.rawValue)
         }
         XCTAssertNil(verifier.agentConfig)
       }
+    }
+
+    /** @fn testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing
+        @brief When reCAPTCHA is off for every provider, no site key is cached, so verification
+            (which `initializeRecaptchaConfig()` triggers) fails with `recaptchaSiteKeyMissing`.
+     */
+    func testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing() async throws {
+      rpcIssuer.fakeRecaptchaConfigJSON = [
+        "recaptchaKey": "projects/123/keys/456",
+        "recaptchaEnforcementState": [
+          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+        ],
+      ]
+      let verifier = freshRecaptchaVerifier()
+      do {
+        _ = try await verifier.verify(forceRefresh: true, action: .defaultAction)
+        XCTFail("Expected recaptchaSiteKeyMissing")
+      } catch {
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.recaptchaSiteKeyMissing.rawValue)
+      }
+      // The config is still cached, without a site key.
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .off)
+      XCTAssertNotNil(verifier.agentConfig)
+      XCTAssertNil(verifier.agentConfig?.siteKey)
     }
   #endif
 
