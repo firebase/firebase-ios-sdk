@@ -1,4 +1,4 @@
-# Unreleased
+# 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
   for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
   in multi-speaker synthesis and sustained speech delivery styling. See the

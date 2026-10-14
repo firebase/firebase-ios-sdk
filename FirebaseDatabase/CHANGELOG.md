@@ -1,4 +1,4 @@
-# Unreleased
+# 13.1.0
 - [fixed] Fixed a potential crash at every launch after the server sent an
   invalid database host. Such hosts are now ignored, and a saved one is
   discarded. (#16863)
