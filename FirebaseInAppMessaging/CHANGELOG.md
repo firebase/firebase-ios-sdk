@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Improved robustness when parsing malformed in-app messaging campaign
+  fetch responses, cached campaigns, and persisted impressions. (#16728)
+
 # 13.0.0
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)
