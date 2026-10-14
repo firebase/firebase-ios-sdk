@@ -183,7 +183,11 @@ IndexBoundValues Target::GetLowerBound(
     inclusive = (inclusive && segment_bound.inclusive);
   }
 
-  return IndexBoundValues{inclusive, std::move(values)};
+  absl::optional<DocumentKey> document_key =
+      GetBoundDocumentKey(field_index, start_at_, values, &inclusive);
+
+  return IndexBoundValues{inclusive, std::move(values),
+                          std::move(document_key)};
 }
 
 IndexBoundValues Target::GetUpperBound(
@@ -202,7 +206,62 @@ IndexBoundValues Target::GetUpperBound(
     inclusive = (inclusive && segment_bound.inclusive);
   }
 
-  return IndexBoundValues{inclusive, std::move(values)};
+  absl::optional<DocumentKey> document_key =
+      GetBoundDocumentKey(field_index, end_at_, values, &inclusive);
+
+  return IndexBoundValues{inclusive, std::move(values),
+                          std::move(document_key)};
+}
+
+absl::optional<DocumentKey> Target::GetBoundDocumentKey(
+    const model::FieldIndex& field_index,
+    const absl::optional<Bound>& bound,
+    const std::vector<google_firestore_v1_Value>& values,
+    bool* inclusive) const {
+  if (!bound.has_value() || !*inclusive) {
+    return absl::nullopt;
+  }
+
+  if (order_bys_.empty() || !order_bys_.back().field().IsKeyFieldPath() ||
+      bound.value().position()->values_count != order_bys_.size()) {
+    return absl::nullopt;
+  }
+
+  const auto directional_segments = field_index.GetDirectionalSegments();
+  Segment::Kind index_key_kind = directional_segments.empty()
+                                     ? Segment::Kind::kAscending
+                                     : directional_segments.rbegin()->kind();
+  Segment::Kind target_key_kind =
+      order_bys_.back().direction() == Direction::Ascending
+          ? Segment::Kind::kAscending
+          : Segment::Kind::kDescending;
+  if (index_key_kind != target_key_kind) {
+    return absl::nullopt;
+  }
+
+  for (size_t i = 0; i + 1 < order_bys_.size(); ++i) {
+    bool matched = false;
+    for (size_t j = 0; j < directional_segments.size(); ++j) {
+      if (directional_segments[j].field_path() == order_bys_[i].field()) {
+        if (model::Equals(values[j], bound.value().position()->values[i])) {
+          matched = true;
+        }
+        break;
+      }
+    }
+    if (!matched) {
+      return absl::nullopt;
+    }
+  }
+
+  const google_firestore_v1_Value& key_value =
+      bound.value().position()->values[order_bys_.size() - 1];
+  if (model::GetTypeOrder(key_value) != model::TypeOrder::kReference) {
+    return absl::nullopt;
+  }
+
+  *inclusive = *inclusive && bound.value().inclusive();
+  return DocumentKey::FromName(nanopb::MakeString(key_value.reference_value));
 }
 
 Target::IndexBoundValue Target::GetAscendingBound(
@@ -251,16 +310,22 @@ Target::IndexBoundValue Target::GetAscendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    for (size_t i = 0; i < order_bys_.size(); ++i) {
+    for (size_t i = 0;
+         i < order_bys_.size() && i < bound.value().position()->values_count;
+         ++i) {
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
+        bool cursor_inclusive =
+            (i == bound.value().position()->values_count - 1)
+                ? bound.value().inclusive()
+                : true;
         // Increase segment_value to cursor_value if cursor_value is larger.
         if (model::LowerBoundCompare(segment_value, segment_inclusive,
-                                     cursor_value, bound.value().inclusive()) ==
+                                     cursor_value, cursor_inclusive) ==
             util::ComparisonResult::Ascending) {
           segment_value = cursor_value;
-          segment_inclusive = bound.value().inclusive();
+          segment_inclusive = cursor_inclusive;
         }
       }
     }
@@ -316,16 +381,22 @@ Target::IndexBoundValue Target::GetDescendingBound(
   // If there is an additional bound, compare the values against the existing
   // range to see if we can narrow the scope.
   if (bound.has_value()) {
-    for (size_t i = 0; i < order_bys_.size(); ++i) {
+    for (size_t i = 0;
+         i < order_bys_.size() && i < bound.value().position()->values_count;
+         ++i) {
       const auto& order_by = order_bys_[i];
       if (order_by.field() == segment.field_path()) {
         auto cursor_value = bound.value().position()->values[i];
+        bool cursor_inclusive =
+            (i == bound.value().position()->values_count - 1)
+                ? bound.value().inclusive()
+                : true;
         // Decrease segment_value to cursor_value if cursor_value is smaller.
         if (model::UpperBoundCompare(segment_value, segment_inclusive,
-                                     cursor_value, bound.value().inclusive()) ==
+                                     cursor_value, cursor_inclusive) ==
             util::ComparisonResult::Descending) {
           segment_value = cursor_value;
-          segment_inclusive = bound.value().inclusive();
+          segment_inclusive = cursor_inclusive;
         }
       }
     }

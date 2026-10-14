@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where queries using persistent cache indexes and
+  document cursors (`startAfter`, `endBefore`, `startAt`, `endAt`) skipped
+  documents with the same `orderBy` value.
+
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.

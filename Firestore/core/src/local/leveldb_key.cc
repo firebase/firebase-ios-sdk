@@ -1360,13 +1360,17 @@ std::string LevelDbIndexEntryKey::KeyPrefix(
     int32_t index_id,
     absl::string_view user_id,
     absl::string_view array_value,
-    absl::string_view directional_value) {
+    absl::string_view directional_value,
+    const std::optional<std::string>& ordered_document_key) {
   Writer writer;
   writer.WriteTableName(kIndexEntriesTable);
   writer.WriteIndexId(index_id);
   writer.WriteUserId(user_id);
   writer.WriteIndexArrayValue(array_value);
   writer.WriteIndexDirectionalValue(directional_value);
+  if (ordered_document_key.has_value()) {
+    writer.WriteOrderedDocumentKey(ordered_document_key.value());
+  }
   return writer.result();
 }
 

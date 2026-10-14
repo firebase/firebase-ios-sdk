@@ -641,6 +641,70 @@ TEST_F(LevelDbQueryEngineTest, OrderByEquality) {
   });
 }
 
+TEST_F(LevelDbQueryEngineTest, StartAfterDocumentWithSameOrderByValue) {
+  persistence_->Run("StartAfterDocumentWithSameOrderByValue", [&] {
+    mutation_queue_->Start();
+    index_manager_->Start();
+
+    auto a11 = Doc("coll/a11", 1, Map("group", "a", "v", 3));
+    auto a10 = Doc("coll/a10", 1, Map("group", "a", "v", 3));
+    auto a09 = Doc("coll/a09", 1, Map("group", "a", "v", 2));
+    auto a08 = Doc("coll/a08", 1, Map("group", "a", "v", 2));
+    auto a07 = Doc("coll/a07", 1, Map("group", "a", "v", 2));
+    auto a06 = Doc("coll/a06", 1, Map("group", "a", "v", 2));
+    auto a05 = Doc("coll/a05", 1, Map("group", "a", "v", 1));
+    auto a04 = Doc("coll/a04", 1, Map("group", "a", "v", 1));
+    auto a03 = Doc("coll/a03", 1, Map("group", "a", "v", 1));
+    auto a02 = Doc("coll/a02", 1, Map("group", "a", "v", 0));
+    auto a01 = Doc("coll/a01", 1, Map("group", "a", "v", 0));
+    auto a00 = Doc("coll/a00", 1, Map("group", "a", "v", 0));
+    AddDocuments({a11, a10, a09, a08, a07, a06, a05, a04, a03, a02, a01, a00});
+
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "group", model::Segment::kAscending, "v",
+                       model::Segment::kDescending));
+    index_manager_->UpdateIndexEntries(DocumentMap(
+        {a11, a10, a09, a08, a07, a06, a05, a04, a03, a02, a01, a00}));
+    index_manager_->UpdateCollectionGroup(
+        "coll", model::IndexOffset::FromDocument(a11));
+
+    // Page 1: first 4 docs -> a11, a10, a09, a08
+    auto page1_query = testutil::Query("coll")
+                           .AddingFilter(Filter("group", "==", "a"))
+                           .AddingOrderBy(OrderBy("v", "desc"))
+                           .WithLimitToFirst(4);
+    DocumentSet page1 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(page1_query, SnapshotVersion::None()); });
+    EXPECT_EQ(page1, DocSet(page1_query.Comparator(), {a11, a10, a09, a08}));
+
+    // Page 2: startAfter(a08) -> a07, a06, a05, a04
+    auto page2_query =
+        testutil::Query("coll")
+            .AddingFilter(Filter("group", "==", "a"))
+            .AddingOrderBy(OrderBy("v", "desc"))
+            .StartingAt(core::Bound::FromValue(
+                Array(2, testutil::Ref("test-project", "coll/a08")),
+                /* inclusive= */ false))
+            .WithLimitToFirst(4);
+    DocumentSet page2 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(page2_query, SnapshotVersion::None()); });
+    EXPECT_EQ(page2, DocSet(page2_query.Comparator(), {a07, a06, a05, a04}));
+
+    // Page 3: startAfter(a04) -> a03, a02, a01, a00
+    auto page3_query =
+        testutil::Query("coll")
+            .AddingFilter(Filter("group", "==", "a"))
+            .AddingOrderBy(OrderBy("v", "desc"))
+            .StartingAt(core::Bound::FromValue(
+                Array(1, testutil::Ref("test-project", "coll/a04")),
+                /* inclusive= */ false))
+            .WithLimitToFirst(4);
+    DocumentSet page3 = ExpectOptimizedCollectionScan(
+        [&] { return RunQuery(page3_query, SnapshotVersion::None()); });
+    EXPECT_EQ(page3, DocSet(page3_query.Comparator(), {a03, a02, a01, a00}));
+  });
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

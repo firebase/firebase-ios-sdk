@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_LOCAL_LEVELDB_KEY_H_
 #define FIRESTORE_CORE_SRC_LOCAL_LEVELDB_KEY_H_
 
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -980,12 +981,14 @@ class LevelDbIndexEntryKey {
 
   /**
    * Creates a key prefix that points the first entry of a given index_id,
-   * user_id, array_value and directional_value.
+   * user_id, array_value, directional_value, and optional ordered_document_key.
    */
-  static std::string KeyPrefix(int32_t index_id,
-                               absl::string_view user_id,
-                               absl::string_view array_value,
-                               absl::string_view directional_value);
+  static std::string KeyPrefix(
+      int32_t index_id,
+      absl::string_view user_id,
+      absl::string_view array_value,
+      absl::string_view directional_value,
+      const std::optional<std::string>& ordered_document_key = std::nullopt);
 
   /**
    * Creates a key that points to the key for the given index entry fields.

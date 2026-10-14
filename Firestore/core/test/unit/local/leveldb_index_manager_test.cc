@@ -613,6 +613,61 @@ TEST_F(LevelDbIndexManagerTest, StartAfterFilter) {
   });
 }
 
+TEST_F(LevelDbIndexManagerTest, StartAfterDocumentWithSameOrderByValue) {
+  persistence_->Run("TestStartAfterDocumentWithSameOrderByValue", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "group", model::Segment::kAscending, "v",
+                       model::Segment::kDescending));
+    AddDoc("coll/a09", Map("group", "a", "v", 2));
+    AddDoc("coll/a08", Map("group", "a", "v", 2));
+    AddDoc("coll/a07", Map("group", "a", "v", 2));
+    AddDoc("coll/a06", Map("group", "a", "v", 2));
+    AddDoc("coll/a05", Map("group", "a", "v", 1));
+    AddDoc("coll/a04", Map("group", "a", "v", 1));
+
+    // startAt(doc("coll/a08"))
+    auto start_at_query = Query("coll")
+                              .AddingFilter(Filter("group", "==", "a"))
+                              .AddingOrderBy(OrderBy("v", "desc"))
+                              .StartingAt(Bound::FromValue(
+                                  Array(2, Ref("test-project", "coll/a08")),
+                                  /* inclusive= */ true))
+                              .WithLimitToFirst(4);
+    VerifyResults(start_at_query,
+                  {"coll/a08", "coll/a07", "coll/a06", "coll/a05"});
+
+    // startAfter(doc("coll/a08"))
+    auto start_after_query = Query("coll")
+                                 .AddingFilter(Filter("group", "==", "a"))
+                                 .AddingOrderBy(OrderBy("v", "desc"))
+                                 .StartingAt(Bound::FromValue(
+                                     Array(2, Ref("test-project", "coll/a08")),
+                                     /* inclusive= */ false))
+                                 .WithLimitToFirst(4);
+    VerifyResults(start_after_query,
+                  {"coll/a07", "coll/a06", "coll/a05", "coll/a04"});
+
+    // endAt(doc("coll/a07"))
+    auto end_at_query = Query("coll")
+                            .AddingFilter(Filter("group", "==", "a"))
+                            .AddingOrderBy(OrderBy("v", "desc"))
+                            .EndingAt(Bound::FromValue(
+                                Array(2, Ref("test-project", "coll/a07")),
+                                /* inclusive= */ true));
+    VerifyResults(end_at_query, {"coll/a09", "coll/a08", "coll/a07"});
+
+    // endBefore(doc("coll/a07"))
+    auto end_before_query = Query("coll")
+                                .AddingFilter(Filter("group", "==", "a"))
+                                .AddingOrderBy(OrderBy("v", "desc"))
+                                .EndingAt(Bound::FromValue(
+                                    Array(2, Ref("test-project", "coll/a07")),
+                                    /* inclusive= */ false));
+    VerifyResults(end_before_query, {"coll/a09", "coll/a08"});
+  });
+}
+
 TEST_F(LevelDbIndexManagerTest, EndAtFilter) {
   persistence_->Run("TestEndAtFilter", [&]() {
     index_manager_->Start();

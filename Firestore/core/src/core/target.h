@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
 #include "Firestore/core/src/core/order_by.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/serializer.h"
@@ -54,6 +55,7 @@ using IndexedValues = absl::optional<std::vector<google_firestore_v1_Value>>;
 struct IndexBoundValues {
   bool inclusive;
   std::vector<google_firestore_v1_Value> values;
+  absl::optional<model::DocumentKey> document_key = absl::nullopt;
 };
 
 /**
@@ -216,6 +218,12 @@ class Target {
    */
   IndexBoundValue GetDescendingBound(const model::Segment& segment,
                                      const absl::optional<Bound>& bound) const;
+
+  absl::optional<model::DocumentKey> GetBoundDocumentKey(
+      const model::FieldIndex& field_index,
+      const absl::optional<Bound>& bound,
+      const std::vector<google_firestore_v1_Value>& values,
+      bool* inclusive) const;
 
   model::ResourcePath path_;
   std::shared_ptr<const std::string> collection_group_;

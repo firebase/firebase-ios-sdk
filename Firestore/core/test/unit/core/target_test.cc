@@ -357,6 +357,36 @@ TEST(TargetTest, PartialIndexMatchQueryBound) {
   VerifyBound(upper_bound, true, {*Value("a")});
 }
 
+TEST(TargetTest, DocumentCursorQueryBound) {
+  Target start_after_target =
+      Query("c")
+          .AddingFilter(Filter("group", "==", "a"))
+          .AddingOrderBy(OrderBy("v", "desc"))
+          .StartingAt(Bound::FromValue(Array(2, Ref("test-project", "c/a08")),
+                                       /*inclusive=*/false))
+          .ToTarget();
+  FieldIndex index = MakeFieldIndex("c", "group", Segment::Kind::kAscending,
+                                    "v", Segment::Kind::kDescending);
+
+  auto lower_bound = start_after_target.GetLowerBound(index);
+  VerifyBound(lower_bound, false, {*Value("a"), *Value(2)});
+  ASSERT_TRUE(lower_bound.document_key.has_value());
+  EXPECT_EQ(lower_bound.document_key.value(), testutil::Key("c/a08"));
+
+  Target end_before_target =
+      Query("c")
+          .AddingFilter(Filter("group", "==", "a"))
+          .AddingOrderBy(OrderBy("v", "desc"))
+          .EndingAt(Bound::FromValue(Array(2, Ref("test-project", "c/a06")),
+                                     /*inclusive=*/false))
+          .ToTarget();
+
+  auto upper_bound = end_before_target.GetUpperBound(index);
+  VerifyBound(upper_bound, false, {*Value("a"), *Value(2)});
+  ASSERT_TRUE(upper_bound.document_key.has_value());
+  EXPECT_EQ(upper_bound.document_key.value(), testutil::Key("c/a06"));
+}
+
 }  // namespace
 }  // namespace core
 }  // namespace firestore
