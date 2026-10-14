@@ -15,7 +15,7 @@
  */
 
 import Foundation
-@_exported import PackageModel
+@preconcurrency @_exported import PackageModel
 
 /// Represents an operating system platform targeted by the zip builder.
 public enum Platform: Hashable, Codable, Sendable, Comparable, CaseIterable, RawRepresentable {

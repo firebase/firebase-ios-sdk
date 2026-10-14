@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import Basics
+@preconcurrency import Basics
 import Common
 import Foundation
 import Logging
-import PackageGraph
-import PackageLoading
-import PackageModel
-import Workspace
+@preconcurrency import PackageGraph
+@preconcurrency import PackageLoading
+@preconcurrency import PackageModel
+@preconcurrency import Workspace
 
 /// Responsible for parsing `Package.swift` and loading the full SwiftPM `ModulesGraph`
 /// using official `libSwiftPM` workspace APIs.
@@ -75,12 +75,15 @@ public struct PackageGraphLoader: Sendable {
       rootInput: rootInput,
       observabilityScope: observability.topScope
     )
+    let packageCount = graph.packages.count
+    let productCount = graph.allProducts.count
+    let targetCount = graph.allModules.count
     logger.debug(
       "Package graph loaded successfully",
       metadata: [
-        "packageCount": "\(graph.packages.count)",
-        "productCount": "\(graph.allProducts.count)",
-        "targetCount": "\(graph.allModules.count)",
+        "packageCount": "\(packageCount)",
+        "productCount": "\(productCount)",
+        "targetCount": "\(targetCount)",
       ]
     )
 

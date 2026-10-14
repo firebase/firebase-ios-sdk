@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Basics
+@preconcurrency import Basics
 import Common
 import Foundation
 @preconcurrency import PackageGraph

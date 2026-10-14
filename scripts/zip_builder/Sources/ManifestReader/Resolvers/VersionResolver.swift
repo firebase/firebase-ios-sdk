@@ -17,7 +17,7 @@
 import Common
 import Foundation
 import Logging
-import PackageGraph
+@preconcurrency import PackageGraph
 
 /// Resolves release version strings from command-line overrides, configuration files, or
 /// manifest inspection.

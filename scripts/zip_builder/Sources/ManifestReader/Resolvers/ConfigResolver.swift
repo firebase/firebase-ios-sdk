@@ -17,8 +17,8 @@
 import Common
 import Foundation
 import Logging
-import PackageGraph
-import PackageModel
+@preconcurrency import PackageGraph
+@preconcurrency import PackageModel
 
 /// Resolves complete, immutable `Config` instances by combining configuration file declarations,
 /// SwiftPM package graph inference, and CLI options.

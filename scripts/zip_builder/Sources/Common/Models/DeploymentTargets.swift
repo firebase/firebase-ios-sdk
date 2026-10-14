@@ -15,7 +15,7 @@
  */
 
 import Foundation
-import PackageModel
+@preconcurrency import PackageModel
 
 /// Represents the minimum deployment target versions across supported Apple platforms.
 public struct DeploymentTargets: Codable, Sendable, Equatable {

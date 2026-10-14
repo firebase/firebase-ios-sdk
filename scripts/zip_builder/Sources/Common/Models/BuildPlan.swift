@@ -15,9 +15,6 @@
  */
 
 import Foundation
-import Logging
-import PackageGraph
-import PackageModel
 
 /// The top-level build and packaging plan coordinating the compilation and distribution of all
 /// Firebase SDKs.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import PackageGraph
+@preconcurrency import PackageGraph
 
 public extension ResolvedModule {
   /// Indicates whether the resolved module represents a pre-compiled binary target (e.g. an
