@@ -55,6 +55,18 @@ import sys
 spec_output_file = sys.argv[1]
 dest_dir = sys.argv[2]
 exclude_podspecs = set(sys.argv[3:])
+out_path = os.path.abspath(os.path.join(dest_dir, spec_output_file)) if spec_output_file else ""
+github_output = os.environ.get("GITHUB_OUTPUT")
+
+
+def set_output(name, value):
+    # Prefer GitHub Actions environment files; `::set-output` is deprecated.
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"{name}={value}\n")
+    else:
+        print(f"::set-output name={name}::{value}")
+
 
 with open("updated_files.txt", "r", encoding="utf-8") as f:
     changed_file_paths = f.read().splitlines()
@@ -67,7 +79,7 @@ print("=============== list changed files ===============")
 print("\n".join(changed_file_paths))
 
 for sdk_patterns in code_coverage_file_patterns:
-    print(f"::set-output name={sdk_patterns['sdk']}_run_job::false")
+    set_output(f"{sdk_patterns['sdk']}_run_job", "false")
 
 for sdk_patterns in code_coverage_file_patterns:
     triggered = False
@@ -76,21 +88,19 @@ for sdk_patterns in code_coverage_file_patterns:
         for changed_file_path in changed_file_paths:
             if regex.search(changed_file_path) is not None:
                 print("=============== paths of changed files ===============")
-                print(f"::set-output name={sdk_patterns['sdk']}_run_job::true")
+                set_output(f"{sdk_patterns['sdk']}_run_job", "true")
                 for podspec in sdk_patterns["podspecs"]:
                     if podspec not in exclude_podspecs:
                         podspecs_with_changed_files.append({"podspec": podspec})
-                    elif spec_output_file:
-                        output_abs = os.path.abspath(spec_output_file)
-                        print(f"{podspec} was excluded and will not be written in file://{output_abs} ")
+                    elif out_path:
+                        print(f"{podspec} was excluded and will not be written in file://{out_path} ")
                 print(f"{sdk_patterns['sdk']}: {changed_file_path} is updated under the pattern, {pattern}")
                 triggered = True
                 break
         if triggered:
             break
 
-if spec_output_file:
-    out_path = os.path.join(dest_dir, spec_output_file)
+if out_path:
     with open(out_path, "w", encoding="utf-8") as f:
         f.write(json.dumps(podspecs_with_changed_files, separators=(",", ":")))
 EOF
