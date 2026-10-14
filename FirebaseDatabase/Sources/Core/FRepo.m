@@ -546,8 +546,16 @@
                FIndexedNode *node =
                    [self.serverSyncTree persistenceServerCache:querySpec];
                if (node == nil) {
+                   // The server may omit the reason, or send one that isn't a
+                   // string, so fall back to the status.
+                   NSString *reason = errorReason;
+                   if (![reason isKindOfClass:[NSString class]]) {
+                       reason = [status isKindOfClass:[NSString class]]
+                                    ? status
+                                    : kFWPResponseForActionStatusFailed;
+                   }
                    NSDictionary *errorDict = @{
-                       NSLocalizedFailureReasonErrorKey : errorReason,
+                       NSLocalizedFailureReasonErrorKey : reason,
                        NSLocalizedDescriptionKey : [NSString
                            stringWithFormat:
                                @"Unable to get latest value for query %@, "
