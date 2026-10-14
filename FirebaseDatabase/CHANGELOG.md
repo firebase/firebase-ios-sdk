@@ -1,4 +1,9 @@
 # Unreleased
+- [fixed] Fixed a potential crash at every launch after the server sent an
+  invalid database host. Such hosts are now ignored, and a saved one is
+  discarded. (#16863)
+- [fixed] Fixed a potential crash when the server sent a data message with an
+  `error`. (#16863)
 - [fixed] Fixed a crash in `purgeOutstandingWrites` when the server had already
   acknowledged a write that the SDK hadn't processed yet. (#5161)
 - [fixed] Fixed a crash in `getData` when the server returned an error without

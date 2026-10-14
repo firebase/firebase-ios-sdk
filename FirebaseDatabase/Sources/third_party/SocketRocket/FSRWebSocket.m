@@ -300,7 +300,11 @@ static __strong NSData *CRLFCRLF;
 {
     self = [super init];
     if (self) {
-        assert(request.URL);
+        // Return nil rather than assert on an invalid URL, since asserts are
+        // compiled into release builds.
+        if (!request.URL) {
+            return nil;
+        }
         _url = request.URL;
         NSString *scheme = [_url scheme];
 
@@ -308,7 +312,9 @@ static __strong NSData *CRLFCRLF;
         _googleAppID = googleAppID;
         _userAgent = userAgent;
 
-        assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
+        if (!([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"])) {
+            return nil;
+        }
         _urlRequest = request;
 
         if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
