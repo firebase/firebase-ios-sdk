@@ -26,6 +26,7 @@ import Logging
 /// Responsible for parsing `Package.swift` and loading the full SwiftPM `ModulesGraph`
 /// using official `libSwiftPM` workspace APIs.
 public struct PackageGraphLoader: Sendable {
+  private static let cache = GraphCache()
   private let logger = Logger(label: "zip-builder.manifest-reader")
   /// File system URL pointing to the root Swift package directory containing `Package.swift`.
   public let packagePath: URL
@@ -39,54 +40,87 @@ public struct PackageGraphLoader: Sendable {
   /// Evaluates `Package.swift`, resolves package dependencies from `Package.resolved`,
   /// and returns the complete in-memory `ModulesGraph`.
   ///
+  /// Concurrent or repeated calls for the same package path within the same process share
+  /// a single resolution task to prevent `libSwiftPM` workspace races on `.build/` state.
+  ///
   /// - Returns: Fully resolved `ModulesGraph` representing all packages, modules, and products.
   /// - Throws: An error if manifest evaluation or package dependency resolution fails.
   public func loadGraph() async throws -> ModulesGraph {
-    logger.info("Loading package graph", metadata: ["path": "\(packagePath.path)"])
-
     let absolutePath = try AbsolutePath(validating: packagePath.path)
-    let observability = ObservabilitySystem { scope, diagnostic in
-      let metadata: Logger.Metadata = [
-        "scope": "\(scope.description)",
-        "message": "\(diagnostic.message)",
-      ]
+    let logger = self.logger
 
-      switch diagnostic.severity {
-      case .error:
-        logger.error("Package diagnostic", metadata: metadata)
-      case .warning:
-        logger.warning("Package diagnostic", metadata: metadata)
-      case .info:
-        logger.info("Package diagnostic", metadata: metadata)
-      case .debug:
-        logger.debug("Package diagnostic", metadata: metadata)
-      @unknown default:
-        logger.info("Package diagnostic", metadata: metadata)
+    return try await Self.cache.load(at: absolutePath) {
+      logger.info("Loading package graph", metadata: ["path": "\(absolutePath.pathString)"])
+
+      let observability = ObservabilitySystem { scope, diagnostic in
+        let metadata: Logger.Metadata = [
+          "scope": "\(scope.description)",
+          "message": "\(diagnostic.message)",
+        ]
+
+        switch diagnostic.severity {
+        case .error:
+          logger.error("Package diagnostic", metadata: metadata)
+        case .warning:
+          logger.warning("Package diagnostic", metadata: metadata)
+        case .info:
+          logger.info("Package diagnostic", metadata: metadata)
+        case .debug:
+          logger.debug("Package diagnostic", metadata: metadata)
+        @unknown default:
+          logger.info("Package diagnostic", metadata: metadata)
+        }
       }
+
+      let workspace = try Workspace(
+        fileSystem: localFileSystem,
+        location: .init(forRootPackage: absolutePath, fileSystem: localFileSystem)
+      )
+
+      let rootInput = PackageGraphRootInput(packages: [absolutePath])
+      let graph = try await workspace.loadPackageGraph(
+        rootInput: rootInput,
+        observabilityScope: observability.topScope
+      )
+      let packageCount = graph.packages.count
+      let productCount = graph.allProducts.count
+      let targetCount = graph.allModules.count
+      logger.debug(
+        "Package graph loaded successfully",
+        metadata: [
+          "packageCount": "\(packageCount)",
+          "productCount": "\(productCount)",
+          "targetCount": "\(targetCount)",
+        ]
+      )
+
+      return graph
+    }
+  }
+}
+
+/// Actor that deduplicates and caches `ModulesGraph` loads per normalized package root path
+/// so concurrent callers do not race on the same `.build/` workspace directory.
+private actor GraphCache {
+  private var tasks: [AbsolutePath: Task<ModulesGraph, Error>] = [:]
+
+  func load(at path: AbsolutePath,
+            operation: @Sendable @escaping () async throws -> ModulesGraph) async throws
+    -> ModulesGraph {
+    if let existingTask = tasks[path] {
+      return try await existingTask.value
     }
 
-    let workspace = try Workspace(
-      fileSystem: localFileSystem,
-      location: .init(forRootPackage: absolutePath, fileSystem: localFileSystem)
-    )
+    let task = Task {
+      try await operation()
+    }
+    tasks[path] = task
 
-    let rootInput = PackageGraphRootInput(packages: [absolutePath])
-    let graph = try await workspace.loadPackageGraph(
-      rootInput: rootInput,
-      observabilityScope: observability.topScope
-    )
-    let packageCount = graph.packages.count
-    let productCount = graph.allProducts.count
-    let targetCount = graph.allModules.count
-    logger.debug(
-      "Package graph loaded successfully",
-      metadata: [
-        "packageCount": "\(packageCount)",
-        "productCount": "\(productCount)",
-        "targetCount": "\(targetCount)",
-      ]
-    )
-
-    return graph
+    do {
+      return try await task.value
+    } catch {
+      tasks.removeValue(forKey: path)
+      throw error
+    }
   }
 }
