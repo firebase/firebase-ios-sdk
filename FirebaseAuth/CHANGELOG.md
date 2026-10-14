@@ -1,4 +1,4 @@
-# Unreleased
+# 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider

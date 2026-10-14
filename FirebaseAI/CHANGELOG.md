@@ -1,4 +1,4 @@
-# Unreleased
+# 13.1.0
 - [fixed] Fixed crashes when a chat session's history contained parts with
   unrecognized data or code execution parts received from the server, when
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
