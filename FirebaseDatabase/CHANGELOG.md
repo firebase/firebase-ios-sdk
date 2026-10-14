@@ -1,4 +1,6 @@
 # 13.1.0
+- [fixed] Fixed an issue where transactions could fail with a maxretry error when
+  every child of a node had a priority. (#16769)
 - [fixed] Fixed an issue where observers could miss events, and keep showing stale
   or reverted values, when multiple pending transactions at overlapping locations
   were rerun. (#16791)
