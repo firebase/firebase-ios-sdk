@@ -123,14 +123,12 @@ public class Pipeline: @unchecked Sendable {
   ///
   /// This method asynchronously sends the pipeline definition to Firestore for execution.
   /// The resulting documents, transformed, filtered, or mutated by the pipeline stages, are
-  /// returned
-  /// within a `Pipeline.Snapshot`.
+  /// returned within a `Pipeline.Snapshot`.
   ///
   /// By default, the pipeline executes non-atomically. To execute all mutations within a single
-  /// atomic transaction, supply `Pipeline.ExecuteOptions(isAtomic: true)`.
+  /// atomic transaction, use `execute(options:)` with `Pipeline.ExecuteOptions(isAtomic: true)`.
   ///
   /// ```swift
-  /// // Example 1: Standard query execution
   /// do {
   ///   let snapshot = try await db.pipeline()
   ///     .collection("books")
@@ -140,8 +138,23 @@ public class Pipeline: @unchecked Sendable {
   /// } catch {
   ///   print("Execution failed: \(error)")
   /// }
+  /// ```
   ///
-  /// // Example 2: Atomic transactional execution
+  /// - Throws: An error if the pipeline execution fails on the backend.
+  /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
+  public func execute() async throws -> Pipeline.Snapshot {
+    return try await execute(options: .init())
+  }
+
+  /// Executes the defined pipeline with the specified options and returns a `Pipeline.Snapshot`
+  /// containing the results.
+  ///
+  /// This method asynchronously sends the pipeline definition to Firestore for execution.
+  /// The resulting documents, transformed, filtered, or mutated by the pipeline stages, are
+  /// returned within a `Pipeline.Snapshot`.
+  ///
+  /// ```swift
+  /// // Example: Atomic transactional execution
   /// do {
   ///   let options = Pipeline.ExecuteOptions(isAtomic: true)
   ///   let snapshot = try await db.pipeline()
@@ -156,11 +169,9 @@ public class Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameter options: Options controlling execution behavior, such as atomic transactions.
-  ///   Defaults to `.init()` (non-atomic execution).
   /// - Throws: An error if the pipeline execution fails on the backend.
   /// - Returns: A `Pipeline.Snapshot` containing the result of the pipeline execution.
-  public func execute(options: Pipeline.ExecuteOptions = .init()) async throws -> Pipeline
-    .Snapshot {
+  public func execute(options: Pipeline.ExecuteOptions) async throws -> Pipeline.Snapshot {
     // Check if isolated subcollection execution is being attempted.
     guard let db else {
       throw NSError(
