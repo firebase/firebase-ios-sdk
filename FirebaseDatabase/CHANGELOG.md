@@ -1,4 +1,7 @@
 # 13.1.0
+- [fixed] Fixed an issue where observers could miss events, and keep showing stale
+  or reverted values, when multiple pending transactions at overlapping locations
+  were rerun. (#16791)
 - [fixed] Fixed an issue where a `getData` call that failed without a cached value
   kept its query marked as active in the persistence cache until the app restarted,
   which kept that location from being pruned. (#16792)
