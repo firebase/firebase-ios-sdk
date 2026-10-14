@@ -3,6 +3,10 @@
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Fixed an issue where a user could be signed out after a request was
+  rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
+  was still valid. Auth now refreshes the token to check the session first.
+  (#16854)
 - [fixed] Fixed a crash loop when the backend sent a very large token
   lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
   to one hour, and invalid saved expiration dates are ignored. (#16866)
@@ -10,6 +14,10 @@
   without an enrollment ID, or a TOTP enrollment response without a shared
   secret key. Such enrollments are now skipped, and such TOTP responses fail
   with an error. (#16904)
+- [fixed] Fixed a data race in the APNs token manager that could leave a phone
+  number verification waiting indefinitely, or make it fall back to reCAPTCHA
+  unnecessarily, when it overlapped with another verification or with the APNs
+  token arriving. (#16902)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
