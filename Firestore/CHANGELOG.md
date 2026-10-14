@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed pipelines created from a query with an inclusive cursor, such as
+  `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
+  cursor boundary. (#16795)
+
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
 - [changed] Update gRPC dependency to 1.83.1.
