@@ -116,15 +116,15 @@ final class AuthBackend: AuthBackendProtocol {
       if let mfaResponse = response as? AuthMFAResponse,
          mfaResponse.idToken == nil,
          let enrollments = mfaResponse.mfaInfo {
-        var info: [MultiFactorInfo] = []
-        for enrollment in enrollments {
+        let info: [MultiFactorInfo] = enrollments.compactMap { enrollment in
           // check which MFA factors are enabled.
-          if let _ = enrollment.phoneInfo {
-            info.append(PhoneMultiFactorInfo(proto: enrollment))
-          } else if let _ = enrollment.totpInfo {
-            info.append(TOTPMultiFactorInfo(proto: enrollment))
+          if enrollment.phoneInfo != nil {
+            return PhoneMultiFactorInfo(proto: enrollment)
+          } else if enrollment.totpInfo != nil {
+            return TOTPMultiFactorInfo(proto: enrollment)
           } else {
             AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
+            return nil
           }
         }
         return AuthErrorUtils.secondFactorRequiredError(
