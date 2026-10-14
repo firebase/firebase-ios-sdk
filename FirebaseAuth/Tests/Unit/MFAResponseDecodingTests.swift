@@ -64,12 +64,14 @@ class MFAResponseDecodingTests: RPCBaseTests {
     private let kAppName = "test-MFAResponseDecodingTests"
     private var auth: Auth?
 
-    /// Two valid enrollments, plus a phone and a TOTP enrollment without an enrollment ID.
+    /// Two valid enrollments, a phone and a TOTP enrollment without an enrollment ID, and an
+    /// enrollment of an unsupported type (neither `phoneInfo` nor `totpInfo`).
     private let mixedEnrollmentsJSON: [[String: AnyHashable]] = [
       ["phoneInfo": "+15555550100", "mfaEnrollmentId": "phone-id"],
       ["phoneInfo": "+15555550101"],
       ["totpInfo": [String: AnyHashable](), "mfaEnrollmentId": "totp-id"],
       ["totpInfo": [String: AnyHashable]()],
+      ["mfaEnrollmentId": "unsupported-id"],
     ]
 
     override func setUp() {
@@ -92,7 +94,7 @@ class MFAResponseDecodingTests: RPCBaseTests {
 
     /** @fn testMultiFactorSkipsEnrollmentsWithoutEnrollmentID
         @brief Enrolled factors without an enrollment ID are skipped instead of crashing, and the
-            other factors are kept.
+            valid factors are kept.
      */
     func testMultiFactorSkipsEnrollmentsWithoutEnrollmentID() {
       let enrollments = mixedEnrollmentsJSON.map { AuthProtoMFAEnrollment(dictionary: $0) }
@@ -102,7 +104,7 @@ class MFAResponseDecodingTests: RPCBaseTests {
 
     /** @fn testSecondFactorRequiredErrorSkipsHintsWithoutEnrollmentID
         @brief When sign-in requires a second factor, hints without an enrollment ID are skipped
-            instead of crashing, and the other hints are kept.
+            instead of crashing, and the valid hints are kept.
      */
     func testSecondFactorRequiredErrorSkipsHintsWithoutEnrollmentID() async throws {
       let auth = try XCTUnwrap(auth)
