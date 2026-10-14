@@ -6,6 +6,10 @@
 - [fixed] Fixed a crash loop when the backend sent a very large token
   lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
   to one hour, and invalid saved expiration dates are ignored. (#16866)
+- [fixed] Fixed crashes when the backend sent a multi-factor enrollment
+  without an enrollment ID, or a TOTP enrollment response without a shared
+  secret key. Such enrollments are now skipped, and such TOTP responses fail
+  with an error. (#16904)
 
 # 13.0.0
 - [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
