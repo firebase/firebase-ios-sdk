@@ -568,7 +568,14 @@ class InsertStage: Stage {
   let errorMessage: String?
 
   init(collectionPath: String? = nil, documentIdExpression: Expression? = nil) {
-    errorMessage = documentIdExpression?.errorMessage
+    var errors: [String] = []
+    if let collectionPath, collectionPath.isEmpty {
+      errors.append("collectionPath must not be empty.")
+    }
+    if let docIdError = documentIdExpression?.errorMessage {
+      errors.append(docIdError)
+    }
+    errorMessage = errors.isEmpty ? nil : errors.joined(separator: "\n")
     bridge = __InsertStageBridge(
       collectionPath: collectionPath,
       documentIdExpression: documentIdExpression?.toBridge()
@@ -587,6 +594,9 @@ class UpsertStage: Stage {
     var errors: [String] = []
     if let error = error {
       errors.append(error.localizedDescription)
+    }
+    if let collectionPath, collectionPath.isEmpty {
+      errors.append("collectionPath must not be empty.")
     }
     if let docIdError = documentIdExpression?.errorMessage {
       errors.append(docIdError)

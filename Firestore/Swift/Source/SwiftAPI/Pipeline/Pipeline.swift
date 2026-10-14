@@ -1019,12 +1019,10 @@ public class Pipeline: @unchecked Sendable {
   ///
   /// When executed, the `delete` stage removes all documents matching preceding pipeline stages
   /// from the Firestore database. This can be combined with filter stages like `where`, explicit
-  /// document
-  /// sources, or other stages.
+  /// document sources, or other stages.
   ///
   /// Execution can be non-transactional (default) or executed atomically within a single
-  /// transaction
-  /// by passing `Pipeline.ExecuteOptions(isAtomic: true)` to `execute(options:)`.
+  /// transaction by passing `Pipeline.ExecuteOptions(isAtomic: true)` to `execute(options:)`.
   ///
   /// ```swift
   /// // Example 1: Non-transactional deletion of filtered documents
@@ -1055,10 +1053,8 @@ public class Pipeline: @unchecked Sendable {
   /// expressions.
   ///
   /// The `update` stage modifies fields in-place on existing documents matched by preceding
-  /// pipeline stages.
-  /// Each `Selectable` expression defines a field assignment via `.as("fieldName")` with a new
-  /// constant or
-  /// computed value expression.
+  /// pipeline stages. Each `Selectable` expression defines a field assignment via
+  /// `.as("fieldName")` with a new constant or computed value expression.
   ///
   /// ```swift
   /// // Update multiple fields on matching documents
@@ -1073,7 +1069,7 @@ public class Pipeline: @unchecked Sendable {
   /// ```
   ///
   /// - Parameter fields: Variadic list of `Selectable` expressions representing updated field
-  /// assignments.
+  ///   assignments.
   /// - Returns: A new `Pipeline` object with the `update` stage appended.
   public func update(_ fields: Selectable...) -> Pipeline {
     return update(fields)
@@ -1083,10 +1079,8 @@ public class Pipeline: @unchecked Sendable {
   /// expressions.
   ///
   /// The `update` stage modifies fields in-place on existing documents matched by preceding
-  /// pipeline stages.
-  /// Each `Selectable` expression defines a field assignment via `.as("fieldName")` with a new
-  /// constant or
-  /// computed value expression.
+  /// pipeline stages. Each `Selectable` expression defines a field assignment via
+  /// `.as("fieldName")` with a new constant or computed value expression.
   ///
   /// ```swift
   /// // Update fields on a specific document using an array of transforms

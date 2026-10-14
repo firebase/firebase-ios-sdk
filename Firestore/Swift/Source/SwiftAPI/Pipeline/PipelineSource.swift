@@ -118,15 +118,13 @@ public struct PipelineSource: @unchecked Sendable {
   /// Specifies an array of in-memory document dictionaries as the data source for the pipeline.
   ///
   /// Using literal documents as a data source allows constructing pipelines without fetching
-  /// existing data
-  /// from Firestore. This is useful for bulk inserting or upserting predefined records, testing
-  /// pipelines with
-  /// synthetic datasets, or applying transformations to static data.
+  /// existing data from Firestore. This is useful for bulk inserting or upserting predefined
+  /// records, testing pipelines with synthetic datasets, or applying transformations to static
+  /// data.
   ///
   /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`),
-  /// nested collections,
-  /// or Firestore `Expression` objects. Write-only `FieldValue` sentinels (such as
-  /// `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
+  /// nested collections, or Firestore `Expression` objects. Write-only `FieldValue` sentinels
+  /// (such as `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
   /// `CurrentTimestamp()` instead.
   ///
   /// ```swift
@@ -158,15 +156,13 @@ public struct PipelineSource: @unchecked Sendable {
   /// Specifies in-memory document dictionaries as variadic arguments for the pipeline data source.
   ///
   /// Using literal documents as a data source allows constructing pipelines without fetching
-  /// existing data
-  /// from Firestore. This is useful for bulk inserting or upserting predefined records, testing
-  /// pipelines with
-  /// synthetic datasets, or applying transformations to static data.
+  /// existing data from Firestore. This is useful for bulk inserting or upserting predefined
+  /// records, testing pipelines with synthetic datasets, or applying transformations to static
+  /// data.
   ///
   /// Dictionary values can include primitive types (such as `String`, `Int`, `Double`, `Bool`),
-  /// nested collections,
-  /// or Firestore `Expression` objects. Write-only `FieldValue` sentinels (such as
-  /// `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
+  /// nested collections, or Firestore `Expression` objects. Write-only `FieldValue` sentinels
+  /// (such as `FieldValue.serverTimestamp()`) are not supported; use pipeline expressions such as
   /// `CurrentTimestamp()` instead.
   ///
   /// ```swift
@@ -194,7 +190,7 @@ public struct PipelineSource: @unchecked Sendable {
   /// - Parameters:
   ///   - document: The first dictionary representing a document literal.
   ///   - additionalDocuments: Optional additional dictionary arguments representing document
-  /// literals.
+  ///     literals.
   /// - Returns: A `Pipeline` with the specified literal documents as its source.
   public func literals(_ document: [String: Sendable],
                        _ additionalDocuments: [String: Sendable]...) -> Pipeline {
