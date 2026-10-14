@@ -137,11 +137,17 @@ extension FunctionCall: Codable {
 
 extension ErrorPart: Codable {
   init(from decoder: any Decoder) throws {
-    fatalError("Decoding an ErrorPart is not supported.")
+    throw DecodingError.dataCorrupted(DecodingError.Context(
+      codingPath: decoder.codingPath,
+      debugDescription: "Decoding an ErrorPart is not supported."
+    ))
   }
 
   func encode(to encoder: any Encoder) throws {
-    fatalError("Encoding an ErrorPart is not supported.")
+    throw EncodingError.invalidValue(self, EncodingError.Context(
+      codingPath: encoder.codingPath,
+      debugDescription: "Cannot encode a part that failed to convert: \(error)"
+    ))
   }
 }
 
@@ -149,6 +155,8 @@ extension ErrorPart: Codable {
 
 extension ErrorPart: Equatable {
   static func == (lhs: ErrorPart, rhs: ErrorPart) -> Bool {
-    fatalError("Comparing ErrorParts for equality is not supported.")
+    // `Error` is not `Equatable`; compare descriptions so that comparing `ModelContent` values
+    // that contain an `ErrorPart` does not trap.
+    return String(reflecting: lhs.error) == String(reflecting: rhs.error)
   }
 }

@@ -89,11 +89,8 @@
       #expect(response.content.population == 14_000_000)
       let capturedRequest = try #require(receivedRequest.withLock { $0 })
       let generationConfig = try #require(capturedRequest.generationConfig)
-      #expect(generationConfig.responseMimeType == "application/json")
-      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
-        Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
+      #expect(generationConfig.responseMIMEType == "application/json")
+      let schemaObject = try #require(generationConfig.responseJSONSchema)
       #expect(schemaObject["x-order"] == nil)
       #expect(schemaObject["propertyOrdering"] != nil)
     }
@@ -153,7 +150,7 @@
         if let body = request.httpBodyData,
           let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
         {
-          lastReceivedContents.withLock { $0 = decoded.contents }
+          lastReceivedContents.withLock { $0 = decoded.contents ?? [] }
         }
         proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
         let payload = currentCount == 1 ? firstPayload : secondPayload
@@ -305,6 +302,37 @@
         Issue.record("Expected guardrailViolation error")
       } catch LanguageModelError.guardrailViolation(let violation) {
         #expect(violation.debugDescription.contains("Filtered for safety reasons"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallWithoutNameThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"functionCall": {"id": "call-1", "args": {}}}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      do {
+        _ = try await session.respond(to: "What's the weather?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("without a name"))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }

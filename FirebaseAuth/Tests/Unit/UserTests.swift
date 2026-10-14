@@ -61,6 +61,41 @@ class UserTests: RPCBaseTests {
     super.tearDown()
   }
 
+  /** @fn testUserWithProviderUserInfoMissingProviderIDIgnoresEntry
+      @brief Tests that a getAccountInfo provider entry lacking a `providerId`
+          is skipped rather than crashing @c User construction.
+   */
+  func testUserWithProviderUserInfoMissingProviderIDIgnoresEntry() throws {
+    let providerUserInfos: [[String: String]] = [
+      [
+        "providerId": GoogleAuthProvider.id,
+        "federatedId": "GOOGLE_ID",
+        "email": kEmail,
+      ],
+      [
+        // A malformed backend response entry with no `providerId`.
+        "federatedId": "NO_PROVIDER_ID",
+        "email": kEmail,
+      ],
+    ]
+
+    rpcIssuer?.fakeGetAccountProviderJSON = [[
+      "providerUserInfo": providerUserInfos,
+      "localId": kLocalID,
+      "email": kEmail,
+      "emailVerified": true,
+    ]]
+
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      // The entry without a providerId is dropped; the valid entry remains.
+      XCTAssertEqual(user.providerData.count, 1)
+      XCTAssertEqual(user.providerData.first?.providerID, GoogleAuthProvider.id)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
   /** @fn testUserPropertiesAndNSSecureCoding
       @brief Tests properties of the @c User instance before and after being
           serialized/deserialized.
