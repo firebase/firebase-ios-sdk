@@ -1,4 +1,4 @@
-// swift-tools-version:6.2.1
+// swift-tools-version:6.2
 // The swift-tools-version declares the minimum version of the Swift toolchain required to
 // build this package. Note: Firebase requires Xcode 26.2+, which includes the Swift 6.2.3 compiler.
 
