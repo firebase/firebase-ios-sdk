@@ -1,0 +1,157 @@
+{
+  "recordID": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithEnumClassification/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithEnumClassification/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "The entire production database server is down and users cannot log in."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "description": "A classified support ticket",
+                "properties": {
+                  "priority": {
+                    "enum": [
+                      "low",
+                      "medium",
+                      "high",
+                      "critical"
+                    ],
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  }
+                },
+                "propertyOrdering": [
+                  "summary",
+                  "priority"
+                ],
+                "required": [
+                  "summary",
+                  "priority"
+                ],
+                "title": "TicketClassification",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "2d016bfeeadf5f20c30903b77d0cc08bcd3121b3bedee5511f9bc61b1dfccf3b",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "{\n  \"summary"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:24.808091Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "WO_OapupMbKqmecPqcPzqAU",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\": \"Production database server is down and users cannot log in.\",\n  \"priority\": \"critical\"\n}"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:24.808091Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "WO_OapupMbKqmecPqcPzqAU",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a1/++T3qmwSGDcfnpXywHCYq6tkig+J9cylmQf4kP0dZTtREYZWwd3zOfR30H6rGNa99U+qLX/7r9qnqgPNuwq9a+7GhOQTV4jm02nZGV77BxWY5cRPUuvY="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:24.808091Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "WO_OapupMbKqmecPqcPzqAU",
+            "usageMetadata": {
+              "candidatesTokenCount": 28,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 28
+                }
+              ],
+              "promptTokenCount": 114,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 114
+                }
+              ],
+              "totalTokenCount": 142,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

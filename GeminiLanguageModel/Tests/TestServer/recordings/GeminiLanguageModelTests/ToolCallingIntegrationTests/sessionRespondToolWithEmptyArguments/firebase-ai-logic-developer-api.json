@@ -1,0 +1,318 @@
+{
+  "recordID": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolWithEmptyArguments/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolWithEmptyArguments/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What time is it right now?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current time.",
+                    "name": "getCurrentTime",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {},
+                      "propertyOrdering": [],
+                      "required": [],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "c87aad46c440ccb8592a3ac5b5fc3e924a9e36b41b7ab0aeb212229f6c04d8ca",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {},
+                        "id": "call_257259",
+                        "name": "getCurrentTime"
+                      },
+                      "thoughtSignature": "EmAKXgFpFH0TGDLkUFP/oQ5jhTP/RnAY0nbSpruk+xa/dEX1HcJxIqwPtL2ea0BgppgRTFZv8ye+wk4N7bfqJ2cECbwuqkNFJAPbrsbnGdkKsUUiEFuboXQFRiKp/82GKfE="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "5tLOav26FovI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 9,
+              "promptTokenCount": 39,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 39
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 48
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "5tLOav26FovI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 9,
+              "promptTokenCount": 39,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 39
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 48
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolWithEmptyArguments/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What time is it right now?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "id": "call_257259",
+                      "name": "getCurrentTime"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0TGDLkUFP/oQ5jhTP/RnAY0nbSpruk+xa/dEX1HcJxIqwPtL2ea0BgppgRTFZv8ye+wk4N7bfqJ2cECbwuqkNFJAPbrsbnGdkKsUUiEFuboXQFRiKp/82GKfE="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_257259",
+                      "name": "getCurrentTime",
+                      "response": {
+                        "result": "12:00 PM UTC"
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current time.",
+                    "name": "getCurrentTime",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {},
+                      "propertyOrdering": [],
+                      "required": [],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "c87aad46c440ccb8592a3ac5b5fc3e924a9e36b41b7ab0aeb212229f6c04d8ca",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "b5c608cd6d66cae342b4e36d810b5c05e1409245557b9803d092f0b72158659c",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "It is"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "5tLOapSlOYbojrEPjsLTyQ0",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 67,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 67
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 69
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " currently 12:00 PM UTC."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "5tLOapSlOYbojrEPjsLTyQ0",
+            "usageMetadata": {
+              "candidatesTokenCount": 12,
+              "promptTokenCount": 67,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 67
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 79
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TNGhkHfW58pe775XSaqd8vzx86LyVF7n+jWkAGDr3uz8X6M4jXGF8wOvlifr+O4X3PIfbyKOiWOx9Os4jwglU8Ke0fHz9uTYwQWR7VfrOeBAyg0pQQYJsD0Y="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "5tLOapSlOYbojrEPjsLTyQ0",
+            "usageMetadata": {
+              "candidatesTokenCount": 12,
+              "promptTokenCount": 67,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 67
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 79
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
