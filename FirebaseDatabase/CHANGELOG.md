@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a crash in `getData` when the server returned an error without
+  a reason. (#16718)
 - [fixed] Ignore malformed realtime server push, control, and handshake
   messages instead of crashing when a frame or one of its fields has an
   unexpected JSON type. (#16750)
