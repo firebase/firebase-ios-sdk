@@ -120,9 +120,13 @@ final class AuthBackend: AuthBackendProtocol {
         for enrollment in enrollments {
           // check which MFA factors are enabled.
           if let _ = enrollment.phoneInfo {
-            info.append(PhoneMultiFactorInfo(proto: enrollment))
+            if let factor = PhoneMultiFactorInfo(proto: enrollment) {
+              info.append(factor)
+            }
           } else if let _ = enrollment.totpInfo {
-            info.append(TOTPMultiFactorInfo(proto: enrollment))
+            if let factor = TOTPMultiFactorInfo(proto: enrollment) {
+              info.append(factor)
+            }
           } else {
             AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
           }

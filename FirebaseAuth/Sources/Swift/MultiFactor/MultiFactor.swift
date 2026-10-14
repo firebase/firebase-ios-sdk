@@ -254,11 +254,13 @@ import Foundation
       var multiFactorInfoArray: [MultiFactorInfo] = []
       for enrollment in mfaEnrollments {
         if enrollment.phoneInfo != nil {
-          let multiFactorInfo = PhoneMultiFactorInfo(proto: enrollment)
-          multiFactorInfoArray.append(multiFactorInfo)
+          if let multiFactorInfo = PhoneMultiFactorInfo(proto: enrollment) {
+            multiFactorInfoArray.append(multiFactorInfo)
+          }
         } else if enrollment.totpInfo != nil {
-          let multiFactorInfo = TOTPMultiFactorInfo(proto: enrollment)
-          multiFactorInfoArray.append(multiFactorInfo)
+          if let multiFactorInfo = TOTPMultiFactorInfo(proto: enrollment) {
+            multiFactorInfoArray.append(multiFactorInfo)
+          }
         }
       }
       enrolledFactors = multiFactorInfoArray
