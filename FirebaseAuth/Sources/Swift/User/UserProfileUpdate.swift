@@ -26,7 +26,8 @@ actor UserProfileUpdate {
     do {
       response = try await user.backend.call(with: request)
     } catch {
-      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                           rejectedToken: accessToken)
       throw error
     }
     guard let idToken = response.idToken,
@@ -74,7 +75,8 @@ actor UserProfileUpdate {
         return user
       }
     } catch {
-      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                           rejectedToken: accessToken)
       throw error
     }
 
@@ -114,7 +116,8 @@ actor UserProfileUpdate {
         try await setTokenService(user: user, tokenService: tokenService)
       }
     } catch {
-      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                           rejectedToken: accessToken)
       throw error
     }
   }
@@ -140,7 +143,8 @@ actor UserProfileUpdate {
       user.isAnonymous = false
       user.update(withGetAccountInfoResponse: response)
     } catch {
-      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                           rejectedToken: accessToken)
       throw error
     }
     if let error = user.updateKeychain() {
@@ -178,7 +182,8 @@ actor UserProfileUpdate {
       }
       return (accountInfoResponse.users?.first)!
     } catch {
-      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+      await user.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                           rejectedToken: token)
       throw error
     }
   }

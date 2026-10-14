@@ -904,7 +904,8 @@ extension User: NSSecureCoding {}
             let _ = try await self.backend.call(with: request)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
-            await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+            await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                 rejectedToken: accessToken)
             User.callInMainThreadWithError(callback: completion, error: error)
           }
         }
@@ -1294,7 +1295,8 @@ extension User: NSSecureCoding {}
                   }
                   callback(nil)
                 } catch {
-                  await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+                  await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                       rejectedToken: accessToken)
                   callback(error)
                 }
               }
@@ -1455,7 +1457,8 @@ extension User: NSSecureCoding {}
                 completion(nil)
               }
             } catch {
-              await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+              await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                   rejectedToken: accessToken)
               completion(error)
             }
           }
@@ -1491,7 +1494,8 @@ extension User: NSSecureCoding {}
             response = try await self.backend.call(with: request)
           #endif
         } catch {
-          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error)
+          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                               rejectedToken: accessToken)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                           result: nil, error: error)
           return
@@ -1685,11 +1689,14 @@ extension User: NSSecureCoding {}
   /// The backend returns `INVALID_ID_TOKEN` (`invalidUserToken`) when the ID token's `exp`
   /// timestamp has passed and `TOKEN_EXPIRED` (`userTokenExpired`) when the account's
   /// `valid_since` timestamp is newer than the token's issue time. Neither error necessarily means
-  /// that the session has ended, so instead of signing out, force a token refresh, which signs the
-  /// user out if the session has ended. Other errors are handled by
+  /// that the session has ended, so instead of signing out, force a token refresh to check. The
+  /// user stays signed in if the refresh succeeds or fails with a network error, and is signed out
+  /// if it fails with any other error. Other errors are handled by
   /// `signOutIfTokenIsInvalid(withError:)`.
   /// - Parameter error: The error from the server.
-  func signOutIfSessionIsInvalid(afterIDTokenRequestError error: Error) async {
+  /// - Parameter rejectedToken: The ID token that was sent with the request.
+  func signOutIfSessionIsInvalid(afterIDTokenRequestError error: Error,
+                                 rejectedToken: String?) async {
     let code = (error as NSError).code
     guard code == AuthErrorCode.invalidUserToken.rawValue ||
       code == AuthErrorCode.userTokenExpired.rawValue else {
@@ -1700,10 +1707,36 @@ extension User: NSSecureCoding {}
     guard auth?.currentUser === self else {
       return
     }
+    // Skip the check if the token was refreshed or replaced after the request was sent. If the new
+    // token is rejected too, that request checks again.
+    let service = tokenService
+    if let rejectedToken, service.accessToken != rejectedToken {
+      return
+    }
     AuthLog.logNotice(code: "I-AUT000032",
                       message: "ID token rejected by the backend. Refreshing it to check whether " +
                         "the user is still signed in.")
-    _ = try? await internalGetTokenAsync(forceRefresh: true, backend: backend)
+    do {
+      let (_, tokenUpdated) = try await service.fetchAccessToken(forcingRefresh: true,
+                                                                 backend: backend)
+      if tokenUpdated {
+        _ = updateKeychain()
+      }
+    } catch let refreshError {
+      // If another operation replaced the credentials, or another user signed in, while the
+      // refresh was in flight, the failure is about the old session, not the current one.
+      guard tokenService === service, auth?.currentUser === self else {
+        return
+      }
+      // A network error doesn't show whether the session has ended. Stay signed in; the next
+      // refresh checks again.
+      if (refreshError as NSError).code == AuthErrorCode.networkError.rawValue {
+        return
+      }
+      // Any other failure, including one without a specific error code, signs out, as the
+      // original error did before this check was added.
+      signOutIfTokenIsInvalid(withError: error)
+    }
   }
 
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.

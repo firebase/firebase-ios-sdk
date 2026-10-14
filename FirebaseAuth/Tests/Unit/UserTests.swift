@@ -1037,6 +1037,155 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testReloadTokenExpiredWithUnmappedRefreshErrorSignsOut
+      @brief Tests that the user is signed out when the refresh that checks the session after
+          @c TOKEN_EXPIRED fails with an error other than a network error, including one that isn't
+          mapped to a specific error code.
+   */
+  func testReloadTokenExpiredWithUnmappedRefreshErrorSignsOut() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        // `INVALID_REFRESH_TOKEN` isn't mapped to a specific error code.
+        self.rpcIssuer.secureTokenErrorString = "INVALID_REFRESH_TOKEN"
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      // Clear fake so we can inject error
+      self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+      user.reload { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        // User is no longer signed in.
+        XCTAssertNil(self.auth?.currentUser)
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadTokenExpiredWhenCredentialsChangeDuringCheckStaysSignedIn
+      @brief Tests that the user stays signed in when another operation installs new credentials
+          while the refresh that checks the session is in flight, and that refresh fails because
+          the old refresh token was revoked.
+   */
+  func testReloadTokenExpiredWhenCredentialsChangeDuringCheckStaysSignedIn() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    let newAccessToken = "NEW_ACCESS_TOKEN"
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is GetAccountInfoRequest)
+        // Send the refresh that checks the session to `nextRespondBlock`.
+        self.rpcIssuer.fakeSecureTokenServiceJSON = nil
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      self.rpcIssuer.nextRespondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is SecureTokenRequest)
+        // Another operation, such as a password update, installs new credentials while the
+        // refresh of the old ones is in flight.
+        user.tokenService = SecureTokenService(
+          withRequestConfiguration: user.requestConfiguration,
+          accessToken: newAccessToken,
+          accessTokenExpirationDate: Date(timeIntervalSinceNow: 3600),
+          refreshToken: "NEW_REFRESH_TOKEN"
+        )
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      // Clear fake so we can inject error
+      self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+      user.reload { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        // The user is still signed in, with the new credentials.
+        XCTAssertEqual(user.rawAccessToken(), newAccessToken)
+        XCTAssertIdentical(self.auth?.currentUser, user)
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadTokenExpiredWhenSameAccountSignsInDuringCheckKeepsNewSession
+      @brief Tests that when the same account signs in again while the refresh that checks the
+          session is in flight, the failed refresh doesn't sign out the new session.
+   */
+  func testReloadTokenExpiredWhenSameAccountSignsInDuringCheckKeepsNewSession() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    let auth = try XCTUnwrap(self.auth)
+    // Stands in for the new session: another `User` instance for the same account.
+    signInWithEmailPasswordReturnFakeUser { newSessionUser in
+      self.signInWithEmailPasswordReturnFakeUser { user in
+        XCTAssertNotIdentical(newSessionUser, user)
+        XCTAssertEqual(newSessionUser.uid, user.uid)
+        self.rpcIssuer.respondBlock = {
+          XCTAssertTrue(self.rpcIssuer.request is GetAccountInfoRequest)
+          // Send the refresh that checks the session to `nextRespondBlock`.
+          self.rpcIssuer.fakeSecureTokenServiceJSON = nil
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        }
+        self.rpcIssuer.nextRespondBlock = {
+          XCTAssertTrue(self.rpcIssuer.request is SecureTokenRequest)
+          // The same account signs in again while the refresh is in flight.
+          try kAuthGlobalWorkQueue.sync {
+            try auth.updateCurrentUser(newSessionUser, byForce: true, savingToDisk: false)
+          }
+          return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        }
+        // Clear fake so we can inject error
+        self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+        user.reload { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+          // The new session is still signed in.
+          XCTAssertIdentical(self.auth?.currentUser, newSessionUser)
+          expectation.fulfill()
+        }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadTokenExpiredAfterTokenRefreshedSkipsCheck
+      @brief Tests that no refresh is sent to check the session when the user's token has been
+          refreshed since the rejected request was sent.
+   */
+  func testReloadTokenExpiredAfterTokenRefreshedSkipsCheck() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      self.rpcIssuer.respondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is GetAccountInfoRequest)
+        // The token is refreshed while the request is in flight.
+        user.tokenService.accessToken = self.kRefreshedAccessToken
+        // Another refresh would fail and sign the user out.
+        self.rpcIssuer.secureTokenErrorString = "TOKEN_EXPIRED"
+        return try self.rpcIssuer.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      }
+      // Clear fake so we can inject error
+      self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+      user.reload { rawError in
+        XCTAssertTrue(Thread.isMainThread)
+        let error = try! XCTUnwrap(rawError)
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+        // No refresh was sent, and the user is still signed in.
+        XCTAssertTrue(self.rpcIssuer.request is GetAccountInfoRequest)
+        XCTAssertEqual(user.rawAccessToken(), self.kRefreshedAccessToken)
+        XCTAssertIdentical(self.auth?.currentUser, user)
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
   /** @fn testReauthenticateSuccess
       @brief Tests the flow of a successful @c reauthenticateWithCredential:completion: call.
    */
