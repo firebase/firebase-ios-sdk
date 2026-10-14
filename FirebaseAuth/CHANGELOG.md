@@ -8,6 +8,10 @@
 - [fixed] When reCAPTCHA isn't enabled for any provider,
   `initializeRecaptchaConfig()` now only loads the configuration and returns
   without an error, matching the web SDK. (#16757)
+- [fixed] Fixed an issue where a user could be signed out after a request was
+  rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
+  was still valid. Auth now refreshes the token to check the session first.
+  (#16854)
 - [fixed] Fixed a crash loop when the backend sent a very large token
   lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
   to one hour, and invalid saved expiration dates are ignored. (#16866)

@@ -18,6 +18,7 @@
   import GeminiAPIDataModels
   import GeminiTestUtilities
   import Testing
+  import UniformTypeIdentifiers
 
   @testable import GeminiLanguageModel
 
@@ -673,6 +674,29 @@
         Issue.record("Unexpected error thrown: \(error)")
       }
     }
+
+    #if canImport(FoundationModels, _version: 2.1)
+      @Test
+      @available(macOS 27.2, iOS 27.2, watchOS 27.2, visionOS 27.2, *)
+      @available(tvOS, unavailable)
+      func translatesDataEntryThrowsUnsupportedTranscriptContent() throws {
+        let dataEntry = Transcript.DataEntry(
+          id: "data-1",
+          contentType: .json,
+          content: Data(#"{"key":"value"}"#.utf8)
+        )
+        let transcript = Transcript(entries: [.data(dataEntry)])
+
+        do {
+          _ = try GeminiTranscriptTranslator.translate(transcript)
+          Issue.record("Expected unsupportedTranscriptContent error")
+        } catch LanguageModelError.unsupportedTranscriptContent(let context) {
+          #expect(context.unsupportedContent == [.data(dataEntry)])
+        } catch {
+          Issue.record("Unexpected error thrown: \(error)")
+        }
+      }
+    #endif  // canImport(FoundationModels, _version: 2.1)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)

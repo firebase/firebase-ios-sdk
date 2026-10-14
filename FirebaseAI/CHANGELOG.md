@@ -17,6 +17,13 @@
   the SDK doesn't support, such as the `voiceActivity` messages sent by Gemini
   3.x Live models for each spoken turn. Unsupported message types are now logged
   and ignored. (#16889)
+- [fixed] Fixed a "switch must be exhaustive" compiler warning when building
+  `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
+  `Transcript.Entry.data` entries continue to throw
+  `LanguageModelError.unsupportedTranscriptContent`. (#16890)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
