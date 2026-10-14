@@ -324,10 +324,15 @@ import Foundation
     var paginatedCompletion: ((_: StorageListResult?, _: Error?) -> Void)?
     paginatedCompletion = { (_ listResult: StorageListResult?, _ error: Error?) in
       if let error {
+        // Break the retain cycle: this closure captures `paginatedCompletion`, which holds it.
+        paginatedCompletion = nil
         completion(nil, error)
         return
       }
-      guard let strongSelf = weakSelf else { return }
+      guard let strongSelf = weakSelf else {
+        paginatedCompletion = nil
+        return
+      }
       guard let listResult = listResult else {
         fatalError("internal error: both listResult and error are nil")
       }

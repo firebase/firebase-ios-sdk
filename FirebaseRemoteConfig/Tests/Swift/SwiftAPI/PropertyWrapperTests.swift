@@ -42,6 +42,9 @@ class PropertyWrapperTests: APITestBase {
     recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
   )
 
+  /// Only the keys of these property wrappers are read directly, since reading a wrapped value
+  /// outside of a SwiftUI view triggers a SwiftUI runtime warning. Tests read the values with
+  /// `remoteConfigPropertyValue(_:key:fallback:)`.
   struct PropertyWrapperTester {
     @RemoteConfigProperty(key: Constants.stringKey, fallback: "")
     var stringValue: String!
@@ -121,90 +124,53 @@ class PropertyWrapperTests: APITestBase {
     }
   }
 
-  struct PlaceholderValueTester {
-    @RemoteConfigProperty(key: "NewKeyNotInSystem", fallback: fallbackString)
-    var stringValue: String
-
-    @RemoteConfigProperty(key: "NewIntKeyNotInSystem", fallback: fallbackInt)
-    var intValue: Int!
-
-    @RemoteConfigProperty(key: "NewZeroKey", fallback: 0)
-    var zeroIntValue: Int!
-
-    @RemoteConfigProperty(key: "newFloatKey", fallback: fallbackFloat)
-    var floatValue: Float!
-
-    @RemoteConfigProperty(key: "newDoubleKey", fallback: fallbackDouble)
-    var doubleValue: Double!
-
-    @RemoteConfigProperty(key: "newDecimalKey", fallback: fallbackDecimal)
-    var decimalValue: Decimal!
-
-    @RemoteConfigProperty(key: "newTrueKey", fallback: false)
-    var trueKeyFalseValue: Bool!
-
-    @RemoteConfigProperty(key: "newTrueKey2", fallback: true)
-    var trueKeyTrueValue: Bool!
-
-    @RemoteConfigProperty(key: "newFalseKey", fallback: true)
-    var falseKeyTrueValue: Bool!
-
-    @RemoteConfigProperty(key: "newFalseKey2", fallback: false)
-    var falseKeyFalseValue: Bool!
-
-    @RemoteConfigProperty(key: "newDataKey", fallback: fallbackData)
-    var dataValue: Data
-
-    @RemoteConfigProperty(key: "newJSONKey", fallback: fallbackJSON)
-    var recipeValue: Recipe!
-
-    @RemoteConfigProperty(key: "newArrayKey", fallback: fallbackArray)
-    var arrayValue: [String]!
-
-    @RemoteConfigProperty(key: "newDictKey", fallback: fallbackDict)
-    var dictValue: [String: String]!
-  }
-
   func testFetchAndActivateWithPropertyWrapper() async throws {
     let status = try await config.fetchAndActivate()
     XCTAssertEqual(status, .successFetchedFromRemote)
 
-    let tester = await PropertyWrapperTester()
-
-    let stringValue = await tester.stringValue
+    // The types, keys, and fallbacks match the property wrappers in `PropertyWrapperTester`.
+    let stringValue = remoteConfigPropertyValue(
+      String?.self, key: Constants.stringKey, fallback: ""
+    )
     XCTAssertEqual(stringValue, Constants.stringValue)
 
-    let intValue = await tester.intValue
+    let intValue = remoteConfigPropertyValue(Int?.self, key: Constants.intKey, fallback: 0)
     XCTAssertEqual(intValue, Constants.intValue)
 
-    let floatValue = await tester.floatValue
+    let floatValue = remoteConfigPropertyValue(Float?.self, key: Constants.floatKey, fallback: 0)
     XCTAssertEqual(floatValue, Constants.floatValue)
 
-    let doubleValue = await tester.doubleValue
+    let doubleValue = remoteConfigPropertyValue(Double?.self, key: Constants.floatKey, fallback: 0)
     XCTAssertEqual(doubleValue, Constants.doubleValue)
 
-    let decimalValue = await tester.decimalValue
+    let decimalValue = remoteConfigPropertyValue(
+      Decimal?.self, key: Constants.decimalKey, fallback: 0
+    )
     XCTAssertEqual(decimalValue, Constants.decimalValue)
 
-    let trueValue = await tester.trueValue
+    let trueValue = remoteConfigPropertyValue(Bool?.self, key: Constants.trueKey, fallback: false)
     XCTAssertEqual(trueValue, true)
 
-    let falseValue = await tester.falseValue
+    let falseValue = remoteConfigPropertyValue(Bool?.self, key: Constants.falseKey, fallback: false)
     XCTAssertEqual(falseValue, false)
 
-    let dataValue = await tester.dataValue
+    let dataValue = remoteConfigPropertyValue(Data?.self, key: Constants.dataKey, fallback: Data())
     XCTAssertEqual(dataValue, Constants.dataValue)
 
     let recipe = try XCTUnwrap(config[Constants.jsonKey].decoded(asType: Recipe.self))
-    let recipeValue = await tester.recipeValue
+    let recipeValue = remoteConfigPropertyValue(Recipe?.self, key: Constants.jsonKey, fallback: nil)
     XCTAssertEqual(recipeValue?.recipeName, recipe.recipeName)
     XCTAssertEqual(recipeValue?.ingredients, recipe.ingredients)
     XCTAssertEqual(recipeValue?.cookTime, recipe.cookTime)
 
-    let arrayValue = await tester.arrayValue
+    let arrayValue = remoteConfigPropertyValue(
+      [String]?.self, key: Constants.arrayKey, fallback: []
+    )
     XCTAssertEqual(arrayValue, Constants.arrayValue)
 
-    let dictValue = await tester.dictValue
+    let dictValue = remoteConfigPropertyValue(
+      [String: String]?.self, key: Constants.dictKey, fallback: [:]
+    )
     XCTAssertEqual(dictValue, Constants.dictValue)
   }
 
@@ -245,51 +211,74 @@ class PropertyWrapperTests: APITestBase {
     XCTAssertEqual(Constants.dictKey, dictKeyName)
   }
 
-  func testPlaceHolderValues() async throws {
-    // Make sure the values below are consistent with the property wrapper
-    // in PlaceholderValueTester
-    let tester = await PlaceholderValueTester()
-
-    let stringValue = await tester.stringValue
+  func testPlaceHolderValues() {
+    // None of these keys are in the config, so each value is its fallback.
+    let stringValue = remoteConfigPropertyValue(
+      String.self, key: "NewKeyNotInSystem", fallback: PropertyWrapperTests.fallbackString
+    )
     XCTAssertEqual(stringValue, PropertyWrapperTests.fallbackString)
 
-    let intValue = await tester.intValue
+    let intValue = remoteConfigPropertyValue(
+      Int?.self, key: "NewIntKeyNotInSystem", fallback: PropertyWrapperTests.fallbackInt
+    )
     XCTAssertEqual(intValue, PropertyWrapperTests.fallbackInt)
 
-    let zeroValue = await tester.zeroIntValue
+    let zeroValue = remoteConfigPropertyValue(Int?.self, key: "NewZeroKey", fallback: 0)
     XCTAssertEqual(zeroValue, 0)
 
-    let floatValue = await tester.floatValue
+    let floatValue = remoteConfigPropertyValue(
+      Float?.self, key: "newFloatKey", fallback: PropertyWrapperTests.fallbackFloat
+    )
     XCTAssertEqual(floatValue, PropertyWrapperTests.fallbackFloat)
 
-    let doubleValue = await tester.doubleValue
+    let doubleValue = remoteConfigPropertyValue(
+      Double?.self, key: "newDoubleKey", fallback: PropertyWrapperTests.fallbackDouble
+    )
     XCTAssertEqual(doubleValue, PropertyWrapperTests.fallbackDouble)
 
-    let decimalValue = await tester.decimalValue
+    let decimalValue = remoteConfigPropertyValue(
+      Decimal?.self, key: "newDecimalKey", fallback: PropertyWrapperTests.fallbackDecimal
+    )
     XCTAssertEqual(decimalValue, PropertyWrapperTests.fallbackDecimal)
 
-    let trueKeyFalseValue = await tester.trueKeyFalseValue
+    let trueKeyFalseValue = remoteConfigPropertyValue(
+      Bool?.self, key: "newTrueKey", fallback: false
+    )
     XCTAssertEqual(trueKeyFalseValue, false)
 
-    let trueKeyTrueValue = await tester.trueKeyTrueValue
+    let trueKeyTrueValue = remoteConfigPropertyValue(
+      Bool?.self, key: "newTrueKey2", fallback: true
+    )
     XCTAssertEqual(trueKeyTrueValue, true)
 
-    let falseKeyTrueValue = await tester.falseKeyTrueValue
+    let falseKeyTrueValue = remoteConfigPropertyValue(
+      Bool?.self, key: "newFalseKey", fallback: true
+    )
     XCTAssertEqual(falseKeyTrueValue, true)
 
-    let falseKeyFalseValue = await tester.falseKeyFalseValue
+    let falseKeyFalseValue = remoteConfigPropertyValue(
+      Bool?.self, key: "newFalseKey2", fallback: false
+    )
     XCTAssertEqual(falseKeyFalseValue, false)
 
-    let dataValue = await tester.dataValue
+    let dataValue = remoteConfigPropertyValue(
+      Data.self, key: "newDataKey", fallback: PropertyWrapperTests.fallbackData
+    )
     XCTAssertEqual(dataValue, PropertyWrapperTests.fallbackData)
 
-    let arrayValue = await tester.arrayValue
+    let arrayValue = remoteConfigPropertyValue(
+      [String]?.self, key: "newArrayKey", fallback: PropertyWrapperTests.fallbackArray
+    )
     XCTAssertEqual(arrayValue, PropertyWrapperTests.fallbackArray)
 
-    let dictValue = await tester.dictValue
+    let dictValue = remoteConfigPropertyValue(
+      [String: String]?.self, key: "newDictKey", fallback: PropertyWrapperTests.fallbackDict
+    )
     XCTAssertEqual(dictValue, PropertyWrapperTests.fallbackDict)
 
-    let recipeValue = await tester.recipeValue
+    let recipeValue = remoteConfigPropertyValue(
+      Recipe?.self, key: "newJSONKey", fallback: PropertyWrapperTests.fallbackJSON
+    )
     XCTAssertEqual(recipeValue?.recipeName, "muffin")
     XCTAssertEqual(recipeValue?.ingredients, ["flour", "sugar"])
     XCTAssertEqual(recipeValue?.cookTime, 45)
