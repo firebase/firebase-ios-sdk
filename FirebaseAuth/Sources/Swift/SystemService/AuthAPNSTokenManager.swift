@@ -78,6 +78,8 @@
           self.application.registerForRemoteNotifications()
         }
         let deadline = DispatchTime.now() + timeout
+        // Capture `self` strongly. The pending callbacks live in this manager, so if it were
+        // released before the deadline, they would never be called.
         kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
           // Only cancel if this is still the active request and it has not completed.
           let callbacksToCancel: [(Result<AuthAPNSToken, Error>) -> Void] = self.lock.withLock {

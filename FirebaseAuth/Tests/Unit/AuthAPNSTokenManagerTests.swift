@@ -309,6 +309,33 @@
       waitForExpectations(timeout: 2)
     }
 
+    /** @fn testPendingCallbackCompletesAfterManagerIsReleased
+        @brief Tests that a pending callback still gets the timeout error when the caller releases
+            its reference to the manager before the deadline.
+     */
+    func testPendingCallbackCompletesAfterManagerIsReleased() {
+      let expectation = self.expectation(description: #function)
+      var tokenManager: AuthAPNSTokenManager? = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
+      tokenManager?.getTokenInternal { result in
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(
+            error as NSError,
+            AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+          )
+        }
+        expectation.fulfill()
+      }
+      // Release the only reference outside the manager before the timeout fires.
+      tokenManager = nil
+      waitForExpectations(timeout: 2)
+    }
+
     /** @fn testCancel
         @brief Tests cancelling the pending callbacks.
      */
