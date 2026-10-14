@@ -102,6 +102,19 @@
       }
     }
 
+    /// Whether reCAPTCHA is enabled for any provider in the cached config for the current tenant,
+    /// or for the project if there's no tenant. This is the same config `siteKey()` reads, so a
+    /// site key is available exactly when this returns `true`.
+    func isAnyProviderEnabled() -> Bool {
+      let config: AuthRecaptchaConfig?
+      if let tenantID = auth?.tenantID {
+        config = tenantConfigs[tenantID]
+      } else {
+        config = agentConfig
+      }
+      return config?.enablementStatus.values.contains { $0 != .off } ?? false
+    }
+
     func verify(forceRefresh: Bool, action: AuthRecaptchaAction) async throws -> String {
       try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
       guard let siteKey = siteKey() else {

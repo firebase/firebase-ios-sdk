@@ -5,6 +5,9 @@
   entries. (#16745)
 - [fixed] Improved robustness when parsing malformed reCAPTCHA config and
   backend error details from the server. (#16728)
+- [fixed] When reCAPTCHA isn't enabled for any provider,
+  `initializeRecaptchaConfig()` now only loads the configuration and returns
+  without an error, matching the web SDK. (#16757)
 - [fixed] Fixed a crash loop when the backend sent a very large token
   lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
   to one hour, and invalid saved expiration dates are ignored. (#16866)

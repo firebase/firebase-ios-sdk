@@ -1489,7 +1489,8 @@ class AuthTests: RPCBaseTests {
 
     /** @fn testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing
         @brief When reCAPTCHA is off for every provider, no site key is cached, so verification
-            (which `initializeRecaptchaConfig()` triggers) fails with `recaptchaSiteKeyMissing`.
+            fails with `recaptchaSiteKeyMissing` instead of passing an empty site key to the
+            reCAPTCHA SDK.
      */
     func testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing() async throws {
       rpcIssuer.fakeRecaptchaConfigJSON = [
@@ -1511,6 +1512,66 @@ class AuthTests: RPCBaseTests {
       XCTAssertNotNil(verifier.agentConfig)
       XCTAssertNil(verifier.agentConfig?.siteKey)
     }
+
+    #if !targetEnvironment(macCatalyst)
+      /// Loads the config like the real `verify`, then counts the call and returns a fake token
+      /// instead of using the reCAPTCHA SDK.
+      private class CountingRecaptchaVerifier: AuthRecaptchaVerifier, @unchecked Sendable {
+        var verifyCallCount = 0
+
+        override func verify(forceRefresh: Bool,
+                             action: AuthRecaptchaAction) async throws -> String {
+          try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
+          verifyCallCount += 1
+          return "FAKE_RECAPTCHA_TOKEN"
+        }
+      }
+
+      private func countingRecaptchaVerifier() -> CountingRecaptchaVerifier {
+        let verifier = CountingRecaptchaVerifier()
+        AuthRecaptchaVerifier.setShared(verifier, auth: auth)
+        return verifier
+      }
+
+      /** @fn testInitializeRecaptchaConfigWhenRecaptchaIsOffOnlyLoadsConfig
+          @brief When reCAPTCHA is off for every provider, `initializeRecaptchaConfig()` loads the
+              config and returns without an error and without initializing the reCAPTCHA client,
+              like the web SDK.
+       */
+      func testInitializeRecaptchaConfigWhenRecaptchaIsOffOnlyLoadsConfig() async throws {
+        rpcIssuer.fakeRecaptchaConfigJSON = [
+          "recaptchaKey": "projects/123/keys/456",
+          "recaptchaEnforcementState": [
+            ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+            ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+          ],
+        ]
+        let verifier = countingRecaptchaVerifier()
+        try await auth.initializeRecaptchaConfig()
+        XCTAssertEqual(verifier.verifyCallCount, 0)
+        XCTAssertNotNil(verifier.agentConfig)
+        XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .off)
+        XCTAssertEqual(verifier.enablementStatus(forProvider: .password), .off)
+      }
+
+      /** @fn testInitializeRecaptchaConfigWhenRecaptchaIsOnVerifies
+          @brief When reCAPTCHA is on for any provider, `initializeRecaptchaConfig()` still runs
+              verification to initialize the reCAPTCHA client.
+       */
+      func testInitializeRecaptchaConfigWhenRecaptchaIsOnVerifies() async throws {
+        rpcIssuer.fakeRecaptchaConfigJSON = [
+          "recaptchaKey": "projects/123/keys/456",
+          "recaptchaEnforcementState": [
+            ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+            ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "AUDIT"],
+          ],
+        ]
+        let verifier = countingRecaptchaVerifier()
+        try await auth.initializeRecaptchaConfig()
+        XCTAssertEqual(verifier.verifyCallCount, 1)
+        XCTAssertEqual(verifier.agentConfig?.siteKey, "456")
+      }
+    #endif
   #endif
 
   /** @fn testCreateUserWithEmailPasswordSuccess
