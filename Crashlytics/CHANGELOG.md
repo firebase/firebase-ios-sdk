@@ -1,4 +1,4 @@
-# Unreleased
+# 13.1.0
 - [fixed] Improved robustness when parsing malformed settings from the server
   or from the on-disk settings cache. (#16728)
 
