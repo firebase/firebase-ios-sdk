@@ -101,16 +101,30 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   workflow_file = File.basename(wf.path)
   puts "------------"
   puts "workflow_file: %s" % [workflow_file]
+  # GitHub-managed workflows (e.g. CodeQL default setup, Dependabot) have paths like
+  # `dynamic/dependabot/update-graph` rather than a file in `.github/workflows`. They only
+  # run on `dynamic` events, never on `schedule`, and looking up their runs by file name 404s.
+  if wf.path.start_with?("dynamic/")
+    puts workflow_file + " is a GitHub-managed dynamic workflow and is skipped."
+    next
+  end
   if EXCLUDED_WORKFLOWS.include?(workflow_file)
     puts workflow_file + " is excluded in the report."
     next
   end
 
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
-  # If the below request 404s, it may be because the repo doesn't own that workflow (e.g.
-  # `dependabot-updates`). In these cases, add the workflow to the `EXCLUDED_WORKFLOWS` env
-  # var that's set in `.github/workflows/generate_issues.yml`.
-  runs = client.workflow_runs(REPO_NAME_WITH_OWNER, workflow_file, :event => "schedule").workflow_runs
+  begin
+    runs = client.workflow_runs(REPO_NAME_WITH_OWNER, workflow_file, :event => "schedule").workflow_runs
+  rescue Octokit::Error, Faraday::Error => e
+    # Record the failed lookup instead of aborting, so one bad request (e.g. a transient 5xx)
+    # can't prevent the whole report from being posted. A persistent 404 usually means the
+    # workflow should be added to `exclude-workflow-files` in
+    # `.github/workflows/infra.generate_issues.yml`.
+    puts "failed to fetch workflow runs: %s" % [e.message]
+    failure_report.add_workflow_run_and_result(workflow_text, "error fetching runs (%s)" % [e.class])
+    next
+  end
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
   if latest_run.nil?
