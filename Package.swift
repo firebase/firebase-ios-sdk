@@ -1448,10 +1448,10 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
     .target(
       name: "FirebaseCrashlyticsTelemetry",
       dependencies: [
+        "CrashlyticsTelemetryOTelProtos",
+        "CrashlyticsTelemetryOTelURLSessionInstrumentation",
+        "CrashlyticsTelemetryPersistenceWrapper",
         "FirebaseCrashlytics",
-        "OpentelemetryProtos",
-        "PersistenceWrapper",
-        "URLSessionInstrumentation",
         .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
         .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
         .product(name: "StdoutExporter", package: "opentelemetry-swift-core"),
@@ -1471,7 +1471,7 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
       ]
     ),
     .target(
-      name: "PersistenceWrapper",
+      name: "CrashlyticsTelemetryPersistenceWrapper",
       dependencies: [
         .product(name: "FirebaseTelemetryPersistence", package: "firebase-telemetry-persistence"),
       ],
@@ -1481,7 +1481,7 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
       ]
     ),
     .target(
-      name: "NetworkStatus",
+      name: "CrashlyticsTelemetryOTelNetworkStatus",
       dependencies: [
         .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
       ],
@@ -1489,16 +1489,16 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
       linkerSettings: [.linkedFramework("CoreTelephony", .when(platforms: [.iOS]))]
     ),
     .target(
-      name: "URLSessionInstrumentation",
+      name: "CrashlyticsTelemetryOTelURLSessionInstrumentation",
       dependencies: [
         .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
-        "NetworkStatus",
+        "CrashlyticsTelemetryOTelNetworkStatus",
       ],
       path: "FirebaseCrashlyticsTelemetry/Sources/third_party/opentelemetry-swift/Sources/Instrumentation/URLSession",
       exclude: ["README.md"]
     ),
     .target(
-      name: "OpentelemetryProtos",
+      name: "CrashlyticsTelemetryOTelProtos",
       dependencies: [
         .product(name: "nanopb", package: "nanopb"),
       ],

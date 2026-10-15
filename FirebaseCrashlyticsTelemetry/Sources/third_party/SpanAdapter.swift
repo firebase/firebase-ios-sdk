@@ -21,7 +21,7 @@
 import Foundation
 import OpenTelemetryApi
 import OpenTelemetrySdk
-import OpentelemetryProtos
+internal import CrashlyticsTelemetryOTelProtos
 
 /// This enum is a modification of https://github.com/open-telemetry/opentelemetry-swift/blob/main/Sources/Exporters/OpenTelemetryProtocolCommon/trace/SpanAdapter.swift
 internal enum SpanAdapter: UnsafeOperations {}

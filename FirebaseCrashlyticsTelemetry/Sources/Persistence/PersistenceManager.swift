@@ -16,7 +16,7 @@ private import FirebaseCoreInternal
 import Foundation
 import OpenTelemetryApi
 import OpenTelemetrySdk
-internal import PersistenceWrapper
+internal import CrashlyticsTelemetryPersistenceWrapper
 
 /// A thread-safe interface for the native persistence layer.
 final class PersistenceManager: Sendable {

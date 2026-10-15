@@ -18,7 +18,7 @@ internal import FirebaseCoreExtension
 import OpenTelemetryApi
 import OpenTelemetrySdk
 import StdoutExporter
-import URLSessionInstrumentation
+internal import CrashlyticsTelemetryOTelURLSessionInstrumentation
 
 @objc(FIRCrashlyticsTelemetry)
 final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetryProvider,

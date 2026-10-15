@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-internal import PersistenceWrapper
+internal import CrashlyticsTelemetryPersistenceWrapper
 
 protocol PersistenceBuffer: AnyObject, Sendable {
   func add(_ span: PersistenceSpan)

@@ -14,9 +14,9 @@
 
 import Foundation
 import OpenTelemetryApi
-import OpentelemetryProtos
+internal import CrashlyticsTelemetryOTelProtos
 import OpenTelemetrySdk
-internal import PersistenceWrapper
+internal import CrashlyticsTelemetryPersistenceWrapper
 
 /// Adds Crashlytics-specific conversions to the OpenTelemetry span adapter.
 ///

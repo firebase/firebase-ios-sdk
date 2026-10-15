@@ -8,7 +8,7 @@ import OpenTelemetryApi
 import OpenTelemetrySdk
 import os.log
 #if os(iOS) && !targetEnvironment(macCatalyst)
-  import NetworkStatus
+  import CrashlyticsTelemetryOTelNetworkStatus
 #endif // os(iOS) && !targetEnvironment(macCatalyst)
 
 // Legacy (OTel v0) HTTP attribute keys. These keys do NOT exist in

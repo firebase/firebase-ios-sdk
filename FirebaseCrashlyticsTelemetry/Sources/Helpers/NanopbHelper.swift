@@ -14,7 +14,7 @@
 
 import Foundation
 import nanopb
-import OpentelemetryProtos
+internal import CrashlyticsTelemetryOTelProtos
 
 struct NanopbHelper: UnsafeOperations {}
 
