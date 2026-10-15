@@ -56,6 +56,7 @@ final actor ScreenInstrumentation {
   /// Calls the `handleScreenEvent` on the actor thread when a screen event notification
   /// is received.
   private func configure(with stream: NotificationCenter.Notifications) {
+    guard listeningTask == nil else { return }
     listeningTask = Task(priority: .utility) { [weak self] in
       for await notification in stream {
         guard let self else { break }
