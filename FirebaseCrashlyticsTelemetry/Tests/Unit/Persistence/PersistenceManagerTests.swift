@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import CrashlyticsTelemetryPersistenceWrapper
 import Foundation
 import OpenTelemetryApi
 import OpenTelemetrySdk
-import PersistenceWrapper
 import XCTest
 
 @testable import FirebaseCrashlyticsTelemetry

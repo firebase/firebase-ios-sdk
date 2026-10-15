@@ -40,6 +40,13 @@ VERSION_DEST="$DEST_BASE/VERSION"
 # These are the only instrumentation libraries that we support / need. Add more as needed.
 INSTRUMENTATION_DIRS=("URLSession" "NetworkStatus")
 
+# Shaded module name mappings ("OriginalModuleName:ShadedModuleName") to avoid
+# SwiftPM target name collisions with upstream opentelemetry-swift.
+SHADED_MODULES=(
+    "URLSessionInstrumentation:CrashlyticsTelemetryOTelURLSessionInstrumentation"
+    "NetworkStatus:CrashlyticsTelemetryOTelNetworkStatus"
+)
+
 echo "------------------------------------------------------------"
 echo "Step 1: Verifying ${LOCAL_MIRROR} is at version ${OTEL_SWIFT_VERSION}..."
 echo "------------------------------------------------------------"
@@ -78,7 +85,23 @@ done
 
 echo ""
 echo "------------------------------------------------------------"
-echo "Step 3: Copying LICENSE into third_party..."
+echo "Step 3: Shading module imports in third_party/opentelemetry-swift..."
+echo "------------------------------------------------------------"
+
+find "$DEST_BASE" -type f -name "*.swift" | while read -r swift_file; do
+    for mapping in "${SHADED_MODULES[@]}"; do
+        orig_module="${mapping%%:*}"
+        shaded_module="${mapping#*:}"
+        if grep -q "import ${orig_module}" "$swift_file"; then
+            echo "-> Shading 'import ${orig_module}' -> 'import ${shaded_module}' in $(basename "$swift_file")..."
+            sed -i '' "s/import ${orig_module}/import ${shaded_module}/g" "$swift_file"
+        fi
+    done
+done
+
+echo ""
+echo "------------------------------------------------------------"
+echo "Step 4: Copying LICENSE into third_party..."
 echo "------------------------------------------------------------"
 
 
@@ -91,7 +114,7 @@ fi
 
 echo ""
 echo "------------------------------------------------------------"
-echo "Step 4: Creating VERSION file in third_party..."
+echo "Step 5: Creating VERSION file in third_party..."
 echo "------------------------------------------------------------"
 
 echo "-> Writing VERSION..."
