@@ -14,6 +14,10 @@
 
 import Foundation
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 /// **[Public Preview]** A multimodal model (like Gemini) that generates content using
 /// server-managed prompt templates.
 ///
@@ -50,10 +54,10 @@ public final class TemplateGenerativeModel: Sendable {
 
   init(firebaseInfo: FirebaseInfo, apiConfig: APIConfig, tools: [TemplateTool]?,
        toolConfig: TemplateToolConfig?, requestOptions: RequestOptions,
-       urlSession: URLSession = GenAIURLSession.default) {
+       httpClient: HTTPClient = .default) {
     generativeAIService = GenerativeAIService(
       firebaseInfo: firebaseInfo,
-      urlSession: urlSession
+      httpClient: httpClient
     )
     self.apiConfig = apiConfig
     self.tools = tools

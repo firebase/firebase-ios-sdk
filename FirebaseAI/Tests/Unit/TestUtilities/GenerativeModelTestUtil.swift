@@ -34,7 +34,7 @@ enum GenerativeModelTestUtil {
                                  isTemplateRequest: Bool = false) throws
     -> ((URLRequest) throws -> (
       URLResponse,
-      AsyncLineSequence<URL.AsyncBytes>?
+      Data?
     )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
@@ -86,25 +86,20 @@ enum GenerativeModelTestUtil {
           httpVersion: nil,
           headerFields: nil
         ))
-        return (response, fileURL.lines)
+        return try (response, Data(contentsOf: fileURL))
       }
     #endif // os(watchOS)
   }
 
   /// Returns an HTTP request handler that responds with the provided `body`.
-  ///
-  /// The body is written to a temporary file so that it is served line by line, in the same way as
-  /// the fixture files used by `httpRequestHandler(forResource:withExtension:subdirectory:)`.
   static func httpRequestHandler(body: String, statusCode: Int = 200) throws
-    -> ((URLRequest) throws -> (URLResponse, AsyncLineSequence<URL.AsyncBytes>?)) {
+    -> ((URLRequest) throws -> (URLResponse, Data?)) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
     #if os(watchOS)
       throw XCTSkip("Custom URL protocols are unsupported in watchOS 2 and later.")
     #else // os(watchOS)
-      let fileURL = FileManager.default.temporaryDirectory
-        .appendingPathComponent("mock-response-\(UUID().uuidString).txt")
-      try XCTUnwrap(body.data(using: .utf8)).write(to: fileURL)
+      let bodyData = try XCTUnwrap(body.data(using: .utf8))
       return { request in
         let requestURL = try XCTUnwrap(request.url)
         let response = try XCTUnwrap(HTTPURLResponse(
@@ -113,7 +108,7 @@ enum GenerativeModelTestUtil {
           httpVersion: nil,
           headerFields: nil
         ))
-        return (response, fileURL.lines)
+        return (response, bodyData)
       }
     #endif // os(watchOS)
   }
@@ -133,7 +128,7 @@ enum GenerativeModelTestUtil {
 
   static func nonHTTPRequestHandler() throws -> ((URLRequest) -> (
     URLResponse,
-    AsyncLineSequence<URL.AsyncBytes>?
+    Data?
   )) {
     // Skip tests using MockURLProtocol on watchOS; unsupported in watchOS 2 and later, see
     // https://developer.apple.com/documentation/foundation/urlprotocol for details.
