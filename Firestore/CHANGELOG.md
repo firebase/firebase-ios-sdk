@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Preserve pending document overlays for indexed queries after the
   mutation queue becomes empty and is recreated. (#16751)
+- [feature] Added support for Pipeline DML stages (`delete`, `update`, `insert`, `upsert`), `literals` source stage, and `Pipeline.ExecuteOptions(isAtomic:)`. (#16859)
 
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
