@@ -1460,6 +1460,7 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
       path: "FirebaseCrashlyticsTelemetry/Sources",
       exclude: [
         "third_party/README.md",
+        "third_party/update_thirdparty_imports.sh",
         "third_party/opentelemetry-proto",
         "third_party/opentelemetry-swift",
       ],
