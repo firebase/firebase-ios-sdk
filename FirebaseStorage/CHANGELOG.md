@@ -1,6 +1,15 @@
-# Unreleased
+# 13.1.0
 - [fixed] Serialize Auth and App Check token header updates to avoid concurrent mutation of
   the request when using custom interop providers or a custom Promises callback queue. (#16766)
+- [fixed] Fixed a race where an observer added while an upload or download task was completing
+  could be called twice for the success or failure event. This could crash `putDataAsync`,
+  `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
+- [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
+  `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
+  was set, breaking lookups in sets and dictionaries. (#16794)
+- [fixed] Fixed a memory leak in `StorageReference.listAll(completion:)` where the completion
+  handler, anything it captured, and partially listed results were never released after the
+  listing failed. (#16814)
 
 # 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce

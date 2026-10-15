@@ -75,8 +75,8 @@
       let result = try GeminiRequestTranslator.translate(request)
 
       #expect(result.systemInstruction == nil)
-      #expect(result.contents.count == 1)
-      #expect(result.contents.first?.parts?.first?.data == Part.PartData.text("Hello"))
+      #expect(result.contents?.count == 1)
+      #expect(result.contents?.first?.parts?.first?.data == Part.PartData.text("Hello"))
       #expect(result.generationConfig == nil)
     }
 
@@ -103,13 +103,10 @@
 
       let result = try GeminiRequestTranslator.translate(request)
 
-      #expect(result.contents.count == 1)
+      #expect(result.contents?.count == 1)
       let generationConfig = try #require(result.generationConfig)
-      #expect(generationConfig.responseMimeType == "application/json")
-      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
-        Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
+      #expect(generationConfig.responseMIMEType == "application/json")
+      let schemaObject = try #require(generationConfig.responseJSONSchema)
       #expect(schemaObject["x-order"] == nil)
       let ordering = try #require(schemaObject["propertyOrdering"])
       #expect(ordering == JSONValue.array([.string("username"), .string("score")]))
@@ -131,11 +128,8 @@
       let config = try GeminiRequestTranslator.translateGenerationConfig(schema: schema)
 
       let generationConfig = try #require(config)
-      #expect(generationConfig.responseMimeType == "application/json")
-      guard case .object(let schemaObject) = generationConfig.responseJsonSchema else {
-        Issue.record("Expected responseJsonSchema to be a JSON object.")
-        return
-      }
+      #expect(generationConfig.responseMIMEType == "application/json")
+      let schemaObject = try #require(generationConfig.responseJSONSchema)
       #expect(schemaObject["x-order"] == nil)
       #expect(schemaObject["propertyOrdering"] != nil)
     }
@@ -172,11 +166,7 @@
       #expect(declarations.count == 1)
       #expect(declarations[0].name == "get_current_weather")
       #expect(declarations[0].description == "Get the current weather for a city.")
-      let parameters = try #require(declarations[0].parametersJsonSchema)
-      guard case .object(let dict) = parameters else {
-        Issue.record("Expected .object, got \(parameters)")
-        return
-      }
+      let dict = try #require(declarations[0].parametersJSONSchema)
       #expect(dict["type"] == .string("object"))
       guard case .object(let properties) = dict["properties"] else {
         Issue.record("Expected properties object in schema")
@@ -206,11 +196,7 @@
       #expect(declarations.count == 1)
       #expect(declarations[0].name == "get_current_time")
       #expect(declarations[0].description == "Get the current time.")
-      let parameters = try #require(declarations[0].parametersJsonSchema)
-      guard case .object(let dict) = parameters else {
-        Issue.record("Expected .object, got \(parameters)")
-        return
-      }
+      let dict = try #require(declarations[0].parametersJSONSchema)
       #expect(dict["type"] == .string("object"))
     }
 
