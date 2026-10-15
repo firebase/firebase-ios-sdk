@@ -50,9 +50,6 @@ struct VerifyPhoneNumberResponse: AuthRPCResponse {
     localID = dictionary["localId"] as? String
     phoneNumber = dictionary["phoneNumber"] as? String
     temporaryProof = dictionary["temporaryProof"] as? String
-    if let expiresIn = dictionary["expiresIn"] as? String {
-      approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
-        .doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
   }
 }

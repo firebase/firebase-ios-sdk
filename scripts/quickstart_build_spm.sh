@@ -14,29 +14,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 # Verifies changes to firebase-ios-sdk repo can continue to build the
 # product's SPM quickstart.
 
-set -xeuo pipefail
+set -euo pipefail
 
-SAMPLE=$1
-SAMPLE_DIR=$(echo "$SAMPLE" | perl -ne 'print lc')
-SAMPLE_XCODEPROJ=${SAMPLE_DIR}/${SAMPLE}Example.xcodeproj
+if [[ "${DEBUG:-false}" == "true" ]]; then
+  set -x
+fi
+
+if [[ $# -lt 1 ]]; then
+  echo "Usage: ${0} <sample_name>" >&2
+  exit 1
+fi
+
+sample="${1}"
+branch_name="${BRANCH_NAME:-main}"
+
+sample_dir="$(echo "${sample}" | tr '[:upper:]' '[:lower:]')"
+sample_xcodeproj="${sample_dir}/${sample}Example.xcodeproj"
 
 scripts_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-"$scripts_dir/setup_bundler.sh"
+"${scripts_dir}/setup_bundler.sh"
 
-gem install xcpretty
+if ! command -v xcpretty >/dev/null 2>&1; then
+  gem install --no-document xcpretty
+fi
 
-git clone https://github.com/firebase/quickstart-ios.git
+if [[ ! -d "quickstart-ios" ]]; then
+  git clone --depth 1 https://github.com/firebase/quickstart-ios.git
+fi
 
 cd quickstart-ios
 
-source "$scripts_dir/update_firebase_spm_dependency.sh" "$SAMPLE_XCODEPROJ" --branch "$BRANCH_NAME"
+if [[ ! -d "${sample_xcodeproj}" ]]; then
+  echo "Error: Project ${sample_xcodeproj} does not exist in quickstart-ios." \
+    >&2
+  exit 1
+fi
 
-# Placeholder GoogleService-Info.plist good enough for build only testing.
-cp ./mock-GoogleService-Info.plist ./firebaseai/GoogleService-Info.plist
+# Execute updater script rather than sourcing to isolate state
+"${scripts_dir}/update_firebase_spm_dependency.sh" \
+  "${sample_xcodeproj}" \
+  --branch "${branch_name}"
 
-SAMPLE=$1 DIR=$1 SPM="true" TEST="false" ./scripts/test.sh
+# Placeholder GoogleService-Info.plist good enough for build-only testing.
+cp ./mock-GoogleService-Info.plist "./${sample_dir}/GoogleService-Info.plist"
+if [[ -d "./${sample_dir}/${sample}Example" ]]; then
+  cp ./mock-GoogleService-Info.plist \
+    "./${sample_dir}/${sample}Example/GoogleService-Info.plist"
+fi
+
+FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1 \
+SAMPLE="${sample}" \
+DIR="${sample_dir}" \
+SPM="true" \
+TEST="false" \
+./scripts/test.sh
