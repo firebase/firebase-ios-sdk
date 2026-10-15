@@ -152,14 +152,14 @@
             }
           }
 
-        // `Transcript.Entry.data` was added in the Xcode 27.2 SDK (FoundationModels 2.1).
-        #if canImport(FoundationModels, _version: 2.1)
+        // `Transcript.Entry.data` was added in Xcode 27.2 (Swift 6.4.2+).
+        #if compiler(>=6.4.2)
           case .data:
             throw makeUnsupportedError(
               entry,
               description: "Data transcript entries are not supported."
             )
-        #endif  // canImport(FoundationModels, _version: 2.1)
+        #endif  // compiler(>=6.4.2)
 
         @unknown default:
           throw makeUnsupportedError(

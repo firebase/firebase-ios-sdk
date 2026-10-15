@@ -675,7 +675,8 @@
       }
     }
 
-    #if canImport(FoundationModels, _version: 2.1)
+    // `Transcript.Entry.data` was added in Xcode 27.2 (Swift 6.4.2+).
+    #if compiler(>=6.4.2)
       @Test
       @available(macOS 27.2, iOS 27.2, watchOS 27.2, visionOS 27.2, *)
       @available(tvOS, unavailable)
@@ -696,7 +697,7 @@
           Issue.record("Unexpected error thrown: \(error)")
         }
       }
-    #endif  // canImport(FoundationModels, _version: 2.1)
+    #endif  // compiler(>=6.4.2)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
