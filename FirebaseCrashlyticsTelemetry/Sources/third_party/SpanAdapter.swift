@@ -79,9 +79,8 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
     guard traceId.isValid else { return nil }
 
     return NanopbHelper.unsafe.allocateProtoBytesArray(size: TraceId.size) { destBuffer in
-      let typedBuffer = destBuffer.bindMemory(to: UInt64.self)
-      typedBuffer[0] = traceId.idHi.bigEndian
-      typedBuffer[1] = traceId.idLo.bigEndian
+      destBuffer.storeBytes(of: traceId.idHi.bigEndian, toByteOffset: 0, as: UInt64.self)
+      destBuffer.storeBytes(of: traceId.idLo.bigEndian, toByteOffset: 8, as: UInt64.self)
     }
   }
 
@@ -91,8 +90,7 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
     guard spanId.isValid else { return nil }
 
     return NanopbHelper.unsafe.allocateProtoBytesArray(size: SpanId.size) { destBuffer in
-      let typedBuffer = destBuffer.bindMemory(to: UInt64.self)
-      typedBuffer[0] = spanId.rawValue.bigEndian
+      destBuffer.storeBytes(of: spanId.rawValue.bigEndian, toByteOffset: 0, as: UInt64.self)
     }
   }
 

@@ -44,11 +44,16 @@ final class SpanAdapterTests: XCTestCase {
 
       let rawBase = UnsafeRawPointer(pointer)
       let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
-      let typedBuffer = bytesStart.assumingMemoryBound(to: UInt64.self)
 
       // Big-endian validation
-      XCTAssertEqual(typedBuffer[0], traceId.idHi.bigEndian)
-      XCTAssertEqual(typedBuffer[1], traceId.idLo.bigEndian)
+      XCTAssertEqual(
+        bytesStart.loadUnaligned(fromByteOffset: 0, as: UInt64.self),
+        traceId.idHi.bigEndian
+      )
+      XCTAssertEqual(
+        bytesStart.loadUnaligned(fromByteOffset: 8, as: UInt64.self),
+        traceId.idLo.bigEndian
+      )
 
       free(pointer)
     }
@@ -72,10 +77,12 @@ final class SpanAdapterTests: XCTestCase {
 
       let rawBase = UnsafeRawPointer(pointer)
       let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
-      let typedBuffer = bytesStart.assumingMemoryBound(to: UInt64.self)
 
       // Big-endian validation
-      XCTAssertEqual(typedBuffer[0], spanId.rawValue.bigEndian)
+      XCTAssertEqual(
+        bytesStart.loadUnaligned(fromByteOffset: 0, as: UInt64.self),
+        spanId.rawValue.bigEndian
+      )
 
       free(pointer)
     }
