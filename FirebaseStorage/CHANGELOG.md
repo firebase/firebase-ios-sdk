@@ -1,4 +1,6 @@
 # 13.1.0
+- [fixed] Serialize Auth and App Check token header updates to avoid concurrent mutation of
+  the request when using custom interop providers or a custom Promises callback queue. (#16766)
 - [fixed] Fixed a race where an observer added while an upload or download task was completing
   could be called twice for the success or failure event. This could crash `putDataAsync`,
   `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
