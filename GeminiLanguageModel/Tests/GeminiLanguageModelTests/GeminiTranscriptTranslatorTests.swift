@@ -890,7 +890,7 @@
       #expect(!context.debugDescription.contains(url.absoluteString))
     }
 
-    #if canImport(FoundationModels, _version: 2.1)
+    #if compiler(>=6.4.2)
       @Test
       @available(macOS 27.2, iOS 27.2, watchOS 27.2, visionOS 27.2, *)
       @available(tvOS, unavailable)
@@ -912,7 +912,7 @@
         #expect(context.unsupportedContent == [.prompt(prompt)])
         #expect(context.debugDescription.contains("Data attachment"))
       }
-    #endif  // canImport(FoundationModels, _version: 2.1)
+    #endif  // compiler(>=6.4.2)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -1004,7 +1004,7 @@
       guard case .inlineData(let blob) = data else {
         return false
       }
-      return blob.mimeType == "image/jpeg" && !blob.data.isEmpty
+      return blob.mimeType == "image/jpeg" && blob.data?.isEmpty == false
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)
