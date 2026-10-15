@@ -91,7 +91,9 @@
     ///
     /// - Image attachments are only supported in prompts, not in instructions or tool output.
     /// - Images from remote URLs (any URL that isn't a file URL) aren't supported.
-    /// - Attachment labels aren't sent to the model.
+    /// - Attachment labels aren't sent to the model, so tools that take an `ImageReference`, such
+    ///   as Vision's `BarcodeReaderTool` and `OCRTool`, only work if the prompt text mentions the
+    ///   label.
     /// - Inline data counts toward the backend's request size limit (about 20 MB), and earlier
     ///   images in the session are re-sent with every request.
     public var capabilities: LanguageModelCapabilities {
