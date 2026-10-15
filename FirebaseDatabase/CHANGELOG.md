@@ -1,4 +1,6 @@
 # 13.1.0
+- [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
+  on the worker queue to avoid cross-thread access. (#16767)
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
 - [fixed] Fixed an issue where transactions could fail with a maxretry error when
