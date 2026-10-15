@@ -191,7 +191,10 @@
         let type = UTType(typeIdentifier as String),
         let mimeType = passThroughMIMETypes[type]
       {
-        return Blob(mimeType: mimeType, data: data)
+        return Blob {
+          $0.mimeType = mimeType
+          $0.data = data
+        }
       }
       // `CGImageSourceCreateImageAtIndex` returns the stored pixels without applying the embedded
       // orientation, consistent with `Transcript.ImageAttachment.cgImage`.
@@ -231,7 +234,10 @@
       guard CGImageDestinationFinalize(destination) else {
         throw .encodingFailed
       }
-      return Blob(mimeType: jpegMIMEType, data: data as Data)
+      return Blob {
+        $0.mimeType = jpegMIMEType
+        $0.data = data as Data
+      }
     }
 
     /// Returns whether an image in the source has an embedded orientation other than `.up`.

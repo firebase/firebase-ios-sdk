@@ -337,7 +337,7 @@
 
       func flushPendingText() {
         if let text = pendingText, !text.isEmpty {
-          parts.append(Part(data: .text(text)))
+          parts.append(Part { $0.data = .text(text) })
         }
         pendingText = nil
       }
@@ -350,15 +350,16 @@
           switch attachmentSegment.content {
           case .image(let imageAttachment):
             flushPendingText()
-            parts.append(Part(data: try translateImage(imageAttachment, in: entry)))
-          // `Transcript.Attachment.data` was added in the Xcode 27.2 SDK (FoundationModels 2.1).
-          #if canImport(FoundationModels, _version: 2.1)
+            let imageData = try translateImage(imageAttachment, in: entry)
+            parts.append(Part { $0.data = imageData })
+          // `Transcript.Attachment.data` was added in Xcode 27.2 (Swift 6.4.2+).
+          #if compiler(>=6.4.2)
             case .data:
               throw makeUnsupportedError(
                 entry,
                 description: "Data attachment segments in prompts are not supported."
               )
-          #endif  // canImport(FoundationModels, _version: 2.1)
+          #endif  // compiler(>=6.4.2)
           @unknown default:
             throw makeUnsupportedError(
               entry,
@@ -379,7 +380,7 @@
       }
       flushPendingText()
 
-      return parts.isEmpty ? [Part(data: .text(""))] : parts
+      return parts.isEmpty ? [Part { $0.data = .text("") }] : parts
     }
 
     /// Translates an image attachment into Gemini part data.

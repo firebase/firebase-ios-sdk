@@ -159,7 +159,7 @@
 
       #expect(response.content == "red")
       let capturedRequest = try #require(receivedRequest.withLock { $0 })
-      let parts = try #require(capturedRequest.contents.first?.parts)
+      let parts = try #require(capturedRequest.contents?.first?.parts)
       #expect(parts.count == 2)
       #expect(parts[0].data == .text("What color is this image?"))
       guard case .inlineData(let blob) = parts[1].data else {
@@ -167,7 +167,7 @@
         return
       }
       #expect(blob.mimeType == "image/jpeg")
-      let decodedImage = try TestImages.decode(blob.data)
+      let decodedImage = try TestImages.decode(try #require(blob.data))
       #expect(decodedImage.width == 32)
       #expect(try TestImages.quadrantColors(of: decodedImage).topLeft == .red)
     }

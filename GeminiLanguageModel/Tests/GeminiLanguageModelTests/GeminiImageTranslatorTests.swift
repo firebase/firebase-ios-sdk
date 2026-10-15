@@ -545,16 +545,25 @@
       )
     }
 
-    /// Returns the blob from inline part data.
+    /// The required contents of an inline data blob.
+    struct InlineBlob {
+      /// The blob's MIME type.
+      let mimeType: String
+
+      /// The blob's encoded data.
+      let data: Data
+    }
+
+    /// Returns the MIME type and data from inline part data.
     ///
     /// - Parameter partData: The translated part data.
-    /// - Returns: The inline data blob.
-    /// - Throws: An error if `partData` isn't inline data.
-    private static func inlineBlob(_ partData: Part.PartData) throws -> Blob {
+    /// - Returns: The inline data blob's MIME type and data.
+    /// - Throws: An error if `partData` isn't inline data or is missing its MIME type or data.
+    private static func inlineBlob(_ partData: Part.PartData) throws -> InlineBlob {
       guard case .inlineData(let blob) = partData else {
         throw TestImages.ImageError(description: "Expected inline data, got \(partData).")
       }
-      return blob
+      return InlineBlob(mimeType: try #require(blob.mimeType), data: try #require(blob.data))
     }
 
     /// Records issues unless encoded image data has the expected size and quadrant colors.
