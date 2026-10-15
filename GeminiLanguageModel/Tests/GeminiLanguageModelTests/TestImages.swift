@@ -274,6 +274,31 @@
       return image
     }
 
+    /// Redraws an image into an 8-bit grayscale bitmap with no alpha channel.
+    ///
+    /// - Parameter image: The image to redraw.
+    /// - Returns: The redrawn image, in the Generic Gray Gamma 2.2 color space.
+    static func grayscale(_ image: CGImage) throws -> CGImage {
+      guard let colorSpace = CGColorSpace(name: CGColorSpace.genericGrayGamma2_2),
+        let context = CGContext(
+          data: nil,
+          width: image.width,
+          height: image.height,
+          bitsPerComponent: 8,
+          bytesPerRow: 0,
+          space: colorSpace,
+          bitmapInfo: CGImageAlphaInfo.none.rawValue
+        )
+      else {
+        throw ImageError(description: "Can't create a grayscale bitmap context.")
+      }
+      context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+      guard let grayscale = context.makeImage() else {
+        throw ImageError(description: "Can't create a grayscale image.")
+      }
+      return grayscale
+    }
+
     /// Redraws an image into a 16-bit floating-point bitmap with the given color space.
     ///
     /// Use this to create images in extended-range or HDR color spaces, such as those produced

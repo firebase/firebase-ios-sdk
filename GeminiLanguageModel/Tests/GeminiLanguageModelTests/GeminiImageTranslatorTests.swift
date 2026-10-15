@@ -226,6 +226,24 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func grayscaleImageIsConvertedToSRGB() throws {
+      // Core Graphics accepts an 8-bit `noneSkipLast` context with a grayscale color space, so
+      // this depends on the translator only reusing RGB color spaces.
+      let image = try TestImages.grayscale(TestImages.halves(top: .white, bottom: .black))
+      let attachment = Transcript.ImageAttachment(image)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      #expect(blob.mimeType == "image/jpeg")
+      let decoded = try TestImages.decode(blob.data)
+      #expect(decoded.colorSpace?.name == CGColorSpace.sRGB)
+      let colors = try TestImages.quadrantColors(of: decoded)
+      #expect(colors.topLeft == .white)
+      #expect(colors.bottomLeft == .black)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func transparencyIsCompositedOntoBlack() throws {
       let image = try TestImages.transparentWhite()
       let attachment = Transcript.ImageAttachment(image)
@@ -287,6 +305,25 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func supportedFileIsPassedThroughUnchanged(format: FileFormat) throws {
       let fileData = try TestImages.encode(Self.makeQuadrantImage(), as: format.type)
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: format.pathExtension)
+      defer { try? FileManager.default.removeItem(at: url) }
+      let attachment = Transcript.ImageAttachment(imageURL: url)
+
+      let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
+
+      #expect(blob.mimeType == format.mimeType)
+      #expect(blob.data == fileData)
+    }
+
+    @Test(arguments: passThroughFormats)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func fileWithUprightOrientationTagIsPassedThroughUnchanged(format: FileFormat) throws {
+      let fileData = try TestImages.encode(
+        Self.makeQuadrantImage(),
+        as: format.type,
+        orientation: .up
+      )
+      try #require(TestImages.embeddedOrientation(of: fileData) == 1)
       let url = try TestImages.writeTemporaryFile(fileData, pathExtension: format.pathExtension)
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
@@ -513,6 +550,18 @@
       #expect(!description.contains("secret"))
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func unsupportedURLDescriptionHandlesMissingScheme() throws {
+      let url = try #require(URL(string: "image.png"))
+      let error = GeminiImageTranslator.TranslationError.unsupportedURL(url)
+
+      let description = error.description
+
+      #expect(description.hasSuffix("not URLs with no scheme."))
+      #expect(!description.contains("image.png"))
+    }
+
     // MARK: - Helpers
 
     /// Creates the standard 128x64 test image with red, green, blue, and yellow quadrants.
@@ -546,7 +595,7 @@
     }
 
     /// The required contents of an inline data blob.
-    struct InlineBlob {
+    private struct InlineBlob {
       /// The blob's MIME type.
       let mimeType: String
 
