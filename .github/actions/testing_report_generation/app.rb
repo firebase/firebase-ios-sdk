@@ -105,7 +105,7 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   # `dynamic/dependabot/update-graph` rather than a file in `.github/workflows`. They only
   # run on `dynamic` events, never on `schedule`, and looking up their runs by file name 404s.
   if wf.path.start_with?("dynamic/")
-    puts workflow_file + " is a GitHub-managed dynamic workflow and is skipped."
+    puts "#{wf.path} is a GitHub-managed dynamic workflow and is skipped."
     next
   end
   if EXCLUDED_WORKFLOWS.include?(workflow_file)
