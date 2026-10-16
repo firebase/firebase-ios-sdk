@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed incorrect decoding of large LEB128 values during DWARF stack
+  unwinding. (#16565)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
