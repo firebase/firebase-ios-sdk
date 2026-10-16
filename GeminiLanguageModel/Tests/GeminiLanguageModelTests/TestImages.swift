@@ -14,10 +14,16 @@
 
 #if canImport(FoundationModels) && compiler(>=6.4)
   import CoreGraphics
+  import CoreText
   import CoreVideo
   import Foundation
   import ImageIO
   import UniformTypeIdentifiers
+
+  #if canImport(CoreImage)
+    import CoreImage
+    import CoreImage.CIFilterBuiltins
+  #endif  // canImport(CoreImage)
 
   /// Generates and inspects images for tests without bundled resources.
   enum TestImages {
@@ -187,6 +193,59 @@
         }
       }
     }
+
+    /// Creates an image of a single line of large black text on a white background.
+    ///
+    /// - Parameter text: The text to draw.
+    /// - Returns: The generated image.
+    static func text(_ text: String) throws -> CGImage {
+      let width = 900
+      let height = 240
+      return try draw(width: width, height: height) { context in
+        fill(context, .white, CGRect(x: 0, y: 0, width: width, height: height))
+        let font = CTFontCreateWithName("Helvetica-Bold" as CFString, 96, nil)
+        let attributes: [NSAttributedString.Key: Any] = [
+          NSAttributedString.Key(kCTFontAttributeName as String): font,
+          NSAttributedString.Key(kCTForegroundColorAttributeName as String):
+            CGColor(red: 0, green: 0, blue: 0, alpha: 1),
+        ]
+        let line = CTLineCreateWithAttributedString(
+          NSAttributedString(string: text, attributes: attributes)
+        )
+        context.textPosition = CGPoint(x: 40, y: 80)
+        CTLineDraw(line, context)
+      }
+    }
+
+    #if canImport(CoreImage)
+      /// Creates an image of a QR code that encodes the given text.
+      ///
+      /// - Parameter payload: The text to encode.
+      /// - Returns: The QR code, scaled up and surrounded by a white quiet zone.
+      static func qrCode(_ payload: String) throws -> CGImage {
+        let filter = CIFilter.qrCodeGenerator()
+        filter.message = Data(payload.utf8)
+        filter.correctionLevel = "M"
+        guard let code = filter.outputImage else {
+          throw ImageError(description: "Can't generate a QR code for \"\(payload)\".")
+        }
+        let scaled = code.transformed(by: CGAffineTransform(scaleX: 16, y: 16))
+        let margin: CGFloat = 64
+        let bounds = CGRect(
+          x: 0,
+          y: 0,
+          width: scaled.extent.width + 2 * margin,
+          height: scaled.extent.height + 2 * margin
+        )
+        let padded = scaled.transformed(by: CGAffineTransform(translationX: margin, y: margin))
+          .composited(over: CIImage(color: .white))
+          .cropped(to: bounds)
+        guard let image = CIContext().createCGImage(padded, from: bounds) else {
+          throw ImageError(description: "Can't render the QR code for \"\(payload)\".")
+        }
+        return image
+      }
+    #endif  // canImport(CoreImage)
 
     // MARK: - Encoding and Decoding
 
