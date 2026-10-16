@@ -87,8 +87,13 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
     enum ShapeLabel: String {
+      /// A circle.
       case circle
+
+      /// A square.
       case square
+
+      /// A triangle.
       case triangle
     }
 
@@ -98,6 +103,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
     struct ShapeClassification {
+      /// The shape shown in the image.
       var shape: ShapeLabel
     }
 
@@ -166,6 +172,29 @@
       }
 
       #expect(response.content.localizedCaseInsensitiveContains("green"))
+    }
+
+    @Test(
+      .requireIntegrationTestingBackend,
+      .enabled(if: TestImages.canEncode(.heic)),
+      arguments: IntegrationTestingBackend.availableBackends
+    )
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithHEICFileURL(backend: IntegrationTestingBackend) async throws {
+      // Upright HEIC files are sent unchanged as `image/heic`, so this checks that the backend
+      // accepts that MIME type.
+      let model = try await backend.makeModel()
+      let session = LanguageModelSession(model: model)
+      let fileData = try TestImages.encode(TestImages.solid(.blue), as: .heic)
+      let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "heic")
+      defer { try? FileManager.default.removeItem(at: url) }
+
+      let response = try await session.respond {
+        Attachment(imageURL: url)
+        "Name the color that fills this entire image. \(Self.oneColorWordFormat)"
+      }
+
+      #expect(response.content.localizedCaseInsensitiveContains("blue"))
     }
 
     @Test(

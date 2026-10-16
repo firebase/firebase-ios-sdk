@@ -65,9 +65,9 @@ All integration tests are parameterized across
 * [`ImageUnderstandingIntegrationTests.swift`](ImageUnderstandingIntegrationTests.swift):
   Parameterized integration tests for image input (`vision`) using images
   generated in code, covering single and multiple images, `@Generable`
-  classification, image orientation, file URLs, streaming, and images in
-  multi-turn history. These tests use the default sampling mode with tightly
-  constrained prompts, since many Gemini 3 models don't support greedy
+  classification, image orientation, PNG and HEIC file URLs, streaming, and
+  images in multi-turn history. These tests use the default sampling mode with
+  tightly constrained prompts, since many Gemini 3 models don't support greedy
   sampling.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
