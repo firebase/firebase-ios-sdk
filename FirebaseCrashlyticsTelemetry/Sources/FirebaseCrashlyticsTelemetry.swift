@@ -208,8 +208,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   }
 
   static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    let urlString = urlRequest.url?.absoluteString.lowercased() ?? ""
-    return !urlString.contains("firebasetelemetry")
+    guard let urlString = urlRequest.url?.absoluteString else { return false }
+    return urlString.range(of: "firebasetelemetry", options: .caseInsensitive) == nil
   }
 
   func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
