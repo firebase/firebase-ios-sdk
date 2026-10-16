@@ -23,22 +23,15 @@ import Testing
   import FoundationNetworking
 #endif
 
-@Suite("GeminiAPIClient Integration Tests")
+@Suite("GeminiAPIClient Integration Tests", .tags(.integration))
 struct GeminiAPIClientIntegrationTests {
-  private static let defaultEndpointConfiguration = EndpointConfiguration(
-    host: "generativelanguage.googleapis.com",
-    apiVersion: "v1beta"
+  @Test(
+    .requireIntegrationTestingBackend,
+    arguments: IntegrationTestingBackend.availableBackends
   )
-  private static let defaultModelResource = ModelResource(
-    modelID: "gemini-3.5-flash-lite",
-    urlResourceName: "models/gemini-3.5-flash-lite",
-    payloadResourceName: "models/gemini-3.5-flash-lite"
-  )
-
-  @Test(.requireAPIKey)
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentSimplePrompt() async throws {
-    let client = makeClient()
+  func streamGenerateContentSimplePrompt(backend: IntegrationTestingBackend) async throws {
+    let client = try backend.makeClient()
     let request = makePromptRequest("Reply with the single word 'HELLO'.")
 
     let stream = try await client.generateContentStream(for: request)
@@ -56,10 +49,13 @@ struct GeminiAPIClientIntegrationTests {
     #expect(accumulatedText.localizedCaseInsensitiveContains("HELLO"))
   }
 
-  @Test(.requireAPIKey)
+  @Test(
+    .requireIntegrationTestingBackend,
+    arguments: IntegrationTestingBackend.availableBackends
+  )
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentMultiTurn() async throws {
-    let client = makeClient()
+  func streamGenerateContentMultiTurn(backend: IntegrationTestingBackend) async throws {
+    let client = try backend.makeClient()
     let contents: [Content] = [
       .text("My favorite color is teal.", role: "user"),
       .text("Got it! Your favorite color is teal.", role: "model"),
@@ -82,10 +78,15 @@ struct GeminiAPIClientIntegrationTests {
     #expect(accumulatedText.localizedCaseInsensitiveContains("teal"))
   }
 
-  @Test(.requireAPIKey)
+  @Test(
+    .requireIntegrationTestingBackend,
+    arguments: IntegrationTestingBackend.availableBackends
+  )
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentWithSystemInstruction() async throws {
-    let client = makeClient()
+  func streamGenerateContentWithSystemInstruction(
+    backend: IntegrationTestingBackend
+  ) async throws {
+    let client = try backend.makeClient()
     let systemInstruction = Content.text("Always speak like a 17th-century pirate.")
     let request = GenerateContentRequest {
       $0.systemInstruction = systemInstruction
@@ -106,15 +107,15 @@ struct GeminiAPIClientIntegrationTests {
     #expect(!accumulatedText.isEmpty)
   }
 
-  @Test(.requireAPIKey)
+  @Test(
+    .requireIntegrationTestingBackend,
+    arguments: IntegrationTestingBackend.availableBackends
+  )
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentInvalidModelNameThrows() async throws {
-    let invalidResource = ModelResource(
-      modelID: "non-existent-model-name-xyz-123",
-      urlResourceName: "models/non-existent-model-name-xyz-123",
-      payloadResourceName: "models/non-existent-model-name-xyz-123"
-    )
-    let client = makeClient(modelResource: invalidResource)
+  func streamGenerateContentInvalidModelNameThrows(
+    backend: IntegrationTestingBackend
+  ) async throws {
+    let client = try backend.makeClient(modelID: "non-existent-model-name-xyz-123")
     let request = makePromptRequest("Hello")
 
     await #expect(throws: (any Error).self) {
@@ -123,13 +124,20 @@ struct GeminiAPIClientIntegrationTests {
     }
   }
 
-  @Test(.requireNoAPIKey)
+  // test-server v0.2.9 replays a JSON error body on a streaming URL as a server-sent event, so
+  // `GeminiAPIClient` reports `.httpError` instead of `.apiError` in replay mode. Remove the
+  // `.disabled` trait once test-server records body formats (see Tests/TestServer/README.md).
+  @Test(
+    .requireIntegrationTestingBackend,
+    .disabled(
+      if: IntegrationTestEnvironment.process.integrationTestMode == .replay,
+      "test-server v0.2.9 replays JSON error bodies on streaming URLs as server-sent events"
+    ),
+    arguments: IntegrationTestingBackend.availableBackends
+  )
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentWithoutAuthThrows() async throws {
-    let client = GeminiAPIClient(
-      modelResource: Self.defaultModelResource,
-      endpointConfiguration: Self.defaultEndpointConfiguration
-    )
+  func streamGenerateContentWithoutAuthThrows(backend: IntegrationTestingBackend) async throws {
+    let client = try backend.makeClient(authenticated: false)
     let request = makePromptRequest("Hello")
 
     do {
@@ -143,10 +151,13 @@ struct GeminiAPIClientIntegrationTests {
     }
   }
 
-  @Test(.requireAPIKey)
+  @Test(
+    .requireIntegrationTestingBackend,
+    arguments: IntegrationTestingBackend.availableBackends
+  )
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func countTokensSimplePrompt() async throws {
-    let client = makeClient()
+  func countTokensSimplePrompt(backend: IntegrationTestingBackend) async throws {
+    let client = try backend.makeClient()
     let request = CountTokensRequest {
       $0.contents = [.text("The quick brown fox jumps over the lazy dog.", role: "user")]
     }
@@ -155,56 +166,6 @@ struct GeminiAPIClientIntegrationTests {
 
     let totalTokens = try #require(response.totalTokens)
     #expect(totalTokens > 0)
-  }
-
-  @Test(.requireFirebaseAILogic)
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  func streamGenerateContentFirebaseAILogicDeveloperAPI() async throws {
-    let projectID = try #require(firebaseProjectID)
-    let appID = try #require(firebaseAppID)
-    let apiKey = try #require(firebaseAPIKey)
-    let debugToken = try #require(appCheckDebugToken)
-    let appCheckClient = AppCheckDebugClient(
-      projectID: projectID,
-      appID: appID,
-      apiKey: apiKey,
-      debugToken: debugToken
-    )
-    let appCheckToken = try await appCheckClient.exchangeDebugToken()
-    let modelResource = ModelResource(
-      modelID: "gemini-3.5-flash-lite",
-      urlResourceName: "projects/\(projectID)/models/gemini-3.5-flash-lite",
-      payloadResourceName: "models/gemini-3.5-flash-lite"
-    )
-    let endpointConfiguration = EndpointConfiguration(
-      host: "firebasevertexai.googleapis.com",
-      apiVersion: "v1beta"
-    )
-    let client = GeminiAPIClient(
-      modelResource: modelResource,
-      endpointConfiguration: endpointConfiguration,
-      headerProvider: HeaderProvider {
-        [
-          "x-goog-api-key": apiKey,
-          "x-firebase-appcheck": appCheckToken,
-        ]
-      }
-    )
-    let request = makePromptRequest("Reply with the single word 'HELLO'.")
-
-    let stream = try await client.generateContentStream(for: request)
-    var accumulatedText = ""
-    var chunkCount = 0
-    for try await chunk in stream {
-      chunkCount += 1
-      if let text = extractText(from: chunk) {
-        accumulatedText += text
-      }
-    }
-
-    #expect(chunkCount > 0)
-    #expect(!accumulatedText.isEmpty)
-    #expect(accumulatedText.localizedCaseInsensitiveContains("HELLO"))
   }
 
   // MARK: - Test Helpers
@@ -224,28 +185,5 @@ struct GeminiAPIClientIntegrationTests {
   /// - Returns: A `GenerateContentRequest` with one user `Content`.
   private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
     GenerateContentRequest { $0.contents = [.text(prompt, role: "user")] }
-  }
-
-  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-  private func makeClient(
-    modelResource: ModelResource = defaultModelResource,
-    endpointConfiguration: EndpointConfiguration = defaultEndpointConfiguration,
-    configuration: URLSessionConfiguration = .ephemeral
-  ) -> GeminiAPIClient {
-    let headerProvider: (@Sendable () async throws -> [String: String])?
-    if let apiKey = geminiAPIKey {
-      headerProvider = { @Sendable in
-        ["x-goog-api-key": apiKey]
-      }
-    } else {
-      headerProvider = nil
-    }
-
-    return GeminiAPIClient(
-      modelResource: modelResource,
-      endpointConfiguration: endpointConfiguration,
-      headerProvider: headerProvider.map { HeaderProvider($0) },
-      sessionConfiguration: configuration
-    )
   }
 }

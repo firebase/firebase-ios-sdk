@@ -1,0 +1,23 @@
+{
+  "description": "Headers allowed in test-server recordings; checked by `scripts/test-server.sh audit`. A recorded header that isn't listed fails the audit, whatever its value, so new credential headers (for example `Authorization`) can't be committed by accident. Add a header here only after confirming it can't contain credentials. Header names use Go's canonical form (`X-Goog-Api-Key`).",
+  "allowedRequestHeaders": [
+    "Content-Type",
+    "Test-Name"
+  ],
+  "allowedResponseHeaders": [
+    "Content-Disposition",
+    "Content-Type",
+    "Server",
+    "Vary",
+    "X-Content-Type-Options",
+    "X-Frame-Options",
+    "X-Xss-Protection"
+  ],
+  "strippedResponseHeaders": [
+    "Alt-Svc",
+    "Content-Encoding",
+    "Content-Length",
+    "Date",
+    "Server-Timing"
+  ]
+}
