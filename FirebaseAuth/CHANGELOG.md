@@ -3,6 +3,7 @@
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
 - [fixed] Fixed a crash by safely skipping malformed account provider
   entries. (#16745)
+- [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
 - [fixed] Fixed an issue where the first call of an auth state or ID token
   listener could report no user while the stored user was still loading.
   (#16853)
