@@ -46,7 +46,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   private let mutableCustomAttributeKey = "firebase.test_attribute"
   private var mutableCustomAttributeValue = 0
 
-  private init(options: FirebaseOptions) {
+  init(options: FirebaseOptions) {
     let resource = Self.createResource(scopeName: scopeName, projectId: options.projectID)
 
     recoveryManager = RecoveryManager(
@@ -77,15 +77,9 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
     // MARK: - Instrumentation
 
-    // TODO: Initialize this on a bg thread as this initialization is really resource intensive.
-    urlInstrumentation = URLSessionInstrumentation(
-      configuration: URLSessionInstrumentationConfiguration(
-        shouldInstrument: filterNetworkRequests,
-        spanCustomization: customizeNetworkSpan,
-        tracer: tracer,
-        semanticConvention: .stable
-      )
-    )
+    Task.detached(priority: .utility) { [weak self] in
+      self?.configureURLSessionInstrumentation()
+    }
 
     screenInstrumentation = ScreenInstrumentation(logger: logger) { screen in
       AttributeStore.setScreenName(screen)
@@ -194,12 +188,34 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
       .build()
   }
 
-  private func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    let urlString = urlRequest.url?.absoluteString.lowercased() ?? ""
-    return !urlString.contains("localhost") && !urlString.contains("firebasetelemetry")
+  private func configureURLSessionInstrumentation() {
+    ThreadHelper.isNotMainThread()
+
+    let instrumentation = URLSessionInstrumentation(
+      configuration: URLSessionInstrumentationConfiguration(
+        shouldInstrument: Self.filterNetworkRequests,
+        spanCustomization: { [weak self] req, builder in
+          self?.customizeNetworkSpan(req: req, builder: builder)
+        },
+        tracer: tracer,
+        semanticConvention: .stable
+      )
+    )
+
+    lock.lock()
+    defer { lock.unlock() }
+    urlInstrumentation = instrumentation
   }
 
-  private func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
+  static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
+    let urlString = urlRequest.url?.absoluteString.lowercased() ?? ""
+    return !urlString.contains("firebasetelemetry")
+  }
+
+  func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
+    lock.lock()
+    defer { lock.unlock() }
+
     if let span = activeSpans.last {
       builder.setParent(span)
     }
