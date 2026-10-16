@@ -73,6 +73,27 @@
       var testDescription: String { type.identifier }
     }
 
+    #if canImport(CoreImage)
+      /// A `CIImage` whose extent can't be rendered into a bitmap.
+      enum UnrenderableCIImage: String, CaseIterable, Sendable {
+        /// An image with an empty extent.
+        case empty
+
+        /// An image with an infinite extent.
+        case infinite
+
+        /// The image to attach.
+        var ciImage: CIImage {
+          switch self {
+          case .empty:
+            CIImage.empty()
+          case .infinite:
+            CIImage(color: CIColor(red: 1, green: 0, blue: 0))
+          }
+        }
+      }
+    #endif  // canImport(CoreImage)
+
     /// Expected display layouts of a 128x64 image with red, green, blue, and yellow quadrants
     /// (top-left, top-right, bottom-left, bottom-right) in each EXIF orientation.
     static let orientationCases: [OrientationCase] = [
@@ -268,25 +289,6 @@
         try Self.expectDisplayLayout(of: blob.data, matches: testCase)
       }
 
-      /// A `CIImage` whose extent can't be rendered into a bitmap.
-      enum UnrenderableCIImage: String, CaseIterable, Sendable {
-        /// An image with an empty extent.
-        case empty
-
-        /// An image with an infinite extent.
-        case infinite
-
-        /// The image to attach.
-        var ciImage: CIImage {
-          switch self {
-          case .empty:
-            CIImage.empty()
-          case .infinite:
-            CIImage(color: CIColor(red: 1, green: 0, blue: 0))
-          }
-        }
-      }
-
       @Test(arguments: UnrenderableCIImage.allCases)
       @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
       func unrenderableCIImageThrowsUndecodableImage(_ image: UnrenderableCIImage) throws {
@@ -394,6 +396,7 @@
         as: .png,
         orientation: testCase.orientation
       )
+      try #require(TestImages.embeddedOrientation(of: fileData) == testCase.orientation.rawValue)
       let url = try TestImages.writeTemporaryFile(fileData, pathExtension: "png")
       defer { try? FileManager.default.removeItem(at: url) }
       let attachment = Transcript.ImageAttachment(imageURL: url)
@@ -401,6 +404,7 @@
 
       let blob = try Self.inlineBlob(GeminiImageTranslator.partData(for: attachment))
 
+      #expect(blob.mimeType == "image/jpeg")
       let decoded = try TestImages.decode(blob.data)
       #expect(decoded.width == reference.width)
       #expect(decoded.height == reference.height)
@@ -525,6 +529,10 @@
       arguments: [
         "gs://cloud-samples-data/generative-ai/image/scones.jpg",
         "s3://bucket/image.png",
+        // A valid 1x1 PNG, so loading the URL doesn't fail for an unrelated reason.
+        "data:image/png;base64,"
+          + "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGA"
+          + "WjR9awAAAABJRU5ErkJggg==",
       ]
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)

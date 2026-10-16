@@ -38,7 +38,8 @@
   /// `Transcript.ImageAttachment`, which reads both its orientation and its pixels from the first
   /// image.
   ///
-  /// Non-file URLs aren't supported.
+  /// Non-file URLs aren't supported. Files are read each time a transcript is translated, which
+  /// happens for every request in a session.
   ///
   /// Images are encoded using only CoreGraphics, ImageIO, and UniformTypeIdentifiers so that the
   /// translation works on every platform that supports Foundation Models, including watchOS,
@@ -147,7 +148,7 @@
     ) throws(TranslationError) -> Blob {
       let data: Data
       do {
-        data = try Data(contentsOf: url)
+        data = try Data(contentsOf: url, options: .mappedIfSafe)
       } catch {
         throw .unreadableFile(url)
       }

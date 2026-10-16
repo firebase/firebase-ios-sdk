@@ -23,11 +23,22 @@
   enum TestImages {
     /// A distinct, easily recognizable color used in generated test images.
     enum Color: String, CaseIterable, Sendable {
+      /// Pure red.
       case red
+
+      /// Pure green.
       case green
+
+      /// Pure blue.
       case blue
+
+      /// Pure yellow.
       case yellow
+
+      /// White.
       case white
+
+      /// Black.
       case black
 
       /// The sRGB components of the color.
@@ -43,6 +54,12 @@
       }
 
       /// Returns the color closest to the given 8-bit sRGB components.
+      ///
+      /// - Parameters:
+      ///   - red: The red component, from 0 to 255.
+      ///   - green: The green component, from 0 to 255.
+      ///   - blue: The blue component, from 0 to 255.
+      /// - Returns: The color with the smallest distance to the components in RGB space.
       static func nearest(red: UInt8, green: UInt8, blue: UInt8) -> Color {
         let sample = (Double(red) / 255, Double(green) / 255, Double(blue) / 255)
         return allCases.min { lhs, rhs in
@@ -63,8 +80,13 @@
 
     /// A simple shape drawn in black on a white background.
     enum Shape: String, CaseIterable, Sendable {
+      /// A circle.
       case circle
+
+      /// A square.
       case square
+
+      /// An upward-pointing triangle.
       case triangle
     }
 
@@ -170,14 +192,22 @@
 
     /// Returns whether ImageIO can encode images of the given type on the current platform.
     ///
-    /// Encoder availability varies by platform and between devices and simulators (for example,
-    /// HEIC and BMP), so tests that encode fixtures should filter their arguments with this.
+    /// Encoder availability varies by platform and between devices, simulators, and virtual
+    /// machines (for example, HEIC requires a HEVC encoder), so tests that encode fixtures should
+    /// filter their arguments with this. A type can be listed by
+    /// `CGImageDestinationCopyTypeIdentifiers()` even when encoding it fails, so this encodes a
+    /// 1x1 image to check.
     ///
     /// - Parameter type: The image format, such as `.heic`.
-    /// - Returns: `true` if `CGImageDestination` supports the type.
+    /// - Returns: `true` if a 1x1 image can be encoded as `type`.
     static func canEncode(_ type: UTType) -> Bool {
       let identifiers = CGImageDestinationCopyTypeIdentifiers() as? [String] ?? []
-      return identifiers.contains(type.identifier)
+      guard identifiers.contains(type.identifier),
+        let image = try? solid(.white, width: 1, height: 1)
+      else {
+        return false
+      }
+      return (try? encode(image, as: type)) != nil
     }
 
     /// An image to encode as one frame of an image file.

@@ -96,6 +96,8 @@
     ///   label.
     /// - Inline data counts toward the backend's request size limit (about 20 MB), and earlier
     ///   images in the session are re-sent with every request.
+    /// - Image files are read again for every request in the session, so a file must remain
+    ///   available for as long as the session that references it is used.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,
