@@ -81,13 +81,15 @@ class GrpcConnection {
       absl::string_view rpc_name,
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token,
-      const grpc::ByteBuffer& message);
+      const grpc::ByteBuffer& message,
+      bool is_transaction = false);
 
   std::unique_ptr<GrpcStreamingReader> CreateStreamingReader(
       absl::string_view rpc_name,
       const credentials::AuthToken& auth_token,
       const std::string& app_check_token,
-      const grpc::ByteBuffer& message);
+      const grpc::ByteBuffer& message,
+      bool is_transaction = false);
 
   void Register(GrpcCall* call);
   void Unregister(GrpcCall* call);
@@ -111,7 +113,8 @@ class GrpcConnection {
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const credentials::AuthToken& auth_token,
-      const std::string& app_check_token) const;
+      const std::string& app_check_token,
+      bool is_transaction = false) const;
   std::shared_ptr<grpc::Channel> CreateChannel() const;
   void EnsureActiveStub();
 
