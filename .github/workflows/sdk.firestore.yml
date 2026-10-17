@@ -798,15 +798,31 @@ jobs:
   check-required-tests:
     runs-on: ubuntu-latest
     name: Check all required Firestore tests results
-    if: always()
+    # Use `always()` so this job still runs when an upstream job fails, is
+    # skipped (e.g., on fork PRs), or is cancelled. On PRs without Firestore
+    # changes the job is skipped, which GitHub reports as success for required
+    # checks. If `changes` itself doesn't succeed, run anyway so the failure is
+    # surfaced.
+    if: |
+      always() && (
+        (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+        (github.event_name == 'pull_request' && (
+          needs.changes.outputs.changed == 'true' ||
+          needs.changes.result != 'success'
+        ))
+      )
     needs:
+      - changes
+      - check
       - cmake
       # - xcodetest_emulator
+      - spm-package-resolved
       - spm-source
       - spm-binary
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
+      - build_xcodetest
       - xcodetest_prod
       - xcodetest_nightly
     steps:
