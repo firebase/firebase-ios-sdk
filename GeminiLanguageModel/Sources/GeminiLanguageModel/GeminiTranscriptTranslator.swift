@@ -402,7 +402,10 @@
       }
     }
 
-    /// Concatenates the text segments of a non-prompt transcript entry.
+    /// Concatenates the text segments of an instructions, response, or reasoning entry.
+    ///
+    /// Prompt entries, which can also contain image attachments, are translated by
+    /// `extractPromptParts(from:in:)` instead.
     ///
     /// - Parameters:
     ///   - segments: The segments of an instructions, response, or reasoning entry.
@@ -439,7 +442,10 @@
       return text
     }
 
-    /// Concatenates the text segments of a non-prompt transcript entry, if there are any.
+    /// Concatenates the text segments of an instructions, response, or reasoning entry, if there
+    /// are any.
+    ///
+    /// This is equivalent to `extractText(from:in:)`, except that empty text is returned as `nil`.
     ///
     /// - Parameters:
     ///   - segments: The segments of an instructions, response, or reasoning entry.

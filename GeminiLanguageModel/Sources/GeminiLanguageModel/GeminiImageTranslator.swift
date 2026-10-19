@@ -29,7 +29,8 @@
   /// Images are sent to Gemini as inline data:
   ///
   /// - File URLs whose bytes are already in a Gemini-supported format (PNG, JPEG, WebP, HEIC, or
-  ///   HEIF) and that need no rotation are sent unchanged.
+  ///   HEIF) and that need no rotation are *passed through*: the original file bytes are sent
+  ///   without decoding or re-encoding.
   /// - All other images (`CGImage`, `CIImage`, and `CVPixelBuffer` sources, other file formats,
   ///   and images with a non-`.up` orientation) are rotated to their display orientation and
   ///   re-encoded as JPEG, matching the format used by `Transcript`'s `Codable` conformance.
@@ -220,10 +221,10 @@
       let data = NSMutableData()
       guard
         let destination = CGImageDestinationCreateWithData(
-          data as CFMutableData,
-          UTType.jpeg.identifier as CFString,
-          1,
-          nil
+          data as CFMutableData,  // Receives the encoded image.
+          UTType.jpeg.identifier as CFString,  // The output format's UTI ("public.jpeg").
+          1,  // The number of images.
+          nil  // Reserved; must be nil.
         )
       else {
         throw .encodingFailed
