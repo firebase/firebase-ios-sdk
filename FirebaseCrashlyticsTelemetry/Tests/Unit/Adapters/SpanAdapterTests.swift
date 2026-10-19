@@ -319,4 +319,65 @@ final class SpanAdapterTests: XCTestCase {
     // Safe deallocation
     releaseProtoSpan(&protoSpan)
   }
+
+  func test_toProtoSpan_whenTotalCountsAreLessThanCollectionCounts_clampsDroppedCountsToZero() {
+    var spanData = MockTrace.mockSpan(name: "underflow_dropped_counts_span")
+    let linkContext = SpanContext.create(
+      traceId: MockTrace.randomTraceId(),
+      spanId: MockTrace.randomSpanId(),
+      traceFlags: TraceFlags(),
+      traceState: TraceState()
+    )
+
+    spanData.settingAttributes(["a": .string("1"), "b": .string("2")])
+    spanData.settingTotalAttributeCount(0)
+
+    spanData.settingEvents([
+      SpanData.Event(name: "event_1", timestamp: Date(timeIntervalSince1970: 1000)),
+    ])
+    spanData.settingTotalRecordedEvents(0)
+
+    spanData.settingLinks([SpanData.Link(context: linkContext)])
+    spanData.settingTotalRecordedLinks(0)
+
+    var protoSpan = SpanAdapter.unsafe.toProtoSpan(spanData: spanData)
+
+    XCTAssertEqual(protoSpan.attributes_count, 2)
+    XCTAssertEqual(protoSpan.dropped_attributes_count, 0)
+    XCTAssertEqual(protoSpan.events_count, 1)
+    XCTAssertEqual(protoSpan.dropped_events_count, 0)
+    XCTAssertEqual(protoSpan.links_count, 1)
+    XCTAssertEqual(protoSpan.dropped_links_count, 0)
+
+    releaseProtoSpan(&protoSpan)
+  }
+
+  func test_toProtoSpan_whenTotalCountsExceedCollectionCounts_computesDroppedCountsCorrectly() {
+    var spanData = MockTrace.mockSpan(name: "positive_dropped_counts_span")
+    let linkContext = SpanContext.create(
+      traceId: MockTrace.randomTraceId(),
+      spanId: MockTrace.randomSpanId(),
+      traceFlags: TraceFlags(),
+      traceState: TraceState()
+    )
+
+    spanData.settingAttributes(["a": .string("1")])
+    spanData.settingTotalAttributeCount(4)
+
+    spanData.settingEvents([
+      SpanData.Event(name: "event_1", timestamp: Date(timeIntervalSince1970: 1000)),
+    ])
+    spanData.settingTotalRecordedEvents(3)
+
+    spanData.settingLinks([SpanData.Link(context: linkContext)])
+    spanData.settingTotalRecordedLinks(5)
+
+    var protoSpan = SpanAdapter.unsafe.toProtoSpan(spanData: spanData)
+
+    XCTAssertEqual(protoSpan.dropped_attributes_count, 3)
+    XCTAssertEqual(protoSpan.dropped_events_count, 2)
+    XCTAssertEqual(protoSpan.dropped_links_count, 4)
+
+    releaseProtoSpan(&protoSpan)
+  }
 }

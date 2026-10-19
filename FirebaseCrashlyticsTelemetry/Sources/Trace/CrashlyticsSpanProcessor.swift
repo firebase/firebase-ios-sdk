@@ -75,8 +75,7 @@ class CrashlyticsSpanProcessor: SpanProcessor {
   ///
   /// - Parameter span: The completed readable span.
   func onEnd(span: ReadableSpan) {
-    let timestampNanoseconds = UInt64(span.toSpanData().endTime
-      .timeIntervalSince1970 * 1_000_000_000)
+    let timestampNanoseconds = span.toSpanData().endTime.timeIntervalSince1970.toNanoseconds
 
     persistenceManager.onSpanEnd(
       spanId: span.context.spanId.rawValue,

@@ -77,6 +77,27 @@ final class CrashlyticsSpanAdapterTests: XCTestCase {
     XCTAssertEqual(persistedSpan.attributes["network_calls"], "1")
   }
 
+  func test_toPersistedSpan_withPre1970AndDistantFutureTimestamps_doesNotTrap() {
+    let pre1970Start = Date(timeIntervalSince1970: -1000.0)
+    var spanData = MockTrace.mockSpan(
+      name: "boundary_timestamps_span",
+      startTime: pre1970Start,
+      duration: 500.0
+    )
+    spanData.settingEndTime(Date.distantFuture)
+
+    let persistedSpan = SpanAdapter.toPersistedSpan(spanData: spanData)
+
+    XCTAssertEqual(
+      persistedSpan.startTimeNano,
+      pre1970Start.timeIntervalSince1970.toNanoseconds
+    )
+    XCTAssertEqual(
+      persistedSpan.endTimeNano,
+      Date.distantFuture.timeIntervalSince1970.toNanoseconds
+    )
+  }
+
   // MARK: - toRecoveredSpan Tests
 
   func test_toRecoveredSpan_withValidPersistedSpan_reconstructsSwiftNativeRecoveredSpan() {

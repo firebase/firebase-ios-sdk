@@ -165,4 +165,21 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
       ]
     )
   }
+
+  func test_onEnd_withPre1970EndTime_doesNotTrap() {
+    let span = tracer.spanBuilder(spanName: "pre_1970_end_span").startSpan()
+    let spanId = span.context.spanId.rawValue
+
+    let pre1970EndDate = Date(timeIntervalSince1970: -500.0)
+    let expectedEndNano = pre1970EndDate.timeIntervalSince1970.toNanoseconds
+    span.end(time: pre1970EndDate)
+
+    XCTAssertEqual(
+      mockBuffer.recordedOperations,
+      [
+        .addSpan(spanId),
+        .endSpan(.init(spanId: spanId, endTime: expectedEndNano)),
+      ]
+    )
+  }
 }
