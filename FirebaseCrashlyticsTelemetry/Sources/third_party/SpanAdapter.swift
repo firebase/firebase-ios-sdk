@@ -50,7 +50,7 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
     protoSpan.attributes = attrBuffer
     protoSpan.attributes_count = attrCount
     protoSpan.dropped_attributes_count = UInt32(
-      spanData.totalAttributeCount - spanData.attributes.count)
+      clamping: spanData.totalAttributeCount - spanData.attributes.count)
 
     // Events
     let (eventsBuffer, eventsCount) = NanopbHelper.unsafe.allocateAndMapArray(spanData.events) {
@@ -59,7 +59,8 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
     }
     protoSpan.events = eventsBuffer
     protoSpan.events_count = eventsCount
-    protoSpan.dropped_events_count = UInt32(spanData.totalRecordedEvents - spanData.events.count)
+    protoSpan.dropped_events_count = UInt32(
+      clamping: spanData.totalRecordedEvents - spanData.events.count)
 
     // Links
     let (linksBuffer, linksCount) = NanopbHelper.unsafe.allocateAndMapArray(spanData.links) {
@@ -68,7 +69,8 @@ extension UnsafeMemoryOperations where Base == SpanAdapter {
     }
     protoSpan.links = linksBuffer
     protoSpan.links_count = linksCount
-    protoSpan.dropped_links_count = UInt32(spanData.totalRecordedLinks - spanData.links.count)
+    protoSpan.dropped_links_count = UInt32(
+      clamping: spanData.totalRecordedLinks - spanData.links.count)
 
     return protoSpan
   }

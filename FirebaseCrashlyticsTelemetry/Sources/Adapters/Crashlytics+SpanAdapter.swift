@@ -33,8 +33,8 @@ extension SpanAdapter {
       attributesMap[key] = value.description
     }
 
-    let startTimeNanoseconds = UInt64(spanData.startTime.timeIntervalSince1970 * 1_000_000_000)
-    let endTimeNanoseconds = UInt64(spanData.endTime.timeIntervalSince1970 * 1_000_000_000)
+    let startTimeNanoseconds = spanData.startTime.timeIntervalSince1970.toNanoseconds
+    let endTimeNanoseconds = spanData.endTime.timeIntervalSince1970.toNanoseconds
 
     return PersistenceSpan(
       traceIdHi: spanData.traceId.idHi,
