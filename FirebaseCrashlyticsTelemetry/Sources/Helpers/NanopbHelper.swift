@@ -187,4 +187,251 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
       return outputData
     }
   }
+
+  // MARK: - Debug Formatting
+
+  /// Generates a human-readable debug description of an `ExportTraceServiceRequest` nanopb struct,
+  /// dereferencing all nested pointers, byte arrays, strings, and attributes.
+  func debugDescription(
+    for request: opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest
+  ) -> String {
+    var lines: [String] = []
+    lines.append("ExportTraceServiceRequest {")
+    lines.append("  resource_spans_count: \(request.resource_spans_count)")
+
+    if let resourceSpansPtr = request.resource_spans {
+      for i in 0 ..< Int(request.resource_spans_count) {
+        let rs = resourceSpansPtr[i]
+        lines.append("  resource_spans[\(i)] {")
+        lines.append("    schema_url: \(stringFromProtoBytes(rs.schema_url))")
+        lines.append("    resource {")
+        lines.append("      dropped_attributes_count: \(rs.resource.dropped_attributes_count)")
+        lines.append("      entity_refs_count: \(rs.resource.entity_refs_count)")
+        appendAttributes(
+          rs.resource.attributes,
+          count: rs.resource.attributes_count,
+          indent: "      ",
+          to: &lines
+        )
+        lines.append("    }")
+        lines.append("    scope_spans_count: \(rs.scope_spans_count)")
+
+        if let scopeSpansPtr = rs.scope_spans {
+          for j in 0 ..< Int(rs.scope_spans_count) {
+            let ss = scopeSpansPtr[j]
+            lines.append("    scope_spans[\(j)] {")
+            lines.append("      schema_url: \(stringFromProtoBytes(ss.schema_url))")
+            lines.append("      scope {")
+            lines.append("        name: \(stringFromProtoBytes(ss.scope.name))")
+            lines.append("        version: \(stringFromProtoBytes(ss.scope.version))")
+            lines.append("        dropped_attributes_count: \(ss.scope.dropped_attributes_count)")
+            appendAttributes(
+              ss.scope.attributes,
+              count: ss.scope.attributes_count,
+              indent: "        ",
+              to: &lines
+            )
+            lines.append("      }")
+            lines.append("      spans_count: \(ss.spans_count)")
+
+            if let spansPtr = ss.spans {
+              for k in 0 ..< Int(ss.spans_count) {
+                appendSpan(spansPtr[k], index: k, indent: "      ", to: &lines)
+              }
+            }
+            lines.append("    }")
+          }
+        }
+        lines.append("  }")
+      }
+    }
+    lines.append("}")
+    return lines.joined(separator: "\n")
+  }
+
+  private func appendSpan(
+    _ span: opentelemetry_proto_trace_v1_Span,
+    index: Int,
+    indent: String,
+    to lines: inout [String]
+  ) {
+    lines.append("\(indent)spans[\(index)] {")
+    lines.append("\(indent)  name: \(stringFromProtoBytes(span.name))")
+    lines.append("\(indent)  trace_id: \(hexFromProtoBytes(span.trace_id))")
+    lines.append("\(indent)  span_id: \(hexFromProtoBytes(span.span_id))")
+    lines.append("\(indent)  parent_span_id: \(hexFromProtoBytes(span.parent_span_id))")
+    lines.append("\(indent)  kind: \(formatSpanKind(span.kind))")
+    lines.append("\(indent)  start_time_unix_nano: \(formatTimestamp(span.start_time_unix_nano))")
+    lines.append("\(indent)  end_time_unix_nano: \(formatTimestamp(span.end_time_unix_nano))")
+    lines.append(
+      "\(indent)  status: { code: \(formatStatusCode(span.status.code)), message: \(stringFromProtoBytes(span.status.message)) }"
+    )
+    lines.append("\(indent)  flags: \(span.flags)")
+    lines.append("\(indent)  dropped_attributes_count: \(span.dropped_attributes_count)")
+    appendAttributes(
+      span.attributes,
+      count: span.attributes_count,
+      indent: "\(indent)  ",
+      to: &lines
+    )
+
+    lines.append("\(indent)  dropped_events_count: \(span.dropped_events_count)")
+    lines.append("\(indent)  events_count: \(span.events_count)")
+    if let eventsPtr = span.events {
+      for eIdx in 0 ..< Int(span.events_count) {
+        let event = eventsPtr[eIdx]
+        lines.append("\(indent)  events[\(eIdx)] {")
+        lines.append("\(indent)    name: \(stringFromProtoBytes(event.name))")
+        lines.append("\(indent)    time_unix_nano: \(formatTimestamp(event.time_unix_nano))")
+        lines.append("\(indent)    dropped_attributes_count: \(event.dropped_attributes_count)")
+        appendAttributes(
+          event.attributes,
+          count: event.attributes_count,
+          indent: "\(indent)    ",
+          to: &lines
+        )
+        lines.append("\(indent)  }")
+      }
+    }
+
+    lines.append("\(indent)  dropped_links_count: \(span.dropped_links_count)")
+    lines.append("\(indent)  links_count: \(span.links_count)")
+    if let linksPtr = span.links {
+      for lIdx in 0 ..< Int(span.links_count) {
+        let link = linksPtr[lIdx]
+        lines.append("\(indent)  links[\(lIdx)] {")
+        lines.append("\(indent)    trace_id: \(hexFromProtoBytes(link.trace_id))")
+        lines.append("\(indent)    span_id: \(hexFromProtoBytes(link.span_id))")
+        lines.append("\(indent)    flags: \(link.flags)")
+        lines.append("\(indent)    dropped_attributes_count: \(link.dropped_attributes_count)")
+        appendAttributes(
+          link.attributes,
+          count: link.attributes_count,
+          indent: "\(indent)    ",
+          to: &lines
+        )
+        lines.append("\(indent)  }")
+      }
+    }
+    lines.append("\(indent)}")
+  }
+
+  private func appendAttributes(
+    _ attributesPtr: UnsafeMutablePointer<opentelemetry_proto_common_v1_KeyValue>?,
+    count: pb_size_t,
+    indent: String,
+    to lines: inout [String]
+  ) {
+    lines.append("\(indent)attributes_count: \(count)")
+    guard let attributesPtr, count > 0 else { return }
+    for i in 0 ..< Int(count) {
+      let kv = attributesPtr[i]
+      let keyStr = stringFromProtoBytes(kv.key)
+      let valStr = formatAnyValue(kv.value)
+      lines.append("\(indent)attributes[\(i)]: \(keyStr) = \(valStr)")
+    }
+  }
+
+  private func formatAnyValue(_ value: opentelemetry_proto_common_v1_AnyValue) -> String {
+    switch Int32(value.which_value) {
+    case opentelemetry_proto_common_v1_AnyValue_string_value_tag:
+      return "string(\(stringFromProtoBytes(value.string_value)))"
+    case opentelemetry_proto_common_v1_AnyValue_bool_value_tag:
+      return "bool(\(value.bool_value))"
+    case opentelemetry_proto_common_v1_AnyValue_int_value_tag:
+      return "int(\(value.int_value))"
+    case opentelemetry_proto_common_v1_AnyValue_double_value_tag:
+      return "double(\(value.double_value))"
+    case opentelemetry_proto_common_v1_AnyValue_bytes_value_tag:
+      return "bytes(\(hexFromProtoBytes(value.bytes_value)))"
+    case opentelemetry_proto_common_v1_AnyValue_array_value_tag:
+      var items: [String] = []
+      if let valuesPtr = value.array_value.values {
+        for i in 0 ..< Int(value.array_value.values_count) {
+          items.append(formatAnyValue(valuesPtr[i]))
+        }
+      }
+      return "array([\(items.joined(separator: ", "))])"
+    case opentelemetry_proto_common_v1_AnyValue_kvlist_value_tag:
+      var pairs: [String] = []
+      if let valuesPtr = value.kvlist_value.values {
+        for i in 0 ..< Int(value.kvlist_value.values_count) {
+          let kv = valuesPtr[i]
+          pairs.append("\(stringFromProtoBytes(kv.key)): \(formatAnyValue(kv.value))")
+        }
+      }
+      return "kvlist({\(pairs.joined(separator: ", "))})"
+    case opentelemetry_proto_common_v1_AnyValue_string_value_strindex_tag:
+      return "string_strindex(\(value.string_value_strindex))"
+    default:
+      return "<unset (which_value=\(value.which_value))>"
+    }
+  }
+
+  private func stringFromProtoBytes(_ pointer: UnsafeMutablePointer<pb_bytes_array_t>?) -> String {
+    guard let pointer else { return "nil" }
+    let size = Int(pointer.pointee.size)
+    let rawBase = UnsafeRawPointer(pointer)
+    let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
+    let typedBytes = bytesStart.assumingMemoryBound(to: UInt8.self)
+    let data = Data(bytes: typedBytes, count: size)
+    if let str = String(data: data, encoding: .utf8) {
+      return "\"\(str)\""
+    }
+    return "<non-utf8 \(hexFromProtoBytes(pointer))>"
+  }
+
+  private func hexFromProtoBytes(_ pointer: UnsafeMutablePointer<pb_bytes_array_t>?) -> String {
+    guard let pointer else { return "nil" }
+    let size = Int(pointer.pointee.size)
+    let rawBase = UnsafeRawPointer(pointer)
+    let bytesStart = rawBase.advanced(by: MemoryLayout<pb_size_t>.size)
+    let buffer = UnsafeBufferPointer(
+      start: bytesStart.assumingMemoryBound(to: UInt8.self),
+      count: size
+    )
+    let hex = buffer.map { String(format: "%02x", $0) }.joined()
+    return "\(hex) (\(size) bytes)"
+  }
+
+  private func formatTimestamp(_ unixNano: UInt64) -> String {
+    let date = Date(timeIntervalSince1970: TimeInterval(unixNano) / 1_000_000_000)
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    return "\(unixNano) (\(formatter.string(from: date)))"
+  }
+
+  private func formatSpanKind(_ kind: opentelemetry_proto_trace_v1_Span_SpanKind) -> String {
+    switch kind {
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_UNSPECIFIED:
+      return "SPAN_KIND_UNSPECIFIED (0)"
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_INTERNAL:
+      return "SPAN_KIND_INTERNAL (1)"
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_SERVER:
+      return "SPAN_KIND_SERVER (2)"
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CLIENT:
+      return "SPAN_KIND_CLIENT (3)"
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_PRODUCER:
+      return "SPAN_KIND_PRODUCER (4)"
+    case opentelemetry_proto_trace_v1_Span_SpanKind_SPAN_KIND_CONSUMER:
+      return "SPAN_KIND_CONSUMER (5)"
+    default:
+      return "UNKNOWN (\(kind.rawValue))"
+    }
+  }
+
+  private func formatStatusCode(
+    _ code: opentelemetry_proto_trace_v1_Status_StatusCode
+  ) -> String {
+    switch code {
+    case opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_UNSET:
+      return "STATUS_CODE_UNSET (0)"
+    case opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_OK:
+      return "STATUS_CODE_OK (1)"
+    case opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_ERROR:
+      return "STATUS_CODE_ERROR (2)"
+    default:
+      return "UNKNOWN (\(code.rawValue))"
+    }
+  }
 }
