@@ -192,9 +192,8 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
 
   /// Generates a human-readable debug description of an `ExportTraceServiceRequest` nanopb struct,
   /// dereferencing all nested pointers, byte arrays, strings, and attributes.
-  func debugDescription(
-    for request: opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest
-  ) -> String {
+  func debugDescription(for request: opentelemetry_proto_collector_trace_v1_ExportTraceServiceRequest)
+    -> String {
     var lines: [String] = []
     lines.append("ExportTraceServiceRequest {")
     lines.append("  resource_spans_count: \(request.resource_spans_count)")
@@ -249,12 +248,10 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
     return lines.joined(separator: "\n")
   }
 
-  private func appendSpan(
-    _ span: opentelemetry_proto_trace_v1_Span,
-    index: Int,
-    indent: String,
-    to lines: inout [String]
-  ) {
+  private func appendSpan(_ span: opentelemetry_proto_trace_v1_Span,
+                          index: Int,
+                          indent: String,
+                          to lines: inout [String]) {
     lines.append("\(indent)spans[\(index)] {")
     lines.append("\(indent)  name: \(stringFromProtoBytes(span.name))")
     lines.append("\(indent)  trace_id: \(hexFromProtoBytes(span.trace_id))")
@@ -316,12 +313,12 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
     lines.append("\(indent)}")
   }
 
-  private func appendAttributes(
-    _ attributesPtr: UnsafeMutablePointer<opentelemetry_proto_common_v1_KeyValue>?,
-    count: pb_size_t,
-    indent: String,
-    to lines: inout [String]
-  ) {
+  private func appendAttributes(_ attributesPtr: UnsafeMutablePointer<
+    opentelemetry_proto_common_v1_KeyValue
+  >?,
+  count: pb_size_t,
+  indent: String,
+  to lines: inout [String]) {
     lines.append("\(indent)attributes_count: \(count)")
     guard let attributesPtr, count > 0 else { return }
     for i in 0 ..< Int(count) {
@@ -420,9 +417,7 @@ extension UnsafeMemoryOperations where Base == NanopbHelper {
     }
   }
 
-  private func formatStatusCode(
-    _ code: opentelemetry_proto_trace_v1_Status_StatusCode
-  ) -> String {
+  private func formatStatusCode(_ code: opentelemetry_proto_trace_v1_Status_StatusCode) -> String {
     switch code {
     case opentelemetry_proto_trace_v1_Status_StatusCode_STATUS_CODE_UNSET:
       return "STATUS_CODE_UNSET (0)"
