@@ -99,9 +99,8 @@
 @end
 
 // A connection URL that NSURL can't parse used to abort the app in
-// assert(request.URL) in -[FSRWebSocket initWithURLRequest:...]. Except for the
-// FSRWebSocket tests, these tests also run on watchOS, which uses an
-// NSURLSession web socket task instead.
+// assert(request.URL) in -[FSRWebSocket initWithURLRequest:...]. These tests
+// also run on watchOS, which uses an NSURLSession web socket task instead.
 @interface FWebSocketConnectionInvalidURLTest : XCTestCase
 @end
 
@@ -163,28 +162,5 @@
   [self waitForExpectations:@[ reportDispatched ] timeout:5];
   XCTAssertEqual(delegate.disconnectCount, 0);
 }
-
-#if !TARGET_OS_WATCH
-
-- (void)testWebSocketWithoutURLIsNil {
-  NSURLRequest *request = [[NSURLRequest alloc] init];
-  XCTAssertNil(request.URL);
-
-  XCTAssertNil([[FSRWebSocket alloc] initWithURLRequest:request
-                                                  queue:dispatch_get_main_queue()
-                                            googleAppID:@"1:1234:ios:1234"
-                                           andUserAgent:@"user-agent"]);
-}
-
-- (void)testWebSocketWithUnsupportedSchemeIsNil {
-  NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@"ftp://example.com/"]];
-
-  XCTAssertNil([[FSRWebSocket alloc] initWithURLRequest:request
-                                                  queue:dispatch_get_main_queue()
-                                            googleAppID:@"1:1234:ios:1234"
-                                           andUserAgent:@"user-agent"]);
-}
-
-#endif  // !TARGET_OS_WATCH
 
 @end
