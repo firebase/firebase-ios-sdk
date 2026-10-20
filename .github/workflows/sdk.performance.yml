@@ -37,7 +37,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: PerformanceUnit
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
@@ -63,7 +63,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebasePerformance
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
       #TODO: tests are not supported with Xcode 15 because the test spec depends on the iOS 8 GDCWebServer
       buildonly_platforms: iOS, tvOS
 
