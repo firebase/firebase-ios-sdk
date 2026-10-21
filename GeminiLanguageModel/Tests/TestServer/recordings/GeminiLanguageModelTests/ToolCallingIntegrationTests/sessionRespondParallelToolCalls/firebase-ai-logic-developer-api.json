@@ -1,0 +1,424 @@
+{
+  "recordID": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondParallelToolCalls/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondParallelToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Tokyo and in London right now? Compare both."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "e6512d61c55e0d25f29d262d05ae984c17a054f76e41d71a53e85bd90114a30b",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "Tokyo"
+                        },
+                        "id": "call_39092",
+                        "name": "getWeather"
+                      },
+                      "thoughtSignature": "EmAKXgFpFH0TUvJCpfg6fMbyCpIbR8BJWnwsBtlZDIS+Fi7Z3bwtjqNjxU8OPo8L3UQ1vM6wzP0dA6BNQb2eC5qQOm0PmmPWbXIYh+DlPvWswfoQ2Pw9kd3lQbaOBQH3Udk="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOasf_BZaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 79,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 79
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 94
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "London"
+                        },
+                        "id": "call_39095",
+                        "name": "getWeather"
+                      }
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOasf_BZaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 30,
+              "promptTokenCount": 79,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 79
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 109
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOasf_BZaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 30,
+              "promptTokenCount": 79,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 79
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 109
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondParallelToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Tokyo and in London right now? Compare both."
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Tokyo"
+                      },
+                      "id": "call_39092",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0TUvJCpfg6fMbyCpIbR8BJWnwsBtlZDIS+Fi7Z3bwtjqNjxU8OPo8L3UQ1vM6wzP0dA6BNQb2eC5qQOm0PmmPWbXIYh+DlPvWswfoQ2Pw9kd3lQbaOBQH3Udk="
+                  },
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "London"
+                      },
+                      "id": "call_39095",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0TUvJCpfg6fMbyCpIbR8BJWnwsBtlZDIS+Fi7Z3bwtjqNjxU8OPo8L3UQ1vM6wzP0dA6BNQb2eC5qQOm0PmmPWbXIYh+DlPvWswfoQ2Pw9kd3lQbaOBQH3Udk="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_39092",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Tokyo is 22°C and sunny."
+                      }
+                    }
+                  },
+                  {
+                    "functionResponse": {
+                      "id": "call_39095",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in London is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "e6512d61c55e0d25f29d262d05ae984c17a054f76e41d71a53e85bd90114a30b",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "699da562d56e24d6d16090a872d1aaf40c36a5cc3540aeeae11326e0767bfffc",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Right"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOapabK6PO-8YPxIHOyAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 1,
+              "promptTokenCount": 159,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 159
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 160
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " now, both Tokyo and London have the exact same weather: it is **22°C and"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOapabK6PO-8YPxIHOyAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 21,
+              "promptTokenCount": 159,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 159
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 180
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " sunny** in both cities."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOapabK6PO-8YPxIHOyAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 27,
+              "promptTokenCount": 159,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 159
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 186
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TAJLyyJUryuOvyDjoScA+9mWDv+GbwmSenyElcQmHDybIVybZcCvasaevDIhNkS25g+dn34jJyMZJBjU912r2K32qsGNi2l3uwha1OLxUBGcYhmlZzU6IU0Y="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "8dLOapabK6PO-8YPxIHOyAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 27,
+              "promptTokenCount": 159,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 159
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 186
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

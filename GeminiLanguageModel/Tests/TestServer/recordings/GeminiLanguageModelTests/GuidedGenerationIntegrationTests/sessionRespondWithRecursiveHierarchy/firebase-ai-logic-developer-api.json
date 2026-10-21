@@ -1,0 +1,309 @@
+{
+  "recordID": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithRecursiveHierarchy/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithRecursiveHierarchy/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Generate an engineering department named \"Platform\" with 50 people, a budget of 4.5 million, active status, notes \"Core infrastructure team\", skills [\"Swift\", \"Go\"], and one subteam named \"Networking\" with 10 people, budget 1.0 million, active status, skills [\"TCP\", \"HTTP\"], and no subteams."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "description": "An organization node in an organizational hierarchy",
+                "properties": {
+                  "budgetMillions": {
+                    "type": "number"
+                  },
+                  "headcount": {
+                    "type": "integer"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "skills": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "subteams": {
+                    "items": {
+                      "$ref": "#"
+                    },
+                    "type": "array"
+                  }
+                },
+                "propertyOrdering": [
+                  "name",
+                  "headcount",
+                  "budgetMillions",
+                  "isActive",
+                  "notes",
+                  "skills",
+                  "subteams"
+                ],
+                "required": [
+                  "name",
+                  "headcount",
+                  "budgetMillions",
+                  "isActive",
+                  "skills",
+                  "subteams"
+                ],
+                "title": "OrganizationNode",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "3cbe4d604bd72620b7e7ff0cac13e953872a1b3b1f4e436bdf9501542175425b",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "{\n  \"name\": \"Platform"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 8,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 84
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\",\n  \"headcount\": 50,\n  \"budgetMillions\": 4.5,\n  "
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 32,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 108
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\"isActive\": true,\n  \"notes\": \"Core infrastructure team\",\n  \"skills\": [\n    \"Swift\",\n    \"Go\"\n  ],\n  \"subteams\": [\n    {\n      \"name\": \"Networking"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 83,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 159
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\",\n      \"headcount\": 10,\n      \"budgetMillions\": 1.0,\n      "
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 107,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 183
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\"isActive\": true,\n      \"notes\": \"\",\n      \"skills\": [\n        \"TCP\",\n        "
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 131,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 207
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\"HTTP\"\n      ],\n      \"subteams\": []\n    }\n  ]\n}"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 152,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 228
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TfF7CHu22OVxlpVV/H0Scco3hdecQVNCkTqesjjzbR16jE9NQwc1x54C12YRVQft1/PR6yrD9MMSCWGBRHEdMSjgQJP92fh83g6B4eXMQx848h9lniim5cLU="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "We_OatGSJ8ebjrEPvdjlwQc",
+            "usageMetadata": {
+              "candidatesTokenCount": 152,
+              "promptTokenCount": 76,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 76
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 228
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

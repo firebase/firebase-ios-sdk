@@ -1,0 +1,769 @@
+{
+  "recordID": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondSequentialToolCalls/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondSequentialToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Seattle?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "b7916d65f014a86d68d89dd3d455b4bfdc2f0d6cc07b63281bf85b34d7f14935",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "Seattle"
+                        },
+                        "id": "call_374935",
+                        "name": "getWeather"
+                      },
+                      "thoughtSignature": "EmAKXgFpFH0T5Z2ptv23Bbpn5YDEyT0xfDYQQ2/nEH5zMFk2t7nmAfVm+P4jhMbBiFSR1jOtWeUFbHO2PYry+PwBQjZ3GF36Q8HIAjFU0HXimgA07uggH9ewCXJhk+ieoPE="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "S9bOapu-JbyR-8YPwMjZwAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 71,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 71
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 86
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "S9bOapu-JbyR-8YPwMjZwAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 71,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 71
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 86
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondSequentialToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Seattle?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Seattle"
+                      },
+                      "id": "call_374935",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0T5Z2ptv23Bbpn5YDEyT0xfDYQQ2/nEH5zMFk2t7nmAfVm+P4jhMbBiFSR1jOtWeUFbHO2PYry+PwBQjZ3GF36Q8HIAjFU0HXimgA07uggH9ewCXJhk+ieoPE="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_374935",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Seattle is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b7916d65f014a86d68d89dd3d455b4bfdc2f0d6cc07b63281bf85b34d7f14935",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "fb09c8460ad117d123ffb7e39c35145e6bb0a3da9ac9b43b299d406156707b6f",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "The current"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TNbOaoq4BfLO-8YPidTyoA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 112,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 112
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 114
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " weather in Seattle is 22°C and sunny."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TNbOaoq4BfLO-8YPidTyoA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 14,
+              "promptTokenCount": 112,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 112
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 126
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0T1WZ448fCnFzIxU9o6UrsN4uBWyVk+JUaIDdNwSP6WXByv7MwfcwiBUHiSt6BNm69kBiTJUUZODDe/8i6j4PFG5lY7hld3zSiJy0kXjOzTy/sLjzxphDzDZU="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TNbOaoq4BfLO-8YPidTyoA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 14,
+              "promptTokenCount": 112,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 112
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 126
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondSequentialToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Seattle?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Seattle"
+                      },
+                      "id": "call_374935",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0T5Z2ptv23Bbpn5YDEyT0xfDYQQ2/nEH5zMFk2t7nmAfVm+P4jhMbBiFSR1jOtWeUFbHO2PYry+PwBQjZ3GF36Q8HIAjFU0HXimgA07uggH9ewCXJhk+ieoPE="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_374935",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Seattle is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "The current weather in Seattle is 22°C and sunny.",
+                    "thoughtSignature": "EmAKXgFpFH0T1WZ448fCnFzIxU9o6UrsN4uBWyVk+JUaIDdNwSP6WXByv7MwfcwiBUHiSt6BNm69kBiTJUUZODDe/8i6j4PFG5lY7hld3zSiJy0kXjOzTy/sLjzxphDzDZU="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "What about in Miami?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "fb09c8460ad117d123ffb7e39c35145e6bb0a3da9ac9b43b299d406156707b6f",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "3d8ba0ae0c4fe0bd39562fd1fd065ba096f3544882da6ca3a52901ec0ab4d97f",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "Miami"
+                        },
+                        "id": "call_277352",
+                        "name": "getWeather"
+                      },
+                      "thoughtSignature": "EmAKXgFpFH0TN4nR6WjRB4zhUy+vMblKXv4pF2cjBpqg45iKVeFEGpyuUtPXRDePVoOEIV/ggDXsNdDEpTm/3eRom9hobGR/T20KQxMtqTW3CFOOrLCjHgH31iyRQjCqkBM="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TNbOasWxLPLO-8YPidTyoA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 133,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 133
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 148
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TNbOasWxLPLO-8YPidTyoA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 133,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 133
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 148
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondSequentialToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Seattle?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Seattle"
+                      },
+                      "id": "call_374935",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0T5Z2ptv23Bbpn5YDEyT0xfDYQQ2/nEH5zMFk2t7nmAfVm+P4jhMbBiFSR1jOtWeUFbHO2PYry+PwBQjZ3GF36Q8HIAjFU0HXimgA07uggH9ewCXJhk+ieoPE="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_374935",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Seattle is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "The current weather in Seattle is 22°C and sunny.",
+                    "thoughtSignature": "EmAKXgFpFH0T1WZ448fCnFzIxU9o6UrsN4uBWyVk+JUaIDdNwSP6WXByv7MwfcwiBUHiSt6BNm69kBiTJUUZODDe/8i6j4PFG5lY7hld3zSiJy0kXjOzTy/sLjzxphDzDZU="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "What about in Miami?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Miami"
+                      },
+                      "id": "call_277352",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0TN4nR6WjRB4zhUy+vMblKXv4pF2cjBpqg45iKVeFEGpyuUtPXRDePVoOEIV/ggDXsNdDEpTm/3eRom9hobGR/T20KQxMtqTW3CFOOrLCjHgH31iyRQjCqkBM="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_277352",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Miami is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "3d8ba0ae0c4fe0bd39562fd1fd065ba096f3544882da6ca3a52901ec0ab4d97f",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "4c7d9a924bfdbf95392525b3b1930ad4664c103a53648e846b6c346485326261",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "The current"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TdbOapvUDpaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 174,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 174
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 176
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " weather in Miami is 22°C and sunny."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TdbOapvUDpaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 14,
+              "promptTokenCount": 174,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 174
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 188
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TyMPD4pEzyzPFfUDKMZCBgGhZpck9wTjM1l6gH+ZNhUul7RWwDvJME0CF1KI9ZTcVDzpNKYLzv6T+qbj543FpU1qqLy8lJB7QdHUWRY3eR3KrJMGC+NAhzhw="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "TdbOapvUDpaH-8YP_cal6A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 14,
+              "promptTokenCount": 174,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 174
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 188
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

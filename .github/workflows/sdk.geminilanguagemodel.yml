@@ -129,6 +129,59 @@ jobs:
       # credentials are provided.
       run: swift test --skip IntegrationTests
 
+  audit-recordings:
+    name: audit-recordings
+    # Checks committed test-server recordings for unexpected headers (for example, credentials).
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: GeminiLanguageModel
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Test recording tooling
+      working-directory: GeminiLanguageModel/scripts
+      run: python3 -m unittest discover -s tests -t . -v
+
+    - name: Audit recorded headers
+      run: scripts/test-server.sh audit
+
+  replay-integration-tests:
+    name: replay-integration-tests
+    # Replay needs no secrets, so it also runs for pull requests from forks.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
+
+    - name: Replay recorded integration tests
+      working-directory: GeminiLanguageModel
+      run: |
+        set -o pipefail
+        scripts/test-server.sh replay IntegrationTests 2>&1 | tee replay.log
+        # Fail if FoundationModels is unavailable and suites were skipped instead of run.
+        if grep -q "Requires FoundationModels framework support" replay.log; then
+          echo "::error::Recorded integration tests were skipped."
+          exit 1
+        fi
+
+    - name: Upload test-server log
+      if: failure()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: test-server-replay.log
+        path: GeminiLanguageModel/.build/test-server/test-server.log
+        retention-days: 2
+
   integration-tests:
     name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
