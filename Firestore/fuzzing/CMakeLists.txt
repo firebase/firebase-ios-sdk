@@ -69,3 +69,9 @@ firebase_ios_add_fuzz_test(
   DICTIONARY ${fuzzing_resources}/LevelDb/leveldb.dictionary
   leveldb_fuzzer.cc
 )
+
+firebase_ios_add_fuzz_test(
+  firestore_field_index_fuzzer
+  CORPUS ${fuzzing_resources}/FieldIndex/Corpus
+  field_index_fuzzer.cc
+)

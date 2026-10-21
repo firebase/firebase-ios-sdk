@@ -190,18 +190,18 @@ function(firebase_ios_add_fuzz_test target)
   target_link_libraries(${target} PRIVATE Fuzzer)
 
   # Copy the dictionary file and corpus directory, if they are defined.
-  if(DEFINED ccf_DICTIONARY)
+  if(DEFINED args_DICTIONARY)
     add_custom_command(
       TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy
-          ${ccf_DICTIONARY} ${target}.dict
+          ${args_DICTIONARY} ${target}.dict
     )
   endif()
-  if(DEFINED ccf_CORPUS)
+  if(DEFINED args_CORPUS)
     add_custom_command(
       TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-          ${ccf_CORPUS} ${target}_seed_corpus
+          ${args_CORPUS} ${target}_seed_corpus
     )
   endif()
 endfunction()
