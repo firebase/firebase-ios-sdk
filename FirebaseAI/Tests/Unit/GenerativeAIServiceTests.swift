@@ -19,6 +19,10 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 #if !os(watchOS)
   @available(macOS 12.0, *)
   final class GenerativeAIServiceTests: XCTestCase {
@@ -27,13 +31,13 @@ import XCTest
       "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
     let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
-    var urlSession: URLSession!
+    var httpClient: HTTPClient!
     var model: GenerativeModel!
 
     override func setUp() async throws {
       let configuration = URLSessionConfiguration.default
       configuration.protocolClasses = [MockURLProtocol.self]
-      urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+      httpClient = HTTPClient(configuration: configuration)
       model = GenerativeModel(
         modelName: testModelName,
         modelResourceName: testModelResourceName,
@@ -41,7 +45,7 @@ import XCTest
         apiConfig: apiConfig,
         tools: nil,
         requestOptions: RequestOptions(),
-        urlSession: urlSession
+        httpClient: httpClient
       )
     }
 
@@ -50,17 +54,35 @@ import XCTest
       MockURLProtocol.errorToThrowMidStream = nil
       MockURLProtocol.stopLoadingExpectation = nil
       MockURLProtocol.neverFinishes = false
+      MockURLProtocol.chunkSize = nil
+    }
+
+    func testModelsShareDefaultHTTPClient() {
+      let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
+      let model1 = GenerativeModel(
+        modelName: testModelName,
+        modelResourceName: testModelResourceName,
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        tools: nil,
+        requestOptions: RequestOptions()
+      )
+      let model2 = TemplateGenerativeModel(
+        firebaseInfo: firebaseInfo,
+        apiConfig: apiConfig,
+        tools: nil,
+        toolConfig: nil,
+        requestOptions: RequestOptions()
+      )
+
+      XCTAssertTrue(model1.generativeAIService.httpClient === HTTPClient.default)
+      XCTAssertTrue(model2.generativeAIService.httpClient === HTTPClient.default)
+      XCTAssertTrue(model.generativeAIService.httpClient === httpClient)
     }
 
     func testGenerateContent_failure_unrecognizedErrorPayload() async throws {
       let expectedStatusCode = 500
       let responseBody = "Internal Server Error"
-
-      // We need to construct the handler to return specific data
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
 
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
@@ -70,9 +92,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       do {
@@ -80,22 +100,134 @@ import XCTest
         XCTFail("An error should have been thrown, but no error was thrown.")
       } catch let GenerateContentError
         .internalError(underlying: unrecognizedError as UnrecognizedRPCError) {
-        // MockURLProtocol appends a newline to the response.
-        XCTAssertEqual(unrecognizedError.responseBody, responseBody + "\n")
+        XCTAssertEqual(unrecognizedError.responseBody, responseBody)
       } catch {
         XCTFail("Caught unexpected error: \(error)")
       }
+    }
+
+    func testGenerateContentStream_singleChunkMultipleEvents() async throws {
+      MockURLProtocol.chunkSize = .max
+      let event1 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello \"}]}}]}"
+      let event2 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"world!\"}]}}]}"
+      let responseBody = "data: \(event1)\n\ndata: \(event2)\n\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, ["Hello ", "world!"])
+    }
+
+    func testGenerateContentStream_crlfFramingAndArbitraryChunkBoundaries() async throws {
+      MockURLProtocol.chunkSize = 17
+      let event1 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"First\"}]}}]}"
+      let event2 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Second\"}]}}]}"
+      let responseBody = "data: \(event1)\r\n\r\ndata: \(event2)\r\n\r\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, ["First", "Second"])
+    }
+
+    func testGenerateContentStream_preservesUnicodeLineSeparatorsInJSON() async throws {
+      let expectedText = "Line 1\u{2028}Line 2\u{2029}Line 3"
+      let event =
+        "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\(expectedText)\"}]}}]}"
+      let responseBody = "data: \(event)\n\n"
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, [expectedText])
+    }
+
+    func testGenerateContentStream_ignoresSSECommentsAndControlFields() async throws {
+      let event1 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello \"}]}}]}"
+      let event2 = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"world!\"}]}}]}"
+      let responseBody = """
+      : keep-alive
+      event: message
+      id: 1
+      retry: 5000
+      data: \(event1)
+
+      : keep-alive
+      data: \(event2)
+
+
+      """
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: nil
+        )!
+        return (response, Data(responseBody.utf8))
+      }
+
+      let stream = try model.generateContentStream("test")
+      var texts = [String]()
+      for try await chunk in stream {
+        if let text = chunk.text {
+          texts.append(text)
+        }
+      }
+
+      XCTAssertEqual(texts, ["Hello ", "world!"])
     }
 
     func testGenerateContentStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
-
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
 
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
@@ -105,9 +237,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Simulate a network drop mid-stream
@@ -146,11 +276,6 @@ import XCTest
       let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
 
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -159,9 +284,7 @@ import XCTest
           headerFields: nil
         )!
 
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Simulate a network drop mid-stream while reading the error payload
@@ -198,17 +321,6 @@ import XCTest
     func testGenerateContentStream_cancellation_resourceLeak() async throws {
       let expectedStatusCode = 200
 
-      // We don't use responseBody here because we want to manually yield lines slowly
-      // to test that the mock continues sending them even after the stream is cancelled.
-      // But MockURLProtocol currently doesn't support manual line yielding.
-      // Let's rely on the fact that if it's NOT cancelled, the Task continues doing work.
-      // We can use a large payload and assert that MockURLProtocol finishes its sleep.
-
-      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-      addTeardownBlock {
-        try? FileManager.default.removeItem(at: tempURL)
-      }
-
       MockURLProtocol.requestHandler = { request in
         let response = HTTPURLResponse(
           url: request.url!,
@@ -219,9 +331,7 @@ import XCTest
 
         let validJSON = "{\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello\"}]}}]}"
         let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 100)
-        try responseBody.write(to: tempURL, atomically: true, encoding: .utf8)
-        let stream = URL(fileURLWithPath: tempURL.path).lines
-        return (response, stream)
+        return (response, Data(responseBody.utf8))
       }
 
       // Prevent the mock server from finishing naturally so it keeps the connection open.
