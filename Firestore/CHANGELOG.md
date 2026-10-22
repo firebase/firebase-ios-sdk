@@ -4,7 +4,7 @@
 - [fixed] Fixed a "'Firestore' SwiftPM package trait is disabled" build error
   with Xcode 26.2 when Firebase is added to an Xcode project by URL. With Xcode
   26.2, Firestore is now always included; opting out of the `Firestore` trait
-  requires Xcode 26.4 or later. (#XXXXX)
+  requires Xcode 26.4 or later. (#16944)
 
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
