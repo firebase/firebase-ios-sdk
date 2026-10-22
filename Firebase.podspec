@@ -40,9 +40,9 @@ Simplify your app development, grow your user base, and monetize more effectivel
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
-    ss.ios.dependency 'FirebaseAnalytics', '~> 13.1.0'
-    ss.osx.dependency 'FirebaseAnalytics', '~> 13.1.0'
-    ss.tvos.dependency 'FirebaseAnalytics', '~> 13.1.0'
+    ss.ios.dependency 'FirebaseAnalytics', '~> 13.1.1'
+    ss.osx.dependency 'FirebaseAnalytics', '~> 13.1.1'
+    ss.tvos.dependency 'FirebaseAnalytics', '~> 13.1.1'
     ss.dependency 'Firebase/CoreOnly'
   end
 
@@ -74,7 +74,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'ABTesting' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseABTesting', '~> 13.1.0'
+    ss.dependency 'FirebaseABTesting', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -84,13 +84,13 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'AppDistribution' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseAppDistribution', '~> 13.1.0-beta'
+    ss.ios.dependency 'FirebaseAppDistribution', '~> 13.1.1-beta'
     ss.ios.deployment_target = '15.0'
   end
 
   s.subspec 'AppCheck' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAppCheck', '~> 13.1.0'
+    ss.dependency 'FirebaseAppCheck', '~> 13.1.1'
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
     ss.tvos.deployment_target = '15.0'
@@ -99,7 +99,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Auth' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseAuth', '~> 13.1.0'
+    ss.dependency 'FirebaseAuth', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -109,7 +109,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Crashlytics' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseCrashlytics', '~> 13.1.0'
+    ss.dependency 'FirebaseCrashlytics', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -119,7 +119,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Database' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseDatabase', '~> 13.1.0'
+    ss.dependency 'FirebaseDatabase', '~> 13.1.1'
     # Standard platforms PLUS watchOS 7.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -137,7 +137,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Functions' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFunctions', '~> 13.1.0'
+    ss.dependency 'FirebaseFunctions', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -147,20 +147,20 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebaseInAppMessaging', '~> 13.1.0-beta'
-    ss.tvos.dependency 'FirebaseInAppMessaging', '~> 13.1.0-beta'
+    ss.ios.dependency 'FirebaseInAppMessaging', '~> 13.1.1-beta'
+    ss.tvos.dependency 'FirebaseInAppMessaging', '~> 13.1.1-beta'
     ss.ios.deployment_target = '15.0'
     ss.tvos.deployment_target = '15.0'
   end
 
   s.subspec 'Installations' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseInstallations', '~> 13.1.0'
+    ss.dependency 'FirebaseInstallations', '~> 13.1.1'
   end
 
   s.subspec 'Messaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseMessaging', '~> 13.1.0'
+    ss.dependency 'FirebaseMessaging', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -170,15 +170,15 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Performance' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.ios.dependency 'FirebasePerformance', '~> 13.1.0'
-    ss.tvos.dependency 'FirebasePerformance', '~> 13.1.0'
+    ss.ios.dependency 'FirebasePerformance', '~> 13.1.1'
+    ss.tvos.dependency 'FirebasePerformance', '~> 13.1.1'
     ss.ios.deployment_target = '15.0'
     ss.tvos.deployment_target = '15.0'
   end
 
   s.subspec 'RemoteConfig' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseRemoteConfig', '~> 13.1.0'
+    ss.dependency 'FirebaseRemoteConfig', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
@@ -188,7 +188,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Storage' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseStorage', '~> 13.1.0'
+    ss.dependency 'FirebaseStorage', '~> 13.1.1'
     # Standard platforms PLUS watchOS.
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '11.0'
