@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Firebase'
-  s.version          = '12.19.0'
+  s.version          = '12.19.3'
   s.summary          = 'Firebase'
 
   s.description      = <<-DESC
@@ -43,7 +43,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   end
 
   s.subspec 'CoreOnly' do |ss|
-    ss.dependency 'FirebaseCore', '~> 12.19.0'
+    ss.dependency 'FirebaseCore', '~> 12.19.3'
     ss.source_files = 'CoreOnly/Sources/Firebase.h'
     ss.preserve_paths = 'CoreOnly/Sources/module.modulemap'
     if ENV['FIREBASE_POD_REPO_FOR_DEV_POD'] then
@@ -125,7 +125,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
 
   s.subspec 'Firestore' do |ss|
     ss.dependency 'Firebase/CoreOnly'
-    ss.dependency 'FirebaseFirestore', '~> 12.19.0'
+    ss.dependency 'FirebaseFirestore', '~> 12.19.3'
     ss.ios.deployment_target = '15.0'
     ss.osx.deployment_target = '10.15'
     ss.tvos.deployment_target = '15.0'

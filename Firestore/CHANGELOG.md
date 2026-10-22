@@ -1,3 +1,7 @@
+# 12.19.3
+- [fixed] Security Update: Removed compromised eMudhra intermediate CA root
+  certificates from embedded trust store. (#16930)
+
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
