@@ -18,33 +18,46 @@
 
 set -euo pipefail
 
-# Creates a simulator with the latest installed runtime for a given platform.
+# Directory containing this script and its helpers.
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPTS_DIR
+
+# Creates a simulator, unless an available simulator with the same name exists,
+# using the newest available runtime for a given platform that supports the
+# requested device type.
+# Globals:
+#   SCRIPTS_DIR
 # Arguments:
-#   $1 - Platform search string for simctl (e.g. "iOS", "watchOS")
+#   $1 - Platform name, or `|`-separated alternatives
+#        (e.g. "iOS", "visionOS|xrOS")
 #   $2 - Desired simulator device name (e.g. "Firebase-iPhone-15-Pro")
 #   $3 - Simulator device type ID
 #        (e.g. "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro")
+# Outputs:
+#   Writes progress to stdout and diagnostics to stderr.
 create_sim() {
   local platform_search="$1"
   local sim_name="$2"
   local device_type="$3"
 
+  # Select the newest available runtime that supports the requested device
+  # type. On failure, the helper prints the available runtimes and the script
+  # exits.
   local runtime
   runtime=$(
-    xcrun simctl list runtimes |
-      grep -i -E "$platform_search" |
-      grep -v 'unavailable' |
-      grep -o -E 'com\.apple\.CoreSimulator\.SimRuntime\.[a-zA-Z0-9.-]+' |
-      tail -1 || true
-  )
+    python3 "${SCRIPTS_DIR}/select_simulator_runtime.py" \
+      --platform "$platform_search" \
+      --device-type "$device_type"
+  ) || exit
 
-  if [[ -z "$runtime" ]]; then
-    echo "Error: Could not find runtime for platform '$platform_search'." >&2
-    exit 1
-  fi
+  # Capture the device list before searching it: `simctl ... | grep -q` can
+  # fail with SIGPIPE under `pipefail` when grep exits early, which would read
+  # as "not found" and create a duplicate simulator.
+  local devices
+  devices=$(xcrun simctl list devices available)
 
-  if ! xcrun simctl list devices | grep -q "$sim_name"; then
-    echo "Creating simulator '$sim_name' ($device_type)..."
+  if ! grep -qF -- "    ${sim_name} (" <<< "$devices"; then
+    echo "Creating simulator '$sim_name' ($device_type, $runtime)..."
     xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null
   else
     echo "Simulator '$sim_name' already exists."
