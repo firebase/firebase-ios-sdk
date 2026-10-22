@@ -312,6 +312,20 @@ cmake_options=(
   -DCMAKE_BUILD_TYPE=Debug
 )
 
+if [[ "$method" == "cmake" && "$system" == "Darwin" && -z "${OPENSSL_ROOT_DIR:-}" ]]; then
+  # Pin macOS CMake builds to Homebrew's openssl@3 because the gRPC version
+  # pinned in cmake/external/grpc.cmake (1.69.0) fails to compile against
+  # OpenSSL 4.x, which Homebrew now uses as the default unversioned openssl.
+  # TODO: Unpin openssl@3 once the gRPC dependency in cmake/external/grpc.cmake
+  # is upgraded to a version that supports OpenSSL 4.x.
+  if openssl_prefix="$(brew --prefix openssl@3 2>/dev/null)" && [[ -d "$openssl_prefix" ]]; then
+    echo "Using OpenSSL from ${openssl_prefix} for CMake build"
+    cmake_options+=(
+      "-DOPENSSL_ROOT_DIR=${openssl_prefix}"
+    )
+  fi
+fi
+
 if [[ -n "${SANITIZERS:-}" ]]; then
   for sanitizer in $SANITIZERS; do
     case "$sanitizer" in
