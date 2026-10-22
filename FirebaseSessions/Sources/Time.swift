@@ -24,8 +24,14 @@ protocol TimeProvider {
 /// exists for testing purposes.
 ///
 class Time: TimeProvider {
+  private let currentTime: () -> Date
+
+  init(currentTimeProvider: @escaping () -> Date = Date.init) {
+    currentTime = currentTimeProvider
+  }
+
   // Returns the current time as a timestamp in microseconds
   var timestampUS: Int64 {
-    return Int64(UInt64(Date().timeIntervalSince1970) * USEC_PER_SEC)
+    return Int64(currentTime().timeIntervalSince1970 * Double(USEC_PER_SEC))
   }
 }
