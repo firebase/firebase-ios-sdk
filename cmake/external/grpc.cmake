@@ -31,6 +31,7 @@ ExternalProject_Add(
   PREFIX ${PROJECT_BINARY_DIR}
   SOURCE_DIR ${PROJECT_BINARY_DIR}/src/grpc
 
+  PATCH_COMMAND patch -Np1 --binary -i ${CMAKE_CURRENT_LIST_DIR}/grpc.patch
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   TEST_COMMAND ""
