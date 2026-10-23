@@ -5487,56 +5487,220 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTAssertEqual(nsError.domain, FirestoreErrorDomain, "length must be non-negative")
     }
   }
+}
 
-  // MARK: - Window Functions Integration Suite
+// MARK: - Window Functions Integration Suite
 
-  private static let windowTestDocs: [String: [String: Any]] = [
-    // 2026-07-01T12:00:00Z
-    "sale1": [
-      "product": "phone",
-      "region": "east",
-      "salesPrice": 12,
-      "quantity": 1,
-      "date": Timestamp(seconds: 1_782_907_200, nanoseconds: 0),
-    ],
-    // 2026-07-02T12:00:00Z
-    "sale2": [
-      "product": "phone",
-      "region": "west",
-      "salesPrice": 30,
-      "quantity": 2,
-      "date": Timestamp(seconds: 1_782_993_600, nanoseconds: 0),
-    ],
-    // 2026-07-02T18:00:00Z
-    "sale3": [
-      "product": "tablet",
-      "region": "east",
-      "salesPrice": 30,
-      "quantity": 3,
-      "date": Timestamp(seconds: 1_783_015_200, nanoseconds: 0),
-    ],
-    // 2026-07-04T12:00:00Z
-    "sale4": [
-      "product": "tablet",
-      "region": "west",
-      "salesPrice": 60,
-      "quantity": 4,
-      "date": Timestamp(seconds: 1_783_166_400, nanoseconds: 0),
-    ],
-    // 2026-07-15T12:00:00Z
-    "sale5": [
-      "product": "tablet",
-      "region": "east",
-      "salesPrice": 60,
-      "quantity": 5,
-      "date": Timestamp(seconds: 1_784_116_800, nanoseconds: 0),
-    ],
-  ]
+private let windowTestDocs: [String: [String: Any]] = [
+  // 2026-07-01T12:00:00Z
+  "sale1": [
+    "product": "phone",
+    "region": "east",
+    "salesPrice": 12,
+    "quantity": 1,
+    "date": Timestamp(seconds: 1_782_907_200, nanoseconds: 0),
+  ],
+  // 2026-07-02T12:00:00Z
+  "sale2": [
+    "product": "phone",
+    "region": "west",
+    "salesPrice": 30,
+    "quantity": 2,
+    "date": Timestamp(seconds: 1_782_993_600, nanoseconds: 0),
+  ],
+  // 2026-07-02T18:00:00Z
+  "sale3": [
+    "product": "tablet",
+    "region": "east",
+    "salesPrice": 30,
+    "quantity": 3,
+    "date": Timestamp(seconds: 1_783_015_200, nanoseconds: 0),
+  ],
+  // 2026-07-04T12:00:00Z
+  "sale4": [
+    "product": "tablet",
+    "region": "west",
+    "salesPrice": 60,
+    "quantity": 4,
+    "date": Timestamp(seconds: 1_783_166_400, nanoseconds: 0),
+  ],
+  // 2026-07-15T12:00:00Z
+  "sale5": [
+    "product": "tablet",
+    "region": "east",
+    "salesPrice": 60,
+    "quantity": 5,
+    "date": Timestamp(seconds: 1_784_116_800, nanoseconds: 0),
+  ],
+]
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping all tests in PipelineWindowIntegrationTests because backend edition is Standard."
+      )
+    }
+  }
+
+  func testWindowFieldsComputesRunningAggregatesOverAPartitionedMultiKeySortedDocumentsFrame(
+  ) async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: WindowSpec.partition([Field("product"), Field("region").toUpper()])
+          .sort([Field("date").ascending(), Field("salesPrice").descending()])
+          .documents(preceding: .unbounded, following: Constant(0)),
+        fields: [
+          Field("salesPrice").sum().as("stats.runningTotal"),
+          Field("quantity").arrayAgg().as("quantities"),
+          CountAll().as("count"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "stats", "quantities", "count"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "stats": ["runningTotal": 12], "quantities": [1], "count": 1],
+      ["product": "phone", "stats": ["runningTotal": 30], "quantities": [2], "count": 1],
+      ["product": "tablet", "stats": ["runningTotal": 30], "quantities": [3], "count": 1],
+      ["product": "tablet", "stats": ["runningTotal": 60], "quantities": [4], "count": 1],
+      ["product": "tablet", "stats": ["runningTotal": 90], "quantities": [3, 5], "count": 2],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsCountsDocumentsInATimeUnitRangeFrame() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: 12, following: .current, unit: TimeGranularity.hour)
+          .sort(Field("date").ascending()),
+        fields: [Field("quantity").count().as("windowCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "windowCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "windowCount": 1],
+      ["product": "phone", "windowCount": 1],
+      ["product": "tablet", "windowCount": 2],
+      ["product": "tablet", "windowCount": 1],
+      ["product": "tablet", "windowCount": 1],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsComputesLookAheadAndNearbyAggregatesWithAccumulatorLevelFrames(
+  ) async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("quantity").ascending()),
+        fields: [
+          Field("salesPrice").average()
+            .over(.documents(preceding: -1, following: 2))
+            .as("lookAheadAverage"),
+          Field("salesPrice").sum()
+            .over(.range(preceding: 1.5, following: 0.5))
+            .as("nearbyTotal"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "lookAheadAverage", "nearbyTotal"])
+      .execute()
+
+    XCTAssertEqual(snapshot.results.count, 5)
+    XCTAssertEqual(snapshot.results[0].get("product") as? String, "phone")
+    XCTAssertEqual(snapshot.results[0].get("lookAheadAverage") as? Double, 30.0)
+    XCTAssertEqual(snapshot.results[0].get("nearbyTotal") as? Int, 12)
+
+    XCTAssertEqual(snapshot.results[1].get("product") as? String, "phone")
+    XCTAssertEqual(snapshot.results[1].get("lookAheadAverage") as? Double, 45.0)
+    XCTAssertEqual(snapshot.results[1].get("nearbyTotal") as? Int, 42)
+
+    XCTAssertEqual(snapshot.results[2].get("product") as? String, "tablet")
+    XCTAssertEqual(snapshot.results[2].get("lookAheadAverage") as? Double, 60.0)
+    XCTAssertEqual(snapshot.results[2].get("nearbyTotal") as? Int, 60)
+
+    XCTAssertEqual(snapshot.results[3].get("product") as? String, "tablet")
+    XCTAssertEqual(snapshot.results[3].get("lookAheadAverage") as? Double, 60.0)
+    XCTAssertEqual(snapshot.results[3].get("nearbyTotal") as? Int, 90)
+
+    XCTAssertEqual(snapshot.results[4].get("product") as? String, "tablet")
+    XCTAssertNil(snapshot.results[4].get("lookAheadAverage"))
+    XCTAssertEqual(snapshot.results[4].get("nearbyTotal") as? Int, 120)
+  }
+
+  func testWindowFieldsRejectsARangeFrameWithoutASort() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    do {
+      _ = try await collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .range(preceding: .unbounded, following: .current),
+          fields: [Field("quantity").count().as("windowCount")]
+        )
+        .execute()
+      XCTFail("Expected error for range frame without a sort")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.lowercased().contains("range"))
+    }
+  }
+
+  func testWindowFieldsRejectsDuplicateAliases() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    do {
+      _ = try await collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .partition(["product"]),
+          fields: [
+            Field("quantity").count().as("dup"),
+            Field("salesPrice").sum().as("dup"),
+          ]
+        )
+        .execute()
+      XCTFail("Expected error for duplicate alias")
+    } catch {
+      XCTAssertTrue(error.localizedDescription.lowercased().contains("duplicate alias"))
+    }
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+
+    if FSTIntegrationTestCase.backendEdition() == .standard {
+      throw XCTSkip(
+        "Skipping PipelineWindowComprehensiveIntegrationTests because backend edition is Standard."
+      )
+    }
+
+    // Comprehensive window function tests. Skipped by default because the backend
+    // already tests window function semantics, and PipelineWindowIntegrationTests
+    // exercises the SDK's window function code paths, server errors, and client-side
+    // validation. Set FIRESTORE_RUN_COMPREHENSIVE_TESTS=YES (or true) to run them.
+    let flag = ProcessInfo.processInfo.environment["FIRESTORE_RUN_COMPREHENSIVE_TESTS"]
+    if flag != "YES" && flag != "true" {
+      throw XCTSkip("Set FIRESTORE_RUN_COMPREHENSIVE_TESTS=YES to run comprehensive window tests.")
+    }
+  }
 
   // --- partitioning --------------------------------------------------------------------------
 
   func testWindowFieldsEmptySpecIsASingleGlobalWindow() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5558,7 +5722,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsOmittedSpecIsASingleGlobalWindow() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5579,7 +5743,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsPartitionsBySingleFieldName() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5601,7 +5765,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsPartitionsByMultipleFields() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5623,7 +5787,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsPartitionsByExpression() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5647,7 +5811,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // --- sorting and default framing -----------------------------------------------------------
 
   func testWindowFieldsRunningCountWithTheDefaultFrame() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5669,7 +5833,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRunningCountWithinEachPartition() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5691,7 +5855,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsHonorsADescendingSort() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5714,7 +5878,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsHonorsMultipleSortOrderings() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5739,7 +5903,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // --- documents framing ---------------------------------------------------------------------
 
   func testWindowFieldsDocumentsUnboundedToCurrent() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5762,7 +5926,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsDocumentsUnboundedToUnbounded() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5786,7 +5950,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsDocumentsCurrentToCurrent() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5809,7 +5973,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsDocumentsZeroPrecedingAndZeroFollowing() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5832,7 +5996,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsDocumentsZeroPrecedingToUnboundedFollowing() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5854,33 +6018,10 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testWindowFieldsDocumentsSymmetricMovingWindow() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    let snapshot = try await collRef.firestore.pipeline()
-      .collection(collRef.path)
-      .addWindowFields(
-        window: .documents(preceding: 1, following: 1)
-          .sort(Field("date").ascending()),
-        fields: [Field("quantity").count().as("windowCount")]
-      )
-      .sort([Field("date").ascending()])
-      .select(["product", "windowCount"])
-      .execute()
-
-    let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "windowCount": 2],
-      ["product": "phone", "windowCount": 3],
-      ["product": "tablet", "windowCount": 3],
-      ["product": "tablet", "windowCount": 3],
-      ["product": "tablet", "windowCount": 2],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
-
   // --- range framing -------------------------------------------------------------------------
 
   func testWindowFieldsRangeCurrentToCurrentCountsTiedPeers() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5904,7 +6045,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeZeroOffsetCountsTiedPeers() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5928,7 +6069,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeUnboundedToZeroOffsetIncludesTiedPeers() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5951,7 +6092,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsDocumentsUnboundedToCurrentExcludesTiedPeers() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5974,7 +6115,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeUnboundedToCurrentIncludesTiedPeers() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -5997,7 +6138,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeUnboundedToCurrentWithStringSortKey() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6020,7 +6161,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeUnboundedToCurrentWithMultipleSortKeys() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6043,7 +6184,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsRangeUnboundedToUnbounded() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6066,25 +6207,26 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testWindowFieldsRangeWithATimeUnitOnADateSort() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+  func testWindowFieldsAppliesTheTimeUnitToARangeFrameOffset() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .range(preceding: .unbounded, following: .current, unit: TimeGranularity.day)
+        window: .range(preceding: 12, following: .current, unit: TimeGranularity.hour)
           .sort(Field("date").ascending()),
-        fields: [Field("quantity").count().as("cumulativeCount")]
+        fields: [Field("quantity").count().as("windowCount")]
       )
       .sort([Field("date").ascending()])
-      .select(["product", "cumulativeCount"])
+      .select(["product", "windowCount"])
       .execute()
 
+    // None of the fixture dates sit exactly on the 12-hour boundary.
     let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "cumulativeCount": 1],
-      ["product": "phone", "cumulativeCount": 2],
-      ["product": "tablet", "cumulativeCount": 3],
-      ["product": "tablet", "cumulativeCount": 4],
-      ["product": "tablet", "cumulativeCount": 5],
+      ["product": "phone", "windowCount": 1],
+      ["product": "phone", "windowCount": 1],
+      ["product": "tablet", "windowCount": 2],
+      ["product": "tablet", "windowCount": 1],
+      ["product": "tablet", "windowCount": 1],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -6092,7 +6234,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // --- accumulator level framing -------------------------------------------------------------
 
   func testWindowFieldsEvaluatesEachAccumulatorOverItsOwnFrame() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6121,7 +6263,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsSupportsARangeFrameInOver() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6146,37 +6288,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testWindowFieldsEvaluatesEachAggregateOverADifferentFrame() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    let snapshot = try await collRef.firestore.pipeline()
-      .collection(collRef.path)
-      .addWindowFields(
-        window: .sort(Field("date").ascending()),
-        fields: [
-          Field("salesPrice").sum()
-            .over(.documents(preceding: .unbounded, following: .current))
-            .as("runningTotal"),
-          Field("salesPrice").average()
-            .over(.documents(preceding: 1, following: 1))
-            .as("movingAverage"),
-        ]
-      )
-      .sort([Field("date").ascending()])
-      .select(["product", "runningTotal", "movingAverage"])
-      .execute()
-
-    let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "runningTotal": 12, "movingAverage": 21.0],
-      ["product": "phone", "runningTotal": 42, "movingAverage": 24.0],
-      ["product": "tablet", "runningTotal": 72, "movingAverage": 40.0],
-      ["product": "tablet", "runningTotal": 132, "movingAverage": 50.0],
-      ["product": "tablet", "runningTotal": 192, "movingAverage": 60.0],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
-
   func testWindowFieldsMixesPlainAggregateAndFramedWindowFunction() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6205,7 +6318,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // --- output fields and composition ---------------------------------------------------------
 
   func testWindowFieldsSupportsMultipleOutputFieldsInASingleStage() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6230,7 +6343,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsSupportsNestedOutputFieldPaths() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6252,7 +6365,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsSupportsChainingMultipleStages() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6278,7 +6391,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsSupportsFilteringOnAWindowFieldInALaterStage() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6299,7 +6412,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsSupportsSortingOnAWindowFieldInALaterStage() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6323,7 +6436,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   // --- aggregates and frames -----------------------------------------------------------------
 
   func testWindowFieldsComputesSumAverageMinimumAndMaximum() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6353,7 +6466,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testWindowFieldsComputesCountIfAndCountDistinct() async throws {
     throw XCTSkip("Pending backend support for count_if and count_distinct in add_window_fields")
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6378,7 +6491,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsAggregatesOverAComputedExpression() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6402,7 +6515,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesFirstAndLastOverThePartition() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6429,7 +6542,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesArrayAgg() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6448,7 +6561,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesArrayAggDistinct() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6467,7 +6580,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesARunningTotal() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6490,7 +6603,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesACenteredMovingAverage() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6516,7 +6629,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesATrailingSum() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6539,7 +6652,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesALookAheadAverageWithANegativePrecedingBound() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6572,7 +6685,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesALookBehindAverageWithANegativeFollowingBound() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6605,7 +6718,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesRangeWithNegativeFollowingBound() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6638,7 +6751,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesRangeWithNegativePrecedingBound() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6671,7 +6784,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesAValueBasedRangeWindow() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6694,7 +6807,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesAValueBasedRangeWindowWithDoubleOffsets() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6717,7 +6830,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testWindowFieldsComputesATrailingThreeDayTotal() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6739,31 +6852,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
-  func testWindowFieldsComputesACumulativeTotalWithAnUnboundedDateRange() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    let snapshot = try await collRef.firestore.pipeline()
-      .collection(collRef.path)
-      .addWindowFields(
-        window: .range(preceding: .unbounded, following: .current, unit: TimeGranularity.day)
-          .sort(Field("date").ascending()),
-        fields: [Field("salesPrice").sum().as("cumulativeTotal")]
-      )
-      .sort([Field("date").ascending()])
-      .select(["product", "cumulativeTotal"])
-      .execute()
-
-    let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "cumulativeTotal": 12],
-      ["product": "phone", "cumulativeTotal": 42],
-      ["product": "tablet", "cumulativeTotal": 72],
-      ["product": "tablet", "cumulativeTotal": 132],
-      ["product": "tablet", "cumulativeTotal": 192],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
-
   func testWindowFieldsCountAllCountsEveryDocumentInTheWindow() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6786,7 +6876,7 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   func testWindowFieldsComputesRank() async throws {
     throw XCTSkip("Pending backend support for rank")
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
@@ -6809,24 +6899,8 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
 
   // --- error handling ------------------------------------------------------------------------
 
-  func testWindowFieldsRejectsARangeFrameWithoutASort() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    do {
-      _ = try await collRef.firestore.pipeline()
-        .collection(collRef.path)
-        .addWindowFields(
-          window: .range(preceding: .unbounded, following: .current),
-          fields: [Field("quantity").count().as("windowCount")]
-        )
-        .execute()
-      XCTFail("Expected error for range frame without a sort")
-    } catch {
-      XCTAssertTrue(error.localizedDescription.lowercased().contains("range"))
-    }
-  }
-
   func testWindowFieldsRejectsMixingStageAndAccumulatorFraming() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     do {
       _ = try await collRef.firestore.pipeline()
         .collection(collRef.path)
@@ -6846,29 +6920,37 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
     }
   }
 
-  func testWindowFieldsRejectsPartiallySpecifiedAccumulatorFraming() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    do {
-      _ = try await collRef.firestore.pipeline()
-        .collection(collRef.path)
-        .addWindowFields(
-          window: .sort(Field("date").ascending()),
-          fields: [
-            Field("quantity").count()
-              .over(.documents(preceding: .unbounded, following: .current))
-              .as("framed"),
-            Field("quantity").count().as("unframed"),
-          ]
-        )
-        .execute()
-      XCTFail("Expected error for partially specified accumulator framing")
-    } catch {
-      // Expected backend rejection
-    }
+  func testWindowFieldsEvaluatesAccumulatorsWithoutOverUsingTheDefaultFrameWhenOthersUseOver(
+  ) async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("date").ascending()),
+        fields: [
+          Field("quantity").count()
+            .over(.documents(preceding: 0, following: 0))
+            .as("framed"),
+          // Uses the default frame for a sorted window: unbounded preceding to current.
+          Field("quantity").count().as("unframed"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "framed", "unframed"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "framed": 1, "unframed": 1],
+      ["product": "phone", "framed": 1, "unframed": 2],
+      ["product": "tablet", "framed": 1, "unframed": 3],
+      ["product": "tablet", "framed": 1, "unframed": 4],
+      ["product": "tablet", "framed": 1, "unframed": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
   func testWindowFieldsRejectsAPartitionSuppliedToAnAccumulatorLevelOver() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
+    let collRef = collectionRef(withDocuments: windowTestDocs)
     do {
       _ = try await collRef.firestore.pipeline()
         .collection(collRef.path)
@@ -6887,25 +6969,6 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
       XCTFail("Expected error for partition supplied to accumulator-level over()")
     } catch {
       XCTAssertTrue(error.localizedDescription.lowercased().contains("unexpected field"))
-    }
-  }
-
-  func testWindowFieldsRejectsDuplicateAliases() async throws {
-    let collRef = collectionRef(withDocuments: Self.windowTestDocs)
-    do {
-      _ = try await collRef.firestore.pipeline()
-        .collection(collRef.path)
-        .addWindowFields(
-          window: .partition(["product"]),
-          fields: [
-            Field("quantity").count().as("dup"),
-            Field("salesPrice").sum().as("dup"),
-          ]
-        )
-        .execute()
-      XCTFail("Expected error for duplicate alias")
-    } catch {
-      XCTAssertTrue(error.localizedDescription.lowercased().contains("duplicate alias"))
     }
   }
 }
