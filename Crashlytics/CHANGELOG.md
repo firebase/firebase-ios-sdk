@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Moved Crashlytics settings check and fetch off the main thread during
+  startup when automatic data collection is enabled. (#16736)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
