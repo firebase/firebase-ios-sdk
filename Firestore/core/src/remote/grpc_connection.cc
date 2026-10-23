@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <mutex>
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -28,12 +29,11 @@
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
-#include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
-#include "Firestore/core/src/util/filesystem.h"
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/no_destructor.h"
-#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
@@ -52,10 +52,7 @@ namespace {
 using core::DatabaseInfo;
 using credentials::AuthToken;
 using model::DatabaseId;
-using util::Filesystem;
-using util::Path;
 using util::Status;
-using util::StatusOr;
 using util::StringFormat;
 
 const char* const kAppCheckHeader = "x-firebase-appcheck";
@@ -68,98 +65,30 @@ std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
 }
 
-std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
-    const std::string& certificate) {
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = certificate;
-  return grpc::SslCredentials(options);
-}
-
-class HostConfig {
+class InsecureHosts {
   using Guard = std::lock_guard<std::mutex>;
 
  public:
-  void set_certificate_path(const Path& new_value) {
-    Guard guard(mutex_);
-    certificate_path_ = new_value;
-  }
-  Path certificate_path() const {
-    Guard guard(mutex_);
-    return certificate_path_;
-  }
-  void set_target_name(const std::string& new_value) {
-    Guard guard(mutex_);
-    target_name_ = new_value;
-  }
-  std::string target_name() const {
-    Guard guard(mutex_);
-    return target_name_;
-  }
-  void set_use_insecure_channel(bool new_value) {
-    Guard guard(mutex_);
-    use_insecure_channel_ = new_value;
-  }
-  bool use_insecure_channel() const {
-    Guard guard(mutex_);
-    return use_insecure_channel_;
-  }
-
- private:
-  mutable std::mutex mutex_;
-  Path certificate_path_;
-  std::string target_name_;
-  bool use_insecure_channel_ = false;
-};
-
-class HostConfigMap {
-  using ConfigByHost = std::unordered_map<std::string, HostConfig>;
-  using Guard = std::lock_guard<std::mutex>;
-
- public:
-  /**
-   * Returns a pointer to the HostConfig entry for the given host or `nullptr`
-   * if there's no entry.
-   */
-  const HostConfig* find(const std::string& host) const {
+  bool Contains(const std::string& host) const {
     Guard guard{mutex_};
-    auto iter = map_.find(host);
-    if (iter == map_.end()) {
-      return nullptr;
-    } else {
-      return &(iter->second);
-    }
+    return hosts_.find(host) != hosts_.end();
   }
 
-  void UseTestCertificate(const std::string& host,
-                          const Path& certificate_path,
-                          const std::string& target_name) {
-    HARD_ASSERT(!host.empty(), "Empty host name");
-    HARD_ASSERT(!certificate_path.native_value().empty(),
-                "Empty path to test certificate");
-    HARD_ASSERT(!target_name.empty(), "Empty SSL target name");
-
-    Guard guard(mutex_);
-    HostConfig& host_config = map_[host];
-    host_config.set_certificate_path(certificate_path);
-    host_config.set_target_name(target_name);
-  }
-
-  void UseInsecureChannel(const std::string& host) {
+  void Insert(const std::string& host) {
     HARD_ASSERT(!host.empty(), "Empty host name");
 
-    Guard guard(mutex_);
-    HostConfig& host_config = map_[host];
-    host_config.set_use_insecure_channel(true);
+    Guard guard{mutex_};
+    hosts_.insert(host);
   }
 
  private:
-  ConfigByHost map_;
+  std::unordered_set<std::string> hosts_;
   mutable std::mutex mutex_;
 };
 
-HostConfigMap& Config() {
-  static util::NoDestructor<HostConfigMap> config_by_host;
-  return *config_by_host;
+InsecureHosts& InsecureHostsConfig() {
+  static util::NoDestructor<InsecureHosts> insecure_hosts;
+  return *insecure_hosts;
 }
 
 std::string GetCppLanguageToken() {
@@ -317,31 +246,13 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   // prod, or google.rpc.debuginfo-bin stack traces in staging/nightly).
   args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 1024 * 1024);
 
-  const HostConfig* host_config = Config().find(host);
-  if (!host_config) {
-    std::string root_certificate = LoadGrpcRootCertificate();
-    return grpc::CreateCustomChannel(
-        host, CreateSslCredentials(root_certificate), args);
-  }
-
   // For the case when `Settings.set_ssl_enabled(false)`.
-  if (host_config->use_insecure_channel()) {
+  if (InsecureHostsConfig().Contains(host)) {
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);
   }
 
-  // For tests only
-  auto* fs = Filesystem::Default();
-  args.SetSslTargetNameOverride(host_config->target_name());
-  Path path = host_config->certificate_path();
-  StatusOr<std::string> test_certificate = fs->ReadFile(path);
-  HARD_ASSERT(test_certificate.ok(),
-              StringFormat("Unable to open root certificates at file path %s",
-                           path.ToUtf8String())
-                  .c_str());
-
-  return grpc::CreateCustomChannel(
-      host, CreateSslCredentials(test_certificate.ValueOrDie()), args);
+  return grpc::CreateCustomChannel(host, CreateDefaultTlsCredentials(), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
@@ -419,13 +330,7 @@ void GrpcConnection::SetClientLanguage(std::string language_token) {
 }
 
 void GrpcConnection::UseInsecureChannel(const std::string& host) {
-  Config().UseInsecureChannel(host);
-}
-
-void GrpcConnection::UseTestCertificate(const std::string& host,
-                                        const Path& certificate_path,
-                                        const std::string& target_name) {
-  Config().UseTestCertificate(host, certificate_path, target_name);
+  InsecureHostsConfig().Insert(host);
 }
 
 }  // namespace remote
