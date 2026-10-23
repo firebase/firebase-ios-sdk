@@ -823,10 +823,10 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
       .addWindowFields(
         window: .partition(["product"]).sort(Field("date").ascending()),
         fields: [
-          Field("quantity").count().as("partitionCount"),
+          Field("quantity").count().as("runningCount"),
           Field("quantity").count()
-            .over(.documents(preceding: .unbounded, following: .current))
-            .as("runningCount"),
+            .over(.documents(preceding: .unbounded, following: .unbounded))
+            .as("partitionCount"),
         ]
       )
       .sort([Field("date").ascending()])
@@ -992,28 +992,48 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[2].get("maximumPrice") as? Int, 60)
   }
 
-  func testWindowFieldsComputesCountIfAndCountDistinct() async throws {
+  func testWindowFieldsComputesCountIf() async throws {
     throw XCTSkip("Pending backend support for count_if and count_distinct in add_window_fields")
     let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
         window: .partition(["product"]),
-        fields: [
-          Field("salesPrice").greaterThan(20).countIf().as("expensiveCount"),
-          Field("salesPrice").countDistinct().as("distinctPriceCount"),
-        ]
+        fields: [Field("salesPrice").greaterThan(20).countIf().as("expensiveCount")]
       )
       .sort([Field("date").ascending()])
-      .select(["product", "expensiveCount", "distinctPriceCount"])
+      .select(["product", "expensiveCount"])
       .execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "expensiveCount": 1, "distinctPriceCount": 2],
-      ["product": "phone", "expensiveCount": 1, "distinctPriceCount": 2],
-      ["product": "tablet", "expensiveCount": 3, "distinctPriceCount": 2],
-      ["product": "tablet", "expensiveCount": 3, "distinctPriceCount": 2],
-      ["product": "tablet", "expensiveCount": 3, "distinctPriceCount": 2],
+      ["product": "phone", "expensiveCount": 1],
+      ["product": "phone", "expensiveCount": 1],
+      ["product": "tablet", "expensiveCount": 3],
+      ["product": "tablet", "expensiveCount": 3],
+      ["product": "tablet", "expensiveCount": 3],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsComputesCountDistinct() async throws {
+    throw XCTSkip("Pending backend support for count_if and count_distinct in add_window_fields")
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .partition(["product"]),
+        fields: [Field("salesPrice").countDistinct().as("distinctPriceCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["product", "distinctPriceCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["product": "phone", "distinctPriceCount": 2],
+      ["product": "phone", "distinctPriceCount": 2],
+      ["product": "tablet", "distinctPriceCount": 2],
+      ["product": "tablet", "distinctPriceCount": 2],
+      ["product": "tablet", "distinctPriceCount": 2],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
