@@ -27,7 +27,8 @@ import Foundation
   class TOTPMultiFactorInfo: MultiFactorInfo, @unchecked Sendable {
     /// Initialize the AuthProtoMFAEnrollment instance with proto.
     /// - Parameter proto: AuthProtoMFAEnrollment proto object.
-    init(proto: AuthProtoMFAEnrollment) {
+    /// - Returns: `nil` if the enrollment has no enrollment ID.
+    init?(proto: AuthProtoMFAEnrollment) {
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)
     }
 

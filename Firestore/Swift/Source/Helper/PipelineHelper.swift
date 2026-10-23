@@ -37,6 +37,32 @@ enum Helper {
     return nil
   }
 
+  static func validateLiteralsValue(_ value: Sendable?, fieldPath: String) -> [String] {
+    guard let value else {
+      return []
+    }
+    if let fieldValue = value as? FieldValue {
+      let methodName = (fieldValue.value(forKey: "methodName") as? String) ?? "FieldValue"
+      return [
+        "Function literals() called with invalid data. \(methodName) can only be used with update() and set() (found in field \(fieldPath))",
+      ]
+    } else if let dict = value as? [String: Sendable?] {
+      var errors: [String] = []
+      for (key, nestedVal) in dict {
+        let nestedPath = fieldPath.isEmpty ? key : "\(fieldPath).\(key)"
+        errors.append(contentsOf: validateLiteralsValue(nestedVal, fieldPath: nestedPath))
+      }
+      return errors
+    } else if let arr = value as? [Sendable?] {
+      var errors: [String] = []
+      for nestedVal in arr {
+        errors.append(contentsOf: validateLiteralsValue(nestedVal, fieldPath: fieldPath))
+      }
+      return errors
+    }
+    return []
+  }
+
   static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value else {
       return Constant.nil
