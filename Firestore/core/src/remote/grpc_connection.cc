@@ -29,7 +29,7 @@
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
-#include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/no_destructor.h"
@@ -63,13 +63,6 @@ const char* const kXGoogRequestParams = "x-goog-request-params";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
-}
-
-std::shared_ptr<grpc::ChannelCredentials> CreateSslCredentials(
-    const std::string& certificate) {
-  grpc::SslCredentialsOptions options;
-  options.pem_root_certs = certificate;
-  return grpc::SslCredentials(options);
 }
 
 class InsecureHosts {
@@ -259,9 +252,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
                                      args);
   }
 
-  std::string root_certificate = LoadGrpcRootCertificate();
-  return grpc::CreateCustomChannel(host, CreateSslCredentials(root_certificate),
-                                   args);
+  return grpc::CreateCustomChannel(host, CreateDefaultTlsCredentials(), args);
 }
 
 std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
