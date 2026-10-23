@@ -14,6 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "FirebasePerformance/Sources/Configurations/FPRConfigurations.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRClassInstrumentor.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument.h"
 #import "FirebasePerformance/Sources/Instrumentation/FPRInstrument_Private.h"
@@ -61,6 +62,45 @@
   XCTAssertTrue(succeedsTheFirstTime);
   XCTAssertFalse(succeedsTheSecondTime);
   [instrument deregisterInstrumentors];
+}
+
+- (void)testIsObjectInstrumentableWithValidObject {
+  FPRInstrument *instrument = [[FPRInstrument alloc] init];
+  NSObject *object = [[NSObject alloc] init];
+  XCTAssertTrue([instrument isObjectInstrumentable:object]);
+}
+
+- (void)testIsObjectInstrumentableWithNSOperation {
+  FPRInstrument *instrument = [[FPRInstrument alloc] init];
+  NSOperation *operation = [[NSOperation alloc] init];
+  XCTAssertFalse([instrument isObjectInstrumentable:operation]);
+}
+
+- (void)testIsObjectInstrumentableWithNil {
+  FPRInstrument *instrument = [[FPRInstrument alloc] init];
+  XCTAssertFalse([instrument isObjectInstrumentable:nil]);
+}
+
+- (void)testIsObjectInstrumentableWithDenylistedClass {
+  FPRInstrument *instrument = [[FPRInstrument alloc] init];
+  NSObject *object = [[NSObject alloc] init];
+  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  [[[mockConfig stub] andReturn:@[ NSStringFromClass([NSObject class]) ]] swizzleClassDenylist];
+  XCTAssertFalse([instrument isObjectInstrumentable:object]);
+  [mockConfig stopMocking];
+}
+
+- (void)testRegisterClassInstrumentorWithDenylistedClass {
+  FPRInstrument *instrument = [[FPRInstrument alloc] init];
+  FPRClassInstrumentor *instrumentor =
+      [[FPRClassInstrumentor alloc] initWithClass:[NSObject class]];
+  id mockConfig = [OCMockObject partialMockForObject:[FPRConfigurations sharedInstance]];
+  [[[mockConfig stub] andReturn:@[ NSStringFromClass([NSObject class]) ]] swizzleClassDenylist];
+  BOOL success = [instrument registerClassInstrumentor:instrumentor];
+  XCTAssertFalse(success);
+  XCTAssertEqual(instrument.classInstrumentors.count, 0);
+  XCTAssertEqual(instrument.instrumentedClasses.count, 0);
+  [mockConfig stopMocking];
 }
 
 #pragma mark - Unswizzle based tests
