@@ -14,20 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Prints the newest simulator runtime that supports a given device type.
+"""Prints the simulator device type and newest runtime that supports it.
 
-USAGE: select_simulator_runtime.py --platform <names> --device-type <id>
+USAGE: select_simulator_runtime.py --platform <names> --device-type <ids>
 
 Some simulator runtimes are device-specific (for example, a point release that
 only ships with new hardware), so the newest runtime installed for a platform
-cannot be assumed to support every device type. This script queries `simctl`
-for the available runtimes and prints the identifier of the newest one whose
-supported device types include the requested device type.
+cannot be assumed to support every device type. Conversely, some platforms
+change device types across OS generations (for example, visionOS 2 uses
+`Apple-Vision-Pro` while visionOS 26+ uses `Apple-Vision-Pro-4K`).
+
+This script queries `simctl` for the available runtimes, finds the newest one
+whose supported device types include any of the requested device types, and
+prints `<device_type> <runtime_identifier>`.
 
 Example:
 
+  prefix=com.apple.CoreSimulator.SimDeviceType
   select_simulator_runtime.py --platform 'visionOS|xrOS' \\
-      --device-type com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro-4K
+      --device-type "${prefix}.Apple-Vision-Pro-4K|${prefix}.Apple-Vision-Pro"
 """
 
 import argparse
@@ -37,9 +42,9 @@ import subprocess
 import sys
 
 
-def main():
-  """Prints the selected runtime identifier and returns the exit status."""
-  args = _parse_args()
+def main(argv=None):
+  """Prints `<device_type> <runtime_id>` and returns the exit status."""
+  args = _parse_args(argv)
   platforms = {platform.lower() for platform in args.platforms}
 
   try:
@@ -55,20 +60,27 @@ def main():
       runtime for runtime in available_runtimes
       if _platform_name(runtime) in platforms
   ]
-  candidates = [
-      runtime for runtime in runtimes
-      if _supports_device_type(runtime, args.device_type)
-  ]
+  candidates = []
+  for runtime_index, runtime in enumerate(runtimes):
+    device_index = _first_supported_device_index(runtime, args.device_types)
+    if device_index is not None:
+      candidates.append((runtime_index, device_index, runtime))
+
   if not candidates:
-    _report_no_match(args.platforms, args.device_type, runtimes)
+    _report_no_match(args.platforms, args.device_types, runtimes)
     return 1
 
-  newest = max(candidates, key=_version_key)
-  print(newest['identifier'])
+  # Prefer the highest OS version, then earlier device-type preference, then
+  # later entries in simctl's ascending build-ordered runtime list.
+  _, device_index, newest = max(
+      candidates,
+      key=lambda item: (_version_key(item[2]), -item[1], item[0]),
+  )
+  print(f'{args.device_types[device_index]} {newest["identifier"]}')
   return 0
 
 
-def _parse_args():
+def _parse_args(argv=None):
   """Parses the command-line arguments."""
   parser = argparse.ArgumentParser(
       description=__doc__.splitlines()[0],
@@ -79,34 +91,31 @@ def _parse_args():
       dest='platforms',
       metavar='NAMES',
       required=True,
-      type=_platform_names,
+      type=_pipe_separated('platform name'),
       help=('Platform name, or `|`-separated alternatives (e.g. "iOS" or '
             '"visionOS|xrOS"). Matched case-insensitively.'))
   parser.add_argument(
       '--device-type',
-      metavar='ID',
+      dest='device_types',
+      metavar='IDS',
       required=True,
-      help=('Simulator device type identifier (e.g. '
+      type=_pipe_separated('device type'),
+      help=('Simulator device type identifier, or `|`-separated fallbacks '
+            'in preference order (e.g. '
             '"com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro").'))
-  return parser.parse_args()
+  return parser.parse_args(argv)
 
 
-def _platform_names(value):
-  """Parses a `|`-separated list of platform names.
+def _pipe_separated(item_label):
+  """Returns an `argparse` type parser for `|`-separated values."""
 
-  Args:
-    value: The raw `--platform` argument, such as "visionOS|xrOS".
+  def _parse(value):
+    values = [item.strip() for item in value.split('|') if item.strip()]
+    if not values:
+      raise argparse.ArgumentTypeError(f'expected at least one {item_label}')
+    return values
 
-  Returns:
-    A list of platform names with surrounding whitespace removed.
-
-  Raises:
-    argparse.ArgumentTypeError: If `value` contains no platform names.
-  """
-  names = [name.strip() for name in value.split('|') if name.strip()]
-  if not names:
-    raise argparse.ArgumentTypeError('expected at least one platform name')
-  return names
+  return _parse
 
 
 def _list_available_runtimes():
@@ -130,34 +139,49 @@ def _platform_name(runtime):
   return runtime.get('platform', '').lower()
 
 
-def _supports_device_type(runtime, device_type):
-  """Returns whether `runtime` supports the device type `device_type`."""
-  return any(
-      supported.get('identifier') == device_type
-      for supported in runtime.get('supportedDeviceTypes', []))
+def _first_supported_device_index(runtime, device_types):
+  """Returns the first index in `device_types` supported by `runtime`."""
+  supported = {
+      entry.get('identifier')
+      for entry in runtime.get('supportedDeviceTypes', [])
+  }
+  for index, device_type in enumerate(device_types):
+    if device_type in supported:
+      return index
+  return None
 
 
 def _version_key(runtime):
   """Returns a sortable key for the version of `runtime`.
 
-  Only the numeric components are used, so "18.3.1" sorts after "18.3" and a
-  malformed version such as "27.0 beta" does not raise.
+  Leading dotted numeric components are compared numerically with trailing zeros
+  normalized (so "18.3.1" > "18.3" and "27.0" == "27.0.0"). A release version
+  sorts after a pre-release suffix with the same numeric prefix (so "27.0" >
+  "27.0 beta 2", without treating "2" as a patch component).
   """
   version = runtime.get('version', '')
-  return tuple(int(part) for part in re.findall(r'\d+', version))
+  match = re.match(r'\s*(\d+(?:\.\d+)*)(.*)', version)
+  if not match:
+    return ((), False)
+  parts = [int(part) for part in match.group(1).split('.')]
+  while len(parts) > 1 and parts[-1] == 0:
+    parts.pop()
+  is_release = not match.group(2).strip()
+  return (tuple(parts), is_release)
 
 
-def _report_no_match(platforms, device_type, runtimes):
+def _report_no_match(platforms, device_types, runtimes):
   """Prints an error describing why no runtime was selected.
 
   Args:
     platforms: The platform names that were searched.
-    device_type: The requested simulator device type identifier.
+    device_types: The requested simulator device type identifiers.
     runtimes: The available runtimes for `platforms`.
   """
   platform_list = '|'.join(platforms)
+  device_list = '|'.join(device_types)
   print(
-      f'Error: No available {platform_list} runtime supports {device_type}.',
+      f'Error: No available {platform_list} runtime supports {device_list}.',
       file=sys.stderr)
   print(f'Available {platform_list} runtimes:', file=sys.stderr)
   if not runtimes:

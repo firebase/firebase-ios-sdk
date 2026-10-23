@@ -2,7 +2,7 @@ name: Setup Simulator
 description: Creates a simulator for the specified platform using the newest available runtime that supports its device type.
 inputs:
   platform:
-    description: 'Platform (iOS, tvOS, watchOS, visionOS, all)'
+    description: 'Platform (iOS, iPad, tvOS, watchOS, visionOS, all)'
     required: true
 runs:
   using: 'composite'
