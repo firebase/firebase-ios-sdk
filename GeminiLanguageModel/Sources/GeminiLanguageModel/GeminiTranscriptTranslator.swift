@@ -318,9 +318,10 @@
     /// Extracts the Gemini parts for the segments of a prompt entry.
     ///
     /// Segment order is preserved: each contiguous, non-empty run of text segments becomes one
-    /// text part and each image attachment becomes one inline data part. A prompt that would
-    /// otherwise produce no parts (for example, a prompt containing only empty text) produces a
-    /// single empty text part.
+    /// text part and each image attachment becomes one inline data part. A labeled image is
+    /// preceded by a text part containing its label in square brackets (for example,
+    /// `[barcode-image]`). A prompt that would otherwise produce no parts (for example, a prompt
+    /// containing only empty text) produces a single empty text part.
     ///
     /// - Parameters:
     ///   - segments: The prompt segments to translate.
@@ -351,6 +352,12 @@
           case .image(let imageAttachment):
             flushPendingText()
             let imageData = try translateImage(imageAttachment, in: entry)
+            // Tools that take an `ImageReference`, such as Vision's `BarcodeReaderTool`, expect
+            // the model to refer to an image by the label shown with it, so the label is sent as
+            // text right before the image.
+            if let label = attachmentSegment.label, !label.isEmpty {
+              parts.append(Part { $0.data = .text("[\(label)]") })
+            }
             parts.append(Part { $0.data = imageData })
           // `Transcript.Attachment.data` was added in Xcode 27.2 (Swift 6.4.2+).
           #if compiler(>=6.4.2)
