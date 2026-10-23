@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Avoid signed integer overflow when serializing `INT64_MIN`. (#16773)
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
