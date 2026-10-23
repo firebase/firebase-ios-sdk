@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /// An `AggregateFunction` that has been given an alias.
-public struct AliasedAggregate {
+public struct AliasedAggregate: Sendable {
   let aggregate: AggregateFunction
 
   let alias: String

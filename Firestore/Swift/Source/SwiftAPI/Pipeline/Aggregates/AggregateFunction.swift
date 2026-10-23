@@ -39,9 +39,23 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
     self.args = args
     bridge = __AggregateFunctionBridge(
       name: functionName,
-      args: self.args.map { $0.toBridge()
-      }
+      args: self.args.map { $0.toBridge() },
+      window: nil
     )
+  }
+
+  /// Applies a window frame to this aggregate, evaluating it over the specified window frame
+  /// independent of the frame declared on the enclosing `addWindowFields` stage.
+  ///
+  /// - Note: Only `documents` or `range` window frames are supported on individual accumulators
+  ///   (using `WindowSpec.documents(...)` or `WindowSpec.range(...)`). Specifying other window
+  ///   parameters, such as `partition` or `sort`, is not supported here and must be specified
+  ///   on the enclosing `addWindowFields` stage.
+  ///
+  /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this aggregate over.
+  /// - Returns: A new `WindowFunction` with the given window framing.
+  public func over(_ window: WindowSpec) -> WindowFunction {
+    return WindowFunction(functionName: functionName, args: args, window: window)
   }
 
   /// Creates an `AliasedAggregate` from this aggregate function.
