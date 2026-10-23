@@ -19,7 +19,8 @@
 set -euo pipefail
 
 # Returns the simulator runtime ID for a given platform search string,
-# preferring the runtime that matches the active Xcode's SDK version.
+# preferring the latest installed runtime matching the active Xcode's SDK
+# major version (so it aligns with xcodebuild's implicit OS:latest resolution).
 # Arguments:
 #   $1 - Platform search string for simctl (e.g. "iOS", "watchOS")
 get_runtime() {
@@ -48,10 +49,10 @@ get_runtime() {
 
   local runtime=""
   if [[ -n "$sdk_version" && -n "$available_runtimes" ]]; then
-    local sdk_version_dashed="${sdk_version//./-}"
+    local sdk_major="${sdk_version%%.*}"
     runtime=$(
       echo "$available_runtimes" |
-        grep -E -- "-${sdk_version_dashed}($|-)" |
+        grep -E -- "-${sdk_major}-" |
         tail -1 || true
     )
   fi
