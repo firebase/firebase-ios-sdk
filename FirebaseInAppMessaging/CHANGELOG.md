@@ -1,4 +1,6 @@
 # 13.1.0
+- [fixed] Fixed an issue where cached In-App Messaging engagement logs from a previous app
+  session could be dropped instead of uploaded when the SDK started. (#16803)
 - [fixed] Released the display gate and removed unconstructable messages so a card
   without images no longer blocks subsequent in-app messages. (#16819)
 
