@@ -1,4 +1,4 @@
-// swift-tools-version:6.2.1
+// swift-tools-version:6.2
 // The swift-tools-version declares the minimum version of the Swift toolchain required to
 // build this package. Note: Firebase requires Xcode 26.2+, which includes the Swift 6.2.3 compiler.
 
@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.0.0"
+let firebaseVersion = "13.1.0"
 
 /// If you don't use Firestore in your app, you can disable the "Firestore" trait to reduce
 /// the number of dependencies fetched by SwiftPM during package resolution.
@@ -1637,8 +1637,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/rc2/FirebaseFirestoreInternal.zip",
-        checksum: "599c9d8e053361d0712144741d9270c8a9ebeaf033a20b88d4d27fef08949363"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.1.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "c4728f78a159a2e613b9a1b445aac2d5cae74d227ef8ba3f8072691135c7ce88"
       )
     }
   }()
@@ -1743,6 +1743,10 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
           "GeminiTestUtilities",
         ],
         path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        exclude: [
+          "IntegrationTests/README.md",
+          "README.md",
+        ],
         swiftSettings: swiftSettings
       ),
       .target(
@@ -1774,6 +1778,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       .target(
         name: "GeminiTestUtilities",
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        exclude: ["README.md"],
         swiftSettings: swiftSettings,
       ),
     ]
