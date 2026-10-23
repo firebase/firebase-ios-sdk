@@ -38,8 +38,14 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
    * Prepares a task and begins execution.
    */
   @objc open func enqueue() {
+    let generation = stateLock.withLock { () -> UInt64? in
+      guard state == .unknown, fetcher == nil else { return nil }
+      enqueueGeneration &+= 1
+      return enqueueGeneration
+    }
+    guard let generation else { return }
     Task {
-      await enqueueImplementation()
+      await enqueueImplementation(generation: generation)
     }
   }
 
@@ -97,12 +103,14 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
   @objc open func resume() {
     var downloadDataToResume: Data?
     var snapshotToFire: StorageTaskSnapshot?
+    var generation: UInt64 = 0
     let shouldReturn1 = stateLock.withLock { () -> Bool in
-      guard state == .unknown || state == .queueing || state == .pausing || state == .paused ||
-        state == .progress else {
+      guard state == .unknown || state == .queueing || state == .pausing || state == .paused else {
         return true
       }
       state = .resuming
+      enqueueGeneration &+= 1
+      generation = enqueueGeneration
       downloadDataToResume = downloadData
       snapshotToFire = snapshotUnderLock()
       return false
@@ -121,12 +129,17 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
 
     if shouldEnqueue {
       Task {
-        await self.enqueueImplementation(resumeWith: downloadDataToResume)
+        await self.enqueueImplementation(resumeWith: downloadDataToResume, generation: generation)
       }
     }
   }
 
   private var fetcher: GTMSessionFetcher?
+  private var enqueueGeneration: UInt64 = 0
+  var hasFetcherForTesting: Bool {
+    stateLock.withLock { fetcher != nil }
+  }
+
   var downloadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
   var completionData: ((Data?, Error?) -> Void)?
@@ -144,8 +157,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     self.fetcher?.stopFetching()
   }
 
-  private func enqueueImplementation(resumeWith resumeData: Data? = nil) async {
+  private func enqueueImplementation(resumeWith resumeData: Data? = nil,
+                                     generation: UInt64) async {
     let shouldProceed = stateLock.withLock { () -> Bool in
+      guard generation == enqueueGeneration else { return false }
       guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
         state == .progress else {
         return false
@@ -153,7 +168,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       state = .queueing
       return true
     }
-    if !shouldProceed { return }
+    if !shouldProceed {
+      notifySetupDiscardedForTesting()
+      return
+    }
 
     var request = baseRequest
     request.httpMethod = "GET"
@@ -168,6 +186,10 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       fetcher.comment = "Resuming DownloadTask"
     } else {
       let fetcherService = await StorageFetcherService.shared.service(reference.storage)
+      guard stateLock.withLock({ generation == enqueueGeneration }) else {
+        notifySetupDiscardedForTesting()
+        return
+      }
 
       fetcher = fetcherService.fetcher(with: request)
       fetcher.comment = "Starting DownloadTask"
@@ -183,6 +205,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           guard let self = self else { return }
           var snapshotToFire: StorageTaskSnapshot?
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
               self.state == .running || self.state == .progress else {
               return
@@ -197,6 +220,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
 
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
               self.state == .running || self.state == .progress else {
               return
@@ -211,6 +235,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           guard let self = self, let fetcher = fetcher else { return }
           var snapshotToFire: StorageTaskSnapshot?
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
               self.state == .running || self.state == .progress else {
               return
@@ -227,6 +252,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
           }
 
           self.stateLock.withLock {
+            guard generation == self.enqueueGeneration else { return }
             guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
               self.state == .running || self.state == .progress else {
               return
@@ -237,6 +263,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     }
     var isPausing = false
     let shouldContinue = stateLock.withLock { () -> Bool in
+      guard generation == enqueueGeneration else { return false }
       if state == .cancelled || state == .pausing || state == .paused {
         isPausing = state == .pausing
         return false
@@ -246,6 +273,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       return true
     }
     if !shouldContinue {
+      notifySetupDiscardedForTesting()
       if isPausing {
         fetcher.resumeDataBlock = { [weak self] (data: Data) in
           guard let self = self else { return }
@@ -274,6 +302,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       var successSnapshot: StorageTaskSnapshot?
 
       stateLock.withLock {
+        guard generation == enqueueGeneration else { return }
         if state == .cancelled { return }
 
         state = .progress
@@ -296,6 +325,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       var failureSnapshot: StorageTaskSnapshot?
 
       stateLock.withLock {
+        guard generation == enqueueGeneration else { return }
         if state == .cancelled || state == .paused || state == .pausing { return }
 
         state = .progress
