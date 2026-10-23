@@ -22,12 +22,6 @@ permissions:
 
 on:
   workflow_dispatch:
-    inputs:
-      enableNightly:
-        description: 'Run xcodetest_nightly tests'
-        required: false
-        type: boolean
-        default: false
   pull_request:
   schedule:
     # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
@@ -427,9 +421,14 @@ jobs:
 
   xcodetest_nightly:
     needs: [check, build_xcodetest]
-    # Skip nightly integration tests until the backend connectivity/authentication issues are resolved.
-    # Can be manually triggered via workflow_dispatch with enableNightly: true.
-    if: inputs.enableNightly == true
+    # TODO(b/577081204): Re-enable nightly tests once backend connectivity issues are resolved.
+    # To re-enable: uncomment the original `if:` block below, remove `if: false`,
+    # and re-add `xcodetest_nightly` to `check-required-tests.needs` below.
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    # if: |
+    #   (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: false
     runs-on: macos-26
     timeout-minutes: 60
 
@@ -813,6 +812,7 @@ jobs:
       - sanitizers-ubuntu
       - pod_lib_lint
       - xcodetest_prod
+      # TODO(b/577081204): Uncomment when xcodetest_nightly is re-enabled.
       # - xcodetest_nightly
     steps:
       - name: Check test matrix
