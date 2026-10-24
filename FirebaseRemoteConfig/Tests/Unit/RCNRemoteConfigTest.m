@@ -26,6 +26,7 @@
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigExperiment.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+#import "FirebaseRemoteConfig/Sources/RCNConfigValue_Internal.h"
 #import "FirebaseRemoteConfig/Sources/RCNUserDefaultsManager.h"
 
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
@@ -120,6 +121,19 @@
 
 @interface RCNConfigSettings (Test)
 - (NSString *)nextRequestWithUserProperties:(NSDictionary *)userProperties;
+@end
+
+/// Forwards rollouts state notifications to `handler`.
+@interface RCNTestRolloutsStateSubscriber : NSObject <FIRRolloutsStateSubscriber>
+@property(nonatomic, copy) void (^handler)(FIRRolloutsState *rolloutsState);
+@end
+
+@implementation RCNTestRolloutsStateSubscriber
+- (void)rolloutsStateDidChange:(FIRRolloutsState *)rolloutsState {
+  if (self.handler) {
+    self.handler(rolloutsState);
+  }
+}
 @end
 
 typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
@@ -1862,6 +1876,60 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [_configInstances[RCNTestRCInstanceDefault]
       fetchAndActivateWithCompletionHandler:fetchAndActivateCompletion];
   [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
+}
+
+- (void)testAddRemoteConfigInteropSubscriberDeliversInitialStateOffCallingThread {
+  FIRRemoteConfig *config = _configInstances[RCNTestRCInstanceDefault];
+  NSString *FQNamespace =
+      [NSString stringWithFormat:@"%@:%@", RCNTestsFIRNamespace, RCNTestsDefaultFIRAppName];
+  NSString *parameterKey = @"rollout_parameter";
+  FIRRemoteConfigValue *parameterValue = [[FIRRemoteConfigValue alloc]
+      initWithData:[@"rollout_value" dataUsingEncoding:NSUTF8StringEncoding]
+            source:FIRRemoteConfigSourceRemote];
+  NSDictionary *activeConfig = @{FQNamespace : @{parameterKey : parameterValue}};
+  NSArray<NSDictionary *> *rolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : @"rollout_1",
+    RCNFetchResponseKeyVariantID : @"variant_1",
+    RCNFetchResponseKeyAffectedParameterKeys : @[ parameterKey ]
+  } ];
+
+  // Reading the active config waits for the initial database load, so it must not happen on the
+  // thread that registers the subscriber (the main thread during `FirebaseApp.configure()`).
+  NSThread *callingThread = [NSThread currentThread];
+  __block BOOL activeConfigReadOnCallingThread = NO;
+  id configContentMock = OCMClassMock([RCNConfigContent class]);
+  OCMStub([configContentMock activeConfig])
+      .andDo(^(NSInvocation *invocation) {
+        if ([NSThread currentThread] == callingThread) {
+          activeConfigReadOnCallingThread = YES;
+        }
+      })
+      .andReturn(activeConfig);
+  OCMStub([configContentMock activeRolloutMetadata]).andReturn(rolloutMetadata);
+  [config setValue:configContentMock forKey:@"_configContent"];
+
+  XCTestExpectation *notificationExpectation =
+      [self expectationWithDescription:@"Initial rollouts state is delivered"];
+  __block BOOL deliveredOnCallingThread = NO;
+  __block FIRRolloutsState *deliveredState = nil;
+  RCNTestRolloutsStateSubscriber *subscriber = [[RCNTestRolloutsStateSubscriber alloc] init];
+  subscriber.handler = ^(FIRRolloutsState *rolloutsState) {
+    deliveredOnCallingThread = [NSThread currentThread] == callingThread;
+    deliveredState = rolloutsState;
+    [notificationExpectation fulfill];
+  };
+
+  [config addRemoteConfigInteropSubscriber:subscriber];
+  [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
+
+  XCTAssertFalse(activeConfigReadOnCallingThread);
+  XCTAssertFalse(deliveredOnCallingThread);
+  XCTAssertEqual(deliveredState.assignments.count, 1);
+  FIRRolloutAssignment *assignment = deliveredState.assignments.anyObject;
+  XCTAssertEqualObjects(assignment.rolloutId, @"rollout_1");
+  XCTAssertEqualObjects(assignment.variantId, @"variant_1");
+  XCTAssertEqualObjects(assignment.parameterKey, parameterKey);
+  XCTAssertEqualObjects(assignment.parameterValue, @"rollout_value");
 }
 
 - (void)testURLSessionDelegateHandlesChunkedJSON {

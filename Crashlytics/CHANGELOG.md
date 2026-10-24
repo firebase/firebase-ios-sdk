@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` by
+  subscribing to Remote Config rollouts and persisting rollout state on the
+  background rollouts queue (#16736).
+
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
   operations during DWARF stack unwinding (#16550).
