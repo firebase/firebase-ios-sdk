@@ -1,0 +1,106 @@
+{
+  "recordID": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespond/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespond/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Reply with the single word 'HELLO'."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "469f427c2e0dead0fc08c6125db61481f07135f0dbcd202bf639b8d604b3a74f",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "HELLO"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:16.738561Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "UO_OaoGKLbKqmecPqcPzqAU",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a1+3rlSqC8Dl+ivqv9khn5NA3UZQEiqMQo/6AZF+ooaX5OXIpPIqscHwJ8n3bi5f6wyX+wL+9KO14cnDZjcQqOVzkbwPsAsH9SzSqx9SbzR0RUx6H0S0PDY="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:16.738561Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "UO_OaoGKLbKqmecPqcPzqAU",
+            "usageMetadata": {
+              "candidatesTokenCount": 1,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 1
+                }
+              ],
+              "promptTokenCount": 8,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 8
+                }
+              ],
+              "totalTokenCount": 9,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

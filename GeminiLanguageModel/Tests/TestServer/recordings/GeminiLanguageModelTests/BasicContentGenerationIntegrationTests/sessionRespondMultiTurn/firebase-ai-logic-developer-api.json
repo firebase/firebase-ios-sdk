@@ -1,0 +1,346 @@
+{
+  "recordID": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "My favorite color is teal."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "4a929a2a332767219e350870e2c3070bf6ca5363feffb8e75459b525c9bf5357",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "That'"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ue_OarzzGYb3jrEPuOqi2Q4",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 7,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 7
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 9
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "s a great choice! Teal is a really nice, vibrant color—sort of a calming"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ue_OarzzGYb3jrEPuOqi2Q4",
+            "usageMetadata": {
+              "candidatesTokenCount": 20,
+              "promptTokenCount": 7,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 7
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 27
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " mix of blue and green. \n\nWhat is it about teal that makes it your favorite? Do you like to wear"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ue_OarzzGYb3jrEPuOqi2Q4",
+            "usageMetadata": {
+              "candidatesTokenCount": 44,
+              "promptTokenCount": 7,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 7
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 51
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " it, use it for decorating, or just enjoy looking at it?"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ue_OarzzGYb3jrEPuOqi2Q4",
+            "usageMetadata": {
+              "candidatesTokenCount": 58,
+              "promptTokenCount": 7,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 7
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 65
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TlwKp0FJqcdBo9mP47/RR1kFX3nK/nhTjQ1hBHDciNIIiLIszbs+sYNtNTDGOfG9aNPOvCSZWAQGAFu96s74PK4ovaP83fq+mB51i5eCMQ0guxlOVau4bHbE="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ue_OarzzGYb3jrEPuOqi2Q4",
+            "usageMetadata": {
+              "candidatesTokenCount": 58,
+              "promptTokenCount": 7,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 7
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 65
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "My favorite color is teal."
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "That's a great choice! Teal is a really nice, vibrant color—sort of a calming mix of blue and green. \n\nWhat is it about teal that makes it your favorite? Do you like to wear it, use it for decorating, or just enjoy looking at it?",
+                    "thoughtSignature": "EmAKXgFpFH0TlwKp0FJqcdBo9mP47/RR1kFX3nK/nhTjQ1hBHDciNIIiLIszbs+sYNtNTDGOfG9aNPOvCSZWAQGAFu96s74PK4ovaP83fq+mB51i5eCMQ0guxlOVau4bHbE="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "What is my favorite color? Answer in one word."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "4a929a2a332767219e350870e2c3070bf6ca5363feffb8e75459b525c9bf5357",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "df7f9d29f2e52ae33a8143198eb68656e6a82ff57580a659b62239886de99b58",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Teal"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OaoizC6_QjrEP96yjqAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 78,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 78
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 80
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OaoizC6_QjrEP96yjqAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 3,
+              "promptTokenCount": 78,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 78
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 81
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0T4ebv3ZhuaZgRM52j/4ZFnDWHVyeRGrS4AVHMfRSxOEq12cRFtqP7obsZpCQ+mg4+kzoG/xkU0s9LajPqja58w/X+tNSJyHtAlWtrAI4Me0Z5q/n9XwYe7q4="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OaoizC6_QjrEP96yjqAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 3,
+              "promptTokenCount": 78,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 78
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 81
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

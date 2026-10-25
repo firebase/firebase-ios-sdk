@@ -1,0 +1,58 @@
+{
+  "recordID": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/countTokensSimplePrompt/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:countTokens",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:countTokens HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/countTokensSimplePrompt/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "The quick brown fox jumps over the lazy dog."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "2206d6d0fb6630e68a94170bca468474490d3431d7f2fa5e33d389cfb543c192",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "promptTokensDetails": [
+              {
+                "modality": "TEXT",
+                "tokenCount": 10
+              }
+            ],
+            "totalBillableCharacters": 36,
+            "totalTokens": 10
+          }
+        ]
+      }
+    }
+  ]
+}

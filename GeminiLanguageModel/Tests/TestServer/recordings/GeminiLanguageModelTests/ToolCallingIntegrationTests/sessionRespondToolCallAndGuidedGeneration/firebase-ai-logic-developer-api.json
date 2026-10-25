@@ -1,0 +1,374 @@
+{
+  "recordID": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolCallAndGuidedGeneration/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolCallAndGuidedGeneration/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Paris right now?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "properties": {
+                  "conditions": {
+                    "description": "The current weather conditions",
+                    "enum": [
+                      "cloudy",
+                      "rainy",
+                      "sunny"
+                    ],
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "description": "The current temperature in Celsius",
+                    "type": "integer"
+                  }
+                },
+                "propertyOrdering": [
+                  "temperature",
+                  "conditions"
+                ],
+                "required": [
+                  "temperature",
+                  "conditions"
+                ],
+                "title": "CurrentWeather",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            },
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "d08d9a02650deff6da5f40c9d7a0574fc34550f220f2a4fe2d00da8254454650",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "Paris"
+                        },
+                        "id": "call_276528",
+                        "name": "getWeather"
+                      },
+                      "thoughtSignature": "EmAKXgFpFH0TROaLKj25yK+BQV+5FwXsShYP5Owt/r9xlkwGlOoakcgpeOLU6l4YpuykLlikSBPIuVBk7PlP3MutUa+mbrXcgiXFOn6fT/Uh4yd5noQUzjRFW03kii4nBEQ="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "BtPOau6hF8ebjrEPlJbrwA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 73,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 73
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 88
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "BtPOau6hF8ebjrEPlJbrwA0",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 73,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 73
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 88
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondToolCallAndGuidedGeneration/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Paris right now?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Paris"
+                      },
+                      "id": "call_276528",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "EmAKXgFpFH0TROaLKj25yK+BQV+5FwXsShYP5Owt/r9xlkwGlOoakcgpeOLU6l4YpuykLlikSBPIuVBk7PlP3MutUa+mbrXcgiXFOn6fT/Uh4yd5noQUzjRFW03kii4nBEQ="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_276528",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Paris is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "properties": {
+                  "conditions": {
+                    "description": "The current weather conditions",
+                    "enum": [
+                      "cloudy",
+                      "rainy",
+                      "sunny"
+                    ],
+                    "type": "string"
+                  },
+                  "temperature": {
+                    "description": "The current temperature in Celsius",
+                    "type": "integer"
+                  }
+                },
+                "propertyOrdering": [
+                  "temperature",
+                  "conditions"
+                ],
+                "required": [
+                  "temperature",
+                  "conditions"
+                ],
+                "title": "CurrentWeather",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            },
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "d08d9a02650deff6da5f40c9d7a0574fc34550f220f2a4fe2d00da8254454650",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "852f9d183965df81dcc4148a39b076a7fe4a7bf49cda6badf3dbde82127320cc",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "{\n  \"temperature\": 22,\n  \"conditions\": \"sunny\"\n}"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "B9POavSqAa38jrEPx_DEgAo",
+            "usageMetadata": {
+              "candidatesTokenCount": 20,
+              "promptTokenCount": 114,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 114
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 134
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TFfPUkGqBrSMu5c2cHNxE6rQI07UXw+sGP+HJoD9jISZsaY+H3/c4kmmdcQnwDdS1csSW1avXkDwAZ9pGd3YkG4AZWdcVelvul1d9il/kg832HtTSVDgjlME="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "B9POavSqAa38jrEPx_DEgAo",
+            "usageMetadata": {
+              "candidatesTokenCount": 20,
+              "promptTokenCount": 114,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 114
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 134
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

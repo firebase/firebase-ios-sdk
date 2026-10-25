@@ -1,0 +1,284 @@
+{
+  "recordID": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "My favorite color is teal."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "569625a3f69739dc2a742e85085d1db99f81f820a222022b14eb4367e2d4c77d",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "That'"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:18.606736Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OapCEJeTumecPu5-skQE",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "s a great color! Teal is such a nice mix of calming blue and refreshing"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:18.606736Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OapCEJeTumecPu5-skQE",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " green. \n\nWhat is it about teal that you like so much?"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:18.606736Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OapCEJeTumecPu5-skQE",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a19ixJhl8WWJFpL/Vjum2xI3vMbV0TRyjT2FwVpg9oHSiFdg5QPtUd0KbWI2Hlrnb/3lrmSv3wvMJG/V0LVIp5go5dyk383y85ZvBij2SKPIBfxwNm8XEJY="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:18.606736Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Uu_OapCEJeTumecPu5-skQE",
+            "usageMetadata": {
+              "candidatesTokenCount": 33,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 33
+                }
+              ],
+              "promptTokenCount": 6,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 6
+                }
+              ],
+              "totalTokenCount": 39,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/BasicContentGenerationIntegrationTests/sessionRespondMultiTurn/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "My favorite color is teal."
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "That's a great color! Teal is such a nice mix of calming blue and refreshing green. \n\nWhat is it about teal that you like so much?",
+                    "thoughtSignature": "AY89a19ixJhl8WWJFpL/Vjum2xI3vMbV0TRyjT2FwVpg9oHSiFdg5QPtUd0KbWI2Hlrnb/3lrmSv3wvMJG/V0LVIp5go5dyk383y85ZvBij2SKPIBfxwNm8XEJY="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "text": "What is my favorite color? Answer in one word."
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "569625a3f69739dc2a742e85085d1db99f81f820a222022b14eb4367e2d4c77d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "1c170df0263e48380c0914c914a0368f0226f75d031555658857a669a4c809d9",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Teal"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:19.414249Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "U-_OaqmkGdCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "."
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:19.414249Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "U-_OaqmkGdCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a1/tog597q9XirBCXTxAncbyA5nPx1Qp/+RL2RtilfhAeSTal+DyT4BkZhzXCsdVlL6RWFZQV9RMY2kIamd/dU9USoQwMQ83ZTcWpTUBSvDAD0s3/VtfmPw="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:19.414249Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "U-_OaqmkGdCpmecP_9SECA",
+            "usageMetadata": {
+              "candidatesTokenCount": 3,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 3
+                }
+              ],
+              "promptTokenCount": 50,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 50
+                }
+              ],
+              "totalTokenCount": 53,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
