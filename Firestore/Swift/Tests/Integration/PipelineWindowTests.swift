@@ -168,6 +168,28 @@ class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
     XCTAssertEqual(snapshot.results[4].get("nearbyTotal") as? Int, 120)
   }
 
+  func testWindowFieldsComputesRank() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("salesPrice").ascending()),
+        fields: [Rank().as("priceRank")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "priceRank"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "priceRank": 1],
+      ["salesPrice": 30, "priceRank": 2],
+      ["salesPrice": 30, "priceRank": 2],
+      ["salesPrice": 60, "priceRank": 4],
+      ["salesPrice": 60, "priceRank": 4],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testWindowFieldsRejectsARangeFrameWithoutASort() async throws {
     let collRef = collectionRef(withDocuments: windowTestDocs)
     do {
@@ -1418,29 +1440,6 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
       ["product": "tablet", "windowCount": 3],
       ["product": "tablet", "windowCount": 3],
       ["product": "tablet", "windowCount": 3],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
-
-  func testWindowFieldsComputesRank() async throws {
-    throw XCTSkip("Pending backend support for rank")
-    let collRef = collectionRef(withDocuments: windowTestDocs)
-    let snapshot = try await collRef.firestore.pipeline()
-      .collection(collRef.path)
-      .addWindowFields(
-        window: .sort(Field("salesPrice").ascending()),
-        fields: [Rank().as("priceRank")]
-      )
-      .sort([Field("date").ascending()])
-      .select(["salesPrice", "priceRank"])
-      .execute()
-
-    let expectedResults: [[String: Sendable]] = [
-      ["salesPrice": 12, "priceRank": 1],
-      ["salesPrice": 30, "priceRank": 2],
-      ["salesPrice": 30, "priceRank": 2],
-      ["salesPrice": 60, "priceRank": 4],
-      ["salesPrice": 60, "priceRank": 4],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }

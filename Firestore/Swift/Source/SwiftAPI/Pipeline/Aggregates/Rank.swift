@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Computes the rank of the current document within its window partition.
-///
-/// Documents that compare equal in the window sort order receive the same rank, and the next rank
-/// is offset by the number of tied documents.
+/// Returns the rank of each document within its partition according to the window's sort order.
+/// Documents with equal sort values receive the same rank, and the following rank is skipped. The
+/// window must specify exactly one sort ordering.
 ///
 /// Example usage:
 /// ```swift
