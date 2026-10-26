@@ -558,17 +558,17 @@ NSString *const TestChangedGoogleAppID = @"2:changed:google:app:id";
   NSTimeInterval currentTimestamp = [NSDate timeIntervalSinceReferenceDate];
   [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
 
-  // Values too large for uint32_t are clamped rather than truncated.
+  // Values too large for uint32_t fall back to defaults rather than being truncated or clamped.
+  // Non-finite values also fall back to defaults.
   XCTAssertEqual(self.settings.isCacheExpired, NO);
-  XCTAssertEqual(self.settings.cacheDurationSeconds, UINT32_MAX);
-  XCTAssertEqual(self.settings.logBufferSize, UINT32_MAX);
-  XCTAssertEqual(self.settings.maxCustomExceptions, UINT32_MAX);
-  XCTAssertEqual(self.settings.maxCustomKeys, UINT32_MAX);
-  XCTAssertEqual(self.settings.onDemandBackoffStepDuration, UINT32_MAX);
+  XCTAssertEqual(self.settings.cacheDurationSeconds, 3600);
+  [self assertDefaultLimitsAndSwitches];
 
-  // Non-finite values fall back to defaults.
-  XCTAssertEqual(self.settings.onDemandUploadRate, 10);
-  XCTAssertEqual(self.settings.onDemandBackoffBase, 1.5);
+  // The largest value that fits in a uint32_t is still respected.
+  [self writeSettings:@"{\"session\":{\"log_buffer_size\":4294967295}}" error:&error];
+  XCTAssertNil(error, "%@", error);
+  [self.settings cacheSettingsWithGoogleAppID:TestGoogleAppID currentTimestamp:currentTimestamp];
+  XCTAssertEqual(self.settings.logBufferSize, UINT32_MAX);
 }
 
 - (void)testSettingsZeroAndFractionalValues {

@@ -82,9 +82,11 @@ static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defa
     return defaultValue;
   }
 
-  // Clamp rather than truncate values that don't fit.
-  if ([value doubleValue] >= UINT32_MAX) {
-    return UINT32_MAX;
+  // Fall back to the default for values that don't fit, rather than truncating them or clamping
+  // them to UINT32_MAX, which would effectively remove the limit (e.g. a cache that never expires).
+  if ([value doubleValue] > UINT32_MAX) {
+    FIRCLSDebugLog(@"[Crashlytics:Settings] Ignoring out-of-range value for %@: %@", key, value);
+    return defaultValue;
   }
 
   return [value unsignedIntValue];
