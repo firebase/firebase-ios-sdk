@@ -25,9 +25,20 @@
 @interface FIRRemoteConfigComponentTest : XCTestCase
 @end
 
-@implementation FIRRemoteConfigComponentTest
+@implementation FIRRemoteConfigComponentTest {
+  /// Strong references to test apps. `FIRRemoteConfigComponent` holds its app weakly, and apps
+  /// created outside of `+[FIRApp configure...]` are not retained by `FIRApp`, so they must be
+  /// kept alive for the duration of each test.
+  NSMutableArray<FIRApp *> *_apps;
+}
+
+- (void)setUp {
+  [super setUp];
+  _apps = [[NSMutableArray alloc] init];
+}
 
 - (void)tearDown {
+  _apps = nil;
   [super tearDown];
 
   // Clear out any apps that were called with `configure`.
@@ -100,8 +111,7 @@
 
   // Use a new app and new provider, ensure the instances with the same namespace are different.
   NSString *secondAppName = [provider.app.name stringByAppendingString:@"2"];
-  FIRApp *secondApp = [[FIRApp alloc] initInstanceWithName:secondAppName
-                                                   options:[self fakeOptions]];
+  FIRApp *secondApp = [self retainedAppWithName:secondAppName options:[self fakeOptions]];
   FIRRemoteConfigComponent *separateProvider =
       [[FIRRemoteConfigComponent alloc] initWithApp:secondApp];
   FIRRemoteConfig *separateConfig = [separateProvider remoteConfigForNamespace:sharedNamespace];
@@ -113,7 +123,7 @@
   // Explicitly instantiate the component here in case the providerForTest ever changes to mock
   // something.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:[self fakeOptions]];
+  FIRApp *app = [self retainedAppWithName:appName options:[self fakeOptions]];
   FIRRemoteConfigComponent *provider = [[FIRRemoteConfigComponent alloc] initWithApp:app];
   XCTAssertNotNil(provider);
   XCTAssertNotNil(provider.app);
@@ -182,8 +192,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the googleAppID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -198,8 +210,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the googleAppID is nil.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -211,8 +225,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the GCMSenderID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -227,8 +243,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the GCMSenderID is nil.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -240,8 +258,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the projectID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -256,8 +276,10 @@
 
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *component = [[FIRRemoteConfigComponent alloc] initWithApp:app];
+  // Guard against the weakly-held app being deallocated, which would also cause a throw.
+  XCTAssertNotNil(component.app);
 
   // Creating a Remote Config instance should fail since the projectID is empty.
   XCTAssertThrows([component remoteConfigForNamespace:@"some_namespace"]);
@@ -273,6 +295,13 @@
   return options;
 }
 
+/// Creates an app that is retained for the duration of the test.
+- (FIRApp *)retainedAppWithName:(NSString *)name options:(FIROptions *)options {
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
+  [_apps addObject:app];
+  return app;
+}
+
 - (NSString *)generatedTestAppName {
   return [RCNTestUtilities generatedTestAppNameForTest:self.name];
 }
@@ -281,7 +310,7 @@
   // Create the provider to vend Remote Config instances.
   NSString *appName = [self generatedTestAppName];
   FIROptions *options = [[self fakeOptions] copy];
-  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  FIRApp *app = [self retainedAppWithName:appName options:options];
   FIRRemoteConfigComponent *provider = [[FIRRemoteConfigComponent alloc] initWithApp:app];
   XCTAssertNotNil(provider);
   XCTAssert(provider.app.options.googleAppID.length != 0);

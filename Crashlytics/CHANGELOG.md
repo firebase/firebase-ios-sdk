@@ -2,6 +2,11 @@
 - [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` by
   subscribing to Remote Config rollouts and persisting rollout state on the
   background rollouts queue (#16736).
+- [fixed] Improved robustness when parsing malformed settings from the server
+  or from the on-disk settings cache. (#16728)
+- [fixed] Improved robustness in Firebase Sessions when parsing malformed
+  settings from the server, including `null` values that could cause a crash
+  when caching settings. (#16728)
 
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`

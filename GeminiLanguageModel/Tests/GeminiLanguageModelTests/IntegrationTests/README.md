@@ -13,7 +13,7 @@ swift test --filter IntegrationTests
 swift test --filter ToolCallingIntegrationTests
 
 # Run all unit tests (fast, skips all integration tests)
-swift test --skip Integration
+swift test --skip IntegrationTests
 ```
 
 ## Running Integration Tests
