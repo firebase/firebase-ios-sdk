@@ -38,31 +38,6 @@ namespace firestore {
 namespace remote {
 
 /**
- * Extracts the bare DNS host name or IP literal from a gRPC target string
- * (stripping recognized gRPC `dns:`/`ipv4:`/`ipv6:` URI prefixes, `:port`
- * suffixes, IPv6 `[...]` brackets, and IPv6 `%zone` suffixes if present).
- * Returns an empty string if `target_name` is empty or malformed (for example,
- * an unclosed `'['`, a non-numeric port, or an unrecognized URI scheme).
- */
-std::string ExtractTlsHostName(absl::string_view target_name);
-
-/**
- * Parses all PEM-encoded `CERTIFICATE` blocks from `pem_chain` into a newly
- * retained `CFArrayRef` of `SecCertificateRef` objects in chain order (leaf
- * first).
- *
- * Fails closed (`nullptr` return and `UNAUTHENTICATED` `*out_status`) if
- * `pem_chain` contains no certificates, contains non-whitespace text outside
- * `CERTIFICATE` blocks, contains an unclosed PEM block, or contains any
- * certificate block whose base64 or DER X.509 payload fails to parse.
- *
- * The caller owns the returned `CFArrayRef` and must release it with
- * `CFRelease` / `util::SafeCFRelease`.
- */
-CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
-                                    grpc::Status* out_status);
-
-/**
  * Evaluates a PEM-encoded X.509 peer certificate chain for `target_name` using
  * Apple's `Security.framework` (`SecPolicyCreateSSL` +
  * `SecTrustEvaluateWithError`).
