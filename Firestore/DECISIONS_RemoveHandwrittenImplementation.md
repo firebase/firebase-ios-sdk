@@ -363,6 +363,95 @@ How should we resolve subchannel pool isolation vs. connection reuse in
 ensuring each channel has a distinct subchannel key in `GlobalSubchannelPool`
 and preserving immediate connection teardown on network transitions.
 
+---
+
+## 6. Asynchronous Verification vs. Synchronous EventEngine Thread Blocking (Review Finding 2)
+
+### Context
+
+In
+[`AppleSecTrustCertificateVerifier::Verify`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+`SecTrustEvaluateWithError` is currently called synchronously on gRPC's
+EventEngine handshake thread (`return true`).
+
+Inside Apple's `Security.framework`, `SecTrustEvaluateWithError` performs
+synchronous IPC to Apple's system `trustd` daemon. Furthermore, when
+evaluating public certificates, `trustd` may perform network I/O to fetch
+missing intermediate CA certificates via Authority Information Access (AIA)
+URLs or check revocation via OCSP/CRL. Running this synchronously on gRPC's
+EventEngine worker thread stalls that worker thread for the duration of the
+IPC and network round-trips.
+
+gRPC's `ExternalCertificateVerifier` supports non-blocking asynchronous
+verification: when `Verify()` returns `false`, gRPC pauses the TLS handshake
+until `callback(grpc::Status)` is invoked from any thread (gRPC's
+`OnVerifyDone` establishes its own `grpc_core::ExecCtx` upon callback).
+
+### Question
+
+How should we resolve asynchronous verification vs. synchronous EventEngine
+thread blocking in
+[`AppleSecTrustCertificateVerifier::Verify`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: AsyncDispatchQueue** (Recommended) — Offload
+  `VerifyAppleTlsCertificateChain` to GCD via
+  `dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ...)`,
+  invoke `callback(status)`, and `return false`.
+* **Option 2: KeepSynchronous** — Keep synchronous execution (`return true`)
+  and preserve the existing `TODO(dconeybe)`.
+
+### Selection
+
+**Option 2: KeepSynchronous** — Kept synchronous execution (`return true`) in
+[`AppleSecTrustCertificateVerifier::Verify`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+and retained the existing `TODO(dconeybe)` for a future asynchronous migration.
+
+---
+
+## 7. Trust Anchor Snapshotting (`CFArrayCreateCopy` vs. `CFRetain`) (Review Finding 3)
+
+### Context
+
+In
+[`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+the constructor originally stored `anchor_certs_` by calling
+`CFRetain(anchor_certs)`. Because CoreFoundation arrays are toll-free bridged
+with Objective-C (`CFMutableArrayRef` / `NSMutableArray*`), a caller of the
+public `CreateAppleTlsCredentials(CFArrayRef)` API can pass a mutable array.
+If the caller subsequently mutates that array on their own thread after
+channel creation while gRPC EventEngine worker threads concurrently read
+`anchor_certs_` inside `SecTrustSetAnchorCertificates`, this introduces a
+multi-threaded data race and potential use-after-free.
+
+Using `CFArrayCreateCopy(kCFAllocatorDefault, anchor_certs)` creates an
+immutable snapshot. In CoreFoundation, if the input array is already
+immutable, `CFArrayCreateCopy` optimizes to an O(1) `CFRetain` with zero
+allocation; if mutable, it creates an independent immutable copy.
+
+### Question
+
+How should we store `anchor_certs_` in
+[`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: SnapshotAnchorCopy** (Recommended) — Initialize `anchor_certs_`
+  with `CFArrayCreateCopy(kCFAllocatorDefault, anchor_certs)` in
+  [`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+* **Option 2: KeepRetainOnly** — Keep the existing `CFRetain` in
+  [`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+
+### Selection
+
+**Option 1: SnapshotAnchorCopy** — Initialized `anchor_certs_` with
+`CFArrayCreateCopy(kCFAllocatorDefault, anchor_certs)` in
+[`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+ensuring immutable trust set isolation and thread safety.
+
+
+
 
 
 

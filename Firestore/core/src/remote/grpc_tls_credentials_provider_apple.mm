@@ -325,10 +325,10 @@ class AppleSecTrustCertificateVerifier final
     : public grpc::experimental::ExternalCertificateVerifier {
  public:
   explicit AppleSecTrustCertificateVerifier(CFArrayRef anchor_certs)
-      : anchor_certs_(anchor_certs) {
-    if (anchor_certs_ != nullptr) {
-      CFRetain(anchor_certs_);
-    }
+      : anchor_certs_(
+            anchor_certs == nullptr
+                ? nullptr
+                : CFArrayCreateCopy(kCFAllocatorDefault, anchor_certs)) {
   }
 
   ~AppleSecTrustCertificateVerifier() override {
