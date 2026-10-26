@@ -38,8 +38,17 @@ static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
 /// The storage sub-directory that the Remote Config database resides in.
 static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
-/// Introduce a dedicated serial queue for gIsNewDatabase access.
-static dispatch_queue_t gIsNewDatabaseQueue;
+/// Returns the dedicated serial queue for gIsNewDatabase access, creating it on first use so it is
+/// valid regardless of whether `+sharedInstance` or `-init` is called first.
+static dispatch_queue_t RCNIsNewDatabaseQueue(void) {
+  static dispatch_queue_t queue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    queue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
+                                  DISPATCH_QUEUE_SERIAL);
+  });
+  return queue;
+}
 
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0(void) {
@@ -85,7 +94,7 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
-    dispatch_sync(gIsNewDatabaseQueue, ^{
+    dispatch_sync(RCNIsNewDatabaseQueue(), ^{
       gIsNewDatabase = YES;
     });
     NSError *error;
@@ -124,8 +133,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   static dispatch_once_t onceToken;
   static RCNConfigDBManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
-                                                DISPATCH_QUEUE_SERIAL);
     sharedInstance = [[RCNConfigDBManager alloc] init];
   });
   return sharedInstance;
@@ -1227,7 +1234,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
 - (BOOL)isNewDatabase {
   __block BOOL isNew;
-  dispatch_sync(gIsNewDatabaseQueue, ^{
+  dispatch_sync(RCNIsNewDatabaseQueue(), ^{
     isNew = gIsNewDatabase;
   });
   return isNew;
