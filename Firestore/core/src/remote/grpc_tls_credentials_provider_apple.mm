@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 
+#include <arpa/inet.h>
 #include <functional>
 #include <memory>
 #include <string>
@@ -52,63 +53,142 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
   }
 }
 
-bool IsAsciiDigit(char c) {
-  return c >= '0' && c <= '9';
-}
+std::string ExtractTlsHostName(absl::string_view target_name) {
+  if (target_name.empty()) {
+    return "";
+  }
 
-bool IsIpv6AddressChar(char c) {
-  return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
-         (c >= 'A' && c <= 'F') || c == ':' || c == '.';
-}
-
-bool IsValidUnbracketedIpv6Literal(absl::string_view host) {
-  size_t colons = 0;
-  for (char c : host) {
-    if (!IsIpv6AddressChar(c)) {
-      return false;
+  @autoreleasepool {
+    NSString* target =
+        [[NSString alloc] initWithBytes:target_name.data()
+                                 length:target_name.size()
+                               encoding:NSUTF8StringEncoding];
+    if (target == nil || target.length == 0) {
+      return "";
     }
-    if (c == ':') {
-      ++colons;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnull-character"
+    if ([target rangeOfString:@"\0"].location != NSNotFound) {
+      return "";
     }
-  }
-  return colons >= 2;
-}
+#pragma clang diagnostic pop
 
-bool IsBase64Alphabet(char c) {
-  return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-         (c >= '0' && c <= '9') || c == '+' || c == '/';
-}
-
-// Validates that `encoded` (already stripped of horizontal/vertical ASCII
-// whitespace) is non-empty, has length divisible by 4, contains only standard
-// RFC 4648 base64 characters, and has at most 2 trailing '=' padding
-// characters.
-bool IsStrictStandardBase64(absl::string_view encoded) {
-  if (encoded.empty() || (encoded.size() % 4) != 0) {
-    return false;
-  }
-
-  size_t data_end = encoded.size();
-  if (encoded[data_end - 1] == '=') {
-    --data_end;
-    if (encoded[data_end - 1] == '=') {
-      --data_end;
+    if ([target rangeOfCharacterFromSet:[NSCharacterSet controlCharacterSet]]
+            .location != NSNotFound ||
+        [target rangeOfCharacterFromSet:[NSCharacterSet
+                                            whitespaceAndNewlineCharacterSet]]
+            .location != NSNotFound ||
+        [target rangeOfCharacterFromSet:[NSCharacterSet
+                                            characterSetWithCharactersInString:
+                                                @"/,?#@"]]
+            .location != NSNotFound) {
+      return "";
     }
-  }
 
-  for (size_t i = 0; i < data_end; ++i) {
-    if (!IsBase64Alphabet(encoded[i])) {
-      return false;
+    BOOL has_open_bracket = [target rangeOfString:@"["].location != NSNotFound;
+    BOOL has_close_bracket = [target rangeOfString:@"]"].location != NSNotFound;
+
+    // Handle bare unbracketed IPv6 literals.
+    if (!has_open_bracket && !has_close_bracket &&
+        [target rangeOfString:@":"].location != NSNotFound) {
+      NSRange percent_range = [target rangeOfString:@"%"];
+      NSString* candidate = target;
+      if (percent_range.location != NSNotFound) {
+        if (percent_range.location == 0 ||
+            percent_range.location + 1 == target.length ||
+            [target rangeOfString:@"%" options:NSBackwardsSearch].location !=
+                percent_range.location) {
+          return "";
+        }
+        candidate = [target substringToIndex:percent_range.location];
+      }
+      struct in6_addr addr6;
+      if (inet_pton(AF_INET6, candidate.UTF8String, &addr6) == 1) {
+        return candidate.UTF8String;
+      }
+      if (percent_range.location != NSNotFound) {
+        return "";
+      }
     }
-  }
-  return true;
-}
 
-absl::string_view StripTrailingHorizontalWhitespace(absl::string_view line) {
-  while (!line.empty() && (line.back() == ' ' || line.back() == '\t')) {
-    line.remove_suffix(1);
+    // Handle bracketed IPv6 ([ipv6] or [ipv6]:port).
+    if (has_open_bracket || has_close_bracket) {
+      if (![target hasPrefix:@"["]) {
+        return "";
+      }
+      NSUInteger close_bracket = [target rangeOfString:@"]"].location;
+      if (close_bracket == NSNotFound || close_bracket == 1) {
+        return "";
+      }
+      if ([target rangeOfString:@"[" options:NSBackwardsSearch].location != 0 ||
+          [target rangeOfString:@"]" options:NSBackwardsSearch].location !=
+              close_bracket) {
+        return "";
+      }
+      NSString* inner =
+          [target substringWithRange:NSMakeRange(1, close_bracket - 1)];
+      NSRange inner_percent = [inner rangeOfString:@"%"];
+      NSString* ipv6_candidate = inner;
+      if (inner_percent.location != NSNotFound) {
+        if (inner_percent.location == 0 ||
+            inner_percent.location + 1 == inner.length ||
+            [inner rangeOfString:@"%" options:NSBackwardsSearch].location !=
+                inner_percent.location) {
+          return "";
+        }
+        ipv6_candidate = [inner substringToIndex:inner_percent.location];
+      }
+
+      struct in6_addr addr6;
+      if (inet_pton(AF_INET6, ipv6_candidate.UTF8String, &addr6) != 1) {
+        return "";
+      }
+
+      NSString* suffix = [target substringFromIndex:close_bracket + 1];
+      NSString* normalized =
+          [NSString stringWithFormat:@"[%@]%@", ipv6_candidate, suffix];
+      NSURLComponents* comps = [NSURLComponents
+          componentsWithString:[@"https://"
+                                   stringByAppendingString:normalized]];
+      if (comps == nil || comps.host.length == 0) {
+        return "";
+      }
+      if (suffix.length > 0) {
+        if (comps.port == nil ||
+            ![suffix isEqualToString:[@":" stringByAppendingString:
+                                               comps.port.stringValue]]) {
+          return "";
+        }
+      } else if (comps.port != nil) {
+        return "";
+      }
+      return ipv6_candidate.UTF8String;
+    }
+
+    // Non-bracketed host or host:port.
+    if ([target rangeOfString:@"%"].location != NSNotFound) {
+      return "";
+    }
+    NSURLComponents* comps = [NSURLComponents
+        componentsWithString:[@"https://" stringByAppendingString:target]];
+    if (comps == nil || comps.host.length == 0) {
+      return "";
+    }
+    if ([target rangeOfString:@":"].location != NSNotFound) {
+      if (comps.port == nil ||
+          ![target isEqualToString:[NSString stringWithFormat:@"%@:%@",
+                                                              comps.host,
+                                                              comps.port]]) {
+        return "";
+      }
+    } else {
+      if (![target isEqualToString:comps.host]) {
+        return "";
+      }
+    }
+    return comps.host.UTF8String;
   }
-  return line;
 }
 
 absl::string_view ToStringView(grpc::string_ref ref) {
@@ -190,128 +270,6 @@ GetDefaultAppleCertificateVerifier() {
 
 }  // namespace
 
-std::string ExtractTlsHostName(absl::string_view target_name) {
-  if (target_name.empty()) {
-    return "";
-  }
-
-  // Reject embedded NUL bytes, ASCII control characters, and whitespace.
-  for (char c : target_name) {
-    auto uc = static_cast<unsigned char>(c);
-    if (uc <= 0x20 || uc == 0x7f) {
-      return "";
-    }
-  }
-
-  // Strip recognized gRPC target URI prefixes if present.
-  if (absl::StartsWith(target_name, "dns:///")) {
-    target_name.remove_prefix(7);
-  } else if (absl::StartsWith(target_name, "dns://")) {
-    size_t slash = target_name.find('/', 6);
-    if (slash == absl::string_view::npos) {
-      return "";
-    }
-    target_name.remove_prefix(slash + 1);
-  } else if (absl::StartsWith(target_name, "dns:")) {
-    target_name.remove_prefix(4);
-  } else if (absl::StartsWith(target_name, "ipv4:") ||
-             absl::StartsWith(target_name, "ipv6:")) {
-    target_name.remove_prefix(5);
-  }
-
-  if (target_name.empty()) {
-    return "";
-  }
-
-  // Reject unrecognized URI schemes, paths, userinfo, query/fragment, or
-  // multi-address comma lists.
-  for (char c : target_name) {
-    if (c == '/' || c == '?' || c == '#' || c == '@' || c == ',') {
-      return "";
-    }
-  }
-
-  if (target_name.front() == '[') {
-    size_t close_bracket = target_name.find(']');
-    if (close_bracket == absl::string_view::npos || close_bracket == 1) {
-      return "";
-    }
-    absl::string_view host = target_name.substr(1, close_bracket - 1);
-    size_t zone = host.find('%');
-    if (zone != absl::string_view::npos) {
-      if (zone == 0 || zone + 1 == host.size()) {
-        return "";
-      }
-      host = host.substr(0, zone);
-    }
-    if (!IsValidUnbracketedIpv6Literal(host)) {
-      return "";
-    }
-    absl::string_view rest = target_name.substr(close_bracket + 1);
-    if (!rest.empty()) {
-      if (rest.front() != ':' || rest.size() == 1) {
-        return "";
-      }
-      for (size_t i = 1; i < rest.size(); ++i) {
-        if (!IsAsciiDigit(rest[i])) {
-          return "";
-        }
-      }
-    }
-    return std::string(host);
-  }
-
-  if (target_name.find('[') != absl::string_view::npos ||
-      target_name.find(']') != absl::string_view::npos) {
-    return "";
-  }
-
-  size_t colon_count = 0;
-  size_t first_colon = absl::string_view::npos;
-  for (size_t i = 0; i < target_name.size(); ++i) {
-    if (target_name[i] == ':') {
-      if (colon_count == 0) {
-        first_colon = i;
-      }
-      ++colon_count;
-    }
-  }
-
-  if (colon_count == 0) {
-    if (target_name.find('%') != absl::string_view::npos) {
-      return "";
-    }
-    return std::string(target_name);
-  }
-
-  if (colon_count > 1) {
-    size_t zone = target_name.find('%');
-    if (zone != absl::string_view::npos) {
-      if (zone == 0 || zone + 1 == target_name.size()) {
-        return "";
-      }
-      target_name = target_name.substr(0, zone);
-    }
-    if (!IsValidUnbracketedIpv6Literal(target_name)) {
-      return "";
-    }
-    return std::string(target_name);
-  }
-
-  if (first_colon == 0 || first_colon + 1 >= target_name.size()) {
-    return "";
-  }
-  for (size_t i = first_colon + 1; i < target_name.size(); ++i) {
-    if (!IsAsciiDigit(target_name[i])) {
-      return "";
-    }
-  }
-  absl::string_view host = target_name.substr(0, first_colon);
-  if (host.find('%') != absl::string_view::npos) {
-    return "";
-  }
-  return std::string(host);
-}
 
 CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
                                     grpc::Status* out_status) {
