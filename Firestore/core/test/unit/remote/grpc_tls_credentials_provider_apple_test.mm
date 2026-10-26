@@ -758,68 +758,99 @@ grpc::Status PerformUnaryEcho(const std::shared_ptr<grpc::Channel>& channel,
 }
 
 // ===========================================================================
-// 1. ExtractTlsHostName Unit Tests
+// 1. ExtractTlsHostName Unit Tests (tested through VerifyAppleTlsCertificateChain)
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
-  EXPECT_EQ(ExtractTlsHostName("firestore.googleapis.com"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("firestore.googleapis.com:443"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("dns:///firestore.googleapis.com"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("dns:///firestore.googleapis.com:443"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("dns://8.8.8.8:53/firestore.googleapis.com:443"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("dns:firestore.googleapis.com:443"),
-            "firestore.googleapis.com");
-  EXPECT_EQ(ExtractTlsHostName("127.0.0.1"), "127.0.0.1");
-  EXPECT_EQ(ExtractTlsHostName("127.0.0.1:50051"), "127.0.0.1");
-  EXPECT_EQ(ExtractTlsHostName("ipv4:127.0.0.1"), "127.0.0.1");
-  EXPECT_EQ(ExtractTlsHostName("ipv4:127.0.0.1:50051"), "127.0.0.1");
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "firestore.googleapis.com";
+  leaf_opts.dns_sans = {"firestore.googleapis.com"};
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  for (const auto& target : {"firestore.googleapis.com",
+                             "firestore.googleapis.com:443",
+                             "127.0.0.1",
+                             "127.0.0.1:50051"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        pki.ServerChainPem(), target, anchors.get());
+    EXPECT_TRUE(status.ok()) << "target: " << target
+                             << " error: " << status.error_message();
+  }
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
-  EXPECT_EQ(ExtractTlsHostName("[::1]:443"), "::1");
-  EXPECT_EQ(ExtractTlsHostName("[2001:db8::1]"), "2001:db8::1");
-  EXPECT_EQ(ExtractTlsHostName("[2001:db8::1]:8443"), "2001:db8::1");
-  EXPECT_EQ(ExtractTlsHostName("[::ffff:127.0.0.1]:443"), "::ffff:127.0.0.1");
-  EXPECT_EQ(ExtractTlsHostName("ipv6:[::1]:443"), "::1");
-  EXPECT_EQ(ExtractTlsHostName("ipv6:::1"), "::1");
-  EXPECT_EQ(ExtractTlsHostName("[fe80::1%en0]:443"), "fe80::1");
-  EXPECT_EQ(ExtractTlsHostName("[fe80::1%25en0]:443"), "fe80::1");
-  EXPECT_EQ(ExtractTlsHostName("fe80::1%en0"), "fe80::1");
-  EXPECT_EQ(ExtractTlsHostName("::1"), "::1");
-  EXPECT_EQ(ExtractTlsHostName("2001:db8::1"), "2001:db8::1");
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv6.firestore.local";
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  for (const auto& target : {"[::1]:443",
+                             "[2001:db8::1]",
+                             "[2001:db8::1]:8443",
+                             "[::ffff:127.0.0.1]:443",
+                             "[fe80::1%en0]:443",
+                             "fe80::1%en0",
+                             "::1",
+                             "2001:db8::1"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        pki.ServerChainPem(), target, anchors.get());
+    EXPECT_TRUE(status.ok()) << "target: " << target
+                             << " error: " << status.error_message();
+  }
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
-  EXPECT_EQ(ExtractTlsHostName(""), "");
-  EXPECT_EQ(ExtractTlsHostName(":443"), "");
-  EXPECT_EQ(ExtractTlsHostName("firestore.googleapis.com:"), "");
-  EXPECT_EQ(ExtractTlsHostName("firestore.googleapis.com:notaport"), "");
-  EXPECT_EQ(ExtractTlsHostName("https://firestore.googleapis.com"), "");
-  EXPECT_EQ(ExtractTlsHostName("https://firestore.googleapis.com:443"), "");
-  EXPECT_EQ(ExtractTlsHostName("unix:/tmp/grpc.sock"), "");
-  EXPECT_EQ(ExtractTlsHostName("dns://8.8.8.8"), "");
-  EXPECT_EQ(ExtractTlsHostName("dns:"), "");
-  EXPECT_EQ(ExtractTlsHostName("ipv4:"), "");
-  EXPECT_EQ(ExtractTlsHostName("ipv6:"), "");
-  EXPECT_EQ(ExtractTlsHostName("foo:bar:baz"), "");
-  EXPECT_EQ(ExtractTlsHostName("[example.com]:443"), "");
-  EXPECT_EQ(ExtractTlsHostName("[::1"), "");
-  EXPECT_EQ(ExtractTlsHostName("[]"), "");
-  EXPECT_EQ(ExtractTlsHostName("[::1]:"), "");
-  EXPECT_EQ(ExtractTlsHostName("[::1]:notaport"), "");
-  EXPECT_EQ(ExtractTlsHostName("[fe80::1%]:443"), "");
-  EXPECT_EQ(ExtractTlsHostName("fe80::1%"), "");
-  EXPECT_EQ(ExtractTlsHostName("[::1]junk"), "");
-  EXPECT_EQ(ExtractTlsHostName("firestore.googleapis.com\n"), "");
-  EXPECT_EQ(ExtractTlsHostName(absl::string_view(
-                "firestore.googleapis.com\0evil",
-                sizeof("firestore.googleapis.com\0evil") - 1)),
-            "");
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "firestore.googleapis.com";
+  leaf_opts.dns_sans = {"firestore.googleapis.com"};
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  const std::string embedded_nul_target(
+      "firestore.googleapis.com\0evil",
+      sizeof("firestore.googleapis.com\0evil") - 1);
+  const std::vector<std::string> malformed_targets = {
+      "",
+      ":443",
+      "firestore.googleapis.com:",
+      "firestore.googleapis.com:notaport",
+      "https://firestore.googleapis.com",
+      "https://firestore.googleapis.com:443",
+      "unix:/tmp/grpc.sock",
+      "dns:///firestore.googleapis.com",
+      "dns://8.8.8.8",
+      "dns:",
+      "ipv4:",
+      "ipv6:",
+      "foo:bar:baz",
+      "[example.com]:443",
+      "[::1",
+      "[]",
+      "[::1]:",
+      "[::1]:notaport",
+      "[fe80::1%]:443",
+      "fe80::1%",
+      "[::1]junk",
+      "firestore.googleapis.com\n",
+      embedded_nul_target};
+
+  for (const auto& target : malformed_targets) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        pki.ServerChainPem(), target, anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << "target: " << target;
+  }
 }
 
 // ===========================================================================
@@ -1063,9 +1094,9 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "[::1]:443",
                                              anchors.get())
                   .ok());
-  EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                             "ipv6:[::1]:443", anchors.get())
-                  .ok());
+  EXPECT_TRUE(
+      VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "::1", anchors.get())
+          .ok());
   EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
                                              "[::1%en0]:443", anchors.get())
                   .ok());
