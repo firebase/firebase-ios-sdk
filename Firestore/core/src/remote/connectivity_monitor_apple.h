@@ -42,17 +42,22 @@ namespace remote {
 //      a strong `State` reference across `Enqueue`. Thus, calling
 //      `state_.reset()` in the destructor immediately invalidates all
 //      future and not-yet-run inner lambdas.
-//   2. The destructor cancels the monitor, resets `state_`, and drains
-//      `monitor_queue_` via `dispatch_sync`, ensuring that any in-flight
-//      outer handler completes before destruction finishes.
+//   2. (Defense-in-depth, not required for safety) The destructor cancels
+//      the monitor, resets `state_`, and drains `monitor_queue_` via
+//      `dispatch_sync`, ensuring that any in-flight outer handler completes
+//      before destruction finishes. Note that the main-queue foreground
+//      observer is NOT drained, so its safety rests solely on invariants
+//      1 and 3.
 //   3. The constructor, destructor, and inner lambdas all run on the same
 //      serial AsyncQueue, so inner lambdas and destruction cannot interleave.
 //      Any inner lambda already queued when destruction begins will observe
 //      an expired `weak_state` when it runs and safely bail out without
 //      dereferencing `this`.
 //
-// If construction or destruction is moved off the AsyncQueue, these
-// invariants break and inner lambdas may dereference a dangling `this` pointer.
+// If construction is moved off the AsyncQueue, inner lambdas may run
+// concurrently with the rest of the constructor (a data race on base-class
+// state such as `status_`); if destruction is moved off the AsyncQueue,
+// inner lambdas may dereference a dangling `this`.
 //
 // Tests that create a ConnectivityMonitorApple directly must
 // explicitly construct and destroy it on its AsyncQueue:
