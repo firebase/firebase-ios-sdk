@@ -52,6 +52,8 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
           isSubscribed: isSubscribed,
           protoState: protoDataCollection.performance
         )
+      case .CrashlyticsTelemetry:
+        break
       case .Unknown:
         XCTFail("Sessions subscribed to with 'Unknown' Subscriber Name")
       }

@@ -135,6 +135,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject, @unchecked Sendable {
       proto.session_data.data_collection_status.crashlytics = dataCollectionState
     case .Performance:
       proto.session_data.data_collection_status.performance = dataCollectionState
+    case .CrashlyticsTelemetry:
+      break
     default:
       Logger
         .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")

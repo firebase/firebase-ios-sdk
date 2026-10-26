@@ -34,6 +34,7 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
 
   override func tearDown() {
     AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
+    AttributeStore.setSessionId(nil)
     logger = nil
     loggerProvider = nil
     processor = nil
@@ -54,6 +55,24 @@ final class CrashlyticsLogProcessorTests: XCTestCase {
     XCTAssertEqual(
       records[0].attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsScreen.unknown.name)
+    )
+    XCTAssertNil(records[0].attributes[SemanticConventions.Session.id.rawValue])
+  }
+
+  func test_onEmit_whenSessionIdIsSet_attachesSessionId() async throws {
+    AttributeStore.setSessionId("log-session-456")
+
+    logger
+      .logRecordBuilder()
+      .setEventName("session.event")
+      .setSeverity(.info)
+      .emit()
+
+    let records = try await waitForExportedLogs(count: 1)
+    XCTAssertEqual(records.count, 1)
+    XCTAssertEqual(
+      records[0].attributes[SemanticConventions.Session.id.rawValue],
+      .string("log-session-456")
     )
   }
 

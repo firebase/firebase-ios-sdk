@@ -54,6 +54,7 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
 
   override func tearDown() {
     AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
+    AttributeStore.setSessionId(nil)
     PersistenceWrapperFactory.reset()
     tracer = nil
     tracerProvider = nil
@@ -64,6 +65,7 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
   }
 
   func test_onStart_attachesCommonSpanAttributesToSpan() {
+    AttributeStore.setSessionId("session-abc")
     let span = tracer.spanBuilder(spanName: "test_operation").startSpan()
     defer { span.end() }
 
@@ -77,8 +79,16 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
       .string(CrashlyticsScreen.unknown.name)
     )
     XCTAssertEqual(
+      readableSpan.getAttributes()[SemanticConventions.Session.id.rawValue],
+      .string("session-abc")
+    )
+    XCTAssertEqual(
       readableSpan.getAttributes()["gcp.firebase.app_version"],
       .string("1.0")
+    )
+    XCTAssertEqual(
+      mockBuffer.addedSpans.first?.attributes[SemanticConventions.Session.id.rawValue],
+      "session-abc"
     )
   }
 
