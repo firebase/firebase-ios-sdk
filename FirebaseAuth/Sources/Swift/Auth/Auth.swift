@@ -1381,7 +1381,7 @@ extension Auth: AuthInterop {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    listenerHandles.remove(listenerHandle)
+    listenerHandles.removeAll { $0 === listenerHandle }
   }
 
   /// Registers a block as an "ID token did change" listener.
@@ -1415,7 +1415,7 @@ extension Auth: AuthInterop {
       }
     }
     objc_sync_enter(Auth.self)
-    listenerHandles.add(listener)
+    listenerHandles.append(handle)
     objc_sync_exit(Auth.self)
     // Go through the serial work queue first, so the initial call runs after work that is
     // already queued, such as loading the persisted user at startup. Otherwise a listener added
@@ -1438,7 +1438,7 @@ extension Auth: AuthInterop {
   @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
-    listenerHandles.remove(listenerHandle)
+    listenerHandles.removeAll { $0 === listenerHandle }
     objc_sync_exit(Auth.self)
   }
 
@@ -1779,10 +1779,8 @@ extension Auth: AuthInterop {
 
   deinit {
     let defaultCenter = NotificationCenter.default
-    while listenerHandles.count > 0 {
-      let handleToRemove = listenerHandles.lastObject
-      defaultCenter.removeObserver(handleToRemove as Any)
-      listenerHandles.removeLastObject()
+    for listenerHandle in listenerHandles {
+      defaultCenter.removeObserver(listenerHandle)
     }
 
     #if os(iOS)
@@ -2437,5 +2435,5 @@ extension Auth: AuthInterop {
   /// change" notification listeners.
   ///
   /// Mutations should occur within a @synchronized(self) context.
-  private var listenerHandles: NSMutableArray = []
+  private var listenerHandles: [NSObjectProtocol] = []
 }

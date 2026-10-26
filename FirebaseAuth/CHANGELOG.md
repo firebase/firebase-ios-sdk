@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a memory leak where removed auth state and ID token listeners,
+  and the objects they captured, stayed in memory for as long as the `Auth`
+  instance existed. This also affected the `authStateChanges` and
+  `idTokenChanges` sequences. (#16938)
+
 # 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
