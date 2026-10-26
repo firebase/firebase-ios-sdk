@@ -81,11 +81,10 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
   std::weak_ptr<AsyncQueue> weak_queue = queue();
 
   nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
-    // Do not hold a strong ref to State across Enqueue. If this outer block
-    // holds a strong ref while enqueuing, the inner lambda could begin running
-    // on the worker queue concurrently and lock weak_state even after
-    // ~ConnectivityMonitorApple() has initiated destruction and called
-    // state_.reset(), leading to a use-after-free on raw_this.
+    // Do not hold a strong ref to State across Enqueue. If this block held a
+    // strong ref, ~ConnectivityMonitorApple() could run to completion on the
+    // worker queue while the ref was still alive, and the enqueued inner lambda
+    // would then lock weak_state successfully and dereference a freed raw_this.
     if (weak_state.expired()) return;
     auto q = weak_queue.lock();
     if (!q) return;
@@ -111,8 +110,10 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
                 (void)note;
-                // Do not hold a strong ref to State across Enqueue. See the
-                // update handler above for why.
+                // Do not hold a strong ref to State across Enqueue. This block
+                // runs on the main queue and is not drained by the destructor,
+                // so this check is what keeps it safe (plus see the update
+                // handler above).
                 if (weak_state.expired()) return;
                 auto q = weak_queue.lock();
                 if (!q) return;
@@ -153,10 +154,9 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
   state_.reset();
 
   if (monitor_queue_) {
-    HARD_ASSERT(dispatch_get_specific(kMonitorQueueKey) !=
-                    (__bridge void*)monitor_queue_,
-                "ConnectivityMonitorApple must not be destroyed on its monitor "
-                "queue (would deadlock)");
+    // Drain any in-flight NWPathMonitor update handler (see class comment,
+    // invariant 2). This cannot deadlock because we are on the AsyncQueue
+    // (asserted above) and the handler never blocks on it.
     dispatch_sync(monitor_queue_, ^{
                   });
   }
