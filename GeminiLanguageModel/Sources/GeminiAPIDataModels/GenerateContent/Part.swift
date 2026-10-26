@@ -18,7 +18,7 @@
 import Foundation
 
 /// A datatype containing media that is part of a multi-part Content message. A `Part` consists of
-/// data which has an associated datatype. A `Part` can only contain one of the accepted types in
+/// data which has an associated datatype. A `Part` must contain one of the accepted types in
 /// `Part.data`. For media types that are not text, `Part` must have a fixed IANA MIME type
 /// identifying the type and subtype of the media if `inline_data` or `file_data` field is filled
 /// with raw bytes.
@@ -50,18 +50,6 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
   /// An opaque signature for the thought so it can be reused in subsequent requests.
   package var thoughtSignature: String?
 
-  /// Server-side tool call. This field is populated when the model predicts a tool invocation that
-  /// should be executed on the server. The client is expected to echo this message back to the API.
-  ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package var toolCall: ToolCall?
-
-  /// The output from a server-side `ToolCall` execution. This field is populated by the client with
-  /// the results of executing the corresponding `ToolCall`.
-  ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
-  package var toolResponse: ToolResponse?
-
   package enum PartData: Sendable, Equatable, Hashable {
     case codeExecutionResult(CodeExecutionResult)
     case executableCode(ExecutableCode)
@@ -70,6 +58,8 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
     case functionResponse(FunctionResponse)
     case inlineData(Blob)
     case text(String)
+    case toolCall(ToolCall)
+    case toolResponse(ToolResponse)
     case unrecognized([String: JSONValue])
   }
 
@@ -86,8 +76,6 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
     case speechMetadata
     case thought
     case thoughtSignature
-    case toolCall
-    case toolResponse
     case codeExecutionResult
     case executableCode
     case fileData
@@ -95,6 +83,8 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
     case functionResponse
     case inlineData
     case text
+    case toolCall
+    case toolResponse
   }
 
   private struct DynamicCodingKey: CodingKey {
@@ -117,8 +107,6 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
       SpeechMetadata.self, forKey: .speechMetadata)
     self.thought = try container.decodeIfPresent(Bool.self, forKey: .thought)
     self.thoughtSignature = try container.decodeIfPresent(String.self, forKey: .thoughtSignature)
-    self.toolCall = try container.decodeIfPresent(ToolCall.self, forKey: .toolCall)
-    self.toolResponse = try container.decodeIfPresent(ToolResponse.self, forKey: .toolResponse)
 
     if let codeExecutionResult = try container.decodeIfPresent(
       CodeExecutionResult.self, forKey: .codeExecutionResult)
@@ -142,6 +130,12 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
       self.data = .inlineData(inlineData)
     } else if let text = try container.decodeIfPresent(String.self, forKey: .text) {
       self.data = .text(text)
+    } else if let toolCall = try container.decodeIfPresent(ToolCall.self, forKey: .toolCall) {
+      self.data = .toolCall(toolCall)
+    } else if let toolResponse = try container.decodeIfPresent(
+      ToolResponse.self, forKey: .toolResponse)
+    {
+      self.data = .toolResponse(toolResponse)
     } else {
       let dynamicContainer = try decoder.container(keyedBy: DynamicCodingKey.self)
       var unrecognizedFields = [String: JSONValue]()
@@ -165,8 +159,6 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
     try container.encodeIfPresent(speechMetadata, forKey: .speechMetadata)
     try container.encodeIfPresent(thought, forKey: .thought)
     try container.encodeIfPresent(thoughtSignature, forKey: .thoughtSignature)
-    try container.encodeIfPresent(toolCall, forKey: .toolCall)
-    try container.encodeIfPresent(toolResponse, forKey: .toolResponse)
 
     switch data {
     case .none: break
@@ -177,6 +169,8 @@ package struct Part: Codable, Sendable, Equatable, Hashable, Buildable {
     case .functionResponse(let val): try container.encode(val, forKey: .functionResponse)
     case .inlineData(let val): try container.encode(val, forKey: .inlineData)
     case .text(let val): try container.encode(val, forKey: .text)
+    case .toolCall(let val): try container.encode(val, forKey: .toolCall)
+    case .toolResponse(let val): try container.encode(val, forKey: .toolResponse)
     case .unrecognized(let unrecognizedFields):
       var dynamicContainer = encoder.container(keyedBy: DynamicCodingKey.self)
       for (key, value) in unrecognizedFields {

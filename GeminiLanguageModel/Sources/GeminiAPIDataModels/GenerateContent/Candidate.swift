@@ -30,6 +30,10 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The content of the candidate.
   package var content: Content?
 
+  /// An optional opaque continuation token returned when `finish_reason` is `CONTINUATION`. Clients
+  /// can pass this token in a subsequent `GenerateContentRequest` to continue generation.
+  package var continuationToken: Data?
+
   /// Describes the reason the model stopped generating tokens in more detail. This field is
   /// returned only when `finish_reason` is set.
   package var finishMessage: String?
@@ -70,6 +74,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
     case avgLogprobs
     case citationMetadata
     case content
+    case continuationToken
     case finishMessage
     case finishReason
     case groundingMetadata

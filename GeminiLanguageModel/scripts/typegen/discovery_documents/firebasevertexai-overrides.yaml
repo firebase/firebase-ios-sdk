@@ -44,6 +44,14 @@ schemas:
         properties:
           codeExecutionResult:
             $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaCodeExecutionResult"
+      - required: [toolCall]
+        properties:
+          toolCall:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaToolCall"
+      - required: [toolResponse]
+        properties:
+          toolResponse:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaToolResponse"
   GoogleAiGenerativelanguageV1betaGenerationConfig:
     properties:
       topK:
