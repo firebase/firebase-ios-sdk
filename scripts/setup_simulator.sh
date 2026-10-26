@@ -77,7 +77,9 @@ main() {
   )
 
   local device_prefix="com.apple.CoreSimulator.SimDeviceType"
-  local ios_device="${device_prefix}.iPhone-15-Pro"
+  local ios_devices
+  ios_devices="${device_prefix}.iPhone-15-Pro"
+  ios_devices+="|${device_prefix}.iPhone-Duo"
   local ipad_device="${device_prefix}.iPad-Pro--11-inch---2nd-generation-"
   local watch_device="${device_prefix}.Apple-Watch-Ultra-2-49mm"
   local tv_device="${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
@@ -87,7 +89,7 @@ main() {
 
   case "$platform_clean" in
     ios)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       ;;
     ipad)
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
@@ -102,7 +104,7 @@ main() {
       create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_devices"
       ;;
     all)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
       create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
       create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
@@ -112,7 +114,7 @@ main() {
       # No simulator creation needed
       ;;
     *)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_device"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       ;;
   esac
 }
