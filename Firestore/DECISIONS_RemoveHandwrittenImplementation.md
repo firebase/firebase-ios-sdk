@@ -309,5 +309,60 @@ unchanged and updated the test vector in
 [`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
 from `"[::ffff:127.0.0.1]:443"` to `"[::ffff:7f00:1]:443"`.
 
+---
+
+## 5. Subchannel Pool Isolation vs. Connection Reuse (Review Finding 1)
+
+### Context
+
+In [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+a static singleton `GetDefaultAppleCertificateVerifier()` was originally
+introduced to share a single stateless `CertificateVerifier` instance across
+default channel credentials. However, gRPC's `TlsCredentials::cmp_impl`
+compares options by verifier pointer equality (`options_.certificate_verifier()
+== other.options_.certificate_verifier()`). Because the verifier pointer was
+identical across all calls to `CreateDefaultTlsCredentials()`, gRPC's
+`GlobalSubchannelPool` treated all channels targeting
+`firestore.googleapis.com` as sharing the exact same subchannel key.
+
+This broke [`GrpcConnection::RegisterConnectivityMonitor`](core/src/remote/grpc_connection.cc),
+where Firestore calls `grpc_channel_.reset()` on network transitions (e.g.,
+Wi-Fi to cellular handover) to drop dead sockets immediately. Under a shared
+subchannel pool, if any in-flight RPC or asynchronous load-balancer teardown
+still held a reference (or if multiple `Firestore` instances existed in the
+process), the newly created channel reused the old subchannel on the dead
+socket, hanging until TCP keepalive timed out (~30+ seconds). Prior to this
+PR, BoringSSL's `SslCredentials` compared by pointer identity (`this == other`),
+ensuring every channel received its own independent TCP connection.
+
+### Question
+
+How should we resolve subchannel pool isolation vs. connection reuse in
+[`CreateAppleTlsCredentials`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: FreshVerifierPerChannel** (Recommended) — Drop
+  `GetDefaultAppleCertificateVerifier()` and create a fresh
+  `AppleSecTrustCertificateVerifier` instance in
+  [`CreateAppleTlsCredentials`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+  restoring Firestore's dedicated channel connection model.
+* **Option 2: LocalSubchannelPool** — Keep
+  `GetDefaultAppleCertificateVerifier()` and add
+  `args.SetInt(GRPC_ARG_USE_LOCAL_SUBCHANNEL_POOL, 1);` in
+  [`GrpcConnection::CreateChannel`](core/src/remote/grpc_connection.cc).
+* **Option 3: KeepSharedPool** — Keep `GetDefaultAppleCertificateVerifier()`
+  and the shared `GlobalSubchannelPool` without changes.
+
+### Selection
+
+**Option 1: FreshVerifierPerChannel** — Dropped
+`GetDefaultAppleCertificateVerifier()` and allocated a fresh
+`AppleSecTrustCertificateVerifier` per channel credentials object in
+[`CreateAppleTlsCredentials`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+ensuring each channel has a distinct subchannel key in `GlobalSubchannelPool`
+and preserving immediate connection teardown on network transitions.
+
+
 
 

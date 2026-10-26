@@ -28,7 +28,6 @@
 
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/str_cat.h"
@@ -381,19 +380,6 @@ class AppleSecTrustCertificateVerifier final
   CFArrayRef anchor_certs_ = nullptr;
 };
 
-// Reuses a single stateless `CertificateVerifier` instance when no custom test
-// anchors are supplied so `TlsCredentials::cmp_impl` compares equal across
-// `Firestore` instances, allowing gRPC's `GlobalSubchannelPool` to share a
-// single HTTP/2 TLS connection to `firestore.googleapis.com`.
-std::shared_ptr<grpc::experimental::CertificateVerifier>
-GetDefaultAppleCertificateVerifier() {
-  static util::NoDestructor<
-      std::shared_ptr<grpc::experimental::CertificateVerifier>>
-      verifier(grpc::experimental::ExternalCertificateVerifier::Create<
-               AppleSecTrustCertificateVerifier>(/*anchor_certs=*/nullptr));
-  return *verifier;
-}
-
 }  // namespace
 
 grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
@@ -505,11 +491,16 @@ std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
   // AppCheck tokens). Leaving this enabled preserves defense-in-depth and
   // avoids calling the deprecated `set_check_call_host` setter.
 
+  // Creates a dedicated verifier instance per channel credentials object.
+  // In gRPC, `TlsCredentials::cmp_impl` compares credentials options by
+  // verifier pointer identity. Allocating a fresh verifier per channel ensures
+  // each channel receives its own subchannel in `GlobalSubchannelPool`,
+  // preserving `GrpcConnection::RegisterConnectivityMonitor`'s ability to
+  // drop dead TCP sockets immediately on cellular/Wi-Fi handover via
+  // `grpc_channel_.reset()`.
   options.set_certificate_verifier(
-      anchor_certs == nullptr
-          ? GetDefaultAppleCertificateVerifier()
-          : grpc::experimental::ExternalCertificateVerifier::Create<
-                AppleSecTrustCertificateVerifier>(anchor_certs));
+      grpc::experimental::ExternalCertificateVerifier::Create<
+          AppleSecTrustCertificateVerifier>(anchor_certs));
 
   return grpc::experimental::TlsCredentials(options);
 }
