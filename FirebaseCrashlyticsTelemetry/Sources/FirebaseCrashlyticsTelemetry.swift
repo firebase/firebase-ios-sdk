@@ -246,7 +246,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
         isCacheable.pointee = true
 
-        return self.init(options: app.options, sessions: sessions)
+        self.instance = self.init(options: app.options, sessions: sessions)
+        return self.instance
       }]
   }
 
