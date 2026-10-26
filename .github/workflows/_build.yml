@@ -56,7 +56,7 @@ on:
 
 jobs:
   check_secrets:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_run: ${{ steps.determine_run.outputs.should_run }}
       has_secrets: ${{ steps.determine_run.outputs.has_secrets }}

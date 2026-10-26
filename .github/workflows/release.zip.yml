@@ -57,7 +57,7 @@ concurrency:
 
 jobs:
   should_package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
     steps:
@@ -163,7 +163,7 @@ jobs:
         path: zip_output_dir
 
   packaging_done:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [package-head]
     if: always()
     outputs:

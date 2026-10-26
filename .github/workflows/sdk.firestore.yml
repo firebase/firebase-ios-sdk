@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -103,7 +103,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MINT_PATH: ${{ github.workspace }}/mint
     steps:
@@ -142,7 +142,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-26, ubuntu-latest]
+        os: [macos-26, ubuntu-24.04]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -244,7 +244,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
         # This could be due to Apple Clang provide additional support for synchronization
         # on Apple platforms, which is what we primarily care about.
@@ -796,7 +796,7 @@ jobs:
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
   check-required-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Check all required Firestore tests results
     if: always()
     needs:
