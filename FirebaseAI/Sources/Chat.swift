@@ -115,7 +115,7 @@ public final class Chat: Sendable {
     let request = history + newContent
     let stream = try model.generateContentStream(request, generationConfig: generationConfig)
     return AsyncThrowingStream { continuation in
-      Task {
+      let task = Task {
         var aggregatedContent: [ModelContent] = []
 
         do {
@@ -141,6 +141,9 @@ public final class Chat: Sendable {
         let aggregated = self._history.aggregatedChunks(aggregatedContent)
         self._history.append(aggregated)
         continuation.finish()
+      }
+      continuation.onTermination = { _ in
+        task.cancel()
       }
     }
   }
