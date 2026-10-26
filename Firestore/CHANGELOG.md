@@ -1,4 +1,5 @@
 # Unreleased
+- [feature] Added support for window functions in Pipelines, with the `addWindowFields` stage for computing aggregates such as running totals and moving averages over partitioned and sorted frames of documents, and `over()` for framing individual aggregates. (#16715)
 - [feature] Added support for Pipeline DML stages (`delete`, `update`, `insert`, `upsert`), `literals` source stage, and `Pipeline.ExecuteOptions(isAtomic:)`. (#16859)
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
 
