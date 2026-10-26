@@ -35,14 +35,6 @@ class PropertyWrapperDefaultConfigsTests: XCTestCase {
 
   // MARK: - Test Remote Config default values with property wrapper
 
-  struct DefaultsValuesTester {
-    @RemoteConfigProperty(
-      key: ConfigKeyForThisTestOnly,
-      fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
-    )
-    var dictValue: Recipe
-  }
-
   override class func setUp() {
     if FirebaseApp.app() == nil {
       let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
@@ -53,13 +45,16 @@ class PropertyWrapperDefaultConfigsTests: XCTestCase {
     }
   }
 
-  func testDefaultValues() async throws {
+  func testDefaultValues() {
     try? RemoteConfig.remoteConfig().setDefaults(
       from: [ConfigKeyForThisTestOnly: PropertyWrapperDefaultConfigsTests.defaultRecipe]
     )
 
-    let tester = await DefaultsValuesTester()
-    let dictValue = await tester.dictValue
+    let dictValue = remoteConfigPropertyValue(
+      Recipe.self,
+      key: ConfigKeyForThisTestOnly,
+      fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
+    )
 
     XCTAssertEqual(dictValue.recipeName, "muffin")
     XCTAssertEqual(dictValue.cookTime, 45)
