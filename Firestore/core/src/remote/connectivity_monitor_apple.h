@@ -31,32 +31,45 @@ namespace firestore {
 namespace remote {
 
 // IMPORTANT: ConnectivityMonitorApple must be both constructed AND
-// destructed on the AsyncQueue passed to the constructor.
+// destructed on the AsyncQueue passed to the constructor (enforced by
+// HARD_ASSERT in both constructor and destructor).
 //
 // The NWPathMonitor update handler and the iOS foreground-notification
 // observer block both dispatch work onto the AsyncQueue. Those
 // dispatched lambdas capture raw `this` and a std::weak_ptr<State>
 // liveness token. Their safety relies on:
-//   1. The destructor calls dispatch_sync on monitor_queue_ to drain
-//      any in-flight outer handler blocks before resetting state_.
-//   2. The destructor and the inner lambdas run on the same serial
-//      AsyncQueue, so they cannot interleave.
+//   1. Outer handler blocks check `weak_state.expired()` but never hold
+//      a strong `State` reference across `Enqueue`. Thus, calling
+//      `state_.reset()` in the destructor immediately invalidates all
+//      future and not-yet-run inner lambdas.
+//   2. The destructor cancels the monitor, resets `state_`, and drains
+//      `monitor_queue_` via `dispatch_sync`, ensuring that any in-flight
+//      outer handler completes before destruction finishes.
+//   3. The constructor, destructor, and inner lambdas all run on the same
+//      serial AsyncQueue, so inner lambdas and destruction cannot interleave.
+//      Any inner lambda already queued when destruction begins will observe
+//      an expired `weak_state` when it runs and safely bail out without
+//      dereferencing `this`.
 //
-// If destruction is moved off the AsyncQueue, invariant (2) breaks
-// and inner lambdas may dereference a dangling `this` pointer.
+// If construction or destruction is moved off the AsyncQueue, these
+// invariants break and inner lambdas may dereference a dangling `this` pointer.
 //
 // Tests that create a ConnectivityMonitorApple directly must
-// explicitly destroy it on its AsyncQueue:
-//   worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
-// See FSTConnectivityMonitorTests for an example.
+// explicitly construct and destroy it on its AsyncQueue:
+//   std::unique_ptr<ConnectivityMonitorApple> monitor;
+//   worker_queue->EnqueueBlocking([&] {
+//     monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+//   });
+//   ...
+//   worker_queue->EnqueueBlocking([&] { monitor.reset(); });
+// See FSTConnectivityMonitorTests for examples.
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
   explicit ConnectivityMonitorApple(
       const std::shared_ptr<util::AsyncQueue>& worker_queue);
   ~ConnectivityMonitorApple() override;
 
-  // Expose for testing. Test-only, must be called after AsyncQueue activity has
-  // settled.
+  // Expose for testing. Test-only, must be called on the AsyncQueue.
   absl::optional<NetworkStatus> GetCurrentStatus() const {
     return current_status();
   }
