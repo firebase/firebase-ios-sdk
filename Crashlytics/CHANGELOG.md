@@ -1,4 +1,4 @@
-# 13.1.0
+# Unreleased
 - [fixed] Improved robustness when parsing malformed settings from the server
   or from the on-disk settings cache. (#16728)
 - [fixed] Improved robustness in Firebase Sessions when parsing malformed
