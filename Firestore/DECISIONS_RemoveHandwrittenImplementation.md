@@ -195,4 +195,119 @@ making them private helpers in the anonymous namespace of
 and testing their behavior through
 [`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.h).
 
+---
+
+## 4. Handling Dotted-Quad IPv4-Mapped IPv6 Literals (`[::ffff:127.0.0.1]:443`)
+
+### Context
+
+While running the converted
+[`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+unit test through
+[`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+(under `PrivateHelpers`), we uncovered an interesting behavior in Apple's
+`SecPolicyCreateSSL` on mixed dotted-quad IPv4-mapped IPv6 literals
+(`"[::ffff:127.0.0.1]:443"`). Previously,
+[`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+only asserted `ExtractTlsHostName("[::ffff:127.0.0.1]:443") == "::ffff:127.0.0.1"`
+without passing that string to `SecPolicyCreateSSL`. When
+`cf_host = "::ffff:127.0.0.1"` is evaluated by
+`SecPolicyCreateSSL(/*server=*/true, cf_host)` against a leaf certificate
+containing the 16-byte `iPAddress` SAN
+`{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1}`, Apple's
+`Security.framework` rejects `"::ffff:127.0.0.1"` with
+`certificate name does not match input`, whereas it accepts the standard
+colon-hex representation `"[::ffff:7f00:1]:443"` (`cf_host = "::ffff:7f00:1"`)
+against the exact same certificate (with all 25/25 unit and loopback tests
+passing).
+
+Comparing the three options across Security (primary), Code Complexity
+(secondary), and Maintenance Burden (tertiary):
+
+1. **`TestHexIpv6`** (keep
+   [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+   as-is and replace `"[::ffff:127.0.0.1]:443"` with `"[::ffff:7f00:1]:443"` in
+   [`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)):
+   * **Pros**:
+     * **Security**: Fails closed via `SecPolicyCreateSSL` without introducing
+       custom IPv6 string-rewriting logic in
+       [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+     * **Code Complexity**: Zero lines added to
+       [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm);
+       changes only a single test literal in
+       [`grpc_tls_credentials_provider_apple_test.mm`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm).
+     * **Maintenance Burden**: Avoids maintaining custom IPv4-mapped IPv6
+       reformatting for an esoteric notation where Apple's `SecPolicyCreateSSL`
+       (which expects pure hex `::ffff:7f00:1`) and gRPC's `SslCheckCallHost`
+       (which formats 16-byte SANs with `inet_ntop` as `::ffff:127.0.0.1`)
+       already disagree.
+   * **Cons**:
+     * Passing mixed dotted-quad `"[::ffff:127.0.0.1]:443"` to
+       [`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+       fails at `SecTrustEvaluateWithError` unless written in standard
+       colon-hex form (`"[::ffff:7f00:1]:443"`).
+2. **`CanonicalizeToHex`** (rewrite dotted-quad IPv6 literals using
+   `struct in6_addr` into pure colon-hex groups inside
+   [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)):
+   * **Pros**:
+     * **Direct Test Compatibility**: Allows
+       `VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "[::ffff:127.0.0.1]:443", anchors.get())`
+       in
+       [`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+       to succeed without changing the test vector.
+   * **Cons**:
+     * **Code Complexity**: Adds ~12 lines of custom IPv6 hex-formatting logic
+       to
+       [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+       running counter to our goal of eliminating handwritten string
+       formatting.
+     * **Maintenance Burden**: Rewriting the host string only helps
+       `SecPolicyCreateSSL`; on a full gRPC channel under `KeepBoth`, gRPC's
+       `ClientAuthFilter` (`check_call_host(true)`) still inspects the
+       unrewritten channel authority.
+3. **`RejectDottedIpv6`** (reject IPv6 literals containing `.` in
+   [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+   and move `"[::ffff:127.0.0.1]:443"` to
+   [`ExtractTlsHostNameEmptyAndMalformed`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)):
+   * **Pros**:
+     * **Error Attribution**: Rejects mixed dotted-quad IPv6 literals upfront in
+       [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+       with `"Invalid or empty TLS target host name"` rather than failing inside
+       `SecTrustEvaluateWithError`.
+   * **Cons**:
+     * **Code Complexity**: Adds an extra special-case filter on top of POSIX
+       `inet_pton(AF_INET6, ...)` in
+       [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+
+### Question
+
+How would you like to handle mixed dotted-quad IPv4-mapped IPv6 literals like
+`"[::ffff:127.0.0.1]:443"`?
+
+### Options Presented
+
+* **Option 1: TestHexIpv6** (Recommended) — Keep
+  [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+  unchanged and update the test vector in
+  [`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+  from `"[::ffff:127.0.0.1]:443"` to `"[::ffff:7f00:1]:443"`.
+* **Option 2: CanonicalizeToHex** — Canonicalize dotted-quad IPv6 literals into
+  colon-hex notation using `struct in6_addr` inside
+  [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+  so `"[::ffff:127.0.0.1]:443"` is passed as `"::ffff:7f00:1"` to
+  `SecPolicyCreateSSL`.
+* **Option 3: RejectDottedIpv6** — Reject IPv6 literals containing `.` in
+  [`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+  and move `"[::ffff:127.0.0.1]:443"` to
+  [`ExtractTlsHostNameEmptyAndMalformed`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm).
+
+### Selection
+
+**Option 1: TestHexIpv6** — Kept
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+unchanged and updated the test vector in
+[`ExtractTlsHostNameIpv6`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+from `"[::ffff:127.0.0.1]:443"` to `"[::ffff:7f00:1]:443"`.
+
+
 

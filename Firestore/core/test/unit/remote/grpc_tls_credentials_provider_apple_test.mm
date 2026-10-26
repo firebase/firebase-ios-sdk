@@ -758,7 +758,8 @@ grpc::Status PerformUnaryEcho(const std::shared_ptr<grpc::Channel>& channel,
 }
 
 // ===========================================================================
-// 1. ExtractTlsHostName Unit Tests (tested through VerifyAppleTlsCertificateChain)
+// 1. ExtractTlsHostName Unit Tests (tested through
+// VerifyAppleTlsCertificateChain)
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
@@ -769,14 +770,13 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  for (const auto& target : {"firestore.googleapis.com",
-                             "firestore.googleapis.com:443",
-                             "127.0.0.1",
-                             "127.0.0.1:50051"}) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        pki.ServerChainPem(), target, anchors.get());
-    EXPECT_TRUE(status.ok()) << "target: " << target
-                             << " error: " << status.error_message();
+  for (const auto& target :
+       {"firestore.googleapis.com", "firestore.googleapis.com:443", "127.0.0.1",
+        "127.0.0.1:50051"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
+    EXPECT_TRUE(status.ok())
+        << "target: " << target << " error: " << status.error_message();
   }
 }
 
@@ -791,18 +791,13 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  for (const auto& target : {"[::1]:443",
-                             "[2001:db8::1]",
-                             "[2001:db8::1]:8443",
-                             "[::ffff:127.0.0.1]:443",
-                             "[fe80::1%en0]:443",
-                             "fe80::1%en0",
-                             "::1",
-                             "2001:db8::1"}) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        pki.ServerChainPem(), target, anchors.get());
-    EXPECT_TRUE(status.ok()) << "target: " << target
-                             << " error: " << status.error_message();
+  for (const auto& target : {"[::1]:443", "[2001:db8::1]", "[2001:db8::1]:8443",
+                             "[::ffff:7f00:1]:443", "[fe80::1%en0]:443",
+                             "fe80::1%en0", "::1", "2001:db8::1"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
+    EXPECT_TRUE(status.ok())
+        << "target: " << target << " error: " << status.error_message();
   }
 }
 
@@ -846,15 +841,16 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
       embedded_nul_target};
 
   for (const auto& target : malformed_targets) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        pki.ServerChainPem(), target, anchors.get());
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << "target: " << target;
   }
 }
 
 // ===========================================================================
-// 2. ParsePemCertificateChain Unit Tests (tested through VerifyAppleTlsCertificateChain)
+// 2. ParsePemCertificateChain Unit Tests (tested through
+// VerifyAppleTlsCertificateChain)
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -947,9 +943,9 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   // Unclosed BEGIN CERTIFICATE block.
   {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        "-----BEGIN CERTIFICATE-----\nMIIB\n", "valid.firestore.local",
-        anchors.get());
+    grpc::Status status =
+        VerifyAppleTlsCertificateChain("-----BEGIN CERTIFICATE-----\nMIIB\n",
+                                       "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 

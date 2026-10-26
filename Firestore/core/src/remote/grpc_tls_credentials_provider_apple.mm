@@ -55,10 +55,9 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
   }
 
   @autoreleasepool {
-    NSString* target =
-        [[NSString alloc] initWithBytes:target_name.data()
-                                 length:target_name.size()
-                               encoding:NSUTF8StringEncoding];
+    NSString* target = [[NSString alloc] initWithBytes:target_name.data()
+                                                length:target_name.size()
+                                              encoding:NSUTF8StringEncoding];
     if (target == nil || target.length == 0) {
       return "";
     }
@@ -71,14 +70,14 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
 #pragma clang diagnostic pop
 
     if ([target rangeOfCharacterFromSet:[NSCharacterSet controlCharacterSet]]
-            .location != NSNotFound ||
+                .location != NSNotFound ||
         [target rangeOfCharacterFromSet:[NSCharacterSet
                                             whitespaceAndNewlineCharacterSet]]
-            .location != NSNotFound ||
-        [target rangeOfCharacterFromSet:[NSCharacterSet
-                                            characterSetWithCharactersInString:
-                                                @"/,?#@"]]
-            .location != NSNotFound) {
+                .location != NSNotFound ||
+        [target
+            rangeOfCharacterFromSet:
+                [NSCharacterSet characterSetWithCharactersInString:@"/,?#@"]]
+                .location != NSNotFound) {
       return "";
     }
 
@@ -173,9 +172,9 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
     }
     if ([target rangeOfString:@":"].location != NSNotFound) {
       if (comps.port == nil ||
-          ![target isEqualToString:[NSString stringWithFormat:@"%@:%@",
-                                                              comps.host,
-                                                              comps.port]]) {
+          ![target
+              isEqualToString:[NSString stringWithFormat:@"%@:%@", comps.host,
+                                                         comps.port]]) {
         return "";
       }
     } else {
@@ -197,14 +196,12 @@ CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
   }
 
   @autoreleasepool {
-    NSString* pem =
-        [[NSString alloc] initWithBytes:pem_chain.data()
-                                 length:pem_chain.size()
-                               encoding:NSUTF8StringEncoding];
+    NSString* pem = [[NSString alloc] initWithBytes:pem_chain.data()
+                                             length:pem_chain.size()
+                                           encoding:NSUTF8StringEncoding];
     if (pem == nil || pem.length == 0) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Invalid UTF-8 in PEM peer chain"));
+      SetStatus(out_status, grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                                         "Invalid UTF-8 in PEM peer chain"));
       return nullptr;
     }
 
@@ -238,10 +235,10 @@ CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
       }
 
       if ([scanner scanString:kEndMarker intoString:NULL]) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Stray PEM END CERTIFICATE marker in peer chain"));
+        SetStatus(
+            out_status,
+            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                         "Stray PEM END CERTIFICATE marker in peer chain"));
         return nullptr;
       }
 
@@ -276,20 +273,20 @@ CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
               componentsJoinedByString:@""];
 
       if (clean_base64.length == 0) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Invalid base64 payload in PEM CERTIFICATE block"));
+        SetStatus(
+            out_status,
+            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                         "Invalid base64 payload in PEM CERTIFICATE block"));
         return nullptr;
       }
 
-      NSData* der_data = [[NSData alloc] initWithBase64EncodedString:clean_base64
-                                                             options:0];
+      NSData* der_data =
+          [[NSData alloc] initWithBase64EncodedString:clean_base64 options:0];
       if (der_data == nil || der_data.length == 0) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Invalid base64 payload in PEM CERTIFICATE block"));
+        SetStatus(
+            out_status,
+            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                         "Invalid base64 payload in PEM CERTIFICATE block"));
         return nullptr;
       }
 
