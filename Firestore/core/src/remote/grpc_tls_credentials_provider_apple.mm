@@ -31,7 +31,6 @@
 #include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
-#include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
@@ -43,9 +42,6 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 namespace {
-
-constexpr absl::string_view kPemBeginCert = "-----BEGIN CERTIFICATE-----";
-constexpr absl::string_view kPemEndCert = "-----END CERTIFICATE-----";
 
 void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
   if (out_status != nullptr) {
@@ -191,6 +187,139 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
   }
 }
 
+CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
+                                    grpc::Status* out_status) {
+  if (pem_chain.empty()) {
+    SetStatus(out_status,
+              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                           "No PEM certificates found in peer chain"));
+    return nullptr;
+  }
+
+  @autoreleasepool {
+    NSString* pem =
+        [[NSString alloc] initWithBytes:pem_chain.data()
+                                 length:pem_chain.size()
+                               encoding:NSUTF8StringEncoding];
+    if (pem == nil || pem.length == 0) {
+      SetStatus(out_status,
+                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                             "Invalid UTF-8 in PEM peer chain"));
+      return nullptr;
+    }
+
+    CFMutableArrayRef certs =
+        CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+    if (certs == nullptr) {
+      SetStatus(out_status,
+                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                             "Failed to allocate CFArray for peer chain"));
+      return nullptr;
+    }
+
+    bool ok = false;
+    util::Defer cleanup_certs([&] {
+      if (!ok) {
+        util::SafeCFRelease(certs);
+      }
+    });
+
+    NSString* const kBeginMarker = @"-----BEGIN CERTIFICATE-----";
+    NSString* const kEndMarker = @"-----END CERTIFICATE-----";
+    NSCharacterSet* ws = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+
+    NSScanner* scanner = [NSScanner scannerWithString:pem];
+    scanner.charactersToBeSkipped = nil;
+
+    while (!scanner.isAtEnd) {
+      [scanner scanCharactersFromSet:ws intoString:NULL];
+      if (scanner.isAtEnd) {
+        break;
+      }
+
+      if ([scanner scanString:kEndMarker intoString:NULL]) {
+        SetStatus(out_status,
+                  grpc::Status(
+                      grpc::StatusCode::UNAUTHENTICATED,
+                      "Stray PEM END CERTIFICATE marker in peer chain"));
+        return nullptr;
+      }
+
+      if (![scanner scanString:kBeginMarker intoString:NULL]) {
+        SetStatus(out_status,
+                  grpc::Status(
+                      grpc::StatusCode::UNAUTHENTICATED,
+                      "Unexpected non-whitespace text outside PEM CERTIFICATE "
+                      "block in peer chain"));
+        return nullptr;
+      }
+
+      NSString* raw_base64 = @"";
+      [scanner scanUpToString:kEndMarker intoString:&raw_base64];
+
+      if ([raw_base64 rangeOfString:kBeginMarker].location != NSNotFound) {
+        SetStatus(out_status,
+                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                               "Nested or unclosed PEM CERTIFICATE block"));
+        return nullptr;
+      }
+
+      if (![scanner scanString:kEndMarker intoString:NULL]) {
+        SetStatus(out_status,
+                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                               "Unclosed PEM CERTIFICATE block in peer chain"));
+        return nullptr;
+      }
+
+      NSString* clean_base64 =
+          [[raw_base64 componentsSeparatedByCharactersInSet:ws]
+              componentsJoinedByString:@""];
+
+      if (clean_base64.length == 0) {
+        SetStatus(out_status,
+                  grpc::Status(
+                      grpc::StatusCode::UNAUTHENTICATED,
+                      "Invalid base64 payload in PEM CERTIFICATE block"));
+        return nullptr;
+      }
+
+      NSData* der_data = [[NSData alloc] initWithBase64EncodedString:clean_base64
+                                                             options:0];
+      if (der_data == nil || der_data.length == 0) {
+        SetStatus(out_status,
+                  grpc::Status(
+                      grpc::StatusCode::UNAUTHENTICATED,
+                      "Invalid base64 payload in PEM CERTIFICATE block"));
+        return nullptr;
+      }
+
+      SecCertificateRef cert = SecCertificateCreateWithData(
+          kCFAllocatorDefault, (__bridge CFDataRef)der_data);
+      if (cert == nullptr) {
+        SetStatus(out_status,
+                  grpc::Status(
+                      grpc::StatusCode::UNAUTHENTICATED,
+                      "Failed to parse DER X.509 certificate in peer chain"));
+        return nullptr;
+      }
+
+      CFArrayAppendValue(certs, cert);
+      CFRelease(cert);
+    }
+
+    if (CFArrayGetCount(certs) == 0) {
+      SetStatus(out_status,
+                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                             "No PEM certificates found in peer chain"));
+      return nullptr;
+    }
+
+    ok = true;
+    SetStatus(out_status, grpc::Status::OK);
+    return certs;
+  }
+}
+
 absl::string_view ToStringView(grpc::string_ref ref) {
   return ref.empty() ? absl::string_view{}
                      : absl::string_view(ref.data(), ref.size());
@@ -269,141 +398,6 @@ GetDefaultAppleCertificateVerifier() {
 }
 
 }  // namespace
-
-
-CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
-                                    grpc::Status* out_status) {
-  @autoreleasepool {
-    CFMutableArrayRef certs =
-        CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
-    if (certs == nullptr) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Failed to allocate CFArray for peer chain"));
-      return nullptr;
-    }
-
-    bool ok = false;
-    util::Defer cleanup_certs([&] {
-      if (!ok) {
-        util::SafeCFRelease(certs);
-      }
-    });
-
-    bool in_cert = false;
-    std::string base64_body;
-
-    size_t cursor = 0;
-    while (cursor <= pem_chain.size()) {
-      size_t newline = pem_chain.find('\n', cursor);
-      absl::string_view line;
-      if (newline == absl::string_view::npos) {
-        line = pem_chain.substr(cursor);
-        cursor = pem_chain.size() + 1;
-      } else {
-        line = pem_chain.substr(cursor, newline - cursor);
-        cursor = newline + 1;
-      }
-
-      if (!line.empty() && line.back() == '\r') {
-        line.remove_suffix(1);
-      }
-      absl::string_view trimmed = StripTrailingHorizontalWhitespace(line);
-
-      if (trimmed == kPemBeginCert) {
-        if (in_cert) {
-          SetStatus(out_status,
-                    grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                                 "Nested or unclosed PEM CERTIFICATE block"));
-          return nullptr;
-        }
-        in_cert = true;
-        base64_body.clear();
-        continue;
-      }
-
-      if (trimmed == kPemEndCert) {
-        if (!in_cert) {
-          SetStatus(
-              out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                           "Stray PEM END CERTIFICATE marker in peer chain"));
-          return nullptr;
-        }
-
-        if (!IsStrictStandardBase64(base64_body)) {
-          SetStatus(
-              out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                           "Invalid base64 payload in PEM CERTIFICATE block"));
-          return nullptr;
-        }
-
-        NSString* ns_base64 = util::MakeNSString(base64_body);
-        NSData* der_data = [[NSData alloc] initWithBase64EncodedString:ns_base64
-                                                               options:0];
-        if (der_data == nil || der_data.length == 0) {
-          SetStatus(
-              out_status,
-              grpc::Status(
-                  grpc::StatusCode::UNAUTHENTICATED,
-                  "Failed to base64-decode PEM CERTIFICATE block payload"));
-          return nullptr;
-        }
-
-        SecCertificateRef cert = SecCertificateCreateWithData(
-            kCFAllocatorDefault, (__bridge CFDataRef)der_data);
-        if (cert == nullptr) {
-          SetStatus(out_status,
-                    grpc::Status(
-                        grpc::StatusCode::UNAUTHENTICATED,
-                        "Failed to parse DER X.509 certificate in peer chain"));
-          return nullptr;
-        }
-
-        CFArrayAppendValue(certs, cert);
-        CFRelease(cert);
-
-        in_cert = false;
-        base64_body.clear();
-        continue;
-      }
-
-      if (in_cert) {
-        for (char c : line) {
-          if (c != ' ' && c != '\t' && c != '\r') {
-            base64_body.push_back(c);
-          }
-        }
-      } else if (!trimmed.empty()) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Unexpected non-whitespace text outside PEM CERTIFICATE "
-                      "block in peer chain"));
-        return nullptr;
-      }
-    }
-
-    if (in_cert) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Unclosed PEM CERTIFICATE block in peer chain"));
-      return nullptr;
-    }
-
-    if (CFArrayGetCount(certs) == 0) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "No PEM certificates found in peer chain"));
-      return nullptr;
-    }
-
-    ok = true;
-    SetStatus(out_status, grpc::Status::OK);
-    return certs;
-  }
-}
 
 grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
                                             absl::string_view target_name,
@@ -503,25 +497,16 @@ std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
   // populates `peer_cert_full_chain()` for `AppleSecTrustCertificateVerifier`.
   options.set_verify_server_certs(false);
 
-  // Disable gRPC's per-call BoringSSL hostname check for two reasons, and note
-  // the upstream deprecation status:
-  //
-  // 1. Why it is disabled: `SecPolicyCreateSSL(/*server=*/true, cf_host)`
-  //    already performs full RFC 6125 / Apple X.509 hostname and IP Subject
-  //    Alternative Name verification inside `Verify()`, making BoringSSL's
-  //    default per-RPC host check redundant. gRPC's own documentation on
-  //    `set_check_call_host` also specifies that it should be disabled when a
-  //    custom verifier other than `HostNameCertificateVerifier` is used.
-  //
-  // 2. Deprecation uncertainty: gRPC's doc comment in
-  //    `grpcpp/security/tls_credentials_options.h` states: "Deprecated: This
-  //    function will be removed in the 1.66 release. This will be replaced by
-  //    and handled within the custom verifier settings." However,
-  //    `set_check_call_host` has no `[[deprecated]]` C++ attribute and remains
-  //    present and active across `gRPC` `1.69.0` through `1.84.1+` with no
-  //    replacement custom-verifier option shipped yet. If a future gRPC release
-  //    removes or replaces `set_check_call_host`, revisit this call.
-  options.set_check_call_host(false);
+  // Keep gRPC's default `check_call_host(true)` alongside Apple SecTrust:
+  // Handshake-time `SecTrust` evaluates the peer certificate chain against
+  // `SecPolicyCreateSSL(/*server=*/true, cf_host)` on the channel target name,
+  // enforcing Apple's strict RFC 9525 and HT210176 requirements (SAN-only,
+  // PSL wildcard validation, and OS/MDM/OTA trust settings). In addition,
+  // gRPC's default per-RPC `check_call_host(true)` (`ClientAuthFilter` ->
+  // `SslCheckCallHost`) verifies the per-call HTTP/2 `:authority` header
+  // before attaching sensitive bearer credentials (such as Firebase Auth and
+  // AppCheck tokens). Leaving this enabled preserves defense-in-depth and
+  // avoids calling the deprecated `set_check_call_host` setter.
 
   options.set_certificate_verifier(
       anchor_certs == nullptr
