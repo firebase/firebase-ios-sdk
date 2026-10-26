@@ -25,8 +25,9 @@ change device types across OS generations (for example, visionOS 2 uses
 `Apple-Vision-Pro` while visionOS 26+ uses `Apple-Vision-Pro-4K`).
 
 This script queries `simctl` for the available runtimes, finds the newest one
-whose supported device types include any of the requested device types, and
-prints `<device_type> <runtime_identifier>`.
+whose supported device types include any of the requested device types
+(preferring runtimes matching the active Xcode's simulator SDK major version
+when available), and prints `<device_type> <runtime_identifier>`.
 
 Example:
 
@@ -40,6 +41,14 @@ import json
 import re
 import subprocess
 import sys
+
+_SDK_BY_PLATFORM = {
+    'ios': 'iphonesimulator',
+    'tvos': 'appletvsimulator',
+    'visionos': 'xrsimulator',
+    'watchos': 'watchsimulator',
+    'xros': 'xrsimulator',
+}
 
 
 def main(argv=None):
@@ -69,6 +78,18 @@ def main(argv=None):
   if not candidates:
     _report_no_match(args.platforms, args.device_types, runtimes)
     return 1
+
+  # Prefer runtimes matching the active Xcode's simulator SDK major version so
+  # multi-Xcode hosts do not pick an incompatible newer major OS, while still
+  # choosing the highest point release within that major version to align with
+  # xcodebuild's implicit OS:latest destination resolution.
+  sdk_major = _active_sdk_major(args.platforms)
+  if sdk_major is not None:
+    sdk_candidates = [
+        item for item in candidates if _runtime_major(item[2]) == sdk_major
+    ]
+    if sdk_candidates:
+      candidates = sdk_candidates
 
   # Prefer the highest OS version, then earlier device-type preference, then
   # later entries in simctl's ascending build-ordered runtime list.
@@ -132,6 +153,34 @@ def _list_available_runtimes():
       runtime for runtime in json.loads(output).get('runtimes', [])
       if runtime.get('isAvailable') and 'identifier' in runtime
   ]
+
+
+def _active_sdk_major(platforms):
+  """Returns the active Xcode's simulator SDK major version, or `None`."""
+  seen_sdks = set()
+  for platform in platforms:
+    sdk_name = _SDK_BY_PLATFORM.get(platform.lower())
+    if sdk_name is None or sdk_name in seen_sdks:
+      continue
+    seen_sdks.add(sdk_name)
+    try:
+      version = subprocess.check_output(
+          ['xcrun', '--sdk', sdk_name, '--show-sdk-version'],
+          stderr=subprocess.DEVNULL,
+          text=True,
+      )
+    except (subprocess.CalledProcessError, OSError):
+      continue
+    match = re.match(r'\s*(\d+)', version)
+    if match:
+      return int(match.group(1))
+  return None
+
+
+def _runtime_major(runtime):
+  """Returns the major version integer of `runtime`, or `None`."""
+  parts, _ = _version_key(runtime)
+  return parts[0] if parts else None
 
 
 def _platform_name(runtime):
