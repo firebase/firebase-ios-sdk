@@ -53,7 +53,7 @@ static BOOL FIRCLSSettingsBoolValue(id value, BOOL defaultValue) {
 
 // Returns YES if the value is a finite, non-negative number. Missing values and explicit JSON nulls
 // are not logged.
-static BOOL FIRCLSSettingsIsValidNumber(id value, NSString *key) {
+static BOOL FIRCLSSettingsIsValidNonNegativeNumber(id value, NSString *key) {
   if (value == nil || [value isKindOfClass:[NSNull class]]) {
     return NO;
   }
@@ -70,7 +70,7 @@ static BOOL FIRCLSSettingsIsValidNumber(id value, NSString *key) {
 }
 
 static double FIRCLSSettingsDoubleValue(id value, NSString *key, double defaultValue) {
-  if (!FIRCLSSettingsIsValidNumber(value, key)) {
+  if (!FIRCLSSettingsIsValidNonNegativeNumber(value, key)) {
     return defaultValue;
   }
 
@@ -78,7 +78,7 @@ static double FIRCLSSettingsDoubleValue(id value, NSString *key, double defaultV
 }
 
 static uint32_t FIRCLSSettingsUInt32Value(id value, NSString *key, uint32_t defaultValue) {
-  if (!FIRCLSSettingsIsValidNumber(value, key)) {
+  if (!FIRCLSSettingsIsValidNonNegativeNumber(value, key)) {
     return defaultValue;
   }
 
