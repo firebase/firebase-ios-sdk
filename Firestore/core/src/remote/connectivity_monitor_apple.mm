@@ -77,8 +77,12 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
   std::weak_ptr<AsyncQueue> weak_queue = queue();
 
   nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
-    auto s = weak_state.lock();
-    if (!s) return;
+    // Do not hold a strong ref to State across Enqueue. If this outer block
+    // holds a strong ref while enqueuing, the inner lambda could begin running
+    // on the worker queue concurrently and lock weak_state even after
+    // ~ConnectivityMonitorApple() has initiated destruction and called
+    // state_.reset(), leading to a use-after-free on raw_this.
+    if (weak_state.expired()) return;
     auto q = weak_queue.lock();
     if (!q) return;
     auto status = ToNetworkStatus(path);
@@ -103,8 +107,9 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
                 (void)note;
-                auto s = weak_state.lock();
-                if (!s) return;
+                // Do not hold a strong ref to State across Enqueue. See the
+                // update handler above for why.
+                if (weak_state.expired()) return;
                 auto q = weak_queue.lock();
                 if (!q) return;
 
