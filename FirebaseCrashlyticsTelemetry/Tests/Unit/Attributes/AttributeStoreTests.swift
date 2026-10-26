@@ -20,10 +20,11 @@ import XCTest
 final class AttributeStoreTests: XCTestCase {
   override func tearDown() {
     AttributeStore.setScreenName(CrashlyticsScreen.unknown.name)
+    AttributeStore.setSessionId(nil)
     super.tearDown()
   }
 
-  func test_commonSpanAttributes_containsScreenNameAndAppVersion() {
+  func test_commonSpanAttributes_containsScreenNameAndAppVersionAndOmitsSessionIdWhenNil() {
     let attributes = AttributeStore.commonSpanAttributes()
 
     XCTAssertEqual(
@@ -34,15 +35,17 @@ final class AttributeStoreTests: XCTestCase {
       attributes["gcp.firebase.app_version"],
       .string("1.0")
     )
+    XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
   }
 
-  func test_commonLogAttributes_containsScreenName() {
+  func test_commonLogAttributes_containsScreenNameAndOmitsSessionIdWhenNil() {
     let attributes = AttributeStore.commonLogAttributes()
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsScreen.unknown.name)
     )
+    XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
   }
 
   func test_setScreenName_updatesCommonSpanAndLogAttributes() {
@@ -55,6 +58,19 @@ final class AttributeStoreTests: XCTestCase {
     XCTAssertEqual(
       AttributeStore.commonLogAttributes()[SemanticConventions.App.screenName.rawValue],
       .string("SettingsScreen")
+    )
+  }
+
+  func test_setSessionId_updatesCommonSpanAndLogAttributes() {
+    AttributeStore.setSessionId("test-session-123")
+
+    XCTAssertEqual(
+      AttributeStore.commonSpanAttributes()[SemanticConventions.Session.id.rawValue],
+      .string("test-session-123")
+    )
+    XCTAssertEqual(
+      AttributeStore.commonLogAttributes()[SemanticConventions.Session.id.rawValue],
+      .string("test-session-123")
     )
   }
 }

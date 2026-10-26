@@ -14,6 +14,8 @@
 
 internal import FirebaseCore
 internal import FirebaseCoreExtension
+import FirebaseCrashlytics
+internal import FirebaseSessions
 
 import OpenTelemetryApi
 import OpenTelemetrySdk
@@ -22,7 +24,7 @@ internal import CrashlyticsTelemetryOTelURLSessionInstrumentation
 
 @objc(FIRCrashlyticsTelemetry)
 final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetryProvider,
-  @unchecked Sendable {
+  SessionsSubscriber, @unchecked Sendable {
   private(set) nonisolated(unsafe) static var instance: FirebaseCrashlyticsTelemetry?
 
   let tracerProvider: TracerProvider
@@ -46,7 +48,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   private let mutableCustomAttributeKey = "firebase.test_attribute"
   private var mutableCustomAttributeValue = 0
 
-  init(options: FirebaseOptions) {
+  init(options: FirebaseOptions, sessions: SessionsProvider) {
     let resource = Self.createResource(scopeName: scopeName, projectId: options.projectID)
 
     recoveryManager = RecoveryManager(
@@ -74,6 +76,9 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     self.loggerProvider = loggerProvider
 
     super.init()
+
+    LoggingHelper.logger.debug("Registering Sessions SDK subscription for session data")
+    sessions.register(subscriber: self)
 
     // MARK: - Instrumentation
 
@@ -228,10 +233,36 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
                       instantiationTiming: .eagerInDefaultApp) { container, isCacheable in
         // Crashlytics Telemetry SDK only works for the default app
         guard let app = container.app, app.isDefaultApp else { return nil }
+        guard let sessions = ComponentType<SessionsProvider>.instance(
+          for: SessionsProvider.self,
+          in: container
+        ) else {
+          LoggingHelper.logger.error(
+            "Failed to retrieve SessionsProvider from ComponentContainer. Crashlytics Telemetry will not initialize."
+          )
+          return nil
+        }
+        // TODO: Add a direct dependency on Firebase Crashlytics
+
         isCacheable.pointee = true
 
-        instance = self.init(options: app.options)
-        return instance
+        self.instance = self.init(options: app.options, sessions: sessions)
+        return self.instance
       }]
+  }
+
+  // MARK: - SessionsSubscriber conformance
+
+  func onSessionChanged(_ session: SessionDetails) {
+    LoggingHelper.logger.debug("Session ID changed: \(session.sessionId ?? "nil")")
+    AttributeStore.setSessionId(session.sessionId)
+  }
+
+  var isDataCollectionEnabled: Bool {
+    return Crashlytics.crashlytics().isCrashlyticsCollectionEnabled()
+  }
+
+  var sessionsSubscriberName: SessionsSubscriberName {
+    return .CrashlyticsTelemetry
   }
 }

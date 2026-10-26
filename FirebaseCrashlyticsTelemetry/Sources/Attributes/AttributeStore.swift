@@ -22,26 +22,42 @@ enum AttributeStore {
   // TODO: Add instrumentation scope attributes.
 
   private static let screenName = UnfairLock<String>(CrashlyticsScreen.unknown.name)
+  private static let sessionId = UnfairLock<String?>(nil)
 
   /// Updates the currently active screen name.
   static func setScreenName(_ name: String) {
     screenName.withLock { $0 = name }
   }
 
+  /// Updates the currently active session ID.
+  static func setSessionId(_ id: String?) {
+    sessionId.withLock { $0 = id }
+  }
+
+  /// Returns the common attributes that should be attached to all telemetry signals.
+  private static func commonAttributes() -> [String: AttributeValue] {
+    var attributes: [String: AttributeValue] = [
+      SemanticConventions.App.screenName.rawValue: .string(screenName.value()),
+    ]
+
+    if let sessionId = sessionId.value() {
+      attributes[SemanticConventions.Session.id.rawValue] = .string(sessionId)
+    }
+
+    return attributes
+  }
+
   /// Returns the common attributes that should be attached to all spans.
   static func commonSpanAttributes() -> [String: AttributeValue] {
-    return [
-      SemanticConventions.App.screenName.rawValue: .string(screenName.value()),
-      // TODO: Remove this attribute. Currently added as a work around to a limitation in the
-      // backend server.
-      "gcp.firebase.app_version": .string("1.0"),
-    ]
+    var attributes = commonAttributes()
+    // TODO: Remove this attribute. Currently added as a work around to a limitation in the
+    // backend server.
+    attributes["gcp.firebase.app_version"] = .string("1.0")
+    return attributes
   }
 
   /// Returns the common attributes that should be attached to all log records.
   static func commonLogAttributes() -> [String: AttributeValue] {
-    return [
-      SemanticConventions.App.screenName.rawValue: .string(screenName.value()),
-    ]
+    return commonAttributes()
   }
 }

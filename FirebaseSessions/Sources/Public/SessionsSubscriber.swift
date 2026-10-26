@@ -42,6 +42,7 @@ public enum SessionsSubscriberName: Int, CustomStringConvertible, Sendable {
   case Unknown
   case Crashlytics
   case Performance
+  case CrashlyticsTelemetry
 
   public var description: String {
     switch self {
@@ -49,6 +50,8 @@ public enum SessionsSubscriberName: Int, CustomStringConvertible, Sendable {
       return "Crashlytics"
     case .Performance:
       return "Performance"
+    case .CrashlyticsTelemetry:
+      return "CrashlyticsTelemetry"
     default:
       return "Unknown"
     }
