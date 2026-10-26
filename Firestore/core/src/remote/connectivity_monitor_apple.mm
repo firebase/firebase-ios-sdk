@@ -56,6 +56,10 @@ NetworkStatus ToNetworkStatus(nw_path_t path) {
 ConnectivityMonitorApple::ConnectivityMonitorApple(
     const std::shared_ptr<AsyncQueue>& worker_queue)
     : ConnectivityMonitor{worker_queue}, state_{std::make_shared<State>()} {
+  HARD_ASSERT(this->queue()->IsCurrentQueue(),
+              "ConnectivityMonitorApple must be constructed on its AsyncQueue. "
+              "See class comment for why.");
+
   monitor_ = nw_path_monitor_create();
   if (!monitor_) {
     LOG_DEBUG("Failed to create network monitor.");
@@ -147,6 +151,16 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
   }
 
   state_.reset();
+
+  if (monitor_queue_) {
+    HARD_ASSERT(dispatch_get_specific(kMonitorQueueKey) !=
+                    (__bridge void*)monitor_queue_,
+                "ConnectivityMonitorApple must not be destroyed on its monitor "
+                "queue (would deadlock)");
+    dispatch_sync(monitor_queue_, ^{
+                  });
+  }
+
   monitor_ = nullptr;
   monitor_queue_ = nullptr;
 }
