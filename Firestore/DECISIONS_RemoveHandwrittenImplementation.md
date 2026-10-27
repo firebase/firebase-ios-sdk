@@ -613,6 +613,51 @@ How should we perform null-safe `NSString*` to `std::string` conversion in
 eliminating direct `std::string(candidate.UTF8String)` undefined behavior risks
 without introducing bespoke helper functions.
 
+---
+
+## 12. Strict ASCII Whitespace in PEM Parsing (Review Finding 8)
+
+### Context
+
+In
+[`CreateCertificateChainFromPem`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+`NSScanner` previously skipped whitespace between certificates and stripped
+whitespace from base64 blocks using Foundation's
+`[NSCharacterSet whitespaceAndNewlineCharacterSet]`. Because
+`whitespaceAndNewlineCharacterSet` encompasses all Unicode whitespace
+categories (including non-breaking spaces U+00A0 and ideographic spaces
+U+3000), it permissively accepted and stripped non-ASCII whitespace inside
+base64 blocks and outside PEM boundaries.
+
+Under RFC 7468 (Textual Encodings of PKIX Artifacts), PEM formatting is
+strictly 7-bit ASCII consisting of spaces (` `), horizontal tabs (`\t`),
+carriage returns (`\r`), and newlines (`\n`). Restricting `ws` to
+`[NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"]` ensures
+RFC 7468 compliance and strict rejection of non-ASCII characters. An inline
+comment documents this rationale so future maintainers understand why a custom
+set of whitespace characters was specified.
+
+### Question
+
+Should we restrict PEM whitespace parsing to strict RFC 7468 ASCII whitespace
+in
+[`CreateCertificateChainFromPem`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: StrictAsciiWhitespace** (Recommended) — Use
+  `[NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"]` with an
+  inline explanation of RFC 7468 ASCII whitespace requirements.
+* **Option 2: KeepUnicodeWhitespace** — Keep
+  `[NSCharacterSet whitespaceAndNewlineCharacterSet]`.
+
+### Selection
+
+**Option 1: StrictAsciiWhitespace** — Restricted `ws` to
+`[NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"]` and added an
+inline comment documenting the RFC 7468 requirement for future readers.
+
+
 
 
 

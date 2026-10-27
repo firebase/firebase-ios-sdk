@@ -223,7 +223,15 @@ CFArrayRef CreateCertificateChainFromPem(absl::string_view pem_chain,
 
     NSString* const kBeginMarker = @"-----BEGIN CERTIFICATE-----";
     NSString* const kEndMarker = @"-----END CERTIFICATE-----";
-    NSCharacterSet* ws = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    // Under RFC 7468 (Textual Encodings of PKIX Artifacts), PEM formatting is
+    // strictly 7-bit ASCII consisting of spaces, horizontal tabs, carriage
+    // returns, and newlines. Using explicit ASCII whitespace characters rather
+    // than `+[NSCharacterSet whitespaceAndNewlineCharacterSet]` prevents
+    // non-ASCII Unicode whitespace (such as U+00A0 non-breaking space or
+    // U+3000 ideographic space) from being permissively stripped from base64
+    // payloads.
+    NSCharacterSet* ws =
+        [NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"];
 
     NSScanner* scanner = [NSScanner scannerWithString:pem];
     scanner.charactersToBeSkipped = nil;
