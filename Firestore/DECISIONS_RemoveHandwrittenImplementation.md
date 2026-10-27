@@ -693,6 +693,48 @@ Should we remove the explicit `rangeOfString:@"\0"` check in
 simplifying the code while preserving full security coverage through
 `[NSCharacterSet controlCharacterSet]`.
 
+---
+
+## 14. Specific Status Code Assertions in Loopback Tests (Review Finding 10)
+
+### Context
+
+In
+[`grpc_tls_credentials_provider_apple_test.mm`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm),
+the end-to-end TLS loopback rejection tests (`LoopbackGrpcServerRejectsUntrustedRoot`,
+`LoopbackGrpcServerRejectsWrongHostName`,
+`LoopbackGrpcServerRejectsMissingIntermediate`, and
+`LoopbackGrpcServerRejectsExpiredLeafCertificate`) previously asserted only
+`EXPECT_FALSE(status.ok())`.
+
+Because `EXPECT_FALSE(status.ok())` satisfies any non-OK status code, an
+unrelated failure (such as a local port bind collision or argument error) could
+cause the test to pass even if TLS verification had erroneously accepted the
+untrusted/expired certificate. In gRPC, a TLS handshake rejection consistently
+fails client RPCs with `grpc::StatusCode::UNAVAILABLE`.
+
+### Question
+
+Should we assert `EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)`
+in loopback rejection tests in
+[`grpc_tls_credentials_provider_apple_test.mm`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)?
+
+### Options Presented
+
+* **Option 1: AssertUnavailable** (Recommended) — Update loopback rejection
+  tests to assert
+  `EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)` in addition
+  to `EXPECT_FALSE(status.ok())`.
+* **Option 2: KeepGenericExpectFalse** — Keep `EXPECT_FALSE(status.ok())`
+  without status code assertions.
+
+### Selection
+
+**Option 1: AssertUnavailable** — Updated all loopback rejection tests in
+[`grpc_tls_credentials_provider_apple_test.mm`](core/test/unit/remote/grpc_tls_credentials_provider_apple_test.mm)
+to assert `EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)`.
+
+
 
 
 

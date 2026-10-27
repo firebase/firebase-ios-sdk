@@ -1222,6 +1222,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   grpc::Status custom_status =
       PerformUnaryEcho(custom_anchor_channel, "should-fail-root-a");
   EXPECT_FALSE(custom_status.ok());
+  EXPECT_EQ(custom_status.error_code(), grpc::StatusCode::UNAVAILABLE);
 
   // Default OS trust (`CreateDefaultTlsCredentials()`) must also reject
   // ephemeral Root B.
@@ -1230,6 +1231,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   grpc::Status default_status =
       PerformUnaryEcho(default_trust_channel, "should-fail-os-trust");
   EXPECT_FALSE(default_status.ok());
+  EXPECT_EQ(default_status.error_code(), grpc::StatusCode::UNAVAILABLE);
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -1250,6 +1252,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   grpc::Status status = PerformUnaryEcho(channel, "should-fail-wrong-host");
   EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -1270,6 +1273,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   grpc::Status status = PerformUnaryEcho(channel, "should-fail-missing-inter");
   EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -1290,6 +1294,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   grpc::Status status = PerformUnaryEcho(channel, "should-fail-expired-leaf");
   EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
 }
 
 }  // namespace
