@@ -19,6 +19,9 @@ set -ex
 cd "${REPO}"/ReleaseTooling
 
 # This file will have non Firebase SDKs that will be built by ZipBuilder.
+# Each entry in NON_FIREBASE_SDKS is either `PodName` or `PodName:VersionRequirement`
+# (e.g. `FBSDKLoginKit:~>18.0`). The version requirement is passed verbatim to the
+# generated Podfile, so it must not contain spaces.
 ZIP_POD_JSON="non_firebase_sdk.json"
 rm -f "${ZIP_POD_JSON}"
 IFS=' ,' read -a NON_FIREBASE_SDKS <<< "${NON_FIREBASE_SDKS}"
@@ -27,7 +30,11 @@ num_sdk="${#NON_FIREBASE_SDKS[@]}"
 echo "[" >> "${ZIP_POD_JSON}"
 for sdk in "${NON_FIREBASE_SDKS[@]}"
 do
-  echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
+  if [[ "${sdk}" == *:* ]]; then
+    echo "{\"name\":\"${sdk%%:*}\",\"version\":\"${sdk#*:}\"}" >>  "${ZIP_POD_JSON}"
+  else
+    echo "{\"name\":\"${sdk}\"}" >>  "${ZIP_POD_JSON}"
+  fi
   if [ "$num_sdk" -ne 1 ]; then
     echo ",">>  "${ZIP_POD_JSON}"
   fi
