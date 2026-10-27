@@ -1783,7 +1783,7 @@ extension Auth: AuthInterop {
       defaultCenter.removeObserver(listenerHandle)
     }
 
-    #if os(iOS)
+    #if os(iOS) || os(tvOS)
       defaultCenter.removeObserver(applicationDidBecomeActiveObserver as Any,
                                    name: UIApplication.didBecomeActiveNotification,
                                    object: nil)
