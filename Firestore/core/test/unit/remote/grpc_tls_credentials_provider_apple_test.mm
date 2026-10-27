@@ -575,11 +575,6 @@ ThreeTierPki BuildThreeTierPki(const CertOptions& leaf_options,
                       std::move(leaf)};
 }
 
-ByteVec CopySecCertificateDer(SecCertificateRef cert) {
-  ScopedCFRef<CFDataRef> data(SecCertificateCopyData(cert));
-  return CopyCFDataBytes(data.get());
-}
-
 // ---------------------------------------------------------------------------
 // In-process gRPC TLS loopback server & unary echo client helpers
 // ---------------------------------------------------------------------------
