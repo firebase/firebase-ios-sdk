@@ -227,6 +227,11 @@ if(APPLE)
     src/credentials/firebase_auth_credentials_provider_apple.*
     src/remote/connectivity_monitor_apple.mm
     src/remote/firebase_metadata_provider_apple.mm
+    src/remote/grpc_tls_credentials_provider_apple.*
+    EXCLUDE
+    src/remote/grpc_root_certificate_finder_generated.cc
+    src/remote/grpc_root_certificates_generated.cc
+    src/remote/grpc_tls_credentials_provider_embedded.cc
   )
 endif()
 
@@ -275,6 +280,7 @@ if(APPLE)
     "-framework Foundation"
     "-framework SystemConfiguration"
     "-framework Network"
+    "-framework Security"
     FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
