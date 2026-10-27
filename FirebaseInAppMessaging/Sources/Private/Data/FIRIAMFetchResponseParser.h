@@ -30,10 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 // @param discardCount if not nil, it would contain, on return, the number of invalid messages
 // detected uring parsing.
 // @param fetchWaitTime would be non nil if fetch wait time data is found in the api response.
-- (NSArray<FIRIAMMessageDefinition *> *)parseAPIResponseDictionary:(NSDictionary *)responseDict
-                                                 discardedMsgCount:(NSInteger *)discardCount
-                                            fetchWaitTimeInSeconds:
-                                                (NSNumber *_Nullable *_Nonnull)fetchWaitTime;
+// @return nil if the response is malformed at the top level (not a dictionary, or its messages
+// node is not an array).
+- (nullable NSArray<FIRIAMMessageDefinition *> *)
+    parseAPIResponseDictionary:(NSDictionary *)responseDict
+             discardedMsgCount:(NSInteger *)discardCount
+        fetchWaitTimeInSeconds:(NSNumber *_Nullable *_Nonnull)fetchWaitTime;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithTimeFetcher:(id<FIRIAMTimeFetcher>)timeFetcher;

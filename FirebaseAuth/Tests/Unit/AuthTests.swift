@@ -75,6 +75,15 @@ class AuthTests: RPCBaseTests {
     _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
+  /// Waits for the work queue and then the main queue to run what is queued so far, such as the
+  /// initial call of a listener, which goes through both queues.
+  private func waitForAuthGlobalWorkQueueAndMainQueueDrain() {
+    waitForAuthGlobalWorkQueueDrain()
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+  }
+
   /** @fn testFetchSignInMethodsForEmailSuccess
       @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
    */
@@ -2352,6 +2361,77 @@ class AuthTests: RPCBaseTests {
 
     XCTAssertEqual(listenerUsers.map { $0?.uid }, [nil])
     restoringAuth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testRemoveStateDidChangeListenerReleasesListener
+      @brief Tests that @c removeStateDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveStateDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeStateDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testRemoveIDTokenDidChangeListenerReleasesListener
+      @brief Tests that @c removeIDTokenDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveIDTokenDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeIDTokenDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testDeallocatingAuthRemovesListeners
+      @brief Tests that listeners that are still registered when an @c Auth instance is deallocated
+          are removed from the notification center and released.
+   */
+  func testDeallocatingAuthRemovesListeners() throws {
+    let app = try XCTUnwrap(auth.app)
+    weak var weakAuth: Auth?
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let listeningAuth = Auth(app: app,
+                               keychainStorageProvider: FakeAuthKeychainStorage(),
+                               backend: authBackend)
+      weakAuth = listeningAuth
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      _ = listeningAuth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      _ = listeningAuth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+    }
+    // Let queued work that holds the instance or the listeners finish.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakAuth)
+    XCTAssertNil(weakCapturedObject)
   }
 
   /** @fn testUseEmulator

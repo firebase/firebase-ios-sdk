@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a potential crash in the x86_64 crash handler's stack-scanning fallback when
+  the captured stack pointer is unreadable. (#16799)
 - [fixed] Improved robustness when parsing malformed settings from the server
   or from the on-disk settings cache. (#16728)
 - [fixed] Improved robustness in Firebase Sessions when parsing malformed
