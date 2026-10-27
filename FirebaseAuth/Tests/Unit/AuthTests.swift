@@ -551,7 +551,7 @@ class AuthTests: RPCBaseTests {
    */
   func testCheckActionCodeSuccess() throws {
     let kNewEmail = "newEmail@example.com"
-    let verifyEmailRequestType = "verifyEmail"
+    let verifyEmailRequestType = "VERIFY_EMAIL"
     let expectation = self.expectation(description: #function)
 
     // 1. Setup respond block to test and fake send request.
@@ -576,6 +576,33 @@ class AuthTests: RPCBaseTests {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testCheckActionCodeOperations
+      @brief Tests that each @c requestType returned by the backend maps to the expected
+          @c ActionCodeOperation. The backend uses SCREAMING_SNAKE_CASE values, unlike the
+          camelCase @c mode parameter of out of band links.
+      @remarks Isolated to the main actor so that XCTest records every failing assertion in the
+          loop. Off the main actor, some failures in this loop were not recorded.
+   */
+  @MainActor func testCheckActionCodeOperations() async throws {
+    let expectedOperations: [(requestType: String, operation: ActionCodeOperation)] = [
+      ("PASSWORD_RESET", .passwordReset),
+      ("VERIFY_EMAIL", .verifyEmail),
+      ("RECOVER_EMAIL", .recoverEmail),
+      ("EMAIL_SIGNIN", .emailLink),
+      ("VERIFY_AND_CHANGE_EMAIL", .verifyAndChangeEmail),
+      ("REVERT_SECOND_FACTOR_ADDITION", .revertSecondFactorAddition),
+      ("OOB_REQ_TYPE_UNSPECIFIED", .unknown),
+    ]
+    for (requestType, operation) in expectedOperations {
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: ["email": self.kEmail, "requestType": requestType])
+      }
+      let info = try await auth.checkActionCode(kFakeOobCode)
+      XCTAssertEqual(info.operation, operation, "requestType: \(requestType)")
+      XCTAssertEqual(info.email, kEmail, "requestType: \(requestType)")
+    }
   }
 
   /** @fn testCheckActionCodeFailure

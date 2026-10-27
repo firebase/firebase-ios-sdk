@@ -41,16 +41,19 @@ import Foundation
   }
 
   /// Map a request type string to the corresponding operation type.
+  ///
+  /// The backend returns SCREAMING_SNAKE_CASE values (e.g. `VERIFY_EMAIL`). Out of band links use
+  /// camelCase `mode` values instead; see `ActionCodeURL.actionCodeOperation(forMode:)`.
   /// - Parameter requestType: Request type returned in the server response.
   /// - Returns: The corresponding ActionCodeOperation for the supplied request type.
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {
-    case "resetPassword": return .passwordReset
-    case "verifyEmail": return .verifyEmail
-    case "recoverEmail": return .recoverEmail
-    case "signIn": return .emailLink
-    case "verifyAndChangeEmail": return .verifyAndChangeEmail
-    case "revertSecondFactorAddition": return .revertSecondFactorAddition
+    case "PASSWORD_RESET": return .passwordReset
+    case "VERIFY_EMAIL": return .verifyEmail
+    case "RECOVER_EMAIL": return .recoverEmail
+    case "EMAIL_SIGNIN": return .emailLink
+    case "VERIFY_AND_CHANGE_EMAIL": return .verifyAndChangeEmail
+    case "REVERT_SECOND_FACTOR_ADDITION": return .revertSecondFactorAddition
     default: return .unknown
     }
   }
