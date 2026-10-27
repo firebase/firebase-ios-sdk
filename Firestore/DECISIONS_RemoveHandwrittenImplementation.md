@@ -572,6 +572,48 @@ Should we wrap rejected `target_name` strings in `absl::CHexEscape` in
 [`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
 preventing log injection and newline forging.
 
+---
+
+## 11. Null-Safe `NSString` to `std::string` Conversion (Review Finding 7)
+
+### Context
+
+In
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+extracted host candidates were originally returned using
+`candidate.UTF8String`, `ipv6_candidate.UTF8String`, and
+`comps.host.UTF8String`. In Objective-C, `-[NSString UTF8String]` is nullable
+and returns `NULL` if string encoding fails or if the receiver is `nil`. In
+C++, constructing `std::string(const char*)` from a `nullptr` is undefined
+behavior.
+
+To prevent undefined behavior while avoiding writing new bespoke conversion
+helpers, we evaluated using Firestore's existing, battle-tested utility
+[`util::MakeString((__bridge CFStringRef)str)`](core/src/util/string_apple.h)
+versus writing a new local `ToStdString(NSString*)` helper.
+
+### Question
+
+How should we perform null-safe `NSString*` to `std::string` conversion in
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: ExistingMakeString** (Recommended) — Use the existing,
+  battle-tested `util::MakeString((__bridge CFStringRef)str)` to convert
+  `NSString*` to `std::string`, avoiding bespoke string-conversion code.
+* **Option 2: BespokeToStdString** — Define a local 3-line
+  `ToStdString(NSString*)` helper that inspects `str.UTF8String != nullptr`.
+
+### Selection
+
+**Option 1: ExistingMakeString** — Used Firestore's existing
+`util::MakeString((__bridge CFStringRef)...)` utility in
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+eliminating direct `std::string(candidate.UTF8String)` undefined behavior risks
+without introducing bespoke helper functions.
+
+
 
 
 

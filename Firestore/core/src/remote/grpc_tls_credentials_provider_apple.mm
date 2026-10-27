@@ -100,7 +100,7 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
       }
       struct in6_addr addr6;
       if (inet_pton(AF_INET6, candidate.UTF8String, &addr6) == 1) {
-        return candidate.UTF8String;
+        return util::MakeString((__bridge CFStringRef)candidate);
       }
       if (percent_range.location != NSNotFound) {
         return "";
@@ -158,7 +158,7 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
       } else if (comps.port != nil) {
         return "";
       }
-      return ipv6_candidate.UTF8String;
+      return util::MakeString((__bridge CFStringRef)ipv6_candidate);
     }
 
     // Non-bracketed host or host:port.
@@ -182,7 +182,7 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
         return "";
       }
     }
-    return comps.host.UTF8String;
+    return util::MakeString((__bridge CFStringRef)comps.host);
   }
 }
 
