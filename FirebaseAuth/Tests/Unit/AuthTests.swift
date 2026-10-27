@@ -582,8 +582,6 @@ class AuthTests: RPCBaseTests {
       @brief Tests that each @c requestType returned by the backend maps to the expected
           @c ActionCodeOperation. The backend uses SCREAMING_SNAKE_CASE values, unlike the
           camelCase @c mode parameter of out of band links.
-      @remarks Isolated to the main actor so that XCTest records every failing assertion in the
-          loop. Off the main actor, some failures in this loop were not recorded.
    */
   @MainActor func testCheckActionCodeOperations() async throws {
     let expectedOperations: [(requestType: String, operation: ActionCodeOperation)] = [
