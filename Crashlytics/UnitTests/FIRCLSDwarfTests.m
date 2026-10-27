@@ -159,13 +159,13 @@
   uint32_t cieLength = 11;
   memcpy(buffer + 0, &cieLength, sizeof(cieLength));  // length (bytes after this field)
   // bytes 4-7 are the CIE id, left as 0.
-  buffer[8] = 1;       // version
-  buffer[9] = 'z';     // augmentation string with augmentation data
-  buffer[10] = 0x00;   // augmentation string terminator
-  buffer[11] = 0x01;   // code alignment factor
-  buffer[12] = 0x01;   // data alignment factor
-  buffer[13] = 0x10;   // return address register
-  buffer[14] = 0x00;   // CIE augmentation data length
+  buffer[8] = 1;      // version
+  buffer[9] = 'z';    // augmentation string with augmentation data
+  buffer[10] = 0x00;  // augmentation string terminator
+  buffer[11] = 0x01;  // code alignment factor
+  buffer[12] = 0x01;  // data alignment factor
+  buffer[13] = 0x10;  // return address register
+  buffer[14] = 0x00;  // CIE augmentation data length
 
   // FDE at offset 32.
   const size_t fdeOffset = 32;
