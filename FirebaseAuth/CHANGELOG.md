@@ -6,6 +6,9 @@
 - [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
 - [fixed] Fixed `checkActionCode` returning an `ActionCodeInfo` whose
   `operation` was always `.unknown`, a regression in 11.12.0. (#16950)
+- [fixed] Fixed a crash in `checkActionCode` for email sign-in codes, a
+  regression in 11.0.0. `ActionCodeInfo.email` is empty for these codes,
+  because the server doesn't return their email address. (#16963)
 
 # 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.

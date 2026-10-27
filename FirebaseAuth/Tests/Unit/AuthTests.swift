@@ -584,23 +584,49 @@ class AuthTests: RPCBaseTests {
           camelCase @c mode parameter of out of band links.
    */
   @MainActor func testCheckActionCodeOperations() async throws {
-    let expectedOperations: [(requestType: String, operation: ActionCodeOperation)] = [
-      ("PASSWORD_RESET", .passwordReset),
-      ("VERIFY_EMAIL", .verifyEmail),
-      ("RECOVER_EMAIL", .recoverEmail),
-      ("EMAIL_SIGNIN", .emailLink),
-      ("VERIFY_AND_CHANGE_EMAIL", .verifyAndChangeEmail),
-      ("REVERT_SECOND_FACTOR_ADDITION", .revertSecondFactorAddition),
-      ("OOB_REQ_TYPE_UNSPECIFIED", .unknown),
+    let cases: [(requestType: String, email: String?, operation: ActionCodeOperation)] = [
+      ("PASSWORD_RESET", kEmail, .passwordReset),
+      ("VERIFY_EMAIL", kEmail, .verifyEmail),
+      ("RECOVER_EMAIL", kEmail, .recoverEmail),
+      // The backend doesn't return an email address for email sign-in codes.
+      ("EMAIL_SIGNIN", nil, .emailLink),
+      ("VERIFY_AND_CHANGE_EMAIL", kEmail, .verifyAndChangeEmail),
+      ("REVERT_SECOND_FACTOR_ADDITION", kEmail, .revertSecondFactorAddition),
+      ("OOB_REQ_TYPE_UNSPECIFIED", kEmail, .unknown),
     ]
-    for (requestType, operation) in expectedOperations {
+    for (requestType, email, operation) in cases {
+      var response: [String: Any] = ["requestType": requestType]
+      if let email {
+        response["email"] = email
+      }
       rpcIssuer.respondBlock = {
-        try self.rpcIssuer.respond(withJSON: ["email": self.kEmail, "requestType": requestType])
+        try self.rpcIssuer.respond(withJSON: response)
       }
       let info = try await auth.checkActionCode(kFakeOobCode)
       XCTAssertEqual(info.operation, operation, "requestType: \(requestType)")
-      XCTAssertEqual(info.email, kEmail, "requestType: \(requestType)")
+      XCTAssertEqual(info.email, email ?? "", "requestType: \(requestType)")
     }
+  }
+
+  /** @fn testCheckActionCodeWithoutEmailFails
+      @brief Tests that @c checkActionCode fails with an internal error, rather than crashing, if
+          the response for a code other than an email sign-in code has no email address.
+   */
+  func testCheckActionCodeWithoutEmailFails() throws {
+    let expectation = self.expectation(description: #function)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["requestType": "VERIFY_EMAIL"])
+    }
+    auth?.checkActionCode(kFakeOobCode) { info, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(info)
+      let nsError = error as? NSError
+      XCTAssertEqual(nsError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = nsError?.userInfo[NSUnderlyingErrorKey] as? NSError
+      XCTAssertEqual(underlyingError?.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
   }
 
   /** @fn testCheckActionCodeFailure

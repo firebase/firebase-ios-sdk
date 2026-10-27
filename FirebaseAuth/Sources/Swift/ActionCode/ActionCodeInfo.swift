@@ -23,7 +23,8 @@ import Foundation
   @objc public let operation: ActionCodeOperation
 
   /// The email address to which the code was sent. The new email address in the case of
-  /// `ActionCodeOperation.recoverEmail`.
+  /// `ActionCodeOperation.recoverEmail`. Empty in the case of `ActionCodeOperation.emailLink`,
+  /// because the server doesn't return the email address for email sign-in codes.
   @objc public let email: String
 
   /// The email that is being recovered in the case of `ActionCodeOperation.recoverEmail`.

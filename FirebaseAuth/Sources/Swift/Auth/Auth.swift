@@ -1006,8 +1006,9 @@ extension Auth: AuthInterop {
           let response = try await self.backend.call(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
-          guard let email = response.email else {
-            fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
+          // The backend doesn't return an email address for email sign-in codes.
+          guard let email = response.email ?? (operation == .emailLink ? "" : nil) else {
+            throw AuthErrorUtils.unexpectedResponse(deserializedResponse: response)
           }
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
