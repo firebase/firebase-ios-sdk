@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fixed a memory leak where removed auth state and ID token listeners,
+  and the objects they captured, stayed in memory for as long as the `Auth`
+  instance existed. This also affected the `authStateChanges` and
+  `idTokenChanges` sequences. (#16938)
 - [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
 
 # 13.1.0
