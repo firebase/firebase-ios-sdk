@@ -110,10 +110,9 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
                 (void)note;
-                // Do not hold a strong ref to State across Enqueue. This block
-                // runs on the main queue and is not drained by the destructor,
-                // so this check is what keeps it safe (plus see the update
-                // handler above).
+                // Do not hold a strong ref to State across Enqueue. Like the
+                // update handler above, this block is not synchronized with
+                // the destructor, so it must not extend State's lifetime.
                 if (weak_state.expired()) return;
                 auto q = weak_queue.lock();
                 if (!q) return;
@@ -152,14 +151,6 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
   }
 
   state_.reset();
-
-  if (monitor_queue_) {
-    // Drain any in-flight NWPathMonitor update handler (see class comment,
-    // invariant 2). This cannot deadlock because we are on the AsyncQueue
-    // (asserted above) and the handler never blocks on it.
-    dispatch_sync(monitor_queue_, ^{
-                  });
-  }
 
   monitor_ = nullptr;
   monitor_queue_ = nullptr;

@@ -35,20 +35,16 @@ namespace remote {
 // HARD_ASSERT in both constructor and destructor).
 //
 // The NWPathMonitor update handler and the iOS foreground-notification
-// observer block both dispatch work onto the AsyncQueue. Those
-// dispatched lambdas capture raw `this` and a std::weak_ptr<State>
-// liveness token. Their safety relies on:
+// observer block both dispatch work onto the AsyncQueue. Neither outer
+// handler block is drained or synchronized with the destructor, which is
+// safe because outer blocks never dereference `this`. The dispatched inner
+// lambdas capture raw `this` and a std::weak_ptr<State> liveness token.
+// Their safety relies on:
 //   1. Outer handler blocks check `weak_state.expired()` but never hold
 //      a strong `State` reference across `Enqueue`. Thus, calling
 //      `state_.reset()` in the destructor immediately invalidates all
 //      future and not-yet-run inner lambdas.
-//   2. (Defense-in-depth, not required for safety) The destructor cancels
-//      the monitor, resets `state_`, and drains `monitor_queue_` via
-//      `dispatch_sync`, ensuring that any in-flight outer handler completes
-//      before destruction finishes. Note that the main-queue foreground
-//      observer is NOT drained, so its safety rests solely on invariants
-//      1 and 3.
-//   3. The constructor, destructor, and inner lambdas all run on the same
+//   2. The constructor, destructor, and inner lambdas all run on the same
 //      serial AsyncQueue, so inner lambdas and destruction cannot interleave.
 //      Any inner lambda already queued when destruction begins will observe
 //      an expired `weak_state` when it runs and safely bail out without
