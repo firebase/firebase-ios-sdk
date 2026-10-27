@@ -62,13 +62,6 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
       return "";
     }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnull-character"
-    if ([target rangeOfString:@"\0"].location != NSNotFound) {
-      return "";
-    }
-#pragma clang diagnostic pop
-
     if ([target rangeOfCharacterFromSet:[NSCharacterSet controlCharacterSet]]
                 .location != NSNotFound ||
         [target rangeOfCharacterFromSet:[NSCharacterSet

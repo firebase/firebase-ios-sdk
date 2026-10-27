@@ -657,6 +657,43 @@ in
 `[NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"]` and added an
 inline comment documenting the RFC 7468 requirement for future readers.
 
+---
+
+## 13. Redundant Explicit Embedded-NUL Check (Review Finding 9)
+
+### Context
+
+In
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+an explicit `rangeOfString:@"\0"` check with `#pragma` warning suppressions
+was used to reject embedded NUL bytes. In Unicode and Apple's Foundation
+`NSCharacterSet`, U+0000 (NUL) belongs to category `Cc` (Control Character)
+and is inherently included in `[NSCharacterSet controlCharacterSet]`. Because
+`controlCharacterSet` already rejects U+0000, the explicit `\0` check and its
+compiler warning suppressions were redundant.
+
+### Question
+
+Should we remove the explicit `rangeOfString:@"\0"` check in
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: DeduplicateNulCheck** (Recommended) — Remove the explicit
+  `rangeOfString:@"\0"` block and its `#pragma` suppressions, relying on
+  `controlCharacterSet`.
+* **Option 2: KeepExplicitNulCheck** — Keep the explicit `rangeOfString:@"\0"`
+  block and `#pragma` suppressions.
+
+### Selection
+
+**Option 1: DeduplicateNulCheck** — Removed the redundant
+`rangeOfString:@"\0"` block and its `#pragma` warning suppressions in
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+simplifying the code while preserving full security coverage through
+`[NSCharacterSet controlCharacterSet]`.
+
+
 
 
 
