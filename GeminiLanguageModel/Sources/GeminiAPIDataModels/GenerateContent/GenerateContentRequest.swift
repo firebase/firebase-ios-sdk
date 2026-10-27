@@ -30,6 +30,12 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   /// conversation history + latest request.
   package var contents: [Content]?
 
+  /// An opaque continuation token used to resume generation from a previous `GenerateContent` or
+  /// `StreamGenerateContent` response that stopped with `finish_reason` set to `CONTINUATION`. When
+  /// a continuation token is provided, `contents` is required and must identically replicate the
+  /// prompt and conversation history from the initial request.
+  package var continuationToken: String?
+
   /// Generation config.
   package var generationConfig: GenerationConfig?
 
@@ -44,6 +50,11 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var model: String?
+
+  /// Configuration for persisting output assets to external storage.
+  ///
+  /// > Important: This property is not supported in the Gemini Developer API.
+  package var outputConfig: GenerateContentRequestOutputConfig?
 
   /// Per request settings for blocking unsafe content. Enforced on
   /// GenerateContentResponse.candidates.
@@ -78,9 +89,11 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   enum CodingKeys: String, CodingKey {
     case cachedContent
     case contents
+    case continuationToken
     case generationConfig
     case labels
     case model
+    case outputConfig
     case safetySettings
     case serviceTier
     case store
