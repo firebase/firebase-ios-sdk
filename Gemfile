@@ -19,5 +19,3 @@ gem 'mutex_m'
 gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '>= 9.5.3'
 gem 'json', '>= 2.19.9'
-
-# trigger CI
