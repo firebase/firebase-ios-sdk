@@ -3,6 +3,7 @@
   and the objects they captured, stayed in memory for as long as the `Auth`
   instance existed. This also affected the `authStateChanges` and
   `idTokenChanges` sequences. (#16938)
+- [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
 
 # 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
