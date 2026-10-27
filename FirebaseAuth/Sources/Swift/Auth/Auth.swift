@@ -1414,9 +1414,11 @@ extension Auth: AuthInterop {
         listener(auth, auth._currentUser)
       }
     }
-    objc_sync_enter(Auth.self)
-    listenerHandles.append(handle)
-    objc_sync_exit(Auth.self)
+    do {
+      objc_sync_enter(Auth.self)
+      defer { objc_sync_exit(Auth.self) }
+      listenerHandles.append(handle)
+    }
     // Go through the serial work queue first, so the initial call runs after work that is
     // already queued, such as loading the persisted user at startup. Otherwise a listener added
     // right after `FirebaseApp.configure()` could get `nil` before the signed-in user is loaded.
@@ -1438,8 +1440,8 @@ extension Auth: AuthInterop {
   @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
     listenerHandles.removeAll { $0 === listenerHandle }
-    objc_sync_exit(Auth.self)
   }
 
   /// Sets `languageCode` to the app's current language.
