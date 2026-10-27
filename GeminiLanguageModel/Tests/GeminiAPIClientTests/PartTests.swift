@@ -16,8 +16,6 @@ import Foundation
 import GeminiAPIDataModels
 import Testing
 
-@testable import GeminiAPIClient
-
 @Suite("Part Tests")
 struct PartTests {
   @Test
@@ -91,15 +89,6 @@ struct PartTests {
     let decoded = try JSONDecoder().decode(Part.self, from: data)
 
     #expect(decoded == original)
-    #expect(decoded.thoughtSignature == "sig-abc")
-    guard case .toolCall(let decodedCall) = decoded.data else {
-      Issue.record(
-        "Expected decoded.data to be .toolCall, but was \(String(describing: decoded.data))")
-      return
-    }
-    #expect(decodedCall.id == "call-42")
-    #expect(decodedCall.toolName == "google_search")
-    #expect(decodedCall.toolType == .googleSearchWeb)
   }
 
   @Test
@@ -115,13 +104,43 @@ struct PartTests {
     let decoded = try JSONDecoder().decode(Part.self, from: data)
 
     #expect(decoded == original)
-    guard case .toolResponse(let decodedResp) = decoded.data else {
-      Issue.record(
-        "Expected decoded.data to be .toolResponse, but was \(String(describing: decoded.data))")
-      return
-    }
-    #expect(decodedResp.id == "call-42")
-    #expect(decodedResp.toolType == .googleSearchWeb)
-    #expect(decodedResp.response?["output"] == .string("42"))
+  }
+
+  @Test
+  func roundTripCandidateContinuation() throws {
+    let json = """
+      {
+        "finishReason": "CONTINUATION",
+        "continuationToken": "opaque_url-safe_unpadded_token"
+      }
+      """
+
+    let candidate = try JSONDecoder().decode(Candidate.self, from: Data(json.utf8))
+    let encodedData = try JSONEncoder().encode(candidate)
+    let roundTripped = try JSONDecoder().decode(Candidate.self, from: encodedData)
+
+    #expect(candidate.finishReason == .continuation)
+    #expect(candidate.finishReason?.rawValue == "CONTINUATION")
+    #expect(candidate.continuationToken == "opaque_url-safe_unpadded_token")
+    #expect(roundTripped == candidate)
+  }
+
+  @Test
+  func encodeGenerateContentRequestWithContinuationAndOutputConfig() throws {
+    var request = GenerateContentRequest()
+    request.continuationToken = "opaque_url-safe_unpadded_token"
+    var outputConfig = GenerateContentRequestOutputConfig()
+    outputConfig.outputURIPrefix = "gs://my-bucket/outputs/"
+    request.outputConfig = outputConfig
+
+    let encodedData = try JSONEncoder().encode(request)
+    let jsonObject = try JSONDecoder().decode([String: JSONValue].self, from: encodedData)
+    let decoded = try JSONDecoder().decode(GenerateContentRequest.self, from: encodedData)
+
+    #expect(jsonObject["continuationToken"] == .string("opaque_url-safe_unpadded_token"))
+    #expect(
+      jsonObject["outputConfig"]
+        == .object(["outputUriPrefix": .string("gs://my-bucket/outputs/")]))
+    #expect(decoded == request)
   }
 }

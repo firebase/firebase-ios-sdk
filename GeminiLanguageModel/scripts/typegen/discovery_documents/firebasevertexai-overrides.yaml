@@ -102,6 +102,13 @@ schemas:
   GoogleCloudAiplatformV1beta1GenerateContentRequest:
     required:
       - contents
+    properties:
+      continuationToken:
+        description: >-
+          Optional. An opaque continuation token used to resume generation from a previous
+          `GenerateContent` or `StreamGenerateContent` response that stopped with `finish_reason`
+          set to `CONTINUATION`. When a continuation token is provided, `contents` is required and
+          must identically replicate the prompt and conversation history from the initial request.
   GoogleCloudAiplatformV1beta1Content:
     required: []
   GoogleCloudAiplatformV1beta1Part:
@@ -166,6 +173,9 @@ generatorConfig:
     # Opaque signature round-tripped as the base64 string from the wire.
     Part.thoughtSignature: String
     HistoryPart.thoughtSignature: String
+    # Opaque continuation token round-tripped as the base64 string from the wire.
+    Candidate.continuationToken: String
+    GenerateContentRequest.continuationToken: String
   excludedSchemas:
     - ApiAuth
     - AuthConfig

@@ -31,8 +31,10 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   package var contents: [Content]?
 
   /// An opaque continuation token used to resume generation from a previous `GenerateContent` or
-  /// `StreamGenerateContent` response that stopped with `finish_reason` set to `CONTINUATION`.
-  package var continuationToken: Data?
+  /// `StreamGenerateContent` response that stopped with `finish_reason` set to `CONTINUATION`. When
+  /// a continuation token is provided, `contents` is required and must identically replicate the
+  /// prompt and conversation history from the initial request.
+  package var continuationToken: String?
 
   /// Generation config.
   package var generationConfig: GenerationConfig?
