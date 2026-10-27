@@ -532,6 +532,47 @@ to comply with the CoreFoundation Create Rule?
 [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
 complying with Apple's CoreFoundation Create Rule.
 
+---
+
+## 10. Log Injection Hardening via `absl::CHexEscape` (Review Finding 6)
+
+### Context
+
+In
+[`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+when `ExtractTlsHostName` rejected an invalid target, the raw `target_name` was
+interpolated directly into the `grpc::Status` error message. Because the
+strings rejected at this point can include malformed or adversarial inputs
+containing embedded NULs, carriage returns, newlines, or terminal control
+sequences, emitting them unescaped in status messages risks log forging / log
+injection in client logs.
+
+Wrapping `target_name` in `absl::CHexEscape(target_name)` from
+`absl/strings/escaping.h` escapes newlines as `\n`, carriage returns as `\r`,
+NULs as `\0`, and non-printable bytes as `\xHH`, ensuring safe, printable
+single-line error messages.
+
+### Question
+
+Should we wrap rejected `target_name` strings in `absl::CHexEscape` in
+[`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: EscapeTargetInLog** (Recommended) — Wrap `target_name` in
+  `absl::CHexEscape(target_name)` in
+  [`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+* **Option 2: KeepRawTargetName** — Keep raw `target_name` in the error
+  status string without escaping.
+
+### Selection
+
+**Option 1: EscapeTargetInLog** — Wrapped `target_name` in
+`absl::CHexEscape(target_name)` in
+[`VerifyAppleTlsCertificateChain`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+preventing log injection and newline forging.
+
+
 
 
 

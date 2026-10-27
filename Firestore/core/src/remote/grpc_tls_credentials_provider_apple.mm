@@ -30,6 +30,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
+#include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
@@ -390,8 +391,8 @@ grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
     if (host.empty()) {
       return grpc::Status(
           grpc::StatusCode::UNAUTHENTICATED,
-          absl::StrCat("Invalid or empty TLS target host name: '", target_name,
-                       "'"));
+          absl::StrCat("Invalid or empty TLS target host name: '",
+                       absl::CHexEscape(target_name), "'"));
     }
 
     grpc::Status parse_status;
