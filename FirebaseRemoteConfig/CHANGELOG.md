@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values
+  that can't be converted to JSON, such as dates or data. These defaults are now skipped and
+  an error is logged. (#16797)
+
 # 13.1.0
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
   non-dictionary top-level JSON object (such as a JSON array). (#16735)
