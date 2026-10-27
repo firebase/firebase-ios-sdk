@@ -110,29 +110,22 @@ enum Helper {
     return (exprMap, nil)
   }
 
-  static func windowFieldsToMap(fields: [Sendable])
+  static func windowFieldsToMap(fields: [WindowField])
     -> ([String: __AggregateFunctionBridge], Error?) {
     var map = [String: __AggregateFunctionBridge]()
     var errors = [String]()
     for field in fields {
-      let alias: String
-      let bridge: __AggregateFunctionBridge
-      let errorMessage: String?
-      if let aliased = field as? AliasedAggregate {
-        (alias, bridge, errorMessage) =
-          (aliased.alias, aliased.aggregate.bridge, aliased.aggregate.errorMessage)
-      } else if let aliased = field as? AliasedWindowFunction {
-        (alias, bridge, errorMessage) =
-          (aliased.alias, aliased.windowFunction.bridge, aliased.windowFunction.errorMessage)
-      } else {
-        errors.append(
-          "Unsupported field type '\(type(of: field))'. Expected AliasedAggregate or AliasedWindowFunction."
-        )
-        continue
+      guard let value = field as? WindowFieldWrapper else {
+        fatalError("WindowField type must conform to WindowFieldWrapper.")
       }
-      if let errorMessage { errors.append(errorMessage) }
-      if map[alias] != nil { errors.append("Duplicate alias '\(alias)' found in fields.") }
-      map[alias] = bridge
+      let alias = value.alias
+      if let errorMessage = value.errorMessage {
+        errors.append(errorMessage)
+      }
+      if map[alias] != nil {
+        errors.append("Duplicate alias '\(alias)' found in fields.")
+      }
+      map[alias] = value.bridge
     }
     if !errors.isEmpty {
       return (

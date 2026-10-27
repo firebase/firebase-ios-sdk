@@ -219,11 +219,11 @@ class AddWindowFields: Stage {
   let name: String = "add_window_fields"
   let bridge: __StageBridge
   private var window: WindowSpec
-  private var fields: [Sendable]
+  private var fields: [WindowField]
   private var options: [String: Sendable]?
   let errorMessage: String?
 
-  init(window: WindowSpec, fields: [Sendable], options: [String: Sendable]? = nil) {
+  init(window: WindowSpec, fields: [WindowField], options: [String: Sendable]? = nil) {
     self.window = window
     self.fields = fields
     self.options = options
@@ -248,7 +248,6 @@ class AddWindowFields: Stage {
     }
   }
 }
-
 
 class RemoveFieldsStage: Stage {
   let name: String = "remove_fields"

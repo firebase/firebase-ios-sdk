@@ -13,8 +13,12 @@
 // limitations under the License.
 
 /// An `AggregateFunction` that has been given an alias.
-public struct AliasedAggregate: Sendable {
+public struct AliasedAggregate: WindowField, WindowFieldWrapper, Sendable {
   let aggregate: AggregateFunction
 
   let alias: String
+
+  var bridge: __AggregateFunctionBridge { aggregate.bridge }
+
+  var errorMessage: String? { aggregate.errorMessage }
 }

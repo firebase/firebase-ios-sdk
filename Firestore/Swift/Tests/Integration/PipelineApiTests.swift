@@ -581,5 +581,20 @@ final class PipelineApiTests: FSTIntegrationTestCase {
           Rank().as("rank"),
         ]
       )
+
+    // WindowField conformance
+    let _: WindowField = Field("salesPrice").sum().as("total")
+    let _: WindowField = Rank().as("rank")
+
+    // Homogeneous and mixed WindowField lists
+    let aggregateFields: [AliasedAggregate] = [Field("salesPrice").sum().as("total")]
+    let windowFunctionFields: [AliasedWindowFunction] = [Rank().as("rank")]
+    let mixedFields: [WindowField] = [Field("salesPrice").sum().as("total"), Rank().as("rank")]
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(window: .sort(Field("date").ascending()), fields: aggregateFields)
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(window: .sort(Field("date").ascending()), fields: windowFunctionFields)
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(window: .sort(Field("date").ascending()), fields: mixedFields)
   }
 }

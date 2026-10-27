@@ -237,52 +237,18 @@ public class Pipeline: @unchecked Sendable {
   /// - Parameters:
   ///   - window: The window specification defining partition, sort, and frames. Defaults to an
   ///     empty global window covering the entire result set.
-  ///   - fields: An array of at least one `AliasedAggregate` to compute over the window.
+  ///   - fields: An array of at least one `WindowField`: an `AliasedAggregate` or an
+  ///     `AliasedWindowFunction`, which may be mixed.
   ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
   /// - Returns: A new `Pipeline` object with this stage appended.
   public func addWindowFields(
     window: WindowSpec = WindowSpec(),
-    fields: [AliasedAggregate],
-    options: [String: Sendable]? = nil
-  ) -> Pipeline {
-    return addWindowFields(window: window, fields: fields as [Sendable], options: options)
-  }
-
-  /// Adds window function results to the output documents of the pipeline.
-  ///
-  /// - Parameters:
-  ///   - window: The window specification defining partition, sort, and frames. Defaults to an
-  ///     empty global window covering the entire result set.
-  ///   - fields: An array of at least one `AliasedWindowFunction`, such as
-  ///     `Rank().as(...)` or `Sum(...).over(...).as(...)`.
-  ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
-  /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addWindowFields(
-    window: WindowSpec = WindowSpec(),
-    fields: [AliasedWindowFunction],
-    options: [String: Sendable]? = nil
-  ) -> Pipeline {
-    return addWindowFields(window: window, fields: fields as [Sendable], options: options)
-  }
-
-  /// Adds window function results to the output documents of the pipeline.
-  ///
-  /// - Parameters:
-  ///   - window: The window specification defining partition, sort, and frames. Defaults to an
-  ///     empty global window covering the entire result set.
-  ///   - fields: An array of at least one `AliasedAggregate` or
-  ///     `AliasedWindowFunction`. Use this overload to mix plain aggregates with window functions.
-  ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
-  /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addWindowFields(
-    window: WindowSpec = WindowSpec(),
-    fields: [Sendable],
+    fields: [WindowField],
     options: [String: Sendable]? = nil
   ) -> Pipeline {
     let stage = AddWindowFields(window: window, fields: fields, options: options)
     return Pipeline(stages: stages + [stage], db: db)
   }
-
 
   /// Removes fields from outputs of previous stages.
   ///

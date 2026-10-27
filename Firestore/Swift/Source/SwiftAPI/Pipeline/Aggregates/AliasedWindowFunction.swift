@@ -13,8 +13,12 @@
 // limitations under the License.
 
 /// A `WindowFunction` that has been given an alias.
-public struct AliasedWindowFunction: Sendable {
+public struct AliasedWindowFunction: WindowField, WindowFieldWrapper, Sendable {
   let windowFunction: WindowFunction
 
   let alias: String
+
+  var bridge: __AggregateFunctionBridge { windowFunction.bridge }
+
+  var errorMessage: String? { windowFunction.errorMessage }
 }
