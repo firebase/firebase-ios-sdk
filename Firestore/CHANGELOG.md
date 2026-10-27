@@ -1,6 +1,8 @@
 # Unreleased
 - [feature] Added support for Pipeline DML stages (`delete`, `update`, `insert`, `upsert`), `literals` source stage, and `Pipeline.ExecuteOptions(isAtomic:)`. (#16859)
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
+- [fixed] Fixed a potential use-after-free and data race in network connectivity
+  monitoring on Apple platforms. (#16961)
 
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
