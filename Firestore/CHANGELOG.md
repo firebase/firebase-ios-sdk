@@ -16,6 +16,10 @@
   by default). Developers can opt out of the trait to avoid downloading
   Firestore's underlying dependencies (such as gRPC and Abseil). (#16684)
 
+# 12.19.3
+- [fixed] Security Update: Removed compromised eMudhra intermediate CA root
+  certificates from embedded trust store. (#16930)
+
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].
 
