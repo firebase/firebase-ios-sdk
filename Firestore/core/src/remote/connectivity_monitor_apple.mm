@@ -84,14 +84,16 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
     // Do not hold a strong ref to State across Enqueue. If this block held a
     // strong ref, ~ConnectivityMonitorApple() could run to completion on the
     // worker queue while the ref was still alive, and the enqueued inner lambda
-    // would then lock weak_state successfully and dereference a freed raw_this.
+    // would then see weak_state as not expired and dereference a freed
+    // raw_this.
     if (weak_state.expired()) return;
     auto q = weak_queue.lock();
     if (!q) return;
     auto status = ToNetworkStatus(path);
     q->Enqueue([raw_this = this, weak_state, status]() {
-      auto s2 = weak_state.lock();
-      if (!s2) return;
+      // Reliable because this lambda and the destructor run on the same serial
+      // AsyncQueue.
+      if (weak_state.expired()) return;
 
       if (!raw_this->current_status().has_value()) {
         raw_this->SetInitialStatus(status);
@@ -118,8 +120,7 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                 if (!q) return;
 
                 q->Enqueue([raw_this = this, weak_state] {
-                  auto s2 = weak_state.lock();
-                  if (!s2) return;
+                  if (weak_state.expired()) return;
 
                   if (raw_this->current_status().has_value() &&
                       raw_this->current_status().value() !=
