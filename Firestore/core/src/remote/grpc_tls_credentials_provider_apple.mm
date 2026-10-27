@@ -185,8 +185,8 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
   }
 }
 
-CFArrayRef ParsePemCertificateChain(absl::string_view pem_chain,
-                                    grpc::Status* out_status) {
+CFArrayRef CreateCertificateChainFromPem(absl::string_view pem_chain,
+                                         grpc::Status* out_status) {
   if (pem_chain.empty()) {
     SetStatus(out_status,
               grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
@@ -395,7 +395,7 @@ grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
     }
 
     grpc::Status parse_status;
-    CFArrayRef certs = ParsePemCertificateChain(pem_chain, &parse_status);
+    CFArrayRef certs = CreateCertificateChainFromPem(pem_chain, &parse_status);
     util::Defer release_certs([&] { util::SafeCFRelease(certs); });
     if (certs == nullptr) {
       return parse_status;

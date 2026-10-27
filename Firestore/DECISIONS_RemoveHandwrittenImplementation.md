@@ -450,6 +450,90 @@ How should we store `anchor_certs_` in
 [`AppleSecTrustCertificateVerifier`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
 ensuring immutable trust set isolation and thread safety.
 
+---
+
+## 8. Host Character Allowlist and IPv4 Canonicalization (Review Finding 4)
+
+### Context
+
+In
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+non-bracketed authority strings (`host` or `host:port`) are parsed using
+`NSURLComponents`. In the code review, reviewers noted that RFC 3986 allows
+sub-delimiters in hostnames (`*;!$&'()+=`) and BSD networking historically
+accepts non-canonical IPv4 notations (such as leading-zero octal `010.0.0.1` or
+shorthand `127.1`). While this represents a theoretical "parser differential"
+between OS resolver path and certificate verification, in Firestore the target
+hostname is configured by the developer (or defaults to
+`firestore.googleapis.com`) rather than untrusted remote network input.
+
+### Question
+
+Should we add character allowlists (`[A-Za-z0-9.-_:]`) and numeric IPv4
+canonicalization via `inet_pton(AF_INET, ...)` to
+[`ExtractTlsHostName`](core/src/remote/grpc_tls_credentials_provider_apple.mm)?
+
+### Options Presented
+
+* **Option 1: StrictHostValidation** (Recommended) — Add character allowlist
+  `[A-Za-z0-9.-_:]` and `inet_pton(AF_INET)` canonicalization to eliminate any
+  potential resolver-vs-verifier discrepancy.
+* **Option 2: KeepNSURLComponentsOnly** — Keep the current ~35-line
+  `NSURLComponents` implementation as-is without extra character filtering or
+  IPv4 canonicalization logic.
+
+### Selection
+
+**Option 2: KeepNSURLComponentsOnly** — Retained the existing
+`NSURLComponents` authority parser without adding extra character allowlist or
+IPv4 canonicalization code, minimizing the amount of handwritten, brittle
+string-parsing logic that must be maintained.
+
+---
+
+## 9. CoreFoundation Create/Copy Naming Rule (Review Finding 5)
+
+### Context
+
+In
+[`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+the private helper that parses PEM text and returns a newly allocated, owned
+`CFArrayRef` was named `ParsePemCertificateChain`.
+
+According to Apple's CoreFoundation Memory Management Programming Guide,
+functions that return an object with a retained (+1) reference count must
+contain `Create` or `Copy` in their name. Functions without `Create` or `Copy`
+are assumed by static analyzers (and developers) to follow the "Get Rule" (+0
+unretained reference). Under Clang Static Analysis, callers releasing the
+returned array (`util::SafeCFRelease(certs)`) could trigger false-positive
+over-release diagnostics.
+
+Renaming `ParsePemCertificateChain` to `CreateCertificateChainFromPem`
+explicitly adheres to the CoreFoundation Create Rule.
+
+### Question
+
+Should we rename `ParsePemCertificateChain` in
+[`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm)
+to comply with the CoreFoundation Create Rule?
+
+### Options Presented
+
+* **Option 1: RenameToCreate** (Recommended) — Rename
+  `ParsePemCertificateChain` to `CreateCertificateChainFromPem` in
+  [`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm).
+* **Option 2: KeepParseName** — Keep the name `ParsePemCertificateChain`
+  without changes.
+
+### Selection
+
+**Option 1: RenameToCreate** — Renamed `ParsePemCertificateChain` to
+`CreateCertificateChainFromPem` in
+[`grpc_tls_credentials_provider_apple.mm`](core/src/remote/grpc_tls_credentials_provider_apple.mm),
+complying with Apple's CoreFoundation Create Rule.
+
+
+
 
 
 
