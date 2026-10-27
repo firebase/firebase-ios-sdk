@@ -32,8 +32,6 @@ namespace remote {
 
 namespace {
 
-static const void* const kMonitorQueueKey = &kMonitorQueueKey;
-
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
 
@@ -71,9 +69,6 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
       DISPATCH_QUEUE_PRIORITY_DEFAULT);
   monitor_queue_ = dispatch_queue_create(
       "com.google.firebase.firestore.network.monitor", attrs);
-
-  dispatch_queue_set_specific(monitor_queue_, kMonitorQueueKey,
-                              (__bridge void*)monitor_queue_, NULL);
 
   nw_path_monitor_set_queue(monitor_, monitor_queue_);
 
