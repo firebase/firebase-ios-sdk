@@ -24,11 +24,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly, copy) NSString *host;
 
 @property(nonatomic, readonly, copy) NSString *namespace;
+
+/// The host to connect to: a host provided by the server, if any, else `host`.
+/// It is saved across launches. Setting nil or a host that isn't valid (see
+/// `isValidHost:`) has no effect.
 @property(nonatomic, readwrite, copy) NSString *internalHost;
 @property(nonatomic, readonly, assign) BOOL secure;
 
 /// Returns YES if the host is not a *.firebaseio.com host.
 @property(nonatomic, readonly) BOOL isCustomHost;
+
+/// Returns YES if `host` is acceptable as a server-provided host: 1 to 253
+/// ASCII letters, digits, '.' or '-', with an optional numeric port. IPv6
+/// literals and '_' are rejected. Server hosts look like
+/// `s-usc1a-nss-2001.firebaseio.com`; emulator hosts like `localhost:9000`.
++ (BOOL)isValidHost:(nullable id)host;
 
 - (instancetype)initWithHost:(NSString *)host
                     isSecure:(BOOL)secure

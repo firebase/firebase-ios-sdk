@@ -134,6 +134,13 @@
                 }
 
                 if case .functionCall(let call) = part.data {
+                  guard let name = call.name else {
+                    throw GeminiLanguageModel.Error.invalidResponse(
+                      GeminiLanguageModel.Error.InvalidResponse(
+                        debugDescription: "Gemini returned a function call without a name."
+                      )
+                    )
+                  }
                   let callID = call.id ?? UUID().uuidString
                   let argsString: String
                   if let args = call.args, !args.isEmpty {
@@ -148,7 +155,7 @@
                       entryID: toolCallsEntryID,
                       action: .toolCall(
                         id: callID,
-                        name: call.name,
+                        name: name,
                         action: .appendArguments(argsString, tokenCount: 1)
                       )
                     )
