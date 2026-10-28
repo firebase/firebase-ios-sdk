@@ -1,4 +1,9 @@
-# Unreleased
+# 13.1.0
+- [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
+  for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
+  in multi-speaker synthesis and sustained speech delivery styling. See the
+  [speech generation guide](https://firebase.google.com/docs/ai-logic/generate-speech)
+  for more details.
 - [fixed] Fixed crashes when a chat session's history contained parts with
   unrecognized data or code execution parts received from the server, when
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
@@ -21,6 +26,9 @@
   `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
   `Transcript.Entry.data` entries continue to throw
   `LanguageModelError.unsupportedTranscriptContent`. (#16890)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to

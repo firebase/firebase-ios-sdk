@@ -1,0 +1,157 @@
+{
+  // TODO: Look into generating a custom JSON Schema for IDE autocomplete/validation, and possibly a CLI dump/init command for default config files.
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "projectName": "Firebase",
+  "bundleIdPrefix": "com.google.firebase",
+  "versionMacroName": "Firebase_VERSION",
+  "skippedProductFolders": [
+    "Firebase",
+    "FirebaseCore",
+    "FirebaseInstallations"
+  ],
+  "wrapperTargetNames": [
+    "Firebase"
+  ],
+  "wrapperSourceFolderNames": [
+    "SwiftPM-PlatformExclude"
+  ],
+  "aggregatePackageNames": [
+    "GoogleUtilities"
+  ],
+  "baseProduct": {
+    "product": "FirebaseAnalytics",
+    "frameworks": [
+      "FirebaseAnalytics",
+      "FirebaseCore",
+      "FirebaseCoreInternal",
+      "FirebaseInstallations",
+      "GoogleAppMeasurement",
+      "GoogleAppMeasurementIdentitySupport",
+      "GoogleAdsOnDeviceConversion",
+      "GoogleUtilities",
+      "nanopb",
+      "FBLPromises"
+    ]
+  },
+  "extraFiles": [
+    {
+      "product": "FirebaseCrashlytics",
+      "files": [
+        "Crashlytics/run",
+        "Crashlytics/upload-symbols"
+      ]
+    },
+    {
+      "destination": ".",
+      "files": [
+        "CoreOnly/NOTICES",
+        "CoreOnly/Sources/Firebase.h",
+        "CoreOnly/Sources/module.modulemap"
+      ]
+    }
+  ],
+  "excludedProducts": [
+    "FirebaseAuthCombine-Community",
+    "FirebaseFirestoreCombine-Community",
+    "FirebaseFunctionsCombine-Community",
+    "FirebaseStorageCombine-Community",
+    "FirebaseAnalyticsCore",
+    "FirebaseAnalyticsIdentitySupport"
+  ],
+  "extraProducts": [
+    {
+      "name": "FirebaseABTesting",
+      "targets": ["FirebaseABTesting"]
+    }
+  ],
+  "renamedProducts": {
+    "FirebaseAppDistribution-Beta": "FirebaseAppDistribution",
+    "FirebaseInAppMessaging-Beta": "FirebaseInAppMessaging",
+    "GTMSessionFetcherCore": "GTMSessionFetcher",
+    "FirebaseAI": "FirebaseAILogic"
+  },
+  "externalArtifacts": [
+    {
+      "productName": "GoogleSignIn",
+      "url": "https://dl.google.com/dl/firebase/ios/carthage/12.18.0/GoogleSignIn-7d06f96449de9f11.zip",
+      "subpath": "GoogleSignIn"
+    }
+  ],
+  // Folder names searched for public/modular interface headers.
+  // Note: "spm_headers" is required for nanopb, and Interop/Extension/Typedefs/SourcesObjC are Firebase-specific.
+  "publicHeaderFolderNames": [
+    "Public",
+    "include",
+    "spm_headers",
+    "Interop",
+    "Extension",
+    "Typedefs",
+    "SourcesObjC"
+  ],
+  "extraHeaderFolderNames": [
+    "Typedefs"
+  ],
+  "excludedHeaderPathSubstrings": [
+    "/Private/",
+    "/Protogen/"
+  ],
+  "filterWrapperTargets": true,
+  "stripExternalBinaryCodeSignatures": false,
+
+  // TODO(b/573213268): Parity Configuration Settings for Initial Release.
+  // The settings below minimize the release diff against the legacy CocoaPods zip distribution.
+  // In future releases, these entries can be removed or reverted to enable the modernized modular SPM distribution.
+
+  // TODO(b/573213268): Suppress standalone internal/companion framework packaging (e.g. FirebaseAuthInternal, FirebaseCrashlyticsSwift)
+  "suppressedInternalFrameworks": [
+    "FirebaseAuthInternal",
+    "FirebaseDatabaseInternal",
+    "FirebaseCrashlyticsSwift",
+    "FirebaseSessionsObjC",
+    "FirebaseRemoteConfigInternal",
+    "FirebaseInAppMessagingInternal",
+    "FirebaseInAppMessaging_iOS",
+    "AppCheckRecaptchaProvider",
+    "FirebaseFirestoreInternalWrapper"
+  ],
+
+  // TODO(b/573213268): Restrict watchOS architecture slices to [arm64, arm64_32] to match legacy watchos-arm64_arm64_32 slice naming
+  "targetArchitectures": {
+    "watchos": [
+      "arm64",
+      "arm64_32"
+    ]
+  },
+
+  // TODO(b/573213268): Restrict auxiliary product platform slices to match legacy distribution platforms
+  "productPlatformOverrides": {
+    "RecaptchaInterop": [
+      "ios",
+      "catalyst"
+    ],
+    "FirebaseInAppMessaging": [
+      "ios",
+      "catalyst"
+    ],
+    "FirebaseDatabase": [
+      "ios",
+      "catalyst",
+      "macos",
+      "tvos"
+    ],
+    "leveldb": [
+      "ios",
+      "catalyst",
+      "macos",
+      "tvos"
+    ]
+  },
+
+  // TODO(b/573213268): Bundle legacy transitive frameworks into product directories
+  "extraFrameworksPerProduct": {
+    "FirebasePerformance": [
+      "FirebaseRemoteConfig",
+      "FirebaseSharedSwift"
+    ]
+  }
+}

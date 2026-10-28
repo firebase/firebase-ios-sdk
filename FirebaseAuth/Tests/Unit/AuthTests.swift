@@ -75,6 +75,15 @@ class AuthTests: RPCBaseTests {
     _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
+  /// Waits for the work queue and then the main queue to run what is queued so far, such as the
+  /// initial call of a listener, which goes through both queues.
+  private func waitForAuthGlobalWorkQueueAndMainQueueDrain() {
+    waitForAuthGlobalWorkQueueDrain()
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+  }
+
   /** @fn testFetchSignInMethodsForEmailSuccess
       @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
    */
@@ -542,7 +551,7 @@ class AuthTests: RPCBaseTests {
    */
   func testCheckActionCodeSuccess() throws {
     let kNewEmail = "newEmail@example.com"
-    let verifyEmailRequestType = "verifyEmail"
+    let verifyEmailRequestType = "VERIFY_EMAIL"
     let expectation = self.expectation(description: #function)
 
     // 1. Setup respond block to test and fake send request.
@@ -564,6 +573,57 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(error)
       XCTAssertEqual(info?.email, kNewEmail)
       XCTAssertEqual(info?.operation, ActionCodeOperation.verifyEmail)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testCheckActionCodeOperations
+      @brief Tests that each @c requestType returned by the backend maps to the expected
+          @c ActionCodeOperation. The backend uses SCREAMING_SNAKE_CASE values, unlike the
+          camelCase @c mode parameter of out of band links.
+   */
+  @MainActor func testCheckActionCodeOperations() async throws {
+    let cases: [(requestType: String, email: String?, operation: ActionCodeOperation)] = [
+      ("PASSWORD_RESET", kEmail, .passwordReset),
+      ("VERIFY_EMAIL", kEmail, .verifyEmail),
+      ("RECOVER_EMAIL", kEmail, .recoverEmail),
+      // The backend doesn't return an email address for email sign-in codes.
+      ("EMAIL_SIGNIN", nil, .emailLink),
+      ("VERIFY_AND_CHANGE_EMAIL", kEmail, .verifyAndChangeEmail),
+      ("REVERT_SECOND_FACTOR_ADDITION", kEmail, .revertSecondFactorAddition),
+      ("OOB_REQ_TYPE_UNSPECIFIED", kEmail, .unknown),
+    ]
+    for (requestType, email, operation) in cases {
+      var response: [String: Any] = ["requestType": requestType]
+      if let email {
+        response["email"] = email
+      }
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: response)
+      }
+      let info = try await auth.checkActionCode(kFakeOobCode)
+      XCTAssertEqual(info.operation, operation, "requestType: \(requestType)")
+      XCTAssertEqual(info.email, email ?? "", "requestType: \(requestType)")
+    }
+  }
+
+  /** @fn testCheckActionCodeWithoutEmailFails
+      @brief Tests that @c checkActionCode fails with an internal error, rather than crashing, if
+          the response for a code other than an email sign-in code has no email address.
+   */
+  func testCheckActionCodeWithoutEmailFails() throws {
+    let expectation = self.expectation(description: #function)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["requestType": "VERIFY_EMAIL"])
+    }
+    auth?.checkActionCode(kFakeOobCode) { info, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(info)
+      let nsError = error as? NSError
+      XCTAssertEqual(nsError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = nsError?.userInfo[NSUnderlyingErrorKey] as? NSError
+      XCTAssertEqual(underlyingError?.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
@@ -1416,6 +1476,162 @@ class AuthTests: RPCBaseTests {
       waitForExpectations(timeout: 5)
       assertUser(auth?.currentUser)
     }
+
+    private func freshRecaptchaVerifier() -> AuthRecaptchaVerifier {
+      AuthRecaptchaVerifier.setShared(AuthRecaptchaVerifier(), auth: auth)
+      return AuthRecaptchaVerifier.shared(auth: auth)
+    }
+
+    /** @fn testRecaptchaConfigIgnoresMalformedEnforcementStateEntries
+        @brief A malformed or unknown enforcement state entry must not discard the valid ones.
+     */
+    func testRecaptchaConfigIgnoresMalformedEnforcementStateEntries() async throws {
+      rpcIssuer.fakeRecaptchaConfigJSON = [
+        "recaptchaKey": "projects/123/keys/456",
+        "recaptchaEnforcementState": [
+          ["provider": "PHONE_PROVIDER", "enforcementState": "ENFORCE", "newField": 1]
+            as [String: Any],
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "AUDIT"],
+          ["provider": "UNKNOWN_PROVIDER", "enforcementState": "ENFORCE"],
+          ["provider": "PHONE_PROVIDER", "enforcementState": "UNKNOWN_STATE"],
+          ["provider": "PHONE_PROVIDER"],
+          "garbage",
+          NSNull(),
+        ] as [Any],
+      ]
+      let verifier = freshRecaptchaVerifier()
+      try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .enforce)
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .password), .audit)
+      XCTAssertEqual(verifier.agentConfig?.siteKey, "456")
+    }
+
+    /** @fn testRecaptchaConfigWrongTypesFallsBackToOff
+        @brief Wrong-typed config fields are treated as missing and enforcement defaults to off.
+     */
+    func testRecaptchaConfigWrongTypesFallsBackToOff() async throws {
+      rpcIssuer.fakeRecaptchaConfigJSON = [
+        "recaptchaKey": 123,
+        "recaptchaEnforcementState": ["provider": "PHONE_PROVIDER"],
+      ]
+      let verifier = freshRecaptchaVerifier()
+      try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .off)
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .password), .off)
+    }
+
+    /** @fn testRecaptchaConfigMalformedSiteKeyThrows
+        @brief Malformed, missing, or non-string recaptchaKey values are rejected with an error
+            instead of crashing or producing an empty site key.
+     */
+    func testRecaptchaConfigMalformedSiteKeyThrows() async throws {
+      // `nil` leaves `recaptchaKey` out of the response.
+      let recaptchaKeys: [Any?] = ["", "456", "projects/123/keys/", "projects/123/keys/456/extra",
+                                   "///", NSNull(), 123, nil]
+      for recaptchaKey in recaptchaKeys {
+        var json: [String: Any] = [
+          "recaptchaEnforcementState": [
+            ["provider": "PHONE_PROVIDER", "enforcementState": "ENFORCE"],
+          ],
+        ]
+        json["recaptchaKey"] = recaptchaKey
+        rpcIssuer.fakeRecaptchaConfigJSON = json
+        let verifier = freshRecaptchaVerifier()
+        do {
+          try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+          XCTFail("Expected an error for recaptchaKey '\(recaptchaKey ?? "<missing>")'")
+        } catch {
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.recaptchaNotEnabled.rawValue)
+        }
+        XCTAssertNil(verifier.agentConfig)
+      }
+    }
+
+    /** @fn testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing
+        @brief When reCAPTCHA is off for every provider, no site key is cached, so verification
+            fails with `recaptchaSiteKeyMissing` instead of passing an empty site key to the
+            reCAPTCHA SDK.
+     */
+    func testRecaptchaVerifyWhenRecaptchaIsOffThrowsSiteKeyMissing() async throws {
+      rpcIssuer.fakeRecaptchaConfigJSON = [
+        "recaptchaKey": "projects/123/keys/456",
+        "recaptchaEnforcementState": [
+          ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+          ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+        ],
+      ]
+      let verifier = freshRecaptchaVerifier()
+      do {
+        _ = try await verifier.verify(forceRefresh: true, action: .defaultAction)
+        XCTFail("Expected recaptchaSiteKeyMissing")
+      } catch {
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.recaptchaSiteKeyMissing.rawValue)
+      }
+      // The config is still cached, without a site key.
+      XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .off)
+      XCTAssertNotNil(verifier.agentConfig)
+      XCTAssertNil(verifier.agentConfig?.siteKey)
+    }
+
+    #if !targetEnvironment(macCatalyst)
+      /// Loads the config like the real `verify`, then counts the call and returns a fake token
+      /// instead of using the reCAPTCHA SDK.
+      private class CountingRecaptchaVerifier: AuthRecaptchaVerifier, @unchecked Sendable {
+        var verifyCallCount = 0
+
+        override func verify(forceRefresh: Bool,
+                             action: AuthRecaptchaAction) async throws -> String {
+          try await retrieveRecaptchaConfig(forceRefresh: forceRefresh)
+          verifyCallCount += 1
+          return "FAKE_RECAPTCHA_TOKEN"
+        }
+      }
+
+      private func countingRecaptchaVerifier() -> CountingRecaptchaVerifier {
+        let verifier = CountingRecaptchaVerifier()
+        AuthRecaptchaVerifier.setShared(verifier, auth: auth)
+        return verifier
+      }
+
+      /** @fn testInitializeRecaptchaConfigWhenRecaptchaIsOffOnlyLoadsConfig
+          @brief When reCAPTCHA is off for every provider, `initializeRecaptchaConfig()` loads the
+              config and returns without an error and without initializing the reCAPTCHA client,
+              like the web SDK.
+       */
+      func testInitializeRecaptchaConfigWhenRecaptchaIsOffOnlyLoadsConfig() async throws {
+        rpcIssuer.fakeRecaptchaConfigJSON = [
+          "recaptchaKey": "projects/123/keys/456",
+          "recaptchaEnforcementState": [
+            ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+            ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "OFF"],
+          ],
+        ]
+        let verifier = countingRecaptchaVerifier()
+        try await auth.initializeRecaptchaConfig()
+        XCTAssertEqual(verifier.verifyCallCount, 0)
+        XCTAssertNotNil(verifier.agentConfig)
+        XCTAssertEqual(verifier.enablementStatus(forProvider: .phone), .off)
+        XCTAssertEqual(verifier.enablementStatus(forProvider: .password), .off)
+      }
+
+      /** @fn testInitializeRecaptchaConfigWhenRecaptchaIsOnVerifies
+          @brief When reCAPTCHA is on for any provider, `initializeRecaptchaConfig()` still runs
+              verification to initialize the reCAPTCHA client.
+       */
+      func testInitializeRecaptchaConfigWhenRecaptchaIsOnVerifies() async throws {
+        rpcIssuer.fakeRecaptchaConfigJSON = [
+          "recaptchaKey": "projects/123/keys/456",
+          "recaptchaEnforcementState": [
+            ["provider": "PHONE_PROVIDER", "enforcementState": "OFF"],
+            ["provider": "EMAIL_PASSWORD_PROVIDER", "enforcementState": "AUDIT"],
+          ],
+        ]
+        let verifier = countingRecaptchaVerifier()
+        try await auth.initializeRecaptchaConfig()
+        XCTAssertEqual(verifier.verifyCallCount, 1)
+        XCTAssertEqual(verifier.agentConfig?.siteKey, "456")
+      }
+    #endif
   #endif
 
   /** @fn testCreateUserWithEmailPasswordSuccess
@@ -2090,6 +2306,183 @@ class AuthTests: RPCBaseTests {
     expectation = nil
     auth.removeStateDidChangeListener(handle)
     try waitForSignInWithAccessToken()
+  }
+
+  /** @fn testAuthStateChangesInitialCallbackWaitsForStoredUser
+      @brief Tests that the initial call of a listener added while @c Auth is still loading the
+          stored user reports that user, not nil.
+   */
+  func testAuthStateChangesInitialCallbackWaitsForStoredUser() throws {
+    // Save a signed-in user to a keychain for a new `Auth` instance to load at startup.
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    // Hold the work queue, so the new instance is still loading the user when the listener is
+    // added.
+    let workQueueHold = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workQueueHold.wait()
+    }
+    let restoringAuth = Auth(app: app,
+                             keychainStorageProvider: keychainStorage,
+                             backend: authBackend)
+    let expectation = self.expectation(description: "initial")
+    var listenerUsers: [User?] = []
+    let handle = restoringAuth.addStateDidChangeListener { _, listenerUser in
+      XCTAssertTrue(Thread.isMainThread)
+      listenerUsers.append(listenerUser)
+      if listenerUsers.count == 1 {
+        expectation.fulfill()
+      }
+    }
+    // Let the main queue run, as it would in an app, before the user is loaded.
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.2))
+    workQueueHold.signal()
+    waitForExpectations(timeout: 5)
+
+    // Let any remaining calls run.
+    waitForAuthGlobalWorkQueueDrain()
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.1))
+    XCTAssertEqual(listenerUsers.count, 1)
+    XCTAssertEqual(listenerUsers.first??.uid, user.uid)
+    restoringAuth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testAuthStateChangesInitialCallbackAfterSignOut
+      @brief Tests that the initial call of a listener added right before @c signOut() reports the
+          user as of when the call runs, not the signed-out user.
+   */
+  func testAuthStateChangesInitialCallbackAfterSignOut() throws {
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(auth)
+    var listenerUsers: [User?] = []
+    let handle = auth.addStateDidChangeListener { listenerAuth, listenerUser in
+      XCTAssertEqual(listenerUser, listenerAuth.currentUser)
+      listenerUsers.append(listenerUser)
+    }
+    // Sign out in the same main queue turn, before the initial call runs.
+    try auth.signOut()
+    // `signOut()` waited for the work queue, so the initial call and the sign-out notification are
+    // already on the main queue. Let them run.
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+
+    XCTAssertEqual(listenerUsers.map { $0?.uid }, [nil])
+    auth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testAuthStateChangesInitialCallbackAfterSignOutAtStartup
+      @brief Tests that a listener added while @c Auth is loading the stored user, followed right
+          away by @c signOut(), isn't called with the signed-out user.
+   */
+  func testAuthStateChangesInitialCallbackAfterSignOutAtStartup() throws {
+    // Save a signed-in user to a keychain for a new `Auth` instance to load at startup.
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let keychainStorage = FakeAuthKeychainStorage()
+    let savingAuth = Auth(app: app, keychainStorageProvider: keychainStorage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try savingAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    let restoringAuth = Auth(app: app,
+                             keychainStorageProvider: keychainStorage,
+                             backend: authBackend)
+    var listenerUsers: [User?] = []
+    let handle = restoringAuth.addStateDidChangeListener { listenerAuth, listenerUser in
+      XCTAssertEqual(listenerUser, listenerAuth.currentUser)
+      listenerUsers.append(listenerUser)
+    }
+    // Sign out before the main queue runs, for example to clear a user left in the keychain by an
+    // earlier install. `signOut()` waits for the stored user to load first.
+    try restoringAuth.signOut()
+    // The notification for the loaded user, the initial call, and the sign-out notification are
+    // already on the main queue. Let them run.
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+
+    XCTAssertEqual(listenerUsers.map { $0?.uid }, [nil])
+    restoringAuth.removeStateDidChangeListener(handle)
+  }
+
+  /** @fn testRemoveStateDidChangeListenerReleasesListener
+      @brief Tests that @c removeStateDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveStateDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeStateDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testRemoveIDTokenDidChangeListenerReleasesListener
+      @brief Tests that @c removeIDTokenDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveIDTokenDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeIDTokenDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testDeallocatingAuthRemovesListeners
+      @brief Tests that listeners that are still registered when an @c Auth instance is deallocated
+          are removed from the notification center and released.
+   */
+  func testDeallocatingAuthRemovesListeners() throws {
+    let app = try XCTUnwrap(auth.app)
+    weak var weakAuth: Auth?
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let listeningAuth = Auth(app: app,
+                               keychainStorageProvider: FakeAuthKeychainStorage(),
+                               backend: authBackend)
+      weakAuth = listeningAuth
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      _ = listeningAuth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      _ = listeningAuth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+    }
+    // Let queued work that holds the instance or the listeners finish.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakAuth)
+    XCTAssertNil(weakCapturedObject)
   }
 
   /** @fn testUseEmulator
