@@ -288,19 +288,25 @@ endif()
 # them up.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/remote)
 
-set(
-  GRPC_ROOT_CERTIFICATE_SOURCES
-  ${OUTPUT_DIR}/grpc_root_certificates_generated.h  # NOLINT(generated)
-  ${OUTPUT_DIR}/grpc_root_certificates_generated.cc # NOLINT(generated)
-)
-
 # `roots.pem` is a file containing root certificates that is distributed
 # alongside gRPC and is necessary to establish SSL connections. Embed this file
 # into the binary by converting it to a char array.
-add_custom_command(
+#
+# gRPC certificates are regenerated manually (`firestore_gen_grpc_certs`) rather
+# than as an automatic `OUTPUT` rule on the checked-in source files so that
+# normal CMake builds do not overwrite `grpc_root_certificates_generated.{cc,h}`
+# when the checked-in root bundle has been updated ahead of the pinned CMake
+# gRPC archive in `cmake/external/grpc.cmake`.
+set(
+  FIRESTORE_GRPC_ROOTS_PEM
+  "${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem"
+  CACHE FILEPATH
+  "Path to roots.pem used by the manual firestore_gen_grpc_certs target"
+)
+
+add_custom_target(
+  firestore_gen_grpc_certs
   COMMENT "Generating root certificates for embedding"
-  OUTPUT
-  ${GRPC_ROOT_CERTIFICATE_SOURCES}
   COMMAND
   ${MY_PYTHON_EXECUTABLE} ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
   --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
@@ -308,19 +314,11 @@ add_custom_command(
   --cpp_namespace=firebase::firestore::remote
   --array=grpc_root_certificates_generated_data
   --array_size=grpc_root_certificates_generated_size
-  ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
+  ${FIRESTORE_GRPC_ROOTS_PEM}
   VERBATIM
   DEPENDS
-  grpc
+  ${FIRESTORE_GRPC_ROOTS_PEM}
   ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-  ${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem
-)
-
-# gRPC certificates have to be regenerated manually on each new gRPC release
-# (which typically has updated certificates).
-add_custom_target(
-  firestore_gen_grpc_certs
-  DEPENDS ${GRPC_ROOT_CERTIFICATE_SOURCES}
 )
 
 
