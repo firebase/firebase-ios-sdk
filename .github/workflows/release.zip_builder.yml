@@ -1,0 +1,116 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Builds the release zip with scripts/zip_builder (zip-builder), alongside release.zip.yml, which
+# builds it with the CocoaPods-based builder in ReleaseTooling. Run both for a release, from the
+# release branch, until the new zip is trusted; then release.zip.yml's packaging is removed.
+#
+# The zip is built from the checked-out commit's Package.swift, without any cache, and isn't
+# signed: like release.zip.yml's artifact, it's signed later in the release process. To compare it
+# with release.zip.yml's zip, pass that run's ID as `compare_run_id`; the diff goes in the job
+# summary.
+name: release.zip_builder
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  # Firebase's minimum supported Xcode, as in release.zip.yml: the binaries are built with it.
+  MIN_XCODE: Xcode_26.2
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/release.zip_builder.yml'
+  workflow_dispatch:
+    inputs:
+      linkage:
+        description: 'static: the release zip. dynamic: builds Firestore from source.'
+        type: choice
+        options: [static, dynamic]
+        default: static
+      compare_run_id:
+        # For example, in https://github.com/firebase/firebase-ios-sdk/actions/runs/17335533279
+        # the run ID is 17335533279.
+        description: 'Run ID of a release.zip run whose release zip to diff against (optional)'
+        required: false
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package-release:
+    if: github.repository == 'firebase/firebase-ios-sdk'
+    runs-on: macos-26
+    timeout-minutes: 300
+    env:
+      LINKAGE: ${{ github.event.inputs.linkage || 'static' }}
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
+
+      # No framework cache: a release zip is compiled entirely by this run. `release` also runs
+      # `verify`, which fails the job if the zip doesn't link, import or have every slice.
+      - name: Build the release zip
+        run: |
+          # Package.swift checks whether the variable is set at all, so it's only exported for the
+          # dynamic zip.
+          if [[ "$LINKAGE" == dynamic ]]; then export FIREBASE_SOURCE_FIRESTORE=1; fi
+          swift run --package-path scripts/zip_builder -c release --force-resolved-versions \
+            zip-builder release --package-path . --work-dir "$RUNNER_TEMP/zip" \
+            --cache-dir "$RUNNER_TEMP/empty-cache" --linkage "$LINKAGE" \
+            --version "$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"
+
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ${{ env.LINKAGE == 'static' && 'Firebase-release-zip-builder' || 'Firebase-release-zip-builder-dynamic' }}
+          path: ${{ runner.temp }}/zip/Firebase-*-latest.zip
+          if-no-files-found: error
+          compression-level: 0
+
+      # What was planned and how each platform built, for debugging a release.
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: always()
+        with:
+          name: ${{ env.LINKAGE == 'static' && 'Firebase-release-zip-builder-logs' || 'Firebase-release-zip-builder-dynamic-logs' }}
+          path: |
+            ${{ runner.temp }}/zip/plan.json
+            ${{ runner.temp }}/zip/logs
+          if-no-files-found: ignore
+
+      - name: Download release.zip's release zip
+        if: github.event.inputs.compare_run_id != ''
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: Firebase-release-zip-zip
+          run-id: ${{ github.event.inputs.compare_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/legacy
+
+      - name: Diff against release.zip's release zip
+        if: github.event.inputs.compare_run_id != ''
+        working-directory: ${{ runner.temp }}
+        run: |
+          legacy="$(find legacy -name 'Firebase-*-latest.zip' | head -n1)"
+          swift run --package-path "$GITHUB_WORKSPACE/scripts/zip_builder" -c release \
+            --force-resolved-versions zip-builder diff "$legacy" zip/Firebase-*-latest.zip \
+            --format markdown --title "### release.zip compared with release.zip_builder" \
+            --output "$GITHUB_STEP_SUMMARY"

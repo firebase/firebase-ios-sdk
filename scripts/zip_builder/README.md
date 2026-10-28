@@ -244,6 +244,26 @@ are recreated by every build, so a build with nothing to compile leaves no archi
   [`pr_comment`](/.github/actions/pr_comment) action posts.
 - [`.github/workflows/infra.zip_quickstart.yml`](/.github/workflows/infra.zip_quickstart.yml): builds the zip and runs the quickstart samples
   against it.
+- [`.github/workflows/release.zip_builder.yml`](/.github/workflows/release.zip_builder.yml): builds the
+  release zip, alongside [`release.zip.yml`](/.github/workflows/release.zip.yml), which builds it
+  with the CocoaPods-based builder in `ReleaseTooling/`. See [Release zip](#release-zip).
+
+### Release zip
+
+Until the new zip replaces the CocoaPods one, a release builds both:
+
+1. Run `release.zip.yml` from the release branch, as before. Its artifact is
+   `Firebase-release-zip-zip`.
+2. Run `release.zip_builder.yml` from the same branch (**Actions → release.zip_builder → Run
+   workflow**). Pass step 1's run ID as `compare_run_id` to get the diff between the two zips in the
+   job summary. Its artifact is `Firebase-release-zip-builder` (`linkage: dynamic` gives
+   `Firebase-release-zip-builder-dynamic`, with Firestore built from source).
+
+The zip is built from the branch's `Package.swift`, with `--version` from its `firebaseVersion`. It
+uses no framework cache, so every framework is compiled by that run, and `release` runs `verify`
+before uploading. Like `release.zip.yml`'s artifact, it isn't signed: the release process signs it.
+It doesn't build a Carthage distribution; `release.zip.yml` still does. `plan.json` and the
+build logs are uploaded as a `-logs` artifact.
 
 `Package.resolved` is committed, and CI builds with `--force-resolved-versions`.
 
