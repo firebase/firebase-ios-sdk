@@ -16,6 +16,10 @@
 ///
 /// Create a `WindowFunction` with a dedicated window function such as `Rank()`, or by calling
 /// `over(_:)` on an `AggregateFunction`.
+///
+/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
+///   feature launches. Look for launch announcement at:
+///   https://docs.cloud.google.com/firestore/docs/release-notes
 public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: __AggregateFunctionBridge
 

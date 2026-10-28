@@ -72,6 +72,12 @@ class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
         "Skipping all tests in PipelineWindowIntegrationTests because backend edition is Standard."
       )
     }
+
+    if FSTIntegrationTestCase.targetBackend() == .prod {
+      throw XCTSkip(
+        "Window functions are in preview until the backend feature launches; skipping against prod."
+      )
+    }
   }
 
   func testWindowFieldsComputesRunningAggregatesOverAPartitionedMultiKeySortedDocumentsFrame(
@@ -234,6 +240,12 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
     if FSTIntegrationTestCase.backendEdition() == .standard {
       throw XCTSkip(
         "Skipping PipelineWindowComprehensiveIntegrationTests because backend edition is Standard."
+      )
+    }
+
+    if FSTIntegrationTestCase.targetBackend() == .prod {
+      throw XCTSkip(
+        "Window functions are in preview until the backend feature launches; skipping against prod."
       )
     }
 

@@ -234,6 +234,10 @@ public class Pipeline: @unchecked Sendable {
 
   /// Adds window function results to the output documents of the pipeline.
   ///
+  /// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
+  ///   feature launches. Look for launch announcement at:
+  ///   https://docs.cloud.google.com/firestore/docs/release-notes
+  ///
   /// - Parameters:
   ///   - window: The window specification defining partition, sort, and frames. Defaults to an
   ///     empty global window covering the entire result set.

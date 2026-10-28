@@ -26,6 +26,10 @@ import Foundation
 /// Integer and floating-point literals can be used directly wherever a `WindowBound` is expected,
 /// e.g. `.documents(preceding: 2, following: .current)` or `.range(preceding: 1.5, following: 1.5)`.
 /// To pass a variable, use `WindowBound(_:)`.
+///
+/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
+///   feature launches. Look for launch announcement at:
+///   https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Sendable {
   /// The underlying value of a window frame boundary.
   public enum Value: Sendable {
@@ -108,6 +112,10 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
 ///     `.unbounded` following (the entire partition).
 ///   - If `sort` is specified without an explicit `documents` or `range` frame, the default frame
 ///     is `range` from `.unbounded` preceding to `.current`.
+///
+/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
+///   feature launches. Look for launch announcement at:
+///   https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowSpec: Sendable {
   let groups: [Expression]
   let sort: [Ordering]?
