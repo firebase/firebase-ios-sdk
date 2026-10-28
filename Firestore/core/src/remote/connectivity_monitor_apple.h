@@ -52,9 +52,9 @@ namespace remote {
 //      dereferencing `this`.
 //
 // All operations on the monitor (construction, destruction, callback
-// registration, and status queries) must be confined to the AsyncQueue to
-// guarantee sequential consistency and prevent data races with inner lambdas
-// or uninstrumented system framework callbacks.
+// registration, and status queries) must be confined to the AsyncQueue
+// so all accesses to monitor state are ordered by the serial queue and
+// cannot race with inner lambdas.
 //
 // Tests that create a ConnectivityMonitorApple directly must
 // explicitly construct and destroy it on its AsyncQueue:
