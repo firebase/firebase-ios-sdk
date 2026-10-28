@@ -33,22 +33,20 @@
       let (contents, systemInstruction) = try GeminiTranscriptTranslator.translate(
         request.transcript
       )
-      let generationConfig = try translateGenerationConfig(schema: request.schema)
       let tools = try translateTools(request.enabledToolDefinitions)
       let hasFunctionDeclarations =
         tools?.contains { $0.functionDeclarations?.isEmpty == false } ?? false
-      let toolConfig = try translateToolConfig(
-        toolCallingMode: request.generationOptions.toolCallingMode,
-        hasFunctionDeclarations: hasFunctionDeclarations
-      )
 
-      return GenerateContentRequest(
-        systemInstruction: systemInstruction,
-        contents: contents,
-        tools: tools,
-        toolConfig: toolConfig,
-        generationConfig: generationConfig
-      )
+      return try GenerateContentRequest {
+        $0.systemInstruction = systemInstruction
+        $0.contents = contents
+        $0.tools = tools
+        $0.toolConfig = try translateToolConfig(
+          toolCallingMode: request.generationOptions.toolCallingMode,
+          hasFunctionDeclarations: hasFunctionDeclarations
+        )
+        $0.generationConfig = try translateGenerationConfig(schema: request.schema)
+      }
     }
 
     /// Translates an optional `GenerationSchema` into a Gemini `GenerationConfig`.
@@ -61,11 +59,10 @@
     static func translateGenerationConfig(schema: GenerationSchema?) throws -> GenerationConfig? {
       guard let schema else { return nil }
 
-      let jsonSchema = try schema.toGeminiJSONSchema()
-      return GenerationConfig(
-        responseMimeType: "application/json",
-        responseJsonSchema: .object(jsonSchema)
-      )
+      return try GenerationConfig {
+        $0.responseMIMEType = "application/json"
+        $0.responseJSONSchema = try schema.toGeminiJSONSchema()
+      }
     }
 
     /// Translates enabled tool definitions into a list of Gemini `Tool` objects.
@@ -79,14 +76,13 @@
       guard !enabledToolDefinitions.isEmpty else { return nil }
 
       let declarations = try enabledToolDefinitions.map { toolDefinition in
-        let parameters = try toolDefinition.parameters.toGeminiJSONValue()
-        return FunctionDeclaration(
-          name: toolDefinition.name,
-          description: toolDefinition.description,
-          parametersJsonSchema: parameters
-        )
+        try FunctionDeclaration {
+          $0.name = toolDefinition.name
+          $0.description = toolDefinition.description
+          $0.parametersJSONSchema = try toolDefinition.parameters.toGeminiJSONSchema()
+        }
       }
-      return [GeminiAPIDataModels.Tool(functionDeclarations: declarations)]
+      return [GeminiAPIDataModels.Tool { $0.functionDeclarations = declarations }]
     }
 
     /// Translates tool calling options into a Gemini `ToolConfig`.
@@ -135,7 +131,7 @@
         } else {
           callingMode = allowedMode
         }
-        functionCallingConfig = FunctionCallingConfig(mode: callingMode)
+        functionCallingConfig = FunctionCallingConfig { $0.mode = callingMode }
       } else {
         functionCallingConfig = nil
       }
@@ -144,9 +140,7 @@
         return nil
       }
 
-      return ToolConfig(
-        functionCallingConfig: functionCallingConfig
-      )
+      return ToolConfig { $0.functionCallingConfig = functionCallingConfig }
     }
   }
 #endif  // canImport(FoundationModels) && compiler(>=6.4)

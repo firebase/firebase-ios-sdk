@@ -47,29 +47,39 @@
       var pendingReasoningText: String?
       var pendingReasoningSignature: String?
 
+      /// Round-trips a signature-only reasoning entry on a part that has data.
+      ///
+      /// Gemini returns the signature of a text response on a trailing empty text part, which the
+      /// executor records as a separate signature-only `.reasoning` entry. Round-tripping it as a
+      /// stand-alone `Part` with no data is rejected by the Gemini Enterprise Agent Platform, so
+      /// the signature is re-attached to the last part of the current model turn instead (normally
+      /// the response text; a function call part if the signature arrived after the call). If
+      /// there is no suitable part, an empty thought part carries the signature so the part has
+      /// data.
+      ///
+      /// - Parameter signature: The opaque thought signature to round-trip.
+      func attachTrailingSignature(_ signature: String) {
+        if let turnIndex = turns.indices.last, turns[turnIndex].role == "model",
+          let partIndex = turns[turnIndex].parts.indices.last,
+          turns[turnIndex].parts[partIndex].thoughtSignature == nil
+        {
+          turns[turnIndex].parts[partIndex].thoughtSignature = signature
+        } else {
+          appendPart(thoughtPart("", signature: signature), role: "model")
+        }
+      }
+
       /// Flushes any buffered reasoning thoughts or signature into a model part.
       func flushPendingReasoningIfNeeded() {
-        if let text = pendingReasoningText {
-          appendPart(
-            Part(
-              data: .text(text),
-              thought: true,
-              thoughtSignature: pendingReasoningSignature
-            ),
-            role: "model"
-          )
-        } else if let signature = pendingReasoningSignature {
-          appendPart(
-            Part(
-              data: nil,
-              thought: true,
-              thoughtSignature: signature
-            ),
-            role: "model"
-          )
+        defer {
+          pendingReasoningText = nil
+          pendingReasoningSignature = nil
         }
-        pendingReasoningText = nil
-        pendingReasoningSignature = nil
+        if let text = pendingReasoningText {
+          appendPart(thoughtPart(text, signature: pendingReasoningSignature), role: "model")
+        } else if let signature = pendingReasoningSignature {
+          attachTrailingSignature(signature)
+        }
       }
 
       for entry in transcript {
@@ -78,18 +88,27 @@
           flushPendingReasoningIfNeeded()
           let text = try extractText(from: instructions.segments, in: entry)
           if !text.isEmpty {
-            systemInstructionParts.append(Part(data: .text(text)))
+            systemInstructionParts.append(Part { $0.data = .text(text) })
           }
 
         case .prompt(let prompt):
           flushPendingReasoningIfNeeded()
           let text = try extractText(from: prompt.segments, in: entry)
-          appendPart(Part(data: .text(text)), role: "user")
+          appendPart(Part { $0.data = .text(text) }, role: "user")
 
         case .response(let response):
-          flushPendingReasoningIfNeeded()
           let text = try extractText(from: response.segments, in: entry)
-          appendPart(Part(data: .text(text)), role: "model")
+          var part = Part { $0.data = .text(text) }
+          if pendingReasoningText == nil, let signature = pendingReasoningSignature {
+            // A signature-only reasoning entry directly preceding a response is assumed to have
+            // come from the response's own text, so round-trip it on the text part rather than as
+            // a data-less thought part.
+            part.thoughtSignature = signature
+            pendingReasoningSignature = nil
+          } else {
+            flushPendingReasoningIfNeeded()
+          }
+          appendPart(part, role: "model")
 
         case .reasoning(let reasoning):
           let text = try extractOptionalText(from: reasoning.segments, in: entry)
@@ -106,35 +125,15 @@
         case .toolCalls(let toolCalls):
           guard !toolCalls.isEmpty else { break }
           if let text = pendingReasoningText {
-            appendPart(
-              Part(
-                data: .text(text),
-                thought: true
-              ),
-              role: "model"
-            )
+            appendPart(thoughtPart(text, signature: nil), role: "model")
           }
           let callSignature = pendingReasoningSignature
           pendingReasoningText = nil
           pendingReasoningSignature = nil
 
           for call in toolCalls {
-            let args: [String: JSONValue]?
-            if case .structure(let properties, _) = call.arguments.kind {
-              args = properties.isEmpty ? nil : properties.mapValues { jsonValue(from: $0) }
-            } else {
-              args = nil
-            }
-            let functionCall = FunctionCall(
-              id: call.id,
-              name: call.toolName,
-              args: args
-            )
             appendPart(
-              Part(
-                data: .functionCall(functionCall),
-                thoughtSignature: callSignature
-              ),
+              functionCallPart(for: call, thoughtSignature: callSignature),
               role: "model"
             )
           }
@@ -142,23 +141,25 @@
         case .toolOutput(let toolOutput):
           flushPendingReasoningIfNeeded()
           if toolOutput.segments.isEmpty {
-            let functionResponse = FunctionResponse(
-              id: toolOutput.id,
-              name: toolOutput.toolName,
-              response: ["result": .null]
+            appendPart(
+              functionResponsePart(for: toolOutput, response: ["result": .null]),
+              role: "user"
             )
-            appendPart(Part(data: .functionResponse(functionResponse)), role: "user")
           } else {
             for segment in toolOutput.segments {
               let response = try extractResponse(from: segment, in: entry)
-              let functionResponse = FunctionResponse(
-                id: toolOutput.id,
-                name: toolOutput.toolName,
-                response: response
-              )
-              appendPart(Part(data: .functionResponse(functionResponse)), role: "user")
+              appendPart(functionResponsePart(for: toolOutput, response: response), role: "user")
             }
           }
+
+        // `Transcript.Entry.data` was added in Xcode 27.2 (Swift 6.4.2+).
+        #if compiler(>=6.4.2)
+          case .data:
+            throw makeUnsupportedError(
+              entry,
+              description: "Data transcript entries are not supported."
+            )
+        #endif  // compiler(>=6.4.2)
 
         @unknown default:
           throw makeUnsupportedError(
@@ -170,13 +171,77 @@
 
       flushPendingReasoningIfNeeded()
 
-      let contents = turns.map { Content(parts: $0.parts, role: $0.role) }
+      let contents = turns.map { turn in
+        Content {
+          $0.parts = turn.parts
+          $0.role = turn.role
+        }
+      }
       let systemInstruction: Content? =
-        systemInstructionParts.isEmpty ? nil : Content(parts: systemInstructionParts)
+        systemInstructionParts.isEmpty ? nil : Content { $0.parts = systemInstructionParts }
       return (contents: contents, systemInstruction: systemInstruction)
     }
 
     // MARK: - Private Helpers
+
+    /// Returns a `Part` marked as a model thought.
+    ///
+    /// - Parameters:
+    ///   - text: The reasoning text; empty for a signature-only thought.
+    ///   - signature: The opaque thought signature to round-trip, if any.
+    /// - Returns: A thought `Part`.
+    private static func thoughtPart(_ text: String, signature: String?) -> Part {
+      Part {
+        $0.data = .text(text)
+        $0.thought = true
+        $0.thoughtSignature = signature
+      }
+    }
+
+    /// Returns a `Part` containing a function call for `call`.
+    ///
+    /// - Parameters:
+    ///   - call: The transcript tool call to translate.
+    ///   - thoughtSignature: The thought signature to attach to the part, if any.
+    /// - Returns: A function call `Part`.
+    private static func functionCallPart(
+      for call: Transcript.ToolCall,
+      thoughtSignature: String?
+    ) -> Part {
+      let args: JSONObject?
+      if case .structure(let properties, _) = call.arguments.kind {
+        args = properties.isEmpty ? nil : properties.mapValues { jsonValue(from: $0) }
+      } else {
+        args = nil
+      }
+      let functionCall = FunctionCall {
+        $0.id = call.id
+        $0.name = call.toolName
+        $0.args = args
+      }
+      return Part {
+        $0.data = .functionCall(functionCall)
+        $0.thoughtSignature = thoughtSignature
+      }
+    }
+
+    /// Returns a `Part` containing a function response for `toolOutput`.
+    ///
+    /// - Parameters:
+    ///   - toolOutput: The transcript tool output that the response belongs to.
+    ///   - response: The JSON object returned by the tool.
+    /// - Returns: A function response `Part`.
+    private static func functionResponsePart(
+      for toolOutput: Transcript.ToolOutput,
+      response: JSONObject
+    ) -> Part {
+      let functionResponse = FunctionResponse {
+        $0.id = toolOutput.id
+        $0.name = toolOutput.toolName
+        $0.response = response
+      }
+      return Part { $0.data = .functionResponse(functionResponse) }
+    }
 
     private static func makeUnsupportedError(
       _ entry: Transcript.Entry,
