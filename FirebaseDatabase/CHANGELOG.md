@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where `getData` on a child of an observed location
+  returned the data of the observed location instead of the child. (#12168)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
