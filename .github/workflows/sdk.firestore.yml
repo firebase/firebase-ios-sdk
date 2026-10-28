@@ -305,7 +305,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
@@ -387,7 +387,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -468,7 +468,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -565,7 +565,7 @@ jobs:
         key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
     - if: steps.cache-products.outputs.cache-hit != 'true'
-      uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
     - name: Cache Pods
       if: steps.cache-products.outputs.cache-hit != 'true'
@@ -647,7 +647,7 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
