@@ -50,10 +50,10 @@ namespace remote {
 //      an expired `weak_state` when it runs and safely bail out without
 //      dereferencing `this`.
 //
-// If construction is moved off the AsyncQueue, inner lambdas may run
-// concurrently with the rest of the constructor (a data race on base-class
-// state such as `status_`); if destruction is moved off the AsyncQueue,
-// inner lambdas may dereference a dangling `this`.
+// All operations on the monitor (construction, destruction, callback
+// registration, and status queries) must be confined to the AsyncQueue to
+// guarantee sequential consistency and prevent data races with inner lambdas
+// or uninstrumented system framework callbacks.
 //
 // Tests that create a ConnectivityMonitorApple directly must
 // explicitly construct and destroy it on its AsyncQueue:
