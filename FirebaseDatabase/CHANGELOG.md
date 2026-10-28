@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed an issue where `getData` never completed if the connection
+  dropped before the server responded. (#16717)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
