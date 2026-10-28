@@ -370,6 +370,27 @@ void EnsureOverlayDataMigrationIsRequired(leveldb::DB* db) {
   transaction.Commit();
 }
 
+/**
+ * Migration 9.
+ *
+ * Drops the entries of every client-side index and resets their backfill
+ * state, keeping their configurations. Earlier versions left stale entries
+ * behind when a descending indexed value grew, so a limited query served by
+ * the index returned fewer documents than its limit. The index backfiller
+ * rebuilds the entries from the remote document cache, and queries scan the
+ * collection until it does.
+ */
+void RebuildClientSideIndexes(leveldb::DB* db) {
+  DeleteEverythingWithPrefix(LevelDbIndexEntryKey::KeyPrefix(), db);
+  DeleteEverythingWithPrefix(LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(),
+                             db);
+  DeleteEverythingWithPrefix(LevelDbIndexStateKey::KeyPrefix(), db);
+
+  LevelDbTransaction transaction(db, "Rebuild client-side indexes");
+  SaveVersion(9, &transaction);
+  transaction.Commit();
+}
+
 }  // namespace
 
 LevelDbMigrations::SchemaVersion LevelDbMigrations::ReadSchemaVersion(
@@ -432,6 +453,10 @@ void LevelDbMigrations::RunMigrations(leveldb::DB* db,
 
   if (from_version < 8 && to_version >= 8) {
     EnsureOverlayDataMigrationIsRequired(db);
+  }
+
+  if (from_version < 9 && to_version >= 9) {
+    RebuildClientSideIndexes(db);
   }
 }
 

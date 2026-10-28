@@ -3,7 +3,9 @@
   `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
   cursor boundary. (#16795)
 - [fixed] Fixed limited queries served by a client-side index returning fewer
-  documents than their limit after a descending indexed field grew.
+  documents than their limit after a descending indexed field grew. Existing
+  client-side indexes are rebuilt once, since they may hold stale entries.
+  (#16969)
 
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
