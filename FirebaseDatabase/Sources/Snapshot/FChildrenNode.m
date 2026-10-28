@@ -240,7 +240,7 @@
         __block BOOL sawPriority = NO;
         [self enumerateChildrenUsingBlock:^(NSString *key, id<FNode> node,
                                             BOOL *stop) {
-          sawPriority = sawPriority || [[node getPriority] isEmpty];
+          sawPriority = sawPriority || ![[node getPriority] isEmpty];
           *stop = sawPriority;
         }];
         if (sawPriority) {

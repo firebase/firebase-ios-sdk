@@ -1,9 +1,34 @@
-# Unreleased
+# 13.1.0
+- [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
+  for Gemini text-to-speech (TTS) models, enabling turn-level speaker routing
+  in multi-speaker synthesis and sustained speech delivery styling. See the
+  [speech generation guide](https://firebase.google.com/docs/ai-logic/generate-speech)
+  for more details.
 - [fixed] Fixed crashes when a chat session's history contained parts with
   unrecognized data or code execution parts received from the server, when
   creating a `ModelContent` with an unsupported `Part` type, and when decoding a
   malformed duration from the server. Requests that include an image that fails
   to convert now throw a `GenerateContentError` instead of crashing. (#16728)
+- [fixed] Fixed intermittent `400 INVALID_ARGUMENT` errors from the Gemini
+  Enterprise Agent Platform in multi-turn `GeminiLanguageModel` sessions, which
+  occurred when a thought signature from a previous text response was sent back
+  as a part containing no data. (#16886)
+- [feature] Added support for voice activity signals in the Live API. When
+  automatic activity detection detects the start or end of user speech, Gemini
+  3.x Live models send a `LiveServerVoiceActivity`, which is surfaced as
+  `LiveServerContent.voiceActivity`. (#16889)
+- [fixed] Fixed an issue where `LiveSession.responses` finished with a
+  `LiveSessionUnsupportedMessageError` when the server sent a message type that
+  the SDK doesn't support, such as the `voiceActivity` messages sent by Gemini
+  3.x Live models for each spoken turn. Unsupported message types are now logged
+  and ignored. (#16889)
+- [fixed] Fixed a "switch must be exhaustive" compiler warning when building
+  `GeminiLanguageModel` with Xcode 27.2 beta. Transcripts containing
+  `Transcript.Entry.data` entries continue to throw
+  `LanguageModelError.unsupportedTranscriptContent`. (#16890)
+- [changed] `GeminiLanguageModel` now throws
+  `GeminiLanguageModel.Error.invalidResponse` instead of `networkFailure` when
+  Gemini returns a response that cannot be decoded or used. (#16881)
 
 # 13.0.0
 - [changed] **Breaking Change**: Renamed `Tool` to `GenerativeModel.Tool` to
@@ -18,8 +43,15 @@
   Models framework.
 - [removed] **Breaking Change:** Removed the deprecated `Backend.vertexAI()` and
   `Backend.vertexAI(location:)` methods. Use `Backend.agentPlatform(location:)`
-  instead (note that the default location is `"global"` instead of
-  `"us-central1"`). (#16689)
+  instead.
+  The only difference for `Backend.agentPlatform` is the default
+  [location for accessing the model](https://firebase.google.com/docs/ai-logic/locations?api=vertex).
+  The default location for `Backend.agentPlatform` is `global`, whereas the
+  default location for `Backend.vertexAI` was `us-central1`. To use
+  `us-central1` with `Backend.agentPlatform`, specify
+  `FirebaseAI.firebaseAI(backend: .agentPlatform(location: "us-central1"))` when
+  initializing the SDK. However, note that most new Gemini models do not support
+  `us-central1`. (#16689)
 - [changed] **Breaking Change**: Update imports to `import FirebaseAILogic`
   and use the `FirebaseAILogic` Swift Package dependency instead of
   `FirebaseAI`, which has now been removed. See the
@@ -33,7 +65,7 @@
 - [changed] Updated the default function calling mode to `VALIDATED` and
   updated guided generation to use `responseJsonSchema` in
   `GeminiLanguageModel`. (#16649)
-- [changed] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
+- [deprecated] Deprecated model tuning parameters (`temperature`, `topP`, `topK`, `candidateCount`,
   `presencePenalty`, and `frequencyPenalty`) in `GenerationConfig` and `LiveGenerationConfig` as
   they are unsupported in Gemini 3.x and later models.
 

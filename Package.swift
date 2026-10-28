@@ -1,4 +1,4 @@
-// swift-tools-version:6.2.1
+// swift-tools-version:6.2
 // The swift-tools-version declares the minimum version of the Swift toolchain required to
 // build this package. Note: Firebase requires Xcode 26.2+, which includes the Swift 6.2.3 compiler.
 
@@ -22,36 +22,75 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.0.0"
+let firebaseVersion = "13.1.1"
 
-/// If you don't use Firestore in your app, you can disable the "Firestore" trait to reduce
-/// the number of dependencies fetched by SwiftPM during package resolution.
+/// The name of the "Firestore" package trait.
+let firestoreTraitName = "Firestore"
+
+/// The "Firestore" package trait, which is on by default.
+///
+/// A package trait is an optional feature you can turn on or off when you add a package. This
+/// trait controls whether Firestore and its dependencies (gRPC and Abseil) are downloaded and
+/// built. If your app doesn't use Firestore, turn the trait off so that Swift Package Manager
+/// (SwiftPM) downloads fewer packages. See `packageTraits` for how.
 let firestoreTrait = Trait(
-  name: "Firestore",
+  name: firestoreTraitName,
   description: "Enables Firestore support and its underlying dependencies (gRPC, Abseil)."
 )
 
-/// Package traits allow developers to opt out of features, including their dependencies.
+/// The package traits that Firebase declares, with the "Firestore" trait on by default.
 ///
-/// In a `Package.swift`:
-/// ```swift
-/// .package(
-///   url: "https://github.com/firebase/firebase-ios-sdk.git",
-///   from: "13.0.0",
-///   traits: [
-///     // Leave empty (or list only non-Firestore traits) to opt out.
-///   ]
-/// )
-/// ```
+/// Turning off Firestore requires Xcode 26.4 or later (Swift 6.3 or later). With Xcode 26.2
+/// (Swift 6.2), the setting is accepted but has no effect: Firestore is always included, and the
+/// "trait is disabled" build error never appears. See `isFirestoreTraitConditionSupported` for why.
 ///
-/// In Xcode (26.4+):
-/// - Select your project -> Package Dependencies -> in the Traits dropdown for Firebase,
-///   uncheck any unwanted traits.
+/// To turn off Firestore:
+///
+/// - In your own `Package.swift`, add `traits: []` (no default traits) to the Firebase dependency:
+///   ```swift
+///   .package(
+///     url: "https://github.com/firebase/firebase-ios-sdk.git",
+///     from: "13.0.0",
+///     traits: []
+///   )
+///   ```
+///   Leaving out `traits:` keeps the default traits, so Firestore is included.
+/// - In an Xcode project, select your project, open the Package Dependencies tab, and uncheck
+///   "Firestore" in the Traits menu for Firebase.
+///
+/// After turning off the trait, remove the `FirebaseFirestore` product from your targets, or the
+/// build fails with an error asking you to turn the trait back on.
 let packageTraits = Set<Trait>([
   firestoreTrait,
   // All traits are enabled by default.
-  .default(enabledTraits: [firestoreTrait.name]),
+  .default(enabledTraits: [firestoreTraitName]),
 ])
+
+/// Whether the "Firestore" trait can include or exclude Firestore with this version of Swift.
+///
+/// The problem: Xcode 26.2 has a bug. When an Xcode project (`.xcodeproj`) adds Firebase by its
+/// GitHub URL, Xcode 26.2 doesn't turn on Firebase's default traits. (Packages that depend on
+/// Firebase in their own `Package.swift` aren't affected.) Without the workaround below,
+/// everything that requires the "Firestore" trait would be skipped, so Firestore would be missing
+/// from apps that never turned it off.
+///
+/// The workaround: when this value is `false`, `firestoreTraitDependencyCondition(platforms:)` and
+/// `firestoreTraitBuildSettingCondition()` ignore the trait. Firestore and its dependencies are
+/// always built, and `FIRESTORE_TRAIT_ENABLED` is always defined, so the "trait is disabled" error
+/// can't occur. Turning off the trait has no effect, even with `swift build` on Swift 6.2.
+///
+/// The trait is still declared because SwiftPM 6.2 fails to resolve any `Package.swift` that
+/// passes `traits:` (even `traits: []`) to a dependency that declares no traits.
+///
+/// `Package.swift` can't check the Xcode version, so the compiler version stands in for it:
+/// Xcode 26.2 includes Swift 6.2; Xcode 26.4, which handles traits correctly, includes Swift 6.3.
+///
+/// Remove this constant and the two helper functions once Firebase requires Xcode 26.4 or later.
+#if compiler(>=6.3)
+  let isFirestoreTraitConditionSupported = true
+#else
+  let isFirestoreTraitConditionSupported = false
+#endif // compiler(>=6.3)
 
 let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] != nil
 
@@ -565,7 +604,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
-        .target(name: "FirebaseFirestoreTarget", condition: .when(traits: ["Firestore"])),
+        .target(name: "FirebaseFirestoreTarget", condition: firestoreTraitDependencyCondition()),
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -1184,14 +1223,14 @@ func packageTargets() -> [Target] {
                 condition: .when(platforms: [.iOS])),
         "FirebaseAuthCombineSwift",
         .target(name: "FirebaseFirestoreCombineSwift",
-                condition: .when(traits: ["Firestore"])),
+                condition: firestoreTraitDependencyCondition()),
         "FirebaseFunctionsCombineSwift",
         "FirebaseStorageCombineSwift",
         "FirebaseCrashlytics",
         "FirebaseCore",
         "FirebaseDatabase",
         .target(name: "FirebaseFirestoreTarget",
-                condition: .when(traits: ["Firestore"])),
+                condition: firestoreTraitDependencyCondition()),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1233,7 +1272,7 @@ func packageTargets() -> [Target] {
         "FirebaseCore",
         "FirebaseDatabase",
         .target(name: "FirebaseFirestoreTarget",
-                condition: .when(traits: ["Firestore"])),
+                condition: firestoreTraitDependencyCondition()),
         "FirebaseFunctions",
         .target(name: "FirebaseInAppMessaging",
                 condition: .when(platforms: [.iOS, .tvOS])),
@@ -1245,7 +1284,7 @@ func packageTargets() -> [Target] {
         "FirebaseStorage",
       ],
       path: "SwiftPMTests/objc-import-test",
-      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"]))]
+      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", firestoreTraitBuildSettingCondition())]
     ),
     .testTarget(
       name: "version-test",
@@ -1486,26 +1525,26 @@ func firestoreWrapperTarget() -> Target {
       dependencies: [
         .target(
           name: "FirebaseFirestore",
-          condition: .when(
-            platforms: [.iOS, .tvOS, .macOS, .visionOS, .macCatalyst],
-            traits: ["Firestore"]
+          condition: firestoreTraitDependencyCondition(
+            platforms: [.iOS, .tvOS, .macOS, .visionOS, .macCatalyst]
           )
         ),
       ],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
-      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"]))]
+      cSettings: [.define("FIRESTORE_TRAIT_ENABLED", firestoreTraitBuildSettingCondition())]
     )
   }
 
   return .target(
     name: "FirebaseFirestoreTarget",
-    dependencies: [.target(name: "FirebaseFirestore",
-                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst],
-                                            traits: ["Firestore"]))],
+    dependencies: [.target(
+      name: "FirebaseFirestore",
+      condition: firestoreTraitDependencyCondition(platforms: [.iOS, .tvOS, .macOS, .macCatalyst])
+    )],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
     cSettings: [
       .define("FIREBASE_BINARY_FIRESTORE", to: "1"),
-      .define("FIRESTORE_TRAIT_ENABLED", .when(traits: ["Firestore"])),
+      .define("FIRESTORE_TRAIT_ENABLED", firestoreTraitBuildSettingCondition()),
     ]
   )
 }
@@ -1521,9 +1560,9 @@ func firestoreTargets() -> [Target] {
           "leveldb",
           .product(name: "nanopb", package: "nanopb"),
           .product(name: "abseil", package: "abseil-cpp-SwiftPM",
-                   condition: .when(traits: ["Firestore"])),
+                   condition: firestoreTraitDependencyCondition()),
           .product(name: "gRPC-cpp", package: "grpc-ios",
-                   condition: .when(traits: ["Firestore"])),
+                   condition: firestoreTraitDependencyCondition()),
         ],
         path: "Firestore",
         exclude: [
@@ -1632,8 +1671,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/13.0.0/rc2/FirebaseFirestoreInternal.zip",
-        checksum: "599c9d8e053361d0712144741d9270c8a9ebeaf033a20b88d4d27fef08949363"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.1.1/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "2d6be52d2f387b34a60e92ed8b14b4a9bb06c7b147014e6ed560dc92ca4b09af"
       )
     }
   }()
@@ -1644,20 +1683,23 @@ func firestoreTargets() -> [Target] {
       dependencies: [
         .target(
           name: "FirebaseFirestoreInternalWrapper",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["Firestore"])
+          condition: firestoreTraitDependencyCondition(platforms: [
+            .iOS, .macCatalyst, .tvOS, .macOS,
+          ])
         ),
         .product(
           name: "abseil",
           package: "abseil-cpp-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["Firestore"])
+          condition: firestoreTraitDependencyCondition(platforms: [
+            .iOS, .macCatalyst, .tvOS, .macOS,
+          ])
         ),
         .product(
           name: "gRPC-C++",
           package: "grpc-binary",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                           traits: ["Firestore"])
+          condition: firestoreTraitDependencyCondition(platforms: [
+            .iOS, .macCatalyst, .tvOS, .macOS,
+          ])
         ),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseAppCheckInterop",
@@ -1682,14 +1724,43 @@ func firestoreTargets() -> [Target] {
       name: "FirebaseFirestoreInternalWrapper",
       dependencies: [.target(
         name: "FirebaseFirestoreInternal",
-        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS],
-                         traits: ["Firestore"])
+        condition: firestoreTraitDependencyCondition(platforms: [
+          .iOS, .macCatalyst, .tvOS, .macOS,
+        ])
       )],
       path: "FirebaseFirestoreInternal",
       publicHeadersPath: "."
     ),
     firestoreInternalTarget,
   ]
+}
+
+/// Returns the condition for a dependency to link only when the "Firestore" trait is on.
+///
+/// When `isFirestoreTraitConditionSupported` is `false` (Xcode 26.2), the trait is ignored and
+/// only `platforms` is checked.
+///
+/// - Parameter platforms: The platforms the dependency applies to, or `nil` for all platforms.
+/// - Returns: The dependency condition, or `nil`, which means the dependency is always linked.
+func firestoreTraitDependencyCondition(platforms: [Platform]? = nil)
+  -> TargetDependencyCondition? {
+  guard isFirestoreTraitConditionSupported else {
+    guard let platforms else { return nil }
+    return .when(platforms: platforms)
+  }
+  guard let platforms else {
+    return .when(traits: [firestoreTraitName])
+  }
+  return .when(platforms: platforms, traits: [firestoreTraitName])
+}
+
+/// Returns the condition for a build setting to apply only when the "Firestore" trait is on.
+///
+/// - Returns: `.when(traits: ["Firestore"])`, or `nil` if `isFirestoreTraitConditionSupported` is
+///   `false` (Xcode 26.2). A `nil` condition means the setting always applies.
+func firestoreTraitBuildSettingCondition() -> BuildSettingCondition? {
+  guard isFirestoreTraitConditionSupported else { return nil }
+  return .when(traits: [firestoreTraitName])
 }
 
 func firebaseAILogicDependencies() -> [Target.Dependency] {
@@ -1738,6 +1809,10 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
           "GeminiTestUtilities",
         ],
         path: "GeminiLanguageModel/Tests/GeminiLanguageModelTests",
+        exclude: [
+          "IntegrationTests/README.md",
+          "README.md",
+        ],
         swiftSettings: swiftSettings
       ),
       .target(
@@ -1769,6 +1844,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       .target(
         name: "GeminiTestUtilities",
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
+        exclude: ["README.md"],
         swiftSettings: swiftSettings,
       ),
     ]
