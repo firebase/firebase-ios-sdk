@@ -1,7 +1,7 @@
 # Unreleased
 
-- [fixed] Fixed a potential use-after-free and data race in network connectivity
-  monitoring on Apple platforms. (#16961)
+- [fixed] Prevented theoretical use-after-free memory issue in networking logic
+  on Apple platforms. (#16961)
 
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
