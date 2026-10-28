@@ -129,4 +129,27 @@ struct LayoutTests {
     try applyLayout(Layout(privacyBundle: "N_Privacy"), to: xcframework.path, name: "N")
     #expect(try !(Self.contents(slice)).contains("N_Privacy.bundle"))
   }
+
+  @Test func aMissingInfoPlistNamesTheFileAndTheReason() throws {
+    let xcframework = try Self.makeXCFramework()
+    let info = xcframework.appendingPathComponent("ios-arm64/N.framework/Info.plist")
+    try FileManager.default.removeItem(at: info)
+    let error = #expect(throws: ZipBuilderError.self) {
+      try applyLayout(Layout(), to: xcframework.path, name: "N")
+    }
+    let description = try #require(error).description
+    #expect(description.hasPrefix("Couldn't read \(info.path): "))
+    #expect(description.count > "Couldn't read \(info.path): ".count)
+  }
+
+  @Test func anInfoPlistThatIsntADictionaryFails() throws {
+    let xcframework = try Self.makeXCFramework()
+    let info = xcframework.appendingPathComponent("ios-arm64/N.framework/Info.plist")
+    try PropertyListSerialization.data(fromPropertyList: ["N"], format: .binary, options: 0)
+      .write(to: info)
+    let error = #expect(throws: ZipBuilderError.self) {
+      try applyLayout(Layout(), to: xcframework.path, name: "N")
+    }
+    #expect(error?.description == "\(info.path) isn't a dictionary.")
+  }
 }

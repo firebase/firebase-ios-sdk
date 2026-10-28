@@ -136,8 +136,10 @@ private final class LogFile: @unchecked Sendable {
     handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
   }
 
+  /// Appends `data`. A chunk that can't be written (say, the disk is full) is dropped: the log is
+  /// for reading afterwards, and losing part of it shouldn't fail the build.
   func write(_ data: Data) {
-    lock.withLock { handle.write(data) }
+    lock.withLock { try? handle.write(contentsOf: data) }
   }
 }
 

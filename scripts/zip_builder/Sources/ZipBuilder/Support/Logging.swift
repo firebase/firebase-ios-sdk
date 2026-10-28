@@ -32,8 +32,11 @@ let minimumLogLevel = Mutex(Logger.Level.info)
 struct ZipBuilderLogHandler: LogHandler {
   let label: String
   var metadata: Logger.Metadata = [:]
-  /// Where finished lines go; standard error unless a test captures them.
-  var write: @Sendable (String) -> Void = { FileHandle.standardError.write(Data($0.utf8)) }
+  /// Where finished lines go; standard error unless a test captures them. A line that can't be
+  /// written (say, standard error was closed) is dropped rather than stopping the tool.
+  var write: @Sendable (String) -> Void = {
+    try? FileHandle.standardError.write(contentsOf: Data($0.utf8))
+  }
 
   /// `LogHandler` requires a settable level. This one reads and writes the process-wide
   /// `minimumLogLevel`, so `--quiet` and `--verbose` reach every handler, not just one copy.

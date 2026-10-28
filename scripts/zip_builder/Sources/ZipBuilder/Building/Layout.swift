@@ -38,10 +38,16 @@ private func applyLayout(_ layout: Layout, toSlice framework: URL, name: String)
   let resources = isVersioned ? versionedResources : framework
   let infoURL = resources.appendingPathComponent("Info.plist")
   var format = PropertyListSerialization.PropertyListFormat.binary
-  guard let info = try? PropertyListSerialization.propertyList(
-    from: Data(contentsOf: infoURL), options: [], format: &format
-  ) as? [String: Any] else {
-    throw ZipBuilderError("\(framework.path) has no readable Info.plist.")
+  let plist: Any
+  do {
+    plist = try PropertyListSerialization.propertyList(
+      from: Data(contentsOf: infoURL), options: [], format: &format
+    )
+  } catch {
+    throw ZipBuilderError("Couldn't read \(infoURL.path): \(error.localizedDescription)")
+  }
+  guard let info = plist as? [String: Any] else {
+    throw ZipBuilderError("\(infoURL.path) isn't a dictionary.")
   }
 
   let manifest = resources.appendingPathComponent(privacyManifestName)
