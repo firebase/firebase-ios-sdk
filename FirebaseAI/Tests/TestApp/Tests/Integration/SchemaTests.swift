@@ -219,9 +219,6 @@ struct SchemaTests {
 
   private static func generationConfig(schema: Schema) -> GenerationConfig {
     GenerationConfig(
-      temperature: 0.0,
-      topP: 0.0,
-      topK: 1,
       responseMIMEType: "application/json",
       responseSchema: schema
     )

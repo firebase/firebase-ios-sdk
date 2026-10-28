@@ -25,7 +25,7 @@ import XCTest
     let testModelName = "test-model"
     let testModelResourceName =
       "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-    let apiConfig = FirebaseAI.defaultEnterpriseAPIConfig
+    let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
     var urlSession: URLSession!
     var model: GenerativeModel!

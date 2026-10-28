@@ -33,17 +33,20 @@
 - (void)logArmActive:(NSString *)rcParameter config:(NSDictionary *)config {
   NSDictionary *ids = config[RCNFetchResponseKeyPersonalizationMetadata];
   NSDictionary<NSString *, FIRRemoteConfigValue *> *values = config[RCNFetchResponseKeyEntries];
-  if (ids.count < 1 || values.count < 1 || !values[rcParameter]) {
+  if (![ids isKindOfClass:[NSDictionary class]] || ![values isKindOfClass:[NSDictionary class]] ||
+      ids.count < 1 || values.count < 1 || !values[rcParameter]) {
     return;
   }
 
   NSDictionary *metadata = ids[rcParameter];
-  if (!metadata) {
+  if (![metadata isKindOfClass:[NSDictionary class]]) {
     return;
   }
 
+  // JSON null parses as NSNull, so check the type of each server-provided field, not just its
+  // presence.
   NSString *choiceId = metadata[kChoiceId];
-  if (choiceId == nil) {
+  if (![choiceId isKindOfClass:[NSString class]]) {
     return;
   }
 
@@ -54,15 +57,26 @@
   }
   self->_loggedChoiceIds[rcParameter] = choiceId;
 
+  // Optional fields that are missing or have an unexpected type are omitted from the event.
+  NSMutableDictionary<NSString *, id> *parameters = [[NSMutableDictionary alloc] init];
+  parameters[kExternalRcParameterParam] = rcParameter;
+  parameters[kExternalArmValueParam] = values[rcParameter].stringValue;
+  id personalizationId = metadata[kPersonalizationId];
+  if ([personalizationId isKindOfClass:[NSString class]]) {
+    parameters[kExternalPersonalizationIdParam] = personalizationId;
+  }
+  id armIndex = metadata[kArmIndex];
+  if ([armIndex isKindOfClass:[NSNumber class]]) {
+    parameters[kExternalArmIndexParam] = armIndex;
+  }
+  id group = metadata[kGroup];
+  if ([group isKindOfClass:[NSString class]]) {
+    parameters[kExternalGroupParam] = group;
+  }
+
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kExternalEvent
-                            parameters:@{
-                              kExternalRcParameterParam : rcParameter,
-                              kExternalArmValueParam : values[rcParameter].stringValue,
-                              kExternalPersonalizationIdParam : metadata[kPersonalizationId],
-                              kExternalArmIndexParam : metadata[kArmIndex],
-                              kExternalGroupParam : metadata[kGroup]
-                            }];
+                            parameters:parameters];
 
   [self->_analytics logEventWithOrigin:kAnalyticsOriginPersonalization
                                   name:kInternalEvent
