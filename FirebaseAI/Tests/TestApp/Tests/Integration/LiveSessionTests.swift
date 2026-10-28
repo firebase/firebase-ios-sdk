@@ -24,7 +24,7 @@ import AVFoundation
 struct LiveSessionTests {
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
-    case .enterprise:
+    case .agentPlatform:
       [
         (config, ModelNames.gemini2_5_FlashLive),
       ]
@@ -33,6 +33,12 @@ struct LiveSessionTests {
         (config, ModelNames.gemini2_5_FlashLivePreview),
       ]
     }
+  }
+
+  /// Arguments for tests that rely on `voiceActivity` messages, which are only sent by Gemini 3.x
+  /// Live models.
+  private static let voiceActivityArguments = InstanceConfig.liveConfigs.map { config in
+    (config, ModelNames.gemini3_8_Live)
   }
 
   private let oneSecondInNanoseconds = UInt64(1e+9)
@@ -362,7 +368,7 @@ struct LiveSessionTests {
       switch $0.0.apiConfig.service {
       case .googleAI:
         true
-      case .enterprise:
+      case .agentPlatform:
         false
       }
     }
@@ -599,6 +605,56 @@ struct LiveSessionTests {
 
     #expect(modelResponse == "1")
   }
+
+  @Test(arguments: voiceActivityArguments)
+  func realtime_voiceActivity(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: generationConfig,
+      systemInstruction: SystemInstructions.helloGoodbye
+    )
+
+    let session = try await model.connect()
+
+    let audioFile = try #require(
+      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+    )
+    await session.sendAudioRealtime(audioFile.data)
+    // Automatic activity detection only signals the end of speech after enough silence; with the
+    // default configuration, Gemini 3.x Live models require more than one second of it.
+    await session.sendAudioRealtime(generateRawPCMSilence(duration: 3))
+
+    let turn = try #require(
+      try await session.tryCollectNextTurnWithVoiceActivity(),
+      "Model did not respond in time with a non empty response"
+    )
+
+    await session.close()
+
+    // The server should signal both the start and the end of the user's speech.
+    let receivedTypes = turn.voiceActivities.map(\.type)
+    let activityStart = try #require(
+      turn.voiceActivities.first { $0.type == .activityStart },
+      "Missing ACTIVITY_START voice activity; received: \(receivedTypes)"
+    )
+    let activityEnd = try #require(
+      turn.voiceActivities.first { $0.type == .activityEnd },
+      "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
+    )
+    let startOffset = try #require(activityStart.audioOffset)
+    let endOffset = try #require(activityEnd.audioOffset)
+    #expect(startOffset >= 0)
+    #expect(endOffset > startOffset)
+
+    // Voice activity messages must not terminate the `responses` stream; the model's response to
+    // the audio should still be received after them.
+    let modelResponse = turn.transcript
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .trimmingCharacters(in: .punctuationCharacters)
+      .lowercased()
+
+    #expect(modelResponse == "goodbye")
+  }
 }
 
 private extension LiveSession {
@@ -649,6 +705,35 @@ private extension LiveSession {
     }
 
     return text
+  }
+
+  /// Collects the voice activity signals and the audio output transcript that the model sends for
+  /// the next turn, returning `nil` if it takes longer than the timeout.
+  ///
+  /// Similar to ``tryCollectNextValidAudioOutputTranscript``, this will make sure that you don't
+  /// get an empty intermediary response back.
+  func tryCollectNextTurnWithVoiceActivity(timeout: TimeInterval = 10.0) async throws
+    -> TurnWithVoiceActivity? {
+    let turn = try await withTimeout(seconds: timeout) {
+      var turn = TurnWithVoiceActivity()
+      for try await content in self.responsesOf(LiveServerContent.self) {
+        if let voiceActivity = content.voiceActivity {
+          turn.voiceActivities.append(voiceActivity)
+        }
+        turn.transcript += content.outputAudioText()
+        if content.isTurnComplete, !turn.transcript.isEmpty {
+          return turn
+        }
+      }
+      return turn
+    }
+
+    // if the model terminated early, we could get an empty transcript back
+    guard let turn, !turn.transcript.isEmpty else {
+      return nil
+    }
+
+    return turn
   }
 
   /// Collects the next session handle via the `LiveSessionResumptionUpdate` message.
@@ -749,6 +834,12 @@ private extension LiveSession {
 private struct NoInterruptionError: Error,
   CustomStringConvertible {
   var description: String { "The model never sent an interrupted message." }
+}
+
+/// The voice activity signals and the audio output transcript that the model sent for a turn.
+private struct TurnWithVoiceActivity: Sendable {
+  var voiceActivities = [LiveServerVoiceActivity]()
+  var transcript = ""
 }
 
 extension LiveServerContent {

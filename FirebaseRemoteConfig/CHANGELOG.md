@@ -1,9 +1,23 @@
 # Unreleased
-- [fixed] Fixed a crash when the Remote Config fetch response contains a
-  non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).
+  The copy now keeps the value's data and source. (#16804)
+- [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values
+  that can't be converted to JSON, such as dates or data. These defaults are now skipped and
+  an error is logged. (#16797)
 - [fixed] Remote Config real-time updates are no longer missed when an update
   message is split across network reads or arrives in the same read as another
   message. (#16793)
+
+# 13.1.0
+- [fixed] Fixed a crash when the Remote Config fetch response contains a
+  non-dictionary top-level JSON object (such as a JSON array). (#16735)
+- [fixed] Improved robustness when parsing malformed fetch responses, realtime
+  stream messages, and persisted config data, including personalization,
+  rollout, and experiment metadata. (#16728)
+- [fixed] Fixed crashes when nested fields of a fetch response (such as `state`,
+  `entries`, `personalizationMetadata`, `rolloutMetadata`,
+  `experimentDescriptions` or a server `error`) have unexpected JSON types.
+  (#16800)
 
 # 12.17.0
 - [fixed] Fixed a memory leak in Remote Config where `activateWithCompletion:`
