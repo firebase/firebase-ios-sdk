@@ -118,7 +118,19 @@ static NSString *const kMethodNameLatestStartTime =
   [_experimentPayloads removeAllObjects];
   [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyPayload];
 
+  if (response && ![response isKindOfClass:[NSArray class]]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                @"Invalid experiment descriptions in fetch response.");
+    return;
+  }
+
   for (NSDictionary<NSString *, id> *experiment in response) {
+    if (![experiment isKindOfClass:[NSDictionary class]] ||
+        ![NSJSONSerialization isValidJSONObject:experiment]) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                  @"Invalid experiment payload to be serialized.");
+      continue;
+    }
     NSError *error;
     NSData *JSONPayload = [NSJSONSerialization dataWithJSONObject:experiment
                                                           options:kNilOptions

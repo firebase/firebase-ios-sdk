@@ -164,11 +164,16 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
  *
  *  @param deviceToken  The APNS device token, provided by the operating system.
  *  @param isSandbox    YES if the device token is for the sandbox environment, NO otherwise.
+ *  @param tokenInfos   The currently cached tokens, which are checked and invalidated if needed.
+ *                      Callers pass them in so that they can reuse them, since reading them is
+ *                      a synchronous keychain query.
  *
  *  @return The array of FIRMessagingTokenInfo objects which were invalidated.
  */
-- (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                          isSandbox:(BOOL)isSandbox;
+- (NSArray<FIRMessagingTokenInfo *> *)
+    updateTokensToAPNSDeviceToken:(NSData *)deviceToken
+                        isSandbox:(BOOL)isSandbox
+                 cachedTokenInfos:(NSArray<FIRMessagingTokenInfo *> *)tokenInfos;
 
 /*
  * Sets APNS token

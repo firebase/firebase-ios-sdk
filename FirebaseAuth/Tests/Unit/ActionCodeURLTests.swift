@@ -79,6 +79,24 @@ class ActionCodeURLTests: XCTestCase {
     XCTAssertEqual(actionCodeURL?.operation, .unknown)
   }
 
+  /// Tests that each camelCase `mode` value used in out of band links maps to the expected
+  /// operation.
+  func testParseURLAllModes() {
+    let expectedOperations: [(mode: String, operation: ActionCodeOperation)] = [
+      ("resetPassword", .passwordReset),
+      ("verifyEmail", .verifyEmail),
+      ("recoverEmail", .recoverEmail),
+      ("signIn", .emailLink),
+      ("verifyAndChangeEmail", .verifyAndChangeEmail),
+      ("revertSecondFactorAddition", .revertSecondFactorAddition),
+    ]
+    for (mode, operation) in expectedOperations {
+      let urlString = "https://www.example.com?apiKey=API_KEY&mode=\(mode)&oobCode=OOB_CODE"
+      let actionCodeURL = ActionCodeURL(link: urlString)
+      XCTAssertEqual(actionCodeURL?.operation, operation, "mode: \(mode)")
+    }
+  }
+
   /// Tests parsing a URL with language code.
   func testActionCodeURL_languageCode() {
     let urlString = "https://example.com?lang=fr"

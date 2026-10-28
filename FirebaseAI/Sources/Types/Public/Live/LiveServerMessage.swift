@@ -78,6 +78,10 @@ extension LiveServerMessage.Payload {
       self = .sessionResumptionUpdate(LiveSessionResumptionUpdate(msg))
     case let .goAway(msg):
       self = .goingAwayNotice(LiveServerGoingAwayNotice(msg))
+    case let .voiceActivity(msg):
+      // surfaced through `.content` (instead of a dedicated case) to avoid a source-breaking change
+      // to exhaustive switch statements over `Payload`
+      self = .content(LiveServerContent(voiceActivity: msg))
     }
   }
 }
