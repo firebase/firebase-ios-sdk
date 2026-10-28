@@ -23,54 +23,34 @@ let package = Package(
   name: "ZipBuilder",
   platforms: [.macOS(.v15)],
   products: [
-    .executable(name: "zip-builder", targets: ["ZipBuilderCLI"]),
+    .executable(name: "zip-builder", targets: ["ZipBuilder"]),
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
     .package(url: "https://github.com/apple/swift-log.git", from: "1.6.0"),
-    .package(
-      url: "https://github.com/swiftlang/swift-package-manager.git",
-      revision: "swift-6.3.3-RELEASE"
-    ),
+    .package(url: "https://github.com/swiftlang/swift-package-manager.git", branch: "main"),
+    .package(url: "https://github.com/tuist/XcodeProj.git", from: "8.24.0"),
+    // XcodeProj 8 declares no platforms (macOS 10.13 by default), but AEXML 4.7.2+ requires macOS
+    // 10.14, which SwiftPM rejects. XcodeProj 9.10.1+ declares macOS 11 but types its
+    // BuildSettings.
+    .package(url: "https://github.com/tadija/AEXML.git", "4.7.0" ..< "4.7.2"),
   ],
   targets: [
+    // The zip builder (see docs/how-it-works.md).
     .executableTarget(
-      name: "ZipBuilderCLI",
+      name: "ZipBuilder",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "Logging", package: "swift-log"),
-        "ManifestReader",
-        "Common",
-      ]
-    ),
-    .target(
-      name: "ManifestReader",
-      dependencies: [
-        .product(name: "Logging", package: "swift-log"),
-        "Common",
-      ]
-    ),
-    .target(
-      name: "Common",
-      dependencies: [
-        .product(name: "Logging", package: "swift-log"),
-        .product(name: "SwiftPM", package: "swift-package-manager"),
+        .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
+        .product(name: "XcodeProj", package: "XcodeProj"),
+        // Only here to pin its version (see above).
+        .product(name: "AEXML", package: "AEXML"),
       ]
     ),
     .testTarget(
-      name: "ManifestReaderTests",
-      dependencies: [
-        "ManifestReader",
-        "Common",
-      ]
-    ),
-    .testTarget(
-      name: "ZipBuilderCLITests",
-      dependencies: [
-        "ZipBuilderCLI",
-        "Common",
-        "ManifestReader",
-      ]
+      name: "ZipBuilderTests",
+      dependencies: ["ZipBuilder"]
     ),
   ]
 )

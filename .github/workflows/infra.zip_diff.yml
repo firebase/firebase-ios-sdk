@@ -1,0 +1,197 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: infra.zip_diff
+
+on:
+  workflow_dispatch:
+  pull_request:
+    # Everything that can change the zip.
+    paths: &zip_inputs
+      - '**/*.swift'
+      - '**/*.h'
+      - '**/*.m'
+      - '**/*.mm'
+      - '**/*.c'
+      - '**/*.cc'
+      - '**/*.cpp'
+      - '**/*.hpp'
+      - '**/*.xcprivacy'
+      - '**/*.plist'
+      - '**/*.modulemap'
+      - '**/*.storyboard'
+      - '**/*.xib'
+      - '**/*.png'
+      - '**/*.strings'
+      - '**/*.inc'
+      - '**/*.def'
+      - 'Package.swift'
+      - 'zip_builder.jsonc'
+      - 'zip_builder.json'
+      - 'CoreOnly/**'
+      - 'Crashlytics/run'
+      - 'Crashlytics/upload-symbols'
+      - 'scripts/zip_builder/**'
+      - '.github/workflows/infra.zip_diff.yml'
+      - '!**/Tests/**'
+      - '!**/UnitTests/**'
+      - '!**/IntegrationTests/**'
+      - '!**/Sample/**'
+      - '!**/Samples/**'
+      - '!SwiftPMTests/**'
+      - '!ReleaseTooling/**'
+  push:
+    branches:
+      - main
+    paths: *zip_inputs
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FIREBASE_CI: true
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+  MIN_XCODE: Xcode_26.2
+
+jobs:
+  zip_diff:
+    runs-on: macos-26
+    timeout-minutes: 300
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      # For pull requests this is the merge commit: exactly what would land on main.
+      CANDIDATE_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
+
+      - name: Restore SwiftPM build cache
+        id: restore_spm_cache
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: |
+            scripts/zip_builder/.build
+            .build
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-diff-spm-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-diff-spm-
+
+      # Only pushes to main save this cache, and every pull request can restore main's caches:
+      # first the one for its base commit, else the newest. Unchanged frameworks keep their
+      # fingerprints, so a pull request only rebuilds what it changed.
+      - name: Restore framework cache
+        id: restore_framework_cache
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ runner.temp }}/zip-builder-cache
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-${{ github.event.pull_request.base.sha }}
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-
+
+      # The steps below check out other commits, so they run a copy of the candidate's scripts.
+      - name: Copy CI scripts
+        run: cp -R scripts/zip_builder/ci "$RUNNER_TEMP/zip-diff-ci"
+
+      - name: Build zip builders
+        id: tools
+        run: '"$RUNNER_TEMP/zip-diff-ci/zip_diff.sh" build-tools'
+
+      - name: Build baseline zip (main)
+        if: github.event_name == 'pull_request'
+        run: '"$RUNNER_TEMP/zip-diff-ci/zip_diff.sh" build-baseline'
+
+      - name: Build candidate zip
+        run: '"$RUNNER_TEMP/zip-diff-ci/zip_diff.sh" build-candidate'
+
+      - name: Save SwiftPM build cache
+        if: always() && steps.restore_spm_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: |
+            scripts/zip_builder/.build
+            .build
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-diff-spm-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved', 'Package.swift') }}
+
+      # Without a tool build there's nothing to keep, and pruning would empty the cache.
+      - name: Prune framework cache
+        if: always() && github.event_name == 'push' && steps.tools.outcome == 'success'
+        run: '"$RUNNER_TEMP/zip-diff-ci/zip_diff.sh" prune-cache'
+
+      # Only on main: GitHub saves the whole directory as one entry, so a pull request's save would
+      # store every framework again, not just the ones it changed. Entries are stored atomically as
+      # they're built, so a failed build still caches what finished.
+      - name: Save framework cache
+        if: always() && github.event_name == 'push' && steps.tools.outcome == 'success' && steps.restore_framework_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ runner.temp }}/zip-builder-cache
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-${{ github.sha }}
+
+      # Runs even when the candidate failed verify (it still packaged); the job fails anyway. When
+      # the candidate tool didn't build, there's nothing to diff or report.
+      - name: Diff the zips
+        id: diff
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.tools.outcome == 'success' }}
+        env:
+          # The comment's first line. The candidate is the merge commit; the PR head's SHA, which
+          # GitHub links, names it for readers.
+          TITLE: >-
+            **Release zip diff** between `main` and the merge of ${{ github.event.pull_request.head.sha }}
+            into `main`. [Workflow logs & artifacts](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        run: '"$RUNNER_TEMP/zip-diff-ci/zip_diff.sh" diff'
+
+      - name: Upload diff report artifact
+        if: ${{ !cancelled() && steps.diff.outputs.status == 'changed' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: zip-diff-report
+          path: ${{ steps.diff.outputs.comment_file }}
+          retention-days: 7
+
+      # A diff doesn't fail the job: this comment is the signal. Only a diff starts a new comment;
+      # other results update an existing one. The action is pinned to a commit on main, because
+      # the steps above leave other commits checked out.
+      - name: Comment diff report on PR
+        if: ${{ !cancelled() && steps.diff.outputs.comment_file != '' }}
+        uses: firebase/firebase-ios-sdk/.github/actions/pr_comment@911e1a882472eab5203bb92b0037eaaec18e6f2b # main
+        with:
+          marker: zip-builder-diff-report
+          body-file: ${{ steps.diff.outputs.comment_file }}
+          create: ${{ steps.diff.outputs.status == 'changed' }}
+
+      - name: Comment build failure on PR
+        if: ${{ !cancelled() && (steps.diff.outputs.status == 'no-baseline' || steps.diff.outputs.status == 'no-candidate') }}
+        uses: firebase/firebase-ios-sdk/.github/actions/pr_comment@911e1a882472eab5203bb92b0037eaaec18e6f2b # main
+        with:
+          marker: zip-builder-diff-report
+          create: 'false'
+          body: >-
+            ❌ The release zip for ${{ steps.diff.outputs.status == 'no-baseline' && '`main`' || 'this PR' }}
+            couldn't be built, so there's no diff.
+            [Workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})

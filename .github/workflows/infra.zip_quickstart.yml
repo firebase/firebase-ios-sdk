@@ -1,0 +1,318 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Tests the zip built by scripts/zip_builder (zip-builder) with the quickstart framework matrix,
+# alongside the legacy zip's matrix in release.zip.yml. Both run until the new zip is trusted; then
+# release.zip.yml's quickstart jobs are removed.
+#
+# The zip is built from the current commit's Package.swift. To reuse an earlier run's zip, trigger
+# the workflow manually with its run ID.
+name: infra.zip_quickstart
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  FIREBASE_CI: true
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+  MIN_XCODE: Xcode_26.2
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/zip_builder/**'
+      - '!scripts/zip_builder/**/*.md'
+      - 'scripts/zip_builder.sh'
+      - 'zip_builder.jsonc'
+      - 'zip_builder.json'
+      - 'scripts/zip/setup_quickstart_framework.sh'
+      - 'scripts/zip/zip_quickstart_test.sh'
+      - 'scripts/zip/build_non_firebase_sdks.sh'
+      - 'scripts/test_quickstart_framework.sh'
+      - '.github/workflows/infra.zip_quickstart.yml'
+      - '.github/workflows/_quickstart.framework.yml'
+  schedule:
+    # An hour after release.zip.yml.
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      zip_run_id:
+        description: 'Run ID of a previous successful infra.zip_quickstart run, to reuse its zip'
+        required: false
+        default: ''
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    if: github.repository == 'firebase/firebase-ios-sdk' && github.event.inputs.zip_run_id == ''
+    runs-on: macos-26
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        # Like release.zip.yml's static and dynamic zips. The dynamic zip builds Firestore's stack
+        # from source: a dynamic framework can't link the prebuilt static Firestore binaries.
+        include:
+          - linkage: static
+            artifact: Firebase-zip-builder
+          - linkage: dynamic
+            artifact: Firebase-zip-builder-dynamic
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
+
+      - name: Cache SwiftPM build artifacts
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: |
+            scripts/zip_builder/.build
+            .build
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-spm-${{ matrix.linkage }}-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-spm-${{ matrix.linkage }}-
+
+      # Restores infra.zip_diff.yml's framework cache too (one subdirectory per tool build), but
+      # saves under its own key prefix, so the two workflows never overwrite each other's entry.
+      - name: Restore framework cache
+        id: restore_framework_cache
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ runner.temp }}/zip-builder-cache
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-
+
+      - name: Build the zip
+        id: build
+        env:
+          LINKAGE: ${{ matrix.linkage }}
+        run: |
+          # Package.swift checks whether the variable is set at all, so it's only exported for the
+          # dynamic zip.
+          if [[ "$LINKAGE" == dynamic ]]; then export FIREBASE_SOURCE_FIRESTORE=1; fi
+          # Fingerprints don't cover the tool's own code, so each tool build has its own cache.
+          TOOL_HASH="$(git ls-tree -r HEAD -- scripts/zip_builder/Package.swift \
+            scripts/zip_builder/Package.resolved scripts/zip_builder/Sources \
+            | git hash-object --stdin | cut -c1-12)"
+          swift build --package-path scripts/zip_builder -c release --force-resolved-versions \
+            --product zip-builder
+          # Only once the tool builds: the cache steps below are skipped without it.
+          echo "tool_hash=${TOOL_HASH}" >> "$GITHUB_OUTPUT"
+          "$(swift build --package-path scripts/zip_builder -c release --show-bin-path)/zip-builder" release \
+            --package-path . --work-dir "$RUNNER_TEMP/zip" --linkage "$LINKAGE" \
+            --cache-dir "$RUNNER_TEMP/zip-builder-cache/$TOOL_HASH" \
+            --version "$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"
+
+      # Without a tool build there's no hash, and pruning would empty the cache.
+      - name: Prune framework cache
+        if: always() && steps.build.outputs.tool_hash != ''
+        env:
+          TOOL_HASH: ${{ steps.build.outputs.tool_hash }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/zip-builder-cache"
+          find "$RUNNER_TEMP/zip-builder-cache" -mindepth 1 -maxdepth 1 ! -name "$TOOL_HASH" \
+            -exec rm -rf {} +
+
+      - name: Save framework cache
+        if: always() && steps.build.outputs.tool_hash != '' && steps.restore_framework_cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: ${{ runner.temp }}/zip-builder-cache
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ github.sha }}
+
+      # Only the zip: _quickstart.framework.yml unzips every Firebase*latest.zip it downloads.
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ runner.temp }}/zip/Firebase-*-latest.zip
+          if-no-files-found: error
+          compression-level: 0
+
+  packaging_done:
+    runs-on: ubuntu-latest
+    needs: [package]
+    if: always()
+    outputs:
+      run_id: ${{ steps.get_run_id.outputs.run_id }}
+    steps:
+      - name: Check packaging result
+        if: needs.package.result == 'failure' || needs.package.result == 'cancelled'
+        run: |
+          echo "Packaging failed. Aborting."
+          exit 1
+      - name: Get Run ID
+        id: get_run_id
+        env:
+          ZIP_RUN_ID: ${{ github.event.inputs.zip_run_id }}
+          RUN_ID: ${{ github.run_id }}
+        run: echo "run_id=${ZIP_RUN_ID:-$RUN_ID}" >> "$GITHUB_OUTPUT"
+
+  # No Firestore symbols check (release.zip.yml's check_framework_firestore_symbols): the static
+  # zip ships Package.swift's prebuilt FirebaseFirestoreInternal binary as is, and release.zip.yml
+  # only checks its static zip too.
+
+  quickstart_framework_matrix:
+    needs: packaging_done
+    if: github.event.pull_request.head.repo.fork == false && !cancelled() && needs.packaging_done.result == 'success'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - os: 'macos-26'
+            xcode: 'Xcode_26.4'
+          - os: 'macos-15'
+            xcode: 'Xcode_26.2'
+        # The static and dynamic zips, like release.zip.yml's Firebase-actions-dir(-dynamic).
+        artifact: [Firebase-zip-builder, Firebase-zip-builder-dynamic]
+        # Keep in sync with release.zip.yml › quickstart_framework_matrix. The only difference is
+        # Authentication: this zip has no GoogleSignIn folder (the legacy zip adds the GoogleSignIn
+        # pod), so GoogleSignIn and its dependencies come from NON_FIREBASE_SDKS instead.
+        config:
+          - product: "ABTesting"
+            plist_src: "scripts/gha-encrypted/qs-abtesting.plist.gpg"
+            plist_dst: "quickstart-ios/abtesting/GoogleService-Info.plist"
+            command: |
+              SAMPLE="ABTesting" TARGET="ABTestingExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCore.xcframework \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseCoreInternal.xcframework \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FBLPromises.xcframework \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseInstallations.xcframework \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleUtilities.xcframework
+
+          - product: "Authentication"
+            plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
+            plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Authentication" TARGET="AuthenticationExample" \
+                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit GoogleSignIn AppAuth GTMAppAuth" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "Config"
+            plist_src: "scripts/gha-encrypted/qs-config.plist.gpg"
+            plist_dst: "quickstart-ios/config/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Config" TARGET="ConfigExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseRemoteConfig/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "Crashlytics"
+            plist_src: "scripts/gha-encrypted/qs-crashlytics.plist.gpg"
+            plist_dst: "quickstart-ios/crashlytics/GoogleService-Info.plist"
+            command: |
+              scripts/setup_simulator.sh watchOS
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/FirebaseAnalytics*
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAppMeasurement*
+              rm -rf "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/GoogleAds*
+              SAMPLE="Crashlytics" TARGET="CrashlyticsExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseCrashlytics/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cd quickstart-ios/crashlytics
+              "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb --sdk "Crashlytics" \
+                --target "CrashlyticsExample_(watchOS)_Extension" \
+                --framework_path Firebase/
+              cd ../../
+              scripts/patch_crashlytics_run_path.rb
+
+          - product: "Database"
+            plist_src: "scripts/gha-encrypted/qs-database.plist.gpg"
+            plist_dst: "quickstart-ios/database/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Database" TARGET="DatabaseExample" NON_FIREBASE_SDKS="FirebaseDatabaseUI" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "FirebaseAI"
+            plist_src: "scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg"
+            plist_dst: "quickstart-ios/firebaseai/GoogleService-Info.plist"
+            scheme: "FirebaseAIExample (iOS)" # Special property
+            command: |
+              SAMPLE="$SDK" TARGET="${SDK}Example" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAILogic/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "Firestore"
+            plist_src: "scripts/gha-encrypted/qs-firestore.plist.gpg"
+            plist_dst: "quickstart-ios/firestore/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Firestore" TARGET="FirestoreExample" \
+                NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" \
+                scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "InAppMessaging"
+            plist_src: "scripts/gha-encrypted/qs-inappmessaging.plist.gpg"
+            plist_dst: "quickstart-ios/inappmessaging/GoogleService-Info.plist"
+            command: |
+              SAMPLE="InAppMessaging" TARGET="InAppMessagingExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+          - product: "Messaging"
+            plist_src: "scripts/gha-encrypted/qs-messaging.plist.gpg"
+            plist_dst: "quickstart-ios/messaging/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Messaging" TARGET="MessagingExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+              cd quickstart-ios/messaging
+              "${GITHUB_WORKSPACE}"/quickstart-ios/scripts/add_framework_script.rb \
+                --sdk "Messaging" \
+                --target "NotificationServiceExtension" \
+                --framework_path Firebase/
+
+          - product: "Storage"
+            plist_src: "scripts/gha-encrypted/qs-storage.plist.gpg"
+            plist_dst: "quickstart-ios/storage/GoogleService-Info.plist"
+            command: |
+              SAMPLE="Storage" TARGET="StorageExample" scripts/zip/setup_quickstart_framework.sh \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
+                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+
+    uses: ./.github/workflows/_quickstart.framework.yml
+    with:
+      product: ${{ matrix.config.product }}
+      zip_run_id: ${{ needs.packaging_done.outputs.run_id }}
+      artifact_name: ${{ matrix.artifact }}
+      # Use defaults with option to override
+      os: ${{ matrix.config.os || matrix.platform.os }}
+      xcode: ${{ matrix.config.xcode || matrix.platform.xcode }}
+      # Optional scheme (only used by FirebaseAI)
+      scheme: ${{ matrix.config.scheme }}
+      plist_src_path: ${{ matrix.config.plist_src }}
+      plist_dst_path: ${{ matrix.config.plist_dst }}
+      setup_command: ${{ matrix.config.command }}
+    secrets:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
