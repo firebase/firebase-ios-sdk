@@ -581,6 +581,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
+                   [self.persistenceManager setQueryInactive:querySpec];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
@@ -1350,7 +1351,7 @@
         }
 
         [self.eventRaiser raiseEvents:events];
-        events = nil;
+        events = [[NSMutableArray alloc] init];
 
         if (abortTransaction) {
             // Abort

@@ -41,6 +41,42 @@ final class PartTests: XCTestCase {
     let part = try decoder.decode(TextPart.self, from: jsonData)
 
     XCTAssertEqual(part.text, expectedText)
+    XCTAssertNil(part.speechMetadata)
+  }
+
+  func testDecodeTextPart_withSpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let json = """
+    {
+      "speechMetadata" : {
+        "speaker" : "Joe",
+        "style" : "cheerful"
+      },
+      "text" : "\(expectedText)"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(TextPart.self, from: jsonData)
+
+    XCTAssertEqual(part.text, expectedText)
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+  }
+
+  func testDecodeTextPart_withEmptySpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let json = """
+    {
+      "speechMetadata" : {},
+      "text" : "\(expectedText)"
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let part = try decoder.decode(TextPart.self, from: jsonData)
+
+    XCTAssertEqual(part.text, expectedText)
+    XCTAssertEqual(part.speechMetadata, SpeechMetadata())
   }
 
   func testDecodeInlineDataPart() throws {
@@ -227,6 +263,42 @@ final class PartTests: XCTestCase {
     """)
   }
 
+  func testEncodeTextPart_withSpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let speechMetadata = SpeechMetadata(speaker: "Joe", style: "cheerful")
+    let textPart = TextPart(expectedText, speechMetadata: speechMetadata)
+
+    let jsonData = try encoder.encode(textPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+        "speaker" : "Joe",
+        "style" : "cheerful"
+      },
+      "text" : "\(expectedText)"
+    }
+    """)
+  }
+
+  func testEncodeTextPart_withEmptySpeechMetadata() throws {
+    let expectedText = "Hello, world!"
+    let textPart = TextPart(expectedText, speechMetadata: SpeechMetadata())
+
+    let jsonData = try encoder.encode(textPart)
+
+    let json = try XCTUnwrap(String(data: jsonData, encoding: .utf8))
+    XCTAssertEqual(json, """
+    {
+      "speechMetadata" : {
+
+      },
+      "text" : "\(expectedText)"
+    }
+    """)
+  }
+
   func testEncodeInlineDataPart() throws {
     let mimeType = "image/png"
     let imageBase64 = try PartTests.blueSquareImage()
@@ -296,7 +368,81 @@ final class PartTests: XCTestCase {
     """)
   }
 
+  // MARK: - ModelContent Conversion
+
+  func testModelContent_unsupportedPartType_isSkippedAndLogged() throws {
+    var loggedCodes: [AILog.MessageCode] = []
+    AILog.logInterceptor = { _, code, _ in
+      loggedCodes.append(code)
+    }
+    defer { AILog.logInterceptor = nil }
+
+    let content = ModelContent(parts: [TextPart("Hello"), CustomPart(), TextPart("world")])
+
+    XCTAssertEqual(content.parts.count, 2)
+    XCTAssertEqual(content.parts.compactMap { ($0 as? TextPart)?.text }, ["Hello", "world"])
+    XCTAssertEqual(loggedCodes, [.modelContentUnsupportedPartType])
+  }
+
+  func testModelContent_errorPart_isKeptAndThrowIfErrorThrows() throws {
+    let content = ModelContent(parts: [
+      TextPart("Hello"),
+      ErrorPart(ImageConversionError.couldNotConvertToJPEG),
+    ])
+    // `Chat` and `countTokens` may rebuild content from its `parts`; the error must survive that.
+    let rebuiltContent = ModelContent(role: nil, parts: content.parts)
+
+    XCTAssertEqual(content.parts.count, 2)
+    XCTAssertTrue(content.parts.last is ErrorPart)
+    for contents in [[content], [rebuiltContent]] {
+      XCTAssertThrowsError(try contents.throwIfError()) { error in
+        guard case let GenerateContentError.internalError(underlying) = error else {
+          XCTFail("Expected an internal error, got \(error) instead.")
+          return
+        }
+        XCTAssertEqual(underlying as? ImageConversionError, .couldNotConvertToJPEG)
+      }
+    }
+  }
+
+  func testModelContent_errorPart_encodingThrows() throws {
+    let content = ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+
+    XCTAssertThrowsError(try encoder.encode(content)) { error in
+      guard case EncodingError.invalidValue = error else {
+        XCTFail("Expected an invalid value error, got \(error) instead.")
+        return
+      }
+    }
+  }
+
+  func testModelContent_errorPart_equality() throws {
+    let content = ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+
+    XCTAssertEqual(
+      content,
+      ModelContent(parts: [ErrorPart(ImageConversionError.couldNotConvertToJPEG)])
+    )
+    XCTAssertNotEqual(
+      content,
+      ModelContent(parts: [ErrorPart(ImageConversionError.invalidUnderlyingImage)])
+    )
+    XCTAssertNotEqual(content, ModelContent(parts: [TextPart("Hello")]))
+  }
+
+  func testErrorPart_encodingAndDecodingThrow() throws {
+    XCTAssertThrowsError(
+      try encoder.encode(ErrorPart(ImageConversionError.couldNotConvertToJPEG))
+    )
+    XCTAssertThrowsError(try decoder.decode(ErrorPart.self, from: Data("{}".utf8)))
+  }
+
   // MARK: - Helpers
+
+  /// A `Part` conformance defined outside of the SDK.
+  private struct CustomPart: Part {
+    var isThought: Bool { false }
+  }
 
   private static func bundle() -> Bundle {
     #if SWIFT_PACKAGE

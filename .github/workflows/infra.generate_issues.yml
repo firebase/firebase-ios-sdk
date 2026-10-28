@@ -28,7 +28,8 @@ jobs:
       with:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
-        exclude-workflow-files: 'performance-integration-tests.yml, sessions-integration-tests.yml, codeql, dependabot-updates'
+        # GitHub-managed dynamic workflows (e.g. CodeQL, Dependabot) are skipped automatically.
+        exclude-workflow-files: 'sdk.performance.integration.yml, sdk.sessions.integration.yml'
 
   test_generate_an_issue:
     permissions:
@@ -47,6 +48,7 @@ jobs:
       with:
         access-token: '${{ secrets.GITHUB_TOKEN }}'
         # This is to exclude workflows that will be searched in the nightly report.
-        exclude-workflow-files: 'performance-integration-tests.yml, sessions-integration-tests.yml, codeql, dependabot-updates'
+        # GitHub-managed dynamic workflows (e.g. CodeQL, Dependabot) are skipped automatically.
+        exclude-workflow-files: 'sdk.performance.integration.yml, sdk.sessions.integration.yml'
         issue-labels: 'nightly-testing-report-generation-test'
         issue-title: 'Nightly Testing Report For Presubmit Testing'
