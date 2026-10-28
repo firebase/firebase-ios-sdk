@@ -305,7 +305,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
@@ -387,7 +387,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -421,10 +421,14 @@ jobs:
 
   xcodetest_nightly:
     needs: [check, build_xcodetest]
+    # TODO(b/577081204): Re-enable nightly tests once backend connectivity issues are resolved.
+    # To re-enable: uncomment the original `if:` block below, remove `if: false`,
+    # and re-add `xcodetest_nightly` to `check-required-tests.needs` below.
     # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    # if: |
+    #   (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: false
     runs-on: macos-26
     timeout-minutes: 60
 
@@ -464,7 +468,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -561,7 +565,7 @@ jobs:
         key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
     - if: steps.cache-products.outputs.cache-hit != 'true'
-      uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
     - name: Cache Pods
       if: steps.cache-products.outputs.cache-hit != 'true'
@@ -643,7 +647,7 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -808,7 +812,8 @@ jobs:
       - sanitizers-ubuntu
       - pod_lib_lint
       - xcodetest_prod
-      - xcodetest_nightly
+      # TODO(b/577081204): Uncomment when xcodetest_nightly is re-enabled.
+      # - xcodetest_nightly
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
