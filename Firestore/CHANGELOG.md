@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed `@FirestoreQuery` array results ignoring `decodingFailureStrategy`. With the
+  default `.raise` strategy, a document decoding failure now clears the results as documented,
+  instead of publishing the documents that decoded successfully; use `.ignore` to keep them.
+  Changes to the strategy through the projected value now also take effect. (#16788)
+
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
 - [fixed] Fixed a "'Firestore' SwiftPM package trait is disabled" build error
