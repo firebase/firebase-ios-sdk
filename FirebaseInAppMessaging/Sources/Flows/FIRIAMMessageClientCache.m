@@ -102,7 +102,8 @@
   for (FIRIAMMessageDefinition *nextMessage in self.regularMessages) {
     // if it's event based triggering, add it to the watch set
     for (FIRIAMDisplayTriggerDefinition *nextTrigger in nextMessage.renderTriggers) {
-      if (nextTrigger.triggerType == FIRIAMRenderTriggerOnFirebaseAnalyticsEvent) {
+      if (nextTrigger.triggerType == FIRIAMRenderTriggerOnFirebaseAnalyticsEvent &&
+          nextTrigger.firebaseEventName) {
         [self.firebaseAnalyticEventsToWatch addObject:nextTrigger.firebaseEventName];
       }
     }
@@ -229,7 +230,7 @@
           [self.responseParser parseAPIResponseDictionary:response
                                         discardedMsgCount:&discardCount
                                    fetchWaitTimeInSeconds:&fetchWaitTime];
-      [self setMessageData:messagesFromStorage];
+      [self setMessageData:messagesFromStorage ?: @[]];
       completion(YES);
     } else {
       completion(NO);
