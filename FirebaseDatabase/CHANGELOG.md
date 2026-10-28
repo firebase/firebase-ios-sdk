@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where the `getData` error said that the client was
+  offline when the server rejected the request, e.g. because of security rules.
+  (#11835)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
