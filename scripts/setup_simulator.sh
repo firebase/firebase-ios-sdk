@@ -49,12 +49,23 @@ get_runtime() {
 
   local runtime=""
   if [[ -n "$sdk_version" && -n "$available_runtimes" ]]; then
-    local sdk_major="${sdk_version%%.*}"
-    runtime=$(
-      echo "$available_runtimes" |
-        grep -E -- "-${sdk_major}-" |
-        tail -1 || true
-    )
+    if [[ "$sdk_version" =~ ^([0-9]+)\.([0-9]+) ]]; then
+      local sdk_major="${BASH_REMATCH[1]}"
+      local sdk_minor="${BASH_REMATCH[2]}"
+      runtime=$(
+        echo "$available_runtimes" |
+          grep -E -- "-${sdk_major}-${sdk_minor}([^0-9]|$)" |
+          tail -1 || true
+      )
+    fi
+    if [[ -z "$runtime" ]]; then
+      local sdk_major="${sdk_version%%.*}"
+      runtime=$(
+        echo "$available_runtimes" |
+          grep -E -- "-${sdk_major}-" |
+          tail -1 || true
+      )
+    fi
   fi
 
   # Fallback to the latest available runtime if a matching SDK runtime is not found.
@@ -86,10 +97,16 @@ create_sim() {
     exit 1
   fi
 
-  if xcrun simctl list devices | grep -q "$sim_name"; then
-    echo "Simulator '$sim_name' already exists."
+  if xcrun simctl list devices available | grep -Fq "${sim_name} ("; then
+    echo "Simulator '$sim_name' already exists and is available."
     return 0
   fi
+
+  # Clean up any existing (but unavailable) simulators with the same name to avoid duplicates.
+  xcrun simctl list devices | grep -F "${sim_name} (" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' | while read -r uuid; do
+    echo "Removing existing/unavailable simulator $uuid..."
+    xcrun simctl delete "$uuid" || true
+  done || true
 
   local device_type
   for device_type in "${device_types[@]}"; do
@@ -132,11 +149,21 @@ main() {
   local device_prefix="com.apple.CoreSimulator.SimDeviceType"
   local ios_devices=(
     "${device_prefix}.iPhone-15-Pro"
+    "${device_prefix}.iPhone-16-Pro"
+    "${device_prefix}.iPhone-17-Pro"
     "${device_prefix}.iPhone-Duo"
   )
   local ipad_device="${device_prefix}.iPad-Pro--11-inch---2nd-generation-"
-  local watch_device="${device_prefix}.Apple-Watch-Ultra-2-49mm"
-  local tv_device="${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
+  local watch_devices=(
+    "${device_prefix}.Apple-Watch-Ultra-2-49mm"
+    "${device_prefix}.Apple-Watch-Ultra-3-49mm"
+    "${device_prefix}.Apple-Watch-Ultra-4-49mm"
+    "${device_prefix}.Apple-Watch-SE-3-44mm"
+  )
+  local tv_devices=(
+    "${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
+    "${device_prefix}.Apple-TV-4K-3rd-generation-1080p"
+  )
   local vision_device
 
   case "$platform_clean" in
@@ -147,10 +174,10 @@ main() {
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
       ;;
     watchos)
-      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "${watch_devices[@]}"
       ;;
     tvos)
-      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "${tv_devices[@]}"
       ;;
     visionos|xros)
       vision_device=$(get_vision_device "$device_prefix")
@@ -160,8 +187,8 @@ main() {
       vision_device=$(get_vision_device "$device_prefix")
       create_sim "iOS" "Firebase-iPhone-15-Pro" "${ios_devices[@]}"
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
-      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
-      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
+      create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "${watch_devices[@]}"
+      create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "${tv_devices[@]}"
       create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
       ;;
     macos|catalyst|linux|ios-device)
