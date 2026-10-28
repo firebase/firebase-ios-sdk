@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed pipelines created from a query with an inclusive cursor, such as
+  `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
+  cursor boundary. (#16795)
+
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
 - [fixed] Fixed a "'Firestore' SwiftPM package trait is disabled" build error
