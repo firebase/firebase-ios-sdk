@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where `getData` on a query with a limit or range could
+  remove data from other listeners at or below the query's location, and from
+  the disk cache. (#8286, #14137)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
