@@ -81,6 +81,11 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   // Intentionally empty — see class-level comment for why holding
   // weak_ptr<State> + raw `this` is sufficient under our destructor
   // invariant.
+  //
+  // INVARIANT: `state_` must remain the sole strong owner of `State`.
+  // Never call `weak_state.lock()` or create another `std::shared_ptr<State>`.
+  // Doing so would extend State's lifetime past `state_.reset()` in the
+  // destructor, causing queued inner lambdas to dereference a dangling `this`.
   struct State {};
 
   nw_path_monitor_t monitor_ = nullptr;
