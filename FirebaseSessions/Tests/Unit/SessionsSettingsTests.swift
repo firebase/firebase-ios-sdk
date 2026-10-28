@@ -112,4 +112,32 @@ class SessionsSettingsTests: XCTestCase {
     XCTAssertEqual(sessionSettings.samplingRate, 0.8)
     XCTAssertEqual(sessionSettings.sessionTimeout, 50)
   }
+
+  func test_InvalidRemoteAndDefaultsPresent_DefaultConfigsApply() {
+    let invalidSettings: [String: Any] = [
+      "cache_duration": 10,
+      "app_quality": [
+        "sessions_enabled": NSNull(),
+        "sampling_rate": 2.5,
+        "session_timeout_seconds": -100,
+      ] as [String: Any],
+    ]
+
+    cache.removeCache()
+    downloader = MockSettingsDownloader(successResponse: invalidSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+
+    XCTAssertTrue(sessionSettings.sessionsEnabled)
+    XCTAssertEqual(sessionSettings.samplingRate, 1.0)
+    XCTAssertEqual(sessionSettings.sessionTimeout, 30 * 60)
+  }
 }
