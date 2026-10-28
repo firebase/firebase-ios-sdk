@@ -141,7 +141,7 @@ jobs:
           - os: macos-26
             xcode: Xcode_26.4
           - os: xcode-27
-            xcode: Xcode_27.0
+            xcode: Xcode_27.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1

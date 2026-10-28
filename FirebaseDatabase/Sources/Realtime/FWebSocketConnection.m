@@ -100,6 +100,15 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                                                      userAgent:userAgent
                                                    googleAppID:googleAppID
                                                  appCheckToken:appCheckToken];
+        if (req.URL == nil) {
+            // NSURL rejects the connection URL. Don't create a web socket;
+            // open reports a failed connection attempt instead. Don't log the
+            // URL, since it can include the session ID.
+            FFWarn(@"I-RDB083022",
+                   @"(wsc:%@) Couldn't parse the connection URL for host %@",
+                   self.connectionId, repoInfo.internalHost);
+            return self;
+        }
 #if TARGET_OS_WATCH
         // Regular NSURLSession websocket.
         NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
@@ -191,7 +200,22 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
           self.connectionId);
     assert(delegate);
     everConnected = NO;
-    // TODO Assert url
+#if TARGET_OS_WATCH
+    BOOL hasWebSocket = self.webSocketTask != nil;
+#else
+    BOOL hasWebSocket = self.webSocket != nil;
+#endif // TARGET_OS_WATCH
+    if (!hasWebSocket) {
+        // There's no web socket because the connection URL is invalid. Report
+        // a failed connection attempt instead, asynchronously like the web
+        // socket would, so that the delegate falls back to the configured host
+        // and retries with backoff. There's nothing for the connect timeout to
+        // close.
+        dispatch_async(self.dispatchQueue, ^{
+          [self onClosed];
+        });
+        return;
+    }
 #if TARGET_OS_WATCH
     [self.webSocketTask resume];
     // We need to request data from the web socket in order for it to start
