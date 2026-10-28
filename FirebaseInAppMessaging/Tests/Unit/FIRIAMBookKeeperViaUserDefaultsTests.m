@@ -186,4 +186,56 @@ static NSString *const kSuiteName = @"FIRIAMBookKeeperViaUserDefaultsTests";
   XCTAssertEqualObjects(impressions[0].messageID, @"m2");
 }
 
+- (NSArray *)malformedImpressionsWithValidMessageID:(NSString *)validMessageID {
+  return @[
+    @"not a dictionary", @42,
+    @{FIRIAM_ImpressionDictKeyForID : @12345, FIRIAM_ImpressionDictKeyForTimestamp : @1},
+    @{FIRIAM_ImpressionDictKeyForTimestamp : @1},
+    @{FIRIAM_ImpressionDictKeyForID : @"no_timestamp"},
+    @{FIRIAM_ImpressionDictKeyForID : validMessageID, FIRIAM_ImpressionDictKeyForTimestamp : @2}
+  ];
+}
+
+- (void)testReadingMalformedImpressionRecords {
+  [self.userDefaultsForTesting setObject:[self malformedImpressionsWithValidMessageID:@"m1"]
+                                  forKey:FIRIAM_UserDefaultsKeyForImpressions];
+  FIRIAMBookKeeperViaUserDefaults *bookKeeper =
+      [[FIRIAMBookKeeperViaUserDefaults alloc] initWithUserDefaults:self.userDefaultsForTesting];
+
+  NSArray<FIRIAMImpressionRecord *> *impressions = [bookKeeper getImpressions];
+  XCTAssertEqual(1, impressions.count);
+  XCTAssertEqualObjects(@"m1", impressions[0].messageID);
+  XCTAssertEqual(2, impressions[0].impressionTimeInSeconds);
+
+  // The no_timestamp entry still identifies an impressed message.
+  NSArray<NSString *> *messageIDs = [bookKeeper getMessageIDsFromImpressions];
+  NSArray<NSString *> *expectedIDs = @[ @"no_timestamp", @"m1" ];
+  XCTAssertEqualObjects(expectedIDs, messageIDs);
+}
+
+- (void)testRecordingImpressionWithMalformedImpressionRecords {
+  [self.userDefaultsForTesting setObject:[self malformedImpressionsWithValidMessageID:@"m1"]
+                                  forKey:FIRIAM_UserDefaultsKeyForImpressions];
+  FIRIAMBookKeeperViaUserDefaults *bookKeeper =
+      [[FIRIAMBookKeeperViaUserDefaults alloc] initWithUserDefaults:self.userDefaultsForTesting];
+
+  [bookKeeper recordNewImpressionForMessage:@"m2" withStartTimestampInSeconds:3];
+  [bookKeeper recordNewImpressionForMessage:@"m1" withStartTimestampInSeconds:4];
+
+  NSArray<FIRIAMImpressionRecord *> *impressions = [bookKeeper getImpressions];
+  XCTAssertEqual(2, impressions.count);
+  XCTAssertEqualObjects(@"m1", impressions[0].messageID);
+  XCTAssertEqual(4, impressions[0].impressionTimeInSeconds);
+  XCTAssertEqualObjects(@"m2", impressions[1].messageID);
+}
+
+- (void)testReadingNonArrayImpressionRecords {
+  [self.userDefaultsForTesting setObject:@{@"a" : @"b"}
+                                  forKey:FIRIAM_UserDefaultsKeyForImpressions];
+  FIRIAMBookKeeperViaUserDefaults *bookKeeper =
+      [[FIRIAMBookKeeperViaUserDefaults alloc] initWithUserDefaults:self.userDefaultsForTesting];
+  XCTAssertEqual(0, [bookKeeper getImpressions].count);
+  XCTAssertEqual(0, [bookKeeper getMessageIDsFromImpressions].count);
+}
+
 @end

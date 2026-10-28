@@ -187,4 +187,86 @@ final class BidiGenerateContentServerMessageTests: XCTestCase {
     XCTAssertEqual(goAway.timeLeft?.seconds, 1)
     XCTAssertEqual(goAway.timeLeft?.nanos, 234_567_890)
   }
+
+  func testDecodeBidiGenerateContentServerMessage_voiceActivity_activityStart() throws {
+    let json = """
+    {
+      "voiceActivity" : {
+        "type" : "ACTIVITY_START",
+        "audioOffset" : "2.520s"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let serverMessage = try decoder.decode(BidiGenerateContentServerMessage.self, from: jsonData)
+    guard case let .voiceActivity(voiceActivity) = serverMessage.messageType else {
+      XCTFail("Decoded message is not a voiceActivity message.")
+      return
+    }
+
+    XCTAssertEqual(voiceActivity.type, .activityStart)
+    XCTAssertEqual(voiceActivity.audioOffset?.seconds, 2)
+    XCTAssertEqual(voiceActivity.audioOffset?.nanos, 520_000_000)
+  }
+
+  func testDecodeBidiGenerateContentServerMessage_voiceActivity_activityEnd() throws {
+    let json = """
+    {
+      "voiceActivity" : {
+        "type" : "ACTIVITY_END",
+        "audioOffset" : "3.640s"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let serverMessage = try decoder.decode(BidiGenerateContentServerMessage.self, from: jsonData)
+    guard case let .voiceActivity(voiceActivity) = serverMessage.messageType else {
+      XCTFail("Decoded message is not a voiceActivity message.")
+      return
+    }
+
+    XCTAssertEqual(voiceActivity.type, .activityEnd)
+    XCTAssertEqual(voiceActivity.audioOffset?.seconds, 3)
+    XCTAssertEqual(voiceActivity.audioOffset?.nanos, 640_000_000)
+  }
+
+  func testDecodeBidiGenerateContentServerMessage_voiceActivity_missingFields() throws {
+    let json = """
+    {
+      "voiceActivity" : {}
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    let serverMessage = try decoder.decode(BidiGenerateContentServerMessage.self, from: jsonData)
+    guard case let .voiceActivity(voiceActivity) = serverMessage.messageType else {
+      XCTFail("Decoded message is not a voiceActivity message.")
+      return
+    }
+
+    XCTAssertNil(voiceActivity.type)
+    XCTAssertNil(voiceActivity.audioOffset)
+  }
+
+  func testDecodeBidiGenerateContentServerMessage_unsupportedMessageType() throws {
+    let json = """
+    {
+      "someFutureMessage" : {
+        "someField" : "someValue"
+      }
+    }
+    """
+    let jsonData = try XCTUnwrap(json.data(using: .utf8))
+
+    XCTAssertThrowsError(
+      try decoder.decode(BidiGenerateContentServerMessage.self, from: jsonData)
+    ) { error in
+      XCTAssert(
+        error is InvalidMessageTypeError,
+        "Expected InvalidMessageTypeError, but got \(error) instead."
+      )
+    }
+  }
 }
