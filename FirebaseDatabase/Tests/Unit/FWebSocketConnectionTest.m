@@ -25,12 +25,14 @@
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
 
-#if !TARGET_OS_WATCH
-
 @interface FWebSocketConnection (Testing)
-- (void)setWebSocket:(FSRWebSocket *)webSocket;
 - (void)closeIfNeverConnected;
+#if !TARGET_OS_WATCH
+- (void)setWebSocket:(FSRWebSocket *)webSocket;
+#endif  // !TARGET_OS_WATCH
 @end
+
+#if !TARGET_OS_WATCH
 
 @interface FWebSocketConnectionTestDelegate : NSObject <FWebSocketDelegate>
 @property(nonatomic) BOOL receivedMessage;
@@ -215,10 +217,6 @@
   self.wasEverConnected = everConnected;
   [self.disconnectExpectation fulfill];
 }
-@end
-
-@interface FWebSocketConnection (InvalidURLTesting)
-- (void)closeIfNeverConnected;
 @end
 
 // A connection URL that NSURL can't parse used to abort the app in
