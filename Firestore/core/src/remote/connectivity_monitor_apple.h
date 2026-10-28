@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 #if defined(__APPLE__)
 
@@ -72,6 +73,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
   // Expose for testing. Test-only, must be called on the AsyncQueue.
   absl::optional<NetworkStatus> GetCurrentStatus() const {
+    HARD_ASSERT(this->queue()->IsCurrentQueue(),
+                "GetCurrentStatus must be called on the AsyncQueue.");
     return current_status();
   }
 
