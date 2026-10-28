@@ -946,6 +946,49 @@ TEST_F(LevelDbIndexManagerTest,
   });
 }
 
+TEST_F(LevelDbIndexManagerTest, RecreatedIndexIsFilledAfterDeleteAll) {
+  persistence_->Run("Create index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+  });
+  index_manager_->DeleteAllFieldIndexes();
+
+  // A new index manager numbers indexes from the persisted configurations, as
+  // after a restart, so the recreated index reuses the deleted one's id.
+  persistence_->ReleaseOtherUserSpecificComponents("other user");
+  index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("Recreate index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    VerifyResults(Query("coll").AddingOrderBy(OrderBy("value")), {"coll/doc1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, RecreatedIndexIsFilledAfterDelete) {
+  persistence_->Run("Create and delete index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    index_manager_->DeleteFieldIndex(
+        index_manager_->GetFieldIndexes("coll")[0]);
+  });
+
+  persistence_->ReleaseOtherUserSpecificComponents("other user");
+  index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("Recreate index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    VerifyResults(Query("coll").AddingOrderBy(OrderBy("value")), {"coll/doc1"});
+  });
+}
+
 TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
   persistence_->Run("TestIndexEntriesAreUpdatedWithDeletedDoc", [&]() {
     index_manager_->Start();

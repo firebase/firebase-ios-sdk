@@ -321,6 +321,9 @@ void LevelDbPersistence::DeleteAllFieldIndexes() {
 
   DeleteEverythingWithPrefix("Delete All Index Entries",
                              LevelDbIndexEntryKey::KeyPrefix());
+
+  DeleteEverythingWithPrefix("Delete All Index Entry Document Keys",
+                             LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix());
 }
 
 void LevelDbPersistence::RunInternal(absl::string_view label,

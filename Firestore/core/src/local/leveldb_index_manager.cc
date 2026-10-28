@@ -403,6 +403,21 @@ void LevelDbIndexManager::DeleteFieldIndex(const FieldIndex& index) {
     }
   }
 
+  // Delete the document key lookups of these entries. Index ids are reused
+  // after a restart, and a leftover lookup would make the next index with
+  // this id skip writing the entries it believes already exist.
+  {
+    auto document_key_index_prefix =
+        LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(index.index_id());
+    auto iter = db_->current_transaction()->NewIterator();
+    for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+      if (!absl::StartsWith(iter->key(), document_key_index_prefix)) {
+        break;
+      }
+      db_->current_transaction()->Delete(iter->key());
+    }
+  }
+
   auto group_index_iter = memoized_indexes_.find(index.collection_group());
   if (group_index_iter != memoized_indexes_.end()) {
     auto& index_map = group_index_iter->second;
