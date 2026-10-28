@@ -115,6 +115,8 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                 if (!q) return;
 
                 q->Enqueue([raw_this = this, weak_state] {
+                  // Reliable because this lambda and the destructor run on the
+                  // same serial AsyncQueue (see update handler above).
                   if (weak_state.expired()) return;
 
                   if (raw_this->current_status().has_value() &&
