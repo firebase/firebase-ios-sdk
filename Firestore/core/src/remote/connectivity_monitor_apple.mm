@@ -147,7 +147,6 @@ ConnectivityMonitorApple::~ConnectivityMonitorApple() {
   }
 
   state_.reset();
-
   monitor_ = nullptr;
   monitor_queue_ = nullptr;
 }
