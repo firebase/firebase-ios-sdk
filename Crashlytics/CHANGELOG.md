@@ -1,4 +1,11 @@
 # Unreleased
+- [fixed] Fixed a potential crash in the x86_64 crash handler's stack-scanning fallback when
+  the captured stack pointer is unreadable. (#16799)
+- [fixed] Improved robustness when parsing malformed settings from the server
+  or from the on-disk settings cache. (#16728)
+- [fixed] Improved robustness in Firebase Sessions when parsing malformed
+  settings from the server, including `null` values that could cause a crash
+  when caching settings. (#16728)
 - [fixed] Fixed the app executable's minimum OS and SDK versions being recorded as `0.0.0` in
   report metadata for apps targeting iOS 12, macOS 10.14, tvOS 12, watchOS 5, or later. (#16810)
 
