@@ -57,7 +57,7 @@ concurrency:
 
 jobs:
   should_package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
     steps:
@@ -163,7 +163,7 @@ jobs:
         path: zip_output_dir
 
   packaging_done:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [package-head]
     if: always()
     outputs:
@@ -248,9 +248,11 @@ jobs:
           - product: "Authentication"
             plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
             plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
+            # FBSDK is pinned to 18.x to match the quickstart's SPM requirement. FBSDK 19.0.0
+            # ships prebuilt binaries from Swift 6.4 whose interfaces Xcode 26.2 can't parse.
             command: |
               SAMPLE="Authentication" TARGET="AuthenticationExample" \
-                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
+                NON_FIREBASE_SDKS="FBSDKLoginKit:~>18.0 FBSDKCoreKit:~>18.0 FBSDKCoreKit_Basics:~>18.0 FBAEMKit:~>18.0" \
                 scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \

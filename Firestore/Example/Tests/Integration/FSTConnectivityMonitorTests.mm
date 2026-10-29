@@ -36,6 +36,34 @@ std::shared_ptr<AsyncQueue> MakeWorkerQueue(const char* name) {
   return AsyncQueue::Create(Executor::CreateSerial(name));
 }
 
+// Helper: construct a monitor on its AsyncQueue, satisfying the lifecycle
+// invariant documented in connectivity_monitor_apple.h.
+std::unique_ptr<ConnectivityMonitorApple> MakeMonitorOnQueue(
+    const std::shared_ptr<AsyncQueue>& worker_queue) {
+  std::unique_ptr<ConnectivityMonitorApple> monitor;
+  worker_queue->EnqueueBlocking([&monitor, &worker_queue]() {
+    monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+  });
+  return monitor;
+}
+
+// Helper: destroy a monitor on its AsyncQueue, satisfying the lifecycle
+// invariant documented in connectivity_monitor_apple.h.
+void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
+                    const std::shared_ptr<AsyncQueue>& worker_queue) {
+  worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
+}
+
+// Helper: read GetCurrentStatus on the AsyncQueue, satisfying the threading
+// invariant documented in connectivity_monitor_apple.h.
+absl::optional<NetworkStatus> GetStatusOnQueue(
+    const std::unique_ptr<ConnectivityMonitorApple>& monitor,
+    const std::shared_ptr<AsyncQueue>& worker_queue) {
+  absl::optional<NetworkStatus> status;
+  worker_queue->EnqueueBlocking([&monitor, &status]() { status = monitor->GetCurrentStatus(); });
+  return status;
+}
+
 // Helper: build a monitor and wait until NWPathMonitor delivers its first
 // status update. Returns a unique_ptr; caller must destroy it on the
 // worker queue (see DestroyOnQueue).
@@ -49,10 +77,10 @@ std::shared_ptr<AsyncQueue> MakeWorkerQueue(const char* name) {
 // regressions.
 std::unique_ptr<ConnectivityMonitorApple> MakeMonitorAndWaitForInitialStatus(
     const std::shared_ptr<AsyncQueue>& worker_queue, NSTimeInterval timeout_seconds = 5.0) {
-  auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+  auto monitor = MakeMonitorOnQueue(worker_queue);
 
   NSDate* deadline = [NSDate dateWithTimeIntervalSinceNow:timeout_seconds];
-  while (!monitor->GetCurrentStatus().has_value()) {
+  while (!GetStatusOnQueue(monitor, worker_queue).has_value()) {
     if ([[NSDate date] compare:deadline] != NSOrderedAscending) {
       break;  // timed out
     }
@@ -60,21 +88,14 @@ std::unique_ptr<ConnectivityMonitorApple> MakeMonitorAndWaitForInitialStatus(
                              beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.05]];
   }
 
-  if (!monitor->GetCurrentStatus().has_value()) {
+  if (!GetStatusOnQueue(monitor, worker_queue).has_value()) {
     // Tear down on the worker queue before returning, so the unique_ptr
     // we are about to drop does not violate the destruction invariant.
-    worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
+    DestroyOnQueue(monitor, worker_queue);
     return nullptr;
   }
 
   return monitor;
-}
-
-// Helper: destroy a monitor on its AsyncQueue, satisfying the lifecycle
-// invariant documented in connectivity_monitor_apple.h.
-void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
-                    const std::shared_ptr<AsyncQueue>& worker_queue) {
-  worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
 }
 
 }  // namespace
@@ -88,10 +109,10 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
 
 - (void)testConstructAndDestruct {
   auto worker_queue = MakeWorkerQueue("test_construct_destruct");
-  auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+  auto monitor = MakeMonitorOnQueue(worker_queue);
   DestroyOnQueue(monitor, worker_queue);
-  // No assertions — this passes if construction and on-queue destruction
-  // do not crash and the destructor's HARD_ASSERT does not fire.
+  // No assertions — this passes if on-queue construction and on-queue
+  // destruction do not crash and the HARD_ASSERTs do not fire.
 }
 
 - (void)testRapidConstructDestruct {
@@ -101,7 +122,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // begins.
   for (int i = 0; i < 20; ++i) {
     auto worker_queue = MakeWorkerQueue("test_rapid");
-    auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+    auto monitor = MakeMonitorOnQueue(worker_queue);
     DestroyOnQueue(monitor, worker_queue);
   }
 }
@@ -112,9 +133,9 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // its first update. The contract is: it does not crash, and the
   // returned optional is always meaningful.
   auto worker_queue = MakeWorkerQueue("test_get_status_early");
-  auto monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+  auto monitor = MakeMonitorOnQueue(worker_queue);
 
-  auto status = monitor->GetCurrentStatus();
+  auto status = GetStatusOnQueue(monitor, worker_queue);
   // No assertion on the value — either nullopt or a real status is OK.
   // We are testing that the call itself is safe immediately after construct.
   (void)status;
@@ -132,7 +153,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
     return;
   }
 
-  auto status = monitor->GetCurrentStatus();
+  auto status = GetStatusOnQueue(monitor, worker_queue);
   XCTAssertTrue(status.has_value(), @"After waiting for initial update, status must be set");
 
   DestroyOnQueue(monitor, worker_queue);
@@ -149,8 +170,10 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   }
 
   std::atomic<int> invocation_count{0};
-  monitor->AddCallback(
-      [&invocation_count](NetworkStatus /*status*/) { invocation_count.fetch_add(1); });
+  worker_queue->EnqueueBlocking([&monitor, &invocation_count]() {
+    monitor->AddCallback(
+        [&invocation_count](NetworkStatus /*status*/) { invocation_count.fetch_add(1); });
+  });
 
   // We don't assert on invocation_count: status changes are not deterministic
   // in a unit test environment. We only assert that AddCallback itself is safe
@@ -176,7 +199,7 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   // Skip the test if the simulator has no network — the foreground handler
   // intentionally short-circuits when status is Unavailable, so the
   // assertion below would not be meaningful.
-  if (monitor->GetCurrentStatus().value() == NetworkStatus::Unavailable) {
+  if (GetStatusOnQueue(monitor, worker_queue).value() == NetworkStatus::Unavailable) {
     DestroyOnQueue(monitor, worker_queue);
     XCTSkip(@"Skipping: simulator reports Unavailable; "
             @"foreground handler short-circuits in this state");
@@ -186,10 +209,12 @@ void DestroyOnQueue(std::unique_ptr<ConnectivityMonitorApple>& monitor,
   XCTestExpectation* callbackExpectation =
       [self expectationWithDescription:@"Callback invoked after foreground"];
   std::atomic<bool> callback_invoked{false};
-  monitor->AddCallback([&](NetworkStatus /*status*/) {
-    if (!callback_invoked.exchange(true)) {
-      [callbackExpectation fulfill];
-    }
+  worker_queue->EnqueueBlocking([&]() {
+    monitor->AddCallback([&](NetworkStatus /*status*/) {
+      if (!callback_invoked.exchange(true)) {
+        [callbackExpectation fulfill];
+      }
+    });
   });
 
   [[NSNotificationCenter defaultCenter]
