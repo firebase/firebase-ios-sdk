@@ -37,6 +37,9 @@ struct PackageCommand: AsyncParsableCommand {
   @Option(help: "The framework cache, when building again.")
   var cacheDir = FrameworkCache.defaultDirectory
 
+  @Flag(help: "After building, remove the cache entries this build didn't use.")
+  var pruneCache = false
+
   func run() async throws {
     logging.apply()
     let config = try options.loadConfig()
@@ -45,7 +48,7 @@ struct PackageCommand: AsyncParsableCommand {
     let xcframeworks = if let xcframeworks {
       xcframeworks
     } else {
-      try await options.build(plan, cacheDir: cacheDir)
+      try await options.build(plan, cacheDir: cacheDir, pruneCache: pruneCache)
     }
     _ = try await options.package(plan, config, xcframeworks: xcframeworks, sign: sign,
                                   version: version)

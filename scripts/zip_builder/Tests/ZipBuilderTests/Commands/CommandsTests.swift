@@ -63,8 +63,9 @@ struct CommandsTests {
   @Test func buildOptions() throws {
     let command = try #require(try ZipBuilderCommand.parseAsRoot([
       "build", "--plan", "p.json", "--project", "F.xcodeproj", "--cache-dir", "/cache",
-      "--product", "FirebaseAuth",
+      "--product", "FirebaseAuth", "--prune-cache",
     ]) as? BuildCommand)
+    #expect(command.pruneCache)
     #expect(command.plan == "p.json")
     #expect(command.project == "F.xcodeproj")
     #expect(command.cacheDir == "/cache")
@@ -73,6 +74,7 @@ struct CommandsTests {
     let defaults = try #require(try ZipBuilderCommand.parseAsRoot(["build"]) as? BuildCommand)
     #expect(defaults.plan == nil && defaults.project == nil)
     #expect(defaults.cacheDir.hasSuffix("/Library/Caches/zip-builder/frameworks"))
+    #expect(!defaults.pruneCache)
   }
 
   @Test func packageOptions() throws {
@@ -93,8 +95,9 @@ struct CommandsTests {
   @Test func releaseOptions() throws {
     let command = try #require(try ZipBuilderCommand.parseAsRoot([
       "release", "--sign", "-", "--cache-dir", "/cache", "--version", "1.2.3",
-      "--package-path", "/repo", "--work-dir", "out",
+      "--package-path", "/repo", "--work-dir", "out", "--prune-cache",
     ]) as? ReleaseCommand)
+    #expect(command.pruneCache)
     #expect(command.sign == "-")
     #expect(command.cacheDir == "/cache")
     #expect(command.options.version == "1.2.3")
@@ -261,13 +264,37 @@ struct CommandsTests {
     #expect(try options([]).applyingFlags(to: configured).products.withoutDependencies)
   }
 
+  /// Like `--linkage`, `--platforms` goes into the config planning and `customize` get.
+  @Test func platformsSetTheConfig() throws {
+    let options = { (arguments: [String]) throws -> SharedOptions in
+      try #require(try ZipBuilderCommand.parseAsRoot(["plan"] + arguments) as? PlanCommand)
+        .options
+    }
+    let config = try MiniPackage.config(#""build": { "platforms": ["ios", "macos", "tvos"] }"#)
+    let flagged = try options(["--platforms", "ios, catalyst"])
+    #expect(flagged.platforms == [.ios, .catalyst])
+    #expect(flagged.applyingFlags(to: config).build.platforms == [.ios, .catalyst])
+    // Without the flag, the config's platforms stand.
+    #expect(try options([]).applyingFlags(to: config).build.platforms == [.ios, .macos, .tvos])
+  }
+
+  @Test func platformsMustBePlatforms() throws {
+    let error = #expect(throws: (any Error).self) {
+      try ZipBuilderCommand.parseAsRoot(["plan", "--platforms", "ios,android"])
+    }
+    #expect(try ZipBuilderCommand.message(for: #require(error)).contains(
+      "--platforms: android isn't a platform; use ios, catalyst, macos, tvos, watchos, visionos."
+    ))
+  }
+
   @Test func withoutDependenciesIsIgnoredWithAPlan() async throws {
     let planFile = FileManager.default.temporaryDirectory
       .appendingPathComponent("zip-builder-plan-\(UUID().uuidString).json")
     try SyntheticPackage.plan.json().write(to: planFile)
     defer { try? FileManager.default.removeItem(at: planFile) }
     let command = try #require(try ZipBuilderCommand.parseAsRoot([
-      "build", "--plan", planFile.path, "--product", "A", "--without-dependencies",
+      "build", "--plan", planFile.path, "--product", "A", "--platforms", "ios",
+      "--without-dependencies",
     ]) as? BuildCommand)
     let (plan, warnings) = try await collectingWarnings {
       try await command.options.loadOrMakePlan(command.plan, MiniPackage.config())
@@ -275,6 +302,7 @@ struct CommandsTests {
     #expect(plan == SyntheticPackage.plan)
     #expect(warnings == [
       "--product is ignored with --plan: the plan already holds its frameworks.",
+      "--platforms is ignored with --plan: the plan already holds each framework's platforms.",
       "--without-dependencies is ignored with --plan: the plan already holds its folders.",
     ])
   }

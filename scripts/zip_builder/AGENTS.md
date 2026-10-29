@@ -25,8 +25,8 @@ Tests in `Tests/ZipBuilderTests` mirror these folders. The fixture package is
 
 `ci/` holds the steps of `.github/workflows/infra.zip_diff.yml` in `zip_diff.sh`, one subcommand
 per step. Its `diff` step writes the pull request comment with `diff --format github-comment`, and
-`.github/actions/pr_comment` posts it. Keep
-logic there rather than inline in the workflow.
+`.github/actions/pr_comment` posts it. `tool_hash.sh` names CI's framework cache directories, for
+`zip_diff.sh` and `infra.zip_quickstart.yml`. Keep logic there rather than inline in the workflow.
 
 ## Invariants
 
@@ -99,6 +99,9 @@ An empty diff means the zip didn't change. Explain every difference you didn't i
       `Building/`.
 - [ ] New behavior and new helpers have tests; changed behavior has a test that pins it.
 - [ ] `goldenFingerprints` passes unchanged, or `fingerprintFormat` is bumped on purpose.
+- [ ] Code that can change a built framework without changing its fingerprint is covered by
+      `ci/tool_hash.sh` (today `Building/`, except `FrameworkCache.swift` and `Layout.swift`, and
+      `Model/`), so CI doesn't reuse stale cache entries.
 - [ ] Changed files are formatted with swiftformat.
 - [ ] Config changes (keys, defaults, meaning) are in `docs/configuration.md`.
 - [ ] Rule changes (what the tool derives, or how) are in `docs/how-it-works.md`.

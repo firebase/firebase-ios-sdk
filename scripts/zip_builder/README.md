@@ -79,6 +79,7 @@ Shared options (for the 4 main stages + `release`):
   still built into `<work-dir>/xcframeworks`, but not zipped (sets `products.withoutDependencies`)
 - `--version <x.y.z>`: version to use in packaged zip, metadata, and anywhere else that needs a release version (takes precedence over `release.version`)
 - `--linkage static|dynamic`: build the source based products as static or dynamic (takes precedence over `build.linkage`)
+- `--platforms <list>`: the platforms to build, comma-separated, e.g. `ios` or `ios,catalyst` (takes precedence over `build.platforms`)
 - `-q`/`--quiet`: only warnings and errors get logged
 - `-v`/`--verbose`: include debug logs
 
@@ -87,7 +88,9 @@ Logs go to stderr; stdout only carries the `verify` and `diff` reports.
 Stage options:
 
 - `build`, `package` and `release`: `--cache-dir` (default
-  `~/Library/Caches/zip-builder/frameworks`; `package` only uses it when it builds).
+  `~/Library/Caches/zip-builder/frameworks`; `package` only uses it when it builds), and
+  `--prune-cache` (afterwards, remove the cache entries this build didn't use, so a cache that's
+  saved and restored doesn't keep growing).
 - `package` and `release`: `--sign <identity>` (`-` for ad-hoc). Only unsigned `.xcframework`s
   are signed; vendors' signatures are kept. `release --sign` also makes `verify` require them.
 - `verify`: `--require-signatures` (fail on unsigned `.xcframework`s instead of skipping them) and
@@ -209,7 +212,9 @@ the framework (sources, headers, settings, the Xcode version) and of its depende
 fingerprints. `build` and `release` link unchanged frameworks from it instead of compiling them.
 It lives in `~/Library/Caches/zip-builder/frameworks` unless you pass `--cache-dir`. Fingerprints
 don't cover the tool's own code, so after changing what the tool generates, use a fresh cache. CI
-keeps one subdirectory per build of the tool. Only pushes to `main` save the cache; pull requests
+keeps one subdirectory per build of the tool, named by [`ci/tool_hash.sh`](ci/tool_hash.sh) after
+only the code that shapes built frameworks, so most changes to the tool keep the cache. It builds
+with `--prune-cache`, and only pushes to `main` save `infra.zip_diff`'s cache: pull requests
 restore `main`'s and rebuild only what they change. See [The framework cache](docs/how-it-works.md#the-framework-cache).
 
 ## Output layout

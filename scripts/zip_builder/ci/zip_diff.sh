@@ -36,7 +36,8 @@
 #      main is already in the merge commit.)
 #   3. Each side is built by its own tool. Main gets built from its zip builder, and the PR's by the PR's. If the PR's tool built both,
 #      a PR that changes the zip builder would change both sides equally, and its effect would never show.
-#   4. Caching. The fingerprints don't cover the tool's own code, so each tool build get its own cache subdirectory.
+#   4. Caching. The fingerprints don't cover the tool's own code, so each tool build get its own cache subdirectory,
+#      named by tool_hash.sh after the code that shapes built frameworks.
 #      Only pushes to main save the cache; pull requests restore main's and rebuild only what they change.
 #
 # Environment: RUNNER_TEMP, CANDIDATE_SHA, BASE_SHA, GITHUB_EVENT_NAME, and for `diff`, TITLE (the
@@ -54,11 +55,9 @@ OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
 CANDIDATE_TOOL="${TEMP}/candidate-tool"
 BASELINE_TOOL="${TEMP}/baseline-tool"
 
-# Identifies a tool build. Fingerprints don't cover the tool's own code, so each tool build gets
-# its own framework cache subdirectory.
+# Names a tool build's framework cache subdirectory (see tool_hash.sh).
 tool_hash() { # <commit>
-  git ls-tree -r "$1" -- scripts/zip_builder/Package.swift scripts/zip_builder/Package.resolved \
-    scripts/zip_builder/Sources | git hash-object --stdin | cut -c1-12
+  "$(dirname "${BASH_SOURCE[0]}")/tool_hash.sh" "$1"
 }
 
 build_tool() { # <commit> <tool directory>
@@ -101,7 +100,7 @@ release_version() { # <commit>
   git show "$1:Package.swift" | sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p'
 }
 
-build_zip() { # <commit> <tool directory> <work directory>
+build_zip() { # <commit> <tool directory> <work directory> [flags]
   local tool="$2"
   local config=()
   if [[ -f "${tool}/zip_builder.jsonc" ]]; then
@@ -112,7 +111,7 @@ build_zip() { # <commit> <tool directory> <work directory>
   # empty array under `set -u` in macOS's bash 3.2.) Each zip gets its own commit's version;
   # `diff` reports a bump once, as the release version change.
   "${tool}/zip-builder" release --package-path . ${config[@]+"${config[@]}"} --work-dir "$3" \
-    --cache-dir "${CACHE}/$(cat "${tool}/hash")" --version "$(release_version "$1")"
+    --cache-dir "${CACHE}/$(cat "${tool}/hash")" --version "$(release_version "$1")" "${@:4}"
 }
 
 build_baseline() {
@@ -122,7 +121,8 @@ build_baseline() {
 }
 
 build_candidate() {
-  build_zip "$CANDIDATE_SHA" "$CANDIDATE_TOOL" "${TEMP}/candidate"
+  # Pruning keeps the cache to this build's entries; only pushes to main save it.
+  build_zip "$CANDIDATE_SHA" "$CANDIDATE_TOOL" "${TEMP}/candidate" --prune-cache
 }
 
 prune_cache() {

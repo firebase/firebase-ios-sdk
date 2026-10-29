@@ -62,6 +62,10 @@ jobs:
     if: github.repository == 'firebase/firebase-ios-sdk' && github.event.inputs.zip_run_id == ''
     runs-on: macos-26
     timeout-minutes: 240
+    env:
+      # The quickstarts only run iOS apps, so pull requests build just iOS; the nightly and manual
+      # runs build every platform, so all of the dynamic zip still gets built regularly.
+      PLATFORMS: ${{ github.event_name == 'pull_request' && 'ios' || 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -97,9 +101,9 @@ jobs:
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ runner.temp }}/zip-builder-cache
-          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-
             ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-
 
       - name: Build the zip
@@ -111,16 +115,16 @@ jobs:
           # dynamic zip.
           if [[ "$LINKAGE" == dynamic ]]; then export FIREBASE_SOURCE_FIRESTORE=1; fi
           # Fingerprints don't cover the tool's own code, so each tool build has its own cache.
-          TOOL_HASH="$(git ls-tree -r HEAD -- scripts/zip_builder/Package.swift \
-            scripts/zip_builder/Package.resolved scripts/zip_builder/Sources \
-            | git hash-object --stdin | cut -c1-12)"
+          TOOL_HASH="$(scripts/zip_builder/ci/tool_hash.sh)"
+          platforms=()
+          if [[ "$PLATFORMS" != all ]]; then platforms=(--platforms "$PLATFORMS"); fi
           swift build --package-path scripts/zip_builder -c release --force-resolved-versions \
             --product zip-builder
           # Only once the tool builds: the cache steps below are skipped without it.
           echo "tool_hash=${TOOL_HASH}" >> "$GITHUB_OUTPUT"
           "$(swift build --package-path scripts/zip_builder -c release --show-bin-path)/zip-builder" release \
-            --package-path . --work-dir "$RUNNER_TEMP/zip" --linkage "$LINKAGE" \
-            --cache-dir "$RUNNER_TEMP/zip-builder-cache/$TOOL_HASH" \
+            --package-path . --work-dir "$RUNNER_TEMP/zip" --linkage "$LINKAGE" "${platforms[@]}" \
+            --cache-dir "$RUNNER_TEMP/zip-builder-cache/$TOOL_HASH" --prune-cache \
             --version "$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"
 
       # Without a tool build there's no hash, and pruning would empty the cache.
@@ -138,7 +142,7 @@ jobs:
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ runner.temp }}/zip-builder-cache
-          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-${{ github.sha }}
 
       # Only the zip: _quickstart.framework.yml unzips every Firebase*latest.zip it downloads.
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0

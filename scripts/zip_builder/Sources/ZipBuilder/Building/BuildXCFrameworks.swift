@@ -20,10 +20,12 @@ import Foundation
 /// plan's binaries into `<workDir>/xcframeworks/`.
 ///
 /// Frameworks found in `cache` are linked as prebuilt binaries instead of compiled; the rest are
-/// archived once per destination and stored in the cache. With `project` (a hand-edited project),
-/// every framework is compiled from that project, and the cache is neither read nor written.
+/// archived once per destination and stored in the cache. With `pruneCache`, entries this build
+/// didn't use are then removed, so a cache that's saved and restored (as in CI) doesn't grow
+/// with every change. With `project` (a hand-edited project), every framework is compiled from
+/// that project, and the cache is neither read nor written.
 func buildXCFrameworks(_ plan: Plan, packageRoot: Path, workDir: Path, cache: FrameworkCache?,
-                       project: Path? = nil) async throws -> [Path] {
+                       pruneCache: Bool = false, project: Path? = nil) async throws -> [Path] {
   let packageRoot = URL(fileURLWithPath: packageRoot).standardizedFileURL.path
   let workDir = URL(fileURLWithPath: workDir).standardizedFileURL
   // Before any work: a dynamic framework that links a static binary, or a framework the plan
@@ -87,6 +89,10 @@ func buildXCFrameworks(_ plan: Plan, packageRoot: Path, workDir: Path, cache: Fr
     }
   } else {
     logger.info("Archives: none")
+  }
+  if let cache, pruneCache {
+    let removed = try cache.removeEntries(except: Set(keys.values))
+    logger.info("Pruned the cache: removed \(removed) entries this build didn't use")
   }
   return try copyFinished(plan, xcframeworks: finished, packageRoot: packageRoot,
                           to: xcframeworksDirectory(workDir: workDir.path))

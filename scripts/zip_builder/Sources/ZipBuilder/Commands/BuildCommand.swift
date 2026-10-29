@@ -34,10 +34,13 @@ struct BuildCommand: AsyncParsableCommand {
   @Option(help: "The framework cache.")
   var cacheDir = FrameworkCache.defaultDirectory
 
+  @Flag(help: "After building, remove the cache entries this build didn't use.")
+  var pruneCache = false
+
   func run() async throws {
     logging.apply()
     let config = try options.loadConfig()
     let plan = try await options.loadOrMakePlan(plan, config)
-    _ = try await options.build(plan, cacheDir: cacheDir, project: project)
+    _ = try await options.build(plan, cacheDir: cacheDir, pruneCache: pruneCache, project: project)
   }
 }

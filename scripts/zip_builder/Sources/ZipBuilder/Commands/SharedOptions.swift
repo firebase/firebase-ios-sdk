@@ -44,6 +44,12 @@ struct SharedOptions: ParsableArguments {
   ))
   var linkage: Linkage?
 
+  @Option(help: ArgumentHelp(
+    "The platforms to build, comma-separated. Takes precedence over build.platforms.",
+    valueName: "ios,catalyst,…"
+  ), transform: parsePlatforms)
+  var platforms: [Platform]?
+
   @Flag(help: ArgumentHelp(
     "Ship --product without its dependencies: they're built, but not zipped.",
     discussion: "Sets products.withoutDependencies. Needs --product."
@@ -88,10 +94,14 @@ struct SharedOptions: ParsableArguments {
   }
 
   /// The config planning and `customize` get: `config` with the flags that override it
-  /// (`--linkage`, `--without-dependencies`) applied, since both stages read those keys.
+  /// (`--linkage`, `--platforms`, `--without-dependencies`) applied, since both stages read those
+  /// keys.
   func applyingFlags(to config: Config) -> Config {
     var config = config
     config.build.linkage = releaseLinkage(config)
+    if let platforms {
+      config.build.platforms = platforms
+    }
     if withoutDependencies {
       config.products.withoutDependencies = true
     }
@@ -107,7 +117,7 @@ struct SharedOptions: ParsableArguments {
     return customize(plan, config, packageRoot: packagePath, version: version)
   }
 
-  /// The plan at `path` (`--plan`), else a new one. `--product`, `--linkage` and
+  /// The plan at `path` (`--plan`), else a new one. `--product`, `--linkage`, `--platforms` and
   /// `--without-dependencies` don't apply to a given plan.
   func loadOrMakePlan(_ path: Path?, _ config: Config) async throws -> Plan {
     guard let path else { return try await makeCustomizedPlan(config) }
@@ -116,6 +126,9 @@ struct SharedOptions: ParsableArguments {
     }
     if linkage != nil {
       warn("--linkage is ignored with --plan: the plan already holds each framework's linkage.")
+    }
+    if platforms != nil {
+      warn("--platforms is ignored with --plan: the plan already holds each framework's platforms.")
     }
     if withoutDependencies {
       warn("--without-dependencies is ignored with --plan: the plan already holds its folders.")
@@ -137,11 +150,13 @@ struct SharedOptions: ParsableArguments {
   }
 
   /// Builds the `.xcframeworks` (`buildXCFrameworks`) and returns `<work-dir>/xcframeworks`.
-  func build(_ plan: Plan, cacheDir: Path, project: Path? = nil) async throws -> Path {
+  /// With `pruneCache`, the cache keeps only this build's entries.
+  func build(_ plan: Plan, cacheDir: Path, pruneCache: Bool = false,
+             project: Path? = nil) async throws -> Path {
     let start = ContinuousClock.now
     let paths = try await buildXCFrameworks(plan, packageRoot: packagePath, workDir: workDir,
                                             cache: FrameworkCache(directory: cacheDir),
-                                            project: project)
+                                            pruneCache: pruneCache, project: project)
     let output = xcframeworksDirectory(workDir: workDir).path
     logger.info("""
     Built \(paths.count) .xcframeworks (\(plan.frameworks.count) frameworks, \
@@ -160,6 +175,18 @@ struct SharedOptions: ParsableArguments {
     logger.info("Distribution: \(root.path)")
     logger.info("Zip: \(zip) (\(formattedSize(ofFile: zip)))")
     return root
+  }
+}
+
+/// `--platforms ios,catalyst`: platform names as in `build.platforms`, comma-separated.
+func parsePlatforms(_ text: String) throws -> [Platform] {
+  let names = text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+  return try names.map { name in
+    guard let platform = Platform(rawValue: name) else {
+      let valid = Platform.allCases.map(\.rawValue).joined(separator: ", ")
+      throw ValidationError("--platforms: \(name) isn't a platform; use \(valid).")
+    }
+    return platform
   }
 }
 

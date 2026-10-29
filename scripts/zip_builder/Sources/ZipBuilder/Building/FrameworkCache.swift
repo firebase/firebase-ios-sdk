@@ -279,4 +279,19 @@ struct FrameworkCache {
       // Already stored; equal fingerprints mean equivalent entries.
     }
   }
+
+  /// Removes every entry whose fingerprint isn't in `kept`, and returns how many it removed.
+  /// Hidden directories (another build's half-written entries) are left alone.
+  @discardableResult
+  func removeEntries(except kept: Set<String>) throws -> Int {
+    let manager = FileManager.default
+    guard manager.fileExists(atPath: directory) else { return 0 }
+    let stale = try manager.contentsOfDirectory(atPath: directory)
+      .filter { !$0.hasPrefix(".") && !kept.contains($0) }
+    for fingerprint in stale {
+      try manager.removeItem(atPath: URL(fileURLWithPath: directory)
+        .appendingPathComponent(fingerprint).path)
+    }
+    return stale.count
+  }
 }

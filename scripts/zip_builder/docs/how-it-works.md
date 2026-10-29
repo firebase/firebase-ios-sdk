@@ -378,7 +378,9 @@ recompiles little. (`Building/BuildXCFrameworks.swift`, `buildXCFrameworks`)
 
 The cache holds whole `.xcframework`s, before layout, as
 `<cache-dir>/<fingerprint>/<Name>.xcframework`. Slices all change together, so caching them
-separately saves nothing.
+separately saves nothing. Entries are never removed on their own; `--prune-cache` removes the ones
+the build didn't use, which keeps a cache that CI saves and restores from growing with every
+change.
 
 Xcode doesn't know about the cache: a dependency that's a target is always built from source. So
 cached frameworks become binaries in the plan, linked like SwiftPM binary targets, and only changed

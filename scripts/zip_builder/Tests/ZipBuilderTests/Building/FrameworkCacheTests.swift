@@ -310,6 +310,24 @@ struct FrameworkCacheTests {
     #expect(try FileManager.default.contentsOfDirectory(atPath: cache.directory) == ["abc"])
   }
 
+  @Test func removeEntriesKeepsOnlyTheGivenFingerprints() throws {
+    let package = try SyntheticPackage()
+    let cache = Self.makeCache()
+    let xcframework = package.root.appendingPathComponent("Bin.xcframework").path
+    for fingerprint in ["a", "b", "c"] {
+      try cache.store(xcframework, for: fingerprint)
+    }
+    // Another build's half-written entry.
+    let pending = URL(fileURLWithPath: cache.directory).appendingPathComponent(".tmp-x")
+    try FileManager.default.createDirectory(at: pending, withIntermediateDirectories: true)
+    #expect(try cache.removeEntries(except: ["b"]) == 2)
+    #expect(try FileManager.default.contentsOfDirectory(atPath: cache.directory).sorted()
+      == [".tmp-x", "b"])
+    #expect(cache.has("b", name: "Bin"))
+    // A cache that doesn't exist yet has nothing to remove.
+    #expect(try Self.makeCache().removeEntries(except: []) == 0)
+  }
+
   @Test func storeKeepsTheExistingEntry() throws {
     let package = try SyntheticPackage()
     let cache = Self.makeCache()

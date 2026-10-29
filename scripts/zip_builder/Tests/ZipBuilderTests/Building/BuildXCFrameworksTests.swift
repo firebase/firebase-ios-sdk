@@ -138,6 +138,15 @@ struct BuildEndToEndTests {
     #expect(try linked(by: "SwiftLib") == ["CoreC.xcframework", "Mini-Extras.xcframework"])
     let entries = try FileManager.default.contentsOfDirectory(atPath: cache.directory)
     #expect(entries.count == plan.frameworks.count + 2)
+
+    // Pruning: the two entries the change replaced go; this build's stay and are used.
+    let pruned = try await buildXCFrameworks(plan, packageRoot: package.path,
+                                             workDir: workDir.path, cache: cache,
+                                             pruneCache: true)
+    #expect(pruned == paths)
+    #expect(!FileManager.default.fileExists(atPath: workDir.path + "/archives"))
+    #expect(try FileManager.default.contentsOfDirectory(atPath: cache.directory).count
+      == plan.frameworks.count)
   }
 
   /// `linkage: dynamic`: every framework is a dynamic library with an `@rpath` install name and
