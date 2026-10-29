@@ -176,9 +176,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     }
     NSMutableArray<NSString *> *namespaceArray = [[NSMutableArray alloc] init];
     while (sqlite3_step(statement) == SQLITE_ROW) {
+      const char *namespaceText = (const char *)sqlite3_column_text(statement, 0);
       NSString *configNamespace =
-          [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 0)];
-      [namespaceArray addObject:configNamespace];
+          namespaceText ? [[NSString alloc] initWithUTF8String:namespaceText] : nil;
+      if (configNamespace) {
+        [namespaceArray addObject:configNamespace];
+      }
     }
     sqlite3_finalize(statement);
 
@@ -737,8 +740,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   [self bindStringsToStatement:statement stringArray:params];
 
   while (sqlite3_step(statement) == SQLITE_ROW) {
+    const char *bundleIdentifierText = (const char *)sqlite3_column_text(statement, 0);
     NSString *dbBundleIdentifier =
-        [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 0)];
+        bundleIdentifierText ? [[NSString alloc] initWithUTF8String:bundleIdentifierText] : nil;
 
     if (dbBundleIdentifier && ![dbBundleIdentifier isEqualToString:bundleIdentifier]) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014",
@@ -842,7 +846,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                            options:NSJSONReadingMutableContainers
                                                              error:&error];
     }
-    if (!experimentMetadata) {
+    if (![experimentMetadata isKindOfClass:[NSDictionary class]]) {
       experimentMetadata = [[NSMutableDictionary alloc] init];
     }
 
@@ -908,7 +912,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                   error);
     }
   }
-  if (!rollout) {
+  if (![rollout isKindOfClass:[NSArray class]]) {
     rollout = [[NSArray alloc] init];
   }
   return rollout;
@@ -949,7 +953,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                               options:0
                                                                 error:&error];
     }
-    if (!activePersonalization) {
+    if (![activePersonalization isKindOfClass:[NSDictionary class]]) {
       activePersonalization = [[NSMutableDictionary alloc] init];
     }
 
@@ -962,7 +966,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                                options:0
                                                                  error:&error];
     }
-    if (!fetchedPersonalization) {
+    if (![fetchedPersonalization isKindOfClass:[NSDictionary class]]) {
       fetchedPersonalization = [[NSMutableDictionary alloc] init];
     }
 
@@ -1072,9 +1076,16 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   [self bindStringsToStatement:statement stringArray:params];
 
   while (sqlite3_step(statement) == SQLITE_ROW) {
+    const char *namespaceText = (const char *)sqlite3_column_text(statement, 1);
+    const char *keyText = (const char *)sqlite3_column_text(statement, 2);
     NSString *configNamespace =
-        [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
-    NSString *key = [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
+        namespaceText ? [[NSString alloc] initWithUTF8String:namespaceText] : nil;
+    NSString *key = keyText ? [[NSString alloc] initWithUTF8String:keyText] : nil;
+    if (!configNamespace || !key) {
+      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000084",
+                    @"Skipping corrupt row while loading config from database.");
+      continue;
+    }
     NSData *value = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 3)
                                    length:sqlite3_column_bytes(statement, 3)];
     if (!namespaceToConfig[configNamespace]) {

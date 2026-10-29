@@ -83,8 +83,6 @@ extension Candidate {
     case missingThoughtSignature
 
     /// Finished due to malformed response.
-    ///
-    /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
     case malformedResponse
 
     /// Request was filtered by an escalation rule.
@@ -97,6 +95,12 @@ extension Candidate {
     ///
     /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
     case pupLimitedDisabled
+
+    /// Token generation was stopped because the response reached the per-request token limit, but
+    /// generation is not yet complete. The model response can be continued via a subsequent request
+    /// using the returned `continuation_token`. Note, the `max_output_tokens` is cumulative across
+    /// continuation hops and must be monotonically increased or omitted.
+    case continuation
 
     /// The model response was blocked by Model Armor.
     ///
@@ -136,6 +140,7 @@ extension Candidate.FinishReason: RawRepresentable {
     case .malformedResponse: "MALFORMED_RESPONSE"
     case .escalation: "ESCALATION"
     case .pupLimitedDisabled: "PUP_LIMITED_DISABLED"
+    case .continuation: "CONTINUATION"
     case .modelArmor: "MODEL_ARMOR"
     case .unrecognized(let value): value
     }
@@ -164,6 +169,7 @@ extension Candidate.FinishReason: RawRepresentable {
     case "MALFORMED_RESPONSE": self = .malformedResponse
     case "ESCALATION": self = .escalation
     case "PUP_LIMITED_DISABLED": self = .pupLimitedDisabled
+    case "CONTINUATION": self = .continuation
     case "MODEL_ARMOR": self = .modelArmor
     default: self = .unrecognized(rawValue)
     }

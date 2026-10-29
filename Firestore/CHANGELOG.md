@@ -1,7 +1,21 @@
 # Unreleased
 - [feature] Added support for window functions in Pipelines, with the `addWindowFields` stage for computing aggregates such as running totals and moving averages over partitioned and sorted frames of documents, and `over()` for framing individual aggregates. Window functions are in preview until the backend launch is announced in the [Firestore release notes](https://docs.cloud.google.com/firestore/docs/release-notes). (#16715)
-- [feature] Added support for Pipeline DML stages (`delete`, `update`, `insert`, `upsert`), `literals` source stage, and `Pipeline.ExecuteOptions(isAtomic:)`. (#16859)
+- [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
+  `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
+  decoder has no reference. (#16789)
+- [fixed] Fixed pipelines created from a query with an inclusive cursor, such as
+  `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
+  cursor boundary. (#16795)
+
+# 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
+- [fixed] Fixed a "'Firestore' SwiftPM package trait is disabled" build error
+  with Xcode 26.2 when Firebase is added to an Xcode project by URL. With Xcode
+  26.2, Firestore is now always included; opting out of the `Firestore` trait
+  requires Xcode 26.4 or later. (#16944)
+
+# 13.1.0
+- [feature] Added support for Pipeline DML stages (`delete`, `update`, `insert`, `upsert`), `literals` source stage, and `Pipeline.ExecuteOptions(isAtomic:)`. (#16859)
 
 # 13.0.0
 - [changed] Dropped C++14 support; Firestore now requires C++17.
@@ -16,6 +30,10 @@
   Cloud Firestore support now requires the trait to be enabled (it is enabled
   by default). Developers can opt out of the trait to avoid downloading
   Firestore's underlying dependencies (such as gRPC and Abseil). (#16684)
+
+# 12.19.3
+- [fixed] Security Update: Removed compromised eMudhra intermediate CA root
+  certificates from embedded trust store. (#16930)
 
 # 12.19.0
 - [feature] Added support for `minimum` and `maximum` FieldValue operations [#16159].

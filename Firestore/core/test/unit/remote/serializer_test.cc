@@ -2724,6 +2724,25 @@ TEST_F(SerializerTest,
   }
 }
 
+TEST_F(SerializerTest, EncodesExecutePipelineRequestWithDatabaseSource) {
+  DatabaseInfo db_info(DatabaseId(kProjectId, kDatabaseId), "key", "host",
+                       false);
+  DatastoreSerializer datastore_serializer(db_info);
+
+  auto database_source = std::make_shared<api::DatabaseSource>();
+  api::Pipeline pipeline({database_source}, nullptr);
+
+  auto request = datastore_serializer.EncodeExecutePipelineRequest(pipeline);
+
+  ByteString bytes = nanopb::MakeByteString(request);
+  auto proto = ProtobufParse<v1::ExecutePipelineRequest>(bytes);
+  ASSERT_EQ(proto.structured_pipeline().pipeline().stages_size(), 1);
+  const auto& stage_proto = proto.structured_pipeline().pipeline().stages(0);
+  EXPECT_EQ(stage_proto.name(), "database");
+  EXPECT_EQ(stage_proto.args_size(), 0);
+  EXPECT_EQ(stage_proto.options_size(), 0);
+}
+
 // TODO(rsgowman): Test [en|de]coding multiple protos into the same output
 // vector.
 
