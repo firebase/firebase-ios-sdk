@@ -2,6 +2,9 @@
 - [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
   `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
   decoder has no reference. (#16789)
+- [fixed] Fixed pipelines created from a query with an inclusive cursor, such as
+  `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
+  cursor boundary. (#16795)
 
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
