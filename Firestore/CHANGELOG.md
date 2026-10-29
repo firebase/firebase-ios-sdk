@@ -1,5 +1,10 @@
 # Unreleased
-- [feature] Added support for window functions in Pipelines, with the `addWindowFields` stage for computing aggregates such as running totals and moving averages over partitioned and sorted frames of documents, and `over()` for framing individual aggregates. Window functions are in preview until the backend launch is announced in the [Firestore release notes](https://docs.cloud.google.com/firestore/docs/release-notes). (#16715)
+- [feature] Pipeline Search is now Generally Available (GA). (#16945)
+- [feature] Added support for window functions in Pipelines, with the `addWindowFields`
+  stage for computing aggregates such as running totals and moving averages over
+  partitioned and sorted frames of documents, and `over()` for framing individual
+  aggregates. Window functions are in preview until the backend launch is announced
+  in the [Firestore release notes](https://docs.cloud.google.com/firestore/docs/release-notes). (#16715)
 - [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
   `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
   decoder has no reference. (#16789)
