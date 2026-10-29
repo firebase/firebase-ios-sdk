@@ -53,7 +53,8 @@ public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
   ///   parameters, such as `partition` or `sort`, is not supported here and must be specified
   ///   on the enclosing `addWindowFields` stage.
   ///
-  /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this window function over.
+  /// - Parameter window: The window specification containing the `documents` or `range` frame to
+  ///   evaluate this window function over.
   /// - Returns: A new `WindowFunction` with the given window framing.
   public func over(_ window: WindowSpec) -> WindowFunction {
     return WindowFunction(functionName: functionName, args: args, window: window)

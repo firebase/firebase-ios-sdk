@@ -245,11 +245,9 @@ public class Pipeline: @unchecked Sendable {
   ///     `AliasedWindowFunction`, which may be mixed.
   ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
   /// - Returns: A new `Pipeline` object with this stage appended.
-  public func addWindowFields(
-    window: WindowSpec = WindowSpec(),
-    fields: [WindowField],
-    options: [String: Sendable]? = nil
-  ) -> Pipeline {
+  public func addWindowFields(window: WindowSpec = WindowSpec(),
+                              fields: [WindowField],
+                              options: [String: Sendable]? = nil) -> Pipeline {
     let stage = AddWindowFields(window: window, fields: fields, options: options)
     return Pipeline(stages: stages + [stage], db: db)
   }

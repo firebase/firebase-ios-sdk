@@ -57,7 +57,8 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   /// > launches. Look for the launch announcement at:
   /// > https://docs.cloud.google.com/firestore/docs/release-notes
   ///
-  /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this aggregate over.
+  /// - Parameter window: The window specification containing the `documents` or `range` frame to
+  ///   evaluate this aggregate over.
   /// - Returns: A new `WindowFunction` with the given window framing.
   public func over(_ window: WindowSpec) -> WindowFunction {
     return WindowFunction(functionName: functionName, args: args, window: window)

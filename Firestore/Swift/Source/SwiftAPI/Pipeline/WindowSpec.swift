@@ -24,8 +24,8 @@ import Foundation
 /// floating-point offset, an `Expression`, `.unbounded`, or `.current`.
 ///
 /// Integer and floating-point literals can be used directly wherever a `WindowBound` is expected,
-/// e.g. `.documents(preceding: 2, following: .current)` or `.range(preceding: 1.5, following: 1.5)`.
-/// To pass a variable, use `WindowBound(_:)`.
+/// e.g. `.documents(preceding: 2, following: .current)` or
+/// `.range(preceding: 1.5, following: 1.5)`. To pass a variable, use `WindowBound(_:)`.
 ///
 /// > Warning: Window Functions SDK features are in preview until the backend feature
 /// > launches. Look for the launch announcement at:
@@ -130,14 +130,12 @@ public struct WindowSpec: Sendable {
     self.init(groups: [], sort: nil, preceding: nil, following: nil, type: nil, unit: nil)
   }
 
-  init(
-    groups: [Expression] = [],
-    sort: [Ordering]? = nil,
-    preceding: WindowBound? = nil,
-    following: WindowBound? = nil,
-    type: String? = nil,
-    unit: Sendable? = nil
-  ) {
+  init(groups: [Expression] = [],
+       sort: [Ordering]? = nil,
+       preceding: WindowBound? = nil,
+       following: WindowBound? = nil,
+       type: String? = nil,
+       unit: Sendable? = nil) {
     self.groups = groups
     self.sort = sort
     self.preceding = preceding
@@ -211,22 +209,25 @@ public struct WindowSpec: Sendable {
 
   /// Specifies a document-count based window frame (row-based frame).
   ///
-  /// Defines frame boundaries relative to the current document's position within the partition using
-  /// document counts. In a `documents` frame, `.current` refers strictly to the current document's
-  /// position (documents that tie on the sort value(s) at other positions are not included).
+  /// Defines frame boundaries relative to the current document's position within the partition
+  /// using document counts. In a `documents` frame, `.current` refers strictly to the current
+  /// document's position (documents that tie on the sort value(s) at other positions are not
+  /// included).
   ///
   /// - Note: `sort` is optional for document-count frames; if no `sort` is specified on the window,
   ///   documents are processed in incoming stream (fetch) order.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
-  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents before the current document.
-  ///     A negative integer (e.g. `-1`) indicates a boundary following the current document, enabling frames that start
-  ///     after the current document.
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
-  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents after the current document.
-  ///     A negative integer (e.g. `-1`) indicates a boundary preceding the current document, enabling frames that end
-  ///     before the current document (e.g. excluding the current document).
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer offset, or an `Expression`. A positive integer (e.g. `2`) includes up to that
+  ///     many documents before the current document. A negative integer (e.g. `-1`) indicates a
+  ///     boundary following the current document, enabling frames that start after the current
+  ///     document.
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer offset, or an `Expression`. A positive integer (e.g. `2`) includes up to that
+  ///     many documents after the current document. A negative integer (e.g. `-1`) indicates a
+  ///     boundary preceding the current document, enabling frames that end before the current
+  ///     document (e.g. excluding the current document).
   /// - Returns: A new `WindowSpec` with the document-count based window frame configured.
   public func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
     return WindowSpec(
@@ -259,35 +260,39 @@ public struct WindowSpec: Sendable {
   /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
   /// includes all documents whose sort value(s) tie with the current document, making `.current`
   /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
-  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document includes
-  /// both `10`s, and the frame for `20` includes all three documents.
+  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document
+  /// includes both `10`s, and the frame for `20` includes all three documents.
   ///
-  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may specify
-  ///   multiple sort orderings and may sort on string or boolean fields.
-  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a numeric
-  ///   or timestamp field. Specifying a `unit` on a string or boolean sort field is an error.
+  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may
+  ///   specify multiple sort orderings and may sort on string or boolean fields.
+  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a
+  ///   numeric or timestamp field. Specifying a `unit` on a string or boolean sort field is an
+  ///   error.
   ///
-  /// - Note: One or more `sort` expressions are required when using a range-value based window frame.
-  ///   For time-based range frames, the backend only accepts duration units: `.microsecond`,
-  ///   `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`, `.quarter`, `.year`
-  ///   (or matching strings). Day-of-week week variants (such as `.weekMonday` through `.weekSunday`)
-  ///   and `.isoweek`/`.isoyear` are only for timestamp truncation, not window range duration frames,
-  ///   and will be rejected by the backend.
+  /// - Note: One or more `sort` expressions are required when using a range-value based window
+  ///   frame. For time-based range frames, the backend only accepts duration units:
+  ///   `.microsecond`, `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`,
+  ///   `.quarter`, `.year` (or matching strings). Day-of-week week variants (such as
+  ///   `.weekMonday` through `.weekSunday`) and `.isoweek`/`.isoyear` are only for timestamp
+  ///   truncation, not window range duration frames, and will be rejected by the backend.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
-  ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
-  ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
-  ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
-  ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
-  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer or floating-point offset, or an `Expression`. A positive offset subtracts
+  ///     from the current document's sort value (looking into the past). A negative offset adds
+  ///     to the current document's sort value (shifting the lower boundary past the current
+  ///     document).
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer or floating-point offset, or an `Expression`. A positive offset adds to the
+  ///     current document's sort value (looking into the future). A negative offset subtracts
+  ///     from the current document's sort value (shifting the upper boundary before the current
+  ///     document).
+  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when
+  ///     computing range offsets over timestamp fields.
   /// - Returns: A new `WindowSpec` with the range-value based window frame configured.
-  public func range(
-    preceding: WindowBound,
-    following: WindowBound,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public func range(preceding: WindowBound,
+                    following: WindowBound,
+                    unit: Sendable? = nil) -> WindowSpec {
     return WindowSpec(
       groups: groups,
       sort: sort,
@@ -298,11 +303,9 @@ public struct WindowSpec: Sendable {
     )
   }
 
-  public func range(
-    preceding: Expression,
-    following: Expression,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public func range(preceding: Expression,
+                    following: Expression,
+                    unit: Sendable? = nil) -> WindowSpec {
     return range(
       preceding: WindowBound(preceding),
       following: WindowBound(following),
@@ -310,11 +313,9 @@ public struct WindowSpec: Sendable {
     )
   }
 
-  public func range(
-    preceding: Expression,
-    following: WindowBound,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public func range(preceding: Expression,
+                    following: WindowBound,
+                    unit: Sendable? = nil) -> WindowSpec {
     return range(
       preceding: WindowBound(preceding),
       following: following,
@@ -322,11 +323,9 @@ public struct WindowSpec: Sendable {
     )
   }
 
-  public func range(
-    preceding: WindowBound,
-    following: Expression,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public func range(preceding: WindowBound,
+                    following: Expression,
+                    unit: Sendable? = nil) -> WindowSpec {
     return range(
       preceding: preceding,
       following: WindowBound(following),
@@ -395,22 +394,25 @@ public struct WindowSpec: Sendable {
 
   /// Creates a document-count based window specification (row-based frame).
   ///
-  /// Defines frame boundaries relative to the current document's position within the partition using
-  /// document counts. In a `documents` frame, `.current` refers strictly to the current document's
-  /// position (documents that tie on the sort value(s) at other positions are not included).
+  /// Defines frame boundaries relative to the current document's position within the partition
+  /// using document counts. In a `documents` frame, `.current` refers strictly to the current
+  /// document's position (documents that tie on the sort value(s) at other positions are not
+  /// included).
   ///
   /// - Note: `sort` is optional for document-count frames; if no `sort` is specified on the window,
   ///   documents are processed in incoming stream (fetch) order.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
-  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents before the current document.
-  ///     A negative integer (e.g. `-1`) indicates a boundary following the current document, enabling frames that start
-  ///     after the current document.
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer offset,
-  ///     or an `Expression`. A positive integer (e.g. `2`) includes up to that many documents after the current document.
-  ///     A negative integer (e.g. `-1`) indicates a boundary preceding the current document, enabling frames that end
-  ///     before the current document (e.g. excluding the current document).
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer offset, or an `Expression`. A positive integer (e.g. `2`) includes up to that
+  ///     many documents before the current document. A negative integer (e.g. `-1`) indicates a
+  ///     boundary following the current document, enabling frames that start after the current
+  ///     document.
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer offset, or an `Expression`. A positive integer (e.g. `2`) includes up to that
+  ///     many documents after the current document. A negative integer (e.g. `-1`) indicates a
+  ///     boundary preceding the current document, enabling frames that end before the current
+  ///     document (e.g. excluding the current document).
   /// - Returns: A new `WindowSpec` with the document-count based window frame.
   public static func documents(preceding: WindowBound, following: WindowBound) -> WindowSpec {
     return WindowSpec(preceding: preceding, following: following, type: "documents")
@@ -436,59 +438,57 @@ public struct WindowSpec: Sendable {
   /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
   /// includes all documents whose sort value(s) tie with the current document, making `.current`
   /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
-  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document includes
-  /// both `10`s, and the frame for `20` includes all three documents.
+  /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document
+  /// includes both `10`s, and the frame for `20` includes all three documents.
   ///
-  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may specify
-  ///   multiple sort orderings and may sort on string or boolean fields.
-  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a numeric
-  ///   or timestamp field. Specifying a `unit` on a string or boolean sort field is an error.
+  /// - When both bounds are `.current` or `.unbounded` (and `unit` is `nil`), the window may
+  ///   specify multiple sort orderings and may sort on string or boolean fields.
+  /// - When numeric or time offsets are used, `range` requires exactly one sort ordering on a
+  ///   numeric or timestamp field. Specifying a `unit` on a string or boolean sort field is an
+  ///   error.
   ///
-  /// - Note: One or more `sort` expressions are required when using a range-value based window frame.
-  ///   For time-based range frames, the backend only accepts duration units: `.microsecond`,
-  ///   `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`, `.quarter`, `.year`
-  ///   (or matching strings). Day-of-week week variants (such as `.weekMonday` through `.weekSunday`)
-  ///   and `.isoweek`/`.isoyear` are only for timestamp truncation, not window range duration frames,
-  ///   and will be rejected by the backend.
+  /// - Note: One or more `sort` expressions are required when using a range-value based window
+  ///   frame. For time-based range frames, the backend only accepts duration units:
+  ///   `.microsecond`, `.millisecond`, `.second`, `.minute`, `.hour`, `.day`, `.week`, `.month`,
+  ///   `.quarter`, `.year` (or matching strings). Day-of-week week variants (such as
+  ///   `.weekMonday` through `.weekSunday`) and `.isoweek`/`.isoyear` are only for timestamp
+  ///   truncation, not window range duration frames, and will be rejected by the backend.
   ///
   /// - Parameters:
-  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
-  ///     or an `Expression`. A positive offset subtracts from the current document's sort value (looking into the past).
-  ///     A negative offset adds to the current document's sort value (shifting the lower boundary past the current document).
-  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`, an integer or floating-point offset,
-  ///     or an `Expression`. A positive offset adds to the current document's sort value (looking into the future).
-  ///     A negative offset subtracts from the current document's sort value (shifting the upper boundary before the current document).
-  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when computing range offsets over timestamp fields.
+  ///   - preceding: The starting boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer or floating-point offset, or an `Expression`. A positive offset subtracts
+  ///     from the current document's sort value (looking into the past). A negative offset adds
+  ///     to the current document's sort value (shifting the lower boundary past the current
+  ///     document).
+  ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
+  ///     an integer or floating-point offset, or an `Expression`. A positive offset adds to the
+  ///     current document's sort value (looking into the future). A negative offset subtracts
+  ///     from the current document's sort value (shifting the upper boundary before the current
+  ///     document).
+  ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when
+  ///     computing range offsets over timestamp fields.
   /// - Returns: A new `WindowSpec` with the range-value based window frame.
-  public static func range(
-    preceding: WindowBound,
-    following: WindowBound,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public static func range(preceding: WindowBound,
+                           following: WindowBound,
+                           unit: Sendable? = nil) -> WindowSpec {
     return WindowSpec(preceding: preceding, following: following, type: "range", unit: unit)
   }
 
-  public static func range(
-    preceding: Expression,
-    following: Expression,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public static func range(preceding: Expression,
+                           following: Expression,
+                           unit: Sendable? = nil) -> WindowSpec {
     return range(preceding: WindowBound(preceding), following: WindowBound(following), unit: unit)
   }
 
-  public static func range(
-    preceding: Expression,
-    following: WindowBound,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public static func range(preceding: Expression,
+                           following: WindowBound,
+                           unit: Sendable? = nil) -> WindowSpec {
     return range(preceding: WindowBound(preceding), following: following, unit: unit)
   }
 
-  public static func range(
-    preceding: WindowBound,
-    following: Expression,
-    unit: Sendable? = nil
-  ) -> WindowSpec {
+  public static func range(preceding: WindowBound,
+                           following: Expression,
+                           unit: Sendable? = nil) -> WindowSpec {
     return range(preceding: preceding, following: WindowBound(following), unit: unit)
   }
 }
