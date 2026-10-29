@@ -9,6 +9,9 @@
 - [fixed] Fixed a crash in `checkActionCode` for email sign-in codes, a
   regression in 11.0.0. `ActionCodeInfo.email` is empty for these codes,
   because the server doesn't return their email address. (#16963)
+- [fixed] Fixed a data race that could crash an app that reads `User.metadata`
+  or `User.multiFactor` while a reload, link, or profile update finishes on
+  another thread. (#16975)
 
 # 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
