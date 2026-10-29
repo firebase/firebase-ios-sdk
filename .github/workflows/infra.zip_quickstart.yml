@@ -184,9 +184,7 @@ jobs:
             xcode: 'Xcode_26.2'
         # The static and dynamic zips, like release.zip.yml's Firebase-actions-dir(-dynamic).
         artifact: [Firebase-zip-builder, Firebase-zip-builder-dynamic]
-        # Keep in sync with release.zip.yml › quickstart_framework_matrix. The only difference is
-        # Authentication: this zip has no GoogleSignIn folder (the legacy zip adds the GoogleSignIn
-        # pod), so GoogleSignIn and its dependencies come from NON_FIREBASE_SDKS instead.
+        # Keep in sync with release.zip.yml › quickstart_framework_matrix.
         config:
           - product: "ABTesting"
             plist_src: "scripts/gha-encrypted/qs-abtesting.plist.gpg"
@@ -205,7 +203,7 @@ jobs:
             plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
             command: |
               SAMPLE="Authentication" TARGET="AuthenticationExample" \
-                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit GoogleSignIn AppAuth GTMAppAuth" \
+                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
                 scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
