@@ -921,6 +921,74 @@ TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdated) {
   });
 }
 
+TEST_F(LevelDbIndexManagerTest,
+       IndexEntriesAreReplacedWhenDescendingValueGrowsAcrossTransactions) {
+  // The backfiller indexes each batch of documents in its own transaction.
+  // On a descending segment a growing value sorts before the previous one, so
+  // the new entry is added before the old one is deleted.
+  persistence_->Run("Start", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kDescending));
+    AddDoc("coll/doc1", Map("value", 1));
+    AddDoc("coll/doc2", Map("value", 0));
+  });
+  for (int value = 2; value <= 4; ++value) {
+    persistence_->Run("Update doc1",
+                      [&]() { AddDoc("coll/doc1", Map("value", value)); });
+  }
+
+  persistence_->Run("Verify", [&]() {
+    auto query = Query("coll")
+                     .AddingOrderBy(OrderBy("value", "desc"))
+                     .WithLimitToFirst(2);
+    VerifyResults(query, {"coll/doc1", "coll/doc2"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, RecreatedIndexIsFilledAfterDeleteAll) {
+  persistence_->Run("Create index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+  });
+  index_manager_->DeleteAllFieldIndexes();
+
+  // A new index manager numbers indexes from the persisted configurations, as
+  // after a restart, so the recreated index reuses the deleted one's id.
+  persistence_->ReleaseOtherUserSpecificComponents("other user");
+  index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("Recreate index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    VerifyResults(Query("coll").AddingOrderBy(OrderBy("value")), {"coll/doc1"});
+  });
+}
+
+TEST_F(LevelDbIndexManagerTest, RecreatedIndexIsFilledAfterDelete) {
+  persistence_->Run("Create and delete index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    index_manager_->DeleteFieldIndex(
+        index_manager_->GetFieldIndexes("coll")[0]);
+  });
+
+  persistence_->ReleaseOtherUserSpecificComponents("other user");
+  index_manager_ = persistence_->GetIndexManager(User::Unauthenticated());
+  persistence_->Run("Recreate index", [&]() {
+    index_manager_->Start();
+    index_manager_->AddFieldIndex(
+        MakeFieldIndex("coll", "value", model::Segment::kAscending));
+    AddDoc("coll/doc1", Map("value", 1));
+    VerifyResults(Query("coll").AddingOrderBy(OrderBy("value")), {"coll/doc1"});
+  });
+}
+
 TEST_F(LevelDbIndexManagerTest, IndexEntriesAreUpdatedWithDeletedDoc) {
   persistence_->Run("TestIndexEntriesAreUpdatedWithDeletedDoc", [&]() {
     index_manager_->Start();

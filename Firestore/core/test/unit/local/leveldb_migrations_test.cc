@@ -548,6 +548,50 @@ TEST_F(LevelDbMigrationsTest, SetsOverlayMigrationFlag) {
   ASSERT_TRUE(status.ok());
 }
 
+TEST_F(LevelDbMigrationsTest, RebuildsClientSideIndexes) {
+  std::string user_id{"user"};
+  int32_t index_id = 1;
+  std::string entry_key = LevelDbIndexEntryKey::Key(
+      index_id, user_id, "array", "directional", "ordered", "coll/doc");
+
+  std::string dropped_keys[] = {
+      entry_key,
+      LevelDbIndexEntryDocumentKeyIndexKey(index_id, user_id, "coll/doc", 0)
+          .Key(),
+      LevelDbIndexStateKey::Key(user_id, index_id),
+  };
+
+  std::string preserved_keys[] = {
+      DummyKey("index_a"),
+      LevelDbIndexConfigurationKey::Key(index_id, "coll"),
+  };
+
+  LevelDbMigrations::RunMigrations(db_.get(), 8, *serializer_);
+  {
+    LevelDbTransaction transaction(db_.get(),
+                                   "test_rebuilds_client_side_indexes setup");
+    for (const std::string& key : dropped_keys) {
+      transaction.Put(key, entry_key);
+    }
+    for (const std::string& key : preserved_keys) {
+      transaction.Put(key, "preserved");
+    }
+    transaction.Commit();
+  }
+
+  LevelDbMigrations::RunMigrations(db_.get(), 9, *serializer_);
+  {
+    LevelDbTransaction transaction(db_.get(),
+                                   "test_rebuilds_client_side_indexes");
+    for (const std::string& key : dropped_keys) {
+      ASSERT_THAT(key, IsNotFound(&transaction));
+    }
+    for (const std::string& key : preserved_keys) {
+      ASSERT_THAT(key, IsFound(&transaction));
+    }
+  }
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

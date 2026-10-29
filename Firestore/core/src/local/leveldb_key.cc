@@ -1412,6 +1412,19 @@ std::string LevelDbIndexEntryDocumentKeyIndexKey::Key() {
   return writer.result();
 }
 
+std::string LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix() {
+  Writer writer;
+  writer.WriteTableName(kIndexEntriesDocumentKeyIndexTable);
+  return writer.result();
+}
+
+std::string LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(int32_t index_id) {
+  Writer writer;
+  writer.WriteTableName(kIndexEntriesDocumentKeyIndexTable);
+  writer.WriteIndexId(index_id);
+  return writer.result();
+}
+
 std::string LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(
     int32_t index_id,
     absl::string_view user_id,

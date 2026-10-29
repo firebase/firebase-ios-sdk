@@ -403,6 +403,21 @@ void LevelDbIndexManager::DeleteFieldIndex(const FieldIndex& index) {
     }
   }
 
+  // Delete the document key lookups of these entries. Index ids are reused
+  // after a restart, and a leftover lookup would make the next index with
+  // this id skip writing the entries it believes already exist.
+  {
+    auto document_key_index_prefix =
+        LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(index.index_id());
+    auto iter = db_->current_transaction()->NewIterator();
+    for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+      if (!absl::StartsWith(iter->key(), document_key_index_prefix)) {
+        break;
+      }
+      db_->current_transaction()->Delete(iter->key());
+    }
+  }
+
   auto group_index_iter = memoized_indexes_.find(index.collection_group());
   if (group_index_iter != memoized_indexes_.end()) {
     auto& index_map = group_index_iter->second;
@@ -907,29 +922,27 @@ void LevelDbIndexManager::AddIndexEntry(const model::Document& document,
       EncodedDirectionalKey(index, document->key()), document_key);
   db_->current_transaction()->Put(entry_key, "");
 
+  // Read through the transaction, so that the sequence number accounts for
+  // the entries this transaction already added or deleted for the document.
+  // Reading the committed database instead hands out a sequence number that
+  // an earlier, uncommitted entry already uses, and overwrites its reverse
+  // lookup.
   auto document_key_index_prefix =
       LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
                                                       document_key);
-  std::unique_ptr<leveldb::Iterator> iter(
-      db_->ptr()->NewIterator(LevelDbTransaction::DefaultReadOptions()));
-  iter->Seek(util::PrefixSuccessor(document_key_index_prefix));
-  iter->Prev();
-  absl::string_view raw_key;
-  if (iter->Valid() && absl::StartsWith(local::MakeStringView(iter->key()),
-                                        document_key_index_prefix)) {
-    raw_key = local::MakeStringView(iter->key());
+  int64_t next_seq_number = 0;
+  LevelDbIndexEntryDocumentKeyIndexKey existing_key;
+  auto iter = db_->current_transaction()->NewIterator();
+  for (iter->Seek(document_key_index_prefix); iter->Valid(); iter->Next()) {
+    if (!absl::StartsWith(iter->key(), document_key_index_prefix) ||
+        !existing_key.Decode(iter->key())) {
+      break;
+    }
+    next_seq_number = std::max(next_seq_number, existing_key.seq_number() + 1);
   }
 
   LevelDbIndexEntryDocumentKeyIndexKey document_key_index_key(
-      entry.index_id(), uid_, document_key, 0);
-  if (!raw_key.empty()) {
-    bool decoded = document_key_index_key.Decode(raw_key);
-    HARD_ASSERT(decoded,
-                "LevelDbIndexEntryDocumentKeyIndexKey cannot be decoded from "
-                "document key index table.");
-    document_key_index_key.IncreaseSeqNumber();
-  }
-
+      entry.index_id(), uid_, document_key, next_seq_number);
   db_->current_transaction()->Put(document_key_index_key.Key(), entry_key);
 }
 
@@ -953,6 +966,10 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
       EncodedDirectionalKey(index, document->key()), document_key);
   db_->current_transaction()->Delete(entry_key);
 
+  // Only delete the reverse lookup of this entry. The document's other
+  // entries, such as the one `UpdateEntries` may have just added when the
+  // new entry sorts before the old one, keep theirs; without it they would
+  // never be found, and so never deleted, on the document's next update.
   auto document_key_index_prefix =
       LevelDbIndexEntryDocumentKeyIndexKey::KeyPrefix(entry.index_id(), uid_,
                                                       document_key);
@@ -963,7 +980,9 @@ void LevelDbIndexManager::DeleteIndexEntry(const model::Document& document,
         !document_key_index_key.Decode(iter->key())) {
       break;
     }
-    db_->current_transaction()->Delete(iter->key());
+    if (iter->value() == entry_key) {
+      db_->current_transaction()->Delete(iter->key());
+    }
   }
 }
 

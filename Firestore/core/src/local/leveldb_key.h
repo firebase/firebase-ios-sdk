@@ -900,6 +900,17 @@ class LevelDbIndexStateKey {
 class LevelDbIndexEntryDocumentKeyIndexKey {
  public:
   /**
+   * Creates a key prefix that points just before the first key of the table.
+   */
+  static std::string KeyPrefix();
+
+  /**
+   * Creates a key prefix that points just before the first key for a given
+   * index id.
+   */
+  static std::string KeyPrefix(int32_t index_id);
+
+  /**
    * Creates a key that points to the key for the given index entry fields.
    */
   static std::string KeyPrefix(int32_t index_id,

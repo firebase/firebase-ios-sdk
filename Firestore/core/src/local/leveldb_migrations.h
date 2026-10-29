@@ -73,8 +73,10 @@ class LevelDbMigrations {
  *   * Migration 6 populates the collection_parents index.
  *   * Migration 7 rewrites query_targets canonical ids in new format.
  *   * Migration 8 kicks off overlay data migration.
+ *   * Migration 9 rebuilds client-side indexes, which could hold stale
+ *     entries.
  */
-const LevelDbMigrations::SchemaVersion kSchemaVersion = 8;
+const LevelDbMigrations::SchemaVersion kSchemaVersion = 9;
 
 }  // namespace local
 }  // namespace firestore
