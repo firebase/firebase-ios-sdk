@@ -224,6 +224,42 @@ struct FingerprintTests {
     #expect(try fingerprints()["A"] != before["A"])
   }
 
+  /// Another Swift package under a search path (one with its own `Package.swift`, like a tool or
+  /// a test package in the repo) holds its own targets, so its headers don't count. The package's
+  /// own directories still do.
+  @Test func otherPackagesUnderSearchPathsDontCount() throws {
+    let package = try SyntheticPackage()
+    var plan = SyntheticPackage.plan
+    plan.frameworks[1].settings["HEADER_SEARCH_PATHS"] = ["."]
+    func fingerprints() throws -> [String: String] {
+      try ZipBuilder.fingerprints(of: plan, packageRoot: package.root.path,
+                                  xcodeVersion: "Xcode 26.2")
+    }
+    try package.write("tools/builder/Package.swift", "// swift-tools-version:6.0\n")
+    let before = try fingerprints()
+    try package.write("tools/builder/Fixtures/Sources/T/include/T.h", "// a tool's header\n")
+    try package.write("tools/builder/Sources/T/T.h", "// a tool's header\n")
+    #expect(try fingerprints() == before)
+    try package.write("tools/shared.h", "// next to the other package\n")
+    #expect(try fingerprints()["A"] != before["A"])
+  }
+
+  /// A directory with its own `Package.swift` still counts when the plan's frameworks have files
+  /// in it: the manifest can point targets there (Firebase's `GeminiLanguageModel`).
+  @Test func otherPackagesHoldingPlannedFilesStillCount() throws {
+    let package = try SyntheticPackage()
+    var plan = SyntheticPackage.plan
+    plan.frameworks[1].settings["HEADER_SEARCH_PATHS"] = ["."]
+    // B's sources live under B/, which now also has its own Package.swift.
+    try package.write("B/Package.swift", "// swift-tools-version:6.0\n")
+    let before = try ZipBuilder.fingerprints(of: plan, packageRoot: package.root.path,
+                                             xcodeVersion: "Xcode 26.2")
+    try package.write("B/extra/added.h", "// included through the root\n")
+    let after = try ZipBuilder.fingerprints(of: plan, packageRoot: package.root.path,
+                                            xcodeVersion: "Xcode 26.2")
+    #expect(after["A"] != before["A"])
+  }
+
   @Test func formatIsBumpedForTheSearchPathChanges() {
     #expect(fingerprintFormat == "zip-builder-2")
   }

@@ -156,16 +156,32 @@ private struct Fingerprints {
     return result
   }
 
-  /// Whether a directory under a search path holds no sources but can hold copies of headers:
+  /// Whether a directory under a search path can't hold headers the package's sources include:
   /// hidden ones, excluded ones (the work dir, the cache), bundles (`.xcframework`, `.framework`,
-  /// `.xcodeproj`, …), `DerivedData`, and other zip-builder work dirs (those with a `plan.json`).
+  /// `.xcodeproj`, …), `DerivedData`, and other zip-builder work dirs (those with a `plan.json`)
+  /// only hold copies; another Swift package (one with its own `Package.swift`) holds its own
+  /// targets, unless the plan's frameworks have files in it.
   private func isSkippedDirectory(_ path: Path) -> Bool {
     let name = fileName(path)
     let bundleExtensions: Set = ["xcframework", "framework", "xcodeproj", "xcarchive", "bundle",
                                  "xcworkspace"]
+    let manager = FileManager.default
     return name.hasPrefix(".") || name == "DerivedData" || excluded.contains(path)
       || bundleExtensions.contains((name as NSString).pathExtension)
-      || FileManager.default.fileExists(atPath: path + "/plan.json")
+      || manager.fileExists(atPath: path + "/plan.json")
+      || (manager.fileExists(atPath: path + "/Package.swift") && !holdsPlannedFiles(path))
+  }
+
+  /// Whether any framework in the plan has a source, header, resource or module map under the
+  /// directory at the absolute `path`. A package's manifest can point targets into a directory
+  /// that has its own `Package.swift` (Firebase's `GeminiLanguageModel`).
+  private func holdsPlannedFiles(_ path: Path) -> Bool {
+    let prefix = relative(path) + "/"
+    return plan.frameworks.contains { framework in
+      let files = framework.sources.map(\.path) + framework.headers.map(\.path)
+        + framework.resources.map(\.path) + [framework.moduleMap].compactMap { $0 }
+      return files.contains { relative(fullPath($0, packageRoot)).hasPrefix(prefix) }
+    }
   }
 
   /// `path` relative to the package root, so fingerprints match across checkouts.

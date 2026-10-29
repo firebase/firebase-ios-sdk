@@ -455,7 +455,11 @@ search the repo root. So headers under every search path outside the framework's
 then rebuilds most Firebase frameworks: the price of never shipping a stale one. The walk skips
 directories that only hold header copies (hidden ones, the work and cache directories, bundles,
 `DerivedData`, other work directories with a `plan.json`); otherwise building would change
-fingerprints, and they would differ between machines.
+fingerprints, and they would differ between machines. It also skips other Swift packages
+(directories with their own `Package.swift`, such as this tool and its test package), whose
+headers belong to their own targets, so changing them doesn't rebuild Firebase's frameworks. One
+still counts when the plan's frameworks have files in it, since a manifest can point targets
+there (Firebase's `GeminiLanguageModel`).
 
 Generated files aren't hashed: they follow from the plan and the tool's code. When that output
 changes, bump `fingerprintFormat`. The hashed text is pinned by
