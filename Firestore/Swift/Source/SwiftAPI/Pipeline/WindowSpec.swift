@@ -20,16 +20,16 @@ import Foundation
   @_exported import FirebaseFirestoreInternal
 #endif // SWIFT_PACKAGE
 
-/// Represents a boundary in a window frame specification: an integer or floating-point offset,
-/// an `Expression`, `.unbounded`, or `.current`.
+/// **[Public Preview]** Represents a boundary in a window frame specification: an integer or
+/// floating-point offset, an `Expression`, `.unbounded`, or `.current`.
 ///
 /// Integer and floating-point literals can be used directly wherever a `WindowBound` is expected,
 /// e.g. `.documents(preceding: 2, following: .current)` or `.range(preceding: 1.5, following: 1.5)`.
 /// To pass a variable, use `WindowBound(_:)`.
 ///
-/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
-///   feature launches. Look for launch announcement at:
-///   https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: This API is a public preview and may be subject to change. Window Functions
+/// > SDK features are in preview until the backend feature launches. Look for launch
+/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Sendable {
   /// The underlying value of a window frame boundary.
   public enum Value: Sendable {
@@ -102,7 +102,7 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
   }
 }
 
-/// Window specification for window functions.
+/// **[Public Preview]** Window specification for window functions.
 ///
 /// Defines how documents are partitioned, sorted, and framed when evaluating window functions in
 /// an `addWindowFields` stage.
@@ -113,9 +113,9 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
 ///   - If `sort` is specified without an explicit `documents` or `range` frame, the default frame
 ///     is `range` from `.unbounded` preceding to `.current`.
 ///
-/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
-///   feature launches. Look for launch announcement at:
-///   https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: This API is a public preview and may be subject to change. Window Functions
+/// > SDK features are in preview until the backend feature launches. Look for launch
+/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowSpec: Sendable {
   let groups: [Expression]
   let sort: [Ordering]?

@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A function that is evaluated over a window of documents in an `addWindowFields` stage.
+/// **[Public Preview]** A function that is evaluated over a window of documents in an
+/// `addWindowFields` stage.
 ///
 /// Create a `WindowFunction` with a dedicated window function such as `Rank()`, or by calling
 /// `over(_:)` on an `AggregateFunction`.
 ///
-/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
-///   feature launches. Look for launch announcement at:
-///   https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: This API is a public preview and may be subject to change. Window Functions
+/// > SDK features are in preview until the backend feature launches. Look for launch
+/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
 public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: __AggregateFunctionBridge
 

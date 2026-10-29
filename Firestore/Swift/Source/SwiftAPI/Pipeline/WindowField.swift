@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// A protocol for named values that can be computed by the `addWindowFields` stage.
+/// **[Public Preview]** A protocol for named values that can be computed by the `addWindowFields`
+/// stage.
 ///
 /// `WindowField` is adopted by `AliasedAggregate` (an `AggregateFunction` given an alias with
 /// `.as()`) and `AliasedWindowFunction` (a `WindowFunction`, such as `Rank()` or an aggregate
 /// with `.over()`, given an alias with `.as()`).
 ///
-/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
-///   feature launches. Look for launch announcement at:
-///   https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: This API is a public preview and may be subject to change. Window Functions
+/// > SDK features are in preview until the backend feature launches. Look for launch
+/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
 public protocol WindowField: Sendable {}

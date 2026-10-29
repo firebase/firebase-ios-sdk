@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Returns the rank of each document within its partition according to the window's sort order.
-/// Documents with equal sort values receive the same rank, and the following rank is skipped. The
-/// window must specify exactly one sort ordering.
+/// **[Public Preview]** Returns the rank of each document within its partition according to the
+/// window's sort order. Documents with equal sort values receive the same rank, and the following
+/// rank is skipped. The window must specify exactly one sort ordering.
 ///
 /// Example usage:
 /// ```swift
@@ -28,9 +28,9 @@
 ///   )
 /// ```
 ///
-/// - Note: This API is in beta. Window Functions SDK features are in preview until the backend
-///   feature launches. Look for launch announcement at:
-///   https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: This API is a public preview and may be subject to change. Window Functions
+/// > SDK features are in preview until the backend feature launches. Look for launch
+/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
 public class Rank: WindowFunction, @unchecked Sendable {
   /// Initializes a new `Rank` window function.
   public init() {
