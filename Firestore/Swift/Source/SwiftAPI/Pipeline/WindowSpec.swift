@@ -27,9 +27,9 @@ import Foundation
 /// e.g. `.documents(preceding: 2, following: .current)` or `.range(preceding: 1.5, following: 1.5)`.
 /// To pass a variable, use `WindowBound(_:)`.
 ///
-/// > Warning: This API is a public preview and may be subject to change. Window Functions
-/// > SDK features are in preview until the backend feature launches. Look for launch
-/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: Window Functions SDK features are in preview until the backend feature
+/// > launches. Look for launch announcement at:
+/// > https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Sendable {
   /// The underlying value of a window frame boundary.
   public enum Value: Sendable {
@@ -113,9 +113,9 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
 ///   - If `sort` is specified without an explicit `documents` or `range` frame, the default frame
 ///     is `range` from `.unbounded` preceding to `.current`.
 ///
-/// > Warning: This API is a public preview and may be subject to change. Window Functions
-/// > SDK features are in preview until the backend feature launches. Look for launch
-/// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
+/// > Warning: Window Functions SDK features are in preview until the backend feature
+/// > launches. Look for launch announcement at:
+/// > https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowSpec: Sendable {
   let groups: [Expression]
   let sort: [Ordering]?

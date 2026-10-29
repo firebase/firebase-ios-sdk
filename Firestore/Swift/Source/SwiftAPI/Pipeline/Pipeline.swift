@@ -234,9 +234,9 @@ public class Pipeline: @unchecked Sendable {
 
   /// **[Public Preview]** Adds window function results to the output documents of the pipeline.
   ///
-  /// > Warning: This API is a public preview and may be subject to change. Window Functions
-  /// > SDK features are in preview until the backend feature launches. Look for launch
-  /// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
+  /// > Warning: Window Functions SDK features are in preview until the backend feature
+  /// > launches. Look for launch announcement at:
+  /// > https://docs.cloud.google.com/firestore/docs/release-notes
   ///
   /// - Parameters:
   ///   - window: The window specification defining partition, sort, and frames. Defaults to an

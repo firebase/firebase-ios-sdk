@@ -53,9 +53,9 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   ///   parameters, such as `partition` or `sort`, is not supported here and must be specified
   ///   on the enclosing `addWindowFields` stage.
   ///
-  /// > Warning: This API is a public preview and may be subject to change. Window Functions
-  /// > SDK features are in preview until the backend feature launches. Look for launch
-  /// > announcement at: https://docs.cloud.google.com/firestore/docs/release-notes
+  /// > Warning: Window Functions SDK features are in preview until the backend feature
+  /// > launches. Look for launch announcement at:
+  /// > https://docs.cloud.google.com/firestore/docs/release-notes
   ///
   /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this aggregate over.
   /// - Returns: A new `WindowFunction` with the given window framing.
