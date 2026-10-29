@@ -290,6 +290,7 @@ python --version
 "${top_dir}/scripts/check_filename_spaces.sh"
 "${top_dir}/scripts/check_copyright.sh"
 "${top_dir}/scripts/check_test_inclusion.py"
+python3 "${top_dir}/scripts/select_simulator_runtime_test.py"
 swift "${top_dir}/scripts/check_imports.swift"
 
 # Google C++ style

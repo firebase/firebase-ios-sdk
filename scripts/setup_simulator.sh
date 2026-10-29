@@ -18,107 +18,54 @@
 
 set -euo pipefail
 
-# Returns the simulator runtime ID for a given platform search string,
-# preferring the latest installed runtime matching the active Xcode's SDK
-# major version (so it aligns with xcodebuild's implicit OS:latest resolution).
+# Directory containing this script and its helpers.
+SCRIPTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPTS_DIR
+
+# Creates a simulator, unless an available simulator with the same name exists,
+# using the newest available runtime for a given platform that supports any of
+# the requested device types.
+# Globals:
+#   SCRIPTS_DIR
 # Arguments:
-#   $1 - Platform search string for simctl (e.g. "iOS", "watchOS")
-get_runtime() {
-  local platform_search="$1"
-
-  local sdk_name=""
-  case "$platform_search" in
-    iOS) sdk_name="iphonesimulator" ;;
-    watchOS) sdk_name="watchsimulator" ;;
-    tvOS) sdk_name="appletvsimulator" ;;
-    *visionOS*|*xrOS*) sdk_name="xrsimulator" ;;
-  esac
-
-  local sdk_version=""
-  if [[ -n "$sdk_name" ]]; then
-    sdk_version=$(xcrun --sdk "$sdk_name" --show-sdk-version 2>/dev/null || true)
-  fi
-
-  local available_runtimes
-  available_runtimes=$(
-    xcrun simctl list runtimes |
-      grep -i -E "$platform_search" |
-      grep -v 'unavailable' |
-      grep -o -E 'com\.apple\.CoreSimulator\.SimRuntime\.[a-zA-Z0-9.-]+' || true
-  )
-
-  local runtime=""
-  if [[ -n "$sdk_version" && -n "$available_runtimes" ]]; then
-    local sdk_major="${sdk_version%%.*}"
-    runtime=$(
-      echo "$available_runtimes" |
-        grep -E -- "-${sdk_major}-" |
-        tail -1 || true
-    )
-  fi
-
-  # Fallback to the latest available runtime if a matching SDK runtime is not found.
-  if [[ -z "$runtime" && -n "$available_runtimes" ]]; then
-    runtime=$(echo "$available_runtimes" | tail -1 || true)
-  fi
-
-  echo "$runtime"
-}
-
-# Creates a simulator with the target runtime for a given platform, trying each
-# candidate device type in order until creation succeeds.
-# Arguments:
-#   $1 - Platform search string for simctl (e.g. "iOS", "watchOS")
+#   $1 - Platform name, or `|`-separated alternatives
+#        (e.g. "iOS", "visionOS|xrOS")
 #   $2 - Desired simulator device name (e.g. "Firebase-iPhone-15-Pro")
-#   $3... - One or more candidate simulator device type IDs to try in order
-#           (e.g. "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro")
+#   $3 - Simulator device type ID, or `|`-separated fallbacks in preference
+#        order (e.g. "com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro")
+# Outputs:
+#   Writes progress to stdout and diagnostics to stderr.
 create_sim() {
   local platform_search="$1"
   local sim_name="$2"
-  shift 2
-  local device_types=("$@")
+  local device_types="$3"
 
-  local runtime
-  runtime=$(get_runtime "$platform_search")
+  # Capture the device list before searching it: `simctl ... | grep -q` can
+  # fail with SIGPIPE under `pipefail` when grep exits early, which would read
+  # as "not found" and create a duplicate simulator.
+  local devices
+  devices=$(xcrun simctl list devices available) || return
 
-  if [[ -z "$runtime" ]]; then
-    echo "Error: Could not find runtime for platform '$platform_search'." >&2
-    exit 1
-  fi
-
-  if xcrun simctl list devices | grep -q "$sim_name"; then
+  if grep -qF -- "    ${sim_name} (" <<< "$devices"; then
     echo "Simulator '$sim_name' already exists."
     return 0
   fi
 
-  local device_type
-  for device_type in "${device_types[@]}"; do
-    echo "Creating simulator '$sim_name' ($device_type) with runtime '$runtime'..."
-    if xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null; then
-      return 0
-    fi
-    echo "Warning: Failed to create '$sim_name' with device type" \
-      "'$device_type' and runtime '$runtime'; trying next fallback if" \
-      "available..." >&2
-  done
+  # Select the newest available runtime that supports any requested device
+  # type. On failure, the helper prints the available runtimes and the function
+  # returns non-zero.
+  local selection
+  selection=$(
+    python3 "${SCRIPTS_DIR}/select_simulator_runtime.py" \
+      --platform "$platform_search" \
+      --device-type "$device_types"
+  ) || return
 
-  echo "Error: Could not create simulator '$sim_name' with runtime '$runtime'" \
-    "using any candidate device type: ${device_types[*]}" >&2
-  exit 1
-}
+  local device_type runtime
+  read -r device_type runtime <<< "$selection"
 
-# Returns Vision Pro device type for the target visionOS runtime.
-# Arguments:
-#   $1 - Device type prefix string
-get_vision_device() {
-  local device_prefix="$1"
-  local vision_runtime
-  vision_runtime=$(get_runtime "visionOS|xrOS")
-  if [[ "$vision_runtime" =~ (xrOS|visionOS)-[12]- ]]; then
-    echo "${device_prefix}.Apple-Vision-Pro"
-  else
-    echo "${device_prefix}.Apple-Vision-Pro-4K"
-  fi
+  echo "Creating simulator '$sim_name' ($device_type, $runtime)..."
+  xcrun simctl create "$sim_name" "$device_type" "$runtime" > /dev/null
 }
 
 main() {
@@ -130,18 +77,19 @@ main() {
   )
 
   local device_prefix="com.apple.CoreSimulator.SimDeviceType"
-  local ios_devices=(
-    "${device_prefix}.iPhone-15-Pro"
-    "${device_prefix}.iPhone-Duo"
-  )
+  local ios_devices
+  ios_devices="${device_prefix}.iPhone-15-Pro"
+  ios_devices+="|${device_prefix}.iPhone-Duo"
   local ipad_device="${device_prefix}.iPad-Pro--11-inch---2nd-generation-"
   local watch_device="${device_prefix}.Apple-Watch-Ultra-2-49mm"
   local tv_device="${device_prefix}.Apple-TV-4K-2nd-generation-1080p"
-  local vision_device
+  local vision_devices
+  vision_devices="${device_prefix}.Apple-Vision-Pro-4K"
+  vision_devices+="|${device_prefix}.Apple-Vision-Pro"
 
   case "$platform_clean" in
     ios)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "${ios_devices[@]}"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       ;;
     ipad)
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
@@ -153,22 +101,20 @@ main() {
       create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
       ;;
     visionos|xros)
-      vision_device=$(get_vision_device "$device_prefix")
-      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_devices"
       ;;
     all)
-      vision_device=$(get_vision_device "$device_prefix")
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "${ios_devices[@]}"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       create_sim "iOS" "Firebase-iPad-Pro-11-inch" "$ipad_device"
       create_sim "watchOS" "Firebase-Apple-Watch-Ultra-2" "$watch_device"
       create_sim "tvOS" "Firebase-Apple-TV-4K-Gen-2" "$tv_device"
-      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_device"
+      create_sim "visionOS|xrOS" "Firebase-Apple-Vision-Pro" "$vision_devices"
       ;;
     macos|catalyst|linux|ios-device)
       # No simulator creation needed
       ;;
     *)
-      create_sim "iOS" "Firebase-iPhone-15-Pro" "${ios_devices[@]}"
+      create_sim "iOS" "Firebase-iPhone-15-Pro" "$ios_devices"
       ;;
   esac
 }
