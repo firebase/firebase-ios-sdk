@@ -19,7 +19,7 @@
 /// `over(_:)` on an `AggregateFunction`.
 ///
 /// > Warning: Window Functions SDK features are in preview until the backend feature
-/// > launches. Look for launch announcement at:
+/// > launches. Look for the launch announcement at:
 /// > https://docs.cloud.google.com/firestore/docs/release-notes
 public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
   let bridge: __AggregateFunctionBridge

@@ -235,7 +235,7 @@ public class Pipeline: @unchecked Sendable {
   /// **[Public Preview]** Adds window function results to the output documents of the pipeline.
   ///
   /// > Warning: Window Functions SDK features are in preview until the backend feature
-  /// > launches. Look for launch announcement at:
+  /// > launches. Look for the launch announcement at:
   /// > https://docs.cloud.google.com/firestore/docs/release-notes
   ///
   /// - Parameters:

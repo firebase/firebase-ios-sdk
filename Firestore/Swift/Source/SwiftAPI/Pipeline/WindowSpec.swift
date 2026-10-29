@@ -28,7 +28,7 @@ import Foundation
 /// To pass a variable, use `WindowBound(_:)`.
 ///
 /// > Warning: Window Functions SDK features are in preview until the backend feature
-/// > launches. Look for launch announcement at:
+/// > launches. Look for the launch announcement at:
 /// > https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral, Sendable {
   /// The underlying value of a window frame boundary.
@@ -114,7 +114,7 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
 ///     is `range` from `.unbounded` preceding to `.current`.
 ///
 /// > Warning: Window Functions SDK features are in preview until the backend feature
-/// > launches. Look for launch announcement at:
+/// > launches. Look for the launch announcement at:
 /// > https://docs.cloud.google.com/firestore/docs/release-notes
 public struct WindowSpec: Sendable {
   let groups: [Expression]

@@ -54,7 +54,7 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   ///   on the enclosing `addWindowFields` stage.
   ///
   /// > Warning: Window Functions SDK features are in preview until the backend feature
-  /// > launches. Look for launch announcement at:
+  /// > launches. Look for the launch announcement at:
   /// > https://docs.cloud.google.com/firestore/docs/release-notes
   ///
   /// - Parameter window: The window specification containing the `documents` or `range` frame to evaluate this aggregate over.
