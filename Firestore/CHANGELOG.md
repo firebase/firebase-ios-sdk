@@ -1,4 +1,11 @@
 # Unreleased
+- [feature] Pipeline Search is now Generally Available (GA). (#16945)
+- [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
+  `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
+  decoder has no reference. (#16789)
+- [fixed] Fixed pipelines created from a query with an inclusive cursor, such as
+  `start(atDocument:)` or `end(at:)`, returning the wrong documents at the
+  cursor boundary. (#16795)
 - [fixed] Fixed a memory leak where `@FirestoreQuery` kept its snapshot listener
   active after the view that owned it went away.
 
