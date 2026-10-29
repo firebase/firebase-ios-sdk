@@ -49,23 +49,12 @@ get_runtime() {
 
   local runtime=""
   if [[ -n "$sdk_version" && -n "$available_runtimes" ]]; then
-    if [[ "$sdk_version" =~ ^([0-9]+)\.([0-9]+) ]]; then
-      local sdk_major="${BASH_REMATCH[1]}"
-      local sdk_minor="${BASH_REMATCH[2]}"
-      runtime=$(
-        echo "$available_runtimes" |
-          grep -E -- "-${sdk_major}-${sdk_minor}([^0-9]|$)" |
-          tail -1 || true
-      )
-    fi
-    if [[ -z "$runtime" ]]; then
-      local sdk_major="${sdk_version%%.*}"
-      runtime=$(
-        echo "$available_runtimes" |
-          grep -E -- "-${sdk_major}-" |
-          tail -1 || true
-      )
-    fi
+    local sdk_major="${sdk_version%%.*}"
+    runtime=$(
+      echo "$available_runtimes" |
+        grep -E -- "-${sdk_major}-" |
+        tail -1 || true
+    )
   fi
 
   # Fallback to the latest available runtime if a matching SDK runtime is not found.
