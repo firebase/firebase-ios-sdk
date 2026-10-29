@@ -216,7 +216,7 @@ affected frameworks (see [Fingerprints](how-it-works.md#fingerprints)).
 
 - **`platforms`** (list of platforms, default `["ios", "catalyst", "macos", "tvos", "watchos"]`).
   The release's platforms; every framework is narrowed to them. visionOS is opt-in. `--platforms`
-  takes precedence for one run (CI's quickstart tests build just `ios` on pull requests). Firebase
+  takes precedence for one run (CI's quickstart tests build just `ios,watchos` on pull requests). Firebase
   uses the default.
 - **`deploymentTargets`** (platform → version, default `{}`). Overrides the minimum versions from
   `Package.swift`. Raising iOS raises Mac Catalyst too, unless `catalyst` has its own entry.

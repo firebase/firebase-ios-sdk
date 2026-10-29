@@ -63,9 +63,13 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 240
     env:
-      # The quickstarts only run iOS apps, so pull requests build just iOS; the nightly and manual
-      # runs build every platform, so all of the dynamic zip still gets built regularly.
-      PLATFORMS: ${{ github.event_name == 'pull_request' && 'ios' || 'all' }}
+      # The quickstarts are iOS apps, plus Crashlytics' watchOS extension, so pull requests build
+      # just those platforms; the nightly and manual runs build every platform, so all of the
+      # dynamic zip still gets built regularly.
+      PLATFORMS: ${{ github.event_name == 'pull_request' && 'ios,watchos' || 'all' }}
+      # The same, for cache keys, which can't contain commas. Fingerprints include platforms, so
+      # the two kinds of run never share entries.
+      PLATFORMS_KEY: ${{ github.event_name == 'pull_request' && 'ios-watchos' || 'all' }}
     strategy:
       fail-fast: false
       matrix:
@@ -101,9 +105,9 @@ jobs:
         uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ runner.temp }}/zip-builder-cache
-          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS_KEY }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS_KEY }}-
             ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-frameworks-
 
       - name: Build the zip
@@ -142,7 +146,7 @@ jobs:
         uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: ${{ runner.temp }}/zip-builder-cache
-          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS }}-${{ github.sha }}
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-quickstart-frameworks-${{ matrix.linkage }}-${{ env.PLATFORMS_KEY }}-${{ github.sha }}
 
       # Only the zip: _quickstart.framework.yml unzips every Firebase*latest.zip it downloads.
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
