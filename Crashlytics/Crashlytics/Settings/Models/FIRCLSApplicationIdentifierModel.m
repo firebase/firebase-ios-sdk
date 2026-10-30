@@ -104,7 +104,8 @@
             uuid = FIRCLSMachOGetUUID(cmd);
 
             [executables setObject:FIRCLSUUIDToNSString(uuid) forKey:arch];
-          } else if (type == LC_VERSION_MIN_MACOSX || type == LC_VERSION_MIN_IPHONEOS) {
+          } else if (type == LC_VERSION_MIN_MACOSX || type == LC_VERSION_MIN_IPHONEOS ||
+                     type == LC_BUILD_VERSION) {
             self->_minimumSDK = FIRCLSMachOGetMinimumOSVersion(cmd);
             self->_builtSDK = FIRCLSMachOGetLinkedSDKVersion(cmd);
           }
