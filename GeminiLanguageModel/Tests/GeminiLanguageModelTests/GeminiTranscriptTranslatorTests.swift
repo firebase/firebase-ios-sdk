@@ -850,11 +850,82 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func attachmentLabelIsNotSentToModel() throws {
-      let label = "barcode-image"
+    func attachmentLabelIsSentRightBeforeImage() throws {
       let transcript = Transcript(
         entries: [
-          .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: label)]))
+          .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: "barcode-image")]))
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 2)
+      #expect(parts[0].data == .text("[barcode-image]"))
+      #expect(Self.isJPEGInlineData(parts[1].data))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func attachmentLabelsArePlacedBetweenSurroundingText() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [
+                Self.textSegment("Read both barcodes."),
+                try Self.imageSegment(label: "first-code"),
+                try Self.imageSegment(color: .blue, label: "second-code"),
+                Self.textSegment("Reply briefly."),
+              ]
+            )
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 6)
+      #expect(parts[0].data == .text("Read both barcodes."))
+      #expect(parts[1].data == .text("[first-code]"))
+      #expect(Self.isJPEGInlineData(parts[2].data))
+      #expect(parts[3].data == .text("[second-code]"))
+      #expect(Self.isJPEGInlineData(parts[4].data))
+      #expect(parts[5].data == .text("Reply briefly."))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func onlyLabeledImagesArePrecededByLabels() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(
+            Transcript.Prompt(
+              segments: [
+                try Self.imageSegment(),
+                try Self.imageSegment(color: .blue, label: "labeled"),
+              ]
+            )
+          )
+        ]
+      )
+
+      let result = try GeminiTranscriptTranslator.translate(transcript)
+
+      let parts = try #require(result.contents.first?.parts)
+      #expect(parts.count == 3)
+      #expect(Self.isJPEGInlineData(parts[0].data))
+      #expect(parts[1].data == .text("[labeled]"))
+      #expect(Self.isJPEGInlineData(parts[2].data))
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func emptyAttachmentLabelIsNotSent() throws {
+      let transcript = Transcript(
+        entries: [
+          .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: "")]))
         ]
       )
 
@@ -862,11 +933,7 @@
 
       let parts = try #require(result.contents.first?.parts)
       #expect(parts.count == 1)
-      guard case .inlineData(let blob) = parts[0].data else {
-        Issue.record("Expected inline data, got \(String(describing: parts[0].data)).")
-        return
-      }
-      #expect(blob.displayName == nil)
+      #expect(Self.isJPEGInlineData(parts[0].data))
     }
 
     @Test
