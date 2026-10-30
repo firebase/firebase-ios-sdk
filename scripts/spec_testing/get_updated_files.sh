@@ -37,10 +37,71 @@ cd scripts/spec_testing/updated_files_collector
 # merge commit to the head commit from the target branch.
 git diff --name-only remotes/origin/${GITHUB_BASE_REF} ${GITHUB_SHA} > updated_files.txt
 
-if [ -z $spec_output_file ] ; then
-  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
-else
-  swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}" --exclude-podspecs ${exclude_specs}
+if command -v swift >/dev/null 2>&1; then
+  if [ -z $spec_output_file ] ; then
+    swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json
+  else
+    swift run UpdatedFilesCollector --changed-file-paths updated_files.txt --code-coverage-file-patterns ../file_patterns.json --output-sdk-file-url "${spec_output_file}" --exclude-podspecs ${exclude_specs}
 
-  mv "${spec_output_file}" "${dir}"
+    mv "${spec_output_file}" "${dir}"
+  fi
+else
+  python3 - "$spec_output_file" "$dir" $exclude_specs << 'EOF'
+import json
+import os
+import re
+import sys
+
+spec_output_file = sys.argv[1]
+dest_dir = sys.argv[2]
+exclude_podspecs = set(sys.argv[3:])
+out_path = os.path.abspath(os.path.join(dest_dir, spec_output_file)) if spec_output_file else ""
+github_output = os.environ.get("GITHUB_OUTPUT")
+
+
+def set_output(name, value):
+    # Prefer GitHub Actions environment files; `::set-output` is deprecated.
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as f:
+            f.write(f"{name}={value}\n")
+    else:
+        print(f"::set-output name={name}::{value}")
+
+
+with open("updated_files.txt", "r", encoding="utf-8") as f:
+    changed_file_paths = f.read().splitlines()
+
+with open("../file_patterns.json", "r", encoding="utf-8") as f:
+    code_coverage_file_patterns = json.load(f)
+
+podspecs_with_changed_files = []
+print("=============== list changed files ===============")
+print("\n".join(changed_file_paths))
+
+for sdk_patterns in code_coverage_file_patterns:
+    set_output(f"{sdk_patterns['sdk']}_run_job", "false")
+
+for sdk_patterns in code_coverage_file_patterns:
+    triggered = False
+    for pattern in sdk_patterns["filePatterns"]:
+        regex = re.compile(pattern)
+        for changed_file_path in changed_file_paths:
+            if regex.search(changed_file_path) is not None:
+                print("=============== paths of changed files ===============")
+                set_output(f"{sdk_patterns['sdk']}_run_job", "true")
+                for podspec in sdk_patterns["podspecs"]:
+                    if podspec not in exclude_podspecs:
+                        podspecs_with_changed_files.append({"podspec": podspec})
+                    elif out_path:
+                        print(f"{podspec} was excluded and will not be written in file://{out_path} ")
+                print(f"{sdk_patterns['sdk']}: {changed_file_path} is updated under the pattern, {pattern}")
+                triggered = True
+                break
+        if triggered:
+            break
+
+if out_path:
+    with open(out_path, "w", encoding="utf-8") as f:
+        f.write(json.dumps(podspecs_with_changed_files, separators=(",", ":")))
+EOF
 fi

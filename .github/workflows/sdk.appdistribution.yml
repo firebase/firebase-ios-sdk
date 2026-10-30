@@ -27,7 +27,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: AppDistributionUnit
-      platforms: iOS
+      platforms: '["iOS"]'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseAppDistribution
-      platforms: iOS # App Distro only supports iOS.
+      platforms: '["iOS"]' # App Distro only supports iOS.
 
   appdistribution-cron-only:
     needs: pod_lib_lint
