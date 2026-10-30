@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #if canImport(FoundationModels) && compiler(>=6.4)
+  import CoreGraphics
   import Foundation
   import FoundationModels
   import GeminiAPIClient
@@ -50,6 +51,7 @@
       #expect(model.capabilities.contains(.reasoning))
       #expect(model.capabilities.contains(.guidedGeneration))
       #expect(model.capabilities.contains(.toolCalling))
+      #expect(model.capabilities.contains(.vision))
     }
 
     @Test
@@ -120,6 +122,54 @@
       let response = try await session.respond(to: "Hello")
 
       #expect(response.content == "Hello world from Gemini!")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondWithImageAttachmentSendsInlineData() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "red"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        if let body = request.httpBodyData,
+          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        {
+          receivedRequest.withLock { $0 = decoded }
+        }
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let image = try TestImages.solid(.red, width: 32, height: 32)
+      let session = LanguageModelSession(model: model)
+
+      let response = try await session.respond {
+        "What color is this image?"
+        Attachment(image)
+      }
+
+      #expect(response.content == "red")
+      let capturedRequest = try #require(receivedRequest.withLock { $0 })
+      let parts = try #require(capturedRequest.contents?.first?.parts)
+      #expect(parts.count == 2)
+      #expect(parts[0].data == .text("What color is this image?"))
+      guard case .inlineData(let blob) = parts[1].data else {
+        Issue.record("Expected inline data, got \(String(describing: parts[1].data)).")
+        return
+      }
+      #expect(blob.mimeType == "image/jpeg")
+      let decodedImage = try TestImages.decode(try #require(blob.data))
+      #expect(decodedImage.width == 32)
+      #expect(try TestImages.quadrantColors(of: decodedImage).topLeft == .red)
     }
 
     @Test
