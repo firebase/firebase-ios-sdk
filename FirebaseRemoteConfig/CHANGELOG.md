@@ -4,6 +4,9 @@
 - [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values
   that can't be converted to JSON, such as dates or data. These defaults are now skipped and
   an error is logged. (#16797)
+- [fixed] `@RemoteConfigProperty` now uses the in-app default value, or its
+  fallback value, after an activation removes its key, instead of keeping the
+  previous remote value. (#16816)
 
 # 13.1.0
 - [fixed] Fixed a crash when the Remote Config fetch response contains a

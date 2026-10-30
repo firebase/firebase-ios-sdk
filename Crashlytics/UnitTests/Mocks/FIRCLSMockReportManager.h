@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRCLSMockReportManager : FIRCLSReportManager
 
+@property(nonatomic, assign) NSUInteger beginSettingsCallCount;
+@property(nonatomic, assign) BOOL beginSettingsCalledOnMainThread;
+
 @end
 
 NS_ASSUME_NONNULL_END
