@@ -756,12 +756,14 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
   // Send active rollout metadata stored in persistence while app launched if there is activeConfig
-  NSString *fullyQualifiedNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
-  NSDictionary<NSString *, NSDictionary *> *activeConfig = self->_configContent.activeConfig;
-  if (activeConfig[fullyQualifiedNamespace] && activeConfig[fullyQualifiedNamespace].count > 0) {
-    [self notifyRolloutsStateChange:self->_configContent.activeRolloutMetadata
-                      versionNumber:self->_settings.lastActiveTemplateVersion];
-  }
+  dispatch_async(_queue, ^{
+    NSString *fullyQualifiedNamespace = [self fullyQualifiedNamespace:self->_FIRNamespace];
+    NSDictionary<NSString *, NSDictionary *> *activeConfig = self->_configContent.activeConfig;
+    if (activeConfig[fullyQualifiedNamespace] && activeConfig[fullyQualifiedNamespace].count > 0) {
+      [self notifyRolloutsStateChange:self->_configContent.activeRolloutMetadata
+                        versionNumber:self->_settings.lastActiveTemplateVersion];
+    }
+  });
 }
 
 - (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata

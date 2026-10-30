@@ -215,16 +215,19 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     if (remoteConfig) {
       FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
 
+      dispatch_queue_t rolloutsQueue = dispatch_queue_create(
+          "com.google.firebase.FIRCLSRolloutsPersistence", DISPATCH_QUEUE_SERIAL);
       FIRCLSRolloutsPersistenceManager *persistenceManager =
-          [[FIRCLSRolloutsPersistenceManager alloc]
-              initWithFileManager:_fileManager
-                         andQueue:dispatch_queue_create(
-                                      "com.google.firebase.FIRCLSRolloutsPersistence",
-                                      DISPATCH_QUEUE_SERIAL)];
+          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager
+                                                               andQueue:rolloutsQueue];
       _remoteConfigManager =
           [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
                                               persistenceDelegate:persistenceManager];
-          [remoteConfig registerRolloutsStateSubscriber:self for:FIRRemoteConfigConstants.FIRNamespaceGoogleMobilePlatform];
+      dispatch_async(rolloutsQueue, ^{
+        [remoteConfig registerRolloutsStateSubscriber:self
+                                                  for:FIRRemoteConfigConstants
+                                                          .FIRNamespaceGoogleMobilePlatform];
+      });
     }
   }
   return self;

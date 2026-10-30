@@ -7,6 +7,9 @@
 - [fixed] `@RemoteConfigProperty` now uses the in-app default value, or its
   fallback value, after an activation removes its key, instead of keeping the
   previous remote value. (#16816)
+- [fixed] Fixed main-thread blocking during `FirebaseApp.configure()` when
+  Crashlytics subscribes to rollouts, and made Remote Config instance creation
+  thread-safe (#16736).
 
 # 13.1.0
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
