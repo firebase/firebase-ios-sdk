@@ -3,8 +3,7 @@ description: Creates a simulator for the specified platform using the active Xco
 inputs:
   platform:
     description: 'Platform (iOS, tvOS, watchOS, visionOS, all)'
-    required: false
-    default: 'all'
+    required: true
 runs:
   using: 'composite'
   steps:
