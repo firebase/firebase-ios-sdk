@@ -1092,6 +1092,10 @@ extension User: NSSecureCoding {}
     _uid = ""
     _hasEmailPasswordCredential = false
     requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
+    super.init()
+    #if os(iOS) || os(macOS)
+      _multiFactor.user = self
+    #endif
   }
 
   class func retrieveUser(withAuth auth: Auth,

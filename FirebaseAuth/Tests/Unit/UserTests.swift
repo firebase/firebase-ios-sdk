@@ -459,6 +459,15 @@ class UserTests: RPCBaseTests {
       XCTAssertTrue(user.multiFactor.user === user)
     }
 
+    /** @fn testInitLinksMultiFactorToUser
+        @brief Tests that a new user's `MultiFactor` refers back to the user before the first
+            account refresh, as it does for a decoded user.
+     */
+    func testInitLinksMultiFactorToUser() {
+      let user = User(withTokenService: makeTokenService(), backend: authBackend)
+      XCTAssertTrue(user.multiFactor.user === user)
+    }
+
     /** @fn testDecodingWithoutMultiFactorLinksMultiFactorToUser
         @brief Tests that a user archived without a multi-factor value, as macOS versions before
             12.2.0 saved it, decodes with a `MultiFactor` that refers back to the user. Without
