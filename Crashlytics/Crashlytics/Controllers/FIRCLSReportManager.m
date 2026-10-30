@@ -283,10 +283,10 @@ typedef NSNumber FIRCLSWrappedReportAction;
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
 
-    [self beginSettingsWithToken:dataCollectionToken];
-
     promise = [reportProfilingPromise onQueue:_dispatchQueue
                                          then:^id _Nullable(id _Nullable value) {
+                                           [self beginSettingsWithToken:dataCollectionToken];
+
                                            [self beginReportUploadsWithToken:dataCollectionToken
                                                                 blockingSend:launchFailure];
 

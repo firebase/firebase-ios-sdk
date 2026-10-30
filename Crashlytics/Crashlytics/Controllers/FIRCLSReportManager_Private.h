@@ -16,6 +16,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSLaunchMarkerModel.h"
 
+@class FIRCLSDataCollectionToken;
 @class FIRCLSInstallIdentifierModel;
 
 @interface FIRCLSReportManager ()
@@ -28,5 +29,7 @@
 @interface FIRCLSReportManager (PrivateMethods)
 
 @property(nonatomic, strong) FIRCLSLaunchMarkerModel *launchMarker;
+
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token;
 
 @end
