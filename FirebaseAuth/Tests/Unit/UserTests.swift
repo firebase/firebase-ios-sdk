@@ -434,6 +434,55 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  #if os(iOS) || os(macOS)
+    /** @fn testUpdateWithoutMFAInfoClearsEnrolledFactors
+        @brief Tests that a refresh whose response has no `mfaInfo`, as after the last second
+            factor is unenrolled on another device, clears the user's enrolled factors.
+     */
+    func testUpdateWithoutMFAInfoClearsEnrolledFactors() throws {
+      let user = User(withTokenService: makeTokenService(), backend: authBackend)
+      let mfaInfo: [[String: AnyHashable]] = [[
+        "totpInfo": [String: AnyHashable](),
+        "mfaEnrollmentId": "enrollmentID",
+      ]]
+      let enrolledUser: [String: AnyHashable] = ["localId": kLocalID, "mfaInfo": mfaInfo]
+      try user.update(withGetAccountInfoResponse: GetAccountInfoResponse(dictionary: [
+        "users": [enrolledUser],
+      ]))
+      XCTAssertEqual(user.multiFactor.enrolledFactors.count, 1)
+
+      let unenrolledUser: [String: AnyHashable] = ["localId": kLocalID]
+      try user.update(withGetAccountInfoResponse: GetAccountInfoResponse(dictionary: [
+        "users": [unenrolledUser],
+      ]))
+      XCTAssertEqual(user.multiFactor.enrolledFactors.count, 0)
+      XCTAssertTrue(user.multiFactor.user === user)
+    }
+
+    /** @fn testDecodingWithoutMultiFactorLinksMultiFactorToUser
+        @brief Tests that a user archived without a multi-factor value, as macOS versions before
+            12.2.0 saved it, decodes with a `MultiFactor` that refers back to the user. Without
+            that reference, enrolling or unenrolling a factor crashes.
+     */
+    func testDecodingWithoutMultiFactorLinksMultiFactorToUser() throws {
+      let archiver = NSKeyedArchiver(requiringSecureCoding: true)
+      archiver.encode(kLocalID, forKey: "userID")
+      archiver.encode(makeTokenService(), forKey: "tokenService")
+      archiver.finishEncoding()
+
+      let unarchiver = try NSKeyedUnarchiver(forReadingFrom: archiver.encodedData)
+      let user = try XCTUnwrap(User(coder: unarchiver))
+      XCTAssertTrue(user.multiFactor.user === user)
+    }
+
+    private func makeTokenService() -> SecureTokenService {
+      return SecureTokenService(withRequestConfiguration: nil,
+                                accessToken: RPCBaseTests.kFakeAccessToken,
+                                accessTokenExpirationDate: Date().addingTimeInterval(3600),
+                                refreshToken: kRefreshToken)
+    }
+  #endif
+
   /** @fn testUpdateEmailSuccess
       @brief Tests the flow of a successful @c updateEmail:completion: call.
    */

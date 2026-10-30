@@ -1393,9 +1393,8 @@ extension User: NSSecureCoding {}
       }
       _providerData = providerData
       #if os(iOS) || os(macOS)
-        if let enrollments = user.mfaEnrollments {
-          _multiFactor = MultiFactor(withMFAEnrollments: enrollments)
-        }
+        // A response without `mfaInfo` means the user has no enrolled factors.
+        _multiFactor = MultiFactor(withMFAEnrollments: user.mfaEnrollments ?? [])
         _multiFactor.user = self
       #endif
     }
@@ -1945,7 +1944,7 @@ extension User: NSSecureCoding {}
     #if os(iOS) || os(macOS)
       _multiFactor = multiFactor ?? MultiFactor()
       super.init()
-      multiFactor?.user = self
+      _multiFactor.user = self
     #endif
   }
 }
