@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed a crash when processing a report whose binary image records
+  contain a non-numeric `base` or `size`. (#16519)
 - [fixed] Fixed a potential crash in the x86_64 crash handler's stack-scanning fallback when
   the captured stack pointer is unreadable. (#16799)
 - [fixed] Improved robustness when parsing malformed settings from the server
