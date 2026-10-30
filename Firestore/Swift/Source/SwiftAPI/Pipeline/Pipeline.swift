@@ -657,8 +657,6 @@ public class Pipeline: @unchecked Sendable {
 
   /// Adds a search stage to the Pipeline.
   ///
-  /// - Note: This API is in beta.
-  ///
   /// - Important: This must be the first stage of the pipeline.
   /// - Note: A limited set of expressions are supported in the search stage.
   ///

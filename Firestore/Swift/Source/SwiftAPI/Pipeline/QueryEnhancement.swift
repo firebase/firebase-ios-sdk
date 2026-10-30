@@ -15,8 +15,6 @@
 import Foundation
 
 /// Represents the query enhancement to be used in a search stage.
-///
-/// - Note: This API is in beta.
 // TODO(search): enable with backend support
 struct QueryEnhancement: Sendable, Equatable, Hashable {
   let kind: Kind
