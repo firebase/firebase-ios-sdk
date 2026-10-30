@@ -1923,6 +1923,27 @@ static NSString *UTCToLocal(NSString *utcTime) {
   XCTAssertEqualObjects(messages, (@[ @{@"latestTemplateVersionNumber" : @"5"} ]));
 }
 
+- (void)testRealtimeStreamHandlesUTF8CharacterSplitAcrossReads {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+  NSURLSession *session = [_configFetch[RCNTestRCInstanceDefault] currentNetworkSession];
+  NSURLSessionDataTask *dataTask = nil;
+  // Split U+00E9 ('é', UTF-8 0xC3 0xA9) across two network reads.
+  const unsigned char firstRead[] = {'[', '{', '"', 'k', 'e', 'y', '"', ':', '"', 0xC3};
+  const unsigned char secondRead[] = {0xA9, '"', '}'};
+
+  [_configRealtime[RCNTestRCInstanceDefault] URLSession:session
+                                               dataTask:dataTask
+                                         didReceiveData:[NSData dataWithBytes:firstRead
+                                                                       length:sizeof(firstRead)]];
+  XCTAssertEqualObjects(messages, @[]);
+  [_configRealtime[RCNTestRCInstanceDefault] URLSession:session
+                                               dataTask:dataTask
+                                         didReceiveData:[NSData dataWithBytes:secondRead
+                                                                       length:sizeof(secondRead)]];
+
+  XCTAssertEqualObjects(messages, (@[ @{@"key" : @"é"} ]));
+}
+
 - (void)testRealtimeStreamHandlesSeveralMessagesInOneRead {
   NSMutableArray *messages = [self recordEvaluatedStreamMessages];
 
@@ -1974,7 +1995,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
   OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
 
   [self receiveStreamData:@"[{\"featureDisabled\": true},"
-                          @"{\"latestTemplateVersionNumber\": \"5\"}"];
+                          @"{\"latestTemplateVersionNumber\": \"5\"},"];
+  [self receiveStreamData:@"{\"latestTemplateVersionNumber\": \"6\"}]"];
 
   OCMVerify(times(1), [configRealtime evaluateStreamResponse:[OCMArg any] error:[OCMArg any]]);
 }

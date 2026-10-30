@@ -630,17 +630,18 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
-  NSError *dataError;
-  NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  if (!strData) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000083",
-                @"Ignoring realtime stream data that is not valid UTF-8.");
+  if (_isRealtimeDisabled) {
+    [_pendingStreamData setLength:0];
     return;
   }
+
+  NSError *dataError;
+  NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
   /// If response data contains the API enablement link, return the entire message to the user in
   /// the form of a error.
   if ([strData containsString:kServerForbiddenStatusCode]) {
+    [_pendingStreamData setLength:0];
     NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                                          code:FIRRemoteConfigUpdateErrorStreamError
                                      userInfo:@{NSLocalizedDescriptionKey : strData}];
@@ -728,6 +729,7 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   _isRequestInProgress = false;
+  [_pendingStreamData setLength:0];
   if (error != nil && [error code] != NSURLErrorCancelled) {
     [self->_settings updateRealtimeExponentialBackoffTime];
   }
