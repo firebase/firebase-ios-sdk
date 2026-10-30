@@ -35,9 +35,12 @@ import Foundation
     /// The identifier of the second factor.
     @objc public let factorID: String
 
-    init(proto: AuthProtoMFAEnrollment, factorID: String) {
+    /// Returns `nil` if the enrollment has no enrollment ID.
+    init?(proto: AuthProtoMFAEnrollment, factorID: String) {
       guard let uid = proto.mfaEnrollmentID else {
-        fatalError("Auth Internal Error: Failed to initialize MFA: missing enrollment ID")
+        AuthLog.logWarning(code: "I-AUT000035",
+                           message: "Ignoring a second factor enrollment without an enrollment ID.")
+        return nil
       }
       self.uid = uid
       self.factorID = factorID

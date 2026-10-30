@@ -78,7 +78,7 @@ static NSString *const kLifecycleEventPrefix = @"_";
 }
 
 - (void)setExpireExperimentEventName:(NSString *)expireExperimentEventName {
-  if (expireExperimentEventName && [_timeoutExperimentEventName hasPrefix:kLifecycleEventPrefix]) {
+  if (expireExperimentEventName && [expireExperimentEventName hasPrefix:kLifecycleEventPrefix]) {
     _expireExperimentEventName = expireExperimentEventName;
   } else {
     _expireExperimentEventName = FIRExpireExperimentEventName;

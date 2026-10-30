@@ -1,3 +1,13 @@
+# Unreleased
+- [fixed] Improved robustness when parsing malformed in-app messaging campaign
+  fetch responses, cached campaigns, and persisted impressions. (#16728)
+- [fixed] Fixed an issue where cached In-App Messaging engagement logs from a previous app
+  session could be dropped instead of uploaded when the SDK started. (#16803)
+
+# 13.1.0
+- [fixed] Released the display gate and removed unconstructable messages so a card
+  without images no longer blocks subsequent in-app messages. (#16819)
+
 # 13.0.0
 - [fixed] Fixed an issue where universal links were not correctly routed in apps utilizing scene
   delegates. (#16083)

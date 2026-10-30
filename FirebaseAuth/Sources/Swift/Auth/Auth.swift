@@ -1006,8 +1006,14 @@ extension Auth: AuthInterop {
           let response = try await self.backend.call(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
-          guard let email = response.email else {
-            fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
+          let email: String
+          if let responseEmail = response.email {
+            email = responseEmail
+          } else if operation == .emailLink {
+            // The backend doesn't return an email address for email sign-in codes.
+            email = ""
+          } else {
+            throw AuthErrorUtils.unexpectedResponse(deserializedResponse: response)
           }
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
@@ -1303,6 +1309,8 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     @objc(initializeRecaptchaConfigWithCompletion:)
     open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
       Task {
@@ -1323,11 +1331,19 @@ extension Auth: AuthInterop {
     ///
     /// If you change the tenant ID of the `Auth` instance, the configuration will be
     /// reloaded.
+    ///
+    /// If reCAPTCHA isn't enabled for any provider, this only loads the configuration.
     open func initializeRecaptchaConfig() async throws {
-      // Trigger recaptcha verification flow to initialize the recaptcha client and
-      // config. Recaptcha token will be returned.
       let verifier = AuthRecaptchaVerifier.shared(auth: self)
-      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+      try await verifier.retrieveRecaptchaConfig(forceRefresh: true)
+      // Like the web SDK, only initialize the reCAPTCHA client when a provider uses reCAPTCHA.
+      // Otherwise there's no site key and nothing to initialize.
+      guard verifier.isAnyProviderEnabled() else {
+        return
+      }
+      // Trigger recaptcha verification flow to initialize the recaptcha client. Recaptcha token
+      // will be returned.
+      _ = try await verifier.verify(forceRefresh: false, action: AuthRecaptchaAction.defaultAction)
     }
   #endif
 
@@ -1343,6 +1359,9 @@ extension Auth: AuthInterop {
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
+  ///
+  /// If `Auth` is still loading the persisted user at startup, the initial invocation happens
+  /// after loading has finished.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
@@ -1368,7 +1387,7 @@ extension Auth: AuthInterop {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    listenerHandles.remove(listenerHandle)
+    listenerHandles.removeAll { $0 === listenerHandle }
   }
 
   /// Registers a block as an "ID token did change" listener.
@@ -1384,6 +1403,9 @@ extension Auth: AuthInterop {
   /// making sure the block does not inadvertently retain objects which should not be retained by
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
+  ///
+  /// If `Auth` is still loading the persisted user at startup, the initial invocation happens
+  /// after loading has finished.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
   /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
@@ -1398,11 +1420,23 @@ extension Auth: AuthInterop {
         listener(auth, auth._currentUser)
       }
     }
-    objc_sync_enter(Auth.self)
-    listenerHandles.add(listener)
-    objc_sync_exit(Auth.self)
-    DispatchQueue.main.async {
-      listener(self, self._currentUser)
+    do {
+      objc_sync_enter(Auth.self)
+      defer { objc_sync_exit(Auth.self) }
+      listenerHandles.append(handle)
+    }
+    // Go through the serial work queue first, so the initial call runs after work that is
+    // already queued, such as loading the persisted user at startup. Otherwise a listener added
+    // right after `FirebaseApp.configure()` could get `nil` before the signed-in user is loaded.
+    // Then read the user when the call runs on the main queue, like the notification observer
+    // above. Otherwise a change in between, such as `signOut()`, could be followed by a call with
+    // the old user. `currentUser` reads `_currentUser` on the work queue.
+    kAuthGlobalWorkQueue.async { [weak self] in
+      guard self != nil else { return }
+      DispatchQueue.main.async { [weak self] in
+        guard let self else { return }
+        listener(self, self.currentUser)
+      }
     }
     return handle
   }
@@ -1412,8 +1446,8 @@ extension Auth: AuthInterop {
   @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
-    listenerHandles.remove(listenerHandle)
-    objc_sync_exit(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    listenerHandles.removeAll { $0 === listenerHandle }
   }
 
   /// Sets `languageCode` to the app's current language.
@@ -1753,13 +1787,11 @@ extension Auth: AuthInterop {
 
   deinit {
     let defaultCenter = NotificationCenter.default
-    while listenerHandles.count > 0 {
-      let handleToRemove = listenerHandles.lastObject
-      defaultCenter.removeObserver(handleToRemove as Any)
-      listenerHandles.removeLastObject()
+    for listenerHandle in listenerHandles {
+      defaultCenter.removeObserver(listenerHandle)
     }
 
-    #if os(iOS)
+    #if os(iOS) || os(tvOS)
       defaultCenter.removeObserver(applicationDidBecomeActiveObserver as Any,
                                    name: UIApplication.didBecomeActiveNotification,
                                    object: nil)
@@ -1907,6 +1939,10 @@ extension Auth: AuthInterop {
     guard let accessToken = _currentUser?.rawAccessToken() else {
       return
     }
+    // Bound the delay before any use. A delay from an expiration date that isn't finite or is too
+    // far in the future would otherwise crash the conversion to `Int`, or postpone the refresh for
+    // too long. Such a delay becomes 0, which refreshes the token right away.
+    let delay = AuthTokenLifetime.boundedRefreshDelay(delay)
     let intDelay = Int(ceil(delay))
     if retry {
       AuthLog.logInfo(code: "I-AUT000003", message: "Token auto-refresh re-scheduled in " +
@@ -2407,5 +2443,5 @@ extension Auth: AuthInterop {
   /// change" notification listeners.
   ///
   /// Mutations should occur within a @synchronized(self) context.
-  private var listenerHandles: NSMutableArray = []
+  private var listenerHandles: [NSObjectProtocol] = []
 }
