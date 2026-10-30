@@ -356,6 +356,77 @@ class HeartbeatControllerTests: XCTestCase {
     )
   }
 
+  func testLogWithAgentProvider_CallsProviderOnceAndLogsItsAgent() throws {
+    // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let controller = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { date }
+    )
+    let providerCallCount = UnfairLock(0)
+
+    // When
+    controller.log(agentProvider: {
+      providerCallCount.withLock { $0 += 1 }
+      return "dummy_agent"
+    })
+    let heartbeatPayload = controller.flush()
+
+    // Then
+    XCTAssertEqual(providerCallCount.value(), 1)
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatPayload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+
+    assertHeartbeatControllerFlushesEmptyPayload(controller)
+  }
+
+  func testLogWithAgentProvider_WhenHeartbeatWasAlreadyLoggedToday_DoesNotCallProvider() throws {
+    // Given
+    let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
+    let controller = HeartbeatController(
+      storage: HeartbeatStorageFake(),
+      dateProvider: { date }
+    )
+    let providerCallCount = UnfairLock(0)
+    controller.log("dummy_agent")
+
+    // When
+    controller.log(agentProvider: {
+      providerCallCount.withLock { $0 += 1 }
+      return "some_other_agent"
+    })
+    let heartbeatPayload = controller.flush()
+
+    // Then
+    XCTAssertEqual(providerCallCount.value(), 0)
+    try HeartbeatLoggingTestUtils.assertEqualPayloadStrings(
+      heartbeatPayload.headerValue(),
+      """
+      {
+        "version": 2,
+        "heartbeats": [
+          {
+            "agent": "dummy_agent",
+            "dates": ["2021-11-01"]
+          }
+        ]
+      }
+      """
+    )
+  }
+
   func testFlushHeartbeatFromToday_WhenTodayHasAHeartbeat_ReturnsPayloadWithOnlyTodaysHeartbeat() throws {
     // Given
     let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01 @ 00:00:00 (EST)
