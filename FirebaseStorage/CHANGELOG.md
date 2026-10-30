@@ -1,6 +1,10 @@
-# 13.1.0
+# Unreleased
+- [fixed] Fixed a memory leak where `StorageUploadTask` and `StorageDownloadTask` objects, and the
+  data being uploaded, were never released after `cancel()` or, for downloads, `pause()`. (#16841)
 - [fixed] Prevented duplicate upload and download requests when resuming a task before its initial
   request setup has completed. (#16771)
+
+# 13.1.0
 - [fixed] Fixed a race where an observer added while an upload or download task was completing
   could be called twice for the success or failure event. This could crash `putDataAsync`,
   `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)

@@ -80,6 +80,26 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
     XCTAssertEqual(requestCount.value, 1)
   }
 
+  func testUploadResumeDuringProgressDoesNotFireResumeEvent() async throws {
+    let resumeInverted = expectation(description: "Resume event should not fire during progress")
+    resumeInverted.isInverted = true
+    let task = StorageUploadTask(
+      reference: rootReference().child("object"),
+      queue: DispatchQueue(label: "test"),
+      data: Data("upload".utf8),
+      metadata: StorageMetadata()
+    )
+    task.stateLock.withLock {
+      task.state = .progress
+    }
+    task.observe(.resume) { _ in
+      resumeInverted.fulfill()
+    }
+    task.resume()
+    await fulfillment(of: [resumeInverted], timeout: 0.2)
+    XCTAssertEqual(task.stateLock.withLock { task.state }, .progress)
+  }
+
   func testUploadResumeDiscardsEarlierSetup() async throws {
     try await uploadResumeDiscardsEarlierSetup(pauseFirst: true)
   }

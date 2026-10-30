@@ -122,6 +122,7 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
     }
 
     let shouldEnqueue = stateLock.withLock { () -> Bool in
+      guard generation == enqueueGeneration else { return false }
       if state == .cancelled || state == .paused || state == .pausing { return false }
       state = .running
       return true
@@ -293,59 +294,72 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement, @u
       fetcher.stopFetching()
       return
     }
-    do {
-      let data = try await fetcher.beginFetch()
-      let isCancelled = stateLock.withLock { state == .cancelled }
-      if isCancelled { return }
+    startFetch(with: fetcher, generation: generation)
+  }
 
-      var progressSnapshot: StorageTaskSnapshot?
-      var successSnapshot: StorageTaskSnapshot?
-
-      stateLock.withLock {
-        guard generation == enqueueGeneration else { return }
-        if state == .cancelled { return }
-
-        state = .progress
-        progressSnapshot = snapshotUnderLock()
-
-        state = .success
-        downloadData = data
-        successSnapshot = snapshotUnderLock()
+  /// Starts `fetcher` with a completion handler rather than `try await fetcher.beginFetch()`.
+  /// Stopping the fetcher in `cancel()` or `pause()` releases the completion handler without
+  /// calling it, which would leave an awaiting task suspended forever, retaining this task.
+  private func startFetch(with fetcher: GTMSessionFetcher, generation: UInt64) {
+    fetcher.beginFetch { data, error in
+      if let error {
+        self.fetchDidFail(with: error, generation: generation)
+      } else {
+        self.fetchDidSucceed(with: data ?? Data(), generation: generation)
       }
+    }
+  }
 
-      if let progressSnapshot {
-        fire(for: .progress, snapshot: progressSnapshot)
-      }
-      if let successSnapshot {
-        fire(for: .success, snapshot: successSnapshot)
-        removeAllObservers()
-      }
-    } catch {
-      var progressSnapshot: StorageTaskSnapshot?
-      var failureSnapshot: StorageTaskSnapshot?
+  private func fetchDidSucceed(with data: Data, generation: UInt64) {
+    var progressSnapshot: StorageTaskSnapshot?
+    var successSnapshot: StorageTaskSnapshot?
 
-      stateLock.withLock {
-        guard generation == enqueueGeneration else { return }
-        if state == .cancelled || state == .paused || state == .pausing { return }
+    stateLock.withLock {
+      guard generation == enqueueGeneration else { return }
+      if state == .cancelled { return }
 
-        state = .progress
-        progressSnapshot = snapshotUnderLock()
+      state = .progress
+      progressSnapshot = snapshotUnderLock()
 
-        state = .failed
-        self.error = StorageErrorCode.error(
-          withServerError: error as NSError,
-          ref: reference
-        )
-        failureSnapshot = snapshotUnderLock()
-      }
+      state = .success
+      downloadData = data
+      successSnapshot = snapshotUnderLock()
+    }
 
-      if let progressSnapshot {
-        fire(for: .progress, snapshot: progressSnapshot)
-      }
-      if let failureSnapshot {
-        fire(for: .failure, snapshot: failureSnapshot)
-        removeAllObservers()
-      }
+    if let progressSnapshot {
+      fire(for: .progress, snapshot: progressSnapshot)
+    }
+    if let successSnapshot {
+      fire(for: .success, snapshot: successSnapshot)
+      removeAllObservers()
+    }
+  }
+
+  private func fetchDidFail(with error: Error, generation: UInt64) {
+    var progressSnapshot: StorageTaskSnapshot?
+    var failureSnapshot: StorageTaskSnapshot?
+
+    stateLock.withLock {
+      guard generation == enqueueGeneration else { return }
+      if state == .cancelled || state == .paused || state == .pausing { return }
+
+      state = .progress
+      progressSnapshot = snapshotUnderLock()
+
+      state = .failed
+      self.error = StorageErrorCode.error(
+        withServerError: error as NSError,
+        ref: reference
+      )
+      failureSnapshot = snapshotUnderLock()
+    }
+
+    if let progressSnapshot {
+      fire(for: .progress, snapshot: progressSnapshot)
+    }
+    if let failureSnapshot {
+      fire(for: .failure, snapshot: failureSnapshot)
+      removeAllObservers()
     }
   }
 
