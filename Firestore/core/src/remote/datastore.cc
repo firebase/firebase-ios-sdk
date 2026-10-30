@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/datastore.h"
 
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -380,8 +381,8 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   auto credentials = std::make_shared<CallCredentials>();
 
   auto done = [weak_this, credentials, on_credentials](
-                  const absl::optional<StatusOr<AuthToken>>& auth,
-                  const absl::optional<std::string>& app_check) {
+                  const std::optional<StatusOr<AuthToken>>& auth,
+                  const std::optional<std::string>& app_check) {
     auto strong_this = weak_this.lock();
     if (!strong_this) {
       return;
@@ -421,11 +422,11 @@ void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {
   };
 
   auth_credentials_->GetToken(
-      [done](const StatusOr<AuthToken>& auth) { done(auth, absl::nullopt); });
+      [done](const StatusOr<AuthToken>& auth) { done(auth, std::nullopt); });
 
   app_check_credentials_->GetToken(
       [done](const StatusOr<std::string>& app_check) {
-        done(absl::nullopt, app_check.ValueOrDie());  // AppCheck never fails
+        done(std::nullopt, app_check.ValueOrDie());  // AppCheck never fails
       });
 }
 

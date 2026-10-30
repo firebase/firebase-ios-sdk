@@ -21,8 +21,6 @@ import Foundation
 
 /// Represents the relevance score of a document against the search query.
 ///
-/// - Note: This API is in beta.
-///
 /// Example usage:
 /// ```swift
 /// firestore.pipeline().collection("restaurants")
@@ -32,7 +30,7 @@ import Foundation
 /// )
 /// ```
 public struct Score: Expression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
+  public let bridge: __ExprBridge
 
   public init() {
     let funcExpr = FunctionExpression(functionName: "score", args: [])

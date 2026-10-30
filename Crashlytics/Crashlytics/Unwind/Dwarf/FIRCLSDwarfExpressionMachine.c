@@ -401,32 +401,33 @@ static bool FIRCLSDwarfExpressionMachineExecute_swap(FIRCLSDwarfExpressionMachin
 
 static bool FIRCLSDwarfExpressionMachineExecute_deref_size(FIRCLSDwarfExpressionMachine *machine) {
   // pop stack, dereference variable sized value, push result
-  const void *address = (const void *)FIRCLSDwarfExpressionMachineStackPop(machine);
+  const intptr_t address = FIRCLSDwarfExpressionMachineStackPop(machine);
   const uint8_t readSize = FIRCLSParseUint8AndAdvance(&machine->dataCursor);
-  intptr_t value = 0;
 
-  FIRCLSSDKLog("DW_OP_deref_size %p size %u\n", address, readSize);
+  FIRCLSSDKLog("DW_OP_deref_size %p size %u\n", (void *)address, readSize);
 
   switch (readSize) {
     case 1:
-      value = FIRCLSParseUint8AndAdvance(&address);
-      break;
     case 2:
-      value = FIRCLSParseUint16AndAdvance(&address);
-      break;
     case 4:
-      value = FIRCLSParseUint32AndAdvance(&address);
-      break;
     case 8:
-      // this is a little funky, as an 8 here really doesn't make sense for 32-bit platforms
-      value = (intptr_t)FIRCLSParseUint64AndAdvance(&address);
+      // 8 is a little funky, as it really doesn't make sense for 32-bit platforms
       break;
     default:
       FIRCLSSDKLog("Error: unrecognized DW_OP_deref_size argument %x\n", readSize);
       return false;
   }
 
-  return FIRCLSDwarfExpressionMachineStackPush(machine, value);
+  // The address is popped off the expression stack, so it is fully controlled by
+  // the CFI program. Read it through the validated path like DW_OP_deref does
+  // instead of dereferencing it directly.
+  uint64_t buffer = 0;
+  if (!FIRCLSReadMemory(address, &buffer, readSize)) {
+    FIRCLSSDKLog("Error: DW_OP_deref_size failed to read memory\n");
+    return false;
+  }
+
+  return FIRCLSDwarfExpressionMachineStackPush(machine, (intptr_t)buffer);
 }
 
 static bool FIRCLSDwarfExpressionMachineExecute_ne(FIRCLSDwarfExpressionMachine *machine) {

@@ -78,4 +78,39 @@
   // all the messages should be gone here
   XCTAssertEqual(0, storage.records.count);
 }
+
+- (void)testHasStillValidRecordsDoesNotRemoveRecords {
+  id<FIRIAMTimeFetcher> mockTimeFetcher = OCMProtocolMock(@protocol(FIRIAMTimeFetcher));
+  NSInteger logExpiresInSeconds = 20;
+  NSInteger eventTimestamp = 1000;
+
+  // A cache path without a file, so that the storage starts out empty.
+  NSString *cachePath =
+      [NSTemporaryDirectory() stringByAppendingPathComponent:[NSUUID UUID].UUIDString];
+  FIRIAMClearcutLogStorage *storage =
+      [[FIRIAMClearcutLogStorage alloc] initWithExpireAfterInSeconds:logExpiresInSeconds
+                                                     withTimeFetcher:mockTimeFetcher
+                                                           cachePath:cachePath];
+  XCTAssertFalse([storage hasStillValidRecords]);
+
+  FIRIAMClearcutLogRecord *expiredRecord =
+      [[FIRIAMClearcutLogRecord alloc] initWithExtensionJsonString:@"json string"
+                                           eventTimestampInSeconds:eventTimestamp];
+  FIRIAMClearcutLogRecord *validRecord =
+      [[FIRIAMClearcutLogRecord alloc] initWithExtensionJsonString:@"json string"
+                                           eventTimestampInSeconds:eventTimestamp + 10];
+  [storage pushRecords:@[ expiredRecord ]];
+
+  // with this stub, only the record with event timestamp as eventTimestamp + 10 is still valid
+  OCMStub([mockTimeFetcher currentTimestampInSeconds])
+      .andReturn(eventTimestamp + logExpiresInSeconds + 1);
+  XCTAssertFalse([storage hasStillValidRecords]);
+
+  [storage pushRecords:@[ validRecord ]];
+  XCTAssertTrue([storage hasStillValidRecords]);
+
+  // checking does not consume any records
+  XCTAssertEqual(2, storage.records.count);
+  XCTAssertEqual(1, [storage popStillValidRecordsForUpTo:10].count);
+}
 @end

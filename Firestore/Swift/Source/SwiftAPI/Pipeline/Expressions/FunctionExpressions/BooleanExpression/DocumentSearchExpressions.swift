@@ -21,8 +21,6 @@ import Foundation
 
 /// A full-text search against all indexed search fields in the document.
 ///
-/// - Note: This API is in beta.
-///
 /// Note: This expression can only be used in the `search` stage.
 ///
 /// Example usage in a `search` stage:
@@ -32,7 +30,7 @@ import Foundation
 ///   .search(query: DocumentMatches("waffles OR pancakes"))
 /// ```
 public struct DocumentMatches: BooleanExpression, BridgeWrapper, @unchecked Sendable {
-  public let bridge: ExprBridge
+  public let bridge: __ExprBridge
 
   /// Creates a document search expression.
   /// - Parameters:

@@ -23,6 +23,8 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
+using testutil::Decimal128;
+using testutil::Int32;
 using testutil::Value;
 
 using Type = TransformOperation::Type;
@@ -37,28 +39,85 @@ TEST(TransformOperationsTest, ServerTimestamp) {
   EXPECT_NE(transform, other);
 }
 
-TEST(TransformOperationsTest, Minimum) {
-  NumericMinimumTransform transform(Value(1));
-  EXPECT_EQ(Type::Minimum, transform.type());
+TEST(TransformOperationsTest, NumericIncrement) {
+  NumericIncrementTransform transform(Value(1));
+  EXPECT_EQ(Type::Increment, transform.type());
+  EXPECT_EQ(transform.operand(), *Value(1));
 
-  NumericMinimumTransform another(Value(1));
-  NumericMinimumTransform different(Value(2));
-  NumericIncrementTransform other(Value(1));
-  EXPECT_EQ(transform, another);
-  EXPECT_NE(transform, different);
-  EXPECT_NE(transform, other);
+  NumericIncrementTransform dup(Value(1));
+  NumericIncrementTransform other_val(Value(2));
+  NumericIncrementTransform int32_transform(Int32(1));
+  NumericIncrementTransform d128_transform(Decimal128("1.0"));
+
+  EXPECT_EQ(transform, dup);
+  EXPECT_NE(transform, other_val);
+  EXPECT_NE(transform, int32_transform);
+  EXPECT_NE(transform, d128_transform);
+  EXPECT_NE(transform, ServerTimestampTransform());
+
+  EXPECT_EQ(transform.Hash(), dup.Hash());
+  EXPECT_FALSE(transform.ToString().empty());
+
+  TransformOperation op = transform;
+  NumericIncrementTransform recovered(op);
+  EXPECT_EQ(recovered, transform);
+  EXPECT_EQ(recovered.operand(), *Value(1));
 }
 
-TEST(TransformOperationsTest, Maximum) {
-  NumericMaximumTransform transform(Value(1));
-  EXPECT_EQ(Type::Maximum, transform.type());
+TEST(TransformOperationsTest, NumericMinimum) {
+  NumericMinimumTransform transform(Value(5));
+  EXPECT_EQ(Type::Minimum, transform.type());
+  EXPECT_EQ(transform.operand(), *Value(5));
 
-  NumericMaximumTransform another(Value(1));
-  NumericMaximumTransform different(Value(2));
-  NumericMinimumTransform other(Value(1));
-  EXPECT_EQ(transform, another);
-  EXPECT_NE(transform, different);
-  EXPECT_NE(transform, other);
+  NumericMinimumTransform dup(Value(5));
+  NumericMinimumTransform other_val(Value(10));
+  NumericMinimumTransform int32_transform(Int32(5));
+  NumericMinimumTransform d128_transform(Decimal128("5.0"));
+  NumericIncrementTransform inc_transform(Value(5));
+
+  EXPECT_EQ(transform, dup);
+  EXPECT_NE(transform, other_val);
+  EXPECT_NE(transform, int32_transform);
+  EXPECT_NE(transform, d128_transform);
+  EXPECT_NE(transform, inc_transform);
+  EXPECT_NE(transform, ServerTimestampTransform());
+
+  EXPECT_EQ(transform.Hash(), dup.Hash());
+  EXPECT_FALSE(transform.ToString().empty());
+
+  TransformOperation op = transform;
+  NumericMinimumTransform recovered(op);
+  EXPECT_EQ(recovered, transform);
+  EXPECT_EQ(recovered.operand(), *Value(5));
+}
+
+TEST(TransformOperationsTest, NumericMaximum) {
+  NumericMaximumTransform transform(Value(10));
+  EXPECT_EQ(Type::Maximum, transform.type());
+  EXPECT_EQ(transform.operand(), *Value(10));
+
+  NumericMaximumTransform dup(Value(10));
+  NumericMaximumTransform other_val(Value(20));
+  NumericMaximumTransform int32_transform(Int32(10));
+  NumericMaximumTransform d128_transform(Decimal128("10.0"));
+  NumericMinimumTransform min_transform(Value(10));
+  NumericIncrementTransform inc_transform(Value(10));
+
+  EXPECT_EQ(transform, dup);
+  EXPECT_NE(transform, other_val);
+  EXPECT_NE(transform, int32_transform);
+  EXPECT_NE(transform, d128_transform);
+  EXPECT_NE(transform, min_transform);
+  EXPECT_NE(transform, inc_transform);
+  EXPECT_NE(transform, ServerTimestampTransform());
+
+  EXPECT_EQ(transform.Hash(), dup.Hash());
+  EXPECT_FALSE(transform.ToString().empty());
+
+  TransformOperation op = transform;
+  NumericMaximumTransform recovered(op);
+  EXPECT_EQ(recovered, transform);
+  EXPECT_EQ(recovered.operand(), *Value(10));
 }
 
 // TODO(mikelehen): Add ArrayTransform test once it no longer depends on

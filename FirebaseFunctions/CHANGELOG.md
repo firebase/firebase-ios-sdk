@@ -1,3 +1,15 @@
+# 13.1.0
+- [fixed] Fixed callable streams failing with "Unexpected format for streamed
+  response." when the server sends SSE comment lines, such as the `: ping`
+  heartbeat emitted during long-running streaming functions. (#16605)
+
+# 12.19.0
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection
+  when tokens are present will now explicitly fail with an `unauthenticated` error
+  instead of silently omitting the tokens and proceeding. (#16536)
+- [added] Added a DEBUG-only `allowInsecureTokenAttachment` property on `Functions` to
+  allow insecure token attachment over HTTP for physical device testing. (#16536)
+
 # 12.17.0
 - [fixed] Resolved a concurrency resource leak in Functions stream cancellation. (#16392)
 - [changed] Enforced stricter transport layer security when using the emulator:

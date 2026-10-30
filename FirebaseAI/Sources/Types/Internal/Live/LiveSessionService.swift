@@ -15,12 +15,6 @@
 import Foundation
 import os.log
 
-// TODO: remove @preconcurrency when we update to Swift 6
-// for context, see
-// https://forums.swift.org/t/why-does-sending-a-sendable-value-risk-causing-data-races/73074
-@preconcurrency import FirebaseAppCheckInterop
-@preconcurrency import FirebaseAuthInterop
-
 /// Facilitates communication with the backend for a ``LiveSession``.
 ///
 /// Using an actor will make it easier to adopt session resumption, as we have an isolated place for
@@ -45,7 +39,7 @@ actor LiveSessionService {
   let apiConfig: APIConfig
   let firebaseInfo: FirebaseInfo
   let requestOptions: RequestOptions
-  let tools: [Tool]?
+  let tools: [GenerativeModel.Tool]?
   let toolConfig: ToolConfig?
   let systemInstruction: ModelContent?
 
@@ -67,7 +61,7 @@ actor LiveSessionService {
        urlSession: URLSession,
        apiConfig: APIConfig,
        firebaseInfo: FirebaseInfo,
-       tools: [Tool]?,
+       tools: [GenerativeModel.Tool]?,
        toolConfig: ToolConfig?,
        systemInstruction: ModelContent?,
        requestOptions: RequestOptions) {
@@ -170,7 +164,10 @@ actor LiveSessionService {
 
     do {
       for try await message in stream {
-        let response = try decodeServerMessage(message)
+        guard let response = try decodeServerMessage(message) else {
+          // Unsupported message types are logged by `decodeServerMessage` and ignored.
+          continue
+        }
         if case .setupComplete = response.messageType {
           break
         } else {
@@ -247,7 +244,11 @@ actor LiveSessionService {
               logServerMessage(message)
             }
           #endif
-          let response = try decodeServerMessage(message)
+          guard let response = try decodeServerMessage(message) else {
+            // Unsupported message types are logged by `decodeServerMessage` and ignored, rather
+            // than finishing the `responses` stream with an error.
+            continue
+          }
 
           if case .setupComplete = response.messageType {
             AILog.debug(
@@ -331,26 +332,36 @@ actor LiveSessionService {
 
   /// Decodes a message from the server's websocket into a valid `BidiGenerateContentServerMessage`.
   ///
-  /// Will throw an error if decoding fails.
-  private func decodeServerMessage(_ message: Data) throws -> BidiGenerateContentServerMessage {
+  /// Returns `nil` if the server sent a message type that this version of the SDK doesn't support.
+  /// Such messages are logged and should be ignored, rather than terminating the session, so that
+  /// new server message types don't break existing apps.
+  ///
+  /// Will throw an error if decoding fails for any other reason (e.g., a malformed message).
+  ///
+  /// > Note: This method is `internal`, instead of `private`, to allow for unit testing.
+  func decodeServerMessage(_ message: Data) throws -> BidiGenerateContentServerMessage? {
     do {
       return try jsonDecoder.decode(
         BidiGenerateContentServerMessage.self,
         from: message
       )
-    } catch {
+    } catch is InvalidMessageTypeError {
       // only log the json if it wasn't a decoding error, but an unsupported message type
-      if error is InvalidMessageTypeError {
-        AILog.error(
-          code: .liveSessionUnsupportedMessage,
-          "The server sent a message that we don't currently have a mapping for."
-        )
-        AILog.debug(
-          code: .liveSessionUnsupportedMessagePayload,
-          message.encodeToJsonString() ?? "\(message)"
-        )
-      }
-
+      AILog.warning(
+        code: .liveSessionUnsupportedMessage,
+        """
+        Ignoring a message from the server with an unsupported type; top-level keys: \
+        \(message.topLevelJSONKeys). Check for updates to the SDK as support for this message \
+        type may have been added; see release notes at \
+        https://firebase.google.com/support/release-notes/ios
+        """
+      )
+      AILog.debug(
+        code: .liveSessionUnsupportedMessagePayload,
+        message.encodeToJsonString() ?? "\(message)"
+      )
+      return nil
+    } catch {
       throw LiveSessionUnsupportedMessageError(underlyingError: error)
     }
   }
@@ -394,42 +405,7 @@ actor LiveSessionService {
     }
     var urlRequest = URLRequest(url: url)
     urlRequest.timeoutInterval = requestOptions.timeout
-    urlRequest.setValue(firebaseInfo.apiKey, forHTTPHeaderField: "x-goog-api-key")
-    if let bundleID = Bundle.main.bundleIdentifier {
-      urlRequest.setValue(bundleID, forHTTPHeaderField: "x-ios-bundle-identifier")
-    }
-    urlRequest.setValue(
-      "\(GenerativeAIService.languageTag) \(GenerativeAIService.firebaseVersionTag)",
-      forHTTPHeaderField: "x-goog-api-client"
-    )
-    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-    if let appCheck = firebaseInfo.appCheck {
-      let tokenResult = try await appCheck.fetchAppCheckToken(
-        limitedUse: firebaseInfo.useLimitedUseAppCheckTokens,
-        domain: "LiveSessionService"
-      )
-      urlRequest.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-      if let error = tokenResult.error {
-        AILog.error(
-          code: .appCheckTokenFetchFailed,
-          "Failed to fetch AppCheck token. Error: \(error)"
-        )
-      }
-    }
-
-    if let auth = firebaseInfo.auth, let authToken = try await auth.getToken(
-      forcingRefresh: false
-    ) {
-      urlRequest.setValue("Firebase \(authToken)", forHTTPHeaderField: "Authorization")
-    }
-
-    if firebaseInfo.app.isDataCollectionDefaultEnabled {
-      urlRequest.setValue(firebaseInfo.firebaseAppID, forHTTPHeaderField: "X-Firebase-AppId")
-      if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-        urlRequest.setValue(appVersion, forHTTPHeaderField: "X-Firebase-AppVersion")
-      }
-    }
+    try await firebaseInfo.applyHeaders(to: &urlRequest)
 
     return AsyncWebSocket(urlSession: urlSession, urlRequest: urlRequest)
   }
@@ -448,6 +424,16 @@ private extension Data {
     } catch {
       return nil
     }
+  }
+
+  /// The keys of the top-level json object that this data represents, sorted alphabetically.
+  ///
+  /// Will return an empty array if this data doesn't represent a valid json object.
+  var topLevelJSONKeys: [String] {
+    guard let object = try? JSONSerialization.jsonObject(with: self) as? [String: Any] else {
+      return []
+    }
+    return object.keys.sorted()
   }
 }
 

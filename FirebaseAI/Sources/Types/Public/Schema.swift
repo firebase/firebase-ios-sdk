@@ -500,3 +500,93 @@ extension Schema: Equatable {
       lhs.propertyOrdering == rhs.propertyOrdering
   }
 }
+
+// MARK: - JSON Schema Conversion
+
+extension Schema {
+  /// Returns a JSON Schema representation of this `Schema` as a `JSONObject`.
+  ///
+  /// The returned schema follows Gemini's JSON Schema guidelines for structured outputs:
+  /// - Data types are lowercased strings.
+  /// - Nullable schemas use a `["<type>", "null"]` array representation for `"type"`.
+  /// - Objects include `"additionalProperties": false` and a `"required"` array.
+  /// - `"enum"` is used for string enumeration values, omitting the legacy `"format": "enum"`; a
+  ///   nullable enumeration also includes `null` in the `"enum"` array.
+  /// - Nested `properties`, `items`, and `anyOf` schemas are recursively converted.
+  ///
+  /// - Returns: A `JSONObject` representing this schema in Gemini-compatible JSON Schema format.
+  func toJSONSchema() -> JSONObject {
+    var json: JSONObject = [:]
+
+    if let dataType {
+      let typeName = dataType.rawValue.lowercased()
+      if nullable == true {
+        json["type"] = .array([.string(typeName), .string("null")])
+      } else {
+        json["type"] = .string(typeName)
+      }
+    }
+
+    if let title {
+      json["title"] = .string(title)
+    }
+
+    if let description {
+      json["description"] = .string(description)
+    }
+
+    // `enumeration(values:description:title:nullable:)` sets `format` to "enum" for the OpenAPI
+    // representation; JSON Schema expresses enumerations using the `enum` keyword alone.
+    if let format, enumValues == nil {
+      json["format"] = .string(format)
+    }
+
+    if let enumValues {
+      var values: [JSONValue] = enumValues.map { .string($0) }
+      // In JSON Schema, `enum` is an independent assertion: the instance must equal one of the
+      // listed values. Widening `type` with "null" is not sufficient to permit null, so `null` must
+      // be a permitted `enum` value as well.
+      if nullable == true {
+        values.append(.null)
+      }
+      json["enum"] = .array(values)
+    }
+
+    if let minimum {
+      json["minimum"] = .number(minimum)
+    }
+
+    if let maximum {
+      json["maximum"] = .number(maximum)
+    }
+
+    if let items {
+      json["items"] = .object(items.toJSONSchema())
+    }
+
+    if let minItems {
+      json["minItems"] = .number(Double(minItems))
+    }
+
+    if let maxItems {
+      json["maxItems"] = .number(Double(maxItems))
+    }
+
+    if dataType == .object || properties != nil {
+      if let properties {
+        json["properties"] = .object(properties.mapValues { .object($0.toJSONSchema()) })
+      }
+      json["required"] = .array((requiredProperties ?? []).map { .string($0) })
+      json["additionalProperties"] = .bool(false)
+      if let propertyOrdering {
+        json["propertyOrdering"] = .array(propertyOrdering.map { .string($0) })
+      }
+    }
+
+    if let anyOf {
+      json["anyOf"] = .array(anyOf.map { .object($0.toJSONSchema()) })
+    }
+
+    return json
+  }
+}

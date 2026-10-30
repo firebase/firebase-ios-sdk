@@ -272,19 +272,25 @@
 }
 
 - (void)testServerTimestampsWorkViaTransactionSet {
+  [_listenerRegistration remove];
+  _listenerRegistration = nil;
+
   [self runTransactionBlock:^(FIRTransaction *transaction) {
     [transaction setData:self->_setData forDocument:self->_docRef];
   }];
 
-  [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
+  [self verifySnapshotWithResolvedTimestamps:[self readDocumentForRef:_docRef]];
 }
 
 - (void)testServerTimestampsWorkViaTransactionUpdate {
   [self writeInitialData];
+  [_listenerRegistration remove];
+  _listenerRegistration = nil;
+
   [self runTransactionBlock:^(FIRTransaction *transaction) {
     [transaction updateData:self->_updateData forDocument:self->_docRef];
   }];
-  [self verifySnapshotWithResolvedTimestamps:[_accumulator awaitRemoteEvent]];
+  [self verifySnapshotWithResolvedTimestamps:[self readDocumentForRef:_docRef]];
 }
 
 - (void)testServerTimestampsFailViaUpdateOnNonexistentDocument {

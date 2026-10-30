@@ -1,6 +1,28 @@
 # Unreleased
+- [fixed] Fixed a memory leak where `StorageUploadTask` and `StorageDownloadTask` objects, and the
+  data being uploaded, were never released after `cancel()` or, for downloads, `pause()`. (#16841)
+- [fixed] Prevented duplicate upload and download requests when resuming a task before its initial
+  request setup has completed. (#16771)
+
+# 13.1.0
+- [fixed] Fixed a race where an observer added while an upload or download task was completing
+  could be called twice for the success or failure event. This could crash `putDataAsync`,
+  `putFileAsync`, and `writeAsync` when called with an `onProgress` handler. (#16813)
+- [fixed] Fixed `Storage.hash` depending on `callbackQueue`, which made equal `Storage` and
+  `StorageReference` instances hash differently and changed their hashes when `callbackQueue`
+  was set, breaking lookups in sets and dictionaries. (#16794)
+- [fixed] Fixed a memory leak in `StorageReference.listAll(completion:)` where the completion
+  handler, anything it captured, and partially listed results were never released after the
+  listing failed. (#16814)
+
+# 12.19.0
 - [fixed] Fixed an issue where constructing a download URL could fail or produce
   an invalid path if the storage bucket name contained special characters. (#16529)
+- [changed] Requests directed to the local emulator over a non-loopback HTTP connection
+  when tokens are present will now explicitly fail with an `unauthenticated`
+  error instead of silently omitting the tokens and proceeding. (#16536)
+- [added] Added a DEBUG-only `allowInsecureTokenAttachment` property on `Storage` to
+  allow insecure token attachment over HTTP for physical device testing. (#16536)
 
 # 12.17.0
 - [changed] Enforced stricter transport layer security when using the emulator: Auth and AppCheck

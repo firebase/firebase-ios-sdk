@@ -136,7 +136,7 @@ final class PartsRepresentableTests: XCTestCase {
     XCTAssertEqual(dataPart, inlineData)
   }
 
-  #if canImport(UIKit)
+  #if canImport(UIKit) && !os(visionOS)
     func testMixedParts_withImage() throws {
       let text = "This is a test"
       let image = try XCTUnwrap(UIImage(systemName: "star"))

@@ -362,7 +362,7 @@
         "enrolledAt": "2023-01-01T00:00:00Z",
       ]
       let proto = AuthProtoMFAEnrollment(dictionary: dictionary)
-      let mfi = PhoneMultiFactorInfo(proto: proto)
+      let mfi = try XCTUnwrap(PhoneMultiFactorInfo(proto: proto))
 
       let session = MultiFactorSession(mfaCredential: "pending-credential")
       session.multiFactorInfo = mfi
@@ -1019,6 +1019,9 @@
       @unchecked Sendable {
       weak var delegate: UIApplicationDelegate?
       var applicationState: UIApplication.State = .active
+      // Test targets are not built for app extensions, so `shared` is available
+      // here where it is not in the SDK. See `AuthNotificationApplication`.
+      var applicationForDelegate: UIApplication { .shared }
       @MainActor func registerForRemoteNotifications() {}
     }
 

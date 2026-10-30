@@ -24,13 +24,7 @@ import Testing
 @Suite(.serialized)
 struct CountTokensIntegrationTests {
   let generationConfig = GenerationConfig(
-    temperature: 1.2,
-    topP: 0.95,
-    topK: 32,
-    candidateCount: 1,
     maxOutputTokens: 8192,
-    presencePenalty: 1.5,
-    frequencyPenalty: 1.75,
     stopSequences: ["cat", "dog", "bird"]
   )
   let safetySettings = [

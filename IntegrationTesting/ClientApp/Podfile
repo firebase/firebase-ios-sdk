@@ -29,6 +29,5 @@ target 'ClientApp-CocoaPods' do
   pod 'FirebaseSessions', :path => '../../'
   pod 'FirebaseStorage', :path => '../../'
   pod 'FirebasePerformance', :path => '../../'
-  pod 'FirebaseMLModelDownloader', :path => '../../'
   pod 'Firebase', :path => '../../'
 end

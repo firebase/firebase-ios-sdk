@@ -17,6 +17,7 @@
 #include "Firestore/core/src/model/patch_mutation.h"
 
 #include <cstdlib>
+#include <optional>
 #include <set>
 #include <utility>
 
@@ -96,9 +97,9 @@ void PatchMutation::Rep::ApplyToRemoteDocument(
       .SetHasCommittedMutations();
 }
 
-absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(
+std::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(
     MutableDocument& document,
-    absl::optional<FieldMask> previous_mask,
+    std::optional<FieldMask> previous_mask,
     const Timestamp& local_write_time) const {
   VerifyKeyMatches(document);
 
@@ -113,7 +114,7 @@ absl::optional<FieldMask> PatchMutation::Rep::ApplyToLocalView(
   document.ConvertToFoundDocument(document.version()).SetHasLocalMutations();
 
   if (!previous_mask.has_value()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   std::set<FieldPath> merged_set(previous_mask.value().begin(),
@@ -134,7 +135,7 @@ TransformMap PatchMutation::Rep::GetPatch() const {
       if (value) {
         result[path] = DeepClone(*value);
       } else {
-        result[path] = absl::nullopt;
+        result[path] = std::nullopt;
       }
     }
   }

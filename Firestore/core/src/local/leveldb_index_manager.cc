@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <unordered_set>
@@ -439,7 +440,7 @@ std::vector<model::FieldIndex> LevelDbIndexManager::GetFieldIndexes() const {
   return result;
 }
 
-absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
+std::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
     const core::Target& target) const {
   HARD_ASSERT(started_, "IndexManager not started");
 
@@ -451,10 +452,10 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   std::vector<FieldIndex> collection_indexes =
       GetFieldIndexes(collection_group);
   if (collection_indexes.empty()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
-  absl::optional<FieldIndex> result;
+  std::optional<FieldIndex> result;
   for (FieldIndex index : collection_indexes) {
     if (target_index_matcher.ServedByIndex(index)) {
       if (!result.has_value() ||
@@ -540,7 +541,7 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
   const auto sub_targets = GetSubTargets(target);
 
   for (const Target& sub_target : sub_targets) {
-    absl::optional<model::FieldIndex> index = GetFieldIndex(sub_target);
+    std::optional<model::FieldIndex> index = GetFieldIndex(sub_target);
     if (!index) {
       result = IndexManager::IndexType::NONE;
       break;
@@ -563,13 +564,13 @@ IndexManager::IndexType LevelDbIndexManager::GetIndexType(
   return result;
 }
 
-absl::optional<std::vector<model::DocumentKey>>
+std::optional<std::vector<model::DocumentKey>>
 LevelDbIndexManager::GetDocumentsMatchingTarget(const core::Target& target) {
   std::vector<std::pair<core::Target, model::FieldIndex>> indexes;
   for (const auto& sub_target : GetSubTargets(target)) {
     auto index_opt = GetFieldIndex(sub_target);
     if (!index_opt.has_value()) {
-      return absl::nullopt;
+      return std::nullopt;
     }
     indexes.emplace_back(sub_target, index_opt.value());
   }
@@ -754,10 +755,10 @@ std::vector<LevelDbIndexManager::IndexRange> LevelDbIndexManager::CreateRange(
   return ranges;
 }
 
-absl::optional<std::string>
-LevelDbIndexManager::GetNextCollectionGroupToUpdate() const {
+std::optional<std::string> LevelDbIndexManager::GetNextCollectionGroupToUpdate()
+    const {
   if (next_index_to_update_.empty()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return next_index_to_update_.top()->collection_group();
@@ -832,7 +833,7 @@ std::set<IndexEntry> LevelDbIndexManager::ComputeIndexEntries(
   std::set<IndexEntry> results;
 
   auto directional_value = EncodeDirectionalElements(index, document);
-  if (directional_value == absl::nullopt) {
+  if (directional_value == std::nullopt) {
     return results;
   }
 
@@ -858,13 +859,13 @@ std::set<IndexEntry> LevelDbIndexManager::ComputeIndexEntries(
   return results;
 }
 
-absl::optional<std::string> LevelDbIndexManager::EncodeDirectionalElements(
+std::optional<std::string> LevelDbIndexManager::EncodeDirectionalElements(
     const FieldIndex& index, const model::Document& document) {
   IndexEncodingBuffer index_buffer;
   for (const auto& segment : index.GetDirectionalSegments()) {
     auto field = document->field(segment.field_path());
     if (!field.has_value()) {
-      return absl::nullopt;
+      return std::nullopt;
     }
     index::WriteIndexValue(field.value(), index_buffer.ForKind(segment.kind()));
   }

@@ -1,6 +1,68 @@
 # Unreleased
+- [fixed] Fixed a memory leak where removed auth state and ID token listeners,
+  and the objects they captured, stayed in memory for as long as the `Auth`
+  instance existed. This also affected the `authStateChanges` and
+  `idTokenChanges` sequences. (#16938)
+- [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
+- [fixed] Fixed `checkActionCode` returning an `ActionCodeInfo` whose
+  `operation` was always `.unknown`, a regression in 11.12.0. (#16950)
+- [fixed] Fixed a crash in `checkActionCode` for email sign-in codes, a
+  regression in 11.0.0. `ActionCodeInfo.email` is empty for these codes,
+  because the server doesn't return their email address. (#16963)
+- [fixed] Fixed a data race that could crash an app that reads `User.metadata`
+  or `User.multiFactor` while a reload, link, or profile update finishes on
+  another thread. (#16975)
+- [fixed] Fixed `User.multiFactor` still listing enrolled factors after a
+  reload when all of them were unenrolled on another device, a regression in
+  11.0.0. (#16976)
+- [fixed] Fixed a crash when enrolling or unenrolling a second factor on macOS
+  for a user saved by a version earlier than 12.2.0. (#16976)
+
+# 13.1.0
+- [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
+- [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.
+- [fixed] Fixed a crash by safely skipping malformed account provider
+  entries. (#16745)
+- [fixed] Fixed an issue where the first call of an auth state or ID token
+  listener could report no user while the stored user was still loading.
+  (#16853)
+- [fixed] Improved robustness when parsing malformed reCAPTCHA config and
+  backend error details from the server. (#16728)
+- [fixed] When reCAPTCHA isn't enabled for any provider,
+  `initializeRecaptchaConfig()` now only loads the configuration and returns
+  without an error, matching the web SDK. (#16757)
+- [fixed] Fixed an issue where a user could be signed out after a request was
+  rejected with `INVALID_ID_TOKEN` or `TOKEN_EXPIRED`, even though the session
+  was still valid. Auth now refreshes the token to check the session first.
+  (#16854)
+- [fixed] Fixed a crash loop when the backend sent a very large token
+  lifetime (`expiresIn`). Token lifetimes outside of (0, 24 h] now fall back
+  to one hour, and invalid saved expiration dates are ignored. (#16866)
+- [fixed] Fixed crashes when the backend sent a multi-factor enrollment
+  without an enrollment ID, or a TOTP enrollment response without a shared
+  secret key. Such enrollments are now skipped, and such TOTP responses fail
+  with an error. (#16904)
+- [fixed] Fixed a data race in the APNs token manager that could leave a phone
+  number verification waiting indefinitely, or make it fall back to reCAPTCHA
+  unnecessarily, when it overlapped with another verification or with the APNs
+  token arriving. (#16902)
+
+# 13.0.0
+- [fixed] Fixed a timeout race in the APNs token manager that could leave concurrent phone
+  authentication requests waiting indefinitely.
+- [changed] Replaced a force-unwrapped error with a safe fallback during Game
+  Center authentication. (#16136)
+
+# 12.19.0
+- [fixed] Fixed a build error in app extensions introduced in 12.18.0, where
+  `AuthNotificationManager` referenced `UIApplication.shared` directly. (#16583)
+- [fixed] Fixed a persistent crash when interacting with App Check under some
+  Swift toolchains (like the Flutter SDK) by avoiding a compiler bug in Swift
+  concurrency thunk generation. (#16549)
 - [fixed] Fixed an issue on iOS 15+ where users were randomly logged out during
   prewarming while the device was locked. (#16498)
+- [fixed] Fixed an issue with a transitive import in the logger, which could cause
+  a build error in explicit module mode. (#16563)
 
 # 12.18.0
 - [fixed] Fixed a bug in `PhoneAuthProvider` where the test mode logic would

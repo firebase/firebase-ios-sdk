@@ -66,12 +66,13 @@ struct FunctionsContextProvider: Sendable {
   }
 
   private func getAppCheckToken(options: HTTPSCallableOptions?) async -> String? {
-    guard
-      options?.requireLimitedUseAppCheckTokens != true,
-      let tokenResult = await appCheck?.getToken(forcingRefresh: false)
-    else { return nil }
-    // The placeholder token should be used in the case of App Check error.
-    return tokenResult.token
+    guard options?.requireLimitedUseAppCheckTokens != true, let appCheck else { return nil }
+
+    return await withCheckedContinuation { continuation in
+      appCheck.getToken(forcingRefresh: false) { result in
+        continuation.resume(returning: result.token)
+      }
+    }
   }
 
   private func getLimitedUseAppCheckToken(options: HTTPSCallableOptions?) async -> String? {

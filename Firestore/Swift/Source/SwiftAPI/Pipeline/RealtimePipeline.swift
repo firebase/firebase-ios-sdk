@@ -92,13 +92,13 @@ struct PipelineListenOptions: Sendable, Equatable, Hashable {
 struct RealtimePipeline: @unchecked Sendable {
   private var stages: [Stage]
 
-  let bridge: RealtimePipelineBridge
+  let bridge: __RealtimePipelineBridge
   let db: Firestore
 
   init(stages: [Stage], db: Firestore) {
     self.stages = stages
     self.db = db
-    bridge = RealtimePipelineBridge(stages: stages.map { $0.bridge }, db: db)
+    bridge = __RealtimePipelineBridge(stages: stages.map { $0.bridge }, db: db)
   }
 
   struct Snapshot: Sendable {

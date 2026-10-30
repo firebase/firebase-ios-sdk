@@ -124,9 +124,10 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     return NO;
   }
 
-  // Check whether locale has changed, if yes, token needs to be updated with server for locale
-  // information.
-  if (FIRMessagingHasLocaleChanged()) {
+  // Check whether locale has changed. The new FID registration API does not track or send locale
+  // information (and bypasses the checkin API that persists it in user defaults), so locale
+  // changes only invalidate cached tokens in legacy checkin-based registration.
+  if (!isInstallationIdEnabled && FIRMessagingHasLocaleChanged()) {
     FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
                             @"Invalidating cached token due to locale change");
     return NO;
@@ -160,7 +161,6 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  BOOL needsMigration = NO;
   // These value cannot be nil
 
   NSString *authorizedEntity = [aDecoder decodeObjectOfClass:[NSString class]
@@ -186,29 +186,53 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   NSString *firebaseAppID = [aDecoder decodeObjectOfClass:[NSString class]
                                                    forKey:kFIRInstanceIDFirebaseAppIDKey];
 
-  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingAPNSInfo.class ]];
-  FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
-                                                               forKey:kFIRInstanceIDAPNSInfoKey];
-  if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
-    // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
-    // FirebaseMessaging 10.18.0 or earlier.
-    // TODO(#12246) This block may be replaced with `rawAPNSInfo = nil` once we're confident all
-    // users have upgraded to at least 10.19.0. Perhaps, after privacy manifests have been required
-    // for awhile?
+  // `apns_info` has two on-disk shapes. FirebaseMessaging 10.19.0 and later encode APNSInfo
+  // directly. 10.18.0 and earlier wrote a nested NSKeyedArchiver blob instead. Older versions could
+  // also persist a mutable token (NSMutableData), so allowlist both NSData and NSMutableData.
+  NSSet *APNSInfoClasses =
+      [NSSet setWithObjects:FIRMessagingAPNSInfo.class, NSData.class, NSMutableData.class, nil];
+  id decodedAPNSInfo = [aDecoder decodeObjectOfClasses:APNSInfoClasses
+                                                forKey:kFIRInstanceIDAPNSInfoKey];
+
+  FIRMessagingAPNSInfo *rawAPNSInfo = nil;
+  BOOL needsMigration = NO;
+  if ([decodedAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
+    rawAPNSInfo = decodedAPNSInfo;
+  } else if ([decodedAPNSInfo isKindOfClass:[NSData class]]) {
+    // A 10.18.0-or-earlier record. The nested blob names the class `FIRInstanceIDAPNSInfo`, so
+    // map it the same way FIRMessagingTokenStore maps `FIRInstanceIDTokenInfo` on the outer
+    // archive. Secure coding stays on: the blob was written insecurely, but FIRMessagingAPNSInfo
+    // conforms to NSSecureCoding, so it can still be read under the strict decoder.
+    NSError *APNSInfoError = nil;
+    NSKeyedUnarchiver *APNSInfoUnarchiver = nil;
+    BOOL caughtException = NO;
     @try {
-      NSKeyedUnarchiver *unarchiver =
-          [[NSKeyedUnarchiver alloc] initForReadingFromData:(NSData *)rawAPNSInfo error:nil];
-      unarchiver.requiresSecureCoding = NO;
-      [unarchiver setClass:[FIRMessagingAPNSInfo class] forClassName:@"FIRInstanceIDAPNSInfo"];
-      rawAPNSInfo = [unarchiver decodeObjectForKey:NSKeyedArchiveRootObjectKey];
-      [unarchiver finishDecoding];
-      needsMigration = YES;
+      APNSInfoUnarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:decodedAPNSInfo
+                                                                       error:&APNSInfoError];
+      if (APNSInfoUnarchiver) {
+        APNSInfoUnarchiver.requiresSecureCoding = YES;
+        [APNSInfoUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                        forClassName:@"FIRInstanceIDAPNSInfo"];
+        rawAPNSInfo = [APNSInfoUnarchiver decodeObjectOfClass:[FIRMessagingAPNSInfo class]
+                                                       forKey:NSKeyedArchiveRootObjectKey];
+        [APNSInfoUnarchiver finishDecoding];
+      }
     } @catch (NSException *exception) {
       FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
-                             @"Could not parse raw APNS Info while parsing archived token info.");
+                             @"Exception decoding APNS info archived by FirebaseMessaging 10.18.0 "
+                             @"or earlier: %@",
+                             exception);
       rawAPNSInfo = nil;
-    } @finally {
+      caughtException = YES;
     }
+    if (!rawAPNSInfo && !caughtException) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Could not parse APNS info archived by FirebaseMessaging 10.18.0 or "
+                             @"earlier; error: %@",
+                             APNSInfoError ?: APNSInfoUnarchiver.error);
+    }
+    // Either way the record is in the retired format, so have the store rewrite it.
+    needsMigration = YES;
   }
 
   NSDate *cacheTime = [aDecoder decodeObjectOfClass:[NSDate class]

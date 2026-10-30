@@ -50,7 +50,7 @@ public struct CountTokensResponse: Sendable {
 // MARK: - Codable Conformances
 
 extension CountTokensRequest: Encodable {
-  enum VertexCodingKeys: CodingKey {
+  enum AgentPlatformCodingKeys: CodingKey {
     case contents
     case systemInstruction
     case tools
@@ -64,14 +64,14 @@ extension CountTokensRequest: Encodable {
   func encode(to encoder: any Encoder) throws {
     switch apiConfig.service {
     case .agentPlatform:
-      try encodeForVertexAI(to: encoder)
+      try encodeForAgentPlatform(to: encoder)
     case .googleAI:
       try encodeForDeveloper(to: encoder)
     }
   }
 
-  private func encodeForVertexAI(to encoder: any Encoder) throws {
-    var container = encoder.container(keyedBy: VertexCodingKeys.self)
+  private func encodeForAgentPlatform(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: AgentPlatformCodingKeys.self)
     try container.encode(generateContentRequest.contents, forKey: .contents)
     try container.encodeIfPresent(
       generateContentRequest.systemInstruction, forKey: .systemInstruction

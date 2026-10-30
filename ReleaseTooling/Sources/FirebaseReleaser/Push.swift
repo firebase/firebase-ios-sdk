@@ -29,6 +29,7 @@ enum Push {
   }
 
   static func publishPodsToTrunk(gitRoot: URL) {
+    fatalError("Pod publishing has ceased. Comment out this line if publishing is needed.")
     push(to: .trunk, gitRoot: gitRoot)
   }
 

@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: macos-26
+    runs-on: ubuntu-24.04
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -103,7 +103,9 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-26
+    runs-on: ubuntu-24.04
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
@@ -113,11 +115,24 @@ jobs:
       with:
         python-version: 3.11
 
+    - name: Cache Mint packages
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
+
     - name: Setup check
-      run: scripts/setup_check.sh
+      run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        scripts/setup_check.sh
 
     - name: Run check
-      run: scripts/check.sh --test-only
+      run: |
+        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        # Add Homebrew clang-format to first in PATH
+        export PATH="/home/linuxbrew/.linuxbrew/opt/clang-format/bin:$PATH"
+        scripts/check.sh --test-only
 
   cmake:
     needs: [changes, check]
@@ -127,7 +142,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-26, ubuntu-latest]
+        os: [macos-26, ubuntu-24.04]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
@@ -229,7 +244,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
         # This could be due to Apple Clang provide additional support for synchronization
         # on Apple platforms, which is what we primarily care about.
@@ -272,8 +287,63 @@ jobs:
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
-  xcodetest_prod:
+  build_xcodetest:
     needs: check
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request')
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [iOS, macOS, tvOS]
+
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+
+      - name: Setup simulator
+        if: matrix.target != 'macOS'
+        uses: ./.github/actions/setup_simulator
+        with:
+          platform: ${{ matrix.target }}
+
+      - name: Cache Pods
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/Pods
+          key: ${{ runner.os }}-pods-${{ matrix.target }}-${{ hashFiles('Firestore/Example/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-${{ matrix.target }}-
+
+      - name: Cache DerivedData Products
+        id: cache-products
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/DerivedData/Build/Products
+          key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
+
+      - name: Setup build
+        if: steps.cache-products.outputs.cache-hit != 'true'
+        run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+
+      - name: Build Standard and Enterprise Test Products
+        if: steps.cache-products.outputs.cache-hit != 'true'
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        with:
+          timeout_minutes: 60
+          command: scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+
+  xcodetest_prod:
+    needs: [check, build_xcodetest]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -288,13 +358,12 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      USE_FIRESTORE_EMULATOR: 'false'
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
       - name: Install Secret GoogleService-Info.plist for prod
         run: |
@@ -310,7 +379,18 @@ jobs:
         with:
           platform: ${{ matrix.target }}
 
+      - name: Restore DerivedData Products
+        id: cache-products
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/DerivedData/Build/Products
+          key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
+
+      - if: steps.cache-products.outputs.cache-hit != 'true'
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+
       - name: Cache Pods
+        if: steps.cache-products.outputs.cache-hit != 'true'
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: Firestore/Example/Pods
@@ -320,9 +400,11 @@ jobs:
 
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
+        if: steps.cache-products.outputs.cache-hit != 'true'
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       - name: Build
+        if: steps.cache-products.outputs.cache-hit != 'true'
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 60
@@ -338,12 +420,17 @@ jobs:
           if-no-files-found: error
 
   xcodetest_nightly:
-    needs: check
+    needs: [check, build_xcodetest]
+    # TODO(b/577081204): Re-enable nightly tests once backend connectivity issues are resolved.
+    # To re-enable: uncomment the original `if:` block below, remove `if: false`,
+    # and re-add `xcodetest_nightly` to `check-required-tests.needs` below.
     # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    # if: |
+    #   (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: false
     runs-on: macos-26
+    timeout-minutes: 60
 
     strategy:
       matrix:
@@ -352,13 +439,12 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      USE_FIRESTORE_EMULATOR: 'false'
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
-
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
 
       - name: Install Secret GoogleService-Info.plist for nightly
         run: |
@@ -374,7 +460,18 @@ jobs:
         with:
           platform: ${{ matrix.target }}
 
+      - name: Restore DerivedData Products
+        id: cache-products
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: Firestore/Example/DerivedData/Build/Products
+          key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
+
+      - if: steps.cache-products.outputs.cache-hit != 'true'
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+
       - name: Cache Pods
+        if: steps.cache-products.outputs.cache-hit != 'true'
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
           path: Firestore/Example/Pods
@@ -384,22 +481,41 @@ jobs:
 
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       - name: Setup build
+        if: steps.cache-products.outputs.cache-hit != 'true'
         run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
       # XCTest dynamically isolates the test runner app from standard terminal environment variables.
-      # To successfully pass TARGET_BACKEND down to FSTIntegrationTestCase, we must physically inject it
-      # into the Xcode Schemes rather than using traditional YAML `env:` variables or `export` commands.
+      # To successfully pass TARGET_BACKEND and PROJECT_ID down to FSTIntegrationTestCase, we must physically inject them
+      # into the Xcode Schemes and prebuilt .xctestrun files rather than using traditional YAML `env:` variables or `export` commands.
       - name: Inject Nightly Backend into Schemes
         run: |
           python3 -c '
-          import glob, re
+          import glob, plistlib, re
           for f in glob.glob("Firestore/Example/Firestore.xcodeproj/xcshareddata/xcschemes/Firestore_IntegrationTests_*.xcscheme"):
               with open(f, "r") as file: content = file.read()
-              content = re.sub(r"<EnvironmentVariables>", "<EnvironmentVariables>\n         <EnvironmentVariable\n            key = \"TARGET_BACKEND\"\n            value = \"nightly\"\n            isEnabled = \"YES\">\n         </EnvironmentVariable>", content)
+              content = re.sub(r"<EnvironmentVariables>", """<EnvironmentVariables>
+                   <EnvironmentVariable
+                      key = "TARGET_BACKEND"
+                      value = "nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>
+                   <EnvironmentVariable
+                      key = "PROJECT_ID"
+                      value = "firestore-sdk-nightly"
+                      isEnabled = "YES">
+                   </EnvironmentVariable>""", content)
               with open(f, "w") as file: file.write(content)
+          for p in glob.glob("Firestore/Example/DerivedData/Build/Products/*.xctestrun"):
+              with open(p, "rb") as file: data = plistlib.load(file)
+              for k, v in data.items():
+                  if isinstance(v, dict) and "EnvironmentVariables" in v:
+                      v["EnvironmentVariables"]["TARGET_BACKEND"] = "nightly"
+                      v["EnvironmentVariables"]["PROJECT_ID"] = "firestore-sdk-nightly"
+              with open(p, "wb") as file: plistlib.dump(data, file)
           '
 
       - name: Build
+        if: steps.cache-products.outputs.cache-hit != 'true'
         uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
         with:
           timeout_minutes: 60
@@ -416,11 +532,9 @@ jobs:
 
 
   xcodetest_emulator:
-    needs: check
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
+    needs: [check, build_xcodetest]
+    # Skip emulator integration tests until Firestore emulator supports BSON types.
+    if: false
     runs-on: macos-26
 
     strategy:
@@ -434,8 +548,6 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
-
     - name: Select Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
 
@@ -445,7 +557,18 @@ jobs:
       with:
         platform: ${{ matrix.target }}
 
+    - name: Restore DerivedData Products
+      id: cache-products
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: Firestore/Example/DerivedData/Build/Products
+        key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
+
+    - if: steps.cache-products.outputs.cache-hit != 'true'
+      uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
+
     - name: Cache Pods
+      if: steps.cache-products.outputs.cache-hit != 'true'
       uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
       with:
         path: Firestore/Example/Pods
@@ -454,10 +577,12 @@ jobs:
           ${{ runner.os }}-pods-${{ matrix.target }}-
 
     - name: Setup build
+      if: steps.cache-products.outputs.cache-hit != 'true'
       # 'FirestoreEnterprise' is used as product name for `build.sh` to select the enterprise build variant. `install_prereqs.sh` does not require this distinction, so 'Firestore' is used.
       run: scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build
+      if: steps.cache-products.outputs.cache-hit != 'true'
       uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 60
@@ -522,7 +647,7 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -675,19 +800,20 @@ jobs:
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
   check-required-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Check all required Firestore tests results
     if: always()
     needs:
       - cmake
-      - xcodetest_emulator
+      # - xcodetest_emulator
       - spm-source
       - spm-binary
       - sanitizers-mac
       - sanitizers-ubuntu
       - pod_lib_lint
       - xcodetest_prod
-      - xcodetest_nightly
+      # TODO(b/577081204): Uncomment when xcodetest_nightly is re-enabled.
+      # - xcodetest_nightly
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

@@ -312,6 +312,11 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   args.SetMaxReceiveMessageSize(GRPC_MAX_MESSAGE_SIZE);
   args.SetMaxSendMessageSize(GRPC_MAX_MESSAGE_SIZE);
 
+  // Increase max metadata size to 1MB (from default 8KB) to accommodate large
+  // error details (e.g. grpc-status-details-bin with index creation URLs in
+  // prod, or google.rpc.debuginfo-bin stack traces in staging/nightly).
+  args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 1024 * 1024);
+
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
     std::string root_certificate = LoadGrpcRootCertificate();

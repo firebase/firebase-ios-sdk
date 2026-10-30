@@ -18,18 +18,18 @@
 /// `FunctionExpression` or other expression contexts in the iOS SDK, without requiring the
 /// `Pipeline` itself to conform to the `Expression` protocol.
 struct PipelineExpression: Expression, BridgeWrapper, @unchecked Sendable {
-  let bridge: ExprBridge
+  let bridge: __ExprBridge
   let errorMessage: String?
 
   init(_ pipeline: Pipeline) {
     if let errorMessage = pipeline.errorMessage {
       // PipelineExpression must conform to BridgeWrapper for downstream protocol casts
       // inside `Expression.toBridge()`. Since `BridgeWrapper.bridge` demands a non-optional
-      // ExprBridge, we cannot use an optional field and instead use a safe dummy bridge here.
+      // __ExprBridge, we cannot use an optional field and instead use a safe dummy bridge here.
       bridge = Constant.nil.bridge
       self.errorMessage = errorMessage
     } else {
-      bridge = PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
+      bridge = __PipelineExprBridge(stages: pipeline.stages.map { $0.bridge })
       errorMessage = nil
     }
   }

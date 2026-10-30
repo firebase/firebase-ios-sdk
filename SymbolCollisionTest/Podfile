@@ -20,6 +20,7 @@ target 'SymbolCollisionTest' do
     pod 'FirebaseCrashlytics', :path => '../'
     pod 'FirebaseDatabase', :path => '../'
     pod 'FirebaseFirestore', :path => '../'
+    pod 'FirebaseFirestoreInternal', :path => '../'
     pod 'FirebaseFunctions', :path => '../'
     pod 'FirebaseInAppMessaging', :path => '../'
     pod 'FirebaseInstallations', :path => '../'
@@ -48,7 +49,7 @@ target 'SymbolCollisionTest' do
     pod 'GooglePlaces', '> 8'
     pod 'GoogleSignIn', '> 6'
     pod 'GTMAppAuth'
-    pod 'GoogleTagManager', '>= 7.4.6'
+#    pod 'GoogleTagManager' # Incompatible with Firebase 13 (depends on FirebaseAnalytics < 12.0)
     pod 'GoogleToolboxForMac'
     pod 'GoogleUtilities'
 #    pod 'GTMHTTPFetcher' - conflicts with GTMSessionFetcher

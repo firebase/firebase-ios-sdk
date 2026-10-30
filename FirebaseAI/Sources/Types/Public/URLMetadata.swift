@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// Metadata for a single URL retrieved by the ``Tool/urlContext()`` tool.
+/// Metadata for a single URL retrieved by the ``GenerativeModel/Tool/urlContext()`` tool.
 public struct URLMetadata: Sendable, Hashable {
   /// Status of the URL retrieval.
   public struct URLRetrievalStatus: DecodableProtoEnum, Hashable {

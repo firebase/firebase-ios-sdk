@@ -18,7 +18,7 @@
 ///
 /// `AggregateFunction`s are typically used in the `aggregate` stage of a pipeline.
 public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
-  let bridge: AggregateFunctionBridge
+  let bridge: __AggregateFunctionBridge
 
   let functionName: String
   let args: [Expression]
@@ -37,7 +37,7 @@ public class AggregateFunction: AggregateBridgeWrapper, @unchecked Sendable {
   public init(functionName: String, args: [Expression]) {
     self.functionName = functionName
     self.args = args
-    bridge = AggregateFunctionBridge(
+    bridge = __AggregateFunctionBridge(
       name: functionName,
       args: self.args.map { $0.toBridge()
       }

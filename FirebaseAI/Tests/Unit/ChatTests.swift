@@ -71,7 +71,7 @@ final class ChatTests: XCTestCase {
           firebaseApp: app,
           useLimitedUseAppCheckTokens: false
         ),
-        apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+        apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
         tools: nil,
         requestOptions: RequestOptions(),
         urlSession: urlSession
@@ -107,7 +107,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -148,7 +148,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -184,7 +184,7 @@ final class ChatTests: XCTestCase {
       modelName: modelName,
       modelResourceName: modelResourceName,
       firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
-      apiConfig: FirebaseAI.defaultVertexAIAPIConfig,
+      apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
       tools: nil,
       requestOptions: RequestOptions(),
       urlSession: urlSession
@@ -194,5 +194,94 @@ final class ChatTests: XCTestCase {
 
     XCTAssertEqual(chat.history.count, 2)
     XCTAssertEqual(chat.history, history)
+  }
+
+  func testAggregatedChunks_speechMetadata_notCombined() throws {
+    let history = History(history: [])
+    let chunk1 = ModelContent(role: "model", parts: [TextPart("Regular text A")])
+    let chunk2 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("Spoken turn", speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful")),
+      ]
+    )
+    let chunk3 = ModelContent(role: "model", parts: [TextPart("Regular text B")])
+    let chunk4 = ModelContent(role: "model", parts: [TextPart(" and C")])
+
+    let result = history.aggregatedChunks([chunk1, chunk2, chunk3, chunk4])
+
+    XCTAssertEqual(result.parts.count, 3)
+    let part1 = try XCTUnwrap(result.parts[0] as? TextPart)
+    XCTAssertEqual(part1.text, "Regular text A")
+    XCTAssertNil(part1.speechMetadata)
+    let part2 = try XCTUnwrap(result.parts[1] as? TextPart)
+    XCTAssertEqual(part2.text, "Spoken turn")
+    XCTAssertEqual(part2.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+    let part3 = try XCTUnwrap(result.parts[2] as? TextPart)
+    XCTAssertEqual(part3.text, "Regular text B and C")
+    XCTAssertNil(part3.speechMetadata)
+  }
+
+  func testAggregatedChunks_adjacentSpeechMetadata_notCombined() throws {
+    let history = History(history: [])
+    let chunk1 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("First turn", speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful")),
+      ]
+    )
+    let chunk2 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("Second turn", speechMetadata: SpeechMetadata(speaker: "Joe", style: "cheerful")),
+      ]
+    )
+    let chunk3 = ModelContent(
+      role: "model",
+      parts: [
+        TextPart("Third turn", speechMetadata: SpeechMetadata(speaker: "Jane", style: "calm")),
+      ]
+    )
+
+    let result = history.aggregatedChunks([chunk1, chunk2, chunk3])
+
+    XCTAssertEqual(result.parts.count, 3)
+    let part1 = try XCTUnwrap(result.parts[0] as? TextPart)
+    XCTAssertEqual(part1.text, "First turn")
+    XCTAssertEqual(part1.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+    let part2 = try XCTUnwrap(result.parts[1] as? TextPart)
+    XCTAssertEqual(part2.text, "Second turn")
+    XCTAssertEqual(part2.speechMetadata, SpeechMetadata(speaker: "Joe", style: "cheerful"))
+    let part3 = try XCTUnwrap(result.parts[2] as? TextPart)
+    XCTAssertEqual(part3.text, "Third turn")
+    XCTAssertEqual(part3.speechMetadata, SpeechMetadata(speaker: "Jane", style: "calm"))
+  }
+
+  func testSendMessage_unary_codeExecution_appendsHistory() async throws {
+    MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
+      forResource: "unary-success-code-execution",
+      withExtension: "json",
+      subdirectory: "mock-responses/vertexai"
+    )
+    let model = GenerativeModel(
+      modelName: modelName,
+      modelResourceName: modelResourceName,
+      firebaseInfo: GenerativeModelTestUtil.testFirebaseInfo(),
+      apiConfig: FirebaseAI.defaultAgentPlatformAPIConfig,
+      tools: [.codeExecution()],
+      requestOptions: RequestOptions(),
+      urlSession: urlSession
+    )
+    let chat = model.startChat()
+
+    let response = try await chat.sendMessage("Test input")
+
+    XCTAssertEqual(chat.history.count, 2)
+    let modelResponse = try XCTUnwrap(chat.history.last)
+    XCTAssertEqual(modelResponse.role, "model")
+    let expectedParts = try XCTUnwrap(response.candidates.first?.content.parts)
+    XCTAssertEqual(modelResponse.parts.count, expectedParts.count)
+    XCTAssertEqual(modelResponse.parts.compactMap { $0 as? ExecutableCodePart }.count, 1)
+    XCTAssertEqual(modelResponse.parts.compactMap { $0 as? CodeExecutionResultPart }.count, 1)
   }
 }

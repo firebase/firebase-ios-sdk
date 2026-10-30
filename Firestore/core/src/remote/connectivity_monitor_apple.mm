@@ -32,8 +32,6 @@ namespace remote {
 
 namespace {
 
-static const void* const kMonitorQueueKey = &kMonitorQueueKey;
-
 using NetworkStatus = ConnectivityMonitor::NetworkStatus;
 using util::AsyncQueue;
 
@@ -56,6 +54,10 @@ NetworkStatus ToNetworkStatus(nw_path_t path) {
 ConnectivityMonitorApple::ConnectivityMonitorApple(
     const std::shared_ptr<AsyncQueue>& worker_queue)
     : ConnectivityMonitor{worker_queue}, state_{std::make_shared<State>()} {
+  HARD_ASSERT(this->queue()->IsCurrentQueue(),
+              "ConnectivityMonitorApple must be constructed on its AsyncQueue. "
+              "See class comment for why.");
+
   monitor_ = nw_path_monitor_create();
   if (!monitor_) {
     LOG_DEBUG("Failed to create network monitor.");
@@ -68,23 +70,25 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
   monitor_queue_ = dispatch_queue_create(
       "com.google.firebase.firestore.network.monitor", attrs);
 
-  dispatch_queue_set_specific(monitor_queue_, kMonitorQueueKey,
-                              (__bridge void*)monitor_queue_, NULL);
-
   nw_path_monitor_set_queue(monitor_, monitor_queue_);
 
   std::weak_ptr<State> weak_state = state_;
   std::weak_ptr<AsyncQueue> weak_queue = queue();
 
   nw_path_monitor_set_update_handler(monitor_, ^(nw_path_t path) {
-    auto s = weak_state.lock();
-    if (!s) return;
+    // Do not hold a strong ref to State across Enqueue. If this block held a
+    // strong ref, ~ConnectivityMonitorApple() could run to completion on the
+    // worker queue while the ref was still alive, and the enqueued inner lambda
+    // would then see weak_state as not expired and dereference a freed
+    // raw_this.
+    if (weak_state.expired()) return;
     auto q = weak_queue.lock();
     if (!q) return;
     auto status = ToNetworkStatus(path);
     q->Enqueue([raw_this = this, weak_state, status]() {
-      auto s2 = weak_state.lock();
-      if (!s2) return;
+      // Reliable because this lambda and the destructor run on the same serial
+      // AsyncQueue.
+      if (weak_state.expired()) return;
 
       if (!raw_this->current_status().has_value()) {
         raw_this->SetInitialStatus(status);
@@ -103,14 +107,17 @@ ConnectivityMonitorApple::ConnectivityMonitorApple(
                    queue:[NSOperationQueue mainQueue]
               usingBlock:^(NSNotification* note) {
                 (void)note;
-                auto s = weak_state.lock();
-                if (!s) return;
+                // Do not hold a strong ref to State across Enqueue. Like the
+                // update handler above, this block is not synchronized with
+                // the destructor, so it must not extend State's lifetime.
+                if (weak_state.expired()) return;
                 auto q = weak_queue.lock();
                 if (!q) return;
 
                 q->Enqueue([raw_this = this, weak_state] {
-                  auto s2 = weak_state.lock();
-                  if (!s2) return;
+                  // Reliable because this lambda and the destructor run on the
+                  // same serial AsyncQueue (see update handler above).
+                  if (weak_state.expired()) return;
 
                   if (raw_this->current_status().has_value() &&
                       raw_this->current_status().value() !=

@@ -356,7 +356,7 @@ class FunctionsTests: XCTestCase {
     }
   }
 
-  @MainActor func testCallFunctionOverHttpWithoutLocalhostDoesNotAttachTokens() {
+  @MainActor func testCallFunctionOverHttpWithoutLocalhostFailsWhenTokensPresent() {
     let authFake = FIRAuthInteropFake(token: "fake_auth_token", userID: nil, error: nil)
     let functionsInsecure = Functions(
       projectID: "my-project",
@@ -370,6 +370,31 @@ class FunctionsTests: XCTestCase {
     functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
 
+    let completionExpectation = expectation(description: "completionExpectation")
+    functionsInsecure
+      .httpsCallable("fake_func")
+      .call { result, error in
+        let nsError = error as NSError?
+        XCTAssertEqual(nsError?.domain, FunctionsErrorDomain)
+        XCTAssertEqual(nsError?.code, FunctionsErrorCode.unauthenticated.rawValue)
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
+  @MainActor func testCallFunctionOverHttpWithoutLocalhostSucceedsWhenNoTokensPresent() {
+    let functionsInsecure = Functions(
+      projectID: "my-project",
+      region: "my-region",
+      customDomain: nil,
+      auth: nil,
+      messaging: nil,
+      appCheck: nil,
+      fetcherService: fetcherService
+    )
+    functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
+
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       XCTAssertNil(fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"))
@@ -382,6 +407,7 @@ class FunctionsTests: XCTestCase {
     functionsInsecure
       .httpsCallable("fake_func")
       .call { result, error in
+        XCTAssertNil(error)
         completionExpectation.fulfill()
       }
 

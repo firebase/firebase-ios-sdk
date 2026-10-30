@@ -149,10 +149,7 @@ struct VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
     nickName = dictionary["nickName"] as? String
     displayName = dictionary["displayName"] as? String
     idToken = dictionary["idToken"] as? String
-    if let expiresIn = dictionary["expiresIn"] as? String {
-      approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
-        .doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
     refreshToken = dictionary["refreshToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     if let rawUserInfo = dictionary["rawUserInfo"] as? String,

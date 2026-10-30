@@ -34,7 +34,7 @@ public protocol BooleanExpression: Expression {}
 
 struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
   let expr: FunctionExpression
-  public var bridge: ExprBridge { return expr.bridge }
+  public var bridge: __ExprBridge { return expr.bridge }
 
   init(_ expr: FunctionExpression) {
     self.expr = expr
@@ -51,7 +51,7 @@ struct BooleanFunctionExpression: BooleanExpression, BridgeWrapper {
 
 struct BooleanConstant: BooleanExpression, BridgeWrapper {
   private let constant: Constant
-  public var bridge: ExprBridge { return constant.bridge }
+  public var bridge: __ExprBridge { return constant.bridge }
 
   init(_ constant: Constant) {
     self.constant = constant
@@ -60,7 +60,7 @@ struct BooleanConstant: BooleanExpression, BridgeWrapper {
 
 struct BooleanField: BooleanExpression, BridgeWrapper {
   private let field: Field
-  public var bridge: ExprBridge { return field.bridge }
+  public var bridge: __ExprBridge { return field.bridge }
 
   init(_ field: Field) {
     self.field = field

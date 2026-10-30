@@ -26,6 +26,8 @@ on:
   pull_request:
     paths:
     - 'ReleaseTooling/Sources/**'
+    - 'Firestore/Source/Public/**'
+    - 'FirebaseFirestoreInternal/**'
     - '.github/workflows/release.zip.yml'
     - '.github/workflows/_quickstart.framework.yml'
     - 'scripts/zip/**'
@@ -55,7 +57,7 @@ concurrency:
 
 jobs:
   should_package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
     steps:
@@ -89,7 +91,7 @@ jobs:
         persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -140,7 +142,7 @@ jobs:
         persist-credentials: false
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: ZipBuildingTest
@@ -161,7 +163,7 @@ jobs:
         path: zip_output_dir
 
   packaging_done:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [package-head]
     if: always()
     outputs:
@@ -203,7 +205,7 @@ jobs:
           name: Firebase-actions-dir
           run-id: ${{ needs.packaging_done.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
       - name: Install xcpretty
@@ -246,12 +248,13 @@ jobs:
           - product: "Authentication"
             plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
             plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
+            # FBSDK is pinned to 18.x to match the quickstart's SPM requirement. FBSDK 19.0.0
+            # ships prebuilt binaries from Swift 6.4 whose interfaces Xcode 26.2 can't parse.
             command: |
               SAMPLE="Authentication" TARGET="AuthenticationExample" \
-                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
+                NON_FIREBASE_SDKS="FBSDKLoginKit:~>18.0 FBSDKCoreKit:~>18.0 FBSDKCoreKit_Basics:~>18.0 FBAEMKit:~>18.0" \
                 scripts/zip/setup_quickstart_framework.sh \
                 "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
-                "${HOME}"/ios_frameworks/Firebase/GoogleSignIn/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
