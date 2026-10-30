@@ -78,7 +78,7 @@ class ConnectivityMonitor {
   // Invokes callbacks and sets net status to `new_status`.
   void InvokeCallbacks(NetworkStatus new_status);
 
-  const std::shared_ptr<util::AsyncQueue>& queue() {
+  const std::shared_ptr<util::AsyncQueue>& queue() const {
     return worker_queue_;
   }
 

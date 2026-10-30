@@ -91,6 +91,18 @@ import Foundation
 
   let baseRequest: URLRequest
 
+  // A narrow synchronization point for tests of task setup cancellation.
+  private var setupDiscardedHandler: (@Sendable () -> Void)?
+  var setupDiscardedHandlerForTesting: (@Sendable () -> Void)? {
+    get { stateLock.withLock { setupDiscardedHandler } }
+    set { stateLock.withLock { setupDiscardedHandler = newValue } }
+  }
+
+  func notifySetupDiscardedForTesting() {
+    let handler = stateLock.withLock { setupDiscardedHandler }
+    handler?()
+  }
+
   init(reference: StorageReference,
        queue: DispatchQueue) {
     self.reference = reference

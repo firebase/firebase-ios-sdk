@@ -31,6 +31,10 @@ static NSString *const kFIRInstallationsIIDKeyPairPrivateTagPrefix =
     @"com.google.iid.keypair.private-";
 static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 
+@interface FIRInstallationsIIDStore ()
+- (NSDictionary *)keyQueryForKeyWithTagPrefix:(NSString *)tagPrefix;
+@end
+
 @implementation FIRInstallationsIIDStore
 
 - (FBLPromise<NSString *> *)existingIID {
@@ -139,8 +143,10 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
 }
 
 - (BOOL)deleteKeychainKeyWithTagPrefix:(NSString *)tagPrefix error:(NSError **)outError {
-  NSString *keyTag = [self keychainKeyTagWithPrefix:kFIRInstallationsIIDKeyPairPublicTagPrefix];
-  NSDictionary *keyQuery = [self keyPairQueryWithTag:keyTag returnData:NO];
+  NSDictionary *keyQuery = [self keyQueryForKeyWithTagPrefix:tagPrefix];
+  if (!keyQuery) {
+    return YES;
+  }
 
   OSStatus status = SecItemDelete((__bridge CFDictionaryRef)keyQuery);
 
@@ -154,6 +160,14 @@ static NSString *const kFIRInstallationsIIDCreationTimePlistKey = @"|S|cre";
   }
 
   return YES;
+}
+
+- (NSDictionary *)keyQueryForKeyWithTagPrefix:(NSString *)tagPrefix {
+  NSString *keyTag = [self keychainKeyTagWithPrefix:tagPrefix];
+  if (!keyTag) {
+    return nil;
+  }
+  return [self keyPairQueryWithTag:keyTag returnData:NO];
 }
 
 - (NSDictionary *)keyPairQueryWithTag:(NSString *)tag returnData:(BOOL)shouldReturnData {

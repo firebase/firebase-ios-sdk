@@ -7,6 +7,9 @@
 - [fixed] Remote Config real-time updates are no longer missed when an update
   message is split across network reads or arrives in the same read as another
   message. (#16793)
+- [fixed] `@RemoteConfigProperty` now uses the in-app default value, or its
+  fallback value, after an activation removes its key, instead of keeping the
+  previous remote value. (#16816)
 
 # 13.1.0
 - [fixed] Fixed a crash when the Remote Config fetch response contains a
