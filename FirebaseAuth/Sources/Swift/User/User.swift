@@ -1947,7 +1947,9 @@ extension User: NSSecureCoding {}
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS) || os(macOS)
       _multiFactor = multiFactor ?? MultiFactor()
-      super.init()
+    #endif
+    super.init()
+    #if os(iOS) || os(macOS)
       _multiFactor.user = self
     #endif
   }
