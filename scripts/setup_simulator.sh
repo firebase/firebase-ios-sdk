@@ -86,9 +86,17 @@ create_sim() {
     exit 1
   fi
 
-  if xcrun simctl list devices | grep -q "$sim_name"; then
-    echo "Simulator '$sim_name' already exists."
+  if xcrun simctl list devices available | grep -Fq "${sim_name} ("; then
+    echo "Simulator '$sim_name' already exists and is available."
     return 0
+  fi
+
+  # Clean up any existing (but unavailable) simulators with the same name to avoid duplicates.
+  if [[ -n "${sim_name:-}" ]]; then
+    xcrun simctl list devices | grep -F "${sim_name} (" | grep -oE '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' | while read -r uuid; do
+      echo "Removing existing/unavailable simulator $uuid..."
+      xcrun simctl delete "$uuid" || true
+    done || true
   fi
 
   local device_type
