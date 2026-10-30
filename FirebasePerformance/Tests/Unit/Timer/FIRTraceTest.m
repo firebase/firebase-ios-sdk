@@ -737,6 +737,19 @@
   XCTAssertNil([trace valueForAttribute:@"foo"]);
 }
 
+- (void)testUpdatingExistingAttributeAtMaximumCount {
+  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+  for (int i = 0; i < kFPRMaxTraceCustomAttributesCount; i++) {
+    NSString *attributeName = [NSString stringWithFormat:@"dim%d", i];
+    [trace setValue:@"bar" forAttribute:attributeName];
+  }
+
+  [trace setValue:@"updated" forAttribute:@"dim0"];
+
+  XCTAssertEqual([trace valueForAttribute:@"dim0"], @"updated");
+  XCTAssertEqual(trace.attributes.count, (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+}
+
 /** Validates if removing old attributes and adding new attributes work. */
 - (void)testRemovingAndAddingAttributes {
   FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
@@ -748,6 +761,27 @@
   [trace removeAttribute:@"dim1"];
   [trace setValue:@"bar" forAttribute:@"foo"];
   XCTAssertEqual([trace valueForAttribute:@"foo"], @"bar");
+}
+
+- (void)testConcurrentAttributeAccessIsSerialized {
+  FIRTrace *trace = [[FIRTrace alloc] initWithName:@"Random"];
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_apply(100, queue, ^(size_t index) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
+    [trace setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertEqual(trace.attributes.count, (NSUInteger)kFPRMaxTraceCustomAttributesCount);
+
+  dispatch_apply(200, queue, ^(size_t index) {
+    NSUInteger attributeIndex = index % kFPRMaxTraceCustomAttributesCount;
+    NSString *attribute =
+        [NSString stringWithFormat:@"attribute_%lu", (unsigned long)attributeIndex];
+    (void)[trace valueForAttribute:attribute];
+    (void)trace.attributes;
+    [trace removeAttribute:attribute];
+    [trace setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertLessThanOrEqual(trace.attributes.count, (NSUInteger)kFPRMaxTraceCustomAttributesCount);
 }
 
 /** Validates if every trace contains a session Id. */
