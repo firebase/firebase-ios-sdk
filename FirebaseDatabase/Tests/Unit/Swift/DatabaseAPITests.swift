@@ -556,25 +556,31 @@ final class DatabaseAPITests {
       Task {
         do {
           // snapshots
-          for try await snapshot in databaseQuery.snapshots {
+          for try await snapshot in DatabaseQuery().snapshots {
+            let _: DataSnapshot = snapshot
+          }
+          for try await snapshot in DatabaseReference().snapshots {
             let _: DataSnapshot = snapshot
           }
 
-          // childEvents()
-          for try await event in databaseQuery.childEvents() {
+          // childEvents
+          for try await event in DatabaseQuery().childEvents {
             switch event {
-            case let .childAdded(snapshot, previousKey):
+            case let .added(snapshot, previousKey):
               let _: DataSnapshot = snapshot
               let _: String? = previousKey
-            case let .childChanged(snapshot, previousKey):
+            case let .changed(snapshot, previousKey):
               let _: DataSnapshot = snapshot
               let _: String? = previousKey
-            case let .childRemoved(snapshot):
+            case let .removed(snapshot):
               let _: DataSnapshot = snapshot
-            case let .childMoved(snapshot, previousKey):
+            case let .moved(snapshot, previousKey):
               let _: DataSnapshot = snapshot
               let _: String? = previousKey
             }
+          }
+          for try await event in DatabaseReference().childEvents {
+            let _: ChildEvent = event
           }
         } catch {
           // ...

@@ -185,7 +185,9 @@ final class AsyncSequenceTests: XCTestCase {
   func testSnapshotsYieldsSingleValue() async throws {
     let attachedExpectation = expectation(description: "Value observer should be attached")
     let receivedExpectation = expectation(description: "Snapshot should be received")
+    let removedExpectation = expectation(description: "Value observer should be removed on break")
     mockQuery.observerAttachedExpectation = attachedExpectation
+    mockQuery.observerRemovedExpectation = removedExpectation
 
     let query = mockQuery!
     let task = Task {
@@ -205,13 +207,18 @@ final class AsyncSequenceTests: XCTestCase {
 
     await fulfillment(of: [receivedExpectation], timeout: 1.0)
     try await task.value
+
+    await fulfillment(of: [removedExpectation], timeout: 1.0)
+    XCTAssertEqual(query.removedHandles, [1])
   }
 
   func testSnapshotsYieldsMultipleValues() async throws {
     let attachedExpectation = expectation(description: "Value observer should be attached")
     let receivedExpectation = expectation(description: "Three snapshots should be received")
     receivedExpectation.expectedFulfillmentCount = 3
+    let removedExpectation = expectation(description: "Value observer should be removed on break")
     mockQuery.observerAttachedExpectation = attachedExpectation
+    mockQuery.observerRemovedExpectation = removedExpectation
 
     let query = mockQuery!
     let task = Task { () -> [String] in
@@ -235,6 +242,9 @@ final class AsyncSequenceTests: XCTestCase {
     await fulfillment(of: [receivedExpectation], timeout: 1.0)
     let receivedKeys = try await task.value
     XCTAssertEqual(receivedKeys, ["snap1", "snap2", "snap3"])
+
+    await fulfillment(of: [removedExpectation], timeout: 1.0)
+    XCTAssertEqual(query.removedHandles, [1])
   }
 
   func testSnapshotsThrowsErrorOnCancel() async throws {
@@ -287,19 +297,24 @@ final class AsyncSequenceTests: XCTestCase {
     XCTAssertEqual(query.removedHandles, [registeredHandle])
   }
 
-  // MARK: - childEvents() Tests
+  // MARK: - childEvents Tests
 
   func testChildEventsYieldsAllEventTypes() async throws {
     let attachedExpectation = expectation(description: "All 4 child observers should be attached")
     attachedExpectation.expectedFulfillmentCount = 4
     let receivedExpectation = expectation(description: "All 4 child events should be received")
     receivedExpectation.expectedFulfillmentCount = 4
+    let removedExpectation = expectation(
+      description: "All 4 child observers should be removed on break"
+    )
+    removedExpectation.expectedFulfillmentCount = 4
     mockQuery.observerAttachedExpectation = attachedExpectation
+    mockQuery.observerRemovedExpectation = removedExpectation
 
     let query = mockQuery!
-    let task = Task { () -> [DatabaseEvent] in
-      var events: [DatabaseEvent] = []
-      for try await event in query.childEvents() {
+    let task = Task { () -> [ChildEvent] in
+      var events: [ChildEvent] = []
+      for try await event in query.childEvents {
         events.append(event)
         receivedExpectation.fulfill()
         if events.count == 4 {
@@ -340,35 +355,38 @@ final class AsyncSequenceTests: XCTestCase {
     let events = try await task.value
     XCTAssertEqual(events.count, 4)
 
-    if case let .childAdded(snapshot, previousKey) = events[0] {
+    await fulfillment(of: [removedExpectation], timeout: 1.0)
+    XCTAssertEqual(query.removedHandles, [1, 2, 3, 4])
+
+    if case let .added(snapshot, previousKey) = events[0] {
       XCTAssertEqual(snapshot.key, "item1")
       XCTAssertEqual(snapshot.value as? String, "A")
       XCTAssertNil(previousKey)
     } else {
-      XCTFail("Expected .childAdded at index 0")
+      XCTFail("Expected .added at index 0")
     }
 
-    if case let .childChanged(snapshot, previousKey) = events[1] {
+    if case let .changed(snapshot, previousKey) = events[1] {
       XCTAssertEqual(snapshot.key, "item1")
       XCTAssertEqual(snapshot.value as? String, "B")
       XCTAssertEqual(previousKey, "item0")
     } else {
-      XCTFail("Expected .childChanged at index 1")
+      XCTFail("Expected .changed at index 1")
     }
 
-    if case let .childMoved(snapshot, previousKey) = events[2] {
+    if case let .moved(snapshot, previousKey) = events[2] {
       XCTAssertEqual(snapshot.key, "item1")
       XCTAssertEqual(snapshot.value as? String, "B")
       XCTAssertEqual(previousKey, "item2")
     } else {
-      XCTFail("Expected .childMoved at index 2")
+      XCTFail("Expected .moved at index 2")
     }
 
-    if case let .childRemoved(snapshot) = events[3] {
+    if case let .removed(snapshot) = events[3] {
       XCTAssertEqual(snapshot.key, "item1")
       XCTAssertEqual(snapshot.value as? String, "B")
     } else {
-      XCTFail("Expected .childRemoved at index 3")
+      XCTFail("Expected .removed at index 3")
     }
   }
 
@@ -383,7 +401,7 @@ final class AsyncSequenceTests: XCTestCase {
     let query = mockQuery!
     let task = Task { () -> Error? in
       do {
-        for try await _ in query.childEvents() {
+        for try await _ in query.childEvents {
           XCTFail("Child events stream should not emit values when cancelled with error")
         }
         return nil
@@ -393,7 +411,9 @@ final class AsyncSequenceTests: XCTestCase {
     }
 
     await fulfillment(of: [attachedExpectation], timeout: 1.0)
-    query.sendError(TestError.mockError, for: .childAdded)
+    for eventType: DataEventType in [.childAdded, .childChanged, .childRemoved, .childMoved] {
+      query.sendError(TestError.mockError, for: eventType)
+    }
 
     let caughtError = await task.value
     XCTAssertEqual(caughtError as? TestError, .mockError)
@@ -412,7 +432,7 @@ final class AsyncSequenceTests: XCTestCase {
 
     let query = mockQuery!
     let task = Task {
-      for try await _ in query.childEvents() {
+      for try await _ in query.childEvents {
         XCTFail("Child events stream should not emit values")
       }
     }
@@ -470,11 +490,11 @@ final class AsyncSequenceTests: XCTestCase {
       localQuery.observerRemovedExpectation = removedExpectation
 
       let task = Task {
-        for try await event in localQuery.childEvents() {
-          if case let .childAdded(snapshot, _) = event {
+        for try await event in localQuery.childEvents {
+          if case let .added(snapshot, _) = event {
             XCTAssertEqual(snapshot.key, "item1")
           } else {
-            XCTFail("Expected .childAdded event")
+            XCTFail("Expected .added event")
           }
           break
         }
