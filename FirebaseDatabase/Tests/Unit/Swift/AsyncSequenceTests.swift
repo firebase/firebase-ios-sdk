@@ -130,6 +130,8 @@ private final class MockDatabaseQuery: DatabaseQuery, @unchecked Sendable {
   override func removeObserver(withHandle handle: DatabaseHandle) {
     lock.lock()
     _removedHandles.append(handle)
+    _valueObservers.removeAll { $0.handle == handle }
+    _siblingObservers.removeAll { $0.handle == handle }
     let expectation = observerRemovedExpectation
     lock.unlock()
 
@@ -420,5 +422,78 @@ final class AsyncSequenceTests: XCTestCase {
 
     await fulfillment(of: [removedExpectation], timeout: 1.0)
     XCTAssertEqual(query.removedHandles, [1, 2, 3, 4])
+  }
+
+  func testSnapshotsRemovesObserverAndDeallocatesQueryOnBreak() async throws {
+    let attachedExpectation = expectation(description: "Value observer should be attached")
+    let removedExpectation = expectation(description: "Value observer should be removed on break")
+
+    weak var weakQuery: MockDatabaseQuery?
+    do {
+      let localQuery = MockDatabaseQuery()
+      weakQuery = localQuery
+      localQuery.observerAttachedExpectation = attachedExpectation
+      localQuery.observerRemovedExpectation = removedExpectation
+
+      let task = Task {
+        for try await snapshot in localQuery.snapshots {
+          XCTAssertEqual(snapshot.key, "user1")
+          break
+        }
+      }
+
+      await fulfillment(of: [attachedExpectation], timeout: 1.0)
+      localQuery.sendValue(MockDataSnapshot(key: "user1", value: "Alice"))
+
+      try await task.value
+      await fulfillment(of: [removedExpectation], timeout: 1.0)
+      XCTAssertEqual(localQuery.removedHandles, [1])
+      XCTAssertTrue(localQuery.valueObservers.isEmpty)
+    }
+
+    XCTAssertNil(weakQuery, "MockDatabaseQuery should be deallocated without retain cycles")
+  }
+
+  func testChildEventsRemovesObserversAndDeallocatesQueryOnBreak() async throws {
+    let attachedExpectation = expectation(description: "All 4 child observers should be attached")
+    attachedExpectation.expectedFulfillmentCount = 4
+    let removedExpectation = expectation(
+      description: "All 4 child observers should be removed on break"
+    )
+    removedExpectation.expectedFulfillmentCount = 4
+
+    weak var weakQuery: MockDatabaseQuery?
+    do {
+      let localQuery = MockDatabaseQuery()
+      weakQuery = localQuery
+      localQuery.observerAttachedExpectation = attachedExpectation
+      localQuery.observerRemovedExpectation = removedExpectation
+
+      let task = Task {
+        for try await event in localQuery.childEvents() {
+          if case let .childAdded(snapshot, _) = event {
+            XCTAssertEqual(snapshot.key, "item1")
+          } else {
+            XCTFail("Expected .childAdded event")
+          }
+          break
+        }
+      }
+
+      await fulfillment(of: [attachedExpectation], timeout: 1.0)
+      localQuery.sendSiblingEvent(
+        .childAdded,
+        snapshot: MockDataSnapshot(key: "item1", value: "A"),
+        previousSiblingKey: nil
+      )
+
+      try await task.value
+      await fulfillment(of: [removedExpectation], timeout: 1.0)
+      XCTAssertEqual(localQuery.removedHandles, [1, 2, 3, 4])
+      XCTAssertTrue(localQuery.valueObservers.isEmpty)
+      XCTAssertTrue(localQuery.siblingObservers.isEmpty)
+    }
+
+    XCTAssertNil(weakQuery, "MockDatabaseQuery should be deallocated without retain cycles")
   }
 }
