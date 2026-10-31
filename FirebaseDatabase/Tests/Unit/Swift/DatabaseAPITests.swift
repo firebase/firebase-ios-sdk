@@ -549,27 +549,35 @@ final class DatabaseAPITests {
         } catch {
           // ...
         }
+      }
+    }
 
-        // snapshots
-        for try await snapshot in databaseQuery.snapshots {
-          let _: DataSnapshot = snapshot
-        }
-
-        // childEvents()
-        for try await event in databaseQuery.childEvents() {
-          switch event {
-          case let .childAdded(snapshot, previousKey):
+    if #available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *) {
+      Task {
+        do {
+          // snapshots
+          for try await snapshot in databaseQuery.snapshots {
             let _: DataSnapshot = snapshot
-            let _: String? = previousKey
-          case let .childChanged(snapshot, previousKey):
-            let _: DataSnapshot = snapshot
-            let _: String? = previousKey
-          case let .childRemoved(snapshot):
-            let _: DataSnapshot = snapshot
-          case let .childMoved(snapshot, previousKey):
-            let _: DataSnapshot = snapshot
-            let _: String? = previousKey
           }
+
+          // childEvents()
+          for try await event in databaseQuery.childEvents() {
+            switch event {
+            case let .childAdded(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            case let .childChanged(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            case let .childRemoved(snapshot):
+              let _: DataSnapshot = snapshot
+            case let .childMoved(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            }
+          }
+        } catch {
+          // ...
         }
       }
     }
