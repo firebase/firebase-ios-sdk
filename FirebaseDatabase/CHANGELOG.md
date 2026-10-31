@@ -1,3 +1,8 @@
+# Unreleased
+- [added] Added `AsyncSequence` support for `DatabaseQuery.snapshots` and
+  `DatabaseQuery.childEvents`, providing a modern, structured-concurrency
+  alternative to `observe(_:with:)`. (#15596)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)

@@ -552,6 +552,42 @@ final class DatabaseAPITests {
       }
     }
 
+    if #available(macOS 15.0, iOS 18.0, watchOS 11.0, tvOS 18.0, visionOS 2.0, *) {
+      Task {
+        do {
+          // snapshots
+          for try await snapshot in DatabaseQuery().snapshots {
+            let _: DataSnapshot = snapshot
+          }
+          for try await snapshot in DatabaseReference().snapshots {
+            let _: DataSnapshot = snapshot
+          }
+
+          // childEvents
+          for try await event in DatabaseQuery().childEvents {
+            switch event {
+            case let .added(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            case let .changed(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            case let .removed(snapshot):
+              let _: DataSnapshot = snapshot
+            case let .moved(snapshot, previousKey):
+              let _: DataSnapshot = snapshot
+              let _: String? = previousKey
+            }
+          }
+          for try await event in DatabaseReference().childEvents {
+            let _: ChildEvent = event
+          }
+        } catch {
+          // ...
+        }
+      }
+    }
+
     // runTransactionBlock(_ block:andCompletionBlock completionBlock:withLocalEvents localEvents:)
     databaseReference.runTransactionBlock({ mutableData in
       let /* mutableData */ _: MutableData = mutableData
