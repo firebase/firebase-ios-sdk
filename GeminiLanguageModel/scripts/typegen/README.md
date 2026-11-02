@@ -108,7 +108,7 @@ config order.
 | `naming.py` | Swift identifier casing, acronyms, and keyword escaping. |
 | `docc.py` | DocC comment extraction, cleanup, and wrapping. |
 | `render.py` | Jinja2 rendering to `(filename, source)` with no file I/O. |
-| `output.py` | Writing files, `swift-format`, and pruning stale outputs. |
+| `output.py` | Writing files, `swift format`, and pruning stale outputs. |
 
 ---
 

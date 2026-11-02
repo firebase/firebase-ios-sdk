@@ -784,12 +784,22 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                                versionNumber:(NSString *)versionNumber {
   NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
   NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+  if (![rolloutMetadata isKindOfClass:[NSArray class]]) {
+    return rolloutsAssignments;
+  }
   for (NSDictionary *metadata in rolloutMetadata) {
+    if (![metadata isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
     NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
     NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
     NSArray<NSString *> *affectedParameterKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
-    if (rolloutId && variantID && affectedParameterKeys) {
+    if ([rolloutId isKindOfClass:[NSString class]] && [variantID isKindOfClass:[NSString class]] &&
+        [affectedParameterKeys isKindOfClass:[NSArray class]]) {
       for (NSString *key in affectedParameterKeys) {
+        if (![key isKindOfClass:[NSString class]]) {
+          continue;
+        }
         FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
         if (!value) {
           value = [self defaultValueForFullyQualifiedNamespace:FQNamespace key:key];
