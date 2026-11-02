@@ -37,6 +37,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
     var tokenError: NSError?
     let fetchTokenGroup = DispatchGroup()
+    let serialAuthArgsQueue = self.serialAuthArgsQueue
 
     let scheme = request?.url?.scheme?.lowercased()
     let isHttps = scheme == "https"
@@ -51,7 +52,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     if let auth {
       fetchTokenGroup.enter()
       auth.getToken(forcingRefresh: false) { token, error in
-        self.serialAuthArgsQueue.async {
+        serialAuthArgsQueue.async {
           if let error = error as? NSError {
             var errorDictionary = error.userInfo
             errorDictionary["ResponseErrorDomain"] = error.domain
@@ -68,7 +69,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     if let appCheck {
       fetchTokenGroup.enter()
       appCheck.getToken(forcingRefresh: false) { tokenResult in
-        self.serialAuthArgsQueue.async {
+        serialAuthArgsQueue.async {
           request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
           if let error = tokenResult.error {
