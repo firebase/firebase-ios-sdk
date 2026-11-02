@@ -272,7 +272,7 @@ static char workerQueueKey;
     dispatch_source_t timer = [connection valueForKey:@"keepAlive"];
     dispatch_source_set_timer(timer, dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC),
                               DISPATCH_TIME_FOREVER, 0);
-    [connection onClosed];
+    [connection close];
     [connection resetKeepAlive];
     [connection webSocketDidOpen];
     XCTAssertNil([connection valueForKey:@"keepAlive"]);

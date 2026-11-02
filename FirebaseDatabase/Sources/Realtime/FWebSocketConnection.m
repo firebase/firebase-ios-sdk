@@ -52,7 +52,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)shutdown;
 - (void)onClosed;
 - (void)closeIfNeverConnected;
-- (BOOL)isConnectionClosed;
+- (void)cancelKeepAlive;
 
 #if TARGET_OS_WATCH
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
@@ -120,6 +120,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #if TARGET_OS_WATCH
         // Regular NSURLSession websocket.
         NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
+        opQueue.maxConcurrentOperationCount = 1;
         opQueue.underlyingQueue = queue;
         NSURLSession *session = [NSURLSession
             sessionWithConfiguration:[NSURLSessionConfiguration
@@ -242,9 +243,8 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)close {
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
-    @synchronized(self) {
-        isClosed = YES;
-    }
+    isClosed = YES;
+    [self cancelKeepAlive];
 #if TARGET_OS_WATCH
     [self.webSocketTask
         cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
@@ -287,20 +287,11 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)nop {
-    if (![self isConnectionClosed]) {
+    if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
         // Note: the backend is expecting a string "0" here, not any special
         // ping/pong from build in websocket APIs.
         [self sendStringToWebSocket:@"0"];
-    } else {
-        FFLog(@"I-RDB083005",
-              @"(wsc:%@) No more websocket; invalidating nop timer.",
-              self.connectionId);
-        if (keepAlive) {
-            dispatch_source_cancel(keepAlive);
-            keepAlive = nil;
-        }
-        keepAliveFireDate = nil;
     }
 }
 
@@ -392,26 +383,21 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
       __auto_type strongSelf = weakSelf;
-      if (strongSelf == nil) {
+      if (strongSelf == nil || strongSelf->isClosed) {
           return;
       }
 
-      dispatch_async(strongSelf.dispatchQueue, ^{
-        if ([strongSelf isConnectionClosed]) {
-            return;
-        }
-        if (message) {
-            [strongSelf handleIncomingFrame:message.string];
-        } else if (error) {
-            FFWarn(
-                @"I-RDB083020",
-                @"Error received from web socket, closing the connection. %@",
-                error);
-            [strongSelf shutdown];
-            return;
-        }
-        [strongSelf receiveWebSocketData];
-      });
+      if (message) {
+          [strongSelf handleIncomingFrame:message.string];
+      } else if (error) {
+          FFWarn(@"I-RDB083020",
+                 @"Error received from web socket, closing the connection. %@",
+                 error);
+          [strongSelf shutdown];
+          return;
+      }
+
+      [strongSelf receiveWebSocketData];
     }];
 }
 
@@ -447,7 +433,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
     everConnected = YES;
 
-    if ([self isConnectionClosed] || keepAlive) {
+    if (isClosed || keepAlive) {
         return;
     }
     keepAlive = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
@@ -462,7 +448,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     __weak FWebSocketConnection *weakSelf = self;
     dispatch_source_set_event_handler(keepAlive, ^{
       FWebSocketConnection *strongSelf = weakSelf;
-      if (!strongSelf || [strongSelf isConnectionClosed]) {
+      if (!strongSelf || strongSelf->isClosed) {
           return;
       }
       strongSelf->keepAliveFireDate =
@@ -534,19 +520,18 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)shutdown {
-    @synchronized(self) {
-        if (isClosed) {
-            return;
-        }
-        isClosed = YES;
+    if (isClosed) {
+        return;
     }
+    isClosed = YES;
+    [self cancelKeepAlive];
 
     // Call delegate methods
     [self.delegate onDisconnect:self wasEverConnected:everConnected];
 }
 
 - (void)onClosed {
-    if (![self isConnectionClosed]) {
+    if (!isClosed) {
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
     }
@@ -555,21 +540,21 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #else
     self.webSocket = nil;
 #endif // TARGET_OS_WATCH
-    if (keepAlive) {
-        dispatch_source_cancel(keepAlive);
-        keepAlive = nil;
-    }
-    keepAliveFireDate = nil;
+    [self cancelKeepAlive];
 }
 
 - (void)resetKeepAlive {
     // Connection callbacks and this timer share the worker queue.
-    if ([self isConnectionClosed] || !keepAlive) {
+    if (isClosed || !keepAlive) {
         return;
     }
     NSDate *newTime =
         [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
+    // Calling dispatch_source_set_timer on every frame is unnecessary, so wait
+    // at least 5 seconds before updating it.
     if ([newTime timeIntervalSinceDate:keepAliveFireDate] > 5) {
+        FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@",
+              self.connectionId, newTime, keepAliveFireDate);
         dispatch_source_set_timer(
             keepAlive,
             dispatch_time(DISPATCH_TIME_NOW,
@@ -579,10 +564,12 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     }
 }
 
-- (BOOL)isConnectionClosed {
-    @synchronized(self) {
-        return isClosed;
+- (void)cancelKeepAlive {
+    if (keepAlive) {
+        dispatch_source_cancel(keepAlive);
+        keepAlive = nil;
     }
+    keepAliveFireDate = nil;
 }
 
 + (NSURLRequest *)createRequestWithURL:(NSString *)connectionURL
