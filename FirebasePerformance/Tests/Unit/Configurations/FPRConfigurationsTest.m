@@ -571,4 +571,244 @@
   [configFlags resetCache];
 }
 
+#pragma mark - Malformed remote config values
+
+/** Creates configurations backed by fake remote config flags and empty user defaults. */
+- (FPRConfigurations *)makeConfigurationsWithRemoteConfig:(FPRFakeRemoteConfig *)remoteConfig {
+  FPRConfigurations *configurations =
+      [[FPRConfigurations alloc] initWithSources:FPRConfigurationSourceRemoteConfig];
+  FPRRemoteConfigFlags *configFlags =
+      [[FPRRemoteConfigFlags alloc] initWithRemoteConfig:(FIRRemoteConfig *)remoteConfig];
+  configurations.remoteConfigFlags = configFlags;
+  configFlags.lastFetchedTime = [NSDate date];
+  configFlags.userDefaults = [self makeEmptyUserDefaults];
+  [configFlags resetCache];
+  return configurations;
+}
+
+- (NSString *)cacheKeyForFlag:(NSString *)flag {
+  return [NSString stringWithFormat:@"%@.%@", kFPRConfigPrefix, flag];
+}
+
+/** Validates that rate limiting durations under one minute fall back to the default. */
+- (void)testRateLimitingDurationInvalidRemoteConfigValuesFallBackToDefault {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+  NSString *configKey = [self cacheKeyForFlag:@"fpr_rl_time_limit_sec"];
+
+  for (id value in @[ @(0), @(30), @(59), @(-600), @(INT_MIN), @"garbage" ]) {
+    [userDefaults setObject:value forKey:configKey];
+    XCTAssertEqual([configurations foregroundEventTimeLimit], 10, @"value: %@", value);
+    XCTAssertEqual([configurations backgroundEventTimeLimit], 10, @"value: %@", value);
+    XCTAssertEqual([configurations foregroundNetworkEventTimeLimit], 10, @"value: %@", value);
+    XCTAssertEqual([configurations backgroundNetworkEventTimeLimit], 10, @"value: %@", value);
+  }
+
+  // Smallest valid value.
+  [userDefaults setObject:@(60) forKey:configKey];
+  XCTAssertEqual([configurations foregroundEventTimeLimit], 1);
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that negative rate limiting event counts fall back to the defaults. */
+- (void)testRateLimitingCountsNegativeRemoteConfigValuesFallBackToDefault {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+
+  for (id value in @[ @(-1), @(INT_MIN), @"-100" ]) {
+    [userDefaults setObject:value forKey:[self cacheKeyForFlag:@"fpr_rl_trace_event_count_fg"]];
+    [userDefaults setObject:value forKey:[self cacheKeyForFlag:@"fpr_rl_trace_event_count_bg"]];
+    [userDefaults setObject:value
+                     forKey:[self cacheKeyForFlag:@"fpr_rl_network_request_event_count_fg"]];
+    [userDefaults setObject:value
+                     forKey:[self cacheKeyForFlag:@"fpr_rl_network_request_event_count_bg"]];
+
+    XCTAssertEqual([configurations foregroundEventCount], 300, @"value: %@", value);
+    XCTAssertEqual([configurations backgroundEventCount], 30, @"value: %@", value);
+    XCTAssertEqual([configurations foregroundNetworkEventCount], 700, @"value: %@", value);
+    XCTAssertEqual([configurations backgroundNetworkEventCount], 70, @"value: %@", value);
+  }
+
+  // Zero is a valid value that drops all events.
+  [userDefaults setObject:@(0) forKey:[self cacheKeyForFlag:@"fpr_rl_trace_event_count_fg"]];
+  XCTAssertEqual([configurations foregroundEventCount], 0);
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that negative gauge capture frequencies fall back to the defaults. */
+- (void)testGaugeCollectionFrequencyNegativeRemoteConfigValuesFallBackToDefault {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+
+  NSArray<NSString *> *flags = @[
+    @"fpr_session_gauge_cpu_capture_frequency_fg_ms",
+    @"fpr_session_gauge_cpu_capture_frequency_bg_ms",
+    @"fpr_session_gauge_memory_capture_frequency_fg_ms",
+    @"fpr_session_gauge_memory_capture_frequency_bg_ms"
+  ];
+
+  for (id value in @[ @(-1), @(INT_MIN), @"-50" ]) {
+    for (NSString *flag in flags) {
+      [userDefaults setObject:value forKey:[self cacheKeyForFlag:flag]];
+    }
+    XCTAssertEqual([configurations cpuSamplingFrequencyInForegroundInMS], 100, @"value: %@", value);
+    XCTAssertEqual([configurations cpuSamplingFrequencyInBackgroundInMS], 0, @"value: %@", value);
+    XCTAssertEqual([configurations memorySamplingFrequencyInForegroundInMS], 100, @"value: %@",
+                   value);
+    XCTAssertEqual([configurations memorySamplingFrequencyInBackgroundInMS], 0, @"value: %@",
+                   value);
+  }
+
+  // Zero is a valid value that disables gauge collection.
+  for (NSString *flag in flags) {
+    [userDefaults setObject:@(0) forKey:[self cacheKeyForFlag:flag]];
+  }
+  XCTAssertEqual([configurations cpuSamplingFrequencyInForegroundInMS], 0);
+  XCTAssertEqual([configurations memorySamplingFrequencyInForegroundInMS], 0);
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that zero or negative max session durations fall back to the default. */
+- (void)testSessionMaxLengthInvalidRemoteConfigValuesFallBackToDefault {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+  NSString *configKey = [self cacheKeyForFlag:@"fpr_session_max_duration_min"];
+
+  for (id value in @[ @(0), @(-1), @(INT_MIN), @"garbage" ]) {
+    [userDefaults setObject:value forKey:configKey];
+    XCTAssertEqual([configurations maxSessionLengthInMinutes], 240, @"value: %@", value);
+  }
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that NaN or negative sampling rates fall back to the defaults. */
+- (void)testSamplingRatesInvalidRemoteConfigValuesFallBackToDefault {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+
+  for (id value in @[ @(NAN), @(-0.5), @"-0.5" ]) {
+    [userDefaults setObject:value forKey:[self cacheKeyForFlag:@"fpr_vc_trace_sampling_rate"]];
+    [userDefaults setObject:value
+                     forKey:[self cacheKeyForFlag:@"fpr_vc_network_request_sampling_rate"]];
+    [userDefaults setObject:value forKey:[self cacheKeyForFlag:@"fpr_vc_session_sampling_rate"]];
+    XCTAssertEqual([configurations logTraceSamplingRate], 1.0, @"value: %@", value);
+    XCTAssertEqual([configurations logNetworkSamplingRate], 1.0, @"value: %@", value);
+    XCTAssertEqual([configurations sessionsSamplingPercentage], 1.0, @"value: %@", value);
+  }
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that cached values of unexpected types are ignored instead of crashing. */
+- (void)testCachedValuesOfUnexpectedTypeFallBackToDefaults {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  remoteConfig.lastFetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  configurations.remoteConfigFlags.lastFetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  GULUserDefaults *userDefaults = configurations.remoteConfigFlags.userDefaults;
+
+  NSArray<NSString *> *flags = @[
+    @"fpr_log_source",
+    @"fpr_enabled",
+    @"fpr_disabled_ios_versions",
+    @"fpr_rl_time_limit_sec",
+    @"fpr_rl_trace_event_count_fg",
+    @"fpr_rl_trace_event_count_bg",
+    @"fpr_rl_network_request_event_count_fg",
+    @"fpr_rl_network_request_event_count_bg",
+    @"fpr_vc_trace_sampling_rate",
+    @"fpr_vc_network_request_sampling_rate",
+    @"fpr_vc_session_sampling_rate",
+    @"fpr_session_gauge_cpu_capture_frequency_fg_ms",
+    @"fpr_session_gauge_cpu_capture_frequency_bg_ms",
+    @"fpr_session_gauge_memory_capture_frequency_fg_ms",
+    @"fpr_session_gauge_memory_capture_frequency_bg_ms",
+    @"fpr_session_max_duration_min",
+    @"fpr_prewarm_detection",
+  ];
+  NSArray *malformedValues = @[
+    [@"garbage" dataUsingEncoding:NSUTF8StringEncoding], @[ @1, @2 ], @{@"key" : @"value"},
+    [NSDate date]
+  ];
+
+  for (id value in malformedValues) {
+    for (NSString *flag in flags) {
+      [userDefaults setObject:value forKey:[self cacheKeyForFlag:flag]];
+    }
+
+#if defined(FPR_AUTOPUSH_ENDPOINT)
+    XCTAssertEqual([configurations logSource], 461);
+#else
+    XCTAssertEqual([configurations logSource], 462);
+#endif
+    XCTAssertTrue([configurations sdkEnabled]);
+    XCTAssertEqualObjects([configurations sdkDisabledVersions], [NSSet set]);
+    XCTAssertEqual([configurations logTraceSamplingRate], 1.0);
+    XCTAssertEqual([configurations logNetworkSamplingRate], 1.0);
+    XCTAssertEqual([configurations foregroundEventCount], 300);
+    XCTAssertEqual([configurations foregroundEventTimeLimit], 10);
+    XCTAssertEqual([configurations backgroundEventCount], 30);
+    XCTAssertEqual([configurations backgroundEventTimeLimit], 10);
+    XCTAssertEqual([configurations foregroundNetworkEventCount], 700);
+    XCTAssertEqual([configurations foregroundNetworkEventTimeLimit], 10);
+    XCTAssertEqual([configurations backgroundNetworkEventCount], 70);
+    XCTAssertEqual([configurations backgroundNetworkEventTimeLimit], 10);
+    XCTAssertEqual([configurations sessionsSamplingPercentage], 1.0);
+    XCTAssertEqual([configurations maxSessionLengthInMinutes], 240);
+    XCTAssertEqual([configurations cpuSamplingFrequencyInForegroundInMS], 100);
+    XCTAssertEqual([configurations cpuSamplingFrequencyInBackgroundInMS], 0);
+    XCTAssertEqual([configurations memorySamplingFrequencyInForegroundInMS], 100);
+    XCTAssertEqual([configurations memorySamplingFrequencyInBackgroundInMS], 0);
+    XCTAssertEqual([configurations prewarmDetectionMode], PrewarmDetectionModeActivePrewarm);
+  }
+  [configurations.remoteConfigFlags resetCache];
+}
+
+/** Validates that malformed values fetched from remote config are cached and resolved safely. */
+- (void)testMalformedFetchedRemoteConfigValuesResolveToDefaults {
+  FPRFakeRemoteConfig *remoteConfig = [[FPRFakeRemoteConfig alloc] init];
+  FPRConfigurations *configurations = [self makeConfigurationsWithRemoteConfig:remoteConfig];
+  FPRRemoteConfigFlags *configFlags = configurations.remoteConfigFlags;
+
+  NSDictionary<NSString *, NSData *> *remoteValues = @{
+    @"fpr_rl_time_limit_sec" : [@"abc" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_rl_trace_event_count_fg" : [@"-5" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_rl_network_request_event_count_fg" : [@"-7.5" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_vc_trace_sampling_rate" : [@"-0.5" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_vc_network_request_sampling_rate" : [@"" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_session_gauge_cpu_capture_frequency_fg_ms" :
+        [@"-100" dataUsingEncoding:NSUTF8StringEncoding],
+    @"fpr_session_max_duration_min" : [@"-10" dataUsingEncoding:NSUTF8StringEncoding],
+    // Invalid UTF-8.
+    @"fpr_disabled_ios_versions" : [NSData dataWithBytes:(const char[]){(char)0xFF, (char)0xFE}
+                                                  length:2],
+  };
+  [remoteValues enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSData *data, BOOL *stop) {
+    [remoteConfig.configValues
+        setObject:[[FIRRemoteConfigValue alloc] initWithData:data
+                                                      source:FIRRemoteConfigSourceRemote]
+           forKey:key];
+  }];
+
+  remoteConfig.fetchStatus = FIRRemoteConfigFetchStatusSuccess;
+  remoteConfig.lastFetchTime = nil;
+  configFlags.appStartConfigFetchDelayInSeconds = 0.0;
+  [configFlags update];
+
+  XCTAssertEqual([configurations foregroundEventTimeLimit], 10);
+  XCTAssertEqual([configurations foregroundEventCount], 300);
+  XCTAssertEqual([configurations foregroundNetworkEventCount], 700);
+  XCTAssertEqual([configurations logTraceSamplingRate], 1.0);
+  // An empty value parses to a sampling rate of 0, which is a valid value.
+  XCTAssertEqual([configurations logNetworkSamplingRate], 0.0);
+  XCTAssertEqual([configurations cpuSamplingFrequencyInForegroundInMS], 100);
+  XCTAssertEqual([configurations maxSessionLengthInMinutes], 240);
+  XCTAssertEqualObjects([configurations sdkDisabledVersions], [NSSet set]);
+  [configFlags resetCache];
+}
+
 @end

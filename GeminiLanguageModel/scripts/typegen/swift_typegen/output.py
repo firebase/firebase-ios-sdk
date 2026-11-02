@@ -67,42 +67,12 @@ def write_files(
     return written_files
 
 
-def find_swift_format() -> str | None:
-    """Locates a swift-format executable.
-
-    Checks PATH first, then falls back to the copy bundled with Xcode via
-    `xcrun --find swift-format`, which is not on PATH by default.
-
-    Returns:
-        The path to swift-format, or None if it cannot be found.
-    """
-    swift_format_bin = shutil.which("swift-format")
-    if swift_format_bin:
-        return swift_format_bin
-    xcrun_bin = shutil.which("xcrun")
-    if not xcrun_bin:
-        return None
-    try:
-        res = subprocess.run(
-            [xcrun_bin, "--find", "swift-format"],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-    except OSError:
-        return None
-    path = res.stdout.strip()
-    if res.returncode == 0 and path and os.path.exists(path):
-        return path
-    return None
-
-
 def run_swift_format(paths: list[str], verbose: bool = False) -> None:
-    """Formats files in place with swift-format, if it can be found.
+    """Formats files in place with `swift format`, if `swift` can be found.
 
-    Prints a warning (regardless of verbosity) if swift-format cannot be
-    found or fails, since unformatted output will differ from committed
-    sources.
+    Prints a warning (regardless of verbosity) if `swift` cannot be
+    found or `swift format` fails, since unformatted output will differ from
+    committed sources.
 
     Args:
         paths: Swift files to format.
@@ -110,29 +80,29 @@ def run_swift_format(paths: list[str], verbose: bool = False) -> None:
     """
     if not paths:
         return
-    swift_format_bin = find_swift_format()
-    if not swift_format_bin:
+    swift_bin = shutil.which("swift")
+    if not swift_bin:
         print(
-            "Warning: swift-format not found on PATH or via `xcrun`;"
-            " generated files were not formatted."
+            "Warning: `swift` not found on PATH; generated files were not"
+            " formatted."
         )
         return
     try:
         res = subprocess.run(
-            [swift_format_bin, "format", "-i"] + paths,
+            [swift_bin, "format", "-i"] + paths,
             capture_output=True,
             text=True,
             check=False,
         )
     except OSError as e:
-        print(f"Warning: swift-format could not be executed: {e}")
+        print(f"Warning: `swift format` could not be executed: {e}")
         return
     if res.returncode == 0:
         if verbose:
-            print(f"Formatted {len(paths)} files with swift-format.")
+            print(f"Formatted {len(paths)} files with `swift format`.")
     else:
         print(
-            f"Warning: swift-format exited with status {res.returncode}:"
+            f"Warning: `swift format` exited with status {res.returncode}:"
             f" {res.stderr.strip()}"
         )
 

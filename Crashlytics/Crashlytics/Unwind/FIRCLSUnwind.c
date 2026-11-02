@@ -294,7 +294,7 @@ bool FIRCLSUnwindFirstExecutableAddress(vm_address_t start,
   do {
     vm_address_t address;
 
-    FIRCLSSDKLogDebug("Checking address %p => %p\n", (void*)start, (void*)*(uintptr_t*)start);
+    FIRCLSSDKLogDebug("Checking address %p\n", (void*)start);
 
     // if start isn't a valid pointer, don't even bother trying
     if (FIRCLSIsValidPointer(start)) {
