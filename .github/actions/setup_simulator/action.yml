@@ -1,5 +1,5 @@
 name: Setup Simulator
-description: Creates a simulator for the specified platform using the latest installed runtime.
+description: Creates a simulator for the specified platform using the active Xcode runtime.
 inputs:
   platform:
     description: 'Platform (iOS, tvOS, watchOS, visionOS, all)'
@@ -9,4 +9,7 @@ runs:
   steps:
     - name: Setup Simulator
       shell: bash
-      run: scripts/setup_simulator.sh "${{ inputs.platform }}"
+      env:
+        PLATFORM: ${{ inputs.platform }}
+      run: |
+        bash "${GITHUB_ACTION_PATH}/../../../scripts/setup_simulator.sh" "$PLATFORM"
