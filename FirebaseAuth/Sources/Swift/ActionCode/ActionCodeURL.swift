@@ -52,7 +52,7 @@ import Foundation
       return nil
     }
     apiKey = queryItems["apiKey"]
-    operation = ActionCodeInfo.actionCodeOperation(forRequestType: queryItems["mode"])
+    operation = ActionCodeURL.actionCodeOperation(forMode: queryItems["mode"])
     code = queryItems["oobCode"]
     if let continueURL = queryItems["continueUrl"] {
       self.continueURL = URL(string: continueURL)
@@ -77,5 +77,23 @@ import Foundation
       }
     }
     return queryItems
+  }
+
+  /// Map the `mode` query parameter of an out of band link to the corresponding operation type.
+  ///
+  /// Links use camelCase `mode` values (e.g. `verifyEmail`). The backend's `requestType` uses
+  /// SCREAMING_SNAKE_CASE instead; see `ActionCodeInfo.actionCodeOperation(forRequestType:)`.
+  /// - Parameter mode: The `mode` query parameter of the link.
+  /// - Returns: The corresponding ActionCodeOperation for the supplied mode.
+  class func actionCodeOperation(forMode mode: String?) -> ActionCodeOperation {
+    switch mode {
+    case "resetPassword": return .passwordReset
+    case "verifyEmail": return .verifyEmail
+    case "recoverEmail": return .recoverEmail
+    case "signIn": return .emailLink
+    case "verifyAndChangeEmail": return .verifyAndChangeEmail
+    case "revertSecondFactorAddition": return .revertSecondFactorAddition
+    default: return .unknown
+    }
   }
 }

@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
 - [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
   on the worker queue to avoid cross-thread access. (#16767, #16971)
 

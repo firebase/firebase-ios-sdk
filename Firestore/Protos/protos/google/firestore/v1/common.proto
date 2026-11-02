@@ -55,10 +55,26 @@ message Precondition {
 
 // Options for creating a new transaction.
 message TransactionOptions {
+  // Modes available for transactions.
+  enum ConcurrencyMode {
+    // Defaults to the database's default concurrency mode.
+    CONCURRENCY_MODE_UNSPECIFIED = 0;
+
+    // Optimistic concurrency mode.
+    OPTIMISTIC = 1;
+
+    // Pessimistic concurrency mode.
+    PESSIMISTIC = 2;
+  }
+
   // Options for a transaction that can be used to read and write documents.
   message ReadWrite {
     // An optional transaction to retry.
     bytes retry_transaction = 1;
+
+    // The concurrency mode for this transaction. If not set, defaults to
+    // the database's default concurrency mode.
+    ConcurrencyMode concurrency_mode = 2;
   }
 
   // Options for a transaction that can only be used to read documents.
