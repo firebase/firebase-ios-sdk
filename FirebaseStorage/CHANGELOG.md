@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Serialized Auth and App Check token header updates to avoid concurrent
+  mutation of the request when using custom interop providers. (#16766)
 - [fixed] Fixed a memory leak where `StorageUploadTask` and `StorageDownloadTask` objects, and the
   data being uploaded, were never released after `cancel()` or, for downloads, `pause()`. (#16841)
 - [fixed] Prevented duplicate upload and download requests when resuming a task before its initial
