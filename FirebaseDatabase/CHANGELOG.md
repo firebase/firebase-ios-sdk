@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)
