@@ -16,7 +16,7 @@
 
 """Prints logs from test runs captured in Apple .xcresult bundles.
 
-USAGE: xcresult_logs.py -workspace <path> -scheme <scheme> [other flags...]
+USAGE: xcresult_logs.py [-workspace <path> | -project <path>] -scheme <scheme> [other flags...]
 
 xcresult_logs.py finds and displays the log output associated with an xcodebuild
 invocation. Pass your entire xcodebuild command-line as arguments to this script
@@ -51,8 +51,11 @@ def main():
   xcresult_path = flags.get('-resultBundlePath')
   if xcresult_path is None:
     workspace = flags.get('-workspace')
+    xcodeproj = flags.get('-project')
     if workspace:
         project = project_from_workspace_path(workspace)
+    elif xcodeproj:
+        project = project_from_xcodeproj_path(xcodeproj)
     else:
         # For SwiftPM, the project name is the name of the directory.
         project = os.path.basename(os.getcwd())
@@ -75,6 +78,11 @@ def main():
   except Exception as e:
     _logger.warning('Failed to create symlink to xcresult: %s', e)
 
+  if os.environ.get('SKIP_XCRESULT_STDOUT', '').lower() in ('1', 'true', 'yes'):
+    _logger.info('Skipping xcresult stdout export because SKIP_XCRESULT_STDOUT is set.')
+    print(xcresult_path)
+    return
+
   log_id = find_log_id(xcresult_path)
   log = export_log(xcresult_path, log_id)
 
@@ -95,6 +103,7 @@ def main():
 # Most flags on the xcodebuild command-line are uninteresting, so only pull
 # flags with known behavior with names in this set.
 INTERESTING_FLAGS = {
+    '-project',
     '-resultBundlePath',
     '-scheme',
     '-workspace',
@@ -129,12 +138,30 @@ def project_from_workspace_path(path):
     The project name from the basename of the path. For example, if path were
     'Firestore/Example/Firestore.xcworkspace', returns 'Firestore'.
   """
-  root, ext = os.path.splitext(os.path.basename(path))
+  root, ext = os.path.splitext(os.path.basename(path.rstrip('/')))
   if ext == '.xcworkspace':
     _logger.debug('Using project %s from workspace %s', root, path)
     return root
 
   raise ValueError('%s is not a valid workspace path' % path)
+
+
+def project_from_xcodeproj_path(path):
+  """Extracts the project name from an Xcode project path.
+  Args:
+    path: The path to a .xcodeproj bundle
+
+  Returns:
+    The project name from the basename of the path. For example, if path were
+    'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcodeproj', returns
+    'AuthenticationExample'.
+  """
+  root, ext = os.path.splitext(os.path.basename(path.rstrip('/')))
+  if ext == '.xcodeproj':
+    _logger.debug('Using project %s from xcodeproj %s', root, path)
+    return root
+
+  raise ValueError('%s is not a valid xcodeproj path' % path)
 
 
 def find_xcresult_path(project, scheme):

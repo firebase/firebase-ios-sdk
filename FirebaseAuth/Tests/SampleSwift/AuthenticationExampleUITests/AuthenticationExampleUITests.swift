@@ -23,12 +23,8 @@ class AuthenticationExampleUITests: XCTestCase {
     continueAfterFailure = false
 
     app = XCUIApplication()
+    app.launchArguments.append("--uitesting-reset-auth")
     app.launch()
-  }
-
-  override func tearDown() {
-    super.tearDown()
-    signOut()
   }
 
   func dismissSavePasswordPrompt() {
@@ -39,7 +35,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
       if notNowOption.exists {
         notNowOption.tap()
-      } else {
+      } else if passwordSheet.staticTexts["Not Now"].exists {
         // Fallback: If Apple literally made it StaticText instead of a Button,
         // you can often just tap the text directly!
         passwordSheet.staticTexts["Not Now"].tap()
@@ -47,6 +43,22 @@ class AuthenticationExampleUITests: XCTestCase {
       let predicate = NSPredicate(format: "exists == false")
       expectation(for: predicate, evaluatedWith: passwordSheet)
       waitForExpectations(timeout: 5.0)
+    }
+
+    // Handle system or compromised/weak password alerts (in-app or SpringBoard).
+    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+    for container in [
+      app.alerts.firstMatch,
+      springboard.sheets.firstMatch,
+      springboard.alerts.firstMatch,
+    ]
+      where container.exists {
+      for label in ["Not Now", "Close", "OK"] {
+        if container.buttons[label].exists {
+          container.buttons[label].tap()
+          break
+        }
+      }
     }
   }
 
@@ -64,6 +76,13 @@ class AuthenticationExampleUITests: XCTestCase {
     let isAnonymousCell = app.cells.containing(.staticText, identifier: "Is User Anonymous?")
       .element
     XCTAssertTrue(isAnonymousCell.staticTexts["Yes"].exists, "The user should be anonymous")
+
+    app.staticTexts["Sign Out"].tap()
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in after tapping Sign Out."
+    )
   }
 
   func testAuthExistingAccount() {
@@ -82,9 +101,10 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].typeText(testPassword)
 
     app.buttons["Login"].tap()
+
+    wait(forElement: app.navigationBars["User"], timeout: 10.0)
     dismissSavePasswordPrompt()
 
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)
     XCTAssertTrue(
       app.staticTexts[testEmail].exists,
@@ -197,9 +217,10 @@ class AuthenticationExampleUITests: XCTestCase {
     app.typeText(newPassword)
 
     app.buttons["Create Account"].tap()
+
+    wait(forElement: app.navigationBars["User"], timeout: 10.0)
     dismissSavePasswordPrompt()
 
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)
     XCTAssertTrue(
       app.staticTexts[newEmail].exists,
@@ -332,21 +353,6 @@ class AuthenticationExampleUITests: XCTestCase {
       0,
       "The user shouldn't be signed in and the user view should have no cells."
     )
-  }
-
-  // MARK: - Private Helpers
-
-  private func signOut() {
-    if app.tabBars.firstMatch.buttons.element(boundBy: 1).exists {
-      app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    }
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
-    if app.staticTexts["Sign Out"].exists {
-      app.staticTexts["Sign Out"].tap()
-    }
-    if app.tabBars.firstMatch.buttons.element(boundBy: 0).exists {
-      app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
-    }
   }
 }
 
