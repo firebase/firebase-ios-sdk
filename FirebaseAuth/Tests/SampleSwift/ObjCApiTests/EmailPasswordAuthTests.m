@@ -19,9 +19,6 @@
 #import "FIRAuthApiTestsBase.h"
 @import FirebaseAuth;
 
-/** The testing email address for testCreateAccountWithEmailAndPassword. */
-static NSString *const kNewEmailToCreateUser = @"user+email_new_user@example.com";
-
 /** The testing email address for testSignInExistingUserWithEmailAndPassword. */
 static NSString *const kExistingEmailToSignIn = @"user+email_existing_user@example.com";
 
@@ -40,9 +37,10 @@ static NSString *const kExistingPasswordToSignIn = @"password";
   if (!auth) {
     XCTFail(@"Could not obtain auth object.");
   }
+  NSString *newEmail = [self fakeRandomEmail];
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Created account with email and password."];
-  [auth createUserWithEmail:kNewEmailToCreateUser
+  [auth createUserWithEmail:newEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *result, NSError *error) {
                    if (error) {
@@ -59,7 +57,7 @@ static NSString *const kExistingPasswordToSignIn = @"password";
                                  }
                                }];
 
-  XCTAssertEqualObjects(auth.currentUser.email, kNewEmailToCreateUser);
+  XCTAssertEqualObjects(auth.currentUser.email, newEmail);
 
   [self deleteCurrentUser];
 }

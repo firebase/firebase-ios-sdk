@@ -19,20 +19,15 @@ import Foundation
 import XCTest
 
 class EmailPasswordTests: TestsBase {
-  /// ** The testing email address for testCreateAccountWithEmailAndPassword. */
-  let kNewEmailToCreateUser = "user+email_new_user@example.com"
-
   /// ** The testing email address for testSignInExistingUserWithEmailAndPassword. */
   let kExistingEmailToSignIn = "user+email_existing_user@example.com"
 
   func testCreateAccountWithEmailAndPassword() async throws {
     let auth = Auth.auth()
-    // Ensure the account that will be created does not already exist.
-    let result = try? await auth.signIn(withEmail: kNewEmailToCreateUser, password: "password")
-    try? await result?.user.delete()
+    let newEmail = "user+\(UUID().uuidString.lowercased())@example.com"
 
     let expectation = self.expectation(description: "Created account with email and password.")
-    auth.createUser(withEmail: kNewEmailToCreateUser, password: "password") { result, error in
+    auth.createUser(withEmail: newEmail, password: "password") { result, error in
       if let error {
         print("createUserWithEmail has error: \(error)")
       }
@@ -40,18 +35,16 @@ class EmailPasswordTests: TestsBase {
     }
     await fulfillment(of: [expectation], timeout: TestsBase.kExpectationsTimeout)
 
-    XCTAssertEqual(auth.currentUser?.email, kNewEmailToCreateUser, "Expected email doesn't match")
+    XCTAssertEqual(auth.currentUser?.email, newEmail, "Expected email doesn't match")
     try? await deleteCurrentUserAsync()
   }
 
   func testCreateAccountWithEmailAndPasswordAsync() async throws {
     let auth = Auth.auth()
-    // Ensure the account that will be created does not already exist.
-    let result = try? await auth.signIn(withEmail: kNewEmailToCreateUser, password: "password")
-    try? await result?.user.delete()
+    let newEmail = "user+\(UUID().uuidString.lowercased())@example.com"
 
-    try await auth.createUser(withEmail: kNewEmailToCreateUser, password: "password")
-    XCTAssertEqual(auth.currentUser?.email, kNewEmailToCreateUser, "Expected email doesn't match")
+    try await auth.createUser(withEmail: newEmail, password: "password")
+    XCTAssertEqual(auth.currentUser?.email, newEmail, "Expected email doesn't match")
     try await deleteCurrentUserAsync()
   }
 
