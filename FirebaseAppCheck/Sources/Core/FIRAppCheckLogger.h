@@ -26,6 +26,8 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 extern FIRLoggerService kFIRLoggerAppCheck;
 
 // FIRAppCheck.m
@@ -35,6 +37,9 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing
 // FIRAppCheckDebugProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenSource;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenRejected;
+FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning;
 
 // FIRAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
@@ -53,4 +58,10 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDeviceCheckProvid
 
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
 
+void FIRAppCheckLogDebugTokenSource(NSString *source);
+
+void FIRAppCheckLogDebugTokenRejected(void);
+
 GACAppCheckLogLevel FIRGetGACAppCheckLogLevel(void);
+
+NS_ASSUME_NONNULL_END

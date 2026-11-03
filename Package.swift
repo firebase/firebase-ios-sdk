@@ -99,6 +99,10 @@ func packageProducts() -> [Product] {
       name: "FirebaseAppCheck",
       targets: ["FirebaseAppCheck"]
     ),
+    .plugin(
+      name: "FirebaseAppCheckDebugTokenPlugin",
+      targets: ["FirebaseAppCheckDebugTokenPlugin"]
+    ),
     .library(
       name: "FirebaseAppDistribution-Beta",
       targets: ["FirebaseAppDistributionTarget"]
@@ -1260,6 +1264,11 @@ func packageTargets() -> [Target] {
 
     // MARK: - Firebase App Check
 
+    .plugin(
+      name: "FirebaseAppCheckDebugTokenPlugin",
+      capability: .buildTool(),
+      path: "FirebaseAppCheck/Plugins/DebugTokenPlugin"
+    ),
     .target(name: "FirebaseAppCheck",
             dependencies: [
               "FirebaseAppCheckInterop",

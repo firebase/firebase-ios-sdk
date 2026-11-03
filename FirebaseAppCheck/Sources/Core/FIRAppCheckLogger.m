@@ -29,6 +29,9 @@ NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
 // FIRAppCheckDebugProvider.m
 NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I-FAA004001";
 NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed = @"I-FAA004002";
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenSource = @"I-FAA004003";
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenRejected = @"I-FAA004004";
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning = @"I-FAA004005";
 
 // FIRAppCheckDebugProviderFactory.m
 NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
@@ -52,6 +55,17 @@ void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...) {
   va_start(args_ptr, message);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppCheck, messageCode, message, args_ptr);
   va_end(args_ptr);
+}
+
+void FIRAppCheckLogDebugTokenSource(NSString *source) {
+  FIRLogInfo(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenSource,
+             @"[FirebaseAppCheck] Debug token loaded from %@.", source);
+}
+
+void FIRAppCheckLogDebugTokenRejected(void) {
+  FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenRejected,
+                @"[FirebaseAppCheck] Debug token was rejected by server. Run 'firebase "
+                @"appcheck:debugtokens:create --force' to provision a new token.");
 }
 
 #pragma mark - Helper functions
