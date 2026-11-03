@@ -12,13 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
   import Foundation
-  import FoundationModels
+  #if FoundationModelsFake
+    import FoundationModelsFake
+  #else
+    import FoundationModels
+  #endif
   import GeminiAPIDataModels
   import GeminiTestUtilities
   import Testing
-  import UniformTypeIdentifiers
+  #if canImport(UniformTypeIdentifiers)
+    import UniformTypeIdentifiers
+  #endif
 
   @testable import GeminiLanguageModel
 
@@ -732,89 +738,95 @@
 
     // MARK: - Image Attachments
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func translatesPromptWithImageBetweenTextPreservingOrder() throws {
-      let transcript = Transcript(
-        entries: [
-          .prompt(
-            Transcript.Prompt(
-              segments: [
-                Self.textSegment("Before"),
-                try Self.imageSegment(),
-                Self.textSegment("After"),
-              ]
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func translatesPromptWithImageBetweenTextPreservingOrder() throws {
+        let transcript = Transcript(
+          entries: [
+            .prompt(
+              Transcript.Prompt(
+                segments: [
+                  Self.textSegment("Before"),
+                  try Self.imageSegment(),
+                  Self.textSegment("After"),
+                ]
+              )
             )
-          )
-        ]
-      )
+          ]
+        )
 
-      let result = try GeminiTranscriptTranslator.translate(transcript)
+        let result = try GeminiTranscriptTranslator.translate(transcript)
 
-      #expect(result.contents.count == 1)
-      let userTurn = try #require(result.contents.first)
-      #expect(userTurn.role == "user")
-      let parts = try #require(userTurn.parts)
-      #expect(parts.count == 3)
-      #expect(parts[0].data == .text("Before"))
-      #expect(Self.isJPEGInlineData(parts[1].data))
-      #expect(parts[2].data == .text("After"))
-    }
+        #expect(result.contents.count == 1)
+        let userTurn = try #require(result.contents.first)
+        #expect(userTurn.role == "user")
+        let parts = try #require(userTurn.parts)
+        #expect(parts.count == 3)
+        #expect(parts[0].data == .text("Before"))
+        #expect(Self.isJPEGInlineData(parts[1].data))
+        #expect(parts[2].data == .text("After"))
+      }
+    #endif  // canImport(ImageIO)
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func mergesAdjacentTextSegmentsAroundImages() throws {
-      let transcript = Transcript(
-        entries: [
-          .prompt(
-            Transcript.Prompt(
-              segments: [
-                Self.textSegment("Compare "),
-                Self.textSegment("these:"),
-                try Self.imageSegment(),
-                try Self.imageSegment(color: .blue),
-                Self.textSegment("Be "),
-                Self.textSegment("brief."),
-              ]
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func mergesAdjacentTextSegmentsAroundImages() throws {
+        let transcript = Transcript(
+          entries: [
+            .prompt(
+              Transcript.Prompt(
+                segments: [
+                  Self.textSegment("Compare "),
+                  Self.textSegment("these:"),
+                  try Self.imageSegment(),
+                  try Self.imageSegment(color: .blue),
+                  Self.textSegment("Be "),
+                  Self.textSegment("brief."),
+                ]
+              )
             )
-          )
-        ]
-      )
+          ]
+        )
 
-      let result = try GeminiTranscriptTranslator.translate(transcript)
+        let result = try GeminiTranscriptTranslator.translate(transcript)
 
-      let parts = try #require(result.contents.first?.parts)
-      #expect(parts.count == 4)
-      #expect(parts[0].data == .text("Compare these:"))
-      #expect(Self.isJPEGInlineData(parts[1].data))
-      #expect(Self.isJPEGInlineData(parts[2].data))
-      #expect(parts[1].data != parts[2].data)
-      #expect(parts[3].data == .text("Be brief."))
-    }
+        let parts = try #require(result.contents.first?.parts)
+        #expect(parts.count == 4)
+        #expect(parts[0].data == .text("Compare these:"))
+        #expect(Self.isJPEGInlineData(parts[1].data))
+        #expect(Self.isJPEGInlineData(parts[2].data))
+        #expect(parts[1].data != parts[2].data)
+        #expect(parts[3].data == .text("Be brief."))
+      }
+    #endif  // canImport(ImageIO)
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func imageOnlyPromptOmitsEmptyTextParts() throws {
-      let transcript = Transcript(
-        entries: [
-          .prompt(
-            Transcript.Prompt(
-              segments: [
-                Self.textSegment(""),
-                try Self.imageSegment(),
-                Self.textSegment(""),
-              ]
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func imageOnlyPromptOmitsEmptyTextParts() throws {
+        let transcript = Transcript(
+          entries: [
+            .prompt(
+              Transcript.Prompt(
+                segments: [
+                  Self.textSegment(""),
+                  try Self.imageSegment(),
+                  Self.textSegment(""),
+                ]
+              )
             )
-          )
-        ]
-      )
+          ]
+        )
 
-      let result = try GeminiTranscriptTranslator.translate(transcript)
+        let result = try GeminiTranscriptTranslator.translate(transcript)
 
-      let parts = try #require(result.contents.first?.parts)
-      #expect(parts.count == 1)
-      #expect(Self.isJPEGInlineData(parts[0].data))
-    }
+        let parts = try #require(result.contents.first?.parts)
+        #expect(parts.count == 1)
+        #expect(Self.isJPEGInlineData(parts[0].data))
+      }
+    #endif  // canImport(ImageIO)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -848,26 +860,28 @@
       #expect(parts[0].data == .text("Hello, world!"))
     }
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func attachmentLabelIsNotSentToModel() throws {
-      let label = "barcode-image"
-      let transcript = Transcript(
-        entries: [
-          .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: label)]))
-        ]
-      )
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func attachmentLabelIsNotSentToModel() throws {
+        let label = "barcode-image"
+        let transcript = Transcript(
+          entries: [
+            .prompt(Transcript.Prompt(segments: [try Self.imageSegment(label: label)]))
+          ]
+        )
 
-      let result = try GeminiTranscriptTranslator.translate(transcript)
+        let result = try GeminiTranscriptTranslator.translate(transcript)
 
-      let parts = try #require(result.contents.first?.parts)
-      #expect(parts.count == 1)
-      guard case .inlineData(let blob) = parts[0].data else {
-        Issue.record("Expected inline data, got \(String(describing: parts[0].data)).")
-        return
+        let parts = try #require(result.contents.first?.parts)
+        #expect(parts.count == 1)
+        guard case .inlineData(let blob) = parts[0].data else {
+          Issue.record("Expected inline data, got \(String(describing: parts[0].data)).")
+          return
+        }
+        #expect(blob.displayName == nil)
       }
-      #expect(blob.displayName == nil)
-    }
+    #endif  // canImport(ImageIO)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -914,37 +928,41 @@
       }
     #endif  // compiler(>=6.4.2)
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func imageInInstructionsThrowsUnsupportedTranscriptContent() throws {
-      let instructions = Transcript.Instructions(
-        segments: [try Self.imageSegment()],
-        toolDefinitions: []
-      )
-      let transcript = Transcript(entries: [.instructions(instructions)])
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func imageInInstructionsThrowsUnsupportedTranscriptContent() throws {
+        let instructions = Transcript.Instructions(
+          segments: [try Self.imageSegment()],
+          toolDefinitions: []
+        )
+        let transcript = Transcript(entries: [.instructions(instructions)])
 
-      let context = try Self.unsupportedTranscriptContent(translating: transcript)
+        let context = try Self.unsupportedTranscriptContent(translating: transcript)
 
-      #expect(context.unsupportedContent == [.instructions(instructions)])
-      #expect(context.debugDescription == "Attachment segments are only supported in prompts.")
-    }
+        #expect(context.unsupportedContent == [.instructions(instructions)])
+        #expect(context.debugDescription == "Attachment segments are only supported in prompts.")
+      }
+    #endif  // canImport(ImageIO)
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func imageInResponseThrowsUnsupportedTranscriptContent() throws {
-      let response = Transcript.Response(segments: [try Self.imageSegment()])
-      let transcript = Transcript(
-        entries: [
-          .prompt(Transcript.Prompt(segments: [Self.textSegment("Draw a picture.")])),
-          .response(response),
-        ]
-      )
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func imageInResponseThrowsUnsupportedTranscriptContent() throws {
+        let response = Transcript.Response(segments: [try Self.imageSegment()])
+        let transcript = Transcript(
+          entries: [
+            .prompt(Transcript.Prompt(segments: [Self.textSegment("Draw a picture.")])),
+            .response(response),
+          ]
+        )
 
-      let context = try Self.unsupportedTranscriptContent(translating: transcript)
+        let context = try Self.unsupportedTranscriptContent(translating: transcript)
 
-      #expect(context.unsupportedContent == [.response(response)])
-      #expect(context.debugDescription == "Attachment segments are only supported in prompts.")
-    }
+        #expect(context.unsupportedContent == [.response(response)])
+        #expect(context.debugDescription == "Attachment segments are only supported in prompts.")
+      }
+    #endif  // canImport(ImageIO)
 
     // MARK: - Helpers
 
@@ -976,25 +994,27 @@
       .text(Transcript.TextSegment(content: content))
     }
 
-    /// Creates an attachment segment containing a small solid-color image.
-    ///
-    /// - Parameters:
-    ///   - color: The color that fills the image.
-    ///   - label: An optional label for the attachment.
-    /// - Returns: The attachment segment.
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    private static func imageSegment(
-      color: TestImages.Color = .red,
-      label: String? = nil
-    ) throws -> Transcript.Segment {
-      let image = try TestImages.solid(color, width: 16, height: 16)
-      return .attachment(
-        Transcript.AttachmentSegment(
-          content: .image(Transcript.ImageAttachment(image)),
-          label: label
+    #if canImport(ImageIO)
+      /// Creates an attachment segment containing a small solid-color image.
+      ///
+      /// - Parameters:
+      ///   - color: The color that fills the image.
+      ///   - label: An optional label for the attachment.
+      /// - Returns: The attachment segment.
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      private static func imageSegment(
+        color: TestImages.Color = .red,
+        label: String? = nil
+      ) throws -> Transcript.Segment {
+        let image = try TestImages.solid(color, width: 16, height: 16)
+        return .attachment(
+          Transcript.AttachmentSegment(
+            content: .image(Transcript.ImageAttachment(image)),
+            label: label
+          )
         )
-      )
-    }
+      }
+    #endif  // canImport(ImageIO)
 
     /// Returns whether part data is non-empty inline JPEG data.
     ///
@@ -1007,4 +1027,4 @@
       return blob.mimeType == "image/jpeg" && blob.data?.isEmpty == false
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels)) && canImport(ImageIO)
   import CoreGraphics
   import CoreVideo
   import Foundation
-  import FoundationModels
+  #if FoundationModelsFake
+    import FoundationModelsFake
+  #else
+    import FoundationModels
+  #endif
   import GeminiAPIDataModels
   import GeminiTestUtilities
   import ImageIO
@@ -644,4 +648,4 @@
       #expect(colors.bottomRight == testCase.bottomRight, sourceLocation: sourceLocation)
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // FoundationModels && canImport(ImageIO)

@@ -129,6 +129,39 @@ jobs:
       # credentials are provided.
       run: swift test --skip IntegrationTests
 
+  # Builds and tests against FoundationModelsFake, which the `FoundationModelsFake` trait enables
+  # by default on Linux.
+  unit-tests-linux:
+    name: unit-tests-linux
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    container: swift:6.4.2
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    # Both packages build swift-syntax for the `@Generable` macro, so cache their build
+    # directories between runs.
+    - name: Cache SwiftPM build directories
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: |
+          GeminiLanguageModel/FoundationModelsFake/.build
+          GeminiLanguageModel/.build
+        key: geminilanguagemodel-linux-swift-6.4.2-${{ hashFiles('GeminiLanguageModel/Package.swift', 'GeminiLanguageModel/FoundationModelsFake/Package.swift') }}
+        restore-keys: geminilanguagemodel-linux-swift-6.4.2-
+
+    - name: Run FoundationModelsFake tests
+      working-directory: GeminiLanguageModel/FoundationModelsFake
+      run: swift test
+
+    - name: Run GeminiLanguageModel unit tests
+      working-directory: GeminiLanguageModel
+      # Skips the `*IntegrationTests` suites, which need credentials and network access.
+      run: swift test --skip IntegrationTests
+
   integration-tests:
     name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'

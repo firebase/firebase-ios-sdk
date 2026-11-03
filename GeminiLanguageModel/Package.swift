@@ -1,4 +1,4 @@
-// swift-tools-version: 6.1
+// swift-tools-version: 6.2
 
 // Copyright 2026 Google LLC
 //
@@ -16,20 +16,59 @@
 
 import PackageDescription
 
+#if compiler(<6.2.3)
+  #error("Firebase requires Swift 6.2.3 or higher. Please upgrade to Xcode 26.2 or later.")
+#endif  // compiler(<6.2.3)
+
 let defaultSwiftSettings: [SwiftSetting] = [
   .enableUpcomingFeature("ExistentialAny"),
   .enableUpcomingFeature("InternalImportsByDefault"),
   .enableUpcomingFeature("MemberImportVisibility"),
 ]
 
+/// Builds against `FoundationModelsFake` instead of Apple's `FoundationModels` framework.
+///
+/// The fake is for development and testing only. When the trait is enabled, SwiftPM also defines a
+/// `FoundationModelsFake` compilation condition, which the Gemini sources check.
+let foundationModelsFakeTrait = Trait(
+  name: "FoundationModelsFake",
+  description:
+    "Builds against FoundationModelsFake instead of Apple's FoundationModels framework, for "
+    + "development and testing where the real framework isn't available."
+)
+
+#if os(Linux)
+  /// Apple's `FoundationModels` framework doesn't exist on Linux, so the fake is on by default.
+  ///
+  /// This checks the machine that runs SwiftPM, so cross-compiling for Linux from macOS still needs
+  /// `--traits FoundationModelsFake`.
+  let defaultTraits: Set<String> = [foundationModelsFakeTrait.name]
+#else
+  let defaultTraits: Set<String> = []
+#endif  // os(Linux)
+
+/// The `FoundationModelsFake` dependency, present only when the trait is enabled.
+let foundationModelsFakeDependency: Target.Dependency = .product(
+  name: "FoundationModelsFake",
+  package: "FoundationModelsFake",
+  condition: .when(traits: [foundationModelsFakeTrait.name])
+)
+
 let package = Package(
   name: "gemini-for-foundation-models",
-  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v10_15), .tvOS(.v15), .watchOS(.v7)],
+  platforms: [.iOS(.v15), .macCatalyst(.v15), .macOS(.v11), .tvOS(.v15), .watchOS(.v8)],
   products: [
     .library(
       name: "GeminiLanguageModel",
       targets: ["GeminiLanguageModel"]
     )
+  ],
+  traits: [
+    foundationModelsFakeTrait,
+    .default(enabledTraits: defaultTraits),
+  ],
+  dependencies: [
+    .package(path: "FoundationModelsFake")
   ],
   targets: [
     .target(
@@ -37,6 +76,7 @@ let package = Package(
       dependencies: [
         "GeminiAPIClient",
         "GeminiAPIDataModels",
+        foundationModelsFakeDependency,
       ],
       swiftSettings: defaultSwiftSettings
     ),
@@ -56,6 +96,7 @@ let package = Package(
       dependencies: [
         "GeminiLanguageModel",
         "GeminiTestUtilities",
+        foundationModelsFakeDependency,
       ],
       exclude: [
         "IntegrationTests/README.md",
