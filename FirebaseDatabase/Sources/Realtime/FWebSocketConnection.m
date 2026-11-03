@@ -45,12 +45,14 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     NSMutableString *frame;
     BOOL everConnected;
     BOOL isClosed;
-    NSTimer *keepAlive;
+    dispatch_source_t keepAlive;
+    NSDate *keepAliveFireDate;
 }
 
 - (void)shutdown;
 - (void)onClosed;
 - (void)closeIfNeverConnected;
+- (void)cancelKeepAlive;
 
 #if TARGET_OS_WATCH
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
@@ -63,13 +65,19 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 @property(nonatomic, readonly) NSString *userAgent;
 @property(nonatomic) dispatch_queue_t dispatchQueue;
 
-- (void)nop:(NSTimer *)timer;
+- (void)nop;
 
 @end
 
 @implementation FWebSocketConnection
 
 @synthesize delegate;
+
+- (void)dealloc {
+    if (keepAlive) {
+        dispatch_source_cancel(keepAlive);
+    }
+}
 #if !TARGET_OS_WATCH
 @synthesize webSocket;
 #endif // !TARGET_OS_WATCH
@@ -112,6 +120,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #if TARGET_OS_WATCH
         // Regular NSURLSession websocket.
         NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
+        opQueue.maxConcurrentOperationCount = 1;
         opQueue.underlyingQueue = queue;
         NSURLSession *session = [NSURLSession
             sessionWithConfiguration:[NSURLSessionConfiguration
@@ -235,6 +244,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
     isClosed = YES;
+    [self cancelKeepAlive];
 #if TARGET_OS_WATCH
     [self.webSocketTask
         cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
@@ -276,17 +286,12 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     }
 }
 
-- (void)nop:(NSTimer *)timer {
+- (void)nop {
     if (!isClosed) {
         FFLog(@"I-RDB083004", @"(wsc:%@) nop", self.connectionId);
         // Note: the backend is expecting a string "0" here, not any special
         // ping/pong from build in websocket APIs.
         [self sendStringToWebSocket:@"0"];
-    } else {
-        FFLog(@"I-RDB083005",
-              @"(wsc:%@) No more websocket; invalidating nop timer.",
-              self.connectionId);
-        [timer invalidate];
     }
 }
 
@@ -378,13 +383,13 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                             NSURLSessionWebSocketMessage *_Nullable message,
                             NSError *_Nullable error) {
       __auto_type strongSelf = weakSelf;
-      if (strongSelf == nil) {
+      if (strongSelf == nil || strongSelf->isClosed) {
           return;
       }
 
       if (message) {
           [strongSelf handleIncomingFrame:message.string];
-      } else if (error && !strongSelf->isClosed) {
+      } else if (error) {
           FFWarn(@"I-RDB083020",
                  @"Error received from web socket, closing the connection. %@",
                  error);
@@ -428,16 +433,30 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
     everConnected = YES;
 
-    dispatch_async(dispatch_get_main_queue(), ^{
-      self->keepAlive =
-          [NSTimer scheduledTimerWithTimeInterval:kWebsocketKeepaliveInterval
-                                           target:self
-                                         selector:@selector(nop:)
-                                         userInfo:nil
-                                          repeats:YES];
-      FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off",
-            self.connectionId);
+    if (isClosed || keepAlive) {
+        return;
+    }
+    keepAlive = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
+                                       self.dispatchQueue);
+    keepAliveFireDate =
+        [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
+    dispatch_source_set_timer(
+        keepAlive,
+        dispatch_time(DISPATCH_TIME_NOW,
+                      kWebsocketKeepaliveInterval * NSEC_PER_SEC),
+        kWebsocketKeepaliveInterval * NSEC_PER_SEC, NSEC_PER_SEC);
+    __weak FWebSocketConnection *weakSelf = self;
+    dispatch_source_set_event_handler(keepAlive, ^{
+      FWebSocketConnection *strongSelf = weakSelf;
+      if (!strongSelf || strongSelf->isClosed) {
+          return;
+      }
+      strongSelf->keepAliveFireDate =
+          [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
+      [strongSelf nop];
     });
+    dispatch_resume(keepAlive);
+    FFLog(@"I-RDB083009", @"(wsc:%@) nop timer kicked off", self.connectionId);
 }
 
 #pragma mark -
@@ -501,7 +520,11 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 }
 
 - (void)shutdown {
+    if (isClosed) {
+        return;
+    }
     isClosed = YES;
+    [self cancelKeepAlive];
 
     // Call delegate methods
     [self.delegate onDisconnect:self wasEverConnected:everConnected];
@@ -517,21 +540,36 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 #else
     self.webSocket = nil;
 #endif // TARGET_OS_WATCH
-    if (keepAlive.isValid) {
-        [keepAlive invalidate];
-    }
+    [self cancelKeepAlive];
 }
 
 - (void)resetKeepAlive {
+    // Connection callbacks and this timer share the worker queue.
+    if (isClosed || !keepAlive) {
+        return;
+    }
     NSDate *newTime =
         [NSDate dateWithTimeIntervalSinceNow:kWebsocketKeepaliveInterval];
-    // Calling setFireDate is actually kinda' expensive, so wait at least 5
-    // seconds before updating it.
-    if ([newTime timeIntervalSinceDate:keepAlive.fireDate] > 5) {
+    // Calling dispatch_source_set_timer on every frame is unnecessary, so wait
+    // at least 5 seconds before updating it.
+    if ([newTime timeIntervalSinceDate:keepAliveFireDate] > 5) {
         FFLog(@"I-RDB083014", @"(wsc:%@) resetting keepalive, to %@ ; old: %@",
-              self.connectionId, newTime, [keepAlive fireDate]);
-        [keepAlive setFireDate:newTime];
+              self.connectionId, newTime, keepAliveFireDate);
+        dispatch_source_set_timer(
+            keepAlive,
+            dispatch_time(DISPATCH_TIME_NOW,
+                          kWebsocketKeepaliveInterval * NSEC_PER_SEC),
+            kWebsocketKeepaliveInterval * NSEC_PER_SEC, NSEC_PER_SEC);
+        keepAliveFireDate = newTime;
     }
+}
+
+- (void)cancelKeepAlive {
+    if (keepAlive) {
+        dispatch_source_cancel(keepAlive);
+        keepAlive = nil;
+    }
+    keepAliveFireDate = nil;
 }
 
 + (NSURLRequest *)createRequestWithURL:(NSString *)connectionURL
