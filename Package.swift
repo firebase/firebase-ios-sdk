@@ -96,20 +96,18 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 
 /// Whether to declare the products, dependencies, and targets that only support Apple platforms.
 ///
-/// SwiftPM evaluates `Package.swift` on the host OS, not on the platform being built for. The
-/// Apple-only definitions are declared on macOS hosts and skipped on other hosts (such as Linux),
-/// leaving room to declare host-specific definitions for development on those hosts.
+/// SwiftPM evaluates `Package.swift` on the host OS, not on the platform being built for. By
+/// default, all definitions are declared so package resolution behaves identically across macOS and
+/// non-macOS hosts (such as Dependabot or multi-platform consumers using `.when(platforms:)`).
 ///
-/// Dependabot is the exception: it resolves dependencies on Linux hosts on behalf of packages that
-/// target Apple platforms. Skipping the Apple-only definitions makes its resolution fail with
-/// "product not found" errors, so the definitions are also declared when the `DEPENDABOT`
-/// environment variable is set (https://github.com/dependabot/dependabot-core#dependabot-on-ci).
+/// Setting the `FIREBASE_CROSS_PLATFORM_ONLY` environment variable (to a non-empty value other than
+/// `"0"` or `"false"`) skips the Apple-only definitions, leaving only cross-platform definitions
+/// for incremental development and testing on non-Apple platforms such as Linux.
 let shouldIncludeAppleOnlyDefinitions: Bool = {
-  #if os(macOS)
+  guard let value = Context.environment["FIREBASE_CROSS_PLATFORM_ONLY"] else {
     return true
-  #else
-    return Context.environment["DEPENDABOT"] != nil
-  #endif // os(macOS)
+  }
+  return ["", "0", "false"].contains(value.lowercased())
 }()
 
 let package = Package(
@@ -124,10 +122,10 @@ let package = Package(
 
 // MARK: - Package Manifest Builders
 
+/// Returns the products declared by the package.
 func packageProducts() -> [Product] {
   var products: [Product] = []
   if shouldIncludeAppleOnlyDefinitions {
-    // Add Apple-only products when building on macOS hosts or with Dependabot.
     products.append(contentsOf: [
       .library(
         name: "FirebaseAILogic",
@@ -228,10 +226,10 @@ func packageProducts() -> [Product] {
   return products
 }
 
+/// Returns the external package dependencies declared by the package.
 func packageDependencies() -> [Package.Dependency] {
   var dependencies: [Package.Dependency] = []
   if shouldIncludeAppleOnlyDefinitions {
-    // Add Apple-only dependencies when building on macOS hosts or with Dependabot.
     dependencies.append(contentsOf: [
       .package(
         url: "https://github.com/google/promises.git",
@@ -278,8 +276,12 @@ func packageDependencies() -> [Package.Dependency] {
   return dependencies
 }
 
+/// Returns the targets declared by the package.
 func packageTargets() -> [Target] {
   var targets: [Target] = [
+    // Kept unguarded as a placeholder because SwiftPM requires packages to declare at least one
+    // target; move inside `shouldIncludeAppleOnlyDefinitions` once cross-platform targets are
+    // added.
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
@@ -287,7 +289,6 @@ func packageTargets() -> [Target] {
     ),
   ]
   if shouldIncludeAppleOnlyDefinitions {
-    // Add Apple-only targets when building on macOS hosts or with Dependabot.
     targets.append(contentsOf: [
       // MARK: - Firebase AI
 
@@ -1434,7 +1435,7 @@ func packageTargets() -> [Target] {
 
     #if compiler(>=6.4) && canImport(FoundationModels)
       targets.append(contentsOf: geminiLanguageModelTargets())
-    #endif
+    #endif // compiler(>=6.4) && canImport(FoundationModels)
   }
   return targets
 }
