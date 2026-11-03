@@ -26,7 +26,11 @@ actor StorageFetcherService {
 
   private var _fetcherService: GTMSessionFetcherService?
 
+  // Allows unit tests to hold service setup across a task pause/resume transition.
+  private var serviceWaiterForTesting: (@Sendable () async -> Void)?
+
   func service(_ storage: Storage) async -> GTMSessionFetcherService {
+    await serviceWaiterForTesting?()
     if let _fetcherService {
       return _fetcherService
     }
@@ -75,6 +79,10 @@ actor StorageFetcherService {
         fetcherService.testBlock = testBlock
       }
     }
+  }
+
+  func updateServiceWaiterForTesting(_ waiter: (@Sendable () async -> Void)?) {
+    serviceWaiterForTesting = waiter
   }
 
   private var testBlock: GTMSessionFetcherTestBlock?

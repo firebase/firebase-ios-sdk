@@ -26,6 +26,12 @@ cd quickstart-ios/"${SAMPLE}"
 if [[ "${SAMPLE}" == "FirebaseAI" ]]; then
   # For the FirebaseAI quickstart, we only want to remove the Firebase deps.
   "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" FirebaseAILogic
+elif [[ "${SAMPLE}" == "Authentication" ]]; then
+  # Firebase comes from the zip. GoogleSignIn is optional in the sample and goes too: its
+  # GTMSessionFetcher package would duplicate the zip's GTMSessionFetcher. FacebookLogin stays a
+  # Swift package, so it resolves to the version the sample requires.
+  "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj" \
+    FirebaseAuth GoogleSignIn
 else
   # For other quickstarts, remove all SPM dependencies.
   "${REPO}"/scripts/remove_spm_dependencies.rb "${SAMPLE}Example.xcodeproj"
