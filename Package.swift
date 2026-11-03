@@ -100,14 +100,14 @@ let shouldUseSourceFirestore = Context.environment["FIREBASE_SOURCE_FIRESTORE"] 
 /// default, all definitions are declared so package resolution behaves identically across macOS and
 /// non-macOS hosts (such as Dependabot or multi-platform consumers using `.when(platforms:)`).
 ///
-/// Setting the `FIREBASE_CROSS_PLATFORM_ONLY` environment variable (to a non-empty value other than
-/// `"0"` or `"false"`) skips the Apple-only definitions, leaving only cross-platform definitions
+/// Setting the `FIREBASE_CROSS_PLATFORM_ONLY` environment variable to `"1"`, `"true"`, or `"yes"`
+/// (case-insensitive) skips the Apple-only definitions, leaving only cross-platform definitions
 /// for incremental development and testing on non-Apple platforms such as Linux.
 let shouldIncludeAppleOnlyDefinitions: Bool = {
   guard let value = Context.environment["FIREBASE_CROSS_PLATFORM_ONLY"] else {
     return true
   }
-  return ["", "0", "false"].contains(value.lowercased())
+  return !["1", "true", "yes"].contains(value.lowercased())
 }()
 
 let package = Package(
@@ -279,9 +279,9 @@ func packageDependencies() -> [Package.Dependency] {
 /// Returns the targets declared by the package.
 func packageTargets() -> [Target] {
   var targets: [Target] = [
-    // Kept unguarded as a placeholder because SwiftPM requires packages to declare at least one
-    // target; move inside `shouldIncludeAppleOnlyDefinitions` once cross-platform targets are
-    // added.
+    // Kept unguarded as a placeholder because `swift build` with the native build system rejects
+    // packages without a buildable target; move inside `shouldIncludeAppleOnlyDefinitions` once
+    // cross-platform targets are added.
     .target(
       name: "Firebase",
       path: "CoreOnly/Sources",
