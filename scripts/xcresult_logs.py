@@ -16,7 +16,8 @@
 
 """Prints logs from test runs captured in Apple .xcresult bundles.
 
-USAGE: xcresult_logs.py [-workspace <path> | -project <path>] -scheme <scheme> [other flags...]
+USAGE: xcresult_logs.py [-workspace <path> | -project <path>] -scheme <scheme>
+                        [other flags...]
 
 xcresult_logs.py finds and displays the log output associated with an xcodebuild
 invocation. Pass your entire xcodebuild command-line as arguments to this script
@@ -79,7 +80,8 @@ def main():
     _logger.warning('Failed to create symlink to xcresult: %s', e)
 
   if os.environ.get('SKIP_XCRESULT_STDOUT', '').lower() in ('1', 'true', 'yes'):
-    _logger.info('Skipping xcresult stdout export because SKIP_XCRESULT_STDOUT is set.')
+    _logger.info(
+        'Skipping xcresult stdout export because SKIP_XCRESULT_STDOUT is set.')
     print(xcresult_path)
     return
 
