@@ -87,13 +87,15 @@
     ///   files that contain several images, the first image is used, matching
     ///   `Transcript.ImageAttachment`.
     ///
+    /// An attachment's label, set with `Attachment(image).label("barcode-image")`, is sent to the
+    /// model as text right before the image (for example, `[barcode-image]`). This lets tools that
+    /// take an `ImageReference`, such as Vision's `BarcodeReaderTool` and `OCRTool`, refer to the
+    /// image. As with the on-device model, these tools can only refer to labeled attachments.
+    ///
     /// Current limitations:
     ///
     /// - Image attachments are only supported in prompts, not in instructions or tool output.
     /// - Images from remote URLs (any URL that isn't a file URL) aren't supported.
-    /// - Attachment labels aren't sent to the model, so tools that take an `ImageReference`, such
-    ///   as Vision's `BarcodeReaderTool` and `OCRTool`, only work if the prompt text mentions the
-    ///   label.
     /// - Inline data counts toward the backend's request size limit (about 20 MB), and earlier
     ///   images in the session are re-sent with every request.
     /// - Image files are read again for every request in the session, so a file must remain

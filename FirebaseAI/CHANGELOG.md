@@ -3,6 +3,9 @@
   capability). Prompts can include image attachments created from a `CGImage`,
   a `CIImage`, a `CVPixelBuffer`, or a file URL; images from remote URLs aren't
   supported yet. (#16895)
+- [feature] `GeminiLanguageModel` now sends image attachment labels to the
+  model, so tools that take an `ImageReference`, such as Vision's
+  `BarcodeReaderTool` and `OCRTool`, can refer to labeled images. (#TBD)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

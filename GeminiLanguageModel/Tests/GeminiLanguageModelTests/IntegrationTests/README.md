@@ -62,6 +62,11 @@ All integration tests are parameterized across
   FoundationModels `Tool` definitions, covering single-turn tool calls,
   sequential tool calls, parallel tool calls, tool calling mode configuration,
   parameterless tools with empty arguments, and reasoning models.
+* [`ImageReferenceToolIntegrationTests.swift`](ImageReferenceToolIntegrationTests.swift):
+  Parameterized integration tests for Vision's `BarcodeReaderTool` and
+  `OCRTool`, which resolve images by attachment label. The prompts don't mention
+  the labels, so the tests verify that labels are shown to the model with their
+  images, for one and two labeled images.
 * [`ImageUnderstandingIntegrationTests.swift`](ImageUnderstandingIntegrationTests.swift):
   Parameterized integration tests for image input (`vision`) using images
   generated in code, covering single and multiple images, `@Generable`
