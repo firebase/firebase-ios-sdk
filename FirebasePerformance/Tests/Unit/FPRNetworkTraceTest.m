@@ -59,6 +59,39 @@
   XCTAssertNotNil(trace);
 }
 
+- (void)testUpdatingExistingAttributeAtMaximumCount {
+  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:self.testURLRequest];
+  for (NSUInteger index = 0; index < kFPRMaxGlobalCustomAttributesCount; index++) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
+    [trace setValue:@"original" forAttribute:attribute];
+  }
+  NSDictionary<NSString *, NSString *> *snapshot = trace.attributes;
+  [trace setValue:@"updated" forAttribute:@"attribute_0"];
+  [trace setValue:@"overflow" forAttribute:@"extra"];
+  XCTAssertEqualObjects([trace valueForAttribute:@"attribute_0"], @"updated");
+  XCTAssertEqualObjects(snapshot[@"attribute_0"], @"original");
+  XCTAssertEqual(trace.attributes.count, kFPRMaxGlobalCustomAttributesCount);
+  XCTAssertNil([trace valueForAttribute:@"extra"]);
+}
+
+- (void)testConcurrentAttributeAccessIsSerialized {
+  FPRNetworkTrace *trace = [[FPRNetworkTrace alloc] initWithURLRequest:self.testURLRequest];
+  dispatch_queue_t queue = dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+  dispatch_apply(64, queue, ^(size_t index) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
+    [trace setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertEqual(trace.attributes.count, kFPRMaxGlobalCustomAttributesCount);
+  dispatch_apply(1000, queue, ^(size_t index) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)(index % 64)];
+    [trace setValue:@"value" forAttribute:attribute];
+    (void)[trace valueForAttribute:attribute];
+    (void)trace.attributes;
+    [trace removeAttribute:attribute];
+  });
+  XCTAssertLessThanOrEqual(trace.attributes.count, kFPRMaxGlobalCustomAttributesCount);
+}
+
 /**
  * Validates that the object creation fails for invalid URLs.
  */
