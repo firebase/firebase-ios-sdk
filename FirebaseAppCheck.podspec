@@ -39,6 +39,8 @@ Pod::Spec.new do |s|
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
+  # Run Script build phase for embedding a debug token in Debug builds.
+  s.preserve_paths = base_dir + 'Scripts/inject_debug_token.sh'
 
   s.ios.weak_framework = 'DeviceCheck'
   s.osx.weak_framework = 'DeviceCheck'

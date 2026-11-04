@@ -1267,7 +1267,8 @@ func packageTargets() -> [Target] {
     .plugin(
       name: "FirebaseAppCheckDebugTokenPlugin",
       capability: .buildTool(),
-      path: "FirebaseAppCheck/Plugins/DebugTokenPlugin"
+      path: "FirebaseAppCheck/Plugins/DebugTokenPlugin",
+      exclude: ["README.md"]
     ),
     .target(name: "FirebaseAppCheck",
             dependencies: [

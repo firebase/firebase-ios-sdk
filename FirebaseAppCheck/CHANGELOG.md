@@ -1,9 +1,11 @@
 # Unreleased
 - [added] Added support for loading App Check debug tokens from the
-  `FIREBASE_APPCHECK_DEBUG_TOKEN` environment variable, the local Firebase CLI
-  configuration file (`~/.config/configstore/firebase-appcheck.json`) on
-  simulators and macOS, and build-time injection via
-  `FirebaseAppCheckDebugTokenPlugin`.
+  `FIREBASE_APPCHECK_DEBUG_TOKEN` environment variable, which takes precedence
+  over `AppCheckDebugToken`; from the local Firebase CLI configuration file
+  (`~/.config/configstore/firebase-appcheck.json`) on simulators and macOS; and
+  from a token embedded in Debug builds by the
+  `FirebaseAppCheckDebugTokenPlugin` Swift package plugin or the
+  `inject_debug_token.sh` build phase script.
 
 # 12.19.0
 - [fixed] Fixed an issue where the Recaptcha provider could cause build
