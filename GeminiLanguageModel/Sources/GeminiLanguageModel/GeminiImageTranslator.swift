@@ -468,16 +468,18 @@
         if url.scheme?.lowercased() == "data" {
           (mimeType, data) = try decodeDataURL(url)
         } else if url.isFileURL {
+          // The type comes from the file extension, so check it before reading the file.
+          guard let fileMIMEType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType,
+            passThroughMIMETypes.contains(fileMIMEType)
+          else {
+            throw .reencodingUnavailable
+          }
+          mimeType = fileMIMEType
           do {
             data = try Data(contentsOf: url, options: .mappedIfSafe)
           } catch {
             throw .unreadableFile(url)
           }
-          guard let fileMIMEType = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType
-          else {
-            throw .reencodingUnavailable
-          }
-          mimeType = fileMIMEType
         } else {
           throw .unsupportedURL(url)
         }

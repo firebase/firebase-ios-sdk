@@ -570,4 +570,4 @@
       return pixels
     }
   }
-#endif  // FoundationModels && canImport(ImageIO)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || FoundationModels) && canImport(ImageIO)

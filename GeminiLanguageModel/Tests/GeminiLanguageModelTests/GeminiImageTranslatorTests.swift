@@ -648,4 +648,4 @@
       #expect(colors.bottomRight == testCase.bottomRight, sourceLocation: sourceLocation)
     }
   }
-#endif  // FoundationModels && canImport(ImageIO)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || FoundationModels) && canImport(ImageIO)

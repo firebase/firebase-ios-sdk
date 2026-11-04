@@ -80,6 +80,38 @@ struct GenerableMacroEdgeCaseTests {
     try assertExpansion(source, matchesSnapshot: "EdgeCases/PackageUnlabeled")
   }
 
+  /// An enum whose cases mix labeled and unlabeled associated values. Like Apple's macro, an
+  /// unlabeled value is named after its position among all of the case's values.
+  @Test
+  func enumWithMixedAssociatedValueLabels() throws {
+    let source = """
+      @Generable
+      enum Mixed {
+        case mix(Int, label: String, Double)
+        case labeledFirst(x: Int, String)
+      }
+      """
+
+    try assertExpansion(source, matchesSnapshot: "EdgeCases/MixedAssociatedValueLabels")
+  }
+
+  /// A `public` struct whose properties have their own access levels. Like Apple's macro, each
+  /// `PartiallyGenerated` property repeats its property's modifiers.
+  @Test
+  func publicStructWithMixedPropertyAccess() throws {
+    let source = """
+      @Generable
+      public struct Mixed {
+        public var shown: String
+        var hidden: Int
+        private var secret: Int
+        public private(set) var readOnly: String
+      }
+      """
+
+    try assertExpansion(source, matchesSnapshot: "EdgeCases/MixedPropertyAccess")
+  }
+
   /// Associated value labels that are keywords are escaped where they're used as identifiers.
   @Test
   func keywordAssociatedValueLabels() throws {

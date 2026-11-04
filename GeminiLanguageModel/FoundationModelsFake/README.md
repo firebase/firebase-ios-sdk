@@ -9,8 +9,8 @@
 > Foundation Models framework before release.
 
 This package lets `GeminiLanguageModel` build and run its tests on Linux. It
-mirrors the public API of Apple's framework closely enough that the Gemini
-sources compile against either one.
+mirrors the public API of Apple's framework in the iOS 27.2 and macOS 27.2 SDKs
+(Xcode 27.2) closely enough that the Gemini sources compile against either one.
 
 ## Using the fake
 
@@ -69,7 +69,8 @@ tests; the fake's full behavior-comparison suite is maintained separately.
 - **Transcript JSON** uses the same format as Apple's, on purpose, so that
   transcripts can be exchanged with the real framework. Images backed by URLs
   are written as their URL (`file:` URLs are embedded) instead of being
-  re-encoded, and remote URLs are never fetched.
+  re-encoded, and remote URLs are never fetched. Decoding rejects `file:` image
+  URLs.
 - **Decoded structured content** isn't `==` to the content it was encoded from,
   because decoding loses the explicit key order. Their JSON is the same.
 - **Messages:** error and description strings are the fake's own, so don't

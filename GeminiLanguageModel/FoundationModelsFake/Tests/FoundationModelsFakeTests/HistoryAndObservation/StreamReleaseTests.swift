@@ -103,10 +103,9 @@
 
     @Test(arguments: policies)
     func releasingBeforeAnyEventCancelsTheCall(preserves: Bool) async throws {
-      let entered = Signal()
       let release = Signal()
       let session = Self.makeSession(
-        script: SessionObservationTests.gatedScript(entered: entered, release: release),
+        script: SessionObservationTests.gatedBeforeFirstEventScript(release: release),
         preserves: preserves
       )
       let preCall = session.transcript

@@ -157,9 +157,11 @@
 
     /// Creates a type-erased dynamic instructions value from instructions-representable content.
     ///
+    /// This isn't part of Apple's API; the fake's result builders use it.
+    ///
     /// - Parameter instructions: The instructions-representable value to wrap.
     @_disfavoredOverload
-    public init(_ instructions: some InstructionsRepresentable) {
+    internal init(_ instructions: some InstructionsRepresentable) {
       self.storage = instructions.instructionsRepresentation
     }
 

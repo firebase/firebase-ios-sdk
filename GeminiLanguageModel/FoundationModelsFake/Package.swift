@@ -53,7 +53,6 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/swiftlang/swift-syntax.git", "602.0.0"..<"605.0.0"),
     .package(url: "https://github.com/apple/swift-async-algorithms.git", from: "1.0.0"),
-    .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.0"),
   ],
   targets: [
     .macro(
@@ -72,17 +71,12 @@ let package = Package(
       dependencies: [
         "FoundationModelsFakeMacros",
         .product(name: "AsyncAlgorithms", package: "swift-async-algorithms"),
-        .product(name: "DequeModule", package: "swift-collections"),
-        .product(name: "OrderedCollections", package: "swift-collections"),
       ],
       swiftSettings: availabilityExemptSwiftSettings
     ),
     .testTarget(
       name: "FoundationModelsFakeTests",
-      dependencies: [
-        "FoundationModelsFake",
-        .product(name: "OrderedCollections", package: "swift-collections"),
-      ],
+      dependencies: ["FoundationModelsFake"],
       swiftSettings: availabilityExemptSwiftSettings
     ),
     .testTarget(

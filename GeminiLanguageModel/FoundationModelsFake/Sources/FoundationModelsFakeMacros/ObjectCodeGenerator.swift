@@ -136,7 +136,8 @@ struct ObjectCodeGenerator {
     conformances.append(contentsOf: equatableConformances)
     for property in schemaProperties {
       members.append(
-        "\(access.prefix)var \(property.identifier): \(property.type).PartiallyGenerated?")
+        "\(property.modifierPrefix)var \(property.identifier): \(property.type).PartiallyGenerated?"
+      )
       assignments.append(property.initializationSource)
     }
     let memberLines = members.map { "    \($0)\n" }.joined()

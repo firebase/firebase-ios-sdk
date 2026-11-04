@@ -22,7 +22,8 @@ struct GenerableEnumCase {
     /// The argument label, escaped where needed, or `nil` when the value is unlabeled.
     let label: String?
 
-    /// The property name used in the schema: the label, or `value`, `value1`, ... when unlabeled.
+    /// The property name used in the schema: the label, or when unlabeled, `value` for the first
+    /// associated value and `value<n>` for the value at position `n`.
     let schemaName: String
 
     /// The identifier used for bindings and helper-struct properties, with backticks if it's a
@@ -48,8 +49,10 @@ struct GenerableEnumCase {
   init(element: EnumCaseElementSyntax) {
     identifier = element.name.trimmedDescription
     name = element.name.unescapedText
-    var unlabeledCount = 0
-    associatedValues = (element.parameterClause?.parameters ?? []).map { parameter in
+    // Like Apple's macro, an unlabeled value is named after its position among all of the case's
+    // values: `case mix(Int, label: String, Double)` has `value`, `label`, and `value2`.
+    let parameters = element.parameterClause?.parameters ?? []
+    associatedValues = parameters.enumerated().map { position, parameter in
       if let firstName = parameter.firstName, firstName.tokenKind != .wildcard {
         let name = firstName.unescapedText
         return AssociatedValue(
@@ -59,8 +62,7 @@ struct GenerableEnumCase {
           type: parameter.type.normalizedForGeneration
         )
       }
-      let schemaName = unlabeledCount == 0 ? "value" : "value\(unlabeledCount)"
-      unlabeledCount += 1
+      let schemaName = position == 0 ? "value" : "value\(position)"
       return AssociatedValue(
         label: nil,
         schemaName: schemaName,

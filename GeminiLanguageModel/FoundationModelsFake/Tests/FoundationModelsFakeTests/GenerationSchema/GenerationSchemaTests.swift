@@ -220,6 +220,61 @@
       #expect(encoded.contains(##""b":{"$ref":"#/$defs/B"}"##))
     }
 
+    @Test(arguments: [
+      ##"{"$ref":"#"}"##,
+      ##"{"$ref":"#/$defs/A","$defs":{"A":{"$ref":"#/$defs/A"}}}"##,
+      ##"{"$ref":"#/$defs/A","$defs":{"A":{"$ref":"#/$defs/B"},"B":{"$ref":"#/$defs/A"}}}"##,
+      ##"{"$ref":"#/$defs/A","$defs":{"A":{"$ref":"#"}}}"##,
+    ])
+    func referenceOnlyCyclesFailToDecode(json: String) {
+      #expect(throws: DecodingError.self) {
+        try JSONDecoder().decode(GenerationSchema.self, from: Data(json.utf8))
+      }
+    }
+
+    @Test
+    func referenceCycleErrorNamesOnlyTheCycle() throws {
+      let json =
+        ##"{"$ref":"#/$defs/A","$defs":{"A":{"$ref":"#/$defs/B"},"B":{"$ref":"#/$defs/B"}}}"##
+
+      let error = try #require(throws: DecodingError.self) {
+        try JSONDecoder().decode(GenerationSchema.self, from: Data(json.utf8))
+      }
+
+      guard case .dataCorrupted(let context) = error else {
+        Issue.record("Expected dataCorrupted, got \(error).")
+        return
+      }
+      #expect(context.debugDescription == "References that only refer to each other: [B]")
+    }
+
+    @Test(arguments: [
+      ##"{"type":"object","properties":{"s":{"$ref":"#"}},"required":[],"##
+        + ##""additionalProperties":false,"x-order":["s"]}"##,
+      ##"{"type":"array","items":{"$ref":"#"}}"##,
+    ])
+    func untitledRootReferencedByHashFailsToDecode(json: String) {
+      #expect(throws: DecodingError.self) {
+        try JSONDecoder().decode(GenerationSchema.self, from: Data(json.utf8))
+      }
+    }
+
+    @Test
+    func untitledRecursiveDefinitionIsNamedByItsKey() throws {
+      let json = ##"""
+        {"$defs":{"Node":{"additionalProperties":false,"properties":{"next":{"$ref":"#/$defs/Node"}},\##
+        "required":[],"type":"object","x-order":["next"]}},"additionalProperties":false,\##
+        "properties":{"node":{"$ref":"#/$defs/Node"}},"required":["node"],"title":"Root",\##
+        "type":"object","x-order":["node"]}
+        """##
+      let schema = try JSONDecoder().decode(GenerationSchema.self, from: Data(json.utf8))
+
+      let encoded = try SchemaJSON.compactSortedJSON(schema)
+
+      #expect(encoded.contains(#""title":"Node""#))
+      #expect(encoded.contains(##""next":{"$ref":"#/$defs/Node"}"##))
+    }
+
     @Test
     func generatedContentPropertyIsHoistedWithSelfReferences() throws {
       let schema = GenerationSchema(

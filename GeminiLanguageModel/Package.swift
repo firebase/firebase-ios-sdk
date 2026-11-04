@@ -37,15 +37,16 @@ let foundationModelsFakeTrait = Trait(
     + "development and testing where the real framework isn't available."
 )
 
-#if os(Linux)
-  /// Apple's `FoundationModels` framework doesn't exist on Linux, so the fake is on by default.
+#if !canImport(Darwin)
+  /// Apple's `FoundationModels` framework only exists on Apple platforms, so the fake is on by
+  /// default elsewhere (for example, Linux).
   ///
   /// This checks the machine that runs SwiftPM, so cross-compiling for Linux from macOS still needs
   /// `--traits FoundationModelsFake`.
   let defaultTraits: Set<String> = [foundationModelsFakeTrait.name]
 #else
   let defaultTraits: Set<String> = []
-#endif  // os(Linux)
+#endif  // !canImport(Darwin)
 
 /// The `FoundationModelsFake` dependency, present only when the trait is enabled.
 let foundationModelsFakeDependency: Target.Dependency = .product(

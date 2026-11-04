@@ -47,7 +47,10 @@
         )
         for (name, definition) in definitions {
           names.append(name)
-          dependencies.append(definition.schema)
+          // An untitled definition takes its `$defs` key as its name. Otherwise it would be named
+          // `""`, which isn't registered as a definition when encoding, so a recursive one would be
+          // inlined forever.
+          dependencies.append(definition.schema.titled(ifUntitled: name))
         }
       }
       do {
@@ -62,6 +65,13 @@
             codingPath: decoder.codingPath,
             debugDescription: error.errorDescription ?? "Invalid schema",
             underlyingError: error
+          )
+        )
+      } catch let error as DecodedSchemaError {
+        throw DecodingError.dataCorrupted(
+          DecodingError.Context(
+            codingPath: decoder.codingPath,
+            debugDescription: error.debugDescription
           )
         )
       }
@@ -327,6 +337,31 @@
         description = nil
       } else {
         description = try container.decodeIfPresent(String.self, forKey: .description)
+      }
+    }
+  }
+
+  extension DynamicGenerationSchema {
+    /// Returns this schema named `name` if it's an object or union without a name.
+    ///
+    /// - Parameter name: The name to use when this schema has none.
+    /// - Returns: The named schema, or this schema unchanged.
+    fileprivate func titled(ifUntitled name: String) -> DynamicGenerationSchema {
+      switch kind {
+      case .structure("", let description, let representsNilExplicitly, let properties):
+        DynamicGenerationSchema(
+          kind: .structure(
+            name: name,
+            description: description,
+            representsNilExplicitly: representsNilExplicitly,
+            properties: properties
+          )
+        )
+      case .union("", let description, let choices):
+        DynamicGenerationSchema(
+          kind: .union(name: name, description: description, choices: choices))
+      default:
+        self
       }
     }
   }

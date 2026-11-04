@@ -32,6 +32,12 @@ struct GenerableProperty {
   /// The unlabeled arguments of the property's `@Guide` attributes.
   var guides: [ExprSyntax]
 
+  /// The property's declaration modifiers as written (such as `public private(set)`), each
+  /// followed by a space, or an empty string.
+  ///
+  /// Like Apple's macro, the matching `PartiallyGenerated` property repeats them.
+  var modifierPrefix: String
+
   /// Creates a property.
   ///
   /// - Parameters:
@@ -39,14 +45,20 @@ struct GenerableProperty {
   ///   - type: The declared type.
   ///   - description: The guide description.
   ///   - guides: The guide expressions.
+  ///   - modifiers: The declaration modifiers of the property.
   init(
-    name: TokenSyntax, type: TypeSyntax, description: ExprSyntax? = nil, guides: [ExprSyntax] = []
+    name: TokenSyntax,
+    type: TypeSyntax,
+    description: ExprSyntax? = nil,
+    guides: [ExprSyntax] = [],
+    modifiers: DeclModifierListSyntax = []
   ) {
     self.schemaName = name.unescapedText
     self.identifier = name.trimmedDescription
     self.type = type.normalizedForGeneration
     self.description = description
     self.guides = guides
+    self.modifierPrefix = modifiers.map { "\($0.trimmedDescription) " }.joined()
   }
 
   /// Creates a property with an explicit schema name and identifier.
@@ -62,6 +74,7 @@ struct GenerableProperty {
     self.type = type.normalizedForGeneration
     self.description = nil
     self.guides = guides
+    self.modifierPrefix = ""
   }
 
   /// Whether this is an `id: GenerationID` or `id: GenerationID?` property, which maps to the
@@ -178,7 +191,13 @@ extension GenerableProperty {
       bindings.append((pattern.identifier, type))
     }
     return bindings.reversed().map {
-      GenerableProperty(name: $0.name, type: $0.type, description: description, guides: guides)
+      GenerableProperty(
+        name: $0.name,
+        type: $0.type,
+        description: description,
+        guides: guides,
+        modifiers: variable.modifiers
+      )
     }
   }
 

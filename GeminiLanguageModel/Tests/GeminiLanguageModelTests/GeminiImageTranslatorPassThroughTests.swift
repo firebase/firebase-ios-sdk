@@ -105,6 +105,19 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func unknownExtensionIsRejectedBeforeReadingTheFile() throws {
+      let url = FileManager.default.temporaryDirectory
+        .appendingPathComponent(UUID().uuidString)
+        .appendingPathExtension("bin")
+      let attachment = Transcript.ImageAttachment(imageURL: url, orientation: .up)
+
+      #expect(throws: GeminiImageTranslator.TranslationError.reencodingUnavailable) {
+        try GeminiImageTranslator.partData(for: attachment)
+      }
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rotatedImageNeedsReencoding() throws {
       let url = try Self.temporaryFile(Self.pngBytes, pathExtension: "png")
       defer { try? FileManager.default.removeItem(at: url) }

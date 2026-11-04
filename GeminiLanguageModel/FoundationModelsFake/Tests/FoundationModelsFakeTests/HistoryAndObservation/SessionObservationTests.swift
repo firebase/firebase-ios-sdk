@@ -296,6 +296,14 @@
       }
     }
 
+    /// Waits for `release` before sending one text event.
+    static func gatedBeforeFirstEventScript(release: Signal) -> ScriptModel.Script {
+      { _, channel in
+        await release.wait()
+        await channel.send(.response(action: .appendText("a", tokenCount: 1)))
+      }
+    }
+
     /// Sends one text event, opens `entered`, then sleeps until cancelled.
     static func sleepingScript(entered: Signal) -> ScriptModel.Script {
       { _, channel in

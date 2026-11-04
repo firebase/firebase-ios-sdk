@@ -128,8 +128,8 @@
   /// The fake keeps the attachment's URL rather than re-encoding every image: `data:` URLs and
   /// remote URLs are written verbatim (remote URLs are never fetched), `file:` URLs are read and
   /// embedded as a `data:` URL whose MIME type is sniffed from the bytes, and on Apple platforms
-  /// in-memory images are encoded as JPEG `data:` URLs. Decoding yields an attachment backed by
-  /// the decoded URL.
+  /// in-memory images are encoded as JPEG `data:` URLs. Decoding rejects `file:` URLs and
+  /// yields an attachment backed by the decoded URL.
   ///
   /// File images are read whole with no size limit, so encode transcripts only with images you
   /// trust.
@@ -163,7 +163,8 @@
     /// Creates an attachment by decoding from the given decoder.
     ///
     /// - Parameter decoder: The decoder to read data from.
-    /// - Throws: `DecodingError` if the type is unknown or the data isn't a URL.
+    /// - Throws: `DecodingError` if the type is unknown, or the image data isn't a URL or is a
+    ///   `file:` URL.
     init(from decoder: any Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       let type = try container.decode(String.self, forKey: .type)
@@ -175,6 +176,15 @@
             forKey: .data,
             in: container,
             debugDescription: "The image data isn't a valid URL."
+          )
+        }
+        // The encoder writes every URL verbatim except `file:` URLs, which it reads and embeds, so
+        // accepting them would let decoded JSON make a later encode read an arbitrary local file.
+        guard !url.isFileURL else {
+          throw DecodingError.dataCorruptedError(
+            forKey: .data,
+            in: container,
+            debugDescription: "The image data can't be a file URL."
           )
         }
         self.content = .image(Transcript.ImageAttachment(imageURL: url))

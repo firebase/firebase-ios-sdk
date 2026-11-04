@@ -15,6 +15,13 @@
 #if compiler(>=6.4)
   // MARK: - Resolving dynamic schemas
 
+  /// A problem with decoded schema JSON that the public API can't produce, such as a reference
+  /// cycle; decoding reports it as a `DecodingError`.
+  struct DecodedSchemaError: Error {
+    /// A description of the problem.
+    let debugDescription: String
+  }
+
   extension DynamicGenerationSchema {
     /// The named schemas that references resolve against.
     private struct ResolutionContext: Sendable {
@@ -38,7 +45,8 @@
     ///   - dependencyNames: The name to register each dependency under, or `nil` to use each
     ///     dependency's own name. Decoding passes the `$defs` keys.
     /// - Returns: The resolved generation schema.
-    /// - Throws: ``GenerationSchema/SchemaError``.
+    /// - Throws: ``GenerationSchema/SchemaError``, or ``DecodedSchemaError`` for references that
+    ///   only decoded JSON can contain and that can't be resolved.
     static func resolve(
       root: DynamicGenerationSchema,
       dependencies: [DynamicGenerationSchema],
@@ -92,8 +100,75 @@
         )
       }
 
+      // Encoding refers back to the root by its name, so an unnamed root (such as an untitled
+      // object) that's referenced with `{"$ref": "#"}` would be inlined forever.
+      if (rootName ?? "").isEmpty, ([root] + dependencies).contains(where: \.containsRootReference) {
+        throw DecodedSchemaError(
+          debugDescription: "The root schema is referenced with \"#\" but has no title."
+        )
+      }
+
       let context = ResolutionContext(root: root, definitions: definitions)
+      // `converted(in:)` follows references eagerly, so a chain of references that never reaches a
+      // schema (such as `{"$ref": "#"}` at the root) would recurse forever.
+      for schema in [root] + definitions.values {
+        try schema.throwIfReferenceCycle(in: context)
+      }
       return root.converted(in: context)
+    }
+
+    /// Whether this schema or a schema nested in it is a reference to the root (`#`).
+    ///
+    /// References to named schemas aren't followed.
+    private var containsRootReference: Bool {
+      switch kind {
+      case .structure(_, _, _, let properties):
+        properties.contains { $0.schema.containsRootReference }
+      case .union(_, _, let choices):
+        choices.contains { $0.containsRootReference }
+      case .array(let element, _, _):
+        element.containsRootReference
+      case .dictionary(let value):
+        value.containsRootReference
+      case .rootReference:
+        true
+      case .enumeration, .reference, .null, .schema:
+        false
+      }
+    }
+
+    /// Throws if following references from this schema loops without reaching a schema.
+    ///
+    /// - Parameter context: The named schemas references resolve against.
+    /// - Throws: ``DecodedSchemaError`` naming the references in the cycle.
+    private func throwIfReferenceCycle(in context: ResolutionContext) throws {
+      var chain: [String] = []
+      var current = self
+      while true {
+        let target: String
+        let next: DynamicGenerationSchema?
+        switch current.kind {
+        case .reference(let name):
+          target = name
+          next = context.definitions[name]
+        case .rootReference:
+          target = "#"
+          next = context.root
+        default:
+          return
+        }
+        if let start = chain.firstIndex(of: target) {
+          let cycle = chain[start...].joined(separator: ", ")
+          throw DecodedSchemaError(
+            debugDescription: "References that only refer to each other: [\(cycle)]"
+          )
+        }
+        chain.append(target)
+        guard let next else {
+          return
+        }
+        current = next
+      }
     }
 
     /// Registers this schema and the named types nested in it, keeping the first schema registered

@@ -188,8 +188,6 @@
   @available(tvOS, unavailable)
   extension String: PromptRepresentable {
     /// A prompt representation wrapping this string as text.
-    @available(iOS 27.0, macOS 27.0, visionOS 27.0, watchOS 27.0, *)
-    @available(tvOS, unavailable)
     public var promptRepresentation: Prompt {
       Prompt(components: [.text(Prompt.Text(self))])
     }

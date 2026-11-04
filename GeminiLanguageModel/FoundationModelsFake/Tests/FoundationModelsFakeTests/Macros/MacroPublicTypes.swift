@@ -52,4 +52,22 @@
     /// High.
     case high
   }
+
+  /// A public struct with an internal property of an internal type, which only compiles if the
+  /// matching `PartiallyGenerated` property keeps the property's own access level.
+  @Generable
+  public struct MacroPublicRecordWithInternalDetail {
+    /// The record name.
+    public var name: String
+
+    /// An internal detail.
+    var detail: MacroInternalDetail
+  }
+
+  /// An internal type used by a property of a public type.
+  @Generable
+  struct MacroInternalDetail {
+    /// The detail's value.
+    var value: Int
+  }
 #endif  // compiler(>=6.4)

@@ -301,6 +301,35 @@
       #expect(encoded.allSatisfy { $0["label"] == nil })
     }
 
+    @Test(arguments: [
+      "data:image/png;base64,iVBORw0KGgo=",
+      "https://example.com/image.jpg",
+      "gs://bucket/image.jpg",
+      "image.jpg",
+    ])
+    func decodesNonFileImageURLs(urlString: String) throws {
+      let url = try #require(URL(string: urlString))
+      let json = try JSONEncoder().encode(Self.transcript(withImageURL: url, label: nil))
+
+      let decoded = try JSONDecoder().decode(Transcript.self, from: json)
+
+      #expect(Self.imageURL(in: decoded) == url)
+    }
+
+    @Test(arguments: ["file:///etc/hosts", "FILE:///etc/hosts"])
+    func rejectsDecodingFileImageURLs(urlString: String) throws {
+      let placeholderURL = "https://example.com/placeholder.jpg"
+      let url = try #require(URL(string: placeholderURL))
+      let encoder = JSONEncoder()
+      encoder.outputFormatting = .withoutEscapingSlashes
+      let encoded = try encoder.encode(Self.transcript(withImageURL: url, label: nil))
+      let json = String(decoding: encoded, as: UTF8.self).replacing(placeholderURL, with: urlString)
+
+      #expect(throws: DecodingError.self) {
+        try JSONDecoder().decode(Transcript.self, from: Data(json.utf8))
+      }
+    }
+
     /// Image signatures and the MIME types sniffed from them.
     static let imageSignatures: [([UInt8], String)] = {
       let webP: [UInt8] = Array("RIFF".utf8) + [0, 0, 0, 0] + Array("WEBP".utf8)
@@ -372,6 +401,20 @@
           )
         )
       ])
+    }
+
+    /// Returns the URL of the image in the first prompt segment of a transcript.
+    ///
+    /// - Parameter transcript: A transcript whose first entry is a prompt with an image.
+    /// - Returns: The image's URL, or `nil` if there's no URL-backed image.
+    static func imageURL(in transcript: Transcript) -> URL? {
+      guard case .prompt(let prompt) = transcript.first,
+        case .attachment(let segment) = prompt.segments.first,
+        case .image(let image) = segment.content
+      else {
+        return nil
+      }
+      return image.url
     }
 
     /// Encodes a transcript and returns the `attachment` object of its first prompt segment.
