@@ -908,9 +908,6 @@ func packageTargets() -> [Target] {
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseMessaging/Tests/UnitTests",
-      exclude: [
-        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
