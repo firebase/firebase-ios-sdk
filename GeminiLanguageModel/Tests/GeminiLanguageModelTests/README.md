@@ -21,7 +21,9 @@ swift test --filter GeminiLanguageModelTests
 | [`GeminiLanguageModelTests.swift`](GeminiLanguageModelTests.swift) | Protocol conformance, single/multi-turn responses, streaming, tool calling | Unit (`MockHTTPURLProtocol`) |
 | [`GenerationSchema+GeminiTests.swift`](GenerationSchema+GeminiTests.swift) | JSON Schema encoding and property ordering conversion | Unit (pure transformation) |
 | [`GeminiRequestTranslatorTests.swift`](GeminiRequestTranslatorTests.swift) | Request, generation config, tool declarations, and tool mode mapping | Unit (pure transformation) |
-| [`GeminiTranscriptTranslatorTests.swift`](GeminiTranscriptTranslatorTests.swift) | Apple `Transcript` <-> Gemini payload mapping (tools, reasoning, prompts) | Unit (pure transformation) |
+| [`GeminiTranscriptTranslatorTests.swift`](GeminiTranscriptTranslatorTests.swift) | Apple `Transcript` <-> Gemini payload mapping (tools, reasoning, prompts, image parts) | Unit (pure transformation) |
+| [`GeminiImageTranslatorTests.swift`](GeminiImageTranslatorTests.swift) | Image attachment encoding, orientation, file pass-through, and URL handling | Unit (images generated in code) |
+| [`TestImages.swift`](TestImages.swift) | Helpers that generate, encode, and sample test images without bundled resources | Test utility |
 | [`GeminiErrorMapperTests.swift`](GeminiErrorMapperTests.swift) | HTTP and API error mapping to `LanguageModelError` | Unit (exhaustive mapping) |
 | [`IntegrationTestingBackendTests.swift`](IntegrationTestingBackendTests.swift) | Endpoint resolution and credential discovery | Unit / Infrastructure |
 | [`IntegrationTests/`](IntegrationTests/) | End-to-end Gemini and Firebase AI Logic integration tests | Integration (see [`IntegrationTests/README.md`](IntegrationTests/README.md)) |
