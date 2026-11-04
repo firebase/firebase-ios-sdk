@@ -59,7 +59,9 @@ static NSString *const kExistingPasswordToSignIn = @"password";
 
   XCTAssertEqualObjects(auth.currentUser.email, newEmail);
 
-  [self deleteCurrentUser];
+  if ([auth.currentUser.email isEqualToString:newEmail]) {
+    [self deleteCurrentUser];
+  }
 }
 
 - (void)testSignInExistingUserWithEmailAndPassword {

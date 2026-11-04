@@ -43,11 +43,10 @@
 }
 
 - (void)tearDown {
-  [super tearDown];
-  SKIP_IF_ON_MOBILE_HARNESS
-  if ([FIRAuth auth].currentUser) {
+  if (_oldUserEmail && [[FIRAuth auth].currentUser.email isEqualToString:_oldUserEmail]) {
     [self deleteCurrentUser];
   }
+  [super tearDown];
 }
 
 - (void)testUpdatingUsersEmailAlreadyInUse {

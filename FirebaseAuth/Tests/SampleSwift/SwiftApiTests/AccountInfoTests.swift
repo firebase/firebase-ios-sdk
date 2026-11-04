@@ -23,6 +23,7 @@ class AccountInfoTests: TestsBase {
 
   override func setUp() {
     super.setUp()
+    signOut()
     oldUserEmail = fakeRandomEmail()
     let auth = Auth.auth()
     let expectation1 = expectation(description: "Created account with email and password.")
@@ -35,7 +36,9 @@ class AccountInfoTests: TestsBase {
 
   override func tearDown() {
     // Clean up the created Firebase user for future runs.
-    deleteCurrentUser()
+    if let oldUserEmail, Auth.auth().currentUser?.email == oldUserEmail {
+      deleteCurrentUser()
+    }
     super.tearDown()
   }
 

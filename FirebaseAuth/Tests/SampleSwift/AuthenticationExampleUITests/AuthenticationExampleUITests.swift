@@ -302,15 +302,12 @@ class AuthenticationExampleUITests: XCTestCase {
       ? app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label)
       .joined(separator: " | ")
       : "Error"
-    if errorExists, app.alerts.buttons["OK"].exists {
-      app.alerts.buttons["OK"].tap()
-    }
-
-    app.swipeDown(velocity: .fast)
 
     // Assert that there is no error message (success case)
     // The email sign in link is sent successfully if no error message appears
     XCTAssertFalse(errorExists, errorMessage)
+
+    app.swipeDown(velocity: .fast)
 
     // Go back and check that there is no user that is signed in
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()

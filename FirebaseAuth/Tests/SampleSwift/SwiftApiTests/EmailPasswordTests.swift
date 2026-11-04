@@ -23,6 +23,7 @@ class EmailPasswordTests: TestsBase {
   let kExistingEmailToSignIn = "user+email_existing_user@example.com"
 
   func testCreateAccountWithEmailAndPassword() async throws {
+    signOut()
     let auth = Auth.auth()
     let newEmail = fakeRandomEmail()
 
@@ -36,16 +37,21 @@ class EmailPasswordTests: TestsBase {
     await fulfillment(of: [expectation], timeout: TestsBase.kExpectationsTimeout)
 
     XCTAssertEqual(auth.currentUser?.email, newEmail, "Expected email doesn't match")
-    try? await deleteCurrentUserAsync()
+    if auth.currentUser?.email == newEmail {
+      try? await deleteCurrentUserAsync()
+    }
   }
 
   func testCreateAccountWithEmailAndPasswordAsync() async throws {
+    signOut()
     let auth = Auth.auth()
     let newEmail = fakeRandomEmail()
 
     try await auth.createUser(withEmail: newEmail, password: "password")
     XCTAssertEqual(auth.currentUser?.email, newEmail, "Expected email doesn't match")
-    try await deleteCurrentUserAsync()
+    if auth.currentUser?.email == newEmail {
+      try await deleteCurrentUserAsync()
+    }
   }
 
   func testSignInExistingUserWithEmailAndPassword() {
