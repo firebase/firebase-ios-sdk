@@ -39,7 +39,6 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncomple
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenSource;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenRejected;
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning;
 
 // FIRAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
@@ -60,7 +59,8 @@ void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
 
 void FIRAppCheckLogDebugTokenSource(NSString *source);
 
-void FIRAppCheckLogDebugTokenRejected(void);
+void FIRAppCheckLogDebugTokenRejected(NSString *_Nullable projectID,
+                                      NSString *_Nullable googleAppID);
 
 GACAppCheckLogLevel FIRGetGACAppCheckLogLevel(void);
 

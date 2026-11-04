@@ -17,6 +17,10 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 
 #import <TargetConditionals.h>
+#if TARGET_OS_OSX
+#import <pwd.h>
+#import <unistd.h>
+#endif
 
 #if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
 #import <AppCheckCore/AppCheckCore-Swift.h>
@@ -42,6 +46,7 @@ static NSString *const kAppCheckDebugTokenEnvKey = @"AppCheckDebugToken";
 static NSString *const kLegacyFirebaseDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
 static NSString *const kSimulatorHostHomeEnvKey = @"SIMULATOR_HOST_HOME";
 static NSString *const kXDGConfigHomeEnvKey = @"XDG_CONFIG_HOME";
+static NSString *const kLocalConfigRelativePath = @"configstore/firebase-appcheck.json";
 static NSString *const kDebugTokenUserDefaultsKey = @"GACAppCheckDebugToken";
 static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebugToken";
 
@@ -109,37 +114,21 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
   }
 
   NSString *resolvedSource = nil;
-  NSString *resolvedToken = [[self class] resolveDebugTokenForAppID:app.options.googleAppID
-                                                             source:&resolvedSource];
-
+  NSString *resolvedToken = nil;
   GACAppCheckDebugProvider *debugProvider = nil;
-  if (resolvedToken.length > 0) {
-    @synchronized([FIRAppCheckDebugProvider class]) {
-      const char *existingEnv = getenv(kAppCheckDebugTokenEnvKey.UTF8String);
-      NSString *previousEnv = existingEnv ? @(existingEnv) : nil;
-      setenv(kAppCheckDebugTokenEnvKey.UTF8String, resolvedToken.UTF8String, 1);
-      debugProvider = [[GACAppCheckDebugProvider alloc]
-          initWithServiceName:app.name
-                 resourceName:app.resourceName
-                      baseURL:nil
-                       APIKey:app.options.APIKey
-                 requestHooks:@[ [app.heartbeatLogger requestHook] ]];
-      if (previousEnv != nil) {
-        setenv(kAppCheckDebugTokenEnvKey.UTF8String, previousEnv.UTF8String, 1);
-      } else {
-        unsetenv(kAppCheckDebugTokenEnvKey.UTF8String);
-      }
+  // Both steps read the process environment, which `debugProviderForApp:debugToken:` may
+  // temporarily modify, so they must not interleave with another provider's initialization.
+  @synchronized([FIRAppCheckDebugProvider class]) {
+    resolvedToken = [[self class] resolveDebugTokenForAppID:app.options.googleAppID
+                                                     source:&resolvedSource];
+    if (resolvedToken.length == 0) {
+      // Check before creating the AppCheckCore provider, which generates and stores a token when
+      // none is stored.
+      NSString *storedToken =
+          [[GULUserDefaults standardUserDefaults] stringForKey:kDebugTokenUserDefaultsKey];
+      resolvedSource = storedToken.length > 0 ? @"NSUserDefaults" : @"auto-generated UUID";
     }
-  } else {
-    NSString *storedToken =
-        [[GULUserDefaults standardUserDefaults] stringForKey:kDebugTokenUserDefaultsKey];
-    resolvedSource = storedToken.length > 0 ? @"NSUserDefaults" : @"auto-generated UUID";
-    debugProvider = [[GACAppCheckDebugProvider alloc]
-        initWithServiceName:app.name
-               resourceName:app.resourceName
-                    baseURL:nil
-                     APIKey:app.options.APIKey
-               requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+    debugProvider = [[self class] debugProviderForApp:app debugToken:resolvedToken];
   }
 
   return [self initWithDebugProvider:debugProvider
@@ -158,6 +147,60 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
 
 - (NSString *)localDebugToken {
   return [self.debugProvider localDebugToken];
+}
+
+#pragma mark - AppCheckCore Debug Provider
+
+/// Creates the AppCheckCore debug provider that performs the token exchange. Callers must hold the
+/// `FIRAppCheckDebugProvider` class lock.
+///
+/// AppCheckCore reads the debug token only from the `AppCheckDebugToken` and
+/// `FIRAAppCheckDebugToken` environment variables, and only during initialization. A token resolved
+/// from any other source is handed off by setting `AppCheckDebugToken` while the provider is
+/// created, and the previous value is restored immediately afterwards.
+///
+/// TODO: Pass the token to an AppCheckCore initializer that accepts it directly once one is
+/// available; mutating the process environment is not thread-safe.
++ (GACAppCheckDebugProvider *)debugProviderForApp:(FIRApp *)app
+                                       debugToken:(nullable NSString *)debugToken {
+  NSString *appCheckCoreToken =
+      [self appCheckCoreDebugTokenInEnvironment:NSProcessInfo.processInfo.environment];
+  if (debugToken.length == 0 || [debugToken isEqualToString:appCheckCoreToken]) {
+    // AppCheckCore resolves the same token on its own, so no handoff is needed.
+    return [self appCheckCoreDebugProviderForApp:app];
+  }
+
+  const char *existingValue = getenv(kAppCheckDebugTokenEnvKey.UTF8String);
+  NSString *previousValue = existingValue ? @(existingValue) : nil;
+  setenv(kAppCheckDebugTokenEnvKey.UTF8String, debugToken.UTF8String, 1);
+  GACAppCheckDebugProvider *debugProvider = [self appCheckCoreDebugProviderForApp:app];
+  if (previousValue != nil) {
+    setenv(kAppCheckDebugTokenEnvKey.UTF8String, previousValue.UTF8String, 1);
+  } else {
+    unsetenv(kAppCheckDebugTokenEnvKey.UTF8String);
+  }
+  return debugProvider;
+}
+
++ (GACAppCheckDebugProvider *)appCheckCoreDebugProviderForApp:(FIRApp *)app {
+  return
+      [[GACAppCheckDebugProvider alloc] initWithServiceName:app.name
+                                               resourceName:app.resourceName
+                                                    baseURL:nil
+                                                     APIKey:app.options.APIKey
+                                               requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+}
+
+/// Returns the debug token that AppCheckCore reads from `environment`, if any. Matches
+/// AppCheckCore's precedence: `AppCheckDebugToken` wins over `FIRAAppCheckDebugToken`.
++ (nullable NSString *)appCheckCoreDebugTokenInEnvironment:
+    (NSDictionary<NSString *, NSString *> *)environment {
+  NSString *token = environment[kAppCheckDebugTokenEnvKey];
+  if (token.length > 0) {
+    return token;
+  }
+  token = environment[kLegacyFirebaseDebugTokenEnvKey];
+  return token.length > 0 ? token : nil;
 }
 
 #pragma mark - Token Resolution
@@ -204,17 +247,12 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
   }
 #endif
 
-  // 4. Build-time injected class (FIRAppCheckInjectedDebugToken).
-  Class injectedClass = [self injectedDebugTokenClass];
-#if DEBUG
-  BOOL isReleaseBuild = NO;
-#else
-  BOOL isReleaseBuild = YES;
-#endif
-  NSString *injectedToken = [self tokenFromInjectedClass:injectedClass
-                                                forAppID:googleAppID
-                                          isReleaseBuild:isReleaseBuild
-                                                  source:outSource];
+  // 4. Build-time injected class (FIRAppCheckInjectedDebugToken). The generated class is wrapped in
+  // `#if DEBUG`, so it is only compiled into Debug builds of the app.
+  NSString *injectedToken =
+      [self tokenFromInjectedClass:NSClassFromString(kInjectedDebugTokenClassName)
+                          forAppID:googleAppID
+                            source:outSource];
   if (injectedToken.length > 0) {
     return injectedToken;
   }
@@ -229,30 +267,20 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
     return nil;
   }
 
+  // Match the Firebase CLI's configstore location: `$XDG_CONFIG_HOME/configstore` when
+  // `XDG_CONFIG_HOME` is set, otherwise `~/.config/configstore`.
   NSMutableArray<NSString *> *candidatePaths = [NSMutableArray array];
-  NSString *simulatorHostHome = environment[kSimulatorHostHomeEnvKey];
-  if ([simulatorHostHome isKindOfClass:[NSString class]] && simulatorHostHome.length > 0) {
-    NSString *simConfigPath =
-        [[simulatorHostHome stringByAppendingPathComponent:@".config/configstore"]
-            stringByAppendingPathComponent:@"firebase-appcheck.json"];
-    [candidatePaths addObject:simConfigPath];
-  } else {
-#if TARGET_OS_OSX && !TARGET_OS_SIMULATOR
-    NSString *homeDir = NSHomeDirectory();
-    if (homeDir.length > 0) {
-      NSString *macConfigPath = [[homeDir stringByAppendingPathComponent:@".config/configstore"]
-          stringByAppendingPathComponent:@"firebase-appcheck.json"];
-      [candidatePaths addObject:macConfigPath];
-    }
-#endif
-  }
-
   NSString *xdgConfigHome = environment[kXDGConfigHomeEnvKey];
   if ([xdgConfigHome isKindOfClass:[NSString class]] && xdgConfigHome.length > 0) {
-    NSString *xdgConfigPath = [[xdgConfigHome stringByAppendingPathComponent:@"configstore"]
-        stringByAppendingPathComponent:@"firebase-appcheck.json"];
-    if (![candidatePaths containsObject:xdgConfigPath]) {
-      [candidatePaths addObject:xdgConfigPath];
+    [candidatePaths
+        addObject:[xdgConfigHome stringByAppendingPathComponent:kLocalConfigRelativePath]];
+  }
+  NSString *hostHomeDirectory = [self hostHomeDirectoryWithEnvironment:environment];
+  if (hostHomeDirectory.length > 0) {
+    NSString *homeConfigPath = [[hostHomeDirectory stringByAppendingPathComponent:@".config"]
+        stringByAppendingPathComponent:kLocalConfigRelativePath];
+    if (![candidatePaths containsObject:homeConfigPath]) {
+      [candidatePaths addObject:homeConfigPath];
     }
   }
 
@@ -278,27 +306,33 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
   return nil;
 }
 
-+ (nullable Class)injectedDebugTokenClass {
-  Class injectedClass = NSClassFromString(kInjectedDebugTokenClassName);
-  if (injectedClass) {
-    return injectedClass;
+/// Returns the developer machine's home directory: `SIMULATOR_HOST_HOME` on simulators, and the
+/// user's actual home directory on macOS. `NSHomeDirectory()` is not used on macOS because it
+/// returns the app's container directory in sandboxed apps.
++ (nullable NSString *)hostHomeDirectoryWithEnvironment:
+    (NSDictionary<NSString *, NSString *> *)environment {
+  NSString *simulatorHostHome = environment[kSimulatorHostHomeEnvKey];
+  if ([simulatorHostHome isKindOfClass:[NSString class]] && simulatorHostHome.length > 0) {
+    return simulatorHostHome;
   }
-
-  NSString *moduleName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"];
-  if ([moduleName isKindOfClass:[NSString class]] && moduleName.length > 0) {
-    NSString *sanitizedModule = [moduleName stringByReplacingOccurrencesOfString:@"-"
-                                                                      withString:@"_"];
-    sanitizedModule = [sanitizedModule stringByReplacingOccurrencesOfString:@" " withString:@"_"];
-    NSString *qualifiedName =
-        [NSString stringWithFormat:@"%@.%@", sanitizedModule, kInjectedDebugTokenClassName];
-    injectedClass = NSClassFromString(qualifiedName);
+#if TARGET_OS_OSX
+  struct passwd passwordEntry;
+  struct passwd *result = NULL;
+  char buffer[4096];
+  if (getpwuid_r(getuid(), &passwordEntry, buffer, sizeof(buffer), &result) == 0 && result &&
+      result->pw_dir) {
+    return
+        [[NSFileManager defaultManager] stringWithFileSystemRepresentation:result->pw_dir
+                                                                    length:strlen(result->pw_dir)];
   }
-  return injectedClass;
+  return NSHomeDirectory();
+#else
+  return nil;
+#endif
 }
 
 + (nullable NSString *)tokenFromInjectedClass:(nullable Class)injectedClass
                                      forAppID:(NSString *)googleAppID
-                               isReleaseBuild:(BOOL)isReleaseBuild
                                        source:(NSString *_Nullable *_Nullable)outSource {
   if (!injectedClass) {
     return nil;
@@ -326,90 +360,86 @@ static NSString *const kInjectedDebugTokenClassName = @"FIRAppCheckInjectedDebug
     return nil;
   }
 
-  if (isReleaseBuild) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning,
-                @"SECURITY WARNING: App Check debug token found in a Release build! Ignoring "
-                @"token.");
-    return nil;
-  }
-
   if (outSource) {
     *outSource = @"build-time injection (FIRAppCheckInjectedDebugToken)";
   }
   return injectedToken;
 }
 
+/// Returns `YES` if `error`, or one of its underlying errors, is an App Check HTTP 403 response.
+/// Only the HTTP status code is checked: error descriptions contain the request URL (including the
+/// project and app IDs) and the response body, so matching on their text is unreliable.
 + (BOOL)isHTTP403Error:(nullable NSError *)error {
-  if (!error) {
-    return NO;
-  }
-
-  if ([error isKindOfClass:[GACAppCheckHTTPError class]]) {
-    GACAppCheckHTTPError *httpError = (GACAppCheckHTTPError *)error;
-    if (httpError.httpResponse.statusCode == 403) {
-      return YES;
+  NSError *currentError = error;
+  // Bound the walk in case the underlying error chain is cyclic.
+  for (NSUInteger depth = 0; depth < 8 && [currentError isKindOfClass:[NSError class]]; depth++) {
+    if ([currentError isKindOfClass:[GACAppCheckHTTPError class]]) {
+      return ((GACAppCheckHTTPError *)currentError).httpResponse.statusCode == 403;
     }
+    currentError = currentError.userInfo[NSUnderlyingErrorKey];
   }
-
-  if (error.code == 403) {
-    return YES;
-  }
-
-  NSString *failureReason =
-      error.localizedFailureReason ?: error.userInfo[NSLocalizedFailureReasonErrorKey];
-  if ([failureReason isKindOfClass:[NSString class]] &&
-      ([failureReason containsString:@"status code: 403"] ||
-       [failureReason containsString:@"403"])) {
-    return YES;
-  }
-
-  NSString *description = error.localizedDescription;
-  if ([description isKindOfClass:[NSString class]] &&
-      ([description containsString:@"status code: 403"] || [description containsString:@"403"])) {
-    return YES;
-  }
-
-  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
-  if ([underlyingError isKindOfClass:[NSError class]]) {
-    return [self isHTTP403Error:underlyingError];
-  }
-
   return NO;
 }
 
 #pragma mark - Private Helpers
 
-- (void)logDebugTokenMessageWithMessageCode:(NSString *)messageCode prefix:(NSString *)prefix {
-  if (self.projectID.length > 0 && self.googleAppID.length > 0) {
-    NSString *debugToken = self.resolvedDebugToken ?: self.localDebugToken;
-    if (!debugToken) {
-      return;
-    }
+- (nullable NSString *)debugTokenMessageWithPrefix:(NSString *)prefix {
+  if (self.projectID.length == 0 || self.googleAppID.length == 0) {
+    return nil;
+  }
 
-    FIRLogWarning(
-        kFIRLoggerAppCheck, messageCode,
-        @"%@"
-         "To use this token for app debugging, register it with your project.\n\n"
-         "Firebase App Check debug token: %@\n\n"
-         "You can do so in the Firebase Console: \n"
-         "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@ \n\n"
-         "Or using the Firebase CLI: \n"
-         "firebase appcheck:debugtokens:create %@ --project %@ --app %@\n\n"
-         "Note: To keep your project secure, please revoke and delete this token using the \n"
-         "Firebase Console or the CLI (`firebase appcheck:debugtokens:delete`) when you finish "
-         "debugging.\n\n"
-         "Warning: This debug token is a secret and should not be shared or uploaded to source "
-         "code.\n\n"
-         "Debug Token Guide: https://firebase.google.com/docs/app-check/ios/debug-provider\n"
-         "Firebase CLI install instructions: https://firebase.google.com/docs/cli\n",
-        prefix, debugToken, self.projectID, self.googleAppID, debugToken, self.projectID,
-        self.googleAppID);
+  if (self.resolvedDebugToken.length > 0) {
+    // Never log a token that was provided externally: environment variables, in particular, often
+    // hold CI secrets.
+    return [NSString
+        stringWithFormat:@"%@"
+                          "Using the App Check debug token from %@. The token value is not "
+                          "logged.\n\n"
+                          "If this token is not registered with your project, register it in the "
+                          "Firebase Console: \n"
+                          "https://console.firebase.google.com/project/%@/appcheck/"
+                          "apps?selectedAppId=%@ \n\n"
+                          "Debug Token Guide: "
+                          "https://firebase.google.com/docs/app-check/ios/debug-provider\n",
+                         prefix, self.resolvedTokenSource ?: @"an external source", self.projectID,
+                         self.googleAppID];
+  }
+
+  NSString *debugToken = self.localDebugToken;
+  if (!debugToken) {
+    return nil;
+  }
+
+  return [NSString
+      stringWithFormat:
+          @"%@"
+           "To use this token for app debugging, register it with your project.\n\n"
+           "Firebase App Check debug token: %@\n\n"
+           "You can do so in the Firebase Console: \n"
+           "https://console.firebase.google.com/project/%@/appcheck/apps?selectedAppId=%@ \n\n"
+           "Or using the Firebase CLI: \n"
+           "firebase appcheck:debugtokens:create %@ --project %@ --app %@\n\n"
+           "Note: To keep your project secure, please revoke and delete this token using the \n"
+           "Firebase Console or the CLI (`firebase appcheck:debugtokens:delete`) when you finish "
+           "debugging.\n\n"
+           "Warning: This debug token is a secret and should not be shared or uploaded to source "
+           "code.\n\n"
+           "Debug Token Guide: https://firebase.google.com/docs/app-check/ios/debug-provider\n"
+           "Firebase CLI install instructions: https://firebase.google.com/docs/cli\n",
+          prefix, debugToken, self.projectID, self.googleAppID, debugToken, self.projectID,
+          self.googleAppID];
+}
+
+- (void)logDebugTokenMessageWithMessageCode:(NSString *)messageCode prefix:(NSString *)prefix {
+  NSString *message = [self debugTokenMessageWithPrefix:prefix];
+  if (message) {
+    FIRLogWarning(kFIRLoggerAppCheck, messageCode, @"%@", message);
   }
 }
 
 - (void)logDebugTokenExchangeError:(NSError *)error {
   if ([[self class] isHTTP403Error:error]) {
-    FIRAppCheckLogDebugTokenRejected();
+    FIRAppCheckLogDebugTokenRejected(self.projectID, self.googleAppID);
   }
   [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
                                      prefix:@"Failed to exchange debug token. "];
