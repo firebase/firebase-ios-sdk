@@ -24,9 +24,12 @@ concurrency:
 
 jobs:
   spm:
+    strategy:
+      matrix:
+        target: [AppDistributionUnit, AppDistributionUnitSwift]
     uses: ./.github/workflows/_spm.yml
     with:
-      target: AppDistributionUnit
+      target: ${{ matrix.target }}
       platforms: iOS
 
   catalyst:
