@@ -16,9 +16,9 @@
 
 # Generates AppCheckDebugToken.generated.swift, which embeds the Firebase App
 # Check debug token for the app in Debug builds, from an Xcode Run Script build
-# phase (for example, with CocoaPods). Swift Package Manager users can apply
-# FirebaseAppCheckDebugTokenPlugin instead; keep the generation logic in sync
-# with FirebaseAppCheck/Plugins/DebugTokenPlugin/plugin.swift. See
+# phase. Prefer FirebaseAppCheckDebugTokenPlugin where possible, and keep the
+# generation logic in sync with
+# FirebaseAppCheck/Plugins/DebugTokenPlugin/plugin.swift. See
 # FirebaseAppCheck/Plugins/DebugTokenPlugin/README.md.
 #
 # Usage:

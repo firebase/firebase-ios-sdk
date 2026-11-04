@@ -50,12 +50,13 @@ to **Run Build Tool Plug-ins**. Apply the plugin to the app target only:
 applying it to more than one target in the same app defines the
 `FIRAppCheckInjectedDebugToken` class more than once.
 
-### CocoaPods and other integrations
+### Run Script build phase
 
-Add a **Run Script** build phase before **Compile Sources** that runs:
+If you can't use the plugin, add a **Run Script** build phase before **Compile
+Sources** that runs the script from the Firebase package checkout:
 
 ```sh
-/bin/sh "${PODS_ROOT}/FirebaseAppCheck/FirebaseAppCheck/Scripts/inject_debug_token.sh"
+/bin/sh "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAppCheck/Scripts/inject_debug_token.sh"
 ```
 
 - Add `$(DERIVED_FILE_DIR)/AppCheckDebugToken.generated.swift` to the phase's
