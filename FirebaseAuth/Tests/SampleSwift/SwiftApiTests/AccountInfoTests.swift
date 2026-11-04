@@ -23,7 +23,7 @@ class AccountInfoTests: TestsBase {
 
   override func setUp() {
     super.setUp()
-    oldUserEmail = "user+\(UUID().uuidString.lowercased())@example.com"
+    oldUserEmail = fakeRandomEmail()
     let auth = Auth.auth()
     let expectation1 = expectation(description: "Created account with email and password.")
     auth.createUser(withEmail: oldUserEmail, password: "password") { user, error in

@@ -29,6 +29,7 @@
 
 - (void)setUp {
   [super setUp];
+  SKIP_IF_ON_MOBILE_HARNESS
   _oldUserEmail = [self fakeRandomEmail];
   XCTestExpectation *expectation = [self expectationWithDescription:@"setup old email expectation"];
   FIRAuth *auth = [FIRAuth auth];
@@ -42,10 +43,11 @@
 }
 
 - (void)tearDown {
+  [super tearDown];
+  SKIP_IF_ON_MOBILE_HARNESS
   if ([FIRAuth auth].currentUser) {
     [self deleteCurrentUser];
   }
-  [super tearDown];
 }
 
 - (void)testUpdatingUsersEmailAlreadyInUse {

@@ -24,7 +24,7 @@ class EmailPasswordTests: TestsBase {
 
   func testCreateAccountWithEmailAndPassword() async throws {
     let auth = Auth.auth()
-    let newEmail = "user+\(UUID().uuidString.lowercased())@example.com"
+    let newEmail = fakeRandomEmail()
 
     let expectation = self.expectation(description: "Created account with email and password.")
     auth.createUser(withEmail: newEmail, password: "password") { result, error in
@@ -41,7 +41,7 @@ class EmailPasswordTests: TestsBase {
 
   func testCreateAccountWithEmailAndPasswordAsync() async throws {
     let auth = Auth.auth()
-    let newEmail = "user+\(UUID().uuidString.lowercased())@example.com"
+    let newEmail = fakeRandomEmail()
 
     try await auth.createUser(withEmail: newEmail, password: "password")
     XCTAssertEqual(auth.currentUser?.email, newEmail, "Expected email doesn't match")

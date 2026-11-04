@@ -289,7 +289,7 @@ class AuthenticationExampleUITests: XCTestCase {
   func testEmailLinkSentSuccessfully() {
     app.staticTexts["Email Link/Passwordless"].tap()
 
-    let testEmail = "\(Int(Date().timeIntervalSince1970))_link@test.com"
+    let testEmail = "test@test.com"
     app.textFields["Enter Authentication Email"].tap()
     app.textFields["Enter Authentication Email"].typeText(testEmail)
     app.buttons["return"].tap() // Dismiss keyboard

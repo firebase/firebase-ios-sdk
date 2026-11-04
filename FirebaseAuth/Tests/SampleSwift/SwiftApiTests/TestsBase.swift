@@ -64,4 +64,8 @@ class TestsBase: XCTestCase {
     }
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
+
+  func fakeRandomEmail() -> String {
+    "user+ci-\(UUID().uuidString.lowercased())@example.com"
+  }
 }
