@@ -288,11 +288,10 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
   build_xcodetest:
-    needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    needs: check
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     runs-on: macos-26
     timeout-minutes: 60
 
@@ -344,11 +343,11 @@ jobs:
           command: scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
   xcodetest_prod:
-    needs: [changes, check, build_xcodetest]
+    needs: [check, build_xcodetest]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     runs-on: macos-26
 
     strategy:
@@ -421,14 +420,14 @@ jobs:
           if-no-files-found: error
 
   xcodetest_nightly:
-    needs: [changes, check, build_xcodetest]
+    needs: [check, build_xcodetest]
     # TODO(b/577081204): Re-enable nightly tests once backend connectivity issues are resolved.
     # To re-enable: uncomment the original `if:` block below, remove `if: false`,
     # and re-add `xcodetest_nightly` to `check-required-tests.needs` below.
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     # if: |
     #   (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false && needs.changes.outputs.changed == 'true')
+    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
     if: false
     runs-on: macos-26
     timeout-minutes: 60
@@ -600,11 +599,7 @@ jobs:
 
 
   pod_lib_lint:
-    needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
     strategy:
       matrix:
         product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
@@ -674,11 +669,7 @@ jobs:
           --no-analyze
 
   spm-package-resolved:
-    needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
     runs-on: macos-26
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -706,11 +697,11 @@ jobs:
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
 
   spm-source:
-    needs: [changes, check, spm-package-resolved]
+    needs: [check, spm-package-resolved]
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+      (github.event_name == 'pull_request')
     strategy:
       matrix:
         include:
@@ -752,11 +743,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
 
   spm-binary:
-    needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
