@@ -31,7 +31,6 @@ NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I
 NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed = @"I-FAA004002";
 NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenSource = @"I-FAA004003";
 NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenRejected = @"I-FAA004004";
-NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning = @"I-FAA004005";
 
 // FIRAppCheckDebugProviderFactory.m
 NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
@@ -58,14 +57,19 @@ void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...) {
 }
 
 void FIRAppCheckLogDebugTokenSource(NSString *source) {
-  FIRLogInfo(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenSource,
-             @"[FirebaseAppCheck] Debug token loaded from %@.", source);
+  FIRLogNotice(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenSource,
+               @"Debug token loaded from %@.", source);
 }
 
-void FIRAppCheckLogDebugTokenRejected(void) {
+void FIRAppCheckLogDebugTokenRejected(NSString *_Nullable projectID,
+                                      NSString *_Nullable googleAppID) {
   FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenRejected,
-                @"[FirebaseAppCheck] Debug token was rejected by server. Run 'firebase "
-                @"appcheck:debugtokens:create --force' to provision a new token.");
+                @"The App Check debug token was rejected by the server (HTTP 403). If the token "
+                @"is not registered with your project, run 'firebase "
+                @"appcheck:debugtokens:create --project %@ --app %@ --force' to provision a new "
+                @"token. A 403 response can also mean that the Firebase App Check API is disabled "
+                @"or that the API key is restricted.",
+                projectID ?: @"<project-id>", googleAppID ?: @"<app-id>");
 }
 
 #pragma mark - Helper functions

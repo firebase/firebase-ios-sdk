@@ -60,6 +60,16 @@ NS_ASSUME_NONNULL_BEGIN
 /// `xcodebuild test -scheme InstallationsExample -workspace InstallationsExample.xcworkspace \
 /// APP_CHECK_DEBUG_TOKEN=$(MY_SECRET_ON_CI)`
 ///
+/// To use a debug token provisioned with the Firebase CLI:
+/// - On simulators and macOS, the debug provider reads the token for the app from the Firebase CLI
+///   configuration file, `~/.config/configstore/firebase-appcheck.json` (or
+///   `$XDG_CONFIG_HOME/configstore/firebase-appcheck.json` when `XDG_CONFIG_HOME` is set).
+///   Sandboxed macOS apps also need read access to `~/.config/configstore/`.
+/// - On physical devices, apply the `FirebaseAppCheckDebugTokenPlugin` Swift package build tool
+///   plugin (or the `FirebaseAppCheck/Scripts/inject_debug_token.sh` build phase script) to your
+///   app target to embed the token in Debug builds. Do not distribute builds that embed a debug
+///   token.
+///
 NS_SWIFT_NAME(AppCheckDebugProvider)
 @interface FIRAppCheckDebugProvider : NSObject <FIRAppCheckProvider>
 
@@ -71,8 +81,11 @@ NS_SWIFT_NAME(AppCheckDebugProvider)
 - (NSString *)localDebugToken;
 
 /** Returns the currently used App Check debug token. The priority:
+ *  - `FIREBASE_APPCHECK_DEBUG_TOKEN` env variable value
  *  - `AppCheckDebugToken` env variable value
  *  - `FIRAAppCheckDebugToken` env variable value (deprecated)
+ *  - On simulators and macOS, the token for the app in the Firebase CLI configuration file
+ *  - A token embedded at build time by `FirebaseAppCheckDebugTokenPlugin` (Debug builds only)
  *  - A previously generated token, stored locally on the device
  *  - A newly generated random token. The generated token will be stored
  *    locally for future use
