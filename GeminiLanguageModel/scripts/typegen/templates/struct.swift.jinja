@@ -28,7 +28,9 @@ extension {{ namespace }} {
 {{ description | docc(2) }}
   {% endif %}
   {% if is_deprecated %}
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   {% endif %}
   {{ access_level }} struct {{ name }}: Codable, Sendable, Equatable, Hashable, Buildable {
     {% for prop in properties %}
@@ -39,7 +41,9 @@ extension {{ namespace }} {
 {{ prop.description | docc(4) }}
     {% endif %}
     {% if prop.is_deprecated %}
-    @available(*, deprecated)
+    #if hasAttribute(diagnose)
+      @available(*, deprecated)
+    #endif
     {% endif %}
     {% if prop.is_const %}
     {{ access_level }} var {{ prop.swift_name }}: {{ prop.swift_type }} = {{ prop.const_value }}

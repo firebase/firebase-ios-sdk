@@ -29,7 +29,7 @@ package struct MapsRoute: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The total duration of the route.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var duration: String?
+  package var duration: TimeSpan?
 
   /// An encoded polyline of the route. See
   /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm

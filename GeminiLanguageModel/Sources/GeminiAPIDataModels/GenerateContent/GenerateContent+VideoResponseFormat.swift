@@ -34,7 +34,7 @@ package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable, Buil
   /// The duration for the video output.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var duration: String?
+  package var duration: TimeSpan?
 
   /// The Google Cloud Storage URI to store the video output. Required for Vertex if delivery is
   /// URI.

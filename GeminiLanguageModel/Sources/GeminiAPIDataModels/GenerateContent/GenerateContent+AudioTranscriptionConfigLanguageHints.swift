@@ -19,13 +19,17 @@ import Foundation
 
 /// Deprecated: Use top-level `language_codes` instead. Provides hints to the model about possible
 /// languages present in the audio.
-@available(*, deprecated)
+#if hasAttribute(diagnose)
+  @available(*, deprecated)
+#endif
 package struct AudioTranscriptionConfigLanguageHints: Codable, Sendable, Equatable, Hashable,
   Buildable
 {
   /// Required. Deprecated: Use top-level `language_codes` instead. BCP-47 language codes. At least
   /// one must be specified.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   package var languageCodes: [String]?
 
   /// Initializes a new `AudioTranscriptionConfigLanguageHints`.

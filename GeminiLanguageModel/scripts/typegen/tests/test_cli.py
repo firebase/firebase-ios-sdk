@@ -46,13 +46,14 @@ class TestCli(unittest.TestCase):
             )
         )
         self.assertIsNone(options.strip_prefixes)
+        self.assertEqual(options.roots, cli.DEFAULT_ROOTS)
+        self.assertEqual(options.root_groups, cli.DEFAULT_ROOT_GROUPS)
         self.assertEqual(
             options.output_dir,
             os.path.join(
                 cli.PACKAGE_ROOT,
                 "Sources",
                 "GeminiAPIDataModels",
-                "GenerateContent",
             ),
         )
         self.assertTrue(os.path.isdir(options.output_dir))
@@ -74,6 +75,7 @@ class TestCli(unittest.TestCase):
             ]
         )
         self.assertEqual(options.roots, ("A", "B"))
+        self.assertIsNone(options.root_groups)
         self.assertEqual(options.strip_prefixes, ())
         self.assertEqual(options.namespace, "NS")
         self.assertEqual(options.access_level, "public")

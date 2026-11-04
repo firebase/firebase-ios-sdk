@@ -52,6 +52,63 @@ schemas:
         properties:
           toolResponse:
             $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaToolResponse"
+  GoogleAiGenerativelanguageV1betaBidiGenerateContentClientMessage:
+    oneOf:
+      - required: [setup]
+        properties:
+          setup:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentSetup"
+      - required: [clientContent]
+        properties:
+          clientContent:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentClientContent"
+      - required: [realtimeInput]
+        properties:
+          realtimeInput:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentRealtimeInput"
+      - required: [toolResponse]
+        properties:
+          toolResponse:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentToolResponse"
+  GoogleAiGenerativelanguageV1betaBidiGenerateContentServerMessage:
+    oneOf:
+      - required: [setupComplete]
+        properties:
+          setupComplete:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentSetupComplete"
+      - required: [serverContent]
+        properties:
+          serverContent:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentServerContent"
+      - required: [toolCall]
+        properties:
+          toolCall:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentToolCall"
+      - required: [toolCallCancellation]
+        properties:
+          toolCallCancellation:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaBidiGenerateContentToolCallCancellation"
+      - required: [goAway]
+        properties:
+          goAway:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaGoAway"
+      - required: [sessionResumptionUpdate]
+        properties:
+          sessionResumptionUpdate:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaSessionResumptionUpdate"
+      - required: [voiceActivity]
+        properties:
+          voiceActivity:
+            $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaVoiceActivity"
+  GoogleAiGenerativelanguageV1betaBidiGenerateContentSetup:
+    properties:
+      toolConfig:
+        description: |-
+          Optional. Tool configuration for any `Tool` specified in the request.
+
+          Not listed in the Discovery Document, but accepted by the Live API and
+          exposed by the SDK's `liveModel(toolConfig:)`.
+        $ref: "#/components/schemas/GoogleAiGenerativelanguageV1betaToolConfig"
   GoogleAiGenerativelanguageV1betaGenerationConfig:
     properties:
       topK:
@@ -141,6 +198,67 @@ schemas:
         properties:
           codeExecutionResult:
             $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1CodeExecutionResult"
+  GoogleCloudAiplatformV1beta1BidiGenerateContentClientMessage:
+    oneOf:
+      - required: [setup]
+        properties:
+          setup:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentSetup"
+      - required: [clientContent]
+        properties:
+          clientContent:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentClientContent"
+      - required: [realtimeInput]
+        properties:
+          realtimeInput:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentRealtimeInput"
+      - required: [toolResponse]
+        properties:
+          toolResponse:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentToolResponse"
+      - required: [contextUpdate]
+        properties:
+          contextUpdate:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentContextUpdate"
+  GoogleCloudAiplatformV1beta1BidiGenerateContentServerMessage:
+    oneOf:
+      - required: [setupComplete]
+        properties:
+          setupComplete:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentSetupComplete"
+      - required: [serverContent]
+        properties:
+          serverContent:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentServerContent"
+      - required: [toolCall]
+        properties:
+          toolCall:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentToolCall"
+      - required: [toolCallCancellation]
+        properties:
+          toolCallCancellation:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1BidiGenerateContentToolCallCancellation"
+      - required: [goAway]
+        properties:
+          goAway:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1GoAway"
+      - required: [sessionResumptionUpdate]
+        properties:
+          sessionResumptionUpdate:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1SessionResumptionUpdate"
+      - required: [voiceActivity]
+        properties:
+          voiceActivity:
+            $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1VoiceActivity"
+  GoogleCloudAiplatformV1beta1BidiGenerateContentSetup:
+    properties:
+      toolConfig:
+        description: |-
+          Optional. Tool configuration for any `Tool` specified in the request.
+
+          Not listed in the Discovery Document, but accepted by the Live API and
+          exposed by the SDK's `liveModel(toolConfig:)`.
+        $ref: "#/components/schemas/GoogleCloudAiplatformV1beta1ToolConfig"
   GoogleCloudAiplatformV1beta1GenerationConfig:
     properties:
       topK:
@@ -176,6 +294,7 @@ generatorConfig:
     # Opaque continuation token round-tripped as the base64 string from the wire.
     Candidate.continuationToken: String
     GenerateContentRequest.continuationToken: String
+    VoiceActivity.type: ActivityType
   excludedSchemas:
     - ApiAuth
     - AuthConfig
@@ -223,8 +342,10 @@ generatorConfig:
     PartMediaResolution: Part.MediaResolution
     MediaResolution: Part.MediaResolution
     LogprobsResultTopCandidates: TopCandidates
-    GoogleAiGenerativelanguageV1betaGroundingSupport: GroundingSupport
-    GoogleAiGenerativelanguageV1betaSegment: Segment
+    BidiGenerateContentSetupAudioTranscriptionConfig: AudioTranscriptionConfig
+    BidiGenerateContentSetupAudioTranscriptionConfigLanguageAuto: AudioTranscriptionConfigLanguageAuto
+    BidiGenerateContentSetupAudioTranscriptionConfigLanguageHints: AudioTranscriptionConfigLanguageHints
+    BidiGenerateContentServerContentTranscription: BidiGenerateContentTranscription
     GroundingChunkImage: ImageChunk
     GroundingChunkRetrievedContext: RetrievedContextChunk
     GroundingChunkWeb: WebChunk

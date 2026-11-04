@@ -19,7 +19,9 @@ import Foundation
 
 /// Deprecated: Use top-level `language_codes` instead. Indicates the language of the audio should
 /// be automatically detected.
-@available(*, deprecated)
+#if hasAttribute(diagnose)
+  @available(*, deprecated)
+#endif
 package struct AudioTranscriptionConfigLanguageAuto: Codable, Sendable, Equatable, Hashable,
   Buildable
 {

@@ -25,12 +25,14 @@ import Foundation
 /// bytes.
 package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Buildable {
   /// URI based data.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var fileData: FunctionResponseFileData?
 
   /// Inline media bytes.
   package var inlineData: FunctionResponseBlob?
+
+  /// Processes this part's media for understanding. Only meaningful for video parts (`inline_data`
+  /// or `file_data` with video mime). Non-video parts ignore this field.
+  package var mediaProcessing: MediaProcessing?
 
   /// Initializes a new `FunctionResponsePart`.
   package init() {}
@@ -38,5 +40,6 @@ package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Bui
   enum CodingKeys: String, CodingKey {
     case fileData
     case inlineData
+    case mediaProcessing
   }
 }

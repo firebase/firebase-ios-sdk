@@ -20,10 +20,10 @@ import Foundation
 /// Information about a single recognized word.
 package struct AudioTranscriptionWordInfo: Codable, Sendable, Equatable, Hashable, Buildable {
   /// End offset in time of the word relative to the start of the audio.
-  package var endOffset: String?
+  package var endOffset: TimeSpan?
 
   /// Start offset in time of the word relative to the start of the audio.
-  package var startOffset: String?
+  package var startOffset: TimeSpan?
 
   /// Required. Transcript of the word.
   package var word: String?
