@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where `getData` on a query with a limit or range could
+  remove data from other listeners at or below the query's location, and from
+  the disk cache. (#8286, #14137)
 - [fixed] Fixed an issue where `getData` never completed if the connection
   dropped before the server responded. (#16717)
 - [fixed] Fixed an issue where `getData` on a child of an observed location
