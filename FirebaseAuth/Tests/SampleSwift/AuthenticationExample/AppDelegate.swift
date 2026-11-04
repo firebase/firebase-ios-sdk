@@ -28,6 +28,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     FirebaseApp.configure()
     // [END firebase_configure]
 
+    if CommandLine.arguments.contains("--uitesting-reset-auth") {
+      try? AppManager.shared.auth().signOut()
+    }
+
     // TODO: Reenable Facebook login integration.
 //    ApplicationDelegate.shared.application(
 //      application,
