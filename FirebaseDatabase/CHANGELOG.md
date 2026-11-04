@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed an issue where `getData` never completed if the connection
+  dropped before the server responded. (#16717)
 - [fixed] Fixed an issue where `getData` on a child of an observed location
   returned the data of the observed location instead of the child. (#12168)
 - [fixed] Fixed an issue where the client could stay offline for hours after a
