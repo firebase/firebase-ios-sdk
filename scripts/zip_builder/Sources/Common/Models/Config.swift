@@ -670,11 +670,12 @@ public struct Config: Codable, Sendable, Equatable {
   /// Targets containing only stub files have no real symbols to compile and are filtered out when
   /// `filterWrapperTargets` is `true`.
   ///
-  /// - **Optional**: Defaults to `["dummy.m", "dummy.h", "empty.m", "empty.h"]`.
+  /// - **Optional**: Defaults to `["dummy.m", "dummy.c", "dummy.h", "empty.m", "empty.h"]`.
   ///
   /// ```json
   /// "stubFileNames": [
   ///   "dummy.m",
+  ///   "dummy.c",
   ///   "dummy.h",
   ///   "empty.m",
   ///   "empty.h"
@@ -709,7 +710,13 @@ public struct Config: Codable, Sendable, Equatable {
     public static let stripExternalBinaryCodeSignatures: Bool = false
     public static let suppressedInternalFrameworks: [String] = []
     public static let companionModuleSuffixes: [String] = ["Internal", "ObjC", "Swift", "_iOS"]
-    public static let stubFileNames: [String] = ["dummy.m", "dummy.h", "empty.m", "empty.h"]
+    public static let stubFileNames: [String] = [
+      "dummy.m",
+      "dummy.c",
+      "dummy.h",
+      "empty.m",
+      "empty.h",
+    ]
     public static let stubFilePatterns: [String] = ["*Wrapper.swift", "*Wrap.swift"]
     public static let productPlatformOverrides: [String: [Platform]] = [:]
     public static let extraFrameworksPerProduct: [String: [String]] = [:]

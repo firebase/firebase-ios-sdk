@@ -565,6 +565,7 @@ struct ManifestReaderTests {
 
     // Default stub file names
     #expect(TargetClassifier.isStubFile("/some/path/dummy.m", config: defaultConfig))
+    #expect(TargetClassifier.isStubFile("/some/path/dummy.c", config: defaultConfig))
     #expect(TargetClassifier.isStubFile("/some/path/dummy.h", config: defaultConfig))
     #expect(TargetClassifier.isStubFile("/some/path/empty.m", config: defaultConfig))
     #expect(TargetClassifier.isStubFile("/some/path/empty.h", config: defaultConfig))

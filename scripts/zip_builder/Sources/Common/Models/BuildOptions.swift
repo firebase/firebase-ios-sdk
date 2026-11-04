@@ -185,6 +185,7 @@ public struct BuildOptions: Sendable, Equatable {
   /// ```json
   /// "stubFileNames": [
   ///   "dummy.m",
+  ///   "dummy.c",
   ///   "dummy.h",
   ///   "empty.m",
   ///   "empty.h"

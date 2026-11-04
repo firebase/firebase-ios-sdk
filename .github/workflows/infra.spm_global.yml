@@ -6,6 +6,7 @@ on:
     paths:
     - '.github/workflows/infra.spm_global.yml'
     - 'Package.swift'
+    - 'CoreOnly/Sources/**'
     - '.swiftpm/*'
     - 'scripts/build.sh'
     - 'SwiftPMTests/*'
@@ -225,3 +226,23 @@ jobs:
       uses: github/codeql-action/analyze@adfda868f108ac4222129de456ea554034a27db7 # v4
       with:
         category: "/language:${{matrix.language}}"
+
+  linux-cross-platform:
+    # Don't run on private repo unless it is a PR or manual dispatch.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # swift:6.4.2 is an alias of 6.4.2-resolute (Ubuntu 26.04).
+    container: swift:6.4.2-resolute@sha256:119ff7d833ea622851b459513333bb4bda5ebb32b7acd05dd05077d5b0383129
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Evaluate full manifest on Linux (Dependabot parity)
+      run: |
+        swift package dump-package > /tmp/manifest.json
+        grep -q '"FirebaseCore"' /tmp/manifest.json
+    - name: Build cross-platform targets
+      env:
+        FIREBASE_CROSS_PLATFORM_ONLY: 1
+      run: swift build
