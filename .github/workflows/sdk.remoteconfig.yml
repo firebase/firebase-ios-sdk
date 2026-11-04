@@ -28,9 +28,12 @@ concurrency:
 
 jobs:
   spm_1:
+    strategy:
+      matrix:
+        target: [RemoteConfigUnit, RemoteConfigSwiftUnit]
     uses: ./.github/workflows/_spm.yml
     with:
-      target: RemoteConfigUnit
+      target: ${{ matrix.target }}
 
   spm_2:
     uses: ./.github/workflows/_spm.yml
