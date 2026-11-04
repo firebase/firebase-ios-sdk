@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed an issue where `getData` on a child of an observed location
+  returned the data of the observed location instead of the child. (#12168)
 - [fixed] Fixed an issue where the client could stay offline for hours after a
   connection attempt timed out, for example after the device woke from sleep.
   (#9682)
