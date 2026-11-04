@@ -1,6 +1,11 @@
 # Unreleased
 - [fixed] Fixed an issue where `getData` never completed if the connection
   dropped before the server responded. (#16717)
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
+- [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
+  on the worker queue to avoid cross-thread access. (#16767, #16971)
 
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple

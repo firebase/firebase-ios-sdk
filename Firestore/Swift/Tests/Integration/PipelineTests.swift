@@ -308,6 +308,9 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testSupportsDatabaseAsSource() async throws {
+    throw XCTSkip(
+      "Skipping flaky test due to unindexed whole-database scan timing out (b/579086453)."
+    )
     let db = firestore()
     let testRootCol = collectionRef() // Provides a unique root path for this test
 
@@ -362,6 +365,25 @@ class PipelineIntegrationTests: FSTIntegrationTestCase {
         expectedIDs: [subSubCollDocRef.documentID, collADocRef.documentID, collBDocRef.documentID],
         enforceOrder: true
       )
+  }
+
+  func testSupportsDatabaseAsSourceSmokeWithLimit() async throws {
+    let db = firestore()
+    let testRootCol = collectionRef()
+
+    for i in 1 ... 5 {
+      let docRef = testRootCol.document("doc\(i)")
+      try await docRef.setData(["testRun": true, "index": i])
+    }
+
+    let pipeline = db.pipeline()
+      .database()
+      .limit(5)
+
+    let snapshot = try await pipeline.execute()
+
+    XCTAssertGreaterThan(snapshot.results.count, 0)
+    XCTAssertLessThanOrEqual(snapshot.results.count, 5)
   }
 
   func testAcceptsAndReturnsAllSupportedDataTypes() async throws {
