@@ -634,17 +634,15 @@ struct LiveSessionTests {
     // The server should signal both the start and the end of the user's speech.
     let receivedTypes = turn.voiceActivities.map(\.type)
     let activityStart = try #require(
-      turn.voiceActivities.first { $0.type == .activityStart },
+      turn.voiceActivities.first { $0.type == .start },
       "Missing ACTIVITY_START voice activity; received: \(receivedTypes)"
     )
     let activityEnd = try #require(
-      turn.voiceActivities.first { $0.type == .activityEnd },
+      turn.voiceActivities.first { $0.type == .end },
       "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
     )
-    let startOffset = try #require(activityStart.audioOffset)
-    let endOffset = try #require(activityEnd.audioOffset)
-    #expect(startOffset >= 0)
-    #expect(endOffset > startOffset)
+    #expect(activityStart.audioOffset >= 0)
+    #expect(activityEnd.audioOffset > activityStart.audioOffset)
 
     // Voice activity messages must not terminate the `responses` stream; the model's response to
     // the audio should still be received after them.

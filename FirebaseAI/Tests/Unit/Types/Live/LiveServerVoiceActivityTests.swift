@@ -22,16 +22,16 @@ final class LiveServerVoiceActivityTests: XCTestCase {
 
   // MARK: - VoiceActivityType
 
-  func testDecodeVoiceActivityType_activityStart() throws {
+  func testDecodeVoiceActivityType_start() throws {
     let type = try decodeVoiceActivityType("ACTIVITY_START")
 
-    XCTAssertEqual(type, .activityStart)
+    XCTAssertEqual(type, .start)
   }
 
-  func testDecodeVoiceActivityType_activityEnd() throws {
+  func testDecodeVoiceActivityType_end() throws {
     let type = try decodeVoiceActivityType("ACTIVITY_END")
 
-    XCTAssertEqual(type, .activityEnd)
+    XCTAssertEqual(type, .end)
   }
 
   func testDecodeVoiceActivityType_unspecified() throws {
@@ -54,18 +54,18 @@ final class LiveServerVoiceActivityTests: XCTestCase {
   }
 
   func testVoiceActivityType_equatableAndHashable() {
-    XCTAssertEqual(VoiceActivityType.activityStart, VoiceActivityType.activityStart)
-    XCTAssertNotEqual(VoiceActivityType.activityStart, VoiceActivityType.activityEnd)
-    XCTAssertNotEqual(VoiceActivityType.activityStart, VoiceActivityType.unknown)
-    XCTAssertNotEqual(VoiceActivityType.activityEnd, VoiceActivityType.unknown)
+    XCTAssertEqual(VoiceActivityType.start, VoiceActivityType.start)
+    XCTAssertNotEqual(VoiceActivityType.start, VoiceActivityType.end)
+    XCTAssertNotEqual(VoiceActivityType.start, VoiceActivityType.unknown)
+    XCTAssertNotEqual(VoiceActivityType.end, VoiceActivityType.unknown)
 
-    let types: Set<VoiceActivityType> = [.activityStart, .activityEnd, .unknown, .activityStart]
+    let types: Set<VoiceActivityType> = [.start, .end, .unknown, .start]
     XCTAssertEqual(types.count, 3)
   }
 
   // MARK: - LiveServerVoiceActivity
 
-  func testLiveServerMessage_voiceActivity_activityStart() throws {
+  func testLiveServerMessage_voiceActivity_start() throws {
     let voiceActivity = try decodeLiveServerVoiceActivity("""
     {
       "voiceActivity" : {
@@ -75,12 +75,11 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     }
     """)
 
-    XCTAssertEqual(voiceActivity.type, .activityStart)
-    let audioOffset = try XCTUnwrap(voiceActivity.audioOffset)
-    XCTAssertEqual(audioOffset, 2.52, accuracy: 1e-9)
+    XCTAssertEqual(voiceActivity.type, .start)
+    XCTAssertEqual(voiceActivity.audioOffset, 2.52, accuracy: 1e-9)
   }
 
-  func testLiveServerMessage_voiceActivity_activityEnd() throws {
+  func testLiveServerMessage_voiceActivity_end() throws {
     let voiceActivity = try decodeLiveServerVoiceActivity("""
     {
       "voiceActivity" : {
@@ -90,9 +89,8 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     }
     """)
 
-    XCTAssertEqual(voiceActivity.type, .activityEnd)
-    let audioOffset = try XCTUnwrap(voiceActivity.audioOffset)
-    XCTAssertEqual(audioOffset, 3.64, accuracy: 1e-9)
+    XCTAssertEqual(voiceActivity.type, .end)
+    XCTAssertEqual(voiceActivity.audioOffset, 3.64, accuracy: 1e-9)
   }
 
   func testLiveServerMessage_voiceActivity_wholeSecondAudioOffset() throws {
@@ -105,8 +103,7 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     }
     """)
 
-    let audioOffset = try XCTUnwrap(voiceActivity.audioOffset)
-    XCTAssertEqual(audioOffset, 12, accuracy: 1e-9)
+    XCTAssertEqual(voiceActivity.audioOffset, 12, accuracy: 1e-9)
   }
 
   func testLiveServerMessage_voiceActivity_unspecifiedType_isUnknown() throws {
@@ -133,8 +130,7 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     """)
 
     XCTAssertEqual(voiceActivity.type, .unknown)
-    let audioOffset = try XCTUnwrap(voiceActivity.audioOffset)
-    XCTAssertEqual(audioOffset, 1.5, accuracy: 1e-9)
+    XCTAssertEqual(voiceActivity.audioOffset, 1.5, accuracy: 1e-9)
   }
 
   func testLiveServerMessage_voiceActivity_missingFields() throws {
@@ -145,7 +141,7 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     """)
 
     XCTAssertEqual(voiceActivity.type, .unknown)
-    XCTAssertNil(voiceActivity.audioOffset)
+    XCTAssertEqual(voiceActivity.audioOffset, 0, accuracy: 1e-9)
   }
 
   func testLiveServerMessage_voiceActivity_usageMetadata() throws {
@@ -165,7 +161,7 @@ final class LiveServerVoiceActivityTests: XCTestCase {
 
     let content = try liveServerContent(from: liveServerMessage)
     let voiceActivity = try XCTUnwrap(content.voiceActivity)
-    XCTAssertEqual(voiceActivity.type, .activityEnd)
+    XCTAssertEqual(voiceActivity.type, .end)
     let usageMetadata = try XCTUnwrap(liveServerMessage.usageMetadata)
     XCTAssertEqual(usageMetadata.promptTokenCount, 10)
     XCTAssertEqual(usageMetadata.totalTokenCount, 10)
