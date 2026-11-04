@@ -25,7 +25,9 @@
   @Suite(
     "Tool Calling Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    // Fails runaway tool-call loops instead of hanging until the request times out.
+    .timeLimit(.minutes(2))
   )
   struct ToolCallingIntegrationTests {
     /// A tool that provides mock weather information for a given city.
@@ -115,6 +117,11 @@
         return false
       }
       #expect(hasToolOutput)
+      let hasReasoning = session.transcript.contains { entry in
+        if case .reasoning = entry { return true }
+        return false
+      }
+      #expect(hasReasoning, "Expected the tool call's thought signature in a reasoning entry.")
       #expect(response.usage.totalTokenCount > 0)
     }
 
@@ -229,36 +236,6 @@
         return false
       }
       #expect(!hasToolCalls)
-    }
-
-    @Test(
-      .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
-    )
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithReasoningAndToolCalls(
-      backend: IntegrationTestingBackend
-    ) async throws {
-      let model = try await backend.makeModel(modelID: ModelResource.gemini38FlashID)
-      let session = LanguageModelSession(
-        model: model,
-        tools: [WeatherTool()]
-      )
-
-      let response = try await session.respond(
-        to: "What is the weather in Chicago?"
-      )
-
-      #expect(!response.content.isEmpty)
-      let containsChicagoOrTemp =
-        response.content.localizedCaseInsensitiveContains("Chicago")
-        || response.content.contains("22")
-      #expect(containsChicagoOrTemp)
-      let hasToolCalls = session.transcript.contains { entry in
-        if case .toolCalls = entry { return true }
-        return false
-      }
-      #expect(hasToolCalls)
     }
 
     @Test(
