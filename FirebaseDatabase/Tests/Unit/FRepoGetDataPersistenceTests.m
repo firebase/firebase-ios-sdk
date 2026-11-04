@@ -28,17 +28,38 @@
 #import "FirebaseDatabase/Tests/Helpers/FMockStorageEngine.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
 
-/** A connection that fails every get as if the client were offline. */
-@interface FOfflineGetConnection : FPersistentConnection
+/** A connection whose get responses are configured by the test and whose listens stay pending. */
+@interface FStubGetConnection : FPersistentConnection
+
+@property(nonatomic, copy) NSString *getStatus;
+@property(nonatomic, strong, nullable) id getData;
+@property(nonatomic, copy, nullable) NSString *getErrorReason;
 
 @end
 
-@implementation FOfflineGetConnection
+@implementation FStubGetConnection
+
+- (void)listen:(FQuerySpec *)query
+         tagId:(NSNumber *)tagId
+          hash:(id<FSyncTreeHash>)hash
+    onComplete:(fbt_void_nsstring)onComplete {
+  // Keep listens pending so `getData` is not satisfied from the in-memory cache before reaching the
+  // connection.
+}
+
+- (void)unlisten:(FQuerySpec *)query tagId:(NSNumber *)tagId {
+}
+
+- (void)putData:(id)data
+         forPath:(NSString *)pathString
+        withHash:(NSString *)hash
+    withCallback:(fbt_void_nsstring_nsstring)onComplete {
+}
 
 - (void)getDataAtPath:(NSString *)pathString
            withParams:(NSDictionary *)queryWireProtocolParams
          withCallback:(fbt_void_nsstring_id_nsstring)onComplete {
-  onComplete(kFWPResponseForActionStatusFailed, nil, kPersistentConnectionOffline);
+  onComplete(self.getStatus, self.getData, self.getErrorReason);
 }
 
 @end
@@ -48,6 +69,7 @@
 @property(nonatomic, strong) FIRDatabaseConfig *config;
 @property(nonatomic, strong) FMockStorageEngine *storageEngine;
 @property(nonatomic, strong) FRepo *repo;
+@property(nonatomic, strong) FStubGetConnection *connection;
 
 @end
 
@@ -63,15 +85,16 @@
                                                isSecure:NO
                                           withNamespace:@"default"];
   self.repo = [FRepoManager getRepo:repoInfo config:self.config];
-  FOfflineGetConnection *connection =
-      [[FOfflineGetConnection alloc] initWithRepoInfo:repoInfo
-                                        dispatchQueue:[FIRDatabaseQuery sharedQueue]
-                                               config:self.config];
+  self.connection = [[FStubGetConnection alloc] initWithRepoInfo:repoInfo
+                                                   dispatchQueue:[FIRDatabaseQuery sharedQueue]
+                                                          config:self.config];
+  self.connection.getStatus = kFWPResponseForActionStatusFailed;
+  self.connection.getErrorReason = kPersistentConnectionOffline;
   // Replace the repo's connection once the repo has finished initializing on the shared queue, so
   // that the repo never reaches the network.
   dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
     [self.repo.connection interruptForReason:kFInterruptReasonRepoInterrupt];
-    self.repo.connection = connection;
+    self.repo.connection = self.connection;
   });
 }
 
@@ -93,14 +116,109 @@
   }];
   [self waitForExpectations:@[ completed ] timeout:5];
 
-  __block NSArray<FTrackedQuery *> *trackedQueries;
-  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
-    trackedQueries = [self.storageEngine loadTrackedQueries];
-  });
+  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
   XCTAssertEqual(trackedQueries.count, 1);
   XCTAssertEqualObjects(trackedQueries.firstObject.query,
                         [FQuerySpec defaultQueryAtPath:PATH(@"foo")]);
   XCTAssertFalse(trackedQueries.firstObject.isActive);
+}
+
+- (void)testSucceededGetDataOnObservedFilteredQueryKeepsQueryActive {
+  self.connection.getStatus = kFWPResponseForActionStatusOk;
+  self.connection.getData = @{@"c" : @3, @"d" : @4};
+  self.connection.getErrorReason = nil;
+
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                                    path:PATH(@"foo")];
+  FIRDatabaseQuery *query = [[ref queryOrderedByKey] queryLimitedToLast:2];
+  FIRDatabaseHandle handle = [query observeEventType:FIRDataEventTypeValue
+                                           withBlock:^(FIRDataSnapshot *snapshot){
+                                           }];
+
+  XCTestExpectation *completed = [self expectationWithDescription:@"getData completed"];
+  [query getDataWithCompletionBlock:^(NSError *error, FIRDataSnapshot *snapshot) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(snapshot.value, (@{@"c" : @3, @"d" : @4}));
+    [completed fulfill];
+  }];
+  [self waitForExpectations:@[ completed ] timeout:5];
+
+  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
+  XCTAssertEqual(trackedQueries.count, 1);
+  XCTAssertTrue(trackedQueries.firstObject.isActive);
+
+  // Updating keys in the active filtered view asserts that the tracked query is still active.
+  [[ref child:@"e"] setValue:@5];
+  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
+                });
+
+  [query removeObserverWithHandle:handle];
+  trackedQueries = [self loadTrackedQueries];
+  XCTAssertFalse(trackedQueries.firstObject.isActive);
+}
+
+- (void)testFailedGetDataOnKeptSyncedFilteredQueryKeepsQueryActive {
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                                    path:PATH(@"foo")];
+  FIRDatabaseQuery *query = [[ref queryOrderedByKey] queryLimitedToLast:2];
+  [query keepSynced:YES];
+
+  XCTestExpectation *completed = [self expectationWithDescription:@"getData completed"];
+  [query getDataWithCompletionBlock:^(NSError *error, FIRDataSnapshot *snapshot) {
+    XCTAssertNotNil(error);
+    [completed fulfill];
+  }];
+  [self waitForExpectations:@[ completed ] timeout:5];
+
+  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
+  XCTAssertEqual(trackedQueries.count, 1);
+  XCTAssertTrue(trackedQueries.firstObject.isActive);
+
+  [[ref child:@"a"] setValue:@1];
+  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
+                });
+
+  [query keepSynced:NO];
+  trackedQueries = [self loadTrackedQueries];
+  XCTAssertFalse(trackedQueries.firstObject.isActive);
+}
+
+- (void)testSucceededGetDataOnObservedDefaultQueryKeepsQueryActive {
+  self.connection.getStatus = kFWPResponseForActionStatusOk;
+  self.connection.getData = @{@"a" : @1};
+  self.connection.getErrorReason = nil;
+
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                                    path:PATH(@"foo")];
+  FIRDatabaseHandle handle = [ref observeEventType:FIRDataEventTypeValue
+                                         withBlock:^(FIRDataSnapshot *snapshot){
+                                         }];
+
+  XCTestExpectation *completed = [self expectationWithDescription:@"getData completed"];
+  [[ref queryOrderedByKey] getDataWithCompletionBlock:^(NSError *error, FIRDataSnapshot *snapshot) {
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(snapshot.value, @{@"a" : @1});
+    [completed fulfill];
+  }];
+  [self waitForExpectations:@[ completed ] timeout:5];
+
+  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
+  XCTAssertEqual(trackedQueries.count, 1);
+  XCTAssertEqualObjects(trackedQueries.firstObject.query,
+                        [FQuerySpec defaultQueryAtPath:PATH(@"foo")]);
+  XCTAssertTrue(trackedQueries.firstObject.isActive);
+
+  [ref removeObserverWithHandle:handle];
+  trackedQueries = [self loadTrackedQueries];
+  XCTAssertFalse(trackedQueries.firstObject.isActive);
+}
+
+- (NSArray<FTrackedQuery *> *)loadTrackedQueries {
+  __block NSArray<FTrackedQuery *> *trackedQueries;
+  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
+    trackedQueries = [self.storageEngine loadTrackedQueries];
+  });
+  return trackedQueries;
 }
 
 @end

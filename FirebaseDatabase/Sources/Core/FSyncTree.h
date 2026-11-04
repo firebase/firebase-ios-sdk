@@ -77,6 +77,8 @@
                             forQuery:(FQuerySpec *)query
                          cancelError:(NSError *)cancelError;
 - (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced;
+- (void)setQueryActive:(FQuerySpec *)query;
+- (void)setQueryInactive:(FQuerySpec *)query;
 - (NSArray *)removeAllWrites;
 
 - (FIndexedNode *)persistenceServerCache:(FQuerySpec *)querySpec;
