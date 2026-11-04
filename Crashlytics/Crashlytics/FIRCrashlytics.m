@@ -20,6 +20,7 @@
 #import "FBLPromises.h"
 #endif
 
+#import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSHost.h"
@@ -112,6 +113,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
+@property(nonatomic, strong) dispatch_queue_t apiDispatchQueue;
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
 
 @end
@@ -201,6 +203,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       });
     }
 
+    _apiDispatchQueue = [self createAPIDispatchQueue];
     _contextInitPromise =
         [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
           if (![value boolValue]) {
@@ -489,14 +492,28 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 #pragma mark - Private Helpers
+- (dispatch_queue_t)createAPIDispatchQueue {
+  NSString *apiQueueName = [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".api"];
+  dispatch_queue_attr_t queueAttr =
+      dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
+  return dispatch_queue_create([apiQueueName UTF8String], queueAttr);
+}
+
 - (void)waitForContextInit:(NSString *)contextLog callback:(void (^)(void))callback {
-  if (!_contextInitPromise) {
+  if (!_contextInitPromise || !_apiDispatchQueue) {
     FIRCLSErrorLog(@"Crashlytics method called before SDK was initialized: %@", contextLog);
     return;
   }
-  [_contextInitPromise then:^id _Nullable(id _Nullable value) {
-    callback();
-    return nil;
-  }];
+
+  [_contextInitPromise onQueue:_apiDispatchQueue
+                          then:^id _Nullable(id _Nullable value) {
+                            callback();
+                            return nil;
+                          }];
+}
+
+#pragma mark - Test Helpers
++ (void)resetInstanceForTesting {
+  atomic_store(&_hasInitializedInstance, NO);
 }
 @end

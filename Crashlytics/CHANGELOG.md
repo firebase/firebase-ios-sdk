@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
+  `recordError`, `recordExceptionModel`, etc.) executed file writes on the main thread. (#16926)
 - [fixed] Fixed a crash when processing a report whose binary image records
   contain a non-numeric `base` or `size`. (#16519)
 - [fixed] Fixed a potential crash in the x86_64 crash handler's stack-scanning fallback when
