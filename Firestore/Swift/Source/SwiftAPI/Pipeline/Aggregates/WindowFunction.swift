@@ -45,21 +45,6 @@ public class WindowFunction: AggregateBridgeWrapper, @unchecked Sendable {
     )
   }
 
-  /// Applies a window frame to this window function, evaluating it over the specified window frame
-  /// independent of the frame declared on the enclosing `addWindowFields` stage.
-  ///
-  /// - Note: Only `documents` or `range` window frames are supported on individual accumulators
-  ///   (using `WindowSpec.documents(...)` or `WindowSpec.range(...)`). Specifying other window
-  ///   parameters, such as `partition` or `sort`, is not supported here and must be specified
-  ///   on the enclosing `addWindowFields` stage.
-  ///
-  /// - Parameter window: The window specification containing the `documents` or `range` frame to
-  ///   evaluate this window function over.
-  /// - Returns: A new `WindowFunction` with the given window framing.
-  public func over(_ window: WindowSpec) -> WindowFunction {
-    return WindowFunction(functionName: functionName, args: args, window: window)
-  }
-
   /// Creates an `AliasedWindowFunction` from this window function.
   ///
   /// - Parameter name: The name of the output field that will contain the result.

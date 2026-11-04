@@ -63,6 +63,24 @@ private let windowTestDocs: [String: [String: Any]] = [
 ]
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+private func assertExecuteFails(_ pipeline: Pipeline,
+                                messageContains expected: String,
+                                file: StaticString = #file,
+                                line: UInt = #line) async {
+  do {
+    _ = try await pipeline.execute()
+    XCTFail("Expected an error containing \"\(expected)\"", file: file, line: line)
+  } catch {
+    XCTAssertTrue(
+      error.localizedDescription.contains(expected),
+      "Expected \"\(expected)\" in error: \(error.localizedDescription)",
+      file: file,
+      line: line
+    )
+  }
+}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
   override func setUpWithError() throws {
     try super.setUpWithError()
@@ -114,7 +132,7 @@ class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .range(preceding: 12, following: .current, unit: TimeGranularity.hour)
+        window: .range(preceding: 12, following: .current, unit: "hour")
           .sort(Field("date").ascending()),
         fields: [Field("quantity").count().as("windowCount")]
       )
@@ -229,6 +247,189 @@ class PipelineWindowIntegrationTests: FSTIntegrationTestCase {
     } catch {
       XCTAssertTrue(error.localizedDescription.lowercased().contains("duplicate alias"))
     }
+  }
+
+  // --- window frame API behavior -------------------------------------------------------------
+
+  func testWindowFieldsRejectsDynamicExpressionBounds() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let bounds: [FirebaseFirestore.Expression] = [Field("quantity"), Field("quantity").add(1)]
+    for preceding in bounds {
+      await assertExecuteFails(
+        collRef.firestore.pipeline()
+          .collection(collRef.path)
+          .addWindowFields(
+            window: .sort(Field("salesPrice").ascending())
+              .documents(preceding: preceding, following: .current),
+            fields: [Field("quantity").count().as("windowCount")]
+          ),
+        messageContains: "Dynamic boundary expressions in window frames are not supported yet"
+      )
+    }
+  }
+
+  func testWindowFieldsRejectsAccumulatorLevelFramingWhenTheStageSpecifiesAFrame() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    await assertExecuteFails(
+      collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .sort(Field("salesPrice").ascending())
+            .range(preceding: .unbounded, following: .current),
+          fields: [
+            Field("quantity").count()
+              .over(.documents(preceding: 1, following: 1))
+              .as("windowCount"),
+          ]
+        ),
+      messageContains: "Cannot specify window framing on individual aggregations when "
+        + "stage-level window framing is already specified"
+    )
+  }
+
+  func testWindowFieldsUsesThePeerInclusiveDefaultFrameForAccumulatorsWithoutOver(
+  ) async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("salesPrice").ascending()),
+        fields: [
+          Field("quantity").count()
+            .over(.range(preceding: .current, following: .current))
+            .as("framed"),
+          Field("quantity").count().as("unframed"),
+        ]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "framed", "unframed"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "framed": 1, "unframed": 1],
+      ["salesPrice": 30, "framed": 2, "unframed": 3],
+      ["salesPrice": 30, "framed": 2, "unframed": 3],
+      ["salesPrice": 60, "framed": 2, "unframed": 5],
+      ["salesPrice": 60, "framed": 2, "unframed": 5],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsRejectsAFractionalDocumentsOffset() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    await assertExecuteFails(
+      collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .sort(Field("salesPrice").ascending()).documents(preceding: 1.5, following: 0),
+          fields: [Field("salesPrice").sum().as("total")]
+        ),
+      messageContains: "Documents window frame offset must be a 32-bit integer"
+    )
+  }
+
+  func testWindowFieldsRejectsAFractionalTimeRangeOffset() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    await assertExecuteFails(
+      collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .sort(Field("date").ascending())
+            .range(preceding: 1.5, following: .current, unit: TimeGranularity.day),
+          fields: [Field("salesPrice").sum().as("total")]
+        ),
+      messageContains: "Time range window frame offset must be an integer"
+    )
+  }
+
+  func testWindowFieldsTreatsCurrentAsPeerInclusiveForNonNumericAndMultipleSortKeys(
+  ) async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .sort(Field("product").ascending())
+          .range(preceding: .current, following: .current),
+        fields: [Field("quantity").count().as("sameProductCount")]
+      )
+      .addWindowFields(
+        window: .sort([Field("product").ascending(), Field("region").ascending()])
+          .range(preceding: .current, following: .current),
+        fields: [Field("quantity").count().as("sameProductRegionCount")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["sameProductCount", "sameProductRegionCount"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["sameProductCount": 2, "sameProductRegionCount": 1],
+      ["sameProductCount": 2, "sameProductRegionCount": 1],
+      ["sameProductCount": 3, "sameProductRegionCount": 2],
+      ["sameProductCount": 3, "sameProductRegionCount": 1],
+      ["sameProductCount": 3, "sameProductRegionCount": 2],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
+  func testWindowFieldsRejectsNumericRangeOffsetsWithANonNumericSortKey() async throws {
+    // Unlike `.current`, a numeric offset (even 0) requires numeric sort values.
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let windows: [WindowSpec] = [
+      .sort(Field("product").ascending()).range(preceding: 1, following: .current),
+      .sort(Field("product").ascending()).range(preceding: 0, following: 0),
+    ]
+    for window in windows {
+      await assertExecuteFails(
+        collRef.firestore.pipeline()
+          .collection(collRef.path)
+          .addWindowFields(window: window, fields: [Field("quantity").count().as("windowCount")]),
+        messageContains: "Range windows require all sortBy values to be numbers"
+      )
+    }
+  }
+
+  func testWindowFieldsRejectsNumericRangeOffsetsWithMultipleSortKeys() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let sort = [Field("salesPrice").ascending(), Field("quantity").ascending()]
+    let windows: [WindowSpec] = [
+      .sort(sort).range(preceding: 1, following: .current),
+      .sort(sort).range(preceding: 0, following: 0),
+    ]
+    for window in windows {
+      await assertExecuteFails(
+        collRef.firestore.pipeline()
+          .collection(collRef.path)
+          .addWindowFields(window: window, fields: [Field("quantity").count().as("windowCount")]),
+        messageContains: "requires exactly 1 sort ordering, but 2 were specified"
+      )
+    }
+  }
+
+  func testWindowFieldsRejectsARangeFrameWhoseLowerBoundIsAfterItsUpperBound() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    await assertExecuteFails(
+      collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .sort(Field("salesPrice").ascending()).range(preceding: -2, following: 1),
+          fields: [Field("quantity").count().as("windowCount")]
+        ),
+      messageContains: "lower bound must be less than or equal to upper bound"
+    )
+  }
+
+  func testWindowFieldsRejectsATimeUnitWithANumericSortKey() async throws {
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    await assertExecuteFails(
+      collRef.firestore.pipeline()
+        .collection(collRef.path)
+        .addWindowFields(
+          window: .sort(Field("salesPrice").ascending())
+            .range(preceding: 1, following: .current, unit: TimeGranularity.day),
+          fields: [Field("quantity").count().as("windowCount")]
+        ),
+      messageContains: "Time range windows require all sortBy values to be dates"
+    )
   }
 }
 
@@ -373,23 +574,25 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
   // --- sorting and default framing -----------------------------------------------------------
 
   func testWindowFieldsRunningCountWithTheDefaultFrame() async throws {
+    // The implicit default frame when `sort` is specified is a peer-inclusive `range` frame from
+    // `.unbounded` to `.current`. `salesPrice` has ties, so tied documents share a running count.
     let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
       .collection(collRef.path)
       .addWindowFields(
-        window: .sort(Field("quantity").ascending()),
+        window: .sort(Field("salesPrice").ascending()),
         fields: [Field("quantity").count().as("runningCount")]
       )
       .sort([Field("date").ascending()])
-      .select(["product", "runningCount"])
+      .select(["salesPrice", "runningCount"])
       .execute()
 
     let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "runningCount": 1],
-      ["product": "phone", "runningCount": 2],
-      ["product": "tablet", "runningCount": 3],
-      ["product": "tablet", "runningCount": 4],
-      ["product": "tablet", "runningCount": 5],
+      ["salesPrice": 12, "runningCount": 1],
+      ["salesPrice": 30, "runningCount": 3],
+      ["salesPrice": 30, "runningCount": 3],
+      ["salesPrice": 60, "runningCount": 5],
+      ["salesPrice": 60, "runningCount": 5],
     ]
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
@@ -1388,6 +1591,31 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
     TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
   }
 
+  func testWindowFieldsComputesAValueBasedRangeWindowWithADescendingSort() async throws {
+    // With a descending sort, `preceding` refers to larger values, so the frame is
+    // [value, value + 20].
+    let collRef = collectionRef(withDocuments: windowTestDocs)
+    let snapshot = try await collRef.firestore.pipeline()
+      .collection(collRef.path)
+      .addWindowFields(
+        window: .range(preceding: 20, following: 0)
+          .sort(Field("salesPrice").descending()),
+        fields: [Field("salesPrice").sum().as("nearbyTotal")]
+      )
+      .sort([Field("date").ascending()])
+      .select(["salesPrice", "nearbyTotal"])
+      .execute()
+
+    let expectedResults: [[String: Sendable]] = [
+      ["salesPrice": 12, "nearbyTotal": 72],
+      ["salesPrice": 30, "nearbyTotal": 60],
+      ["salesPrice": 30, "nearbyTotal": 60],
+      ["salesPrice": 60, "nearbyTotal": 120],
+      ["salesPrice": 60, "nearbyTotal": 120],
+    ]
+    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
+  }
+
   func testWindowFieldsComputesAValueBasedRangeWindowWithDoubleOffsets() async throws {
     let collRef = collectionRef(withDocuments: windowTestDocs)
     let snapshot = try await collRef.firestore.pipeline()
@@ -1457,56 +1685,6 @@ class PipelineWindowComprehensiveIntegrationTests: FSTIntegrationTestCase {
   }
 
   // --- error handling ------------------------------------------------------------------------
-
-  func testWindowFieldsRejectsMixingStageAndAccumulatorFraming() async throws {
-    let collRef = collectionRef(withDocuments: windowTestDocs)
-    do {
-      _ = try await collRef.firestore.pipeline()
-        .collection(collRef.path)
-        .addWindowFields(
-          window: .sort(Field("date").ascending())
-            .documents(preceding: .unbounded, following: .current),
-          fields: [
-            Field("quantity").count()
-              .over(.documents(preceding: .unbounded, following: .unbounded))
-              .as("windowCount"),
-          ]
-        )
-        .execute()
-      XCTFail("Expected error for mixing stage and accumulator framing")
-    } catch {
-      // Expected backend rejection
-    }
-  }
-
-  func testWindowFieldsEvaluatesAccumulatorsWithoutOverUsingTheDefaultFrameWhenOthersUseOver(
-  ) async throws {
-    let collRef = collectionRef(withDocuments: windowTestDocs)
-    let snapshot = try await collRef.firestore.pipeline()
-      .collection(collRef.path)
-      .addWindowFields(
-        window: .sort(Field("date").ascending()),
-        fields: [
-          Field("quantity").count()
-            .over(.documents(preceding: 0, following: 0))
-            .as("framed"),
-          // Uses the default frame for a sorted window: unbounded preceding to current.
-          Field("quantity").count().as("unframed"),
-        ]
-      )
-      .sort([Field("date").ascending()])
-      .select(["product", "framed", "unframed"])
-      .execute()
-
-    let expectedResults: [[String: Sendable]] = [
-      ["product": "phone", "framed": 1, "unframed": 1],
-      ["product": "phone", "framed": 1, "unframed": 2],
-      ["product": "tablet", "framed": 1, "unframed": 3],
-      ["product": "tablet", "framed": 1, "unframed": 4],
-      ["product": "tablet", "framed": 1, "unframed": 5],
-    ]
-    TestHelper.compare(snapshot: snapshot, expected: expectedResults, enforceOrder: true)
-  }
 
   func testWindowFieldsRejectsAPartitionSuppliedToAnAccumulatorLevelOver() async throws {
     let collRef = collectionRef(withDocuments: windowTestDocs)

@@ -39,7 +39,8 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
     case current
     /// An integer offset.
     case integer(Int)
-    /// A floating-point offset. Only meaningful for `range` frames.
+    /// A floating-point offset. Only valid for `range` frames; must be a whole number when a
+    /// `unit` is specified.
     case double(Double)
     /// An offset computed from an expression.
     case expression(Expression)
@@ -56,7 +57,7 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
   ///   (documents that tie on the sort value(s) at other positions are not included).
   /// - In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode):
   ///   it includes all documents whose sort value(s) tie with the current document, making it
-  ///   equivalent to an offset of `0`.
+  ///   equivalent to an offset of `0`, but also allowed with multiple or non-numeric sort keys.
   public static let current = WindowBound(.current)
 
   public init(_ value: Value) {
@@ -73,7 +74,8 @@ public struct WindowBound: ExpressibleByIntegerLiteral, ExpressibleByFloatLitera
     rawValue = .integer(int)
   }
 
-  /// Creates a floating-point offset boundary. Only meaningful for `range` frames.
+  /// Creates a floating-point offset boundary. Only valid for `range` frames; must be a whole
+  /// number when a `unit` is specified.
   public init(_ double: Double) {
     rawValue = .double(double)
   }
@@ -259,7 +261,8 @@ public struct WindowSpec: Sendable {
   ///
   /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
   /// includes all documents whose sort value(s) tie with the current document, making `.current`
-  /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
+  /// equivalent to an offset of `0`, but also allowed with multiple or non-numeric sort keys. For
+  /// example, given sort values `[10, 10, 20]` and
   /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document
   /// includes both `10`s, and the frame for `20` includes all three documents.
   ///
@@ -281,14 +284,15 @@ public struct WindowSpec: Sendable {
   ///     an integer or floating-point offset, or an `Expression`. A positive offset subtracts
   ///     from the current document's sort value (looking into the past). A negative offset adds
   ///     to the current document's sort value (shifting the lower boundary past the current
-  ///     document).
+  ///     document). For a descending sort, the direction is reversed.
   ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
   ///     an integer or floating-point offset, or an `Expression`. A positive offset adds to the
   ///     current document's sort value (looking into the future). A negative offset subtracts
   ///     from the current document's sort value (shifting the upper boundary before the current
-  ///     document).
+  ///     document). For a descending sort, the direction is reversed.
   ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when
-  ///     computing range offsets over timestamp fields.
+  ///     computing range offsets over timestamp fields. When a unit is specified, offsets must be
+  ///     whole numbers.
   /// - Returns: A new `WindowSpec` with the range-value based window frame configured.
   public func range(preceding: WindowBound,
                     following: WindowBound,
@@ -437,7 +441,8 @@ public struct WindowSpec: Sendable {
   ///
   /// In a `range` frame, `.current` is peer-inclusive (like SQL `CURRENT ROW` in `RANGE` mode): it
   /// includes all documents whose sort value(s) tie with the current document, making `.current`
-  /// equivalent to an offset of `0`. For example, given sort values `[10, 10, 20]` and
+  /// equivalent to an offset of `0`, but also allowed with multiple or non-numeric sort keys. For
+  /// example, given sort values `[10, 10, 20]` and
   /// `.range(preceding: .unbounded, following: .current)`, the frame for each `10` document
   /// includes both `10`s, and the frame for `20` includes all three documents.
   ///
@@ -459,14 +464,15 @@ public struct WindowSpec: Sendable {
   ///     an integer or floating-point offset, or an `Expression`. A positive offset subtracts
   ///     from the current document's sort value (looking into the past). A negative offset adds
   ///     to the current document's sort value (shifting the lower boundary past the current
-  ///     document).
+  ///     document). For a descending sort, the direction is reversed.
   ///   - following: The ending boundary of the window frame. Can be `.unbounded`, `.current`,
   ///     an integer or floating-point offset, or an `Expression`. A positive offset adds to the
   ///     current document's sort value (looking into the future). A negative offset subtracts
   ///     from the current document's sort value (shifting the upper boundary before the current
-  ///     document).
+  ///     document). For a descending sort, the direction is reversed.
   ///   - unit: An optional date/time granularity unit (such as `TimeGranularity.day`) when
-  ///     computing range offsets over timestamp fields.
+  ///     computing range offsets over timestamp fields. When a unit is specified, offsets must be
+  ///     whole numbers.
   /// - Returns: A new `WindowSpec` with the range-value based window frame.
   public static func range(preceding: WindowBound,
                            following: WindowBound,

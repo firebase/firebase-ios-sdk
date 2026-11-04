@@ -421,12 +421,12 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     let _: WindowBound = 1.5
     let _ = WindowBound(10)
     let _ = WindowBound(2.5)
-    let _ = WindowBound(Field("offset"))
+    let _ = WindowBound(Constant(2))
     let _ = WindowBound(.unbounded)
     let _ = WindowBound(.current)
     let _ = WindowBound(.integer(10))
     let _ = WindowBound(.double(2.5))
-    let _ = WindowBound(.expression(Field("offset")))
+    let _ = WindowBound(.expression(Constant(2)))
     let offset = 3
     let fraction = 0.5
     let _ = WindowBound(offset)
@@ -444,7 +444,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
         window: .sort(Field("salesPrice").ascending()),
         fields: [
           Field("salesPrice").sum()
-            .over(.range(preceding: WindowBound(fraction), following: Field("f")))
+            .over(.range(preceding: WindowBound(fraction), following: Constant(0.5)))
             .as("nearbyTotal"),
         ]
       )
@@ -471,7 +471,14 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
     _ = db.pipeline().collection("sales")
       .addWindowFields(
-        window: .documents(preceding: Field("p"), following: Field("f"))
+        window: .range(preceding: 30, following: .current, unit: "day")
+          .sort(Field("date").ascending()),
+        fields: [Field("salesPrice").sum().as("runningSum")]
+      )
+
+    _ = db.pipeline().collection("sales")
+      .addWindowFields(
+        window: .documents(preceding: Constant(1), following: Constant(1))
           .sort([Field("salesPrice").ascending()]),
         fields: [
           Field("salesPrice").sum().as("sum"),
@@ -481,7 +488,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
     // Mixed Expression and literal / WindowBound
     _ = db.pipeline().collection("sales")
       .addWindowFields(
-        window: .documents(preceding: Field("p"), following: .current)
+        window: .documents(preceding: Constant(1), following: .current)
           .sort([Field("salesPrice").ascending()]),
         fields: [
           Field("salesPrice").sum().as("sum"),
@@ -490,7 +497,7 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
     _ = db.pipeline().collection("sales")
       .addWindowFields(
-        window: .documents(preceding: 1, following: Field("f"))
+        window: .documents(preceding: 1, following: Constant(1))
           .sort([Field("salesPrice").ascending()]),
         fields: [
           Field("salesPrice").sum().as("sum"),
@@ -499,8 +506,8 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
     _ = db.pipeline().collection("sales")
       .addWindowFields(
-        window: .range(preceding: Field("p"), following: .current, unit: TimeGranularity.day)
-          .sort([Field("salesPrice").ascending()]),
+        window: .range(preceding: Constant(30), following: .current, unit: TimeGranularity.day)
+          .sort([Field("date").ascending()]),
         fields: [
           Field("salesPrice").sum().as("sum"),
         ]
@@ -508,8 +515,8 @@ final class PipelineApiTests: FSTIntegrationTestCase {
 
     _ = db.pipeline().collection("sales")
       .addWindowFields(
-        window: .range(preceding: 30, following: Field("f"), unit: TimeGranularity.day)
-          .sort([Field("salesPrice").ascending()]),
+        window: .range(preceding: 30, following: Constant(0), unit: TimeGranularity.day)
+          .sort([Field("date").ascending()]),
         fields: [
           Field("salesPrice").sum().as("sum"),
         ]
@@ -567,8 +574,6 @@ final class PipelineApiTests: FSTIntegrationTestCase {
         window: .partition(["product"]).sort(Field("salesPrice").descending()),
         fields: [
           Rank().as("rank"),
-          Rank().over(.documents(preceding: .unbounded, following: .current)).as("framedRank"),
-          Field("salesPrice").sum().over(.documents(preceding: 1, following: 1)).as("movingSum"),
         ]
       )
 
