@@ -25,7 +25,9 @@
   @Suite(
     "Tool Calling Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    // Fails runaway tool-call loops instead of hanging until the request times out.
+    .timeLimit(.minutes(2))
   )
   struct ToolCallingIntegrationTests {
     /// A tool that provides mock weather information for a given city.
