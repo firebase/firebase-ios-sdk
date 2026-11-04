@@ -74,11 +74,36 @@
   @available(tvOS, unavailable)
   extension GeminiLanguageModel: LanguageModel {
     /// The capabilities supported by this language model.
+    ///
+    /// ### Image input
+    ///
+    /// With the `vision` capability, prompts can include image attachments created from a
+    /// `CGImage`, a `CIImage`, a `CVPixelBuffer`, or a file URL, such as `Attachment(cgImage)` or
+    /// `Attachment(imageURL: fileURL)`. Images are sent inline with the request:
+    ///
+    /// - PNG, JPEG, WebP, HEIC, and HEIF files that don't need rotating are sent unchanged, unless
+    ///   the file contains several images and its primary image isn't the first one.
+    /// - All other images are rotated to their display orientation and re-encoded as JPEG. For
+    ///   files that contain several images, the first image is used, matching
+    ///   `Transcript.ImageAttachment`.
+    ///
+    /// Current limitations:
+    ///
+    /// - Image attachments are only supported in prompts, not in instructions or tool output.
+    /// - Images from remote URLs (any URL that isn't a file URL) aren't supported.
+    /// - Attachment labels aren't sent to the model, so tools that take an `ImageReference`, such
+    ///   as Vision's `BarcodeReaderTool` and `OCRTool`, only work if the prompt text mentions the
+    ///   label.
+    /// - Inline data counts toward the backend's request size limit (about 20 MB), and earlier
+    ///   images in the session are re-sent with every request.
+    /// - Image files are read again for every request in the session, so a file must remain
+    ///   available for as long as the session that references it is used.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,
         .reasoning,
         .toolCalling,
+        .vision,
       ])
     }
   }

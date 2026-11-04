@@ -57,7 +57,7 @@ concurrency:
 
 jobs:
   should_package:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       should_package: ${{ steps.check.outputs.should_package }}
     steps:
@@ -163,7 +163,7 @@ jobs:
         path: zip_output_dir
 
   packaging_done:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [package-head]
     if: always()
     outputs:
@@ -248,11 +248,11 @@ jobs:
           - product: "Authentication"
             plist_src: "scripts/gha-encrypted/qs-authentication.plist.gpg"
             plist_dst: "quickstart-ios/authentication/GoogleService-Info.plist"
+            # FBSDK comes from the sample's own Swift package dependency (see
+            # setup_quickstart_framework.sh), at the version the sample requires.
             command: |
               SAMPLE="Authentication" TARGET="AuthenticationExample" \
-                NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" \
                 scripts/zip/setup_quickstart_framework.sh \
-                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                 "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
 
