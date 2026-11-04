@@ -147,7 +147,7 @@ function RunXcodebuild() {
     || result=$?
 
   if [[ $result == 65 && "$has_retry_flag" == "false" ]]; then
-    ExportLogs "$@"
+    ExportLogs "$@" || echo "Warning: ExportLogs failed" 1>&2
 
     echo "xcodebuild exited with 65, retrying" 1>&2
     sleep 5
@@ -161,7 +161,7 @@ function RunXcodebuild() {
   if [[ $result != 0 ]]; then
     echo "xcodebuild exited with $result" 1>&2
 
-    ExportLogs "$@"
+    ExportLogs "$@" || echo "Warning: ExportLogs failed" 1>&2
     return $result
   fi
 }
@@ -450,7 +450,7 @@ case "$product-$platform-$method" in
         trap '"${firestore_emulator}" stop' ERR EXIT
       fi
 
-      xctestrun_files=(Firestore/Example/DerivedData/Build/Products/${scheme}_*.xctestrun)
+      xctestrun_files=("Firestore/Example/DerivedData/Build/Products/${scheme}_"*.xctestrun)
       if [[ -f "${xctestrun_files[0]}" ]]; then
         # Update GoogleService-Info.plist inside the prebuilt app bundle (for prod/nightly secrets)
         for app_bundle in Firestore/Example/DerivedData/Build/Products/*/Firestore_Example_*.app; do

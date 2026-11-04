@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Prevent races when accessing global, trace, and HTTP metric custom
+  attributes concurrently. (#16761)
 - [fixed] Improved robustness when parsing malformed Remote Config values for
   Performance Monitoring. Cached values of unexpected types and out-of-range
   rate limits, gauge frequencies and session durations now fall back to

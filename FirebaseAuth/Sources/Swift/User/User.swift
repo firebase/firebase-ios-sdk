@@ -75,7 +75,11 @@ extension User: NSSecureCoding {}
   private(set) var backend: AuthBackend
 
   /// Metadata associated with the Firebase user in question.
-  @objc public private(set) var metadata: UserMetadata
+  @objc public var metadata: UserMetadata {
+    propertyAccessQueue.sync { _metadata }
+  }
+
+  private var _metadata: UserMetadata
 
   /// The tenant ID of the current user. `nil` if none is available.
   @objc public private(set) var tenantID: String?
@@ -84,7 +88,11 @@ extension User: NSSecureCoding {}
     /// Multi factor object associated with the user.
     ///
     /// This property is available on iOS and macOS.
-    @objc public private(set) var multiFactor: MultiFactor
+    @objc public var multiFactor: MultiFactor {
+      propertyAccessQueue.sync { _multiFactor }
+    }
+
+    private var _multiFactor: MultiFactor
   #endif
 
   /// [Deprecated] Updates the email address for the user.
@@ -1076,14 +1084,18 @@ extension User: NSSecureCoding {}
     self.tokenService = tokenService
     _isAnonymous = false
     _isEmailVerified = false
-    metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    _metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
     #if os(iOS) || os(macOS)
-      multiFactor = MultiFactor(withMFAEnrollments: [])
+      _multiFactor = MultiFactor(withMFAEnrollments: [])
     #endif
     _uid = ""
     _hasEmailPasswordCredential = false
     requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
+    super.init()
+    #if os(iOS) || os(macOS)
+      _multiFactor.user = self
+    #endif
   }
 
   class func retrieveUser(withAuth auth: Auth,
@@ -1371,8 +1383,8 @@ extension User: NSSecureCoding {}
       _photoURL = user.photoURL
       _phoneNumber = user.phoneNumber
       _hasEmailPasswordCredential = user.passwordHash.flatMap { $0.count > 0 } ?? false
-      metadata = UserMetadata(withCreationDate: user.creationDate,
-                              lastSignInDate: user.lastLoginDate)
+      _metadata = UserMetadata(withCreationDate: user.creationDate,
+                               lastSignInDate: user.lastLoginDate)
       var providerData: [String: UserInfoImpl] = [:]
       if let providerUserInfos = user.providerUserInfo {
         for providerUserInfo in providerUserInfos {
@@ -1384,13 +1396,12 @@ extension User: NSSecureCoding {}
         }
       }
       _providerData = providerData
+      #if os(iOS) || os(macOS)
+        // A response without `mfaInfo` means the user has no enrolled factors.
+        _multiFactor = MultiFactor(withMFAEnrollments: user.mfaEnrollments ?? [])
+        _multiFactor.user = self
+      #endif
     }
-    #if os(iOS) || os(macOS)
-      if let enrollments = user.mfaEnrollments {
-        multiFactor = MultiFactor(withMFAEnrollments: enrollments)
-      }
-      multiFactor.user = self
-    #endif
   }
 
   #if os(iOS)
@@ -1865,7 +1876,7 @@ extension User: NSSecureCoding {}
       coder.encode(_isEmailVerified, forKey: kEmailVerifiedCodingKey)
       coder.encode(_photoURL, forKey: kPhotoURLCodingKey)
       coder.encode(_displayName, forKey: kDisplayNameCodingKey)
-      coder.encode(metadata, forKey: kMetadataCodingKey)
+      coder.encode(_metadata, forKey: kMetadataCodingKey)
       coder.encode(tenantID, forKey: kTenantIDCodingKey)
 
       if let auth {
@@ -1874,7 +1885,7 @@ extension User: NSSecureCoding {}
       }
       coder.encode(tokenService, forKey: kTokenServiceCodingKey)
       #if os(iOS) || os(macOS)
-        coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
+        coder.encode(_multiFactor, forKey: kMultiFactorCodingKey)
       #endif
     }
   }
@@ -1916,7 +1927,7 @@ extension User: NSSecureCoding {}
     _photoURL = photoURL
     _providerData = providerData ?? [:]
     _phoneNumber = phoneNumber
-    self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    _metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
 
     // Note, in practice, the caller will set the `auth` property of this user
@@ -1935,9 +1946,11 @@ extension User: NSSecureCoding {}
 
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS) || os(macOS)
-      self.multiFactor = multiFactor ?? MultiFactor()
-      super.init()
-      multiFactor?.user = self
+      _multiFactor = multiFactor ?? MultiFactor()
+    #endif
+    super.init()
+    #if os(iOS) || os(macOS)
+      _multiFactor.user = self
     #endif
   }
 }

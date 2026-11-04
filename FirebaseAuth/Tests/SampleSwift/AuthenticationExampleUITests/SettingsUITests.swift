@@ -23,6 +23,7 @@ class SettingsUITests: XCTestCase {
     continueAfterFailure = false
 
     app = XCUIApplication()
+    app.launchArguments.append("--uitesting-reset-auth")
     app.launch()
   }
 
