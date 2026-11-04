@@ -107,6 +107,23 @@
     ///   images in the session are re-sent with every request.
     /// - Image files are read again for every request in the session, so a file must remain
     ///   available for as long as the session that references it is used.
+    ///
+    /// ### Tool calling
+    ///
+    /// With the `toolCalling` capability, the model can call the tools that you provide to the
+    /// session. To limit cost when the model keeps calling tools, the model can make at most 10
+    /// tool-calling turns in response to each prompt. A tool-calling turn is one response that
+    /// calls one or more tools.
+    ///
+    /// - After 10 tool-calling turns, the next request tells Gemini not to call tools, so that
+    ///   the model gives a final response.
+    /// - If Gemini returns a function call anyway, the session throws
+    ///   ``GeminiLanguageModel/Error/invalidResponse(_:)``.
+    ///
+    /// The limit also applies when the tool calling mode is `required`, which otherwise keeps
+    /// calling tools until a tool throws an error or the mode changes. To stop sooner, change the
+    /// tool calling mode from a `LanguageModelSession.DynamicProfile`, for example after the first
+    /// tool call.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,

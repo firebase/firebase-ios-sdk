@@ -46,6 +46,17 @@
         /// The `URLSessionConfiguration` to use.
         let sessionConfiguration: URLSessionConfiguration
 
+        /// The maximum number of tool-calling turns allowed in response to a single prompt.
+        ///
+        /// A tool-calling turn is a model response that calls one or more tools. When this limit
+        /// is reached, the next request tells Gemini not to call functions; if it returns a
+        /// function call anyway, the executor throws `GeminiLanguageModel.Error.invalidResponse`.
+        let maximumToolCallingTurns: Int
+
+        /// The default maximum number of tool-calling turns allowed in response to a single
+        /// prompt.
+        static let defaultMaximumToolCallingTurns = 10
+
         /// Initializes an executor configuration.
         ///
         /// - Parameters:
@@ -53,16 +64,21 @@
         ///   - endpointConfiguration: The network endpoint configuration.
         ///   - headerProvider: An optional async provider for dynamic headers.
         ///   - sessionConfiguration: The `URLSessionConfiguration` to use.
+        ///   - maximumToolCallingTurns: The maximum number of tool-calling turns allowed in
+        ///     response to a single prompt. Must be greater than zero.
         init(
           modelResource: ModelResource,
           endpointConfiguration: EndpointConfiguration,
           headerProvider: HeaderProvider?,
-          sessionConfiguration: URLSessionConfiguration
+          sessionConfiguration: URLSessionConfiguration,
+          maximumToolCallingTurns: Int = Configuration.defaultMaximumToolCallingTurns
         ) {
+          precondition(maximumToolCallingTurns > 0, "maximumToolCallingTurns must be positive.")
           self.modelResource = modelResource
           self.endpointConfiguration = endpointConfiguration
           self.headerProvider = headerProvider
           self.sessionConfiguration = sessionConfiguration
+          self.maximumToolCallingTurns = maximumToolCallingTurns
         }
       }
 
@@ -88,7 +104,15 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
-        let generateRequest = try GeminiRequestTranslator.translate(request)
+        // The session keeps calling tools for as long as the model returns function calls, so
+        // limit the number of tool-calling turns to bound the number of requests.
+        let isAtToolCallingTurnLimit =
+          GeminiRequestTranslator.toolCallingTurns(in: request.transcript)
+          >= configuration.maximumToolCallingTurns
+        let generateRequest = try GeminiRequestTranslator.translate(
+          request,
+          isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
+        )
 
         let client = GeminiAPIClient(
           modelResource: configuration.modelResource,
@@ -167,6 +191,18 @@
                 }
 
                 if case .functionCall(let call) = part.data {
+                  // Gemini doesn't always follow a function calling mode of `NONE`, so never pass a
+                  // function call to the session once the limit is reached.
+                  guard !isAtToolCallingTurnLimit else {
+                    throw GeminiLanguageModel.Error.invalidResponse(
+                      GeminiLanguageModel.Error.InvalidResponse(
+                        debugDescription: """
+                          Gemini returned a function call after the maximum of \
+                          \(configuration.maximumToolCallingTurns) tool-calling turns was reached.
+                          """
+                      )
+                    )
+                  }
                   guard let name = call.name else {
                     throw GeminiLanguageModel.Error.invalidResponse(
                       GeminiLanguageModel.Error.InvalidResponse(

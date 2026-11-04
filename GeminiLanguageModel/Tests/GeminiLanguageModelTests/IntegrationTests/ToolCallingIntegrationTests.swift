@@ -21,6 +21,7 @@
   #endif
   import GeminiAPIClient
   import GeminiTestUtilities
+  import Synchronization
   import Testing
 
   @testable import GeminiLanguageModel
@@ -273,6 +274,62 @@
       }
       #expect(hasToolOutput)
       #expect(response.usage.totalTokenCount > 0)
+    }
+
+    /// A weather tool that counts how many times the model calls it.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct CountingWeatherTool: FoundationModels.Tool {
+      /// The number of calls, shared by all copies of the tool.
+      final class CallCount: Sendable {
+        let value = Mutex(0)
+      }
+
+      let name = "getWeather"
+      let description = "Get the current weather for a city."
+      let callCount = CallCount()
+
+      @Generable
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      @available(tvOS, unavailable)
+      struct Arguments {
+        @Guide(description: "The city name to look up weather for")
+        var city: String
+      }
+
+      func call(arguments: Arguments) async throws -> String {
+        callCount.value.withLock { $0 += 1 }
+        return "The current weather in \(arguments.city) is 22°C and sunny."
+      }
+    }
+
+    @Test(
+      .requireIntegrationTestingBackend,
+      .timeLimit(.minutes(2)),
+      arguments: IntegrationTestingBackend.availableBackends
+    )
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondRequiredToolCallingStopsAtToolCallingTurnLimit(
+      backend: IntegrationTestingBackend
+    ) async throws {
+      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let model = try await backend.makeModel()
+      let tool = CountingWeatherTool()
+      let session = LanguageModelSession(model: model, tools: [tool])
+
+      // With `required`, the model calls a tool in every response until the limit is reached.
+      do {
+        let response = try await session.respond(
+          to: "What is the weather in Paris right now?",
+          options: GenerationOptions(toolCallingMode: .required)
+        )
+        #expect(!response.content.isEmpty)
+      } catch GeminiLanguageModel.Error.invalidResponse {
+        // Gemini sometimes returns a function call after being told not to, which ends the turn
+        // with this error instead of a response.
+      }
+
+      #expect(tool.callCount.value.withLock { $0 } == maximumTurns)
     }
   }
 #endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

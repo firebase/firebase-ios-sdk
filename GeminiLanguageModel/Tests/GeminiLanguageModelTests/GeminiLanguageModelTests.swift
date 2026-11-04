@@ -878,7 +878,126 @@
       #expect(fr.response?["result"] == .string("12:00 PM"))
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondDisablesFunctionCallingAtToolCallingTurnLimit() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: maximumTurns)
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      let response = try await session.respond(
+        to: "What is the weather in Paris?",
+        options: GenerationOptions(toolCallingMode: .required)
+      )
+
+      #expect(maximumTurns == 10)
+      #expect(response.content == Self.weatherResponseText)
+      let requests = recordedRequests.all
+      #expect(requests.count == maximumTurns + 1)
+      #expect(requests.dropLast().allSatisfy { $0.toolConfig?.functionCallingConfig?.mode == .any })
+      #expect(
+        requests.last?.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+      #expect(requests.last?.tools?.first?.functionDeclarations?.first?.name == "get_weather")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallAfterToolCallingTurnLimitThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("maximum of 10 tool-calling turns"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == maximumTurns + 1)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func newPromptResetsToolCallingTurnCount() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: maximumTurns)
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      _ = try await session.respond(to: "What is the weather in Paris?")
+
+      let response = try await session.respond(to: "Thanks! Anything else?")
+
+      #expect(response.content == Self.weatherResponseText)
+      let requests = recordedRequests.all
+      #expect(requests.count == maximumTurns + 2)
+      #expect(requests.last?.toolConfig?.functionCallingConfig?.mode == .validated)
+    }
+
     // MARK: - Helper Methods
+
+    /// The text of the final response returned by `mockToolCallingLoop(functionCallResponseCount:)`.
+    private static let weatherResponseText = "The weather in Paris is sunny, 72°F."
+
+    /// Records the Gemini requests intercepted by `MockHTTPURLProtocol`.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private final class RecordedRequests: Sendable {
+      private let requests = Mutex<[GenerateContentRequest]>([])
+
+      /// The recorded requests, in the order they were sent.
+      var all: [GenerateContentRequest] { requests.withLock { $0 } }
+
+      /// Records a request and returns the number of requests recorded so far.
+      ///
+      /// - Parameter request: The request to record.
+      /// - Returns: The number of requests recorded, including `request`.
+      func append(_ request: GenerateContentRequest) -> Int {
+        requests.withLock {
+          $0.append(request)
+          return $0.count
+        }
+      }
+    }
+
+    /// Mocks a model that calls `MockWeatherTool` and then responds with text.
+    ///
+    /// - Parameter functionCallResponseCount: The number of requests that receive a function call
+    ///   in response; later requests receive `weatherResponseText`.
+    /// - Returns: The requests that the mock receives.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func mockToolCallingLoop(
+      functionCallResponseCount: Int
+    ) throws -> RecordedRequests {
+      let expectedURL = try makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let functionCallSSE = """
+        data: {"candidates": [{"content": {"parts": [{"functionCall": {"id": "call-1", "name": "get_weather", "args": {"location": "Paris"}}}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let textSSE = """
+        data: {"candidates": [{"content": {"parts": [{"text": "\(weatherResponseText)"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      let recordedRequests = RecordedRequests()
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        let body = try #require(request.httpBodyData)
+        let requestNumber = recordedRequests.append(
+          try JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        )
+        let payload = requestNumber <= functionCallResponseCount ? functionCallSSE : textSSE
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      return recordedRequests
+    }
 
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
 

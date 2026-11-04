@@ -27,12 +27,17 @@
   enum GeminiRequestTranslator {
     /// Translates a `LanguageModelExecutorGenerationRequest` into a `GenerateContentRequest`.
     ///
-    /// - Parameter request: The generation request from the Foundation Models session.
+    /// - Parameters:
+    ///   - request: The generation request from the Foundation Models session.
+    ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
+    ///     tool-calling turns for the current prompt. If `true`, the request tells Gemini not to
+    ///     call functions.
     /// - Returns: A `GenerateContentRequest` configured for the Gemini API.
     /// - Throws: An error if transcript or schema translation fails, or if the request specifies
     ///   an unrecognized tool calling mode.
     static func translate(
-      _ request: LanguageModelExecutorGenerationRequest
+      _ request: LanguageModelExecutorGenerationRequest,
+      isAtToolCallingTurnLimit: Bool = false
     ) throws -> GenerateContentRequest {
       let (contents, systemInstruction) = try GeminiTranscriptTranslator.translate(
         request.transcript
@@ -47,10 +52,34 @@
         $0.tools = tools
         $0.toolConfig = try translateToolConfig(
           toolCallingMode: request.generationOptions.toolCallingMode,
-          hasFunctionDeclarations: hasFunctionDeclarations
+          hasFunctionDeclarations: hasFunctionDeclarations,
+          isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
         )
         $0.generationConfig = try translateGenerationConfig(schema: request.schema)
       }
+    }
+
+    /// Returns the number of tool-calling turns since the most recent prompt in a transcript.
+    ///
+    /// A tool-calling turn is a model response that calls one or more tools. The session records
+    /// each one as a single `Transcript.Entry.toolCalls` entry, so parallel tool calls count as
+    /// one turn. Each prompt starts a new count.
+    ///
+    /// - Parameter transcript: The transcript of the session.
+    /// - Returns: The number of tool-calling turns since the most recent prompt.
+    static func toolCallingTurns(in transcript: Transcript) -> Int {
+      var turns = 0
+      for entry in transcript {
+        switch entry {
+        case .prompt:
+          turns = 0
+        case .toolCalls(let toolCalls) where !toolCalls.isEmpty:
+          turns += 1
+        default:
+          break
+        }
+      }
+      return turns
     }
 
     /// Translates an optional `GenerationSchema` into a Gemini `GenerationConfig`.
@@ -97,12 +126,16 @@
     ///   - hasFunctionDeclarations: Whether the request declares any functions.
     ///     `functionCallingConfig` only governs function calling, so it is omitted entirely when
     ///     there are none.
+    ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
+    ///     tool-calling turns for the current prompt. If `true`, function calling is disabled
+    ///     whatever `toolCallingMode` is, so that the model gives a final response.
     /// - Returns: A `ToolConfig`, or `nil` if no configuration is needed.
     /// - Throws: `LanguageModelError.unsupportedCapability` if `toolCallingMode` is a mode that
     ///   this version of the SDK does not recognize.
     static func translateToolConfig(
       toolCallingMode: GenerationOptions.ToolCallingMode?,
-      hasFunctionDeclarations: Bool
+      hasFunctionDeclarations: Bool,
+      isAtToolCallingTurnLimit: Bool = false
     ) throws -> ToolConfig? {
       // Computed independently of the `ToolConfig` check below to allow future options (such
       // as `includeServerSideToolInvocations`) when built-in tools are present without function
@@ -114,7 +147,12 @@
         // `AUTO`, so `nil` maps to the allowed mode.
         let allowedMode = FunctionCallingConfig.Mode.validated
         let callingMode: FunctionCallingConfig.Mode
-        if let mode = toolCallingMode {
+        if isAtToolCallingTurnLimit {
+          // Applies to every mode, including `required`, which would otherwise keep calling tools
+          // indefinitely. Written out in full because `mode` is optional, so `.none` would mean
+          // `nil`.
+          callingMode = FunctionCallingConfig.Mode.none
+        } else if let mode = toolCallingMode {
           switch mode.kind {
           case .allowed:
             callingMode = allowedMode
