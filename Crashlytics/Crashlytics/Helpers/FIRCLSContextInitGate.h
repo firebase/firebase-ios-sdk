@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Drains all buffered blocks in FIFO order and transitions the gate permanently
  * to ready so all subsequent `-performWhenReady:` calls run inline on the
- * caller's thread.
+ * caller's thread. Any `NSException` thrown by a buffered block is caught and
+ * logged so remaining blocks still drain and the gate transitions to ready.
  */
 - (void)markReadyAndFlush;
 

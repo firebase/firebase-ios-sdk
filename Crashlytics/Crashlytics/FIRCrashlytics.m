@@ -223,6 +223,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     // Flush the queue of API calls once context has initialized
     [[_contextInitPromise onQueue:_preInitAPIDispatchQueue
                              then:^id _Nullable(id _Nullable value) {
+                               if (![value boolValue]) {
+                                 [contextInitGate markFailedAndDiscardPending];
+                                 return nil;
+                               }
                                [contextInitGate markReadyAndFlush];
                                return nil;
                              }]
@@ -568,6 +572,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   if (promise && _preInitAPIDispatchQueue) {
     [[promise onQueue:_preInitAPIDispatchQueue
                  then:^id _Nullable(id _Nullable value) {
+                   if (![value boolValue]) {
+                     [contextInitGate markFailedAndDiscardPending];
+                     return nil;
+                   }
                    [contextInitGate markReadyAndFlush];
                    return nil;
                  }]

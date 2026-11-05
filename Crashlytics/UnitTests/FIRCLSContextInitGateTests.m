@@ -654,4 +654,54 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   XCTAssertEqualObjects(events, @[ @"batch-1" ]);
 }
 
+- (void)testMarkReadyAndFlushCatchesExceptionAndContinuesFlushingRemainingBlocks {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+  __block __weak FIRCLSDeallocReentrancyProbe *weakProbe = nil;
+
+  @autoreleasepool {
+    [gate performWhenReady:^{
+      [events addObject:@"batch-1-before-throw"];
+    }];
+
+    [gate performWhenReady:^{
+      [events addObject:@"throwing-block-start"];
+      // Create and enqueue in an inner scope that exits normally before `@throw` so the throwing
+      // stack frame holds no un-cleaned local strong references under `-fno-objc-arc-exceptions`.
+      {
+        FIRCLSDeallocReentrancyProbe *probe =
+            [[FIRCLSDeallocReentrancyProbe alloc] initWithGate:gate
+                                                onDeallocBlock:^{
+                                                  [events addObject:@"probe-dealloc-drained"];
+                                                }];
+        weakProbe = probe;
+        [gate performWhenReady:^{
+          (void)probe;
+          [events addObject:@"batch-2-queued-before-throw"];
+        }];
+      }
+      @throw [NSException exceptionWithName:@"TestFlushException"
+                                     reason:@"Simulated exception"
+                                   userInfo:nil];
+    }];
+
+    [gate performWhenReady:^{
+      [events addObject:@"batch-1-after-throw"];
+    }];
+
+    XCTAssertNoThrow([gate markReadyAndFlush]);
+  }
+
+  XCTAssertNil(weakProbe);
+  [gate performWhenReady:^{
+    [events addObject:@"post-flush-inline"];
+  }];
+
+  NSArray<NSString *> *expected = @[
+    @"batch-1-before-throw", @"throwing-block-start", @"batch-1-after-throw",
+    @"batch-2-queued-before-throw", @"probe-dealloc-drained", @"post-flush-inline"
+  ];
+  XCTAssertEqualObjects(events, expected);
+}
+
 @end

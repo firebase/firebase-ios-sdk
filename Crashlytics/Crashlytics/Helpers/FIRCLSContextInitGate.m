@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSContextInitGate.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSLogger.h"
 
 @implementation FIRCLSContextInitGate {
   BOOL _isReady;
@@ -86,7 +87,11 @@
     // arrive while the queue is being flushed are added to the queue instead of
     // the thread being blocked on the entire queue flushing.
     for (dispatch_block_t block in batch) {
-      block();
+      @try {
+        block();
+      } @catch (NSException *exception) {
+        FIRCLSErrorLog(@"Exception while flushing pre-init API call: %@", exception);
+      }
     }
   }
 }

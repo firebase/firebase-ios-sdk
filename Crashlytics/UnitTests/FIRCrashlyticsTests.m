@@ -97,6 +97,7 @@
 @property(nonatomic, strong, nullable) NSThread *lastCallThread;
 @property(nonatomic, strong, nullable) FIRExceptionModel *lastRecordedExceptionModel;
 @property(nonatomic, assign) NSUInteger callCount;
+@property(nonatomic, strong, nullable) NSException *exceptionToThrow;
 
 @end
 
@@ -109,6 +110,11 @@
   self.lastCallThread = [NSThread currentThread];
   self.lastRecordedExceptionModel = exceptionModel;
   self.callCount += 1;
+  if (self.exceptionToThrow) {
+    NSException *exception = self.exceptionToThrow;
+    self.exceptionToThrow = nil;
+    @throw exception;
+  }
   return YES;
 }
 
@@ -259,8 +265,12 @@
 }
 
 - (void)fulfillInitPromiseOffMain:(FBLPromise *)initPromise {
+  [self fulfillInitPromiseOffMain:initPromise withValue:@YES];
+}
+
+- (void)fulfillInitPromiseOffMain:(FBLPromise *)initPromise withValue:(nullable id)value {
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-    [initPromise fulfill:@YES];
+    [initPromise fulfill:value];
   });
   [self drainQueuesBlockingCurrentThread];
 }
@@ -411,6 +421,51 @@
   XCTAssertEqual(self.onDemandModel.callCount, 0);
   XCTAssertNil([self userKeyValues][@"discarded-key"]);
   XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
+}
+
+- (void)testFalseInitPromiseResultDiscardsPreInitAndSubsequentCallsOffMainThread {
+  XCTAssertTrue([NSThread isMainThread]);
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
+  [self.crashlytics log:@"discarded on @NO"];
+  [self.crashlytics setCustomValue:@"discarded-val" forKey:@"discarded-key"];
+  FIRExceptionModel *ex = [FIRExceptionModel exceptionModelWithName:@"DiscardedEx"
+                                                             reason:@"Discarded"];
+  [self.crashlytics recordOnDemandExceptionModel:ex];
+
+  [self fulfillInitPromiseOffMain:initPromise withValue:@NO];
+
+  [self.crashlytics log:@"post-@NO ignored log"];
+  [self.crashlytics recordOnDemandExceptionModel:ex];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+  XCTAssertNil([self userKeyValues][@"discarded-key"]);
+}
+
+- (void)testExceptionDuringPreInitFlushContinuesFlushingRemainingCallsAndMarksGateReady {
+  XCTAssertTrue([NSThread isMainThread]);
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+  self.onDemandModel.exceptionToThrow = [NSException exceptionWithName:@"SimulatedFlushException"
+                                                                reason:@"Boom during flush"
+                                                              userInfo:nil];
+
+  [self.crashlytics log:@"log-before-exception"];
+  FIRExceptionModel *ex = [FIRExceptionModel exceptionModelWithName:@"ThrowingEx"
+                                                             reason:@"Triggers NSException"];
+  [self.crashlytics recordOnDemandExceptionModel:ex];
+  [self.crashlytics log:@"log-after-exception"];
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  // Both surrounding pre-init logs still flush in FIFO order despite the throwing callback.
+  NSArray<NSString *> *flushedExpected = @[ @"log-before-exception", @"log-after-exception" ];
+  XCTAssertEqualObjects([self decodedLogMessages], flushedExpected);
+
+  [self.crashlytics log:@"post-flush-inline-log"];
+  NSArray<NSString *> *expected =
+      @[ @"log-before-exception", @"log-after-exception", @"post-flush-inline-log" ];
+  XCTAssertEqualObjects([self decodedLogMessages], expected);
 }
 
 #pragma mark - Pre-Init Mutable Input Snapshotting
