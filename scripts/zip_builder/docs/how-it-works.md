@@ -229,7 +229,7 @@ one, so conditional lists start with `$(inherited)`. macOS and Catalyst share `m
 values go through `KEY_MACOS`/`KEY_CATALYST`, picked by `IS_MACCATALYST`. Target list settings
 also start with `$(inherited)`, so project definitions reach every target.
 (`Planning/SwiftPMSettings.swift`, `projectSettings`, `evaluateBuildSettings`, `translate`;
-`Building/MakeProject.swift`, `xcodeSettings`)
+`Building/MakeProject.swift`, `projectFileSettings`)
 
 ### Platforms and deployment targets
 
@@ -281,7 +281,7 @@ references to them point at the parent.
   described its SwiftPM module, so they're dropped.
 - A companion in `frameworks.platforms` compiles only there: its sources and its dependencies get
   those platforms (`AppCheckRecaptchaProvider` → `RecaptchaInterop`). (`Customizing/Merge.swift`,
-  `merging`, `Framework.absorb`; `Model/BuildSettings.swift`, `combined`)
+  `merging`, `Framework.absorb`; `Model/XcodeSettings.swift`, `combined`)
 
 ### Renaming
 

@@ -60,7 +60,7 @@ protocol EmptyInitializable { init() }
 
 extension Array: EmptyInitializable {}
 extension Dictionary: EmptyInitializable {}
-extension BuildSettings: EmptyInitializable {}
+extension XcodeSettings: EmptyInitializable {}
 extension Config.Products: EmptyInitializable {}
 extension Config.Frameworks: EmptyInitializable {}
 extension Config.Build: EmptyInitializable {}

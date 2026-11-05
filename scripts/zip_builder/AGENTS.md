@@ -12,7 +12,7 @@ One executable target, `Sources/ZipBuilder`, in folders that follow the pipeline
 |---|---|---|
 | `Commands/` | CLI, one file per subcommand | `ZipBuilderCommand`; shared stage steps in `SharedOptions.swift` |
 | `Config/` | the config file | `Config.swift` → `Config.load(from:)`; defaults in `Default.swift`; `UnknownKeys.swift` → `warnAboutUnknownKeys` |
-| `Model/` | the plan | `Plan.swift` → `Plan`; `BuildSettings.swift`, `Platform.swift` |
+| `Model/` | the plan | `Plan.swift` → `Plan`; `XcodeSettings.swift`, `Platform.swift` |
 | `Planning/` | 1–2: load and plan | `LoadPackage.swift` → `loadPackage`; `MakePlan.swift` → `makePlan`; `DynamicFrameworks.swift` → `dynamicTargets`; `HeaderSearchPaths.swift` → `dependencyIncludeDirectories` |
 | `Customizing/` | 3: apply the config | `Customize.swift` → `customize`; `Merge.swift` → aggregate, merge, rename; `Folders.swift` → `arrangingFolders` |
 | `Building/` | 4: project and build | `MakeProject.swift` → `makeProject`; `BuildXCFrameworks.swift` → `buildXCFrameworks`; `Linking.swift` → linkage check (`checkDynamicFrameworksLinkNothingStatic`), `reachedDependencies`; `FrameworkCache.swift` → `fingerprints`, `FrameworkCache` |

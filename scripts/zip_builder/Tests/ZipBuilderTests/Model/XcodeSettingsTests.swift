@@ -18,9 +18,9 @@ import Foundation
 import Testing
 @testable import ZipBuilder
 
-struct BuildSettingsTests {
+struct XcodeSettingsTests {
   @Test func appendTurnsAStringIntoAList() {
-    var settings: BuildSettings = ["OTHER_CFLAGS": "-DA"]
+    var settings: XcodeSettings = ["OTHER_CFLAGS": "-DA"]
     settings.append(["-DB", "-DC"], to: "OTHER_CFLAGS")
     settings.append(["$(inherited)"], to: "HEADER_SEARCH_PATHS[sdk=iphoneos*]")
     #expect(settings["OTHER_CFLAGS"] == ["-DA", "-DB", "-DC"])
@@ -28,26 +28,26 @@ struct BuildSettingsTests {
   }
 
   @Test func mergeReplacesExistingKeys() {
-    let project: BuildSettings = ["SWIFT_VERSION": "5.0", "ARCHS": ["arm64"]]
+    let project: XcodeSettings = ["SWIFT_VERSION": "5.0", "ARCHS": ["arm64"]]
     let merged = project.merging(["SWIFT_VERSION": "6.0", "DEFINES_MODULE": "YES"])
     #expect(merged == ["SWIFT_VERSION": "6.0", "ARCHS": ["arm64"], "DEFINES_MODULE": "YES"])
     #expect(merged.keys == ["ARCHS", "DEFINES_MODULE", "SWIFT_VERSION"])
   }
 
   @Test func encodesStringsAndListsAsJSON() throws {
-    let settings: BuildSettings = ["A": "YES", "B": ["x", "y"]]
+    let settings: XcodeSettings = ["A": "YES", "B": ["x", "y"]]
     let encoder = JSONEncoder()
     encoder.outputFormatting = .sortedKeys
     let json = try String(decoding: encoder.encode(settings), as: UTF8.self)
     #expect(json == #"{"A":"YES","B":["x","y"]}"#)
-    #expect(try JSONDecoder().decode(BuildSettings.self, from: Data(json.utf8)) == settings)
+    #expect(try JSONDecoder().decode(XcodeSettings.self, from: Data(json.utf8)) == settings)
   }
 
   @Test func combiningSettings() {
-    let parent: BuildSettings = [
+    let parent: XcodeSettings = [
       "PRODUCT_NAME": "Parent", "SWIFT_VERSION": "5.0", "OTHER_LDFLAGS": ["-framework", "UIKit"],
     ]
-    let companion: BuildSettings = [
+    let companion: XcodeSettings = [
       "PRODUCT_NAME": "Companion", "GCC_C_LANGUAGE_STANDARD": "c11",
       "OTHER_LDFLAGS": ["-framework", "Security", "-framework", "UIKit"],
     ]
@@ -60,15 +60,15 @@ struct BuildSettingsTests {
   /// A string combined with a list is unioned like two lists, and duplicates already in ours
   /// stay.
   @Test func combiningMixedValuesAndKeepingOurDuplicates() {
-    let parent: BuildSettings = ["A": "x", "B": ["-DX", "-DX"], "C": ["y"]]
-    let companion: BuildSettings = ["A": ["z", "x"], "B": ["-DY"], "C": "y"]
+    let parent: XcodeSettings = ["A": "x", "B": ["-DX", "-DX"], "C": ["y"]]
+    let companion: XcodeSettings = ["A": ["z", "x"], "B": ["-DY"], "C": "y"]
     #expect(parent.combined(with: companion) == [
       "A": ["x", "z"], "B": ["-DX", "-DX", "-DY"], "C": ["y"],
     ])
   }
 
   @Test func configuredCatalystDeploymentTarget() {
-    var settings: BuildSettings = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0"]
+    var settings: XcodeSettings = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0"]
     settings.overrideDeploymentTargets([.ios: "16.0", .catalyst: "15.0"])
     #expect(settings["IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]"] == "15.0")
     settings = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0",
@@ -80,7 +80,7 @@ struct BuildSettingsTests {
   /// An unconfigured Catalyst target is raised to iOS, and then needs no key of its own.
   @Test func catalystFollowsIOSUp() {
     let catalystKey = "IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]"
-    var settings: BuildSettings = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0", catalystKey: "15.5"]
+    var settings: XcodeSettings = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0", catalystKey: "15.5"]
     settings.overrideDeploymentTargets([.ios: "16.0"])
     #expect(settings == ["IPHONEOS_DEPLOYMENT_TARGET": "16.0"])
 
@@ -101,7 +101,7 @@ struct BuildSettingsTests {
 
   @Test func catalystWithoutAnIOSTarget() {
     let catalystKey = "IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]"
-    var settings: BuildSettings = [catalystKey: "14.0"]
+    var settings: XcodeSettings = [catalystKey: "14.0"]
     settings.overrideDeploymentTargets([.tvos: "16.0"])
     #expect(settings == [catalystKey: "14.0", "TVOS_DEPLOYMENT_TARGET": "16.0"])
 
@@ -111,7 +111,7 @@ struct BuildSettingsTests {
   }
 
   @Test func noDeploymentTargetsChangeNothing() {
-    let original: BuildSettings = [
+    let original: XcodeSettings = [
       "IPHONEOS_DEPLOYMENT_TARGET": "15.0", "IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]": "13.1",
     ]
     var settings = original
@@ -120,7 +120,7 @@ struct BuildSettingsTests {
   }
 
   @Test func removeAllVariantsRemovesConditionalAndHelperKeys() {
-    var settings: BuildSettings = [
+    var settings: XcodeSettings = [
       "OTHER_CFLAGS": "-DA", "OTHER_CFLAGS[sdk=iphoneos*]": ["-DB"], "OTHER_CFLAGS_MACOS": ["-DC"],
       "OTHER_CFLAGS_CATALYST": ["-DD"], "OTHER_CFLAGS_NO": "$(OTHER_CFLAGS_MACOS)",
       "OTHER_CFLAGS_YES": "$(OTHER_CFLAGS_CATALYST)", "OTHER_CFLAGS_EXTRA": "kept",
@@ -131,7 +131,7 @@ struct BuildSettingsTests {
   }
 
   @Test func removeItemsFiltersEveryVariantAndDropsEmptyLists() {
-    var settings: BuildSettings = [
+    var settings: XcodeSettings = [
       "GCC_PREPROCESSOR_DEFINITIONS": ["SWIFT_PACKAGE=1", "A=1"],
       "GCC_PREPROCESSOR_DEFINITIONS[sdk=iphoneos*]": ["$(inherited)", "SWIFT_PACKAGE=1"],
       "GCC_PREPROCESSOR_DEFINITIONS_MACOS": ["SWIFT_PACKAGE=1"],

@@ -34,9 +34,10 @@ func makeProject(_ plan: Plan, packageRoot: Path, at projectPath: Path) throws {
   let mainGroup = pbxproj.adding(PBXGroup(sourceTree: .group))
   let productsGroup = pbxproj.adding(PBXGroup(sourceTree: .group, name: "Products"))
   let binariesGroup = pbxproj.adding(PBXGroup(sourceTree: .group, name: "Binaries"))
+  let projectLevelSettings = projectFileSettings(plan.settings, isTarget: false)
   let project = pbxproj.adding(PBXProject(
     name: projectURL.deletingPathExtension().lastPathComponent,
-    buildConfigurationList: pbxproj.configurations(xcodeSettings(plan.settings, isTarget: false)),
+    buildConfigurationList: pbxproj.configurations(projectLevelSettings),
     compatibilityVersion: Xcode.Default.compatibilityVersion,
     preferredProjectObjectVersion: nil, minimizedProjectReferenceProxies: nil,
     mainGroup: mainGroup, developmentRegion: Xcode.Default.developmentRegion,
@@ -127,7 +128,7 @@ func platformFilters(_ platforms: Set<Platform>?) -> [String]? {
 /// The plan's settings in XcodeProj's form. Relative search paths are rooted at `$(SRCROOT)`, and
 /// a target's list settings start with `$(inherited)`, so they extend the project's instead of
 /// hiding them.
-func xcodeSettings(_ settings: BuildSettings, isTarget: Bool) -> [String: Any] {
+func projectFileSettings(_ settings: XcodeSettings, isTarget: Bool) -> [String: Any] {
   var result: [String: Any] = [:]
   for key in settings.keys {
     switch settings[key] {
@@ -158,7 +159,7 @@ func targetSettings(_ framework: Framework) -> [String: Any] {
   if !framework.platforms.contains(.catalyst) {
     settings["SUPPORTS_MACCATALYST"] = "NO"
   }
-  return xcodeSettings(settings, isTarget: true)
+  return projectFileSettings(settings, isTarget: true)
 }
 
 private func isPathSetting(_ key: String) -> Bool {

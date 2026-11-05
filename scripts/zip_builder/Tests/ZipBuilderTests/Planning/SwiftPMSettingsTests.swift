@@ -120,7 +120,7 @@ struct EvaluateBuildSettingsTests {
   }
 
   @Test func platformConditionalHelper() {
-    var settings = BuildSettings()
+    var settings = XcodeSettings()
     settings.add(["A"], to: "K", onlyFor: [.ios, .catalyst])
     settings.add(["B"], to: "K", onlyFor: [.ios, .tvos])
     #expect(settings["K[sdk=iphoneos*]"] == ["$(inherited)", "A", "B"])

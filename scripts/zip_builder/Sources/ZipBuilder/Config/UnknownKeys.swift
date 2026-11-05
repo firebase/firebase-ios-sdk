@@ -29,7 +29,7 @@ import Foundation
 ///   - value: the same file decoded, or any part of it at `path`.
 ///   - path: the dotted key path of `value`, e.g. `products.add[0]`; empty at the top level.
 func warnAboutUnknownKeys(in json: Any, of value: Any, path: String = "") {
-  guard let value = unwrappingOptional(value), !(value is BuildSettings) else { return }
+  guard let value = unwrappingOptional(value), !(value is XcodeSettings) else { return }
   let mirror = Mirror(reflecting: value)
   switch mirror.displayStyle {
   case .struct:

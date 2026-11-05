@@ -55,7 +55,7 @@ func isHeaderFile(_ path: Path) -> Bool {
 /// Every decision the later stages need, made once while planning.
 /// See docs/how-it-works.md#the-plan.
 struct Plan: Codable, Equatable, Sendable {
-  var settings: BuildSettings // project-wide, already in Xcode form
+  var settings: XcodeSettings // project-wide, already in Xcode form
   var frameworks: [Framework] // one per shipped framework, in dependency order
   var binaries: [Binary] // prebuilt .xcframeworks
   var folders: [Folder] // the zip layout
@@ -96,7 +96,7 @@ struct Framework: Codable, Equatable, Sendable {
   var headers: [Header]
   var moduleMap: Path? = nil // SwiftPM's custom module map, if any; translated, not generated
   var resources: [Resource]
-  var settings: BuildSettings // translated, platform-conditional keys included
+  var settings: XcodeSettings // translated, platform-conditional keys included
   var dependencies: [Dependency] // frameworks and binaries
   var platforms: Set<Platform> // where it ships; each one's destinations are archived
   var bundleID: String

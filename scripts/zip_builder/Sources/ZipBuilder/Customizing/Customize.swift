@@ -288,7 +288,7 @@ extension Plan {
   }
 
   /// Applies `change` to the project's and every framework's settings.
-  private mutating func changeAllSettings(_ change: (inout BuildSettings) -> Void) {
+  private mutating func changeAllSettings(_ change: (inout XcodeSettings) -> Void) {
     change(&settings)
     for index in frameworks.indices {
       change(&frameworks[index].settings)

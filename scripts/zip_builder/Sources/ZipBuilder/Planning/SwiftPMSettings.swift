@@ -20,9 +20,9 @@ import Foundation
 @preconcurrency import PackageModel
 
 /// Project-wide settings.
-func projectSettings(_ root: ResolvedPackage) -> BuildSettings {
+func projectSettings(_ root: ResolvedPackage) -> XcodeSettings {
   let sdks = Platform.allCases.flatMap(\.sdks).uniqued() // macOS and Catalyst share `macosx`
-  let settings: BuildSettings = [
+  let settings: XcodeSettings = [
     "SUPPORTED_PLATFORMS": .string(sdks.joined(separator: " ")),
     "SUPPORTS_MACCATALYST": "YES",
     // iPhone, iPad, TV, Watch, Vision. Mac Catalyst keeps the default iPad idiom, because 6
@@ -53,7 +53,7 @@ func projectSettings(_ root: ResolvedPackage) -> BuildSettings {
 }
 
 /// Declared deployment targets, else SwiftPM's derived ones.
-func deploymentTargets(_ root: ResolvedPackage) -> BuildSettings {
+func deploymentTargets(_ root: ResolvedPackage) -> XcodeSettings {
   func version(_ platform: Platform) -> String {
     // SwiftPM's derived version raises a declared one to the oldest it supports (macOS 11 → 12),
     // so it's only the fallback.
@@ -62,7 +62,7 @@ func deploymentTargets(_ root: ResolvedPackage) -> BuildSettings {
       ?? root.getSupportedPlatform(for: platform.swiftPM, usingXCTest: false)
     return supported.version.versionString
   }
-  var settings = BuildSettings()
+  var settings = XcodeSettings()
   for platform in Platform.allCases where platform != .catalyst {
     settings[platform.deploymentTargetKey] = .string(version(platform))
   }
@@ -77,7 +77,7 @@ func deploymentTargets(_ root: ResolvedPackage) -> BuildSettings {
 /// What makes a framework dynamic. Its install name is `@rpath/<Name>.framework/<Name>`, as with
 /// CocoaPods, so an app finds it in its own `Frameworks/`; Xcode's default base is
 /// `/Library/Frameworks`, where no app can embed it.
-let dynamicFrameworkSettings: BuildSettings = [
+let dynamicFrameworkSettings: XcodeSettings = [
   "MACH_O_TYPE": "mh_dylib",
   "DYLIB_INSTALL_NAME_BASE": "@rpath",
 ]
@@ -87,8 +87,8 @@ let dynamicFrameworkSettings: BuildSettings = [
 /// they end up in (`finalFrameworkNames`), for `dependencyIncludeDirectories`.
 func frameworkSettings(_ module: ResolvedModule, bundleID: String, version: String,
                        isDynamic: Bool, packageRoot: AbsolutePath,
-                       frameworkNames: [String: String]) throws -> BuildSettings {
-  var settings: BuildSettings = [
+                       frameworkNames: [String: String]) throws -> XcodeSettings {
+  var settings: XcodeSettings = [
     "PRODUCT_NAME": .string(module.name),
     "PRODUCT_MODULE_NAME": .string(module.c99name),
     "MACH_O_TYPE": "staticlib",
@@ -133,8 +133,8 @@ func swiftLanguageMode(_ module: ResolvedModule) -> String? {
 /// Turns the module's declared settings into Xcode settings for a Release build. A value that
 /// holds on only some platforms becomes a platform-conditional setting.
 func evaluateBuildSettings(_ module: ResolvedModule, isDynamic: Bool,
-                           packageRoot: AbsolutePath) -> BuildSettings {
-  var settings = BuildSettings()
+                           packageRoot: AbsolutePath) -> XcodeSettings {
+  var settings = XcodeSettings()
   let table = module.underlying.buildSettings.assignments
   for declaration in table.keys.sorted() where declaration != .SWIFT_VERSION {
     for assignment in table[declaration, default: []] where !assignment.default {
@@ -208,7 +208,7 @@ func escapingSpaces(_ definition: String) -> String {
   return #"\#(parts[0])=\"\#(value)\""#
 }
 
-extension BuildSettings {
+extension XcodeSettings {
   /// Adds `values` to `key` on `platforms` only.
   ///
   /// macOS and Mac Catalyst share the `macosx` SDK, so both go through a helper setting picked by

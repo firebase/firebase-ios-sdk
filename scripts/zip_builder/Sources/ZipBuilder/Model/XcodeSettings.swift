@@ -19,7 +19,7 @@ import Foundation
 /// Xcode build settings. Keys may carry a condition, e.g. `KEY[sdk=iphoneos*]`.
 ///
 /// Stored unordered; use `keys` for a stable order.
-struct BuildSettings: Codable, Equatable, Sendable, ExpressibleByDictionaryLiteral {
+struct XcodeSettings: Codable, Equatable, Sendable, ExpressibleByDictionaryLiteral {
   /// A setting's value: one string or a list of strings.
   enum Value: Codable, Equatable, Sendable, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     case string(String)
@@ -85,12 +85,12 @@ struct BuildSettings: Codable, Equatable, Sendable, ExpressibleByDictionaryLiter
   }
 
   /// Adds `other`'s settings; its values replace existing ones with the same key.
-  mutating func merge(_ other: BuildSettings) {
+  mutating func merge(_ other: XcodeSettings) {
     values.merge(other.values) { _, new in new }
   }
 
   /// These settings with `other`'s added; its values win.
-  func merging(_ other: BuildSettings) -> BuildSettings {
+  func merging(_ other: XcodeSettings) -> XcodeSettings {
     var result = self
     result.merge(other)
     return result
@@ -107,12 +107,12 @@ struct BuildSettings: Codable, Equatable, Sendable, ExpressibleByDictionaryLiter
 }
 
 /// Operations `customize` uses to change a plan's settings.
-extension BuildSettings {
+extension XcodeSettings {
   /// These settings plus `other`'s, for merging frameworks: a single value keeps ours (so the
   /// parent's identity and language standards win), and lists, or a list and a single value, are
   /// unioned without adding duplicates. A flag and its argument (`-framework Security`) count as
   /// one item, so `-framework X -framework Y` isn't collapsed.
-  func combined(with other: BuildSettings) -> BuildSettings {
+  func combined(with other: XcodeSettings) -> XcodeSettings {
     var result = self
     for key in other.keys {
       guard let theirs = other[key] else { continue }

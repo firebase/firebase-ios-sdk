@@ -92,7 +92,7 @@ struct Config: Codable, Equatable, Sendable {
     @Default<Empty<[String]>> var defines: [String] // preprocessor macros, e.g. "COCOAPODS=1"
     @Default<Empty<[String]>> var swiftConditions: [String] // Swift compilation conditions
     @Default<Empty<[String: String]>> var swiftVersion: [String: String] // target or "*"
-    @Default<Empty<BuildSettings>> var settings: BuildSettings
+    @Default<Empty<XcodeSettings>> var settings: XcodeSettings
     var versionMacro: String? // a macro defined as the release version, e.g. "Firebase_VERSION"
     @Default<DefaultLinkage> var linkage: Linkage // `--linkage` takes precedence
   }

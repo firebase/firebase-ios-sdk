@@ -41,7 +41,7 @@ struct ConfigTests {
     #expect(config.frameworks.merge.isEmpty && config.frameworks.dynamic.isEmpty)
     #expect(config.build.platforms == [.ios, .catalyst, .macos, .tvos, .watchos])
     #expect(config.build.defineSwiftPackage)
-    #expect(config.build.settings == BuildSettings())
+    #expect(config.build.settings == XcodeSettings())
     #expect(config.build.versionMacro == nil)
     #expect(config.build.linkage == .static)
     #expect(config.layout.privacyBundle.isEmpty && config.layout.infoPlist.isEmpty)
@@ -271,7 +271,7 @@ struct ConfigTests {
     #expect(!config.build.defineSwiftPackage)
     #expect(config.build.swiftVersion["FirebaseAILogic"] == "6.0")
     // The project settings already allow non-modular includes.
-    #expect(config.build.settings == BuildSettings())
+    #expect(config.build.settings == XcodeSettings())
     #expect(config.build.versionMacro == "Firebase_VERSION")
     #expect(config.layout.privacyBundle["GTMSessionFetcher"] == "GTMSessionFetcher_Core_Privacy")
     #expect(config.layout.infoPlist == ["MinimumOSVersion": "100.0"])
