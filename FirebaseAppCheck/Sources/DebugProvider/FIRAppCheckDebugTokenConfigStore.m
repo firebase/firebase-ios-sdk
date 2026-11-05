@@ -24,11 +24,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if TARGET_OS_SIMULATOR
 /// Environment variable set by the Simulator to the host user's home directory.
 static NSString *const kSimulatorHostHomeEnvKey = @"SIMULATOR_HOST_HOME";
 
 /// Top-level key of the config store file mapping Google App IDs to debug tokens.
 static NSString *const kTokensKey = @"tokens";
+#endif  // TARGET_OS_SIMULATOR
 
 @implementation FIRAppCheckDebugTokenConfigStore
 
