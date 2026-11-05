@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where the `getData` error said that the client was
+  offline when the server rejected the request, e.g. because of security rules.
+  (#11835)
 - [fixed] Fixed an issue where a completing `getData` call marked an
   observed or `keepSynced` query inactive in the persistence cache, allowing
   its cached data to be pruned or triggering an assertion failure on
