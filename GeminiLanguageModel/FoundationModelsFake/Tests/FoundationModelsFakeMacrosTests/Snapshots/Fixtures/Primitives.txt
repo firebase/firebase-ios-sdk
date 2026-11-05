@@ -1,0 +1,77 @@
+public struct Primitives: Equatable {
+  public var string: String
+  public var int: Int
+  public var double: Double
+  public var float: Float
+  public var bool: Bool
+  public var decimal: Decimal
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "string", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "int", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "double", type: Double.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "float", type: Float.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "bool", type: Bool.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "decimal", type: Decimal.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "string", value: self.string)
+        addProperty(name: "int", value: self.int)
+        addProperty(name: "double", value: self.double)
+        addProperty(name: "float", value: self.float)
+        addProperty(name: "bool", value: self.bool)
+        addProperty(name: "decimal", value: self.decimal)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Equatable {
+        public var id: FoundationModelsFake.GenerationID
+        public var string: String.PartiallyGenerated?
+        public var int: Int.PartiallyGenerated?
+        public var double: Double.PartiallyGenerated?
+        public var float: Float.PartiallyGenerated?
+        public var bool: Bool.PartiallyGenerated?
+        public var decimal: Decimal.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.string = try content.value(forProperty: "string")
+            self.int = try content.value(forProperty: "int")
+            self.double = try content.value(forProperty: "double")
+            self.float = try content.value(forProperty: "float")
+            self.bool = try content.value(forProperty: "bool")
+            self.decimal = try content.value(forProperty: "decimal")
+        }
+    }
+}
+
+extension Primitives: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.string = try content.value(forProperty: "string")
+        self.int = try content.value(forProperty: "int")
+        self.double = try content.value(forProperty: "double")
+        self.float = try content.value(forProperty: "float")
+        self.bool = try content.value(forProperty: "bool")
+        self.decimal = try content.value(forProperty: "decimal")
+    }
+}
