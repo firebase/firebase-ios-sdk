@@ -25,11 +25,26 @@ let package = Package(
   products: [
     .executable(name: "zip-builder", targets: ["ZipBuilder"]),
   ],
+  // Direct dependencies are pinned to exact commits (the comment names the version), so a build
+  // can't pick up an unreviewed change. Bump one by changing its revision and running
+  // `swift package resolve`; Package.resolved pins the transitive ones.
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-    .package(url: "https://github.com/apple/swift-log.git", from: "1.6.0"),
-    .package(url: "https://github.com/swiftlang/swift-package-manager.git", branch: "main"),
-    .package(url: "https://github.com/tuist/XcodeProj.git", from: "9.17.8"),
+    .package(
+      url: "https://github.com/apple/swift-argument-parser.git",
+      revision: "6a52f3251125d74daf04fcbd5e6f08a75d074382" // 1.8.2
+    ),
+    .package(
+      url: "https://github.com/apple/swift-log.git",
+      revision: "4038b6a4f74a1426f47eb1dd5b4bb5628a15d597" // 1.16.1
+    ),
+    .package(
+      url: "https://github.com/swiftlang/swift-package-manager.git",
+      revision: "7137197d30da49413553f3dd5e03988b967be36a" // main
+    ),
+    .package(
+      url: "https://github.com/tuist/XcodeProj.git",
+      revision: "a97494b14b5ba3184b48c050d034c7534356e0ae" // 9.17.8
+    ),
   ],
   targets: [
     // The zip builder (see docs/how-it-works.md).

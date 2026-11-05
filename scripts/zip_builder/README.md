@@ -270,7 +270,9 @@ before uploading. Like `release.zip.yml`'s artifact, it isn't signed: the releas
 It doesn't build a Carthage distribution; `release.zip.yml` still does. `plan.json` and the
 build logs are uploaded as a `-logs` artifact.
 
-`Package.resolved` is committed, and CI builds with `--force-resolved-versions`.
+Direct dependencies are pinned to exact commits in `Package.swift`, `Package.resolved` (committed)
+pins the transitive ones, and both CI and `scripts/zip_builder.sh` build with
+`--force-resolved-versions`.
 
 ## Development
 

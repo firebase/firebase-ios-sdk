@@ -41,7 +41,9 @@ per step. Its `diff` step writes the pull request comment with `diff --format gi
 - **`plan.json` stays deterministic.** Same input, same bytes: sort collections, encode sets
   sorted, keep paths relative to the package root.
 - **A behavior change needs a test that pins it.** Pin the current behavior first, then change it.
-- **Don't casually change `Package.resolved`.** CI builds with `--force-resolved-versions`.
+- **Don't casually change dependencies.** Direct ones are pinned to commits in `Package.swift`
+  (bump the revision and its version comment, then `swift package resolve`); `Package.resolved`
+  pins the rest. CI and `scripts/zip_builder.sh` build with `--force-resolved-versions`.
 
 ## Conventions
 
