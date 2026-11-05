@@ -71,4 +71,13 @@
   XCTAssertEqual(logLevel, GACAppCheckLogLevelDebug);
 }
 
+- (void)testDebugTokenLoggerHelpersUseValidMessageCodes {
+  XCTAssertEqualObjects(kFIRLoggerAppCheckMessageCodeDebugTokenSource, @"I-FAA004003");
+  XCTAssertEqualObjects(kFIRLoggerAppCheckMessageCodeDebugTokenRejected, @"I-FAA004004");
+  XCTAssertEqualObjects(kFIRLoggerAppCheckMessageCodeDebugTokenReleaseWarning, @"I-FAA004005");
+
+  FIRAppCheckLogDebugTokenSource(@"~/.config/configstore/firebase-appcheck.json");
+  FIRAppCheckLogDebugTokenRejected();
+}
+
 @end
