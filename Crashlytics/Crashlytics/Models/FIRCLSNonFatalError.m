@@ -14,6 +14,7 @@
 
 #import "Crashlytics/Crashlytics/Models/FIRCLSNonFatalError.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 
 @implementation FIRCLSNonFatalError
 
@@ -26,8 +27,10 @@
 
   self = [super init];
   if (self) {
-    _error = error;
-    _userInfo = [userInfo copy];
+    _error = [NSError errorWithDomain:([error.domain copy] ?: @"")
+                                 code:error.code
+                             userInfo:FIRCLSCopyDictionary(error.userInfo)];
+    _userInfo = FIRCLSCopyDictionary(userInfo);
     _rolloutsInfoJSON = [rolloutsInfoJSON copy];
     // Take a snapshot of the thread at initialization.
     _stackTrace = [NSThread callStackReturnAddresses];

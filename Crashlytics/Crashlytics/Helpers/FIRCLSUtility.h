@@ -45,6 +45,9 @@ NSString* FIRCLSGenerateNormalizedUUID(void);
 
 NSString* FIRCLSNSDataToNSString(NSData* data);
 
+id FIRCLSCopyValue(id value);
+NSDictionary* FIRCLSCopyDictionary(NSDictionary* dictionary);
+
 void FIRCLSAddOperationAfter(float timeInSeconds, NSOperationQueue* queue, void (^block)(void));
 #endif
 

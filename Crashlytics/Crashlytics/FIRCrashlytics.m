@@ -29,6 +29,7 @@
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
 #import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #include "Crashlytics/Crashlytics/Handlers/FIRCLSException.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSContextInitGate.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
@@ -113,7 +114,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
-@property(nonatomic, strong) dispatch_queue_t apiDispatchQueue;
+@property(nonatomic, strong, nullable) FIRCLSContextInitGate *contextInitGate;
+@property(nonatomic, strong) dispatch_queue_t preInitAPIDispatchQueue;
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
 
 @end
@@ -203,7 +205,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       });
     }
 
-    _apiDispatchQueue = [self createAPIDispatchQueue];
+    // Holds API calls in a queue while context initializes
+    FIRCLSContextInitGate *contextInitGate = [[FIRCLSContextInitGate alloc] init];
+    _contextInitGate = contextInitGate;
+    _preInitAPIDispatchQueue = [self createPreInitAPIDispatchQueue];
+
     _contextInitPromise =
         [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
           if (![value boolValue]) {
@@ -213,6 +219,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
         }] catch:^void(NSError *error) {
           FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
         }];
+
+    // Flush the queue of API calls once context has initialized
+    [_contextInitPromise onQueue:_preInitAPIDispatchQueue
+                            then:^id _Nullable(id _Nullable value) {
+                              [contextInitGate markReadyAndFlush];
+                              return nil;
+                            }];
 
     // RemoteConfig subscription should be made after session report directory created.
     if (remoteConfig) {
@@ -315,10 +328,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: Logging
 - (void)log:(NSString *)msg {
-  [self waitForContextInit:@"log"
-                  callback:^{
-                    FIRCLSLog(@"%@", msg);
-                  }];
+  NSString *copiedMsg = [msg copy];
+  [self performWhenContextReady:@"log"
+                       callback:^{
+                         FIRCLSLogString(copiedMsg);
+                       }];
 }
 
 - (void)logWithFormat:(NSString *)format, ... {
@@ -361,26 +375,31 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - API: setUserID
 - (void)setUserID:(nullable NSString *)userID {
-  [self waitForContextInit:@"setUserID"
-                  callback:^{
-                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey, userID);
-                  }];
+  NSString *copiedUserID = [userID copy];
+  [self performWhenContextReady:@"setUserID"
+                       callback:^{
+                         FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUserIdentifierKey,
+                                                                 copiedUserID);
+                       }];
 }
 
 #pragma mark - API: setCustomValue
 
 - (void)setCustomValue:(nullable id)value forKey:(NSString *)key {
-  [self waitForContextInit:@"setCustomValue"
-                  callback:^{
-                    FIRCLSUserLoggingRecordUserKeyValue(key, value);
-                  }];
+  NSString *copiedKey = [key copy];
+  id copiedValue = FIRCLSCopyValue(value);
+  [self performWhenContextReady:@"setCustomValue"
+                       callback:^{
+                         FIRCLSUserLoggingRecordUserKeyValue(copiedKey, copiedValue);
+                       }];
 }
 
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
-  [self waitForContextInit:@"setCustomKeysAndValues"
-                  callback:^{
-                    FIRCLSUserLoggingRecordUserKeysAndValues(keysAndValues);
-                  }];
+  NSDictionary *copiedKeysAndValues = FIRCLSCopyDictionary(keysAndValues);
+  [self performWhenContextReady:@"setCustomKeysAndValues"
+                       callback:^{
+                         FIRCLSUserLoggingRecordUserKeysAndValues(copiedKeysAndValues);
+                       }];
 }
 
 #pragma mark - API: Development Platform
@@ -403,11 +422,12 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)setDevelopmentPlatformName:(NSString *)developmentPlatformName {
-  [self waitForContextInit:developmentPlatformName
-                  callback:^{
-                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformNameKey,
-                                                            developmentPlatformName);
-                  }];
+  NSString *copiedName = [developmentPlatformName copy];
+  [self performWhenContextReady:copiedName
+                       callback:^{
+                         FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformNameKey,
+                                                                 copiedName);
+                       }];
 }
 
 - (NSString *)developmentPlatformVersion {
@@ -416,11 +436,12 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)setDevelopmentPlatformVersion:(NSString *)developmentPlatformVersion {
-  [self waitForContextInit:developmentPlatformVersion
-                  callback:^{
-                    FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSDevelopmentPlatformVersionKey,
-                                                            developmentPlatformVersion);
-                  }];
+  NSString *copiedVersion = [developmentPlatformVersion copy];
+  [self performWhenContextReady:copiedVersion
+                       callback:^{
+                         FIRCLSUserLoggingRecordInternalKeyValue(
+                             FIRCLSDevelopmentPlatformVersionKey, copiedVersion);
+                       }];
 }
 
 #pragma mark - API: Errors and Exceptions
@@ -439,29 +460,37 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                                                          userInfo:userInfo
                                                                  rolloutsInfoJSON:rolloutsInfoJSON];
 
-  [self waitForContextInit:@"recordError"
-                  callback:^{
-                    [nonFatalError recordError];
-                  }];
+  [self performWhenContextReady:@"recordError"
+                       callback:^{
+                         [nonFatalError recordError];
+                       }];
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
-  NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  [self waitForContextInit:@"recordExceptionModel"
-                  callback:^{
-                    FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
-                  }];
+  if (!exceptionModel) {
+    return;
+  }
+  FIRExceptionModel *copiedModel = [self snapshotExceptionModel:exceptionModel];
+  NSString *rolloutsInfoJSON = [[_remoteConfigManager getRolloutAssignmentsEncodedJsonString] copy];
+  [self performWhenContextReady:@"recordExceptionModel"
+                       callback:^{
+                         FIRCLSExceptionRecordModel(copiedModel, rolloutsInfoJSON);
+                       }];
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
-  [self waitForContextInit:@"recordOnDemandExceptionModel"
-                  callback:^{
-                    [self.managerData.onDemandModel
-                        recordOnDemandExceptionIfQuota:exceptionModel
-                             withDataCollectionEnabled:[self.dataArbiter
-                                                               isCrashlyticsCollectionEnabled]
-                            usingExistingReportManager:self.existingReportManager];
-                  }];
+  if (!exceptionModel) {
+    return;
+  }
+  FIRExceptionModel *copiedModel = [self snapshotExceptionModel:exceptionModel];
+  [self performWhenContextReady:@"recordOnDemandExceptionModel"
+                       callback:^{
+                         [self.managerData.onDemandModel
+                             recordOnDemandExceptionIfQuota:copiedModel
+                                  withDataCollectionEnabled:[self.dataArbiter
+                                                                    isCrashlyticsCollectionEnabled]
+                                 usingExistingReportManager:self.existingReportManager];
+                       }];
 }
 
 #pragma mark - FIRSessionsSubscriber
@@ -492,28 +521,50 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 #pragma mark - Private Helpers
-- (dispatch_queue_t)createAPIDispatchQueue {
-  NSString *apiQueueName = [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".api"];
-  dispatch_queue_attr_t queueAttr =
-      dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_UTILITY, 0);
-  return dispatch_queue_create([apiQueueName UTF8String], queueAttr);
+- (FIRExceptionModel *)snapshotExceptionModel:(FIRExceptionModel *)exceptionModel {
+  FIRExceptionModel *snapshot = [FIRExceptionModel exceptionModelWithName:exceptionModel.name
+                                                                   reason:exceptionModel.reason];
+  snapshot.stackTrace = exceptionModel.stackTrace;
+  snapshot.isFatal = exceptionModel.isFatal;
+  snapshot.onDemand = exceptionModel.onDemand;
+  return snapshot;
 }
 
-- (void)waitForContextInit:(NSString *)contextLog callback:(void (^)(void))callback {
-  if (!_contextInitPromise || !_apiDispatchQueue) {
+- (dispatch_queue_t)createPreInitAPIDispatchQueue {
+  NSString *queueName =
+      [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".pre-init-api"];
+  return dispatch_queue_create([queueName UTF8String], DISPATCH_QUEUE_SERIAL);
+}
+
+- (void)performWhenContextReady:(NSString *)contextLog callback:(dispatch_block_t)callback {
+  if (!_contextInitGate || !_contextInitPromise || !_preInitAPIDispatchQueue) {
     FIRCLSErrorLog(@"Crashlytics method called before SDK was initialized: %@", contextLog);
     return;
   }
 
-  [_contextInitPromise onQueue:_apiDispatchQueue
-                          then:^id _Nullable(id _Nullable value) {
-                            callback();
-                            return nil;
-                          }];
+  [_contextInitGate performWhenReady:callback];
 }
 
 #pragma mark - Test Helpers
 + (void)resetInstanceForTesting {
   atomic_store(&_hasInitializedInstance, NO);
+}
+
+- (void)resetContextInitPromiseForTesting:(nullable FBLPromise *)promise {
+  if (_preInitAPIDispatchQueue) {
+    dispatch_sync(_preInitAPIDispatchQueue, ^{
+                  });
+  }
+  _contextInitPromise = promise;
+  FIRCLSContextInitGate *contextInitGate = promise ? [[FIRCLSContextInitGate alloc] init] : nil;
+  _contextInitGate = contextInitGate;
+
+  if (promise && _preInitAPIDispatchQueue) {
+    [promise onQueue:_preInitAPIDispatchQueue
+                then:^id _Nullable(id _Nullable value) {
+                  [contextInitGate markReadyAndFlush];
+                  return nil;
+                }];
+  }
 }
 @end

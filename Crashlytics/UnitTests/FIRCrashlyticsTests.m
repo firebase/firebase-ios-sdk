@@ -30,6 +30,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
+#import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRStackFrame.h"
@@ -52,7 +53,7 @@
 @interface FIRCrashlytics (Testing)
 
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
-@property(nonatomic, strong) dispatch_queue_t apiDispatchQueue;
+@property(nonatomic, strong) dispatch_queue_t preInitAPIDispatchQueue;
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app
@@ -66,6 +67,7 @@
 - (void)setDevelopmentPlatformVersion:(NSString *)developmentPlatformVersion;
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel;
 + (void)resetInstanceForTesting;
+- (void)resetContextInitPromiseForTesting:(nullable FBLPromise *)promise;
 
 @end
 
@@ -88,10 +90,12 @@
 
 @end
 
-/// Spy subclass of FIRCLSMockOnDemandModel that records whether on-demand recording ran on main.
+/// Spy subclass of FIRCLSMockOnDemandModel that records the calling thread and model snapshot.
 @interface FIRCLSThreadTrackingOnDemandModel : FIRCLSMockOnDemandModel
 
 @property(nonatomic, assign) BOOL lastCallWasOnMainThread;
+@property(nonatomic, strong, nullable) NSThread *lastCallThread;
+@property(nonatomic, strong, nullable) FIRExceptionModel *lastRecordedExceptionModel;
 @property(nonatomic, assign) NSUInteger callCount;
 
 @end
@@ -102,8 +106,40 @@
              withDataCollectionEnabled:(BOOL)dataCollectionEnabled
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager {
   self.lastCallWasOnMainThread = [NSThread isMainThread];
+  self.lastCallThread = [NSThread currentThread];
+  self.lastRecordedExceptionModel = exceptionModel;
   self.callCount += 1;
   return YES;
+}
+
+@end
+
+/// Spy value object that returns a mutable string from `-description` and tracks evaluation thread
+/// and invocation count.
+@interface FIRCLSDescriptionTrackingObject : NSObject
+
+@property(nonatomic, strong) NSMutableString *backingDescription;
+@property(nonatomic, assign) NSUInteger descriptionCallCount;
+@property(nonatomic, strong, nullable) NSThread *lastDescriptionThread;
+
+- (instancetype)initWithInitialDescription:(NSString *)initialDescription;
+
+@end
+
+@implementation FIRCLSDescriptionTrackingObject
+
+- (instancetype)initWithInitialDescription:(NSString *)initialDescription {
+  self = [super init];
+  if (self) {
+    _backingDescription = [initialDescription mutableCopy];
+  }
+  return self;
+}
+
+- (NSString *)description {
+  self.descriptionCallCount += 1;
+  self.lastDescriptionThread = [NSThread currentThread];
+  return self.backingDescription;
 }
 
 @end
@@ -142,9 +178,23 @@
                                  sessions:nil
                              remoteConfig:nil];
   XCTAssertNotNil(self.crashlytics);
-  XCTAssertNotNil(self.crashlytics.apiDispatchQueue);
-  XCTAssertEqualObjects(@(dispatch_queue_get_label(self.crashlytics.apiDispatchQueue)),
-                        [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".api"]);
+  XCTAssertNotNil(self.crashlytics.preInitAPIDispatchQueue);
+  XCTAssertEqualObjects(
+      @(dispatch_queue_get_label(self.crashlytics.preInitAPIDispatchQueue)),
+      [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".pre-init-api"]);
+
+  __block BOOL initSettled = NO;
+  [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
+                                          then:^id _Nullable(id _Nullable value) {
+                                            initSettled = YES;
+                                            return nil;
+                                          }];
+  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:5.0];
+  while (!initSettled && [deadline timeIntervalSinceNow] > 0) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
+                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.005]];
+  }
+  XCTAssertTrue(initSettled);
 
   self.onDemandModel =
       [[FIRCLSThreadTrackingOnDemandModel alloc] initWithFIRCLSSettings:self.mockSettings
@@ -163,17 +213,13 @@
 }
 
 - (void)tearDown {
-  if (self.crashlytics.apiDispatchQueue) {
-    dispatch_sync(self.crashlytics.apiDispatchQueue, ^{
-                  });
-  }
+  [self.crashlytics resetContextInitPromiseForTesting:nil];
   FIRCLSExecuteOnLoggingQueue(^{
   });
   if (FIRCLSGetBinaryImageQueue()) {
     dispatch_sync(FIRCLSGetBinaryImageQueue(), ^{
                   });
   }
-  self.crashlytics.contextInitPromise = nil;
   self.crashlytics = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
 
@@ -182,36 +228,70 @@
 
 #pragma mark - Helpers
 
-/// Waits for `crashlytics.apiDispatchQueue` and `_firclsLoggingQueue` to drain while keeping the
-/// calling thread (including the main thread!) blocked on a semaphore. If any callback attempted
-/// to dispatch onto `dispatch_get_main_queue()`, this helper would time out and fail the test.
+/// Waits for `crashlytics.preInitAPIDispatchQueue` and `_firclsLoggingQueue` to drain while keeping
+/// the calling thread (including the main thread!) blocked on a semaphore. If any callback
+/// attempted to dispatch onto `dispatch_get_main_queue()`, this helper would time out and fail.
 - (void)drainQueuesBlockingCurrentThread {
   XCTAssertNotNil(self.crashlytics.contextInitPromise);
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-  [self.crashlytics.contextInitPromise onQueue:self.crashlytics.apiDispatchQueue
+  [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
                                           then:^id _Nullable(id _Nullable value) {
                                             dispatch_semaphore_signal(sem);
                                             return nil;
                                           }];
   long waitResult =
       dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
-  XCTAssertEqual(waitResult, 0, @"Timed out waiting on apiDispatchQueue without main runloop");
+  XCTAssertEqual(waitResult, 0,
+                 @"Timed out waiting on preInitAPIDispatchQueue without main runloop");
 
   // Also drain any trailing async compactions / A-B swaps on _firclsLoggingQueue.
   FIRCLSExecuteOnLoggingQueue(^{
   });
 }
 
-- (NSArray<NSDictionary *> *)logAContents {
-  return FIRCLSFileReadSections(_firclsContext.readonly->logging.logStorage.aPath, true, nil);
+- (FBLPromise *)configurePendingInitPromise {
+  FBLPromise *initPromise = [FBLPromise pendingPromise];
+  [self.crashlytics resetContextInitPromiseForTesting:initPromise];
+  return initPromise;
+}
+
+- (void)fulfillInitPromiseOffMain:(FBLPromise *)initPromise {
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [initPromise fulfill:@YES];
+  });
+  [self drainQueuesBlockingCurrentThread];
+}
+
+- (void)markContextReady {
+  [self.crashlytics resetContextInitPromiseForTesting:[FBLPromise resolvedWith:@YES]];
+  [self drainQueuesBlockingCurrentThread];
+}
+
+- (void)performOnBackgroundThread:(void (^)(NSThread *bgThread))block {
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+    NSThread *bgThread = [NSThread currentThread];
+    XCTAssertFalse([NSThread isMainThread]);
+    block(bgThread);
+    dispatch_semaphore_signal(sem);
+  });
+  long waitResult =
+      dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+  XCTAssertEqual(waitResult, 0, @"Timed out waiting on background caller while main was blocked");
+}
+
+- (NSArray<NSString *> *)decodedLogMessages {
+  NSArray<NSDictionary *> *sections =
+      FIRCLSFileReadSections(_firclsContext.readonly->logging.logStorage.aPath, true, nil);
+  NSMutableArray<NSString *> *messages = [NSMutableArray arrayWithCapacity:sections.count];
+  for (NSDictionary *section in sections) {
+    [messages addObject:FIRCLSFileHexDecodeString([section[@"log"][@"msg"] UTF8String])];
+  }
+  return messages;
 }
 
 - (NSArray<NSDictionary *> *)errorAContents {
   return FIRCLSFileReadSections(_firclsContext.readonly->logging.errorStorage.aPath, true, nil);
-}
-
-- (NSArray<NSDictionary *> *)errorBContents {
-  return FIRCLSFileReadSections(_firclsContext.readonly->logging.errorStorage.bPath, true, nil);
 }
 
 - (NSArray<NSDictionary *> *)customExceptionAContents {
@@ -229,12 +309,11 @@
                                                 true);
 }
 
-#pragma mark - Tests
+#pragma mark - Pre-Init Buffering & Off-Main Drain
 
-- (void)testPreInitAPICallsExecuteOffMainThreadAndPersistAllRecords {
+- (void)testPreInitLogsAndKeysFlushOffMainThread {
   XCTAssertTrue([NSThread isMainThread]);
-  FBLPromise *initPromise = [FBLPromise pendingPromise];
-  self.crashlytics.contextInitPromise = initPromise;
+  FBLPromise *initPromise = [self configurePendingInitPromise];
 
   [self.crashlytics log:@"pre-init log 1"];
   [self.crashlytics logWithFormat:@"pre-init formatted %d", 42];
@@ -243,6 +322,29 @@
   [self.crashlytics setCustomKeysAndValues:@{@"batch-k1" : @"batch-v1", @"batch-k2" : @99}];
   [self.crashlytics setDevelopmentPlatformName:@"Flutter"];
   [self.crashlytics setDevelopmentPlatformVersion:@"3.24.0"];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  NSArray<NSString *> *expectedLogs = @[ @"pre-init log 1", @"pre-init formatted 42" ];
+  XCTAssertEqualObjects([self decodedLogMessages], expectedLogs);
+
+  NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
+  XCTAssertEqualObjects(userKVs[@"key-1"], @"val-1");
+  XCTAssertEqualObjects(userKVs[@"batch-k1"], @"batch-v1");
+  XCTAssertEqualObjects(userKVs[@"batch-k2"], @"99");
+
+  NSDictionary<NSString *, NSString *> *internalKVs = [self internalKeyValues];
+  XCTAssertEqualObjects(internalKVs[FIRCLSUserIdentifierKey], @"user-123");
+  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformNameKey], @"Flutter");
+  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformVersionKey], @"3.24.0");
+}
+
+- (void)testPreInitErrorsAndExceptionsFlushOffMainThread {
+  XCTAssertTrue([NSThread isMainThread]);
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
   [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.preinit"
                                                     code:101
                                                 userInfo:@{@"errKey" : @"errVal"}]];
@@ -257,114 +359,301 @@
   onDemandEx.stackTrace = @[ [FIRStackFrame stackFrameWithSymbol:@"odFn" file:@"od.dart" line:20] ];
   [self.crashlytics recordOnDemandExceptionModel:onDemandEx];
 
-  // Nothing should have executed before initPromise resolves.
-  XCTAssertEqual([self logAContents].count, 0);
+  XCTAssertEqual([self errorAContents].count, 0);
+  XCTAssertEqual([self customExceptionAContents].count, 0);
   XCTAssertEqual(self.onDemandModel.callCount, 0);
 
-  // Fulfill initPromise from a background queue while blocking the main thread on a semaphore
-  // (never spinning NSRunLoop.mainRunLoop). Every queued API call must flush off-main.
-  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-    [initPromise fulfill:@YES];
-  });
-  [self drainQueuesBlockingCurrentThread];
-
-  XCTAssertEqual(self.onDemandModel.callCount, 1);
-  XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
-
-  NSArray<NSDictionary *> *logs = [self logAContents];
-  XCTAssertEqual(logs.count, 2);
-  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([logs[0][@"log"][@"msg"] UTF8String]),
-                        @"pre-init log 1");
-  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([logs[1][@"log"][@"msg"] UTF8String]),
-                        @"pre-init formatted 42");
-
-  NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
-  XCTAssertEqualObjects(userKVs[@"key-1"], @"val-1");
-  XCTAssertEqualObjects(userKVs[@"batch-k1"], @"batch-v1");
-  XCTAssertEqualObjects(userKVs[@"batch-k2"], @"99");
-
-  NSDictionary<NSString *, NSString *> *internalKVs = [self internalKeyValues];
-  XCTAssertEqualObjects(internalKVs[FIRCLSUserIdentifierKey], @"user-123");
-  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformNameKey], @"Flutter");
-  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformVersionKey], @"3.24.0");
+  [self fulfillInitPromiseOffMain:initPromise];
 
   NSArray<NSDictionary *> *errors = [self errorAContents];
   XCTAssertEqual(errors.count, 1);
   XCTAssertEqual([errors[0][@"error"][@"code"] integerValue], 101);
+  XCTAssertGreaterThan([errors[0][@"error"][@"stacktrace"] count], 0);
+
+  XCTAssertEqual([self customExceptionAContents].count, 1);
+  XCTAssertEqual(self.onDemandModel.callCount, 1);
+  XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
+}
+
+#pragma mark - Pre-Init Mutable Input Snapshotting
+
+- (void)testPreInitSnapshotsMutableStringsForLogsUserIDAndPlatform {
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
+  NSMutableString *mutableLog = [@"initial-log" mutableCopy];
+  NSMutableString *mutableUserID = [@"initial-user" mutableCopy];
+  NSMutableString *mutablePlatform = [@"Unity" mutableCopy];
+  NSMutableString *mutablePlatformVer = [@"2023.2" mutableCopy];
+
+  [self.crashlytics log:mutableLog];
+  [self.crashlytics setUserID:mutableUserID];
+  [self.crashlytics setDevelopmentPlatformName:mutablePlatform];
+  [self.crashlytics setDevelopmentPlatformVersion:mutablePlatformVer];
+
+  [mutableLog setString:@"mutated-log"];
+  [mutableUserID setString:@"mutated-user"];
+  [mutablePlatform setString:@"MutatedPlatform"];
+  [mutablePlatformVer setString:@"0.0"];
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  XCTAssertEqualObjects([self decodedLogMessages], @[ @"initial-log" ]);
+  NSDictionary<NSString *, NSString *> *internalKVs = [self internalKeyValues];
+  XCTAssertEqualObjects(internalKVs[FIRCLSUserIdentifierKey], @"initial-user");
+  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformNameKey], @"Unity");
+  XCTAssertEqualObjects(internalKVs[FIRCLSDevelopmentPlatformVersionKey], @"2023.2");
+}
+
+- (void)testPreInitSnapshotsCustomKeysAndEvaluatesDescriptionOnceOnCallerThread {
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+  FIRCLSDescriptionTrackingObject *customValueObj =
+      [[FIRCLSDescriptionTrackingObject alloc] initWithInitialDescription:@"custom-desc-initial"];
+
+  [self performOnBackgroundThread:^(NSThread *bgThread) {
+    NSMutableString *mutableKey = [@"custom-key" mutableCopy];
+    [self.crashlytics setCustomValue:customValueObj forKey:mutableKey];
+    XCTAssertEqual(customValueObj.descriptionCallCount, 1);
+    XCTAssertEqual(customValueObj.lastDescriptionThread, bgThread);
+    [mutableKey setString:@"mutated-key"];
+    [customValueObj.backingDescription setString:@"custom-desc-mutated"];
+
+    NSMutableString *dictKey = [@"dict-key" mutableCopy];
+    NSMutableString *dictVal = [@"dict-val-initial" mutableCopy];
+    NSMutableDictionary *mutableDict = [NSMutableDictionary dictionaryWithObject:dictVal
+                                                                          forKey:dictKey];
+    [self.crashlytics setCustomKeysAndValues:mutableDict];
+    [dictKey setString:@"dict-key-mutated"];
+    [dictVal setString:@"dict-val-mutated"];
+    mutableDict[@"extra-after-call"] = @"should-not-appear";
+  }];
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  XCTAssertEqual(customValueObj.descriptionCallCount, 1);
+  NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
+  XCTAssertEqualObjects(userKVs[@"custom-key"], @"custom-desc-initial");
+  XCTAssertNil(userKVs[@"mutated-key"]);
+  XCTAssertEqualObjects(userKVs[@"dict-key"], @"dict-val-initial");
+  XCTAssertNil(userKVs[@"extra-after-call"]);
+}
+
+- (void)testPreInitSnapshotsRecordErrorAndEvaluatesUserInfoOnceOnCallerThread {
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+  FIRCLSDescriptionTrackingObject *errInfoObj =
+      [[FIRCLSDescriptionTrackingObject alloc] initWithInitialDescription:@"err-info-initial"];
+  FIRCLSDescriptionTrackingObject *extraInfoObj =
+      [[FIRCLSDescriptionTrackingObject alloc] initWithInitialDescription:@"extra-info-initial"];
+
+  [self performOnBackgroundThread:^(NSThread *bgThread) {
+    NSMutableString *errDomain = [@"com.test.mutable" mutableCopy];
+    NSError *error = [NSError errorWithDomain:errDomain
+                                         code:77
+                                     userInfo:@{@"infoKey" : errInfoObj}];
+    NSMutableDictionary *extraUserInfo = [NSMutableDictionary dictionaryWithObject:extraInfoObj
+                                                                            forKey:@"extraKey"];
+    [self.crashlytics recordError:error userInfo:extraUserInfo];
+
+    XCTAssertEqual(errInfoObj.descriptionCallCount, 1);
+    XCTAssertEqual(errInfoObj.lastDescriptionThread, bgThread);
+    XCTAssertEqual(extraInfoObj.descriptionCallCount, 1);
+    XCTAssertEqual(extraInfoObj.lastDescriptionThread, bgThread);
+
+    [errDomain setString:@"com.test.mutated"];
+    [errInfoObj.backingDescription setString:@"err-info-mutated"];
+    [extraInfoObj.backingDescription setString:@"extra-info-mutated"];
+    extraUserInfo[@"addedLater"] = @"should-not-appear";
+  }];
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  XCTAssertEqual(errInfoObj.descriptionCallCount, 1);
+  XCTAssertEqual(extraInfoObj.descriptionCallCount, 1);
+
+  NSArray<NSDictionary *> *errors = [self errorAContents];
+  XCTAssertEqual(errors.count, 1);
+  NSDictionary *errorDict = errors[0][@"error"];
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([errorDict[@"domain"] UTF8String]),
+                        @"com.test.mutable");
+  NSArray *infoPairs = errorDict[@"info"];
+  XCTAssertEqual(infoPairs.count, 1);
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([infoPairs[0][0] UTF8String]), @"infoKey");
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([infoPairs[0][1] UTF8String]),
+                        @"err-info-initial");
+  NSArray *extraInfoPairs = errorDict[@"extra_info"];
+  XCTAssertEqual(extraInfoPairs.count, 1);
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([extraInfoPairs[0][0] UTF8String]), @"extraKey");
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([extraInfoPairs[0][1] UTF8String]),
+                        @"extra-info-initial");
+}
+
+- (void)testPreInitSnapshotsMutableExceptionModels {
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
+  NSMutableString *customName = [@"OrigEx" mutableCopy];
+  NSMutableString *customReason = [@"OrigReason" mutableCopy];
+  NSMutableArray<FIRStackFrame *> *customFrames = [NSMutableArray
+      arrayWithObject:[FIRStackFrame stackFrameWithSymbol:@"origSym" file:@"orig.m" line:11]];
+  FIRExceptionModel *customEx = [FIRExceptionModel exceptionModelWithName:customName
+                                                                   reason:customReason];
+  customEx.stackTrace = customFrames;
+  [self.crashlytics recordExceptionModel:customEx];
+
+  [customName setString:@"MutatedEx"];
+  [customReason setString:@"MutatedReason"];
+  [customFrames removeAllObjects];
+  customEx.name = @"ReassignedEx";
+  customEx.reason = @"ReassignedReason";
+  customEx.stackTrace = @[ [FIRStackFrame stackFrameWithSymbol:@"mutSym" file:@"mut.m" line:99] ];
+
+  NSMutableString *onDemandName = [@"OrigOD" mutableCopy];
+  NSMutableString *onDemandReason = [@"OrigODReason" mutableCopy];
+  NSMutableArray<FIRStackFrame *> *onDemandFrames = [NSMutableArray
+      arrayWithObject:[FIRStackFrame stackFrameWithSymbol:@"origODSym" file:@"od.m" line:22]];
+  FIRExceptionModel *onDemandEx = [FIRExceptionModel exceptionModelWithName:onDemandName
+                                                                     reason:onDemandReason];
+  onDemandEx.stackTrace = onDemandFrames;
+  onDemandEx.isFatal = YES;
+  onDemandEx.onDemand = YES;
+  [self.crashlytics recordOnDemandExceptionModel:onDemandEx];
+
+  [onDemandName setString:@"MutatedOD"];
+  [onDemandReason setString:@"MutatedODReason"];
+  [onDemandFrames removeAllObjects];
+  onDemandEx.name = @"ReassignedOD";
+  onDemandEx.reason = @"ReassignedODReason";
+  onDemandEx.stackTrace = @[];
+  onDemandEx.isFatal = NO;
+  onDemandEx.onDemand = NO;
+
+  [self fulfillInitPromiseOffMain:initPromise];
 
   NSArray<NSDictionary *> *exceptions = [self customExceptionAContents];
   XCTAssertEqual(exceptions.count, 1);
+  NSDictionary *exceptionDict = exceptions[0][@"exception"];
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([exceptionDict[@"name"] UTF8String]), @"OrigEx");
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([exceptionDict[@"reason"] UTF8String]),
+                        @"OrigReason");
+  NSArray *frames = exceptionDict[@"frames"];
+  XCTAssertEqual(frames.count, 1);
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([frames[0][@"symbol"] UTF8String]), @"origSym");
+
+  FIRExceptionModel *recordedOnDemand = self.onDemandModel.lastRecordedExceptionModel;
+  XCTAssertEqualObjects(recordedOnDemand.name, @"OrigOD");
+  XCTAssertEqualObjects(recordedOnDemand.reason, @"OrigODReason");
+  XCTAssertEqual(recordedOnDemand.stackTrace.count, 1);
+  XCTAssertTrue(recordedOnDemand.isFatal);
+  XCTAssertTrue(recordedOnDemand.onDemand);
 }
 
-- (void)testPostInitAPICallsFromMainAndBackgroundThreadsExecuteOffMainThread {
+#pragma mark - Post-Init Synchronous Caller-Thread Execution
+
+- (void)testPostInitBackgroundCallsPersistSynchronouslyOnCallerThreadWithoutMainHop {
   XCTAssertTrue([NSThread isMainThread]);
-  self.crashlytics.contextInitPromise = [FBLPromise resolvedWith:@YES];
+  [self markContextReady];
 
-  // Invoke from main thread while blocking main runloop afterwards.
-  [self.crashlytics log:@"post-init main log"];
-  [self.crashlytics setCustomValue:@"main-val" forKey:@"main-key"];
-
-  // Also invoke from a background queue.
-  dispatch_sync(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+  [self performOnBackgroundThread:^(NSThread *bgThread) {
     [self.crashlytics log:@"post-init bg log"];
+    XCTAssertEqualObjects([self decodedLogMessages], @[ @"post-init bg log" ]);
+
     [self.crashlytics setCustomValue:@"bg-val" forKey:@"bg-key"];
+    XCTAssertEqualObjects([self userKeyValues][@"bg-key"], @"bg-val");
+
+    [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.bg" code:202 userInfo:nil]];
+    XCTAssertEqual([self errorAContents].count, 1);
+
+    FIRExceptionModel *customEx = [FIRExceptionModel exceptionModelWithName:@"BgEx" reason:@"bg"];
+    [self.crashlytics recordExceptionModel:customEx];
+    XCTAssertEqual([self customExceptionAContents].count, 1);
+
     FIRExceptionModel *onDemandEx = [FIRExceptionModel exceptionModelWithName:@"BgOnDemand"
                                                                        reason:@"From bg"];
     [self.crashlytics recordOnDemandExceptionModel:onDemandEx];
-  });
-
-  [self drainQueuesBlockingCurrentThread];
-
-  XCTAssertEqual(self.onDemandModel.callCount, 1);
-  XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
-
-  NSArray<NSDictionary *> *logs = [self logAContents];
-  XCTAssertEqual(logs.count, 2);
-  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([logs[0][@"log"][@"msg"] UTF8String]),
-                        @"post-init main log");
-  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([logs[1][@"log"][@"msg"] UTF8String]),
-                        @"post-init bg log");
-
-  NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
-  XCTAssertEqualObjects(userKVs[@"main-key"], @"main-val");
-  XCTAssertEqualObjects(userKVs[@"bg-key"], @"bg-val");
+    XCTAssertEqual(self.onDemandModel.callCount, 1);
+    XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
+    XCTAssertEqual(self.onDemandModel.lastCallThread, bgThread);
+  }];
 }
 
-- (void)testFIFOOrderingKVCompactionAndABFileRotationAcrossInitTransition {
-  FBLPromise *initPromise = [FBLPromise pendingPromise];
-  self.crashlytics.contextInitPromise = initPromise;
+- (void)testPostInitMainThreadCallsPersistSynchronouslyBeforeReturning {
+  XCTAssertTrue([NSThread isMainThread]);
+  [self markContextReady];
 
-  // Queue 50 updates pre-init, writing both distinct keys (to exceed maxIncrementalCount = 64)
-  // and sequential overwrites of "order-key".
-  for (int i = 0; i < 50; i++) {
-    NSString *distinctKey = [NSString stringWithFormat:@"distinct-%d", i % 60];
-    [self.crashlytics setCustomValue:[NSString stringWithFormat:@"v-%d", i] forKey:distinctKey];
-    [self.crashlytics setCustomValue:[NSString stringWithFormat:@"seq-%d", i] forKey:@"order-key"];
-  }
+  [self.crashlytics log:@"post-init main log"];
+  [self.crashlytics setCustomValue:@"main-val" forKey:@"main-key"];
 
-  // Record 10 non-fatal errors (maxEntries is 8 by default, so 8 should land in A and 2 in B).
-  for (int i = 0; i < 10; i++) {
-    [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.rotate" code:i userInfo:nil]];
-  }
+  XCTAssertEqualObjects([self decodedLogMessages], @[ @"post-init main log" ]);
+  XCTAssertEqualObjects([self userKeyValues][@"main-key"], @"main-val");
+}
 
-  // Resolve initPromise on a background thread and immediately enqueue 50 more sequential updates.
-  dispatch_group_t bgGroup = dispatch_group_create();
-  dispatch_group_async(bgGroup, dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
-    [initPromise fulfill:@YES];
-  });
-  for (int i = 50; i < 100; i++) {
-    [self.crashlytics setCustomValue:[NSString stringWithFormat:@"seq-%d", i] forKey:@"order-key"];
-  }
-  dispatch_group_wait(bgGroup, DISPATCH_TIME_FOREVER);
+#pragma mark - Edge Cases & Guards
 
-  [self drainQueuesBlockingCurrentThread];
+- (void)testLogIgnoresNilAndPreservesLiteralFormatSpecifiers {
+  [self markContextReady];
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  XCTAssertNoThrow([self.crashlytics log:nil]);
+#pragma clang diagnostic pop
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+
+  NSString *literalPercentMessage = @"100% complete %@ %s %d %n";
+  [self.crashlytics log:literalPercentMessage];
+  XCTAssertEqualObjects([self decodedLogMessages], @[ literalPercentMessage ]);
+}
+
+- (void)testNilErrorAndExceptionModelsAreIgnored {
+  [self markContextReady];
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  XCTAssertNoThrow([self.crashlytics recordError:nil]);
+  XCTAssertNoThrow([self.crashlytics recordError:nil userInfo:@{@"k" : @"v"}]);
+  XCTAssertNoThrow([self.crashlytics recordExceptionModel:nil]);
+  XCTAssertNoThrow([self.crashlytics recordOnDemandExceptionModel:nil]);
+#pragma clang diagnostic pop
+
+  XCTAssertEqual([self errorAContents].count, 0);
+  XCTAssertEqual([self customExceptionAContents].count, 0);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+}
+
+- (void)testClearingUserIDAndCustomKeysWithNilAndNSNull {
+  [self markContextReady];
+
+  [self.crashlytics setUserID:@"temp-user"];
+  [self.crashlytics setCustomValue:@"v1" forKey:@"clear-via-nil"];
+  [self.crashlytics setCustomValue:@"v2" forKey:@"clear-via-nsnull"];
+  [self.crashlytics setCustomValue:@"v3" forKey:@"keep-key"];
+
+  [self.crashlytics setUserID:nil];
+  [self.crashlytics setCustomValue:nil forKey:@"clear-via-nil"];
+  [self.crashlytics setCustomKeysAndValues:@{@"clear-via-nsnull" : [NSNull null]}];
+  [self.crashlytics setCustomKeysAndValues:@{}];
+
+  XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
   NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
-  XCTAssertEqualObjects(userKVs[@"order-key"], @"seq-99");
-  XCTAssertLessThanOrEqual(userKVs.count, _firclsContext.readonly->logging.userKVStorage.maxCount);
+  XCTAssertNil(userKVs[@"clear-via-nil"]);
+  XCTAssertNil(userKVs[@"clear-via-nsnull"]);
+  XCTAssertEqualObjects(userKVs[@"keep-key"], @"v3");
+}
 
-  XCTAssertEqual([self errorAContents].count, 8);
-  XCTAssertEqual([self errorBContents].count, 2);
+- (void)testAPICallsBeforeSDKInitializationAreSafeNoOps {
+  [self.crashlytics resetContextInitPromiseForTesting:nil];
+
+  [self.crashlytics log:@"dropped-uninitialized"];
+  [self.crashlytics setUserID:@"dropped-user"];
+  [self.crashlytics setCustomValue:@"dropped-val" forKey:@"dropped-key"];
+  [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.drop" code:1 userInfo:nil]];
+  FIRExceptionModel *droppedEx = [FIRExceptionModel exceptionModelWithName:@"Drop" reason:@"Drop"];
+  [self.crashlytics recordExceptionModel:droppedEx];
+  [self.crashlytics recordOnDemandExceptionModel:droppedEx];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+  XCTAssertEqual([self errorAContents].count, 0);
+  XCTAssertEqual([self customExceptionAContents].count, 0);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+  XCTAssertNil([self userKeyValues][@"dropped-key"]);
+  XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
 }
 
 @end
