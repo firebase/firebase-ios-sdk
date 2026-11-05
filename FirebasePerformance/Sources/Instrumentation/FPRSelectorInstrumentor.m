@@ -17,9 +17,6 @@
 #import "FirebasePerformance/Sources/Common/FPRDiagnostics.h"
 
 #import <GoogleUtilities/GULSwizzler.h>
-#ifdef UNSWIZZLE_AVAILABLE
-#import <GoogleUtilities/GULSwizzler+Unswizzle.h>
-#endif
 
 @implementation FPRSelectorInstrumentor {
   // The class this instrumentor operates on.
@@ -76,11 +73,8 @@
 
 - (void)unswizzle {
   _swizzled = NO;
-#ifdef UNSWIZZLE_AVAILABLE
-  [GULSwizzler unswizzleClass:_class selector:_selector isClassSelector:_isClassSelector];
-#else
-  NSAssert(NO, @"Unswizzling is disabled.");
-#endif
+  // For the SDK, we do not unswizzle, but this does run in unit tests,
+  // though it does not seem to have any effect
 }
 
 - (IMP)currentIMP {
