@@ -38,15 +38,11 @@ static NSString *const kProjectNumber = @"123456789";
 - (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
                             projectID:(nullable NSString *)projectID
                           googleAppID:(NSString *)googleAppID;
-- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
-                            projectID:(nullable NSString *)projectID
-                          googleAppID:(NSString *)googleAppID
-                configStoreDebugToken:(nullable NSString *)configStoreDebugToken;
-- (nullable NSString *)configStoreDebugTokenExchangeFailureMessageForError:(NSError *)error;
+- (nullable NSString *)debugTokenExchangeFailureMessageForError:(NSError *)error;
 
 @property(nonatomic, readonly, copy, nullable) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
-@property(nonatomic, readonly) BOOL usesConfigStoreDebugToken;
+@property(nonatomic, readonly) GACAppCheckDebugTokenSource debugTokenSource;
 
 @end
 
@@ -63,6 +59,7 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)setUp {
   self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
   self.debugProviderMock = OCMStrictClassMock([GACAppCheckDebugProvider class]);
+  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceLocal];
   self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
                                                                 projectID:nil
                                                               googleAppID:kAppID];
@@ -93,7 +90,7 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)testInitWithDebugProvider {
   XCTAssertNil(self.provider.projectID);
   XCTAssertEqualObjects(self.provider.googleAppID, kAppID);
-  XCTAssertFalse(self.provider.usesConfigStoreDebugToken);
+  XCTAssertEqual(self.provider.debugTokenSource, GACAppCheckDebugTokenSourceLocal);
 }
 
 - (void)testInitWithIncompleteApp {
@@ -113,55 +110,51 @@ static NSString *const kProjectNumber = @"123456789";
   XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingProjectIDApp]);
 }
 
-#pragma mark - ConfigStore debug token
+#pragma mark - Debug token source
 
-- (void)testInitWithConfigStoreDebugTokenInUse {
-  NSString *configStoreToken = @"config_store_token";
-  // The provider logs the config store attribution instead of the local token registration
-  // instructions, so `localDebugToken` must not be called on the strict mock.
-  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(configStoreToken);
+- (void)testInitWithConfigStoreDebugTokenLogsAttribution {
+  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceProvided];
 
   FIRAppCheckDebugProvider *provider =
       [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
                                                     projectID:kProjectID
-                                                  googleAppID:kAppID
-                                        configStoreDebugToken:configStoreToken];
+                                                  googleAppID:kAppID];
 
-  XCTAssertTrue(provider.usesConfigStoreDebugToken);
+  XCTAssertEqual(provider.debugTokenSource, GACAppCheckDebugTokenSourceProvided);
+  // `localDebugToken` is never stubbed, so the strict mock fails if the local token is logged.
   OCMVerifyAll(self.debugProviderMock);
 }
 
-- (void)testInitWithConfigStoreDebugTokenOverriddenByEnvironment {
-  // When the core provider resolves a different token (e.g. from `AppCheckDebugToken`), the
-  // config store token is not in use and the regular local token message is logged.
-  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(@"env_token");
+- (void)testInitWithEnvironmentVariableDebugTokenDoesNotLogLocalToken {
+  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceEnvironmentVariable];
+
+  FIRAppCheckDebugProvider *provider =
+      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                    projectID:kProjectID
+                                                  googleAppID:kAppID];
+
+  XCTAssertEqual(provider.debugTokenSource, GACAppCheckDebugTokenSourceEnvironmentVariable);
+  // `localDebugToken` is never stubbed, so the strict mock fails if an unused local token is
+  // generated or logged.
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+- (void)testInitWithLocalDebugTokenLogsLocalToken {
+  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceLocal];
   OCMExpect([self.debugProviderMock localDebugToken]).andReturn(@"local_token");
 
   FIRAppCheckDebugProvider *provider =
       [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
                                                     projectID:kProjectID
-                                                  googleAppID:kAppID
-                                        configStoreDebugToken:@"config_store_token"];
+                                                  googleAppID:kAppID];
 
-  XCTAssertFalse(provider.usesConfigStoreDebugToken);
-  OCMVerifyAll(self.debugProviderMock);
-}
-
-- (void)testInitWithoutConfigStoreDebugTokenLogsLocalToken {
-  OCMExpect([self.debugProviderMock localDebugToken]).andReturn(@"local_token");
-
-  FIRAppCheckDebugProvider *provider =
-      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
-                                                    projectID:kProjectID
-                                                  googleAppID:kAppID
-                                        configStoreDebugToken:nil];
-
-  XCTAssertFalse(provider.usesConfigStoreDebugToken);
+  XCTAssertEqual(provider.debugTokenSource, GACAppCheckDebugTokenSourceLocal);
   OCMVerifyAll(self.debugProviderMock);
 }
 
 - (void)testGetTokenAPIErrorWithConfigStoreDebugTokenDoesNotLogLocalToken {
-  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:kProjectID];
   NSError *expectedError = [NSError errorWithDomain:@"testGetTokenAPIError" code:-1 userInfo:nil];
   OCMExpect([self.debugProviderMock
       getTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError, nil])]);
@@ -179,7 +172,8 @@ static NSString *const kProjectNumber = @"123456789";
 }
 
 - (void)testGetLimitedUseTokenAPIErrorWithConfigStoreDebugTokenDoesNotLogLocalToken {
-  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:kProjectID];
   NSError *expectedError = [NSError errorWithDomain:@"testGetLimitedUseTokenAPIError"
                                                code:-1
                                            userInfo:nil];
@@ -200,13 +194,36 @@ static NSString *const kProjectNumber = @"123456789";
   OCMVerifyAll(self.debugProviderMock);
 }
 
-- (void)testConfigStoreExchangeFailureMessageSuggestsForceCreate {
-  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+- (void)testGetTokenAPIErrorWithEnvironmentVariableDebugTokenDoesNotLogLocalToken {
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceEnvironmentVariable
+                               projectID:kProjectID];
+  NSError *expectedError = [NSError errorWithDomain:@"testGetTokenAPIError" code:-1 userInfo:nil];
+  OCMExpect([self.debugProviderMock
+      getTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError, nil])]);
+  __block BOOL handlerCalled = NO;
+
+  [provider getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+    handlerCalled = YES;
+    XCTAssertNil(token);
+    XCTAssertEqualObjects(error, expectedError);
+  }];
+
+  XCTAssertTrue(handlerCalled);
+  // `localDebugToken` is never stubbed, so the strict mock fails if the fallback message is logged.
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+#pragma mark - Exchange failure messages
+
+- (void)testConfigStoreExchangeFailureMessageSuggestsForceCreateAndRelaunch {
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:kProjectID];
   NSError *error = [NSError errorWithDomain:@"testDomain"
                                        code:-1
                                    userInfo:@{NSLocalizedDescriptionKey : @"Permission denied"}];
 
-  NSString *message = [provider configStoreDebugTokenExchangeFailureMessageForError:error];
+  NSString *message = [provider debugTokenExchangeFailureMessageForError:error];
 
   XCTAssertTrue([message containsString:@"~/.config/configstore/firebase-appcheck.json"]);
   XCTAssertTrue([message containsString:@"Permission denied"]);
@@ -215,19 +232,15 @@ static NSString *const kProjectNumber = @"123456789";
                                  @"--app %@`",
                                  kProjectID, kAppID];
   XCTAssertTrue([message containsString:expectedCommand], @"%@", message);
+  XCTAssertTrue([message containsString:@"relaunch the app"], @"%@", message);
 }
 
 - (void)testConfigStoreExchangeFailureMessageOmitsMissingProjectID {
-  NSString *configStoreToken = @"config_store_token";
-  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(configStoreToken);
   FIRAppCheckDebugProvider *provider =
-      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
-                                                    projectID:nil
-                                                  googleAppID:kAppID
-                                        configStoreDebugToken:configStoreToken];
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:nil];
   NSError *error = [NSError errorWithDomain:@"testDomain" code:-1 userInfo:nil];
 
-  NSString *message = [provider configStoreDebugTokenExchangeFailureMessageForError:error];
+  NSString *message = [provider debugTokenExchangeFailureMessageForError:error];
 
   XCTAssertFalse([message containsString:@"--project"], @"%@", message);
   XCTAssertFalse([message containsString:@"(null)"], @"%@", message);
@@ -237,27 +250,59 @@ static NSString *const kProjectNumber = @"123456789";
 }
 
 - (void)testConfigStoreExchangeFailureMessagePrefersFailureReason {
-  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:kProjectID];
   NSError *error = [NSError
       errorWithDomain:@"testDomain"
                  code:-1
              userInfo:@{NSLocalizedFailureReasonErrorKey : @"The server responded with an error"}];
 
-  NSString *message = [provider configStoreDebugTokenExchangeFailureMessageForError:error];
+  NSString *message = [provider debugTokenExchangeFailureMessageForError:error];
 
   XCTAssertTrue([message containsString:@": The server responded with an error"], @"%@", message);
   XCTAssertFalse([message containsString:@"couldn’t be completed"], @"%@", message);
 }
 
-- (void)testConfigStoreExchangeFailureMessageIsNilWhenServerUnreachable {
-  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+- (void)testEnvironmentVariableExchangeFailureMessageNamesVariablesWithoutForce {
+  FIRAppCheckDebugProvider *provider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceEnvironmentVariable
+                               projectID:kProjectID];
+  NSError *error = [NSError errorWithDomain:@"testDomain"
+                                       code:-1
+                                   userInfo:@{NSLocalizedDescriptionKey : @"Permission denied"}];
+
+  NSString *message = [provider debugTokenExchangeFailureMessageForError:error];
+
+  XCTAssertTrue([message containsString:@"`AppCheckDebugToken`"], @"%@", message);
+  XCTAssertTrue([message containsString:@"`FIRAAppCheckDebugToken`"], @"%@", message);
+  XCTAssertTrue([message containsString:@"Permission denied"], @"%@", message);
+  NSString *expectedCommand =
+      [NSString stringWithFormat:@"`firebase appcheck:debugtokens:create <token> --project %@ "
+                                 @"--app %@`",
+                                 kProjectID, kAppID];
+  XCTAssertTrue([message containsString:expectedCommand], @"%@", message);
+  // Provisioning a new config store token would not help while the environment variable wins.
+  XCTAssertFalse([message containsString:@"--force"], @"%@", message);
+  XCTAssertFalse([message containsString:@"firebase-appcheck.json"], @"%@", message);
+}
+
+- (void)testExchangeFailureMessageIsNilWhenServerUnreachable {
   NSError *error = [NSError errorWithDomain:GACAppCheckErrors.errorDomain
                                        code:GACAppCheckErrorCodeServerUnreachable
                                    userInfo:nil];
+  FIRAppCheckDebugProvider *configStoreProvider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceProvided projectID:kProjectID];
+  FIRAppCheckDebugProvider *environmentVariableProvider =
+      [self providerWithDebugTokenSource:GACAppCheckDebugTokenSourceEnvironmentVariable
+                               projectID:kProjectID];
 
-  NSString *message = [provider configStoreDebugTokenExchangeFailureMessageForError:error];
+  NSString *configStoreMessage =
+      [configStoreProvider debugTokenExchangeFailureMessageForError:error];
+  NSString *environmentVariableMessage =
+      [environmentVariableProvider debugTokenExchangeFailureMessageForError:error];
 
-  XCTAssertNil(message);
+  XCTAssertNil(configStoreMessage);
+  XCTAssertNil(environmentVariableMessage);
 }
 
 #if TARGET_OS_SIMULATOR
@@ -279,9 +324,24 @@ static NSString *const kProjectNumber = @"123456789";
   FIRAppCheckDebugProvider *otherProvider = [[FIRAppCheckDebugProvider alloc] initWithApp:otherApp];
 
   XCTAssertEqualObjects([provider currentDebugToken], @"config_store_token");
-  XCTAssertTrue(provider.usesConfigStoreDebugToken);
+  XCTAssertEqual(provider.debugTokenSource, GACAppCheckDebugTokenSourceProvided);
   XCTAssertEqualObjects([otherProvider currentDebugToken], @"other_config_store_token");
-  XCTAssertTrue(otherProvider.usesConfigStoreDebugToken);
+  XCTAssertEqual(otherProvider.debugTokenSource, GACAppCheckDebugTokenSourceProvided);
+}
+
+/// An environment variable wins over the config store even when both hold the same token, so the
+/// token must not be attributed to the config store.
+- (void)testInitWithAppAttributesMatchingEnvironmentVariableToEnvironment {
+  NSURL *hostHomeURL = [self temporaryHostHomeWithTokens:@{kAppID : @"same_token"}];
+  [self setEnvironmentVariable:@"SIMULATOR_HOST_HOME" value:hostHomeURL.path];
+  [self setEnvironmentVariable:@"AppCheckDebugToken" value:@"same_token"];
+  [self setEnvironmentVariable:@"FIRAAppCheckDebugToken" value:nil];
+  FIRApp *app = [self appWithName:kAppName googleAppID:kAppID];
+
+  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
+
+  XCTAssertEqualObjects([provider currentDebugToken], @"same_token");
+  XCTAssertEqual(provider.debugTokenSource, GACAppCheckDebugTokenSourceEnvironmentVariable);
 }
 #endif  // TARGET_OS_SIMULATOR
 
@@ -445,14 +505,19 @@ static NSString *const kProjectNumber = @"123456789";
   }];
 }
 
-/// Returns a provider whose core debug provider resolved the config store debug token.
-- (FIRAppCheckDebugProvider *)providerUsingConfigStoreDebugToken {
-  NSString *configStoreToken = @"config_store_token";
-  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(configStoreToken);
+/// Expects the core debug provider's `debugTokenSource` to be read once, returning `source`.
+- (void)expectDebugTokenSource:(GACAppCheckDebugTokenSource)source {
+  OCMExpect([self.debugProviderMock debugTokenSource]).andReturn(source);
+}
+
+/// Returns a provider whose core debug provider resolved its debug token from `source`, which must
+/// not be `GACAppCheckDebugTokenSourceLocal` (that would log the local token on the strict mock).
+- (FIRAppCheckDebugProvider *)providerWithDebugTokenSource:(GACAppCheckDebugTokenSource)source
+                                                 projectID:(nullable NSString *)projectID {
+  [self expectDebugTokenSource:source];
   return [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
-                                                       projectID:kProjectID
-                                                     googleAppID:kAppID
-                                           configStoreDebugToken:configStoreToken];
+                                                       projectID:projectID
+                                                     googleAppID:kAppID];
 }
 
 @end

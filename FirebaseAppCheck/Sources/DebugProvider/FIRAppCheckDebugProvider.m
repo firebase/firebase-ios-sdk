@@ -40,8 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
 @property(nonatomic, readonly, copy, nullable) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
-/// Whether the debug token in use was read from the Firebase CLI config store on the host machine.
-@property(nonatomic, readonly) BOOL usesConfigStoreDebugToken;
+/// Where `debugProvider` got the debug token it exchanges. A provided token is always the one read
+/// from the Firebase CLI config store on the host machine.
+@property(nonatomic, readonly) GACAppCheckDebugTokenSource debugTokenSource;
 
 @end
 
@@ -50,35 +51,26 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
                             projectID:(nullable NSString *)projectID
                           googleAppID:(NSString *)googleAppID {
-  return [self initWithDebugProvider:debugProvider
-                           projectID:projectID
-                         googleAppID:googleAppID
-               configStoreDebugToken:nil];
-}
-
-/// Creates a provider wrapping `debugProvider`.
-///
-/// @param configStoreDebugToken The debug token read from the Firebase CLI config store, if any,
-///     that was passed to `debugProvider`. Used to attribute the token's source in logs.
-- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
-                            projectID:(nullable NSString *)projectID
-                          googleAppID:(NSString *)googleAppID
-                configStoreDebugToken:(nullable NSString *)configStoreDebugToken {
   self = [super init];
   if (self) {
     _debugProvider = debugProvider;
     _projectID = [projectID copy];
     _googleAppID = [googleAppID copy];
-    // An `AppCheckDebugToken` environment variable takes priority over the config store token.
-    _usesConfigStoreDebugToken =
-        configStoreDebugToken != nil &&
-        [[debugProvider currentDebugToken] isEqualToString:configStoreDebugToken];
+    _debugTokenSource = debugProvider.debugTokenSource;
 
-    if (_usesConfigStoreDebugToken) {
-      FIRLogNotice(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenFromConfigStore,
-                   @"Debug token loaded from ~/%@.", FIRAppCheckDebugTokenConfigStore.relativePath);
-    } else {
-      [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken prefix:@""];
+    switch (_debugTokenSource) {
+      case GACAppCheckDebugTokenSourceLocal:
+        [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken
+                                           prefix:@""];
+        break;
+      case GACAppCheckDebugTokenSourceProvided:
+        FIRLogNotice(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenFromConfigStore,
+                     @"Debug token loaded from ~/%@.",
+                     FIRAppCheckDebugTokenConfigStore.relativePath);
+        break;
+      case GACAppCheckDebugTokenSourceEnvironmentVariable:
+        // App Check Core logs that the environment variable is used; the local token is unused.
+        break;
     }
   }
   return self;
@@ -110,8 +102,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   return [self initWithDebugProvider:debugProvider
                            projectID:app.options.projectID
-                         googleAppID:app.options.googleAppID
-               configStoreDebugToken:configStoreDebugToken];
+                         googleAppID:app.options.googleAppID];
 }
 
 - (NSString *)currentDebugToken {
@@ -153,23 +144,27 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)logDebugTokenExchangeError:(NSError *)error {
-  if (self.usesConfigStoreDebugToken) {
-    NSString *message = [self configStoreDebugTokenExchangeFailureMessageForError:error];
-    if (message) {
-      FIRLogWarning(kFIRLoggerAppCheck,
-                    kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed, @"%@",
-                    message);
-    }
+  if (self.debugTokenSource == GACAppCheckDebugTokenSourceLocal) {
+    [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
+                                       prefix:@"Failed to exchange debug token. "];
     return;
   }
 
-  [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
-                                     prefix:@"Failed to exchange debug token. "];
+  NSString *message = [self debugTokenExchangeFailureMessageForError:error];
+  if (!message) {
+    return;
+  }
+  NSString *messageCode = self.debugTokenSource == GACAppCheckDebugTokenSourceProvided
+                              ? kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed
+                              : kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed;
+  FIRLogWarning(kFIRLoggerAppCheck, messageCode, @"%@", message);
 }
 
-/// Returns the message to log when exchanging the config store debug token fails, or `nil` when
-/// the failure is not actionable by provisioning a new token (e.g., the server was unreachable).
-- (nullable NSString *)configStoreDebugTokenExchangeFailureMessageForError:(NSError *)error {
+/// Returns the message to log when exchanging an environment variable or config store debug token
+/// fails, or `nil` when there is nothing actionable to report (e.g., the server was unreachable).
+///
+/// Unlike the local token's registration instructions, these messages never include the token.
+- (nullable NSString *)debugTokenExchangeFailureMessageForError:(NSError *)error {
   if ([error.domain isEqualToString:GACAppCheckErrors.errorDomain] &&
       error.code == GACAppCheckErrorCodeServerUnreachable) {
     return nil;
@@ -181,12 +176,24 @@ NS_ASSUME_NONNULL_BEGIN
   // App Check Core errors describe the failure in `NSLocalizedFailureReasonErrorKey`; using it
   // directly avoids Foundation's generic "The operation couldn’t be completed." prefix.
   NSString *errorDescription = error.localizedFailureReason ?: error.localizedDescription;
-  return [NSString stringWithFormat:@"Failed to exchange the debug token loaded from ~/%@: %@\n\n"
-                                    @"If the token was rejected by the server, run "
-                                    @"`firebase appcheck:debugtokens:create --force%@ --app %@` "
-                                    @"to provision a new token.",
-                                    FIRAppCheckDebugTokenConfigStore.relativePath, errorDescription,
-                                    projectArgument, self.googleAppID];
+  if (self.debugTokenSource == GACAppCheckDebugTokenSourceProvided) {
+    // The config store is only read at launch, so a new token requires relaunching the app.
+    return [NSString stringWithFormat:@"Failed to exchange the debug token loaded from ~/%@: %@\n\n"
+                                      @"If the token was rejected by the server, run "
+                                      @"`firebase appcheck:debugtokens:create --force%@ --app %@` "
+                                      @"to provision a new token, then relaunch the app.",
+                                      FIRAppCheckDebugTokenConfigStore.relativePath,
+                                      errorDescription, projectArgument, self.googleAppID];
+  }
+  if (self.debugTokenSource == GACAppCheckDebugTokenSourceEnvironmentVariable) {
+    return [NSString
+        stringWithFormat:@"Failed to exchange the debug token from the `AppCheckDebugToken` or "
+                         @"`FIRAAppCheckDebugToken` environment variable: %@\n\n"
+                         @"Make sure the token is registered for app %@, for example with "
+                         @"`firebase appcheck:debugtokens:create <token>%@ --app %@`.",
+                         errorDescription, self.googleAppID, projectArgument, self.googleAppID];
+  }
+  return nil;
 }
 
 #pragma mark - FIRAppCheckProvider

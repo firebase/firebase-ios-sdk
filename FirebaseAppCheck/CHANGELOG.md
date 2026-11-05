@@ -5,6 +5,9 @@
   `~/.config/configstore/firebase-appcheck.json` on the host machine, so no
   manual token registration is needed. The `AppCheckDebugToken` and
   `FIRAAppCheckDebugToken` environment variables still take priority. (#17017)
+- [fixed] When the `AppCheckDebugToken` or `FIRAAppCheckDebugToken` environment
+  variable is set, `AppCheckDebugProvider` no longer generates an unused local
+  debug token and logs registration instructions for it. (#17017)
 
 # 12.19.0
 - [fixed] Fixed an issue where the Recaptcha provider could cause build
