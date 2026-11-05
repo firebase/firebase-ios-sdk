@@ -25,7 +25,7 @@ public struct Test: ParsableCommand {
     commandName: "test",
     abstract: "Run the integration tests for a given SDK.",
     usage: """
-      test [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function>] [--exclude <suite_or_function>] [<sdk>]
+      test [--overwrite] [--secrets <file_path>] [--xcode <version_or_path>] [--platforms <platforms> ...] [--filter <suite_or_function> ...] [--exclude <suite_or_function> ...] [<sdk>]
 
       test --xcode Xcode_16.4.0 --platforms iOS --platforms macOS AI
       test --xcode "/Applications/Xcode_15.0.0.app" --platforms tvOS Storage
@@ -38,19 +38,19 @@ public struct Test: ParsableCommand {
 
   @Option(
     help: """
-    Optional test target to run against.
+    Optional test target(s) to run against. Repeat this option to filter by multiple targets.
     Can be a test suite or test function identifier (eg; "IntegrationTests-SPM/LiveSessionTests" or "IntegrationTests-SPM/LiveSessionTests/realtime_functionCalling").
     """
   )
-  var filter: String? = nil
+  var filter: [String] = []
 
   @Option(
     help: """
-    Optional test target to exclude from running.
+    Optional test target(s) to exclude from running. Repeat this option to exclude multiple targets.
     Can be a test suite or test function identifier (eg; "IntegrationTests-SPM/LiveSessionTests" or "IntegrationTests-SPM/LiveSessionTests/realtime_functionCalling").
     """
   )
-  var exclude: String? = nil
+  var exclude: [String] = []
 
   static let log: Logger = .init(label: "Test")
 
@@ -59,7 +59,7 @@ public struct Test: ParsableCommand {
   public func validate() throws {
     // filter takes priority with xcodebuild, so we just don't allow them to be used in tandem
     // to avoid any edge case issues
-    if filter != nil && exclude != nil {
+    if !filter.isEmpty && !exclude.isEmpty {
       throw ValidationError(
         "Cannot supply both --filter and --exclude options, please only specify one."
       )
@@ -68,13 +68,13 @@ public struct Test: ParsableCommand {
 
   private func buildExtraArguments() -> [String] {
     var arguments: [String] = []
-    if let filter {
-      arguments.append(contentsOf: ["-only-testing", filter])
-      Self.log.info("Filtering tests", metadata: ["filter": "\(filter)"])
+    for item in filter {
+      arguments.append(contentsOf: ["-only-testing", item])
+      Self.log.info("Filtering tests", metadata: ["filter": "\(item)"])
     }
-    if let exclude {
-      arguments.append(contentsOf: ["-skip-testing", exclude])
-      Self.log.info("Excluding tests", metadata: ["exclude": "\(exclude)"])
+    for item in exclude {
+      arguments.append(contentsOf: ["-skip-testing", item])
+      Self.log.info("Excluding tests", metadata: ["exclude": "\(item)"])
     }
 
     return arguments

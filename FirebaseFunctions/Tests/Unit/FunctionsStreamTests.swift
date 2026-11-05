@@ -45,7 +45,7 @@ import XCTest
       }
 
       MockURLProtocol.requestHandler = { request in
-        let validJSON = "{\"result\": \"Hello\"}"
+        let validJSON = "{\"message\": \"Hello\"}"
         let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1000)
         let response = HTTPURLResponse(
           url: request.url!,
@@ -68,6 +68,9 @@ import XCTest
         XCTestExpectation(description: "stopLoading should be called when task is cancelled")
       MockURLProtocol.stopLoadingExpectation = stopLoadingExpectation
 
+      let receivedFirstItemExpectation =
+        XCTestExpectation(description: "Stream should receive first item before cancellation")
+
       // Using test-specific initialization so we don't need a real FirebaseApp
       let functions = Functions(
         projectID: "test-project",
@@ -83,14 +86,16 @@ import XCTest
         do {
           let stream = try callable.stream()
           var iterator = stream.makeAsyncIterator()
-          _ = try await iterator.next()
+          let firstItem = try await iterator.next()
+          XCTAssertEqual(firstItem, "Hello")
+          receivedFirstItemExpectation.fulfill()
+          while try await iterator.next() != nil {}
         } catch {
           // We expect a cancellation error here.
         }
       }
 
-      // Give the stream a moment to initiate the URLSession request
-      try? await Task.sleep(nanoseconds: 100_000_000)
+      await fulfillment(of: [receivedFirstItemExpectation], timeout: 2.0)
 
       // Cancelling the consumer task should cascade down and stop the URLSession task,
       // which should trigger MockURLProtocol.stopLoading()
@@ -101,7 +106,7 @@ import XCTest
 
     func testStream_failure_midStreamError_throwsError() async throws {
       let expectedStatusCode = 200
-      let validJSON = "{\"result\": \"Hello\"}"
+      let validJSON = "{\"message\": \"Hello\"}"
       let responseBody = String(repeating: "data: \(validJSON)\n\n", count: 1000)
 
       let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -155,6 +160,101 @@ import XCTest
         }
       } catch {
         XCTFail("Stream threw unexpected error type: \(error)")
+      }
+    }
+
+    // MARK: - SSE comment / heartbeat handling (#16605)
+
+    func testStream_ignoresSSECommentHeartbeats() async throws {
+      let responseBody = """
+      : ping
+
+      data: {"message": "hello"}
+
+      : ping
+
+      data: {"message": "world"}
+
+      data: {"result": "done"}
+
+
+      """
+      try setUpStreamingResponse(body: responseBody)
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      var received: [String] = []
+      for try await chunk in try callable.stream() {
+        received.append(chunk)
+      }
+      XCTAssertEqual(received, ["hello", "world"])
+    }
+
+    func testStream_onlyHeartbeatsThenResult_completesWithoutError() async throws {
+      let responseBody = """
+      : ping
+
+      : ping
+
+      data: {"result": "done"}
+
+
+      """
+      try setUpStreamingResponse(body: responseBody)
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      var received: [String] = []
+      for try await chunk in try callable.stream() {
+        received.append(chunk)
+      }
+      XCTAssertEqual(received, [])
+    }
+
+    func testStream_nonSSEBody_throwsDataLoss() async throws {
+      try setUpStreamingResponse(body: "{\"result\": 17}\n")
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      do {
+        for try await _ in try callable.stream() {
+          XCTFail("Expected error to be thrown from stream.")
+        }
+        XCTFail("Stream should not finish successfully for a non-SSE body.")
+      } catch let error as FunctionsError {
+        XCTAssertEqual(error.code, .dataLoss)
+        XCTAssertEqual(error.localizedDescription, "Unexpected format for streamed response.")
+      }
+    }
+
+    // MARK: - Helpers
+
+    private func makeFunctions() -> Functions {
+      Functions(
+        projectID: "test-project",
+        region: "us-central1",
+        customDomain: nil,
+        auth: nil,
+        messaging: nil,
+        appCheck: nil
+      )
+    }
+
+    private func setUpStreamingResponse(body: String) throws {
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+      try body.write(to: tempURL, atomically: true, encoding: .utf8)
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: ["Content-Type": "text/event-stream"]
+        )!
+        return (response, tempURL.lines)
       }
     }
   }

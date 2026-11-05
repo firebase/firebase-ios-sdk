@@ -1,0 +1,183 @@
+name: sdk.geminilanguagemodel
+
+on:
+  pull_request:
+    paths:
+    - 'GeminiLanguageModel**'
+    - '.github/workflows/sdk.geminilanguagemodel.yml'
+    # Do not run for documentation-only PRs.
+    - '!**.md'
+  schedule:
+    # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read  # Needed for actions/checkout
+
+jobs:
+  check-data-models:
+    name: check-data-models
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: GeminiLanguageModel/scripts/typegen
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Set up Python environment
+      run: |
+        python3 -m venv .venv
+        .venv/bin/pip install --upgrade pip
+        .venv/bin/pip install -r requirements.txt
+
+    - name: Run typegen unit tests
+      run: .venv/bin/python -m unittest discover -s tests -t . -v
+
+    - name: Check for Discovery Document and data model updates
+      # Drift is reported as a warning and doesn't fail the step. Unexpected
+      # failures (e.g. fetching the Discovery Document) fail the job so that
+      # they're noticed and re-run.
+      run: |
+        .venv/bin/python upgrade_spec.py --fetch
+        .venv/bin/python generate_types.py
+
+        REVISION=$(.venv/bin/python -c 'import json; print(json.load(open("discovery_documents/firebasevertexai_discovery_v1beta.json")).get("revision", "unknown"))')
+        echo "Discovery Document revision: $REVISION"
+
+        TARGET_DIR="../../Sources/GeminiAPIDataModels/GenerateContent"
+        if [[ -z "$(git status --porcelain "$TARGET_DIR")" ]]; then
+          echo "GeminiAPIDataModels is up to date with Discovery Document revision $REVISION."
+          exit 0
+        fi
+
+        echo "::warning title=GeminiAPIDataModels update available::Generated data models differ from committed sources (Discovery Document revision: $REVISION). Run upgrade_spec.py --fetch and generate_types.py to update."
+
+        {
+          echo "### ⚠️ \`GeminiAPIDataModels\` Update Available"
+          echo ""
+          echo "Regenerating data models from the latest Discovery Document (**revision \`$REVISION\`**) produced changes in \`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent\`."
+          echo ""
+          echo "To update the models locally:"
+          echo "\`\`\`bash"
+          echo "cd GeminiLanguageModel/scripts/typegen"
+          echo "python upgrade_spec.py --fetch"
+          echo "python generate_types.py"
+          echo "\`\`\`"
+          echo ""
+          echo "<details>"
+          echo "<summary><strong>Changed files (\`git status --short\`)</strong></summary>"
+          echo ""
+          echo "\`\`\`text"
+          git status --short "$TARGET_DIR"
+          echo "\`\`\`"
+          echo ""
+          echo "</details>"
+          echo ""
+          echo "<details>"
+          echo "<summary><strong>Diff summary (\`git diff --stat\`)</strong></summary>"
+          echo ""
+          echo "\`\`\`text"
+          git add -N "$TARGET_DIR"
+          git diff --stat "$TARGET_DIR"
+          echo "\`\`\`"
+          echo ""
+          echo "</details>"
+        } >> "$GITHUB_STEP_SUMMARY"
+
+  unit-tests:
+    name: unit-tests
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: xcode-27
+            xcode: Xcode_27.0
+          - os: xcode-27
+            xcode: Xcode_27.2
+          # Older toolchains compile out the FoundationModels-dependent code (it requires
+          # Swift 6.4+); these verify that the package still builds and its remaining tests pass.
+          - os: macos-26
+            xcode: Xcode_26.6
+          # Oldest Xcode version supported by Firebase.
+          - os: macos-15
+            xcode: Xcode_26.2
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      env:
+        XCODE: ${{ matrix.xcode }}
+      run: sudo xcode-select -s "/Applications/$XCODE.app/Contents/Developer"
+
+    - name: Run GeminiLanguageModel unit tests
+      working-directory: GeminiLanguageModel
+      # Skips the `*IntegrationTests` suites, which are covered by the `integration-tests` job.
+      # Some of them (e.g., unauthenticated request tests) make network requests even when no
+      # credentials are provided.
+      run: swift test --skip IntegrationTests
+
+  integration-tests:
+    name: integration-tests
+    if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
+    runs-on: xcode-27
+    env:
+      AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      TEST_RUNNER_AppCheckDebugToken: ${{ secrets.VERTEXAI_INTEGRATION_FAC_DEBUG_TOKEN }}
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
+      TEST_RUNNER_FIREBASE_PLIST_PATH: /private/tmp/GoogleService-Info.plist
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_27.0.app/Contents/Developer
+
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
+      with:
+        platform: iOS
+
+    - name: Decrypt GoogleService-Info.plist
+      run: |
+        scripts/decrypt_gha_secret.sh \
+          scripts/gha-encrypted/FirebaseAI/TestApp-GoogleService-Info.plist.gpg \
+          "$FIREBASE_PLIST_PATH" \
+          "$secrets_passphrase"
+        chmod 600 "$FIREBASE_PLIST_PATH"
+
+    - name: Build GeminiLanguageModel for testing
+      working-directory: GeminiLanguageModel
+      run: |
+        xcodebuild build-for-testing \
+          -scheme gemini-for-foundation-models \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -quiet
+
+    - name: Run GeminiLanguageModel integration tests
+      working-directory: GeminiLanguageModel
+      run: |
+        xcodebuild test-without-building \
+          -scheme gemini-for-foundation-models \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -only-testing-tags integration \
+          -retry-tests-on-failure \
+          -test-iterations 3
+
+    - name: Clean up GoogleService-Info.plist
+      if: always()
+      run: rm -f "$FIREBASE_PLIST_PATH"

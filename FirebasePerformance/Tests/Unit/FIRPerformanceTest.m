@@ -213,6 +213,18 @@
   XCTAssertNil([self.performance valueForAttribute:@"foo"]);
 }
 
+- (void)testUpdatingExistingAttributeAtMaximumCount {
+  for (int i = 0; i < kFPRMaxGlobalCustomAttributesCount; i++) {
+    NSString *attributeName = [NSString stringWithFormat:@"dim%d", i];
+    [self.performance setValue:@"bar" forAttribute:attributeName];
+  }
+
+  [self.performance setValue:@"updated" forAttribute:@"dim0"];
+
+  XCTAssertEqual([self.performance valueForAttribute:@"dim0"], @"updated");
+  XCTAssertEqual(self.performance.attributes.count, (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
+}
+
 /** Validates if removing old attributes and adding new attributes work. */
 - (void)testRemovingAndAddingAttributes {
   for (int i = 0; i < kFPRMaxGlobalCustomAttributesCount; i++) {
@@ -223,6 +235,27 @@
   [self.performance removeAttribute:@"dim1"];
   [self.performance setValue:@"bar" forAttribute:@"foo"];
   XCTAssertEqual([self.performance valueForAttribute:@"foo"], @"bar");
+}
+
+- (void)testConcurrentAttributeAccessIsSerialized {
+  dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+  dispatch_apply(100, queue, ^(size_t index) {
+    NSString *attribute = [NSString stringWithFormat:@"attribute_%lu", (unsigned long)index];
+    [self.performance setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertEqual(self.performance.attributes.count, (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
+
+  dispatch_apply(200, queue, ^(size_t index) {
+    NSUInteger attributeIndex = index % kFPRMaxGlobalCustomAttributesCount;
+    NSString *attribute =
+        [NSString stringWithFormat:@"attribute_%lu", (unsigned long)attributeIndex];
+    (void)[self.performance valueForAttribute:attribute];
+    (void)self.performance.attributes;
+    [self.performance removeAttribute:attribute];
+    [self.performance setValue:@"value" forAttribute:attribute];
+  });
+  XCTAssertLessThanOrEqual(self.performance.attributes.count,
+                           (NSUInteger)kFPRMaxGlobalCustomAttributesCount);
 }
 
 @end

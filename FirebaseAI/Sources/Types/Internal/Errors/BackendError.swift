@@ -31,8 +31,8 @@ struct BackendError: Error {
     self.details = details
   }
 
-  func isVertexAIInFirebaseServiceDisabledError() -> Bool {
-    return details.contains { $0.isVertexAIInFirebaseServiceDisabledErrorDetails() }
+  func isFirebaseAILogicServiceDisabledError() -> Bool {
+    return details.contains { $0.isFirebaseAILogicServiceDisabledErrorDetails() }
   }
 }
 

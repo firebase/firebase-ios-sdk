@@ -16,7 +16,13 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 #import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 #import <GoogleUtilities/GULUserDefaults.h>
 

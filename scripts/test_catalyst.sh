@@ -59,7 +59,7 @@ args=(
   # Disable signing.
   "CODE_SIGN_IDENTITY=-" "CODE_SIGNING_REQUIRED=NO" "CODE_SIGNING_ALLOWED=NO"
   # GHA is still running 10.15.
-  "MACOSX_DEPLOYMENT_TARGET=10.15"
+  "MACOSX_DEPLOYMENT_TARGET=11.0"
   "-resultBundlePath" "xcresults/$scheme-${timestamp}.xcresult"
 )
 

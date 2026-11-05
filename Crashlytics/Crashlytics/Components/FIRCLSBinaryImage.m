@@ -258,6 +258,8 @@ static bool FIRCLSBinaryImageMachOSliceInitSectionByName(FIRCLSMachOSliceRef sli
 
   memset(section, 0, sizeof(FIRCLSMachOSection));
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   if (FIRCLSMachOSliceIs64Bit(slice)) {
     const struct section_64* sect =
         getsectbynamefromheader_64(slice->startAddress, segName, sectionName);
@@ -278,6 +280,7 @@ static bool FIRCLSBinaryImageMachOSliceInitSectionByName(FIRCLSMachOSliceRef sli
     section->size = sect->size;
     section->offset = sect->offset;
   }
+#pragma clang diagnostic pop
 
   return true;
 }
@@ -308,6 +311,7 @@ static void FIRCLSPopulateImageDetailWithLoadCommand(uint32_t type,
     case LC_VERSION_MIN_IPHONEOS:
     case LC_VERSION_MIN_TVOS:
     case LC_VERSION_MIN_WATCHOS:
+    case LC_BUILD_VERSION:
       details->minSDK = FIRCLSMachOGetMinimumOSVersion(cmd);
       details->builtSDK = FIRCLSMachOGetLinkedSDKVersion(cmd);
       break;

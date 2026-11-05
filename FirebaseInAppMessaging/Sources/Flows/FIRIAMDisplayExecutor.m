@@ -667,6 +667,8 @@
         if (!displayMessage) {
           FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM400043",
                       @"Failed to construct a non-nil display message.");
+          self.isMsgBeingDisplayed = NO;
+          [self.messageCache removeMessageWithId:message.renderData.messageID];
           return;
         }
 

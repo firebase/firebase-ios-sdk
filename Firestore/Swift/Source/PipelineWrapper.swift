@@ -13,14 +13,20 @@
 // limitations under the License.
 
 protocol BridgeWrapper {
-  var bridge: ExprBridge { get }
+  var bridge: __ExprBridge { get }
 }
 
 protocol AggregateBridgeWrapper {
-  var bridge: AggregateFunctionBridge { get }
+  var bridge: __AggregateFunctionBridge { get }
 }
 
 protocol SelectableWrapper: Sendable {
   var alias: String { get }
   var expr: Expression { get }
+}
+
+protocol WindowFieldWrapper: Sendable {
+  var alias: String { get }
+  var bridge: __AggregateFunctionBridge { get }
+  var errorMessage: String? { get }
 }

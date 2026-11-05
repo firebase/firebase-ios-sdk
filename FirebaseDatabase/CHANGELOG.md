@@ -1,3 +1,52 @@
+# Unreleased
+- [fixed] Fixed an issue where the `getData` error said that the client was
+  offline when the server rejected the request, e.g. because of security rules.
+  (#11835)
+- [fixed] Fixed an issue where a completing `getData` call marked an
+  observed or `keepSynced` query inactive in the persistence cache, allowing
+  its cached data to be pruned or triggering an assertion failure on
+  subsequent updates. (#17009)
+- [fixed] Fixed an issue where `getData` on a query with a limit or range could
+  remove data from other listeners at or below the query's location, and from
+  the disk cache. (#8286, #14137)
+- [fixed] Fixed an issue where `getData` never completed if the connection
+  dropped before the server responded. (#16717)
+- [fixed] Fixed an issue where `getData` on a child of an observed location
+  returned the data of the observed location instead of the child. (#12168)
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
+- [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
+  on the worker queue to avoid cross-thread access. (#16767, #16971)
+
+# 13.1.0
+- [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
+  threads could generate duplicate push IDs. (#16768)
+- [fixed] Fixed an issue where transactions could fail with a maxretry error when
+  every child of a node had a priority. (#16769)
+- [fixed] Fixed an issue where observers could miss events, and keep showing stale
+  or reverted values, when multiple pending transactions at overlapping locations
+  were rerun. (#16791)
+- [fixed] Fixed an issue where a `getData` call that failed without a cached value
+  kept its query marked as active in the persistence cache until the app restarted,
+  which kept that location from being pruned. (#16792)
+- [fixed] Fixed a potential crash at every launch after the server sent an
+  invalid database host. Such hosts are now ignored, and a saved one is
+  discarded. (#16863)
+- [fixed] Fixed a potential crash when the server sent a data message with an
+  `error`. (#16863)
+- [fixed] Fixed a crash in `purgeOutstandingWrites` when the server had already
+  acknowledged a write that the SDK hadn't processed yet. (#5161)
+- [fixed] Fixed a crash in `getData` when the server returned an error without
+  a reason. (#16718)
+- [fixed] Ignore malformed realtime server push, control, and handshake
+  messages instead of crashing when a frame or one of its fields has an
+  unexpected JSON type. (#16750)
+
+# 12.19.0
+- [fixed] Reconnect after significant system clock changes so that
+  `.info/serverTimeOffset` is refreshed. (#363)
+
 # 12.17.0
 - [fixed] Fixed an issue where surrogate pair replacement ranges were incorrect
   in push ID generation. (#16415)

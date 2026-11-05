@@ -54,7 +54,7 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
   }
   self = [super init];
   if (self) {
-    _deviceToken = (NSData *)deviceToken;
+    _deviceToken = [(NSData *)deviceToken copy];
     _sandbox = ((NSNumber *)isSandbox).boolValue;
   }
   return self;
@@ -75,8 +75,9 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-  NSData *deviceToken = [aDecoder decodeObjectOfClass:[NSData class]
-                                               forKey:kFIRInstanceIDAPNSInfoTokenKey];
+  NSSet *classes = [NSSet setWithObjects:NSData.class, NSMutableData.class, nil];
+  NSData *deviceToken = [aDecoder decodeObjectOfClasses:classes
+                                                 forKey:kFIRInstanceIDAPNSInfoTokenKey];
   if (!deviceToken) {
     return nil;
   }

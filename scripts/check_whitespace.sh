@@ -41,6 +41,7 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/third_party/abseil-cpp' \
     ':(exclude)GoogleDataTransport/ProtoSupport' \
     ':(exclude)ReleaseTooling/Template/NOTICES' \
+    ':(exclude)scripts/zip_builder/Templates/NOTICES' \
     ':(exclude)Carthage/**'
 
 if [[ $? == 0 ]]; then

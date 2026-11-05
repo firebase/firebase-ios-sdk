@@ -34,9 +34,10 @@ import Foundation
     /// This is the phone number associated with the current second factor.
     @objc open var phoneNumber: String
 
-    init(proto: AuthProtoMFAEnrollment) {
+    /// Returns `nil` if the enrollment has no phone number or no enrollment ID.
+    init?(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {
-        fatalError("Internal Auth Error: Missing phone number in Multi Factor Enrollment")
+        return nil
       }
       phoneNumber = phoneInfo
       super.init(proto: proto, factorID: Self.PhoneMultiFactorID)

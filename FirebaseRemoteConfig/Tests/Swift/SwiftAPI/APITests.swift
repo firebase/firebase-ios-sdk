@@ -19,15 +19,16 @@ import XCTest
 
 class APITests: APITestBase {
   func testFetchThenActivate() {
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
       if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { _, error in
+      config.activate { _, error in
         XCTAssertNil(error)
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
+        XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
         expectation.fulfill()
       }
     }
@@ -35,15 +36,16 @@ class APITests: APITestBase {
   }
 
   func testFetchWithExpirationThenActivate() {
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
     config.fetch(withExpirationDuration: 0) { status, error in
       if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { _, error in
+      config.activate { _, error in
         XCTAssertNil(error)
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
+        XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
         expectation.fulfill()
       }
     }
@@ -51,13 +53,14 @@ class APITests: APITestBase {
   }
 
   func testFetchAndActivate() {
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
     config.fetchAndActivate { status, error in
       XCTAssertEqual(status, .successFetchedFromRemote)
       if let error {
         XCTFail("Fetch and Activate Error \(error)")
       }
-      XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
+      XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
       expectation.fulfill()
     }
     waitForExpectations()
@@ -66,16 +69,17 @@ class APITests: APITestBase {
   // Test New API.
   // Contrast with testChangedActivateWillNotFlag in FakeConsole.swift.
   func testUnchangedActivateWillFlag() {
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
       if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { changed, error in
+      config.activate { changed, error in
         XCTAssertTrue(!APITests.useFakeConfig || changed)
         XCTAssertNil(error)
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
+        XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
         expectation.fulfill()
       }
     }
@@ -86,10 +90,10 @@ class APITests: APITestBase {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { changed, error in
+      config.activate { changed, error in
         XCTAssertFalse(changed)
         XCTAssertNil(error)
-        XCTAssertEqual(self.config[Constants.key1].stringValue, Constants.value1)
+        XCTAssertEqual(config[Constants.key1].stringValue, Constants.value1)
         expectation2.fulfill()
       }
     }
@@ -99,6 +103,7 @@ class APITests: APITestBase {
   func testFetchAndActivateUnchangedConfig() throws {
     guard APITests.useFakeConfig == false else { return }
 
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
 
     XCTAssertEqual(config.settings.minimumFetchInterval, 0)
@@ -108,7 +113,7 @@ class APITests: APITestBase {
     group.enter()
     serialQueue.async {
       // Represents pre-fetch occurring sometime in past.
-      self.config.fetch { status, error in
+      config.fetch { status, error in
         XCTAssertNil(error, "Fetch Error \(error!)")
         XCTAssertEqual(status, .success)
         group.leave()
@@ -119,7 +124,7 @@ class APITests: APITestBase {
       group.wait()
       group.enter()
       // Represents a `fetchAndActivate` being made to pull latest changes from Remote Config.
-      self.config.fetchAndActivate { status, error in
+      config.fetchAndActivate { status, error in
         XCTAssertNil(error, "Fetch & Activate Error \(error!)")
         // Since no updates to remote config have occurred we use the `.successUsingPreFetchedData`.
         // The behavior of the next test changed in Firebase 7.0.0.
@@ -129,8 +134,8 @@ class APITests: APITestBase {
         // XCTAssertEqual(status, .successUsingPreFetchedData)
         XCTAssertEqual(status, .successFetchedFromRemote)
         // The `lastETagUpdateTime` should either be older or the same time as `lastFetchTime`.
-        if let lastFetchTime = try? XCTUnwrap(self.config.lastFetchTime) {
-          XCTAssertLessThanOrEqual(Double(self.config.settings.lastETagUpdateTime),
+        if let lastFetchTime = try? XCTUnwrap(config.lastFetchTime) {
+          XCTAssertLessThanOrEqual(Double(config.settings.lastETagUpdateTime),
                                    Double(lastFetchTime.timeIntervalSince1970))
         } else {
           XCTFail("Could not unwrap lastFetchTime.")
@@ -184,11 +189,12 @@ class APITests: APITestBase {
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {
     guard APITests.useFakeConfig == false else { return }
 
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
+      XCTAssertEqual(config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
       expectation.fulfill()
     }
     waitForExpectations()
@@ -199,7 +205,7 @@ class APITests: APITestBase {
     let expectation2 = self.expectation(description: #function + "2")
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.yoda)
+      XCTAssertEqual(config.configValue(forKey: Constants.jedi).stringValue, Constants.yoda)
       expectation2.fulfill()
     }
     waitForExpectations()
@@ -208,13 +214,14 @@ class APITests: APITestBase {
   func testFetchConfigThenAddValueOnConsoleThenFetchAgain() {
     guard APITests.useFakeConfig == false else { return }
 
+    let config: RemoteConfig = self.config
     // Ensure no Sith Lord has been written to Remote Config yet.
     let expectation = self.expectation(description: #function)
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
 
-      XCTAssertTrue(self.config.configValue(forKey: Constants.sith).dataValue.isEmpty)
+      XCTAssertTrue(config.configValue(forKey: Constants.sith).dataValue.isEmpty)
 
       expectation.fulfill()
     }
@@ -229,7 +236,7 @@ class APITests: APITestBase {
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
       XCTAssertEqual(
-        self.config.configValue(forKey: Constants.sith).stringValue,
+        config.configValue(forKey: Constants.sith).stringValue,
         Constants.darthSidious
       )
       expectation2.fulfill()
@@ -240,11 +247,12 @@ class APITests: APITestBase {
   func testFetchConfigThenDeleteValueOnConsoleThenFetchAgain() {
     guard APITests.useFakeConfig == false else { return }
 
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
 
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
-      XCTAssertEqual(self.config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
+      XCTAssertEqual(config.configValue(forKey: Constants.jedi).stringValue, Constants.obiwan)
       expectation.fulfill()
     }
     waitForExpectations()
@@ -256,7 +264,7 @@ class APITests: APITestBase {
     config.fetchAndActivate { status, error in
       XCTAssertNil(error, "Fetch & Activate Error \(error!)")
 
-      XCTAssertTrue(self.config.configValue(forKey: Constants.jedi).dataValue.isEmpty,
+      XCTAssertTrue(config.configValue(forKey: Constants.jedi).dataValue.isEmpty,
                     "Remote config should have been deleted.")
 
       expectation2.fulfill()

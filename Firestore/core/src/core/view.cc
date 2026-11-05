@@ -17,6 +17,7 @@
 #include "Firestore/core/src/core/view.h"
 
 #include <algorithm>  // For std::sort
+#include <optional>
 #include <utility>
 #include <valarray>
 
@@ -39,13 +40,13 @@ using remote::TargetChange;
 using util::ComparisonResult;
 
 // MARK: - Helper Functions for View
-absl::optional<int64_t> View::GetLimit(const QueryOrPipeline& query) {
+std::optional<int64_t> View::GetLimit(const QueryOrPipeline& query) {
   if (query.IsPipeline()) {
-    absl::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
+    std::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
     if (limit) {
       return limit;
     }
-    return absl::nullopt;
+    return std::nullopt;
   } else {
     const auto& q = query.query();
     if (q.has_limit_to_first()) {
@@ -53,25 +54,25 @@ absl::optional<int64_t> View::GetLimit(const QueryOrPipeline& query) {
     } else if (q.has_limit_to_last()) {
       return -q.limit();  // Negative to indicate limitToLast
     }
-    return absl::nullopt;
+    return std::nullopt;
   }
 }
 
 LimitType View::GetLimitType(const QueryOrPipeline& query) {
   if (query.IsPipeline()) {
-    absl::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
+    std::optional<int64_t> limit = GetLastEffectiveLimit(query.pipeline());
     return limit > 0 ? LimitType::First : LimitType::Last;
   } else {
     return query.query().limit_type();
   }
 }
 
-std::pair<absl::optional<model::Document>, absl::optional<model::Document>>
+std::pair<std::optional<model::Document>, std::optional<model::Document>>
 View::GetLimitEdges(const QueryOrPipeline& query,
                     const model::DocumentSet& old_document_set) {
-  absl::optional<int32_t> limit_opt = GetLimit(query);
+  std::optional<int32_t> limit_opt = GetLimit(query);
   if (!limit_opt) {
-    return {absl::nullopt, absl::nullopt};
+    return {std::nullopt, std::nullopt};
   }
   int32_t limit_val = *limit_opt;
 
@@ -81,22 +82,22 @@ View::GetLimitEdges(const QueryOrPipeline& query,
     // The GetLimit function already encodes this as a negative number.
     if (limit_val > 0 &&
         old_document_set.size() == static_cast<size_t>(limit_val)) {
-      return {old_document_set.GetLastDocument(), absl::nullopt};
+      return {old_document_set.GetLastDocument(), std::nullopt};
     } else if (limit_val < 0 &&
                old_document_set.size() == static_cast<size_t>(-limit_val)) {
-      return {absl::nullopt, old_document_set.GetFirstDocument()};
+      return {std::nullopt, old_document_set.GetFirstDocument()};
     }
   } else {
     const auto& q = query.query();
     if (q.has_limit_to_first() &&
         old_document_set.size() == static_cast<size_t>(q.limit())) {
-      return {old_document_set.GetLastDocument(), absl::nullopt};
+      return {old_document_set.GetLastDocument(), std::nullopt};
     } else if (q.has_limit_to_last() &&
                old_document_set.size() == static_cast<size_t>(q.limit())) {
-      return {absl::nullopt, old_document_set.GetFirstDocument()};
+      return {std::nullopt, old_document_set.GetFirstDocument()};
     }
   }
-  return {absl::nullopt, absl::nullopt};
+  return {std::nullopt, std::nullopt};
 }
 
 // MARK: - LimboDocumentChange
@@ -160,7 +161,7 @@ ComparisonResult View::Compare(const Document& lhs, const Document& rhs) const {
 
 ViewDocumentChanges View::ComputeDocumentChanges(
     const DocumentMap& doc_changes,
-    const absl::optional<ViewDocumentChanges>& previous_changes) const {
+    const std::optional<ViewDocumentChanges>& previous_changes) const {
   DocumentViewChangeSet change_set;
   if (previous_changes) {
     change_set = previous_changes->change_set();
@@ -175,16 +176,16 @@ ViewDocumentChanges View::ComputeDocumentChanges(
   bool needs_refill = false;
 
   auto limit_edges = GetLimitEdges(query_, old_document_set);
-  absl::optional<Document> last_doc_in_limit = limit_edges.first;
-  absl::optional<Document> first_doc_in_limit = limit_edges.second;
+  std::optional<Document> last_doc_in_limit = limit_edges.first;
+  std::optional<Document> first_doc_in_limit = limit_edges.second;
 
   for (const auto& kv : doc_changes) {
     const DocumentKey& key = kv.first;
 
-    absl::optional<Document> old_doc = old_document_set.GetDocument(key);
-    absl::optional<Document> new_doc = query_.Matches(kv.second)
-                                           ? absl::optional<Document>{kv.second}
-                                           : absl::nullopt;
+    std::optional<Document> old_doc = old_document_set.GetDocument(key);
+    std::optional<Document> new_doc = query_.Matches(kv.second)
+                                          ? std::optional<Document>{kv.second}
+                                          : std::nullopt;
 
     bool old_doc_had_pending_mutations =
         old_doc && old_mutated_keys.contains(key);
@@ -291,7 +292,7 @@ ViewDocumentChanges View::ComputeDocumentChanges(
       auto abs_limit = std::abs(limit.value());
       if (abs_limit < static_cast<int64_t>(new_document_set.size())) {
         for (size_t i = new_document_set.size() - abs_limit; i > 0; --i) {
-          absl::optional<Document> found =
+          std::optional<Document> found =
               limit_type == LimitType::First
                   ? new_document_set.GetLastDocument()
                   : new_document_set.GetFirstDocument();
@@ -327,7 +328,7 @@ bool View::ShouldWaitForSyncedDocument(const Document& new_doc,
 }
 
 ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes,
-                              const absl::optional<TargetChange>& target_change,
+                              const std::optional<TargetChange>& target_change,
                               bool targetIsPendingReset) {
   HARD_ASSERT(!doc_changes.needs_refill(),
               "Cannot apply changes that need a refill");
@@ -365,7 +366,7 @@ ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes,
 
   if (changes.empty() && !sync_state_changed) {
     // No changes.
-    return ViewChange(absl::nullopt, std::move(limbo_changes));
+    return ViewChange(std::nullopt, std::move(limbo_changes));
   } else {
     bool has_cached_results =
         target_change.has_value() && !target_change->resume_token().empty();
@@ -395,7 +396,7 @@ ViewChange View::ApplyOnlineStateChange(OnlineState online_state) {
                             mutated_keys_, /* needs_refill= */ false));
   } else {
     // No effect, just return a no-op ViewChange.
-    return ViewChange(absl::nullopt, {});
+    return ViewChange(std::nullopt, {});
   }
 }
 
@@ -426,7 +427,7 @@ bool View::ShouldBeInLimbo(const DocumentKey& key) const {
  * Updates synced_documents_ and current based on the given change.
  */
 void View::ApplyTargetChange(
-    const absl::optional<TargetChange>& maybe_target_change) {
+    const std::optional<TargetChange>& maybe_target_change) {
   if (maybe_target_change.has_value()) {
     const TargetChange& target_change = maybe_target_change.value();
 

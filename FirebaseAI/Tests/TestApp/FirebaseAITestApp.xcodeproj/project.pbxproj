@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505A2DBAFBC3002E8D94 /* FirebaseAI */; };
+		86E8505B2DBAFBC3002E8D94 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */; };
 		86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */; };
 		86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */; };
 		86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 86E850602DBAFBC3002E8D94 /* FirebaseStorage */; };
@@ -29,6 +29,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8634CC343095412D002DF808 /* Exceptions for "Resources" folder in "FirebaseAITestApp-SPM" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 866138572CC943DD00F4B78E /* FirebaseAITestApp-SPM */;
+		};
 		863E940D2EC69AF000BE4F4E /* Exceptions for "Resources" folder in "IntegrationTests-SPM" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -52,6 +59,7 @@
 		863E94072EC69AF000BE4F4E /* Resources */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				8634CC343095412D002DF808 /* Exceptions for "Resources" folder in "FirebaseAITestApp-SPM" target */,
 				863E940D2EC69AF000BE4F4E /* Exceptions for "Resources" folder in "IntegrationTests-SPM" target */,
 			);
 			path = Resources;
@@ -67,7 +75,7 @@
 				86E8505D2DBAFBC3002E8D94 /* FirebaseAppCheck in Frameworks */,
 				86E850612DBAFBC3002E8D94 /* FirebaseStorage in Frameworks */,
 				86E8505F2DBAFBC3002E8D94 /* FirebaseAuth in Frameworks */,
-				86E8505B2DBAFBC3002E8D94 /* FirebaseAI in Frameworks */,
+				86E8505B2DBAFBC3002E8D94 /* FirebaseAILogic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,7 +129,7 @@
 			);
 			name = "FirebaseAITestApp-SPM";
 			packageProductDependencies = (
-				86E8505A2DBAFBC3002E8D94 /* FirebaseAI */,
+				86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */,
 				86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */,
 				86E8505E2DBAFBC3002E8D94 /* FirebaseAuth */,
 				86E850602DBAFBC3002E8D94 /* FirebaseStorage */,
@@ -365,6 +373,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -403,6 +412,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Resources/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Resources/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -509,13 +519,15 @@
 		86E850592DBAFBC3002E8D94 /* XCLocalSwiftPackageReference "../../.." */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../..;
+			traits = (
+			);
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		86E8505A2DBAFBC3002E8D94 /* FirebaseAI */ = {
+		86E8505A2DBAFBC3002E8D94 /* FirebaseAILogic */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseAI;
+			productName = FirebaseAILogic;
 		};
 		86E8505C2DBAFBC3002E8D94 /* FirebaseAppCheck */ = {
 			isa = XCSwiftPackageProductDependency;

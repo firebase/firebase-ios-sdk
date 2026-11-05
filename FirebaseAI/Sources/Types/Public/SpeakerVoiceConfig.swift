@@ -14,9 +14,13 @@
 
 import Foundation
 
-/// Configures a speaker with a unique name/identifier and a specific voice.
+/// **[Public Preview]** Configuration pairing a speaker name or identifier with a preset voice.
 ///
-/// **Public Preview**: This API is a public preview and may be subject to change.
+/// > Warning: This API is a public preview and may be subject to change.
+///
+/// This configuration pairs a speaker name (such as `"Alice"` or `"Joe"`) with a preset voice name.
+/// The `speaker` name defined here must match the `speaker` string specified in ``SpeechMetadata``
+/// on each dialogue turn's ``TextPart`` in a multi-speaker request.
 public struct SpeakerVoiceConfig: Sendable {
   let speakerVoiceConfig: ProtoSpeakerVoiceConfig
 
@@ -27,13 +31,12 @@ public struct SpeakerVoiceConfig: Sendable {
   /// Creates a configuration for a speaker using a voice name.
   ///
   /// - Parameters:
-  ///   - speaker: The unique name/identifier of the speaker (e.g., `"Alice"`).
+  ///   - speaker: The unique name or identifier of the speaker (for example, `"Alice"`). Pass this
+  ///     name to ``SpeechMetadata/init(speaker:style:)`` for this speaker's turns.
   ///   - voiceName: The name of the preset voice to assign to this speaker.
   ///
-  /// Find the list of supported voices for:
-  /// - [Gemini Developer API](https://ai.google.dev/gemini-api/docs/speech-generation)
-  /// - [Agent Platform Gemini API](https://docs.cloud.google.com/text-to-speech/docs/gemini-tts)
-  // TODO(b/522397979): Update links to point to Firebase when they're live
+  ///     For a list of available voices, see the documentation on
+  ///     [voices](https://firebase.google.com/docs/ai-logic/generate-speech#response-voices).
   public init(speaker: String, voiceName: String) {
     self.init(
       ProtoSpeakerVoiceConfig(

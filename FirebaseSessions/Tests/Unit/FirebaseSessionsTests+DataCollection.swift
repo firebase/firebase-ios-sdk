@@ -81,18 +81,18 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
 
   // MARK: - Test Data Collection
 
-  @MainActor func test_subscriberWithDataCollectionEnabled_logsSessionEvent() {
-    runSessionsSDK(
+  @MainActor func test_subscriberWithDataCollectionEnabled_logsSessionEvent() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
 
       ], preSessionsInit: { _ in
         // Nothing
       }, postSessionsInit: {
-        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
-
         // Sessions hasn't logged yet because no Subscriber SDKs have registered
         XCTAssertNil(self.mockCoordinator.loggedEvent)
+
+        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
 
       }, postLogEvent: { result, subscriberSDKs in
         // Make sure the SDK reported success, we logged an event and
@@ -105,8 +105,8 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  @MainActor func test_subscribersSomeDataCollectionDisabled_logsSessionEvent() {
-    runSessionsSDK(
+  @MainActor func test_subscribersSomeDataCollectionDisabled_logsSessionEvent() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
         mockPerformanceSubscriber,
@@ -132,8 +132,8 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  @MainActor func test_subscribersAllDataCollectionDisabled_doesNotLogSessionEvent() {
-    runSessionsSDK(
+  @MainActor func test_subscribersAllDataCollectionDisabled_doesNotLogSessionEvent() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
         mockPerformanceSubscriber,
@@ -159,8 +159,8 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
     )
   }
 
-  @MainActor func test_defaultSamplingRate_isSetInProto() {
-    runSessionsSDK(
+  @MainActor func test_defaultSamplingRate_isSetInProto() async {
+    await runSessionsSDK(
       subscriberSDKs: [
         mockCrashlyticsSubscriber,
 

@@ -1,0 +1,55 @@
+name: infra.zip_builder
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'scripts/zip_builder/**'
+      - 'zip_builder.json'
+      - 'zip_builder.jsonc'
+      - '.github/workflows/infra.zip_builder.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/zip_builder/**'
+      - 'zip_builder.json'
+      - 'zip_builder.jsonc'
+      - '.github/workflows/infra.zip_builder.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FIREBASE_CI: true
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+  MIN_XCODE: Xcode_26.2
+
+jobs:
+  unit_tests:
+    runs-on: macos-26
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
+
+      - name: Cache SwiftPM build artifacts
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        with:
+          path: |
+            scripts/zip_builder/.build
+            .build
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-tests-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved', 'Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-tests-
+
+      - name: Run zip-builder unit tests
+        run: swift test --package-path scripts/zip_builder

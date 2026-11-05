@@ -212,9 +212,14 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
   NSMutableArray<FIRIAMImpressionRecord *> *resultArray = [[NSMutableArray alloc] init];
 
   for (NSDictionary *next in impressionsFromStorage) {
+    if (![next isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
     FIRIAMImpressionRecord *nextImpression =
         [[FIRIAMImpressionRecord alloc] initWithStorageDictionary:next];
-    [resultArray addObject:nextImpression];
+    if (nextImpression) {
+      [resultArray addObject:nextImpression];
+    }
   }
 
   return resultArray;
@@ -226,7 +231,13 @@ static NSTimeInterval kMaxFetchWaitTimeInSeconds = 3 * 24 * 60 * 60;
   NSMutableArray<NSString *> *resultArray = [[NSMutableArray alloc] init];
 
   for (NSDictionary *next in impressionsFromStorage) {
-    [resultArray addObject:next[FIRIAM_ImpressionDictKeyForID]];
+    if (![next isKindOfClass:[NSDictionary class]]) {
+      continue;
+    }
+    id messageID = next[FIRIAM_ImpressionDictKeyForID];
+    if ([messageID isKindOfClass:[NSString class]]) {
+      [resultArray addObject:messageID];
+    }
   }
 
   return resultArray;

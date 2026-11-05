@@ -190,16 +190,27 @@ static NSString *const kMethodNameLatestStartTime =
 
 - (void)updateExperimentsWithResponse:(NSArray<NSDictionary<NSString *, id> *> *)response {
   NSMutableArray<NSData *> *experimentPayloads = [[NSMutableArray alloc] init];
-  for (NSDictionary<NSString *, id> *experiment in response) {
-    NSError *error = nil;
-    NSData *jsonPayload = [NSJSONSerialization dataWithJSONObject:experiment
-                                                          options:kNilOptions
-                                                            error:&error];
-    if (!jsonPayload || error) {
-      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
-                  @"Invalid experiment payload to be serialized.");
-    } else {
-      [experimentPayloads addObject:jsonPayload];
+  if (response && ![response isKindOfClass:[NSArray class]]) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                @"Invalid experiment descriptions in fetch response.");
+  } else {
+    for (NSDictionary<NSString *, id> *experiment in response) {
+      if (![experiment isKindOfClass:[NSDictionary class]] ||
+          ![NSJSONSerialization isValidJSONObject:experiment]) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                    @"Invalid experiment payload to be serialized.");
+        continue;
+      }
+      NSError *error = nil;
+      NSData *jsonPayload = [NSJSONSerialization dataWithJSONObject:experiment
+                                                            options:kNilOptions
+                                                              error:&error];
+      if (!jsonPayload || error) {
+        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000030",
+                    @"Invalid experiment payload to be serialized.");
+      } else {
+        [experimentPayloads addObject:jsonPayload];
+      }
     }
   }
 

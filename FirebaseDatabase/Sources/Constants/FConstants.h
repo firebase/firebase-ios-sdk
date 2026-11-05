@@ -143,6 +143,7 @@ FOUNDATION_EXPORT NSString *const kFQPIndex;
 FOUNDATION_EXPORT NSString *const kFInterruptReasonServerKill;
 FOUNDATION_EXPORT NSString *const kFInterruptReasonWaitingForOpen;
 FOUNDATION_EXPORT NSString *const kFInterruptReasonRepoInterrupt;
+FOUNDATION_EXPORT NSString *const kFInterruptReasonSystemClockChange;
 FOUNDATION_EXPORT NSString *const kFInterruptReasonAuthExpired;
 
 #pragma mark -

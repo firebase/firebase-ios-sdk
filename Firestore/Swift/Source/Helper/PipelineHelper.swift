@@ -37,6 +37,32 @@ enum Helper {
     return nil
   }
 
+  static func validateLiteralsValue(_ value: Sendable?, fieldPath: String) -> [String] {
+    guard let value else {
+      return []
+    }
+    if let fieldValue = value as? FieldValue {
+      let methodName = (fieldValue.value(forKey: "methodName") as? String) ?? "FieldValue"
+      return [
+        "Function literals() called with invalid data. \(methodName) can only be used with update() and set() (found in field \(fieldPath))",
+      ]
+    } else if let dict = value as? [String: Sendable?] {
+      var errors: [String] = []
+      for (key, nestedVal) in dict {
+        let nestedPath = fieldPath.isEmpty ? key : "\(fieldPath).\(key)"
+        errors.append(contentsOf: validateLiteralsValue(nestedVal, fieldPath: nestedPath))
+      }
+      return errors
+    } else if let arr = value as? [Sendable?] {
+      var errors: [String] = []
+      for nestedVal in arr {
+        errors.append(contentsOf: validateLiteralsValue(nestedVal, fieldPath: fieldPath))
+      }
+      return errors
+    }
+    return []
+  }
+
   static func sendableToExpr(_ value: Sendable?) -> Expression {
     guard let value else {
       return Constant.nil
@@ -84,19 +110,22 @@ enum Helper {
     return (exprMap, nil)
   }
 
-  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
-    -> ([String: AggregateFunction], Error?) {
-    var accumulatorMap = [String: AggregateFunction]()
+  static func windowFieldsToMap(fields: [WindowField])
+    -> ([String: __AggregateFunctionBridge], Error?) {
+    var map = [String: __AggregateFunctionBridge]()
     var errors = [String]()
-    for aliasedAggregate in accumulators {
-      let alias = aliasedAggregate.alias
-      if let errorMessage = aliasedAggregate.aggregate.errorMessage {
+    for field in fields {
+      guard let value = field as? WindowFieldWrapper else {
+        fatalError("WindowField type must conform to WindowFieldWrapper.")
+      }
+      let alias = value.alias
+      if let errorMessage = value.errorMessage {
         errors.append(errorMessage)
       }
-      if accumulatorMap[alias] != nil {
-        errors.append("Duplicate alias '\(alias)' found in accumulators.")
+      if map[alias] != nil {
+        errors.append("Duplicate alias '\(alias)' found in fields.")
       }
-      accumulatorMap[alias] = aliasedAggregate.aggregate
+      map[alias] = value.bridge
     }
     if !errors.isEmpty {
       return (
@@ -108,7 +137,7 @@ enum Helper {
         )
       )
     }
-    return (accumulatorMap, nil)
+    return (map, nil)
   }
 
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {

@@ -22,7 +22,7 @@ final class CountTokensRequestTests: XCTestCase {
 
   let modelResourceName = "models/test-model-name"
   let textPart = TextPart("test-prompt")
-  let vertexAPIConfig = FirebaseAI.defaultVertexAIAPIConfig
+  let agentPlatformAPIConfig = FirebaseAI.defaultAgentPlatformAPIConfig
   let developerAPIConfig = APIConfig(
     service: .googleAI(endpoint: .firebaseProxyProd),
     version: .v1beta
@@ -47,7 +47,7 @@ final class CountTokensRequestTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       systemInstruction: nil,
-      apiConfig: vertexAPIConfig,
+      apiConfig: agentPlatformAPIConfig,
       apiMethod: .countTokens,
       options: requestOptions
     )

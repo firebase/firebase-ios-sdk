@@ -46,9 +46,7 @@ struct EmailLinkSignInResponse: AuthRPCResponse, AuthMFAResponse {
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     refreshToken = dictionary["refreshToken"] as? String
 
-    approximateExpirationDate = (dictionary["expiresIn"] as? String)
-      .flatMap { Date(timeIntervalSinceNow: ($0 as NSString).doubleValue)
-      }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
 
     if let mfaInfoArray = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
       var mfaInfo: [AuthProtoMFAEnrollment] = []

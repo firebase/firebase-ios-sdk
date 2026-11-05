@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/local/leveldb_document_overlay_cache.h"
 
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -28,7 +29,6 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/match.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -52,7 +52,7 @@ LevelDbDocumentOverlayCache::LevelDbDocumentOverlayCache(
       user_id_(user.is_authenticated() ? user.uid() : "") {
 }
 
-absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
+std::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
     const DocumentKey& document_key) const {
   const std::string key_prefix =
       LevelDbDocumentOverlayKey::KeyPrefix(user_id_, document_key);
@@ -61,13 +61,13 @@ absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
   it->Seek(key_prefix);
 
   if (!it->Valid() || !absl::StartsWith(it->key(), key_prefix)) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   LevelDbDocumentOverlayKey key;
   HARD_ASSERT(key.Decode(it->key()));
   if (key.document_key() != document_key) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return ParseOverlay(key, it->value());
@@ -90,7 +90,7 @@ OverlayByDocumentKeyMap LevelDbDocumentOverlayCache::GetOverlays(
   OverlayByDocumentKeyMap result;
   ForEachKeyInCollection(
       collection, since_batch_id, [&](LevelDbDocumentOverlayKey&& key) {
-        absl::optional<Overlay> overlay = GetOverlay(key);
+        std::optional<Overlay> overlay = GetOverlay(key);
         HARD_ASSERT(overlay.has_value());
         result[std::move(key).document_key()] = std::move(overlay).value();
       });
@@ -101,7 +101,7 @@ OverlayByDocumentKeyMap LevelDbDocumentOverlayCache::GetOverlays(
     absl::string_view collection_group,
     int since_batch_id,
     std::size_t count) const {
-  absl::optional<int> current_batch_id;
+  std::optional<int> current_batch_id;
   OverlayByDocumentKeyMap result;
   ForEachKeyInCollectionGroup(
       collection_group, since_batch_id,
@@ -115,7 +115,7 @@ OverlayByDocumentKeyMap LevelDbDocumentOverlayCache::GetOverlays(
           current_batch_id = key.largest_batch_id();
         }
 
-        absl::optional<Overlay> overlay = GetOverlay(key);
+        std::optional<Overlay> overlay = GetOverlay(key);
         HARD_ASSERT(overlay.has_value());
         result[std::move(key).document_key()] = std::move(overlay).value();
         return ForEachKeyAction::kKeepGoing;
@@ -180,7 +180,7 @@ void LevelDbDocumentOverlayCache::SaveOverlay(int largest_batch_id,
   transaction->Put(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key), "");
   transaction->Put(LevelDbDocumentOverlayCollectionIndexKey::Key(key), "");
 
-  absl::optional<std::string> collection_group_index_key =
+  std::optional<std::string> collection_group_index_key =
       LevelDbDocumentOverlayCollectionGroupIndexKey::Key(key);
   if (collection_group_index_key.has_value()) {
     transaction->Put(std::move(collection_group_index_key).value(), "");
@@ -212,7 +212,7 @@ void LevelDbDocumentOverlayCache::DeleteOverlay(
   transaction->Delete(LevelDbDocumentOverlayLargestBatchIdIndexKey::Key(key));
   transaction->Delete(LevelDbDocumentOverlayCollectionIndexKey::Key(key));
 
-  absl::optional<std::string> collection_group_index_key =
+  std::optional<std::string> collection_group_index_key =
       LevelDbDocumentOverlayCollectionGroupIndexKey::Key(key);
   if (collection_group_index_key.has_value()) {
     transaction->Delete(std::move(collection_group_index_key).value());
@@ -287,13 +287,13 @@ void LevelDbDocumentOverlayCache::ForEachKeyInCollectionGroup(
   }
 }
 
-absl::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
+std::optional<Overlay> LevelDbDocumentOverlayCache::GetOverlay(
     const LevelDbDocumentOverlayKey& key) const {
   auto it = db_->current_transaction()->NewIterator();
   const std::string encoded_key = key.Encode();
   it->Seek(encoded_key);
   if (!it->Valid() || it->key() != encoded_key) {
-    return absl::nullopt;
+    return std::nullopt;
   }
   return ParseOverlay(key, it->value());
 }

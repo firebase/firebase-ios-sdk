@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/remote_event.h"
 
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -219,9 +220,9 @@ create_existence_filter_mismatch_info_for_testing_hooks(
     int local_cache_count,
     const ExistenceFilterWatchChange& existence_filter,
     const DatabaseId& database_id,
-    absl::optional<BloomFilter> bloom_filter,
+    std::optional<BloomFilter> bloom_filter,
     BloomFilterApplicationStatus status) {
-  absl::optional<TestingHooks::BloomFilterInfo> bloom_filter_info;
+  std::optional<TestingHooks::BloomFilterInfo> bloom_filter_info;
   if (existence_filter.filter().bloom_filter_parameters().has_value()) {
     const BloomFilterParameters& bloom_filter_parameters =
         existence_filter.filter().bloom_filter_parameters().value();
@@ -237,7 +238,7 @@ create_existence_filter_mismatch_info_for_testing_hooks(
           std::move(bloom_filter_info)};
 }
 
-absl::optional<model::ResourcePath> GetSingleDocumentPath(
+std::optional<model::ResourcePath> GetSingleDocumentPath(
     const core::TargetOrPipeline target_or_pipeline) {
   if (target_or_pipeline.IsPipeline()) {
     if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
@@ -252,10 +253,10 @@ absl::optional<model::ResourcePath> GetSingleDocumentPath(
     return target_or_pipeline.target().path();
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
-absl::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
+std::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
     const core::TargetOrPipeline target_or_pipeline) {
   if (target_or_pipeline.IsPipeline()) {
     if (core::GetPipelineSourceType(target_or_pipeline.pipeline()) ==
@@ -274,7 +275,7 @@ absl::optional<std::vector<model::ResourcePath>> GetDocumentPaths(
     return std::vector<model::ResourcePath>{target_or_pipeline.target().path()};
   }
 
-  return absl::nullopt;
+  return std::nullopt;
 }
 
 }  // namespace
@@ -284,7 +285,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
   TargetId target_id = existence_filter.target_id();
   int expected_count = existence_filter.filter().count();
 
-  absl::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
+  std::optional<TargetData> target_data = TargetDataForActiveTarget(target_id);
   if (target_data) {
     const core::TargetOrPipeline& target_or_pipeline =
         target_data->target_or_pipeline();
@@ -294,7 +295,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
         // Apply bloom filter to identify and mark removed documents.
-        absl::optional<BloomFilter> bloom_filter =
+        std::optional<BloomFilter> bloom_filter =
             ParseBloomFilter(existence_filter);
         BloomFilterApplicationStatus status =
             bloom_filter.has_value()
@@ -339,12 +340,12 @@ void WatchChangeAggregator::HandleExistenceFilter(
   }
 }
 
-absl::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
+std::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
     const ExistenceFilterWatchChange& existence_filter) {
-  const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
+  const std::optional<BloomFilterParameters>& bloom_filter_parameters =
       existence_filter.filter().bloom_filter_parameters();
   if (!bloom_filter_parameters.has_value()) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   util::StatusOr<BloomFilter> maybe_bloom_filter =
@@ -354,13 +355,13 @@ absl::optional<BloomFilter> WatchChangeAggregator::ParseBloomFilter(
   if (!maybe_bloom_filter.ok()) {
     LOG_WARN("Creating BloomFilter failed: %s",
              maybe_bloom_filter.status().error_message());
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
 
   if (bloom_filter.bit_count() == 0) {
-    return absl::nullopt;
+    return std::nullopt;
   }
 
   return bloom_filter;
@@ -393,7 +394,7 @@ int WatchChangeAggregator::FilterRemovedDocuments(
 
     if (!bloom_filter.MightContain(document_path)) {
       RemoveDocumentFromTarget(target_id, key,
-                               /*updatedDocument=*/absl::nullopt);
+                               /*updatedDocument=*/std::nullopt);
       removalCount++;
     }
   }
@@ -408,7 +409,7 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     TargetId target_id = entry.first;
     TargetState& target_state = entry.second;
 
-    absl::optional<TargetData> target_data =
+    std::optional<TargetData> target_data =
         TargetDataForActiveTarget(target_id);
     if (target_data) {
       auto doc_paths = GetDocumentPaths(target_data->target_or_pipeline());
@@ -447,7 +448,7 @@ RemoteEvent WatchChangeAggregator::CreateRemoteEvent(
     bool is_only_limbo_target = true;
 
     for (TargetId target_id : entry.second) {
-      absl::optional<TargetData> target_data =
+      std::optional<TargetData> target_data =
           TargetDataForActiveTarget(target_id);
       if (target_data &&
           target_data->purpose() != QueryPurpose::LimboResolution) {
@@ -496,7 +497,7 @@ void WatchChangeAggregator::AddDocumentToTarget(
 void WatchChangeAggregator::RemoveDocumentFromTarget(
     TargetId target_id,
     const DocumentKey& key,
-    const absl::optional<MutableDocument>& updated_document) {
+    const std::optional<MutableDocument>& updated_document) {
   if (!IsActiveTarget(target_id)) {
     return;
   }
@@ -540,15 +541,15 @@ TargetState& WatchChangeAggregator::EnsureTargetState(TargetId target_id) {
 }
 
 bool WatchChangeAggregator::IsActiveTarget(TargetId target_id) const {
-  return TargetDataForActiveTarget(target_id) != absl::nullopt;
+  return TargetDataForActiveTarget(target_id) != std::nullopt;
 }
 
-absl::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
+std::optional<TargetData> WatchChangeAggregator::TargetDataForActiveTarget(
     TargetId target_id) const {
   auto target_state = target_states_.find(target_id);
   return target_state != target_states_.end() &&
                  target_state->second.IsPending()
-             ? absl::optional<TargetData>{}
+             ? std::optional<TargetData>{}
              : target_metadata_provider_->GetTargetDataForTarget(target_id);
 }
 
@@ -567,7 +568,7 @@ void WatchChangeAggregator::ResetTarget(TargetId target_id) {
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
 
   for (const DocumentKey& key : existing_keys) {
-    RemoveDocumentFromTarget(target_id, key, absl::nullopt);
+    RemoveDocumentFromTarget(target_id, key, std::nullopt);
   }
 }
 

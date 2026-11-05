@@ -39,6 +39,9 @@ struct BidiGenerateContentServerMessage: Sendable {
 
     /// Server will disconnect soon.
     case goAway(GoAway)
+
+    /// Voice activity was detected in the input audio stream.
+    case voiceActivity(BidiVoiceActivity)
   }
 
   /// The message type.
@@ -59,6 +62,7 @@ extension BidiGenerateContentServerMessage: Decodable {
     case toolCallCancellation
     case sessionResumptionUpdate
     case goAway
+    case voiceActivity
     case usageMetadata
   }
 
@@ -92,6 +96,11 @@ extension BidiGenerateContentServerMessage: Decodable {
       messageType = .sessionResumptionUpdate(sessionResumptionUpdate)
     } else if let goAway = try container.decodeIfPresent(GoAway.self, forKey: .goAway) {
       messageType = .goAway(goAway)
+    } else if let voiceActivity = try container.decodeIfPresent(
+      BidiVoiceActivity.self,
+      forKey: .voiceActivity
+    ) {
+      messageType = .voiceActivity(voiceActivity)
     } else {
       throw InvalidMessageTypeError()
     }

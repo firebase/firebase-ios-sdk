@@ -16,12 +16,18 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-#import <AppCheckCore/AppCheckCore.h>
+#if __has_include(<AppCheckCore/AppCheckCore-Swift.h>)
+#import <AppCheckCore/AppCheckCore-Swift.h>
+#elif __has_include("AppCheckCore-Swift.h")
+#import "AppCheckCore-Swift.h"
+#else
+@import AppCheckCore;
+#endif
 
 @implementation FIRAppCheckErrorUtil
 
 + (NSError *)publicDomainErrorWithError:(NSError *)error {
-  if ([error.domain isEqualToString:GACAppCheckErrorDomain]) {
+  if ([error.domain isEqualToString:@"com.google.app_check_core"]) {
     return [self publicDomainErrorWithGACError:error];
   } else if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
     return error;
@@ -30,7 +36,7 @@
   return [self unknownErrorWithError:error];
 }
 
-/// Converts an App Check Core error (`GACAppCheckErrorDomain`) to a public error
+/// Converts an App Check Core error (`@"com.google.app_check_core"`) to a public error
 /// (`FIRAppCheckErrorDomain`).
 + (NSError *)publicDomainErrorWithGACError:(NSError *)appCheckCoreError {
   FIRAppCheckErrorCode errorCode;

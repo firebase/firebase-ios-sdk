@@ -32,9 +32,7 @@ struct VerifyCustomTokenResponse: AuthRPCResponse {
 
   init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
-    if let dateString = dictionary["expiresIn"] as? NSString {
-      approximateExpirationDate = Date(timeIntervalSinceNow: dateString.doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
     refreshToken = dictionary["refreshToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
   }

@@ -17,6 +17,7 @@
 #include "Firestore/core/src/api/load_bundle_task.h"
 
 #include <mutex>
+#include <optional>
 #include <utility>
 
 #include "Firestore/core/src/util/autoid.h"
@@ -66,7 +67,7 @@ void LoadBundleTask::RemoveObserver(const LoadBundleHandle& handle) {
   }
 
   if (last_observer_.has_value() && last_observer_.value().first == handle) {
-    last_observer_ = absl::nullopt;
+    last_observer_ = std::nullopt;
   }
 }
 
@@ -74,7 +75,7 @@ void LoadBundleTask::RemoveAllObservers() {
   std::lock_guard<std::mutex> lock(mutex_);
 
   observers_.clear();
-  last_observer_ = absl::nullopt;
+  last_observer_ = std::nullopt;
 }
 
 void LoadBundleTask::SetSuccess(LoadBundleTaskProgress success_progress) {

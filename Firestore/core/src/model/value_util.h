@@ -46,8 +46,8 @@ extern const char* kRawTypeValueFieldKey;
 extern pb_bytes_array_s* kTypeValueFieldKey;
 
 /** The field value of a maximum proto value. */
-extern const char* kRawMaxValueFieldValue;
-extern pb_bytes_array_s* kMaxValueFieldValue;
+extern const char* kRawInternalMaxValueFieldValue;
+extern pb_bytes_array_s* kInternalMaxValueFieldValue;
 
 /** The type of a VectorValue proto. */
 extern const char* kRawVectorTypeFieldValue;
@@ -57,25 +57,105 @@ extern pb_bytes_array_s* kVectorTypeFieldValue;
 extern const char* kRawVectorValueFieldKey;
 extern pb_bytes_array_s* kVectorValueFieldKey;
 
+/** The key of a MinKey in a map proto. */
+extern const char* kRawMinKeyTypeFieldValue;
+extern pb_bytes_array_s* kMinKeyTypeFieldValue;
+
+/** The key of a MaxKey in a map proto. */
+extern const char* kRawMaxKeyTypeFieldValue;
+extern pb_bytes_array_s* kMaxKeyTypeFieldValue;
+
+/** The key of a regex in a map proto. */
+extern const char* kRawRegexTypeFieldValue;
+extern pb_bytes_array_s* kRegexTypeFieldValue;
+
+/** The regex pattern key. */
+extern const char* kRawRegexTypePatternFieldValue;
+extern pb_bytes_array_s* kRegexTypePatternFieldValue;
+
+/** The regex options key. */
+extern const char* kRawRegexTypeOptionsFieldValue;
+extern pb_bytes_array_s* kRegexTypeOptionsFieldValue;
+
+/** The key of an int32 in a map proto. */
+extern const char* kRawInt32TypeFieldValue;
+extern pb_bytes_array_s* kInt32TypeFieldValue;
+
+/** The key of a decimal128 in a map proto. */
+extern const char* kRawDecimal128TypeFieldValue;
+extern pb_bytes_array_s* kDecimal128TypeFieldValue;
+
+/** The key of a BSON ObjectId in a map proto. */
+extern const char* kRawBsonObjectIdTypeFieldValue;
+extern pb_bytes_array_s* kBsonObjectIdTypeFieldValue;
+
+/** The key of a BSON Timestamp in a map proto. */
+extern const char* kRawBsonTimestampTypeFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeFieldValue;
+
+/** The key of a BSON Timestamp seconds in a map proto. */
+extern const char* kRawBsonTimestampTypeSecondsFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeSecondsFieldValue;
+
+/** The key of a BSON Timestamp increment in a map proto. */
+extern const char* kRawBsonTimestampTypeIncrementFieldValue;
+extern pb_bytes_array_s* kBsonTimestampTypeIncrementFieldValue;
+
+/** The key of a BSON Binary Data in a map proto. */
+extern const char* kRawBsonBinaryDataTypeFieldValue;
+extern pb_bytes_array_s* kBsonBinaryDataTypeFieldValue;
+
 /**
  * The order of types in Firestore. This order is based on the backend's
- * ordering, but modified to support server timestamps.
+ * ordering, but modified to support server timestamps and `MAX_VALUE` inside
+ * the SDK.
  */
 enum class TypeOrder {
   kNull = 0,
-  kBoolean = 1,
-  kNumber = 2,
-  kTimestamp = 3,
-  kServerTimestamp = 4,
-  kString = 5,
-  kBlob = 6,
-  kReference = 7,
-  kGeoPoint = 8,
-  kArray = 9,
-  kVector = 10,
-  kMap = 11,
-  kMaxValue = 12
+  kMinKey = 1,
+  kBoolean = 2,
+  // Note: all numbers (32-bit int, 64-bit int, 64-bit double, 128-bit decimal,
+  // etc.) are sorted together numerically. The `CompareNumbers` function
+  // distinguishes between different number types and compares them accordingly.
+  kNumber = 3,
+  kTimestamp = 4,
+  kBsonTimestamp = 5,
+  kServerTimestamp = 6,
+  kString = 7,
+  kBlob = 8,
+  kReference = 9,
+  kBsonObjectId = 10,
+  kGeoPoint = 11,
+  kRegex = 12,
+  kArray = 13,
+  kVector = 14,
+  kMap = 15,
+  kMaxKey = 16,
+  kInternalMaxValue = 17
 };
+
+/**
+ * The type that a Map is used to represent.
+ * Most Maps are NORMAL maps, however, some maps are used to identify more
+ * complex types.
+ */
+enum class MapType {
+  kNormal = 0,
+  kServerTimestamp = 1,
+  kInternalMaxValue = 2,
+  kVector = 3,
+  kMinKey = 4,
+  kMaxKey = 5,
+  kRegex = 6,
+  kInt32 = 7,
+  kDecimal128 = 8,
+  kBsonObjectId = 9,
+  kBsonTimestamp = 10,
+  kBsonBinaryData = 11
+};
+
+/** Returns the Map type for the given value. */
+MapType DetectMapType(const google_firestore_v1_Value& value);
 
 /** Result type for StrictEquals comparison. */
 enum class StrictEqualsResult { kEq, kNotEq, kNull };
@@ -91,6 +171,8 @@ void SortFields(google_firestore_v1_ArrayValue& value);
 
 util::ComparisonResult Compare(const google_firestore_v1_Value& left,
                                const google_firestore_v1_Value& right);
+util::ComparisonResult CompareNumbers(const google_firestore_v1_Value& left,
+                                      const google_firestore_v1_Value& right);
 util::ComparisonResult LowerBoundCompare(const google_firestore_v1_Value& left,
                                          bool left_inclusive,
                                          const google_firestore_v1_Value& right,
@@ -165,33 +247,79 @@ bool IsNullValue(const google_firestore_v1_Value& value);
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value MinValue();
+google_firestore_v1_Value InternalMinValue();
 
-/** Returns `true` if `value` is MinValue() in its Protobuf representation. */
-bool IsMinValue(const google_firestore_v1_Value& value);
+/**
+ * Returns `true` if `value` is InternalMinValue() in its Protobuf
+ * representation.
+ */
+bool IsInternalMinValue(const google_firestore_v1_Value& value);
 
 /**
  * Returns a Protobuf value that is larger than any legitimate value SDK
  * users can create.
  *
  * Under the hood, it is a sentinel Protobuf Map with special fields that
- * Firestore comparison logic always return true for `MaxValue() > v`, for any
- * v users can create, regardless `v`'s type and value.
+ * Firestore comparison logic always return true for `InternalMaxValue() > v`,
+ * for any `v` users can create, regardless `v`'s type and value.
  *
  * The returned value might point to heap allocated memory that is owned by
  * this function. To take ownership of this memory, call `DeepClone`.
  */
-google_firestore_v1_Value MaxValue();
+google_firestore_v1_Value InternalMaxValue();
 
 /**
- * Returns `true` if `value` is equal to `MaxValue()`.
+ * Returns `true` if `value` is equal to `InternalMaxValue()`.
  */
-bool IsMaxValue(const google_firestore_v1_Value& value);
+bool IsInternalMaxValue(const google_firestore_v1_Value& value);
 
 /**
- * Returns `true` if `value` represents a VectorValue..
+ * Returns `true` if `value` represents a VectorValue.
  */
 bool IsVectorValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a MinKey.
+ */
+bool IsMinKeyValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a MaxKey.
+ */
+bool IsMaxKeyValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a RegexValue.
+ */
+bool IsRegexValue(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents an Int32Value.
+ */
+bool IsInt32Value(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a Decimal128Value.
+ */
+bool IsDecimal128Value(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonObjectId.
+ */
+bool IsBsonObjectId(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonTimestamp.
+ */
+bool IsBsonTimestamp(const google_firestore_v1_Value& value);
+
+/**
+ * Returns `true` if `value` represents a BsonBinaryData.
+ */
+bool IsBsonBinaryData(const google_firestore_v1_Value& value);
+
+/** Returns true if `value` is a BSON Type. */
+bool IsBsonType(const google_firestore_v1_Value& value);
 
 /**
  * Returns the index of the specified key (`kRawTypeValueFieldKey`) in the
@@ -212,7 +340,8 @@ absl::optional<pb_size_t> IndexOfKey(
  */
 google_firestore_v1_Value NaNValue();
 
-/** Returns `true` if `value` is `NaN` in its Protobuf representation. */
+/** Returns `true` if `value` is `NaN` (either IEEE 754 double or BSON
+ * Decimal128Value NaN) in its Protobuf representation . */
 bool IsNaNValue(const google_firestore_v1_Value& value);
 
 google_firestore_v1_Value TrueValue();
@@ -232,6 +361,18 @@ google_firestore_v1_Value MinBytes();
 google_firestore_v1_Value MinReference();
 
 google_firestore_v1_Value MinGeoPoint();
+
+google_firestore_v1_Value MinKeyValue();
+
+google_firestore_v1_Value MaxKeyValue();
+
+google_firestore_v1_Value MinBsonBinaryData();
+
+google_firestore_v1_Value MinBsonObjectId();
+
+google_firestore_v1_Value MinBsonTimestamp();
+
+google_firestore_v1_Value MinRegex();
 
 google_firestore_v1_Value MinArray();
 
@@ -291,9 +432,12 @@ inline bool IsDouble(const absl::optional<google_firestore_v1_Value>& value) {
          value->which_value_type == google_firestore_v1_Value_double_value_tag;
 }
 
-/** Returns true if `value` is either a INTEGER_VALUE or a DOUBLE_VALUE. */
+/** Returns true if `value` is a numeric type (INTEGER, DOUBLE, INT32, or
+ * DECIMAL128). */
 inline bool IsNumber(const absl::optional<google_firestore_v1_Value>& value) {
-  return IsInteger(value) || IsDouble(value);
+  return IsInteger(value) || IsDouble(value) ||
+         (value.has_value() &&
+          (IsInt32Value(*value) || IsDecimal128Value(*value)));
 }
 
 /** Returns true if `value` is an ARRAY_VALUE. */

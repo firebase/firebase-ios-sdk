@@ -41,11 +41,11 @@ const char* ExceptionName(ExceptionType exception) {
   UNREACHABLE();
 }
 
-ABSL_ATTRIBUTE_NORETURN void DefaultThrowHandler(ExceptionType type,
-                                                 const char* file,
-                                                 const char* func,
-                                                 int line,
-                                                 const std::string& message) {
+[[noreturn]] void DefaultThrowHandler(ExceptionType type,
+                                      const char* file,
+                                      const char* func,
+                                      int line,
+                                      const std::string& message) {
   std::string what = absl::StrCat(ExceptionName(type), ": ");
   if (file && func) {
     absl::StrAppend(&what, file, "(", line, ") ", func, ": ");
@@ -85,11 +85,11 @@ ThrowHandler SetThrowHandler(ThrowHandler handler) {
   return previous;
 }
 
-ABSL_ATTRIBUTE_NORETURN void Throw(ExceptionType exception,
-                                   const char* file,
-                                   const char* func,
-                                   int line,
-                                   const std::string& message) {
+[[noreturn]] void Throw(ExceptionType exception,
+                        const char* file,
+                        const char* func,
+                        int line,
+                        const std::string& message) {
   throw_handler(exception, file, func, line, message);
 
   // It's expected that the throw handler above does not return. If it does,

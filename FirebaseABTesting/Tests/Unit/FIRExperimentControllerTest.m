@@ -128,6 +128,8 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   events.expireExperimentEventName = @"_";
   XCTAssertEqualObjects(events.expireExperimentEventName, @"_");
+  events.expireExperimentEventName = @"name_without_prefix";
+  XCTAssertEqualObjects(FIRExpireExperimentEventName, events.expireExperimentEventName);
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
   events.expireExperimentEventName = nil;
@@ -194,6 +196,25 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
                                                completionHandler:nil];
 
   XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
+}
+
+- (void)testUpdateExperimentsDoesNotRunAtBackgroundQoS {
+  // Remote Config's activate() completion waits for this update. Background-QoS work can be
+  // starved for seconds when the CPU is busy, so the update must not be forced to background QoS.
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion"];
+  __block qos_class_t completionQoS = QOS_CLASS_UNSPECIFIED;
+  [_experimentController
+      updateExperimentsWithServiceOrigin:gABTTestOrigin
+                                  events:[[FIRLifecycleEvents alloc] init]
+                                  policy:ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest
+                           lastStartTime:0
+                                payloads:@[]
+                       completionHandler:^(NSError *_Nullable error) {
+                         completionQoS = qos_class_self();
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:10 handler:nil];
+  XCTAssertGreaterThan(completionQoS, QOS_CLASS_BACKGROUND);
 }
 
 - (void)testLatestExperimentStartTimestamps {
@@ -442,6 +463,155 @@ extern NSArray *ABTExperimentsToClearFromPayloads(
 
   // Verify that the triggerEventName is cleared, making this experiment active.
   XCTAssertNil([userPropertyForExperiment valueForKeyPath:@"triggerEventName"]);
+}
+
+#pragma mark - Malformed payloads
+
+/// Returns a list of malformed payloads, as could be found in an untyped array from the server.
+- (NSArray *)malformedPayloadsWithStartTime:(NSDate *)startTime {
+  NSString *startTimeMillis =
+      [NSString stringWithFormat:@"%lld", (long long)([startTime timeIntervalSince1970] * 1000)];
+  NSMutableArray *payloads = [NSMutableArray
+      arrayWithObjects:[NSNull null], @"not data", @42, @{@"experimentId" : @"exp_x"}, nil];
+  for (id JSONObject in @[
+         @[],
+         @[ @{@"experimentId" : @"exp_array", @"variantId" : @"v1"} ],
+         @{},
+         // Missing variant ID.
+         @{@"experimentId" : @"exp_no_variant", @"experimentStartTimeMillis" : startTimeMillis},
+         // Null variant ID.
+         @{
+           @"experimentId" : @"exp_null_variant",
+           @"variantId" : [NSNull null],
+           @"experimentStartTimeMillis" : startTimeMillis
+         },
+         // Missing experiment ID.
+         @{@"variantId" : @"v1", @"experimentStartTimeMillis" : startTimeMillis},
+         // Wrong types everywhere.
+         @{
+           @"experimentId" : @1,
+           @"variantId" : @2,
+           @"experimentStartTime" : @3,
+           @"triggerEvent" : @4,
+           @"ongoingExperiments" : @"exp_1"
+         },
+       ]) {
+    [payloads addObject:[NSJSONSerialization dataWithJSONObject:JSONObject options:0 error:nil]];
+  }
+  for (NSString *JSONString in @[ @"\"exp\"", @"42", @"null", @"{\"experimentId\":" ]) {
+    [payloads addObject:[JSONString dataUsingEncoding:NSUTF8StringEncoding]];
+  }
+  [payloads addObject:[NSData data]];
+  return payloads;
+}
+
+- (void)testDeserializeMalformedPayloads {
+  NSDate *now = [NSDate date];
+  for (id payload in [self malformedPayloadsWithStartTime:now]) {
+    ABTExperimentPayload *experimentPayload = ABTDeserializeExperimentPayload(payload);
+    if (experimentPayload) {
+      // Any payload that does deserialize must only expose string identifiers.
+      XCTAssertTrue(experimentPayload.experimentId == nil ||
+                    [experimentPayload.experimentId isKindOfClass:[NSString class]]);
+      XCTAssertTrue(experimentPayload.variantId == nil ||
+                    [experimentPayload.variantId isKindOfClass:[NSString class]]);
+    }
+  }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  XCTAssertNil(ABTDeserializeExperimentPayload(nil));
+#pragma clang diagnostic pop
+}
+
+- (void)testUpdateExperimentsWithMalformedPayloads {
+  NSDate *now = [NSDate date];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  NSMutableArray *payloads =
+      [[self malformedPayloadsWithStartTime:[now dateByAddingTimeInterval:1500]] mutableCopy];
+  [payloads addObject:payload2Data];
+
+  __block BOOL completionHandlerCalled = NO;
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  [_experimentController
+      updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
+                                                          events:events
+                                                          policy:
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
+                                                        payloads:payloads
+                                               completionHandler:^(NSError *_Nullable error) {
+                                                 XCTAssertNil(error);
+                                                 completionHandlerCalled = YES;
+                                               }];
+
+  XCTAssertTrue(completionHandlerCalled);
+  // Only the valid payload is set.
+  NSArray *experiments = [_mockCUPController experimentsWithOrigin:gABTTestOrigin];
+  XCTAssertEqual(experiments.count, 1);
+  XCTAssertEqualObjects([experiments.firstObject valueForKey:@"name"], @"exp_2");
+}
+
+- (void)testLatestExperimentStartTimestampWithMalformedPayloads {
+  NSDate *now = [NSDate date];
+  NSTimeInterval nowInterval = [now timeIntervalSince1970];
+  NSArray *payloads = [self malformedPayloadsWithStartTime:[now dateByAddingTimeInterval:500]];
+  XCTAssertEqualWithAccuracy(
+      nowInterval + 500,
+      [_experimentController latestExperimentStartTimestampBetweenTimestamp:nowInterval
+                                                                andPayloads:payloads],
+      1);
+}
+
+- (void)testExperimentsToSetAndClearWithMalformedPayloads {
+  NSArray *currentExperiments = @[ @{@"name" : @"exp_1", @"value" : @"v1"} ];
+  NSArray *payloads = [self malformedPayloadsWithStartTime:[NSDate date]];
+
+  NSArray<ABTExperimentPayload *> *experimentsToSet =
+      ABTExperimentsToSetFromPayloads(payloads, currentExperiments, nil);
+  for (ABTExperimentPayload *payload in experimentsToSet) {
+    XCTAssertTrue([payload isKindOfClass:[ABTExperimentPayload class]]);
+  }
+
+  NSArray *experimentsToClear =
+      ABTExperimentsToClearFromPayloads(payloads, currentExperiments, nil);
+  XCTAssertEqual(experimentsToClear.count, 1);
+}
+
+- (void)testValidateRunningExperimentsWithMalformedPayload {
+  NSDate *now = [NSDate date];
+  NSData *payload2Data =
+      [ABTTestUtilities payloadJSONDataFromFile:@"TestABTPayload2"
+                              modifiedStartTime:[now dateByAddingTimeInterval:1500]];
+  FIRLifecycleEvents *events = [[FIRLifecycleEvents alloc] init];
+  [_experimentController
+      updateExperimentConditionalUserPropertiesWithServiceOrigin:gABTTestOrigin
+                                                          events:events
+                                                          policy:
+                                                              ABTExperimentPayloadExperimentOverflowPolicyDiscardOldest  // NOLINT
+                                                   lastStartTime:[now timeIntervalSince1970]
+                                                        payloads:@[ payload2Data ]
+                                               completionHandler:nil];
+  XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 1);
+
+  // A running payload without an experiment ID must not crash, and does not keep exp_2 alive.
+  ABTExperimentPayload *noExperimentID =
+      [[ABTExperimentPayload alloc] initWithDictionary:@{@"variantId" : @"v1"}];
+  [_experimentController validateRunningExperimentsForServiceOrigin:gABTTestOrigin
+                                          runningExperimentPayloads:@[ noExperimentID ]];
+  XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 0);
+}
+
+- (void)testActivateExperimentWithMalformedPayload {
+  for (NSDictionary *dictionary in @[
+         @{}, @{@"experimentId" : @"exp_1"}, @{@"experimentId" : @"exp_1", @"variantId" : @[]},
+         @{@"experimentId" : [NSNull null], @"variantId" : @"v1"}
+       ]) {
+    ABTExperimentPayload *payload = [[ABTExperimentPayload alloc] initWithDictionary:dictionary];
+    [_experimentController activateExperiment:payload forServiceOrigin:gABTTestOrigin];
+  }
+  XCTAssertEqual([_mockCUPController experimentsWithOrigin:gABTTestOrigin].count, 0);
 }
 
 @end

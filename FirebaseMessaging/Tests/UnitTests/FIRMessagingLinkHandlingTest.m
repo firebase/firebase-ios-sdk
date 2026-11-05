@@ -28,8 +28,61 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 @interface FIRMessaging ()
 
 - (NSURL *)linkURLFromMessage:(NSDictionary *)message;
+- (void)handleIncomingLinkIfNeededFromMessage:(NSDictionary *)message;
 
 @end
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+
+#import <GoogleUtilities/GULAppDelegateSwizzler.h>
+#import <UIKit/UIKit.h>
+
+@interface FakeLinkHandlingSceneDelegate : NSObject <UISceneDelegate>
+@property(nonatomic, strong, nullable) UIScene *scene;
+@property(nonatomic, strong, nullable) NSUserActivity *userActivity;
+@property(nonatomic) BOOL continueUserActivityWasCalled;
+@end
+
+@implementation FakeLinkHandlingSceneDelegate
+- (void)scene:(UIScene *)scene continueUserActivity:(NSUserActivity *)userActivity {
+  self.scene = scene;
+  self.userActivity = userActivity;
+  self.continueUserActivityWasCalled = YES;
+}
+@end
+
+@interface FakeLinkHandlingNonRespondingSceneDelegate : NSObject <UISceneDelegate>
+@end
+
+@implementation FakeLinkHandlingNonRespondingSceneDelegate
+@end
+
+@interface FakeLinkHandlingAppDelegate : NSObject <UIApplicationDelegate>
+@property(nonatomic, strong, nullable) UIApplication *application;
+@property(nonatomic, strong, nullable) NSUserActivity *userActivity;
+@property(nonatomic) BOOL continueUserActivityWasCalled;
+@end
+
+@implementation FakeLinkHandlingAppDelegate
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:
+          (void (^)(NSArray<id<UIUserActivityRestoring>> *_Nullable restorableObjects))
+              restorationHandler {
+  self.application = application;
+  self.userActivity = userActivity;
+  self.continueUserActivityWasCalled = YES;
+  return YES;
+}
+@end
+
+@interface FakeLinkHandlingNonRespondingAppDelegate : NSObject <UIApplicationDelegate>
+@end
+
+@implementation FakeLinkHandlingNonRespondingAppDelegate
+@end
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 @interface FIRMessagingLinkHandlingTest : XCTestCase
 
@@ -89,5 +142,138 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   NSURL *url = [_messaging linkURLFromMessage:notification];
   XCTAssertTrue([url.absoluteString isEqualToString:@"https://www.google.com/"]);
 }
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
+
+- (void)testHandleIncomingLink_sceneDelegateHandlesUserActivity {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingSceneDelegate *fakeSceneDelegate = [[FakeLinkHandlingSceneDelegate alloc] init];
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene delegate]).andReturn(fakeSceneDelegate);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  FakeLinkHandlingAppDelegate *fakeAppDelegate = [[FakeLinkHandlingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet setWithObject:mockScene]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
+  [_messaging handleIncomingLinkIfNeededFromMessage:notification];
+
+  XCTAssertTrue(fakeSceneDelegate.continueUserActivityWasCalled);
+  XCTAssertEqual(fakeSceneDelegate.scene, mockScene);
+  XCTAssertEqualObjects(fakeSceneDelegate.userActivity.webpageURL.absoluteString,
+                        @"https://www.google.com/");
+  XCTAssertEqualObjects(fakeSceneDelegate.userActivity.activityType,
+                        @"NSUserActivityTypeBrowsingWeb");
+  XCTAssertFalse(fakeAppDelegate.continueUserActivityWasCalled);
+
+  [mockApplication stopMocking];
+  [mockScene stopMocking];
+}
+
+- (void)testHandleIncomingLink_fallbackToAppDelegateWhenNoMatchingScene {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingNonRespondingSceneDelegate *fakeSceneDelegate =
+      [[FakeLinkHandlingNonRespondingSceneDelegate alloc] init];
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene delegate]).andReturn(fakeSceneDelegate);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  FakeLinkHandlingAppDelegate *fakeAppDelegate = [[FakeLinkHandlingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet setWithObject:mockScene]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
+  [_messaging handleIncomingLinkIfNeededFromMessage:notification];
+
+  XCTAssertTrue(fakeAppDelegate.continueUserActivityWasCalled);
+  XCTAssertEqual(fakeAppDelegate.application, mockApplication);
+  XCTAssertEqualObjects(fakeAppDelegate.userActivity.webpageURL.absoluteString,
+                        @"https://www.google.com/");
+  XCTAssertEqualObjects(fakeAppDelegate.userActivity.activityType,
+                        @"NSUserActivityTypeBrowsingWeb");
+
+  [mockApplication stopMocking];
+  [mockScene stopMocking];
+}
+
+- (void)testHandleIncomingLink_fallbackToAppDelegateWhenConnectedScenesEmpty {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingAppDelegate *fakeAppDelegate = [[FakeLinkHandlingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet set]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
+  [_messaging handleIncomingLinkIfNeededFromMessage:notification];
+
+  XCTAssertTrue(fakeAppDelegate.continueUserActivityWasCalled);
+  XCTAssertEqual(fakeAppDelegate.application, mockApplication);
+  XCTAssertEqualObjects(fakeAppDelegate.userActivity.webpageURL.absoluteString,
+                        @"https://www.google.com/");
+
+  [mockApplication stopMocking];
+}
+
+- (void)testHandleIncomingLink_noThrowWhenNeitherResponds {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingNonRespondingAppDelegate *fakeAppDelegate =
+      [[FakeLinkHandlingNonRespondingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet set]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
+  XCTAssertNoThrow([_messaging handleIncomingLinkIfNeededFromMessage:notification]);
+
+  [mockApplication stopMocking];
+}
+
+- (void)testHandleIncomingLink_noLinkInMessageDoesNothing {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMReject([mockApplication sharedApplication]);
+
+  NSDictionary *notification = @{@"some_key" : @"some_value"};
+  [_messaging handleIncomingLinkIfNeededFromMessage:notification];
+
+  [mockApplication stopMocking];
+}
+
+- (void)testHandleIncomingLink_calledFromBackgroundThreadDispatchesToMain {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingSceneDelegate *fakeSceneDelegate = [[FakeLinkHandlingSceneDelegate alloc] init];
+  id mockScene = OCMClassMock([UIScene class]);
+  OCMStub([mockScene delegate]).andReturn(fakeSceneDelegate);
+  OCMStub([mockScene activationState]).andReturn(UISceneActivationStateForegroundActive);
+
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet setWithObject:mockScene]);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Dispatches to main thread and calls scene delegate"];
+
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
+    [self.messaging handleIncomingLinkIfNeededFromMessage:notification];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      XCTAssertTrue(fakeSceneDelegate.continueUserActivityWasCalled);
+      [expectation fulfill];
+    });
+  });
+
+  [self waitForExpectations:@[ expectation ] timeout:1.0];
+
+  [mockApplication stopMocking];
+  [mockScene stopMocking];
+}
+
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 @end
