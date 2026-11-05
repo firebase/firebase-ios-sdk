@@ -6,9 +6,6 @@ permissions:
   actions: read
   contents: read
 
-env:
-  RUN_PACKAGE_RELEASE: 'false'
-
 on:
   pull_request:
     paths:
@@ -37,7 +34,8 @@ concurrency:
 
 jobs:
   package-release:
-    if: github.event_name == 'workflow_dispatch' || env.RUN_PACKAGE_RELEASE == 'true'
+    # Flip `false` to `true` to also run package-release on a PR push.
+    if: github.event_name == 'workflow_dispatch' || false
     runs-on: macos-14
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
