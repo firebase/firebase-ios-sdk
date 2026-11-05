@@ -61,7 +61,8 @@ All integration tests are parameterized across
   Parameterized integration tests for tool calling (function calling) using
   FoundationModels `Tool` definitions, covering single-turn tool calls,
   sequential tool calls, parallel tool calls, tool calling mode configuration,
-  parameterless tools with empty arguments, and reasoning models.
+  parameterless tools with empty arguments, and thought signatures recorded
+  as reasoning entries.
 * [`ImageUnderstandingIntegrationTests.swift`](ImageUnderstandingIntegrationTests.swift):
   Parameterized integration tests for image input (`vision`) using images
   generated in code, covering single and multiple images, `@Generable`
