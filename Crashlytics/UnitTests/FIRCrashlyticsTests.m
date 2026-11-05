@@ -235,14 +235,17 @@
   XCTAssertNotNil(self.crashlytics.contextInitPromise);
   dispatch_semaphore_t sem = dispatch_semaphore_create(0);
   [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
-                                          then:^id _Nullable(id _Nullable value) {
-                                            dispatch_semaphore_signal(sem);
-                                            return nil;
-                                          }];
+                                        always:^{
+                                          dispatch_semaphore_signal(sem);
+                                        }];
   long waitResult =
       dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
   XCTAssertEqual(waitResult, 0,
                  @"Timed out waiting on preInitAPIDispatchQueue without main runloop");
+
+  // Drain any chained `onQueue:catch:` observer hop on `preInitAPIDispatchQueue`.
+  dispatch_sync(self.crashlytics.preInitAPIDispatchQueue, ^{
+                });
 
   // Also drain any trailing async compactions / A-B swaps on _firclsLoggingQueue.
   FIRCLSExecuteOnLoggingQueue(^{
@@ -258,6 +261,13 @@
 - (void)fulfillInitPromiseOffMain:(FBLPromise *)initPromise {
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
     [initPromise fulfill:@YES];
+  });
+  [self drainQueuesBlockingCurrentThread];
+}
+
+- (void)rejectInitPromiseOffMain:(FBLPromise *)initPromise withError:(NSError *)error {
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [initPromise reject:error];
   });
   [self drainQueuesBlockingCurrentThread];
 }
@@ -373,6 +383,34 @@
   XCTAssertEqual([self customExceptionAContents].count, 1);
   XCTAssertEqual(self.onDemandModel.callCount, 1);
   XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
+}
+
+- (void)testRejectedInitPromiseDiscardsPreInitAndSubsequentCallsOffMainThread {
+  XCTAssertTrue([NSThread isMainThread]);
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
+  [self.crashlytics log:@"discarded pre-init log"];
+  [self.crashlytics setUserID:@"discarded-user"];
+  [self.crashlytics setCustomValue:@"discarded-val" forKey:@"discarded-key"];
+  [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.reject" code:500 userInfo:nil]];
+  FIRExceptionModel *ex = [FIRExceptionModel exceptionModelWithName:@"DiscardedEx"
+                                                             reason:@"Discarded"];
+  [self.crashlytics recordExceptionModel:ex];
+  [self.crashlytics recordOnDemandExceptionModel:ex];
+
+  NSError *initError = [NSError errorWithDomain:@"com.test.init" code:1 userInfo:nil];
+  [self rejectInitPromiseOffMain:initPromise withError:initError];
+
+  // Subsequent calls after failed initialization must also be ignored without buffering or running.
+  [self.crashlytics log:@"post-rejection ignored log"];
+  [self.crashlytics recordOnDemandExceptionModel:ex];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+  XCTAssertEqual([self errorAContents].count, 0);
+  XCTAssertEqual([self customExceptionAContents].count, 0);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+  XCTAssertNil([self userKeyValues][@"discarded-key"]);
+  XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
 }
 
 #pragma mark - Pre-Init Mutable Input Snapshotting

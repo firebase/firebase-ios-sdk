@@ -38,6 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)markReadyAndFlush;
 
+/**
+ * Discards all buffered blocks without invoking them and permanently closes the
+ * gate so any subsequent `-performWhenReady:` calls are also ignored.
+ */
+- (void)markFailedAndDiscardPending;
+
 @end
 
 NS_ASSUME_NONNULL_END

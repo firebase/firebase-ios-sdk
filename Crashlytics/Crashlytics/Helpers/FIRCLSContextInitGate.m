@@ -17,6 +17,7 @@
 @implementation FIRCLSContextInitGate {
   BOOL _isReady;
   BOOL _isFlushing;
+  BOOL _isDiscarded;
   NSMutableArray<dispatch_block_t> *_pendingBlocks;
 }
 
@@ -35,6 +36,9 @@
 
   BOOL shouldRunInline = NO;
   @synchronized(self) {
+    if (_isDiscarded) {
+      return;
+    }
     if (_isReady) {
       // If context has initialized and the pending blocks queue has been
       // flushed, performs the api call on the calling thread.
@@ -56,11 +60,16 @@
     NSArray<dispatch_block_t> *batch = nil;
     @synchronized(self) {
       if (!startedFlushing) {
-        if (_isFlushing || _isReady) {
+        if (_isFlushing || _isReady || _isDiscarded) {
           return;
         }
         _isFlushing = YES;
         startedFlushing = YES;
+      }
+
+      if (_isDiscarded) {
+        _isFlushing = NO;
+        return;
       }
 
       if (_pendingBlocks.count == 0) {
@@ -80,6 +89,22 @@
       block();
     }
   }
+}
+
+- (void)markFailedAndDiscardPending {
+  NSMutableArray<dispatch_block_t> *discardedBlocks = nil;
+  @synchronized(self) {
+    if (_isReady || _isDiscarded) {
+      return;
+    }
+    discardedBlocks = _pendingBlocks;
+    _pendingBlocks = nil;
+    _isFlushing = NO;
+    _isDiscarded = YES;
+  }
+  // Release discarded blocks outside `@synchronized(self)` so any captured
+  // object `-dealloc` hooks run without holding the lock.
+  (void)discardedBlocks;
 }
 
 @end

@@ -221,11 +221,17 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
         }];
 
     // Flush the queue of API calls once context has initialized
-    [_contextInitPromise onQueue:_preInitAPIDispatchQueue
-                            then:^id _Nullable(id _Nullable value) {
-                              [contextInitGate markReadyAndFlush];
-                              return nil;
-                            }];
+    [[_contextInitPromise onQueue:_preInitAPIDispatchQueue
+                             then:^id _Nullable(id _Nullable value) {
+                               [contextInitGate markReadyAndFlush];
+                               return nil;
+                             }]
+        onQueue:_preInitAPIDispatchQueue
+          catch:^void(NSError *error) {
+            FIRCLSErrorLog(@"Context initialization failed; discarding pending API calls: %@",
+                           error);
+            [contextInitGate markFailedAndDiscardPending];
+          }];
 
     // RemoteConfig subscription should be made after session report directory created.
     if (remoteConfig) {
@@ -560,11 +566,17 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   _contextInitGate = contextInitGate;
 
   if (promise && _preInitAPIDispatchQueue) {
-    [promise onQueue:_preInitAPIDispatchQueue
-                then:^id _Nullable(id _Nullable value) {
-                  [contextInitGate markReadyAndFlush];
-                  return nil;
-                }];
+    [[promise onQueue:_preInitAPIDispatchQueue
+                 then:^id _Nullable(id _Nullable value) {
+                   [contextInitGate markReadyAndFlush];
+                   return nil;
+                 }]
+        onQueue:_preInitAPIDispatchQueue
+          catch:^void(NSError *error) {
+            FIRCLSErrorLog(@"Context initialization failed; discarding pending API calls: %@",
+                           error);
+            [contextInitGate markFailedAndDiscardPending];
+          }];
   }
 }
 @end

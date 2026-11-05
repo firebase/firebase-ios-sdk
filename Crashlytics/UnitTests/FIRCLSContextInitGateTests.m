@@ -564,4 +564,94 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   XCTAssertEqualObjects(events, expectedAfterGateBFlush);
 }
 
+- (void)testMarkFailedAndDiscardPendingDropsBufferedAndSubsequentBlocksAndReleasesCaptures {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+  __weak FIRCLSDeallocReentrancyProbe *weakProbe = nil;
+  __weak NSObject *weakPostFailureCapture = nil;
+
+  @autoreleasepool {
+    FIRCLSDeallocReentrancyProbe *probe =
+        [[FIRCLSDeallocReentrancyProbe alloc] initWithGate:gate
+                                            onDeallocBlock:^{
+                                              [events addObject:@"probe-dealloc-should-not-run"];
+                                            }];
+    weakProbe = probe;
+
+    [gate performWhenReady:^{
+      (void)probe;
+      [events addObject:@"discarded-1"];
+    }];
+    [gate performWhenReady:^{
+      [events addObject:@"discarded-2"];
+    }];
+
+    probe = nil;
+    XCTAssertNotNil(weakProbe);
+
+    [gate markFailedAndDiscardPending];
+  }
+
+  // Discarded blocks must never run, captured objects must be released outside the lock, and
+  // re-entering `-performWhenReady:` from `-dealloc` must also be ignored because `_isDiscarded`.
+  XCTAssertNil(weakProbe);
+  XCTAssertEqual(events.count, 0);
+
+  // Subsequent calls to `-markFailedAndDiscardPending`, `-markReadyAndFlush`, and
+  // `-performWhenReady:` must all no-op without retaining new blocks.
+  [gate markFailedAndDiscardPending];
+  [gate markReadyAndFlush];
+  @autoreleasepool {
+    NSObject *postFailureCapture = [[NSObject alloc] init];
+    weakPostFailureCapture = postFailureCapture;
+    [gate performWhenReady:^{
+      (void)postFailureCapture;
+      [events addObject:@"post-failure-should-not-run"];
+    }];
+    postFailureCapture = nil;
+  }
+  XCTAssertNil(weakPostFailureCapture);
+  XCTAssertEqual(events.count, 0);
+}
+
+- (void)testMarkFailedAndDiscardPendingAfterMarkReadyAndFlushIsNoOp {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+
+  [gate performWhenReady:^{
+    [events addObject:@"pre-init"];
+  }];
+  [gate markReadyAndFlush];
+
+  // Once ready, calling `-markFailedAndDiscardPending` must not close the gate.
+  [gate markFailedAndDiscardPending];
+  [gate performWhenReady:^{
+    [events addObject:@"post-ready-inline"];
+  }];
+
+  NSArray<NSString *> *expected = @[ @"pre-init", @"post-ready-inline" ];
+  XCTAssertEqualObjects(events, expected);
+}
+
+- (void)testMarkFailedAndDiscardPendingDuringActiveFlushAbortsRemainingPendingBlocks {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+
+  [gate performWhenReady:^{
+    [events addObject:@"batch-1"];
+    [gate performWhenReady:^{
+      [events addObject:@"batch-2-should-be-discarded"];
+    }];
+    [gate markFailedAndDiscardPending];
+  }];
+
+  [gate markReadyAndFlush];
+
+  [gate performWhenReady:^{
+    [events addObject:@"post-abort-should-not-run"];
+  }];
+
+  XCTAssertEqualObjects(events, @[ @"batch-1" ]);
+}
+
 @end
