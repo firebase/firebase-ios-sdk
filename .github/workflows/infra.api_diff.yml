@@ -1,10 +1,14 @@
 name: infra.api_diff
 
 on:
+  workflow_dispatch:
   pull_request:
     paths-ignore:
+      - '**.md'
+      - '**/Tests/**'
+      - 'Example/**'
+      - 'quickstart-ios/**'
       - '**/CHANGELOG.md'
-  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
