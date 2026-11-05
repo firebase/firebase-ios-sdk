@@ -42,11 +42,6 @@ static NSString *const kMethodNameLatestStartTime =
   NSUInteger _experimentMetadataGeneration;
   NSUInteger _activeExperimentPayloadGeneration;
 }
-@property(nonatomic, copy) NSArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
-@property(nonatomic, copy)
-    NSDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
-@property(nonatomic, copy)
-    NSArray<NSData *> *activeExperimentPayloads;             ///< Activated experiment payloads.
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
@@ -65,51 +60,6 @@ static NSString *const kMethodNameLatestStartTime =
 @end
 
 @implementation RCNConfigExperiment
-
-- (NSArray<NSData *> *)experimentPayloads {
-  os_unfair_lock_lock(&_stateLock);
-  NSArray<NSData *> *experimentPayloads = _experimentPayloads;
-  os_unfair_lock_unlock(&_stateLock);
-  return experimentPayloads;
-}
-
-- (void)setExperimentPayloads:(NSArray<NSData *> *)experimentPayloads {
-  NSArray<NSData *> *payloadSnapshot = [experimentPayloads copy] ?: @[];
-  os_unfair_lock_lock(&_stateLock);
-  _experimentPayloads = payloadSnapshot;
-  _experimentPayloadGeneration += 1;
-  os_unfair_lock_unlock(&_stateLock);
-}
-
-- (NSDictionary<NSString *, id> *)experimentMetadata {
-  os_unfair_lock_lock(&_stateLock);
-  NSDictionary<NSString *, id> *experimentMetadata = _experimentMetadata;
-  os_unfair_lock_unlock(&_stateLock);
-  return experimentMetadata;
-}
-
-- (void)setExperimentMetadata:(NSDictionary<NSString *, id> *)experimentMetadata {
-  NSDictionary<NSString *, id> *metadataSnapshot = [experimentMetadata copy] ?: @{};
-  os_unfair_lock_lock(&_stateLock);
-  _experimentMetadata = metadataSnapshot;
-  _experimentMetadataGeneration += 1;
-  os_unfair_lock_unlock(&_stateLock);
-}
-
-- (NSArray<NSData *> *)activeExperimentPayloads {
-  os_unfair_lock_lock(&_stateLock);
-  NSArray<NSData *> *activeExperimentPayloads = _activeExperimentPayloads;
-  os_unfair_lock_unlock(&_stateLock);
-  return activeExperimentPayloads;
-}
-
-- (void)setActiveExperimentPayloads:(NSArray<NSData *> *)activeExperimentPayloads {
-  NSArray<NSData *> *payloadSnapshot = [activeExperimentPayloads copy] ?: @[];
-  os_unfair_lock_lock(&_stateLock);
-  _activeExperimentPayloads = payloadSnapshot;
-  _activeExperimentPayloadGeneration += 1;
-  os_unfair_lock_unlock(&_stateLock);
-}
 
 /// Designated initializer
 - (instancetype)initWithDBManager:(RCNConfigDBManager *)DBManager
@@ -265,7 +215,7 @@ static NSString *const kMethodNameLatestStartTime =
                              values:experimentPayloads
                   completionHandler:^(BOOL success, NSDictionary *result) {
                     if (!success) {
-                      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000040",
+                      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000085",
                                     @"Failed to persist activated experiment payloads before "
                                      "updating A/B Testing.");
                     }
@@ -372,5 +322,28 @@ static NSString *const kMethodNameLatestStartTime =
                 @"Fetched experiment metadata could not be serialized.");
   }
   return serializedExperimentMetadata;
+}
+
+#pragma mark - Testing
+
+- (NSArray<NSData *> *)experimentPayloadsForTesting {
+  os_unfair_lock_lock(&_stateLock);
+  NSArray<NSData *> *experimentPayloads = _experimentPayloads;
+  os_unfair_lock_unlock(&_stateLock);
+  return experimentPayloads;
+}
+
+- (NSDictionary<NSString *, id> *)experimentMetadataForTesting {
+  os_unfair_lock_lock(&_stateLock);
+  NSDictionary<NSString *, id> *experimentMetadata = _experimentMetadata;
+  os_unfair_lock_unlock(&_stateLock);
+  return experimentMetadata;
+}
+
+- (NSArray<NSData *> *)activeExperimentPayloadsForTesting {
+  os_unfair_lock_lock(&_stateLock);
+  NSArray<NSData *> *activeExperimentPayloads = _activeExperimentPayloads;
+  os_unfair_lock_unlock(&_stateLock);
+  return activeExperimentPayloads;
 }
 @end

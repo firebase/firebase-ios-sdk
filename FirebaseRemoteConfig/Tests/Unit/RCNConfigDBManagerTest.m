@@ -571,6 +571,20 @@
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 
+- (void)testReplaceExperimentTableWithNilKeyFailsGracefully {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Nil key fails without throwing"];
+  NSString *nilKey = nil;
+  [_DBManager replaceExperimentTableWithKey:nilKey
+                                     values:@[]
+                          completionHandler:^(BOOL success, NSDictionary *result) {
+                            XCTAssertFalse(success);
+                            XCTAssertNil(result);
+                            [expectation fulfill];
+                          }];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
 - (void)testWriteAndLoadMetadataMultipleTimes {
   XCTestExpectation *updateAndLoadMetadataExpectation = [self
       expectationWithDescription:@"Update and load experiment metadata in database successfully"];

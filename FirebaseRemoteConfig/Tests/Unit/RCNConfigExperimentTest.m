@@ -64,9 +64,13 @@
 - (void)replaceExperimentTableWithKey:(NSString *)key
                                values:(NSArray<NSData *> *)values
                     completionHandler:(RCNDBCompletion)handler {
-  _pendingExperimentKey = [key copy];
-  _pendingExperimentValues = [values copy];
-  _pendingExperimentCompletion = [handler copy];
+  if ([key isEqualToString:@RCNExperimentTableKeyActivePayload]) {
+    _pendingExperimentKey = [key copy];
+    _pendingExperimentValues = [values copy];
+    _pendingExperimentCompletion = [handler copy];
+    return;
+  }
+  [super replaceExperimentTableWithKey:key values:values completionHandler:handler];
 }
 
 - (void)persistPendingExperiments {
@@ -82,12 +86,12 @@
 @end
 
 @interface RCNConfigExperiment ()
-@property(nonatomic, copy) NSArray<NSData *> *experimentPayloads;
-@property(nonatomic, copy) NSDictionary<NSString *, id> *experimentMetadata;
-@property(nonatomic, copy) NSArray<NSData *> *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (void)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
+- (NSArray<NSData *> *)experimentPayloadsForTesting;
+- (NSDictionary<NSString *, id> *)experimentMetadataForTesting;
+- (NSArray<NSData *> *)activeExperimentPayloadsForTesting;
 @end
 
 @interface RCNConfigExperimentTest : XCTestCase {
@@ -159,15 +163,15 @@
   [_configExperiment loadExperimentFromTable];
 
   int payloadIndex = 0;
-  for (NSData *payload in _configExperiment.experimentPayloads) {
+  for (NSData *payload in [_configExperiment experimentPayloadsForTesting]) {
     ABTExperimentPayload *experimentPayload = [self deserializeABTData:payload];
     XCTAssertNotNil(experimentPayload);
     XCTAssertEqualObjects(experimentPayload.experimentId,
                           _payloads[payloadIndex++][@"experimentId"]);
   }
 
-  XCTAssertEqualObjects(_payloadsData, _configExperiment.experimentPayloads);
-  XCTAssertEqualObjects(_metadata, _configExperiment.experimentMetadata);
+  XCTAssertEqualObjects(_payloadsData, [_configExperiment experimentPayloadsForTesting]);
+  XCTAssertEqualObjects(_metadata, [_configExperiment experimentMetadataForTesting]);
 }
 
 - (void)testUpdateExperiment {
@@ -181,7 +185,7 @@
 
   // Serialized proto data.
   int payloadIndex = 0;
-  for (NSData *payload in _configExperiment.experimentPayloads) {
+  for (NSData *payload in [_configExperiment experimentPayloadsForTesting]) {
     ABTExperimentPayload *experimentPayload = [self deserializeABTData:payload];
     XCTAssertNotNil(experimentPayload);
     XCTAssertEqualObjects(experimentPayload.experimentId,
@@ -194,16 +198,16 @@
   NSArray *malformedResponses = @[ @"experiments", @1, [NSNull null], @{@"experimentId" : @"e"} ];
   for (id response in malformedResponses) {
     XCTAssertNoThrow([_configExperiment updateExperimentsWithResponse:response]);
-    XCTAssertEqual(_configExperiment.experimentPayloads.count, 0);
+    XCTAssertEqual([_configExperiment experimentPayloadsForTesting].count, 0);
   }
 
   // Non-dictionary entries are skipped and valid ones are kept.
   NSDictionary<NSString *, id> *validPayload = @{@"experimentId" : @"exp1"};
   NSArray *response = @[ @"experiment", @1, [NSNull null], @[ @"exp" ], validPayload ];
   XCTAssertNoThrow([_configExperiment updateExperimentsWithResponse:response]);
-  XCTAssertEqual(_configExperiment.experimentPayloads.count, 1);
+  XCTAssertEqual([_configExperiment experimentPayloadsForTesting].count, 1);
   ABTExperimentPayload *experimentPayload =
-      [self deserializeABTData:_configExperiment.experimentPayloads[0]];
+      [self deserializeABTData:[_configExperiment experimentPayloadsForTesting][0]];
   XCTAssertEqualObjects(experimentPayload.experimentId, @"exp1");
 }
 
@@ -238,8 +242,8 @@
   });
 
   NSData *newPayloadData = [NSJSONSerialization dataWithJSONObject:newPayload options:0 error:nil];
-  XCTAssertEqualObjects(experiment.experimentPayloads, @[ newPayloadData ]);
-  XCTAssertEqualObjects(experiment.experimentMetadata, storedMetadata);
+  XCTAssertEqualObjects([experiment experimentPayloadsForTesting], @[ newPayloadData ]);
+  XCTAssertEqualObjects([experiment experimentMetadataForTesting], storedMetadata);
   [dbManagerMock stopMocking];
 }
 
@@ -283,9 +287,10 @@
   });
 
   NSData *newPayloadData = [NSJSONSerialization dataWithJSONObject:newPayload options:0 error:nil];
-  XCTAssertEqualObjects(experiment.experimentPayloads, @[ newPayloadData ]);
-  XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @0);
-  XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ newPayloadData ]);
+  XCTAssertEqualObjects([experiment experimentPayloadsForTesting], @[ newPayloadData ]);
+  XCTAssertEqualObjects([experiment experimentMetadataForTesting][@"last_experiment_start_time"],
+                        @0);
+  XCTAssertEqualObjects([experiment activeExperimentPayloadsForTesting], @[ newPayloadData ]);
   [dbManagerMock stopMocking];
 }
 
@@ -381,14 +386,16 @@
   NSData *newPayloadData = [NSJSONSerialization dataWithJSONObject:newPayload options:0 error:nil];
   XCTAssertEqual(calculationWaitResult, 0, @"Activation calculation timed out");
   XCTAssertEqual(calculationCount, 2);
-  XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @101);
-  XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ newPayloadData ]);
+  XCTAssertEqualObjects([experiment experimentMetadataForTesting][@"last_experiment_start_time"],
+                        @101);
+  XCTAssertEqualObjects([experiment activeExperimentPayloadsForTesting], @[ newPayloadData ]);
   [dbManagerMock stopMocking];
 }
 
 - (void)testUpdateLastExperimentStartTime {
   [_configExperiment updateExperimentStartTime];
-  XCTAssertEqualObjects(_configExperiment.experimentMetadata[@"last_experiment_start_time"], @(0));
+  XCTAssertEqualObjects(
+      [_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"], @(0));
 
   NSDictionary<NSString *, NSString *> *payload =
       @{@"experimentStartTime" : @"2019-04-04T21:54:38.555Z"};
@@ -396,14 +403,15 @@
   [_configExperiment updateExperimentStartTime];
 
   int64_t originalTime = [self convertTimeToMillis:@"2019-04-04T21:54:38.555Z"] / 1000;
-  int64_t time =
-      ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  int64_t time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 }
 
 - (void)testMultipleUpdatesToLastExperimentStartTime {
   [_configExperiment updateExperimentStartTime];
-  XCTAssertEqualObjects(_configExperiment.experimentMetadata[@"last_experiment_start_time"], @(0));
+  XCTAssertEqualObjects(
+      [_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"], @(0));
 
   NSDictionary<NSString *, NSString *> *payload =
       @{@"experimentStartTime" : @"2019-04-04T21:54:38.555Z"};
@@ -411,8 +419,8 @@
   [_configExperiment updateExperimentStartTime];
 
   int64_t originalTime = [self convertTimeToMillis:@"2019-04-04T21:54:38.555Z"] / 1000;
-  int64_t time =
-      ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  int64_t time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 
   // Update start time again.
@@ -421,7 +429,8 @@
   [_configExperiment updateExperimentStartTime];
 
   originalTime = [self convertTimeToMillis:@"2019-04-04T21:55:38.555Z"] / 1000;
-  time = ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 }
 
@@ -432,8 +441,8 @@
   [_configExperiment updateExperimentStartTime];
 
   int64_t originalTime = [self convertTimeToMillis:@"2019-04-04T21:55:38.555Z"] / 1000;
-  int64_t time =
-      ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  int64_t time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 
   payload = @{@"experimentStartTime" : @"2018-04-04T21:55:38.555Z"};
@@ -441,7 +450,8 @@
   [_configExperiment updateExperimentStartTime];
 
   originalTime = [self convertTimeToMillis:@"2019-04-04T21:55:38.555Z"] / 1000;
-  time = ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 }
 
@@ -452,8 +462,8 @@
   [_configExperiment updateExperimentStartTime];
 
   int64_t originalTime = [self convertTimeToMillis:@"2020-04-04T21:55:38.555Z"] / 1000;
-  int64_t time =
-      ([_configExperiment.experimentMetadata[@"last_experiment_start_time"] doubleValue]);
+  int64_t time = ([[_configExperiment experimentMetadataForTesting][@"last_experiment_start_time"]
+      doubleValue]);
   XCTAssertEqual(time, originalTime);
 }
 
@@ -466,7 +476,7 @@
                                 experimentController:mockExperimentController];
 
   NSTimeInterval lastStartTime =
-      [experiment.experimentMetadata[@"last_experiment_start_time"] doubleValue];
+      [[experiment experimentMetadataForTesting][@"last_experiment_start_time"] doubleValue];
   OCMStub([mockExperimentController
       updateExperimentsWithServiceOrigin:[OCMArg any]
                                   events:[OCMArg any]
@@ -476,17 +486,17 @@
                                 payloads:[OCMArg any]
                        completionHandler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
 
-  NSData *payloadData = [[self class] payloadDataFromTestFile];
-
-  experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
+  [experiment updateExperimentsWithResponse:@[ [[self class] payloadDictionaryFromTestFile] ]];
+  NSData *payloadData = [experiment experimentPayloadsForTesting].firstObject;
+  XCTAssertNotNil(payloadData);
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Experiments are updated after persistence"];
   [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil(error);
-    XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
+    XCTAssertEqualObjects([experiment experimentMetadataForTesting][@"last_experiment_start_time"],
                           @(12345678));
-    XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
+    XCTAssertEqualObjects([experiment activeExperimentPayloadsForTesting], @[ payloadData ]);
     [expectation fulfill];
   }];
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
@@ -504,8 +514,9 @@
   RCNConfigExperiment *experiment =
       [[RCNConfigExperiment alloc] initWithDBManager:dbManager
                                 experimentController:mockExperimentController];
-  NSData *payloadData = [[self class] payloadDataFromTestFile];
-  experiment.experimentPayloads = @[ payloadData ];
+  [experiment updateExperimentsWithResponse:@[ [[self class] payloadDictionaryFromTestFile] ]];
+  NSData *payloadData = [experiment experimentPayloadsForTesting].firstObject;
+  XCTAssertNotNil(payloadData);
 
   __block BOOL didUpdateAnalytics = NO;
   OCMStub(
@@ -553,16 +564,18 @@
   RCNConfigExperiment *experiment = [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
                                                               experimentController:nil];
 
-  NSData *payloadData = [[self class] payloadDataFromTestFile];
-  experiment.experimentPayloads = [@[ payloadData ] mutableCopy];
+  [experiment updateExperimentsWithResponse:@[ [[self class] payloadDictionaryFromTestFile] ]];
+  NSData *payloadData = [experiment experimentPayloadsForTesting].firstObject;
+  XCTAssertNotNil(payloadData);
 
   XCTestExpectation *expectation = [self
       expectationWithDescription:@"Completion handler is called when experimentController is nil"];
 
   [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
     XCTAssertNil(error);
-    XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"], @(0));
-    XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
+    XCTAssertEqualObjects([experiment experimentMetadataForTesting][@"last_experiment_start_time"],
+                          @(0));
+    XCTAssertEqualObjects([experiment activeExperimentPayloadsForTesting], @[ payloadData ]);
     [expectation fulfill];
   }];
 
@@ -587,7 +600,7 @@
   return [@([experimentStartTime timeIntervalSince1970] * 1000) longLongValue];
 }
 
-+ (NSData *)payloadDataFromTestFile {
++ (NSDictionary<NSString *, id> *)payloadDictionaryFromTestFile {
 #if SWIFT_PACKAGE
   NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
 #else
@@ -602,14 +615,9 @@
   NSData *fileData = [fileText dataUsingEncoding:kCFStringEncodingUTF8];
 
   NSError *jsonDictionaryError = nil;
-  NSMutableDictionary *jsonDictionary =
-      [[NSJSONSerialization JSONObjectWithData:fileData
-                                       options:kNilOptions
-                                         error:&jsonDictionaryError] mutableCopy];
-  NSError *jsonDataError = nil;
-  return [NSJSONSerialization dataWithJSONObject:jsonDictionary
+  return [NSJSONSerialization JSONObjectWithData:fileData
                                          options:kNilOptions
-                                           error:&jsonDataError];
+                                           error:&jsonDictionaryError];
 }
 
 @end

@@ -498,8 +498,16 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 - (void)replaceExperimentTableWithKey:(NSString *)key
                                values:(NSArray<NSData *> *)values
                     completionHandler:(RCNDBCompletion)handler {
+  if (!key) {
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(NO, nil);
+      });
+    }
+    return;
+  }
   NSString *keyCopy = [key copy];
-  NSArray<NSData *> *valuesCopy = [values copy];
+  NSArray<NSData *> *valuesCopy = [values copy] ?: @[];
   dispatch_async(_databaseOperationQueue, ^{
     BOOL transactionStarted = [self executeQuery:"BEGIN IMMEDIATE TRANSACTION"];
     BOOL success = transactionStarted;
