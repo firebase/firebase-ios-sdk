@@ -630,6 +630,11 @@
   [self.crashlytics setCustomKeysAndValues:@{@"clear-via-nsnull" : [NSNull null]}];
   [self.crashlytics setCustomKeysAndValues:@{}];
 
+  // Clearing keys with nil or NSNull triggers an async FIRCLSUserLoggingCompactKVEntries pass on
+  // _firclsLoggingQueue that unlinks and rewrites compactedPath; drain it before reading KV files.
+  FIRCLSExecuteOnLoggingQueue(^{
+  });
+
   XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
   NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
   XCTAssertNil(userKVs[@"clear-via-nil"]);
