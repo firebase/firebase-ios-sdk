@@ -71,8 +71,13 @@ jobs:
       # `verify`, which fails the job if the zip doesn't link, import or have every slice.
       - name: Build the release zip
         run: |
-          # Package.swift checks whether the variable is set at all, so it's only exported for the
-          # dynamic zip.
+          # Package.swift checks whether these variables are set at all, so they're only exported
+          # when wanted. On PRs, use GoogleAppMeasurement's main branch like the other zip
+          # workflows: main's Package.swift can require a GoogleAppMeasurement tag that isn't
+          # published yet. Release runs build the checked-out Package.swift as is.
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
+          fi
           if [[ "$LINKAGE" == dynamic ]]; then export FIREBASE_SOURCE_FIRESTORE=1; fi
           swift run --package-path scripts/zip_builder -c release --force-resolved-versions \
             zip-builder release --package-path . --work-dir "$RUNNER_TEMP/zip" \
