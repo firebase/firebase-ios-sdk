@@ -752,6 +752,21 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
+- (void)setQueryActive:(FQuerySpec *)query {
+    [self.persistenceManager setQueryActive:query];
+}
+
+- (void)setQueryInactive:(FQuerySpec *)query {
+    FSyncPoint *syncPoint = [self.syncPointTree valueAtPath:query.path];
+    BOOL hasActiveView =
+        syncPoint != nil &&
+        (query.loadsAllData ? [syncPoint hasCompleteView]
+                            : [syncPoint viewExistsForQuery:query]);
+    if (!hasActiveView) {
+        [self.persistenceManager setQueryInactive:query];
+    }
+}
+
 /**
  * Apply the result of a get request for the specified query.
  *

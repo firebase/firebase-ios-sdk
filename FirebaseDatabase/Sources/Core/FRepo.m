@@ -533,7 +533,7 @@
         }];
         return;
     }
-    [self.persistenceManager setQueryActive:querySpec];
+    [self.serverSyncTree setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
@@ -581,7 +581,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
-                   [self.persistenceManager setQueryInactive:querySpec];
+                   [self.serverSyncTree setQueryInactive:querySpec];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
@@ -604,7 +604,7 @@
                                                        index:querySpec.index]]);
                }];
            }
-           [self.persistenceManager setQueryInactive:querySpec];
+           [self.serverSyncTree setQueryInactive:querySpec];
          }];
 }
 
