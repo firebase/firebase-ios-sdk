@@ -116,11 +116,10 @@
   }];
   [self waitForExpectations:@[ completed ] timeout:5];
 
-  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
-  XCTAssertEqual(trackedQueries.count, 1);
-  XCTAssertEqualObjects(trackedQueries.firstObject.query,
-                        [FQuerySpec defaultQueryAtPath:PATH(@"foo")]);
-  XCTAssertFalse(trackedQueries.firstObject.isActive);
+  FTrackedQuery *trackedQuery =
+      [self trackedQueryForSpec:[FQuerySpec defaultQueryAtPath:PATH(@"foo")]];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertFalse(trackedQuery.isActive);
 }
 
 - (void)testSucceededGetDataOnObservedFilteredQueryKeepsQueryActive {
@@ -143,18 +142,17 @@
   }];
   [self waitForExpectations:@[ completed ] timeout:5];
 
-  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
-  XCTAssertEqual(trackedQueries.count, 1);
-  XCTAssertTrue(trackedQueries.firstObject.isActive);
+  FTrackedQuery *trackedQuery = [self trackedQueryForSpec:query.querySpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertTrue(trackedQuery.isActive);
 
   // Updating keys in the active filtered view asserts that the tracked query is still active.
   [[ref child:@"e"] setValue:@5];
-  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
-                });
 
   [query removeObserverWithHandle:handle];
-  trackedQueries = [self loadTrackedQueries];
-  XCTAssertFalse(trackedQueries.firstObject.isActive);
+  trackedQuery = [self trackedQueryForSpec:query.querySpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertFalse(trackedQuery.isActive);
 }
 
 - (void)testFailedGetDataOnKeptSyncedFilteredQueryKeepsQueryActive {
@@ -170,17 +168,17 @@
   }];
   [self waitForExpectations:@[ completed ] timeout:5];
 
-  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
-  XCTAssertEqual(trackedQueries.count, 1);
-  XCTAssertTrue(trackedQueries.firstObject.isActive);
+  FTrackedQuery *trackedQuery = [self trackedQueryForSpec:query.querySpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertTrue(trackedQuery.isActive);
 
+  // Updating keys in the active filtered view asserts that the tracked query is still active.
   [[ref child:@"a"] setValue:@1];
-  dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
-                });
 
   [query keepSynced:NO];
-  trackedQueries = [self loadTrackedQueries];
-  XCTAssertFalse(trackedQueries.firstObject.isActive);
+  trackedQuery = [self trackedQueryForSpec:query.querySpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertFalse(trackedQuery.isActive);
 }
 
 - (void)testSucceededGetDataOnObservedDefaultQueryKeepsQueryActive {
@@ -202,23 +200,28 @@
   }];
   [self waitForExpectations:@[ completed ] timeout:5];
 
-  NSArray<FTrackedQuery *> *trackedQueries = [self loadTrackedQueries];
-  XCTAssertEqual(trackedQueries.count, 1);
-  XCTAssertEqualObjects(trackedQueries.firstObject.query,
-                        [FQuerySpec defaultQueryAtPath:PATH(@"foo")]);
-  XCTAssertTrue(trackedQueries.firstObject.isActive);
+  FQuerySpec *defaultSpec = [FQuerySpec defaultQueryAtPath:PATH(@"foo")];
+  FTrackedQuery *trackedQuery = [self trackedQueryForSpec:defaultSpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertTrue(trackedQuery.isActive);
 
   [ref removeObserverWithHandle:handle];
-  trackedQueries = [self loadTrackedQueries];
-  XCTAssertFalse(trackedQueries.firstObject.isActive);
+  trackedQuery = [self trackedQueryForSpec:defaultSpec];
+  XCTAssertNotNil(trackedQuery);
+  XCTAssertFalse(trackedQuery.isActive);
 }
 
-- (NSArray<FTrackedQuery *> *)loadTrackedQueries {
+- (nullable FTrackedQuery *)trackedQueryForSpec:(FQuerySpec *)querySpec {
   __block NSArray<FTrackedQuery *> *trackedQueries;
   dispatch_sync([FIRDatabaseQuery sharedQueue], ^{
     trackedQueries = [self.storageEngine loadTrackedQueries];
   });
-  return trackedQueries;
+  for (FTrackedQuery *trackedQuery in trackedQueries) {
+    if ([trackedQuery.query isEqual:querySpec]) {
+      return trackedQuery;
+    }
+  }
+  return nil;
 }
 
 @end

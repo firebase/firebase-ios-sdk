@@ -77,7 +77,14 @@
                             forQuery:(FQuerySpec *)query
                          cancelError:(NSError *)cancelError;
 - (void)keepQuery:(FQuerySpec *)query synced:(BOOL)keepSynced;
+/** Marks the query as active in persistence. */
 - (void)setQueryActive:(FQuerySpec *)query;
+/**
+ * Marks the query as inactive in persistence only if no active observer or
+ * keepSynced view still needs it. For queries that load all data, any complete
+ * view at the path keeps the query active because persistence normalizes all
+ * such queries to the default query at that path.
+ */
 - (void)setQueryInactive:(FQuerySpec *)query;
 - (NSArray *)removeAllWrites;
 
