@@ -152,6 +152,8 @@
 }
 
 - (void)tearDown {
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
   [super tearDown];
 }
 
@@ -212,6 +214,8 @@
 }
 
 - (void)testDatabaseLoadDoesNotOverwriteNewerFetchedExperiments {
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
   __block RCNDBCompletion databaseLoadCompletion;
   id dbManagerMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([dbManagerMock loadExperimentWithCompletionHandler:[OCMArg any]])
@@ -248,6 +252,8 @@
 }
 
 - (void)testDatabaseLoadDoesNotOverwriteNewerActivatedExperiments {
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
   __block RCNDBCompletion databaseLoadCompletion;
   id dbManagerMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([dbManagerMock loadExperimentWithCompletionHandler:[OCMArg any]])
@@ -295,6 +301,8 @@
 }
 
 - (void)testActivationRetriesWhenDatabaseLoadPublishesNewerMetadata {
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
   __block RCNDBCompletion databaseLoadCompletion;
   id dbManagerMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([dbManagerMock loadExperimentWithCompletionHandler:[OCMArg any]])
@@ -580,6 +588,75 @@
   }];
 
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+- (void)testActivationCompletesWhileMainThreadIsBlocked {
+  XCTAssertTrue([NSThread isMainThread]);
+  RCNConfigDBManager *dbManager = [[RCNConfigDBManager alloc] init];
+  [dbManager waitForDatabaseOperationQueue];
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:dbManager
+                                experimentController:experimentController];
+  [experiment updateExperimentsWithResponse:@[ [[self class] payloadDictionaryFromTestFile] ]];
+  NSData *payloadData = [experiment experimentPayloadsForTesting].firstObject;
+  XCTAssertNotNil(payloadData);
+
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  __block BOOL didComplete = NO;
+  __block BOOL completedOnMainThread = YES;
+  [experiment updateExperimentsWithHandler:^(NSError *_Nullable error) {
+    didComplete = YES;
+    completedOnMainThread = [NSThread isMainThread];
+    dispatch_semaphore_signal(semaphore);
+  }];
+
+  intptr_t waitResult = dispatch_semaphore_wait(
+      semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_expectationTimeout * NSEC_PER_SEC)));
+  XCTAssertEqual(waitResult, 0);
+  XCTAssertTrue(didComplete);
+  XCTAssertFalse(completedOnMainThread);
+  XCTAssertEqualObjects([experiment activeExperimentPayloadsForTesting], @[ payloadData ]);
+  [dbManager waitForDatabaseOperationQueue];
+}
+
+- (void)testActivationHandlesMalformedPersistedMetadataTimestamp {
+  [_DBManagerMock stopMocking];
+  _DBManagerMock = nil;
+  id dbManagerMock = OCMClassMock([RCNConfigDBManager class]);
+  NSDictionary<NSString *, id> *corruptResults = @{
+    @RCNExperimentTableKeyPayload : @[],
+    @RCNExperimentTableKeyMetadata : @{@"last_experiment_start_time" : [NSNull null]},
+    @RCNExperimentTableKeyActivePayload : @[]
+  };
+  OCMStub([dbManagerMock
+      loadExperimentWithCompletionHandler:([OCMArg
+                                              invokeBlockWithArgs:@YES, corruptResults, nil])]);
+  OCMStub([dbManagerMock insertExperimentTableWithKey:[OCMArg any]
+                                                value:[OCMArg any]
+                                    completionHandler:nil]);
+  OCMStub([dbManagerMock replaceExperimentTableWithKey:[OCMArg any]
+                                                values:[OCMArg any]
+                                     completionHandler:[OCMArg any]])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained RCNDBCompletion completion;
+        [invocation getArgument:&completion atIndex:4];
+        if (completion) {
+          completion(YES, nil);
+        }
+      });
+
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:dbManagerMock
+                                experimentController:experimentController];
+  [experiment updateExperimentsWithResponse:@[ [[self class] payloadDictionaryFromTestFile] ]];
+  XCTAssertNoThrow([experiment updateExperimentStartTime]);
+  XCTAssertEqualObjects([experiment experimentMetadataForTesting][@"last_experiment_start_time"],
+                        @(12345678));
+  [dbManagerMock stopMocking];
 }
 
 #pragma mark Helpers.

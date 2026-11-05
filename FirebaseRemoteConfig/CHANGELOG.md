@@ -14,6 +14,7 @@
   experiment state during database loading and activation. (#16303)
 - [fixed] Made experiment payload replacement atomic and delayed A/B Testing
   updates until the queued active-experiment database replacement completes.
+  (#17019)
 
 # 13.1.0
 - [fixed] Fixed a crash when the Remote Config fetch response contains a

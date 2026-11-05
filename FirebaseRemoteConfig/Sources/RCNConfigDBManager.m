@@ -347,10 +347,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 #pragma mark - execute
 - (BOOL)executeQuery:(const char *)SQL {
   RCN_MUST_NOT_BE_MAIN_THREAD();
-  char *error;
+  char *error = NULL;
   if (sqlite3_exec(_database, SQL, nil, nil, &error) != SQLITE_OK) {
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000012", @"Failed to execute query with error %s.",
-                error);
+                error ? error : "unknown");
+    sqlite3_free(error);
     return NO;
   }
   return YES;
@@ -500,7 +501,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                     completionHandler:(RCNDBCompletion)handler {
   if (!key) {
     if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
         handler(NO, nil);
       });
     }
@@ -520,6 +521,10 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       if (!success) {
         break;
       }
+      if (![value isKindOfClass:[NSData class]]) {
+        success = NO;
+        break;
+      }
       success = [self insertExperimentTableWithKey:keyCopy value:value];
     }
 
@@ -531,7 +536,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     }
 
     if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
         handler(success, nil);
       });
     }

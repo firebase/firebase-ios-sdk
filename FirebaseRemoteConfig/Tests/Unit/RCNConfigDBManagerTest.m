@@ -585,6 +585,60 @@
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 
+- (void)testReplaceExperimentTableRollsBackOnNonDataValue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Non-NSData element rolls back replacement"];
+  NSData *oldPayload = [@"old" dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *newPayload = [@"new-1" dataUsingEncoding:NSUTF8StringEncoding];
+  NSArray *corruptValues = @[ newPayload, [NSNull null] ];
+
+  [_DBManager
+      replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                             values:@[ oldPayload ]
+                  completionHandler:^(BOOL success, NSDictionary *result) {
+                    XCTAssertTrue(success);
+                    [self->_DBManager
+                        replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                               values:corruptValues
+                                    completionHandler:^(BOOL replaceSuccess,
+                                                        NSDictionary *replaceResult) {
+                                      XCTAssertFalse(replaceSuccess);
+                                      [self->_DBManager loadExperimentWithCompletionHandler:^(
+                                                            BOOL loadSuccess,
+                                                            NSDictionary<NSString *, id> *results) {
+                                        XCTAssertTrue(loadSuccess);
+                                        XCTAssertEqualObjects(
+                                            results[@RCNExperimentTableKeyActivePayload],
+                                            @[ oldPayload ]);
+                                        [expectation fulfill];
+                                      }];
+                                    }];
+                  }];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceExperimentTableCompletesWhileMainThreadIsBlocked {
+  XCTAssertTrue([NSThread isMainThread]);
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  NSData *payload = [@"payload" dataUsingEncoding:NSUTF8StringEncoding];
+  __block BOOL callbackSuccess = NO;
+  __block BOOL callbackOnMainThread = YES;
+
+  [_DBManager replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                     values:@[ payload ]
+                          completionHandler:^(BOOL success, NSDictionary *result) {
+                            callbackSuccess = success;
+                            callbackOnMainThread = [NSThread isMainThread];
+                            dispatch_semaphore_signal(semaphore);
+                          }];
+
+  intptr_t waitResult = dispatch_semaphore_wait(
+      semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_expectionTimeout * NSEC_PER_SEC)));
+  XCTAssertEqual(waitResult, 0);
+  XCTAssertTrue(callbackSuccess);
+  XCTAssertFalse(callbackOnMainThread);
+}
+
 - (void)testWriteAndLoadMetadataMultipleTimes {
   XCTestExpectation *updateAndLoadMetadataExpectation = [self
       expectationWithDescription:@"Update and load experiment metadata in database successfully"];

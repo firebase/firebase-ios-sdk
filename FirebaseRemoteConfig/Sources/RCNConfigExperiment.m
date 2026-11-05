@@ -250,8 +250,11 @@ static NSString *const kMethodNameLatestStartTime =
     NSDictionary<NSString *, id> *metadataSnapshot = _experimentMetadata;
     os_unfair_lock_unlock(&_stateLock);
 
+    id rawLastStartTime = metadataSnapshot[kExperimentMetadataKeyLastStartTime];
     NSTimeInterval existingLastStartTime =
-        [metadataSnapshot[kExperimentMetadataKeyLastStartTime] doubleValue];
+        [rawLastStartTime respondsToSelector:@selector(doubleValue)]
+            ? [rawLastStartTime doubleValue]
+            : 0;
     NSTimeInterval latestStartTime =
         experimentController
             ? [experimentController
