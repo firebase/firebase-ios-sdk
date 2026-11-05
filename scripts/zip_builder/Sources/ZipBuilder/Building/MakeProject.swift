@@ -128,18 +128,18 @@ func platformFilters(_ platforms: Set<Platform>?) -> [String]? {
 /// The plan's settings in XcodeProj's form. Relative search paths are rooted at `$(SRCROOT)`, and
 /// a target's list settings start with `$(inherited)`, so they extend the project's instead of
 /// hiding them.
-func projectFileSettings(_ settings: XcodeSettings, isTarget: Bool) -> [String: Any] {
-  var result: [String: Any] = [:]
+func projectFileSettings(_ settings: XcodeSettings, isTarget: Bool) -> [String: BuildSetting] {
+  var result: [String: BuildSetting] = [:]
   for key in settings.keys {
     switch settings[key] {
     case let .string(value)?:
-      result[key] = value
+      result[key] = .string(value)
     case let .list(values)?:
       var items = isPathSetting(key) ? values.map(rootedAtSourceRoot) : values
       if isTarget, items.first != "$(inherited)" {
         items.insert("$(inherited)", at: 0)
       }
-      result[key] = items
+      result[key] = .array(items)
     case nil:
       continue
     }
@@ -149,7 +149,7 @@ func projectFileSettings(_ settings: XcodeSettings, isTarget: Bool) -> [String: 
 
 /// A framework target's settings: the plan's, plus the platforms it may be built for, so Xcode
 /// never builds it elsewhere.
-func targetSettings(_ framework: Framework) -> [String: Any] {
+func targetSettings(_ framework: Framework) -> [String: BuildSetting] {
   var settings = framework.settings
   var sdks = framework.platforms.sorted().filter { $0 != .catalyst }.flatMap(\.sdks)
   if framework.platforms.contains(.catalyst), !framework.platforms.contains(.ios) {
@@ -227,9 +227,9 @@ extension PBXProj {
   func target(for framework: Framework, product: PBXFileReference,
               group: PBXGroup) -> PBXNativeTarget {
     let headers = adding(PBXHeadersBuildPhase(files: framework.headers.map { header in
-      let attributes: [String: Any]? = switch header.visibility {
-      case .public: ["ATTRIBUTES": ["Public"]]
-      case .private: ["ATTRIBUTES": ["Private"]]
+      let attributes: [String: BuildFileSetting]? = switch header.visibility {
+      case .public: ["ATTRIBUTES": .array(["Public"])]
+      case .private: ["ATTRIBUTES": .array(["Private"])]
       case .project: nil
       }
       return adding(PBXBuildFile(file: fileReference(header.path, in: group),
@@ -284,7 +284,7 @@ extension PBXProj {
   }
 
   /// A configuration list with a single Release configuration.
-  func configurations(_ settings: [String: Any]) -> XCConfigurationList {
+  func configurations(_ settings: [String: BuildSetting]) -> XCConfigurationList {
     let release = adding(XCBuildConfiguration(name: configurationName, buildSettings: settings))
     return adding(XCConfigurationList(buildConfigurations: [release],
                                       defaultConfigurationName: configurationName))

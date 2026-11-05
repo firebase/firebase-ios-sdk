@@ -35,12 +35,12 @@ struct MakeProjectTests {
       try #require(project.pbxproj.nativeTargets.first { $0.name == name })
     }
 
-    func settings(_ target: String) throws -> [String: Any] {
+    func settings(_ target: String) throws -> [String: BuildSetting] {
       try #require(self.target(target).buildConfigurationList?.buildConfigurations.first)
         .buildSettings
     }
 
-    var projectSettings: [String: Any] {
+    var projectSettings: [String: BuildSetting] {
       project.pbxproj.rootObject?.buildConfigurationList.buildConfigurations.first?
         .buildSettings ?? [:]
     }
@@ -81,7 +81,7 @@ struct MakeProjectTests {
       "Sources/CoreC/CCPrivate.h", "Sources/CoreC/include/CCThing.h",
       "Sources/CoreC/include/CoreC.h",
     ])
-    #expect(headers.files?.map { $0.settings?["ATTRIBUTES"] as? [String] } ==
+    #expect(headers.files?.map { $0.settings?["ATTRIBUTES"]?.arrayValue } ==
       [nil, ["Private"], ["Public"]])
     #expect(try coreC.sourceFiles().map(\.path) == ["Sources/CoreC/CCThing.m"])
     #expect(try coreC.resourcesBuildPhase()?.files?.map { $0.file?.path } ==
@@ -169,21 +169,21 @@ struct MakeProjectTests {
 
   @Test func projectAndTargetSettings() async throws {
     let written = try await Self.write(#""frameworks": { "platforms": { "CoreC": ["ios"] } }"#)
-    #expect(written.projectSettings["GCC_PREPROCESSOR_DEFINITIONS"] as? [String] ==
+    #expect(written.projectSettings["GCC_PREPROCESSOR_DEFINITIONS"]?.arrayValue ==
       ["SWIFT_PACKAGE=1"])
-    #expect(written.projectSettings["SUPPORTS_MACCATALYST"] as? String == "YES")
+    #expect(written.projectSettings["SUPPORTS_MACCATALYST"]?.stringValue == "YES")
     let coreC = try written.settings("CoreC")
     // Target lists start with $(inherited), so the project's definitions still apply.
-    #expect(coreC["GCC_PREPROCESSOR_DEFINITIONS"] as? [String] == ["$(inherited)", "CORE_FLAG=1"])
-    #expect(coreC["GCC_PREPROCESSOR_DEFINITIONS[sdk=iphoneos*]"] as? [String] ==
+    #expect(coreC["GCC_PREPROCESSOR_DEFINITIONS"]?.arrayValue == ["$(inherited)", "CORE_FLAG=1"])
+    #expect(coreC["GCC_PREPROCESSOR_DEFINITIONS[sdk=iphoneos*]"]?.arrayValue ==
       ["$(inherited)", "CORE_IOS_ONLY"])
-    #expect(coreC["HEADER_SEARCH_PATHS"] as? [String] ==
+    #expect(coreC["HEADER_SEARCH_PATHS"]?.arrayValue ==
       ["$(inherited)", "$(SRCROOT)/Sources/CoreC", "$(SRCROOT)/Sources/CoreC/include"])
-    #expect(coreC["PRODUCT_NAME"] as? String == "CoreC")
-    #expect(coreC["SUPPORTED_PLATFORMS"] as? String == "iphoneos iphonesimulator")
-    #expect(coreC["SUPPORTS_MACCATALYST"] as? String == "NO")
+    #expect(coreC["PRODUCT_NAME"]?.stringValue == "CoreC")
+    #expect(coreC["SUPPORTED_PLATFORMS"]?.stringValue == "iphoneos iphonesimulator")
+    #expect(coreC["SUPPORTS_MACCATALYST"]?.stringValue == "NO")
     let swiftLib = try written.settings("SwiftLib")
-    #expect(swiftLib["SUPPORTED_PLATFORMS"] as? String ==
+    #expect(swiftLib["SUPPORTED_PLATFORMS"]?.stringValue ==
       "iphoneos iphonesimulator macosx appletvos appletvsimulator watchos watchsimulator")
     #expect(swiftLib["SUPPORTS_MACCATALYST"] == nil)
   }
@@ -197,7 +197,7 @@ struct MakeProjectTests {
     let headers = try written.target("Mini-Extras").buildPhases
       .compactMap { $0 as? PBXHeadersBuildPhase }.first?.files ?? []
     #expect(headers.last?.file?.path == umbrella.path)
-    #expect(headers.last?.settings?["ATTRIBUTES"] as? [String] == ["Public"])
+    #expect(headers.last?.settings?["ATTRIBUTES"]?.arrayValue == ["Public"])
     #expect(try written.settings("Mini-Extras")["VERSIONING_SYSTEM"] == nil) // set project-wide
     // CoreC has its own umbrella header, CoreC.h; SwiftLib (pure Swift) gets one too.
     let generated = try FileManager.default.contentsOfDirectory(
@@ -223,7 +223,7 @@ struct MakeProjectTests {
     }
 
     """)
-    #expect(try written.settings("CCIHelper")["MODULEMAP_FILE"] as? String == moduleMap.path)
+    #expect(try written.settings("CCIHelper")["MODULEMAP_FILE"]?.stringValue == moduleMap.path)
   }
 
   @Test func projectCommandReadsAPlan() async throws {
