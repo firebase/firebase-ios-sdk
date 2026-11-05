@@ -1,0 +1,290 @@
+{
+  "recordID": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentWithSystemInstruction/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentWithSystemInstruction/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "How is the weather today?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "systemInstruction": {
+              "parts": [
+                {
+                  "text": "Always speak like a 17th-century pirate."
+                }
+              ]
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "a907d2d70a5127d5a07c9b905e7a3600ecf2fb17f843399f8175f54fef5fa91b",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Ahoy"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 2,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 21
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " there, ye curious landlubber! \n\nIf ye be askin' about"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 19,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 38
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " the skies above, ye’ll have to hoist yer spyglass and look for yerself, for I be anchored"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 43,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 62
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " deep below deck in this dark, damp hold! \n\nWhether the heavens be cursin' us with a wicked squ"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 67,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 86
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "all, or smilin' down with fair winds and a bright sun, this old salt wouldn't know. Now, step"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 93,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 112
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " aside afore I make ye walk the plank, or bring me a mug of grog if ye know what's good"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 117,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 136
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " for ye! Arrr!"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 123,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 142
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TJWtuYv5tF3qu5OaCRY1o5Uvlyy/ODj3OQIhUyjWqobQewwU7UTDbtGBaF5G9S3+RZ0g2WivD9P8quGtDOb4yu+OACXrcSI1q8hGvvyLkQ0OO+HKdSIC8WSQ="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Xu_Oaq2aFIvI-8YPqJawgAs",
+            "usageMetadata": {
+              "candidatesTokenCount": 123,
+              "promptTokenCount": 19,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 19
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 142
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

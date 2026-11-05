@@ -1,0 +1,134 @@
+{
+  "recordID": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithSchema/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithSchema/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Provide details for the city of Paris."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "description": "A summary of a city",
+                "properties": {
+                  "country": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "propertyOrdering": [
+                  "name",
+                  "country"
+                ],
+                "required": [
+                  "name",
+                  "country"
+                ],
+                "title": "CitySummary",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "ff0ee0e67b7a0391597d2ed13f0a36191fa383030b200ef3c8bef3cf84c3c067",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "{\n  \"name\": \"Paris\",\n  \"country\": \"France\"\n}"
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ve_OapqGEc_K-8YPtMWIwAw",
+            "usageMetadata": {
+              "candidatesTokenCount": 19,
+              "promptTokenCount": 9,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 9
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 28
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EmAKXgFpFH0TpLiVq5VgYaWy5ZctigGLACJ2fHKcaMFBhmdUYy0PHQ8MtLwT8xwtzYz+8bDNqbkpM9xjDnF0QuxHj7TQizuJhLT0qaBZtxq0NAEyC75JyWB1KU/aGT5IkXE="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Ve_OapqGEc_K-8YPtMWIwAw",
+            "usageMetadata": {
+              "candidatesTokenCount": 19,
+              "promptTokenCount": 9,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 9
+                }
+              ],
+              "serviceTier": "standard",
+              "totalTokenCount": 28
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

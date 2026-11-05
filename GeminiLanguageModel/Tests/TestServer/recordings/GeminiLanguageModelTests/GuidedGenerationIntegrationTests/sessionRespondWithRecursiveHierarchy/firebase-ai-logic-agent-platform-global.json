@@ -1,0 +1,241 @@
+{
+  "recordID": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithRecursiveHierarchy/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/GuidedGenerationIntegrationTests/sessionRespondWithRecursiveHierarchy/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Generate an engineering department named \"Platform\" with 50 people, a budget of 4.5 million, active status, notes \"Core infrastructure team\", skills [\"Swift\", \"Go\"], and one subteam named \"Networking\" with 10 people, budget 1.0 million, active status, skills [\"TCP\", \"HTTP\"], and no subteams."
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "generationConfig": {
+              "responseJsonSchema": {
+                "additionalProperties": false,
+                "description": "An organization node in an organizational hierarchy",
+                "properties": {
+                  "budgetMillions": {
+                    "type": "number"
+                  },
+                  "headcount": {
+                    "type": "integer"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "notes": {
+                    "type": "string"
+                  },
+                  "skills": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "subteams": {
+                    "items": {
+                      "$ref": "#"
+                    },
+                    "type": "array"
+                  }
+                },
+                "propertyOrdering": [
+                  "name",
+                  "headcount",
+                  "budgetMillions",
+                  "isActive",
+                  "notes",
+                  "skills",
+                  "subteams"
+                ],
+                "required": [
+                  "name",
+                  "headcount",
+                  "budgetMillions",
+                  "isActive",
+                  "skills",
+                  "subteams"
+                ],
+                "title": "OrganizationNode",
+                "type": "object"
+              },
+              "responseMimeType": "application/json"
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "0d30936f0a05a62970c05cb779095d0ff10c832a92f65695e19b959d91d9d5e3",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "{\n  \"name\": \"Platform\","
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\n  \"headcount\": 50,\n  \"budgetMillions\": 4.5,\n  \""
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "isActive\": true,\n  \"notes\": \"Core infrastructure team\",\n  \"skills\": [\"Swift\", \"Go"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\"],\n  \"subteams\": [\n    {\n      \"name\": \"Networking\",\n      \"headcount"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "\": 10,\n      \"budgetMillions\": 1.0,\n      \"isActive\": true,\n      \"notes\": \"\",\n      \"skills\": [\"TCP\", \"HTTP\"],\n      \"subteams\": []\n    }\n  ]\n}"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a1+vwTpOXf+JpXOUZUMsx/yQ1FXzqQjx4DKBhU33zwNIAKGVnBdNzqRkgHuY/Ni7kUzO4xLnhWVg+lV/Ozgp148RNV9Cft7TGf0OYSkw0UJcIkCTk+zvrA4="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:26.567240Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "Wu_OasjPItCpmecP_9SECA",
+            "usageMetadata": {
+              "candidatesTokenCount": 136,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 136
+                }
+              ],
+              "promptTokenCount": 1363,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 1363
+                }
+              ],
+              "totalTokenCount": 1499,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

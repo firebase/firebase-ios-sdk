@@ -24,16 +24,27 @@
   extension IntegrationTestingBackend {
     /// Creates a `GeminiLanguageModel` configured for this backend.
     ///
-    /// - Parameter modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
+    /// In `record` and `replay` modes, requests are routed through test-server and recorded under
+    /// a name derived from the calling test's file and function, so call this method directly
+    /// from the test function rather than from a shared helper.
+    ///
+    /// - Parameters:
+    ///   - modelID: The model identifier to use. Defaults to `gemini-3.5-flash-lite`.
+    ///   - fileID: The calling test's file; used to name test-server recordings.
+    ///   - function: The calling test's function; used to name test-server recordings.
     /// - Returns: A configured `GeminiLanguageModel` instance.
     /// - Throws: An error if model resource or credentials resolution fails.
     func makeModel(
-      modelID: String = ModelResource.gemini35FlashLiteID
+      modelID: String = ModelResource.gemini35FlashLiteID,
+      fileID: String = #fileID,
+      function: String = #function
     ) async throws -> GeminiLanguageModel {
       GeminiLanguageModel(
         modelResource: try modelResource(modelID: modelID),
         endpointConfiguration: endpointConfiguration,
-        headerProvider: try makeHeaderProvider()
+        headerProvider: try makeHeaderProvider(
+          recordingName: recordingName(fileID: fileID, function: function)
+        )
       )
     }
   }

@@ -42,7 +42,9 @@
 
     /// All canonical backend configurations for parameterized testing.
     package static let allCases: [IntegrationTestingBackend] = [
-      .developerAPI,
+      // Integration tests target Firebase AI Logic only. Uncomment for manual testing against
+      // the Gemini Developer API directly (requires `GEMINI_API_KEY` or `GOOGLE_API_KEY`).
+      // .developerAPI,
       .firebaseAILogicDeveloperAPI,
       .firebaseAILogicAgentPlatform(location: "global"),
     ]
@@ -61,9 +63,16 @@
     /// Indicates whether the required credentials are available for this backend in the
     /// specified test environment.
     ///
+    /// In `replay` mode, every backend is available because recorded interactions don't require
+    /// credentials.
+    ///
     /// - Parameter environment: The test environment to evaluate. Defaults to `.process`.
     /// - Returns: `true` if this backend is available to execute tests; otherwise, `false`.
     package func isAvailable(in environment: IntegrationTestEnvironment = .process) -> Bool {
+      if environment.integrationTestMode == .replay {
+        return true
+      }
+
       switch self {
       case .developerAPI:
         return environment.hasGeminiAPIKey
@@ -83,20 +92,58 @@
       allCases.filter(\.isAvailable)
     }
 
-    /// The network endpoint configuration for this backend.
+    /// The network endpoint configuration for this backend in the process environment.
     package var endpointConfiguration: EndpointConfiguration {
+      endpointConfiguration(in: .process)
+    }
+
+    /// The network endpoint configuration for this backend in the specified test environment.
+    ///
+    /// In `record` and `replay` modes, requests are sent to the local test-server proxy for the
+    /// backend's host instead of the live endpoint.
+    ///
+    /// - Parameter environment: The test environment to evaluate.
+    /// - Returns: The endpoint configuration to use for requests.
+    package func endpointConfiguration(
+      in environment: IntegrationTestEnvironment
+    ) -> EndpointConfiguration {
+      let liveConfiguration: EndpointConfiguration
+      let apiVersion: String
+      let testServerPort: Int
       switch self {
       case .developerAPI:
-        return .geminiDeveloperAPI
+        liveConfiguration = .geminiDeveloperAPI
+        apiVersion = EndpointConfiguration.geminiDeveloperAPIVersion
+        testServerPort = TestServerConfiguration.developerAPIPort
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        return .firebaseAILogic
+        liveConfiguration = .firebaseAILogic
+        apiVersion = EndpointConfiguration.firebaseAILogicAPIVersion
+        testServerPort = TestServerConfiguration.firebaseAILogicPort
       }
+
+      guard environment.integrationTestMode.usesTestServer else {
+        return liveConfiguration
+      }
+      return EndpointConfiguration(
+        scheme: "http",
+        host: TestServerConfiguration.host,
+        port: testServerPort,
+        apiVersion: apiVersion
+      )
     }
 
     /// The model resource configuration for this backend given a model identifier.
+    ///
+    /// - Parameters:
+    ///   - modelID: The model identifier. Defaults to `gemini-3.5-flash-lite`.
+    ///   - environment: The test environment to evaluate. Defaults to `.process`.
+    /// - Returns: The model resource for this backend.
+    /// - Throws: `IntegrationBackendError.missingCredential` if the Firebase project ID is
+    ///   required but unavailable.
     package func modelResource(
-      modelID: String = ModelResource.gemini35FlashLiteID
+      modelID: String = ModelResource.gemini35FlashLiteID,
+      in environment: IntegrationTestEnvironment = .process
     ) throws -> ModelResource {
       switch self {
       case .developerAPI:
@@ -107,7 +154,7 @@
         )
 
       case .firebaseAILogicDeveloperAPI:
-        let projectID = try resolveProjectID()
+        let projectID = try resolveProjectID(in: environment)
         return ModelResource(
           modelID: modelID,
           urlResourceName: "projects/\(projectID)/models/\(modelID)",
@@ -115,7 +162,7 @@
         )
 
       case .firebaseAILogicAgentPlatform(let location):
-        let projectID = try resolveProjectID()
+        let projectID = try resolveProjectID(in: environment)
         let resourcePath =
           "projects/\(projectID)/locations/\(location)/publishers/google/models/\(modelID)"
         return ModelResource(
@@ -126,27 +173,96 @@
       }
     }
 
-    /// Creates the authentication header provider for this backend.
+    /// Creates the header provider for this backend.
+    ///
+    /// - In `live` mode, the provider returns credential headers.
+    /// - In `record` mode, the provider returns credential headers and the test-server
+    ///   recording name header.
+    /// - In `replay` mode, the provider returns only the recording name header; credentials are
+    ///   neither required nor sent.
+    ///
+    /// - Parameters:
+    ///   - recordingName: The test-server recording name, typically from
+    ///     ``recordingName(fileID:function:)``. Ignored in `live` mode.
+    ///   - authenticated: Whether to send credentials. Pass `false` to test unauthenticated
+    ///     requests; only the recording name header is sent.
+    ///   - environment: The test environment to evaluate. Defaults to `.process`.
+    /// - Returns: A header provider, or `nil` if there are no headers to send.
+    /// - Throws: `IntegrationBackendError.missingCredential` if required credentials are missing.
     @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
-    package func makeHeaderProvider() throws -> (
-      @Sendable () async throws -> [String: String]
-    )? {
+    package func makeHeaderProvider(
+      recordingName: String? = nil,
+      authenticated: Bool = true,
+      in environment: IntegrationTestEnvironment = .process
+    ) throws -> (@Sendable () async throws -> [String: String])? {
+      let mode = environment.integrationTestMode
+      let recordingHeaders: [String: String] =
+        if mode.usesTestServer, let recordingName {
+          [TestServerConfiguration.recordingNameHeader: recordingName]
+        } else {
+          [:]
+        }
+
+      let sendsCredentials = authenticated && mode != .replay
+      let credentialHeaderProvider =
+        sendsCredentials ? try makeCredentialHeaderProvider(in: environment) : nil
+      guard let credentialHeaderProvider else {
+        guard !recordingHeaders.isEmpty else { return nil }
+        return { @Sendable in recordingHeaders }
+      }
+      return {
+        try await credentialHeaderProvider().merging(recordingHeaders) { current, _ in current }
+      }
+    }
+
+    /// Creates a test-server recording name that is unique per test function and backend.
+    ///
+    /// For example, `#fileID` `"MyModuleTests/MySuiteTests.swift"` and `#function`
+    /// `"myTest(backend:)"` produce `"MyModuleTests/MySuiteTests/myTest/developer-api"` for
+    /// ``developerAPI``.
+    ///
+    /// - Parameters:
+    ///   - fileID: The `#fileID` of the test file.
+    ///   - function: The `#function` of the test function.
+    /// - Returns: A relative, path-safe recording name.
+    package func recordingName(fileID: String, function: String) -> String {
+      let fileName = fileID.hasSuffix(".swift") ? String(fileID.dropLast(".swift".count)) : fileID
+      let functionName = function.prefix { $0 != "(" }
+      return "\(fileName)/\(functionName)/\(recordingSlug)"
+    }
+
+    /// A stable, path-safe identifier for this backend used in recording names.
+    package var recordingSlug: String {
       switch self {
       case .developerAPI:
-        if let apiKey = geminiAPIKey {
+        return "developer-api"
+      case .firebaseAILogicDeveloperAPI:
+        return "firebase-ai-logic-developer-api"
+      case .firebaseAILogicAgentPlatform(let location):
+        return "firebase-ai-logic-agent-platform-\(location)"
+      }
+    }
+
+    @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+    private func makeCredentialHeaderProvider(
+      in environment: IntegrationTestEnvironment
+    ) throws -> (@Sendable () async throws -> [String: String])? {
+      switch self {
+      case .developerAPI:
+        if let apiKey = environment.geminiAPIKey {
           return { ["x-goog-api-key": apiKey] }
         }
         return nil
 
       case .firebaseAILogicDeveloperAPI, .firebaseAILogicAgentPlatform:
-        let projectID = try resolveProjectID()
-        guard let appID = firebaseAppID else {
+        let projectID = try resolveProjectID(in: environment)
+        guard let appID = environment.firebaseAppID else {
           throw IntegrationBackendError.missingCredential("firebaseAppID")
         }
-        guard let apiKey = firebaseAPIKey else {
+        guard let apiKey = environment.firebaseAPIKey else {
           throw IntegrationBackendError.missingCredential("firebaseAPIKey")
         }
-        guard let debugToken = appCheckDebugToken else {
+        guard let debugToken = environment.appCheckDebugToken else {
           throw IntegrationBackendError.missingCredential("appCheckDebugToken")
         }
         return {
@@ -164,8 +280,11 @@
       }
     }
 
-    private func resolveProjectID() throws -> String {
-      guard let projectID = firebaseProjectID else {
+    private func resolveProjectID(in environment: IntegrationTestEnvironment) throws -> String {
+      if environment.integrationTestMode == .replay {
+        return TestServerConfiguration.redactedPlaceholder
+      }
+      guard let projectID = environment.firebaseProjectID else {
         throw IntegrationBackendError.missingCredential("firebaseProjectID")
       }
       return projectID

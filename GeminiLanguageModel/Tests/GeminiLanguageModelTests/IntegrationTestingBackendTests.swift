@@ -24,7 +24,7 @@ struct IntegrationTestingBackendTests {
   @Test
   func developerAPIEndpoint() {
     let backend = IntegrationTestingBackend.developerAPI
-    let config = backend.endpointConfiguration
+    let config = backend.endpointConfiguration(in: IntegrationTestEnvironment(variables: [:]))
 
     #expect(config.apiVersion == EndpointConfiguration.geminiDeveloperAPIVersion)
     #expect(config == .geminiDeveloperAPI)
@@ -33,7 +33,7 @@ struct IntegrationTestingBackendTests {
   @Test
   func firebaseAILogicEndpoint() {
     let backend = IntegrationTestingBackend.firebaseAILogicDeveloperAPI
-    let config = backend.endpointConfiguration
+    let config = backend.endpointConfiguration(in: IntegrationTestEnvironment(variables: [:]))
 
     #expect(config.apiVersion == EndpointConfiguration.firebaseAILogicAPIVersion)
     #expect(config == .firebaseAILogic)
@@ -182,6 +182,182 @@ struct IntegrationTestingBackendTests {
     #expect(
       IntegrationTestingBackend.developerAPI.isAvailable
         == IntegrationTestingBackend.developerAPI.isAvailable(in: processEnv)
+    )
+  }
+
+  // MARK: - Integration Test Modes
+
+  @Test
+  func integrationTestModeDefaultsToLive() {
+    let environment = IntegrationTestEnvironment(variables: [:])
+
+    let mode = environment.integrationTestMode
+
+    #expect(mode == .live)
+  }
+
+  @Test(arguments: [
+    ("live", IntegrationTestMode.live),
+    ("record", .record),
+    ("REPLAY", .replay),
+  ])
+  func integrationTestModeParsing(value: String, expectedMode: IntegrationTestMode) {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: value
+    ])
+
+    let mode = environment.integrationTestMode
+
+    #expect(mode == expectedMode)
+  }
+
+  @Test
+  func replayModeMakesBackendsAvailableWithoutCredentials() {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "replay"
+    ])
+
+    let availability = IntegrationTestingBackend.allCases.map { $0.isAvailable(in: environment) }
+
+    #expect(availability.allSatisfy { $0 })
+  }
+
+  @Test
+  func recordModeRequiresCredentials() {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "record"
+    ])
+
+    let availability = IntegrationTestingBackend.allCases.map { $0.isAvailable(in: environment) }
+
+    #expect(availability.allSatisfy { !$0 })
+  }
+
+  @Test(arguments: [IntegrationTestMode.record, .replay])
+  func testServerModesUseLocalEndpoints(mode: IntegrationTestMode) {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: mode.rawValue
+    ])
+
+    let developerAPIConfig =
+      IntegrationTestingBackend.developerAPI.endpointConfiguration(in: environment)
+    let firebaseConfig =
+      IntegrationTestingBackend.firebaseAILogicAgentPlatform(location: "global")
+      .endpointConfiguration(in: environment)
+
+    #expect(
+      developerAPIConfig
+        == EndpointConfiguration(
+          scheme: "http",
+          host: "localhost",
+          port: TestServerConfiguration.developerAPIPort,
+          apiVersion: EndpointConfiguration.geminiDeveloperAPIVersion
+        )
+    )
+    #expect(
+      firebaseConfig
+        == EndpointConfiguration(
+          scheme: "http",
+          host: "localhost",
+          port: TestServerConfiguration.firebaseAILogicPort,
+          apiVersion: EndpointConfiguration.firebaseAILogicAPIVersion
+        )
+    )
+  }
+
+  @Test
+  func replayModeUsesRedactedProjectID() throws {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "replay"
+    ])
+    let backend = IntegrationTestingBackend.firebaseAILogicDeveloperAPI
+
+    let resource = try backend.modelResource(modelID: "test-model", in: environment)
+
+    #expect(resource.urlResourceName == "projects/REDACTED/models/test-model")
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func replayHeaderProviderSendsOnlyRecordingName() async throws {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "replay"
+    ])
+    let backend = IntegrationTestingBackend.firebaseAILogicAgentPlatform(location: "global")
+
+    let headerProvider = try #require(
+      try backend.makeHeaderProvider(recordingName: "Suite/test/backend", in: environment)
+    )
+    let headers = try await headerProvider()
+
+    #expect(headers == ["Test-Name": "Suite/test/backend"])
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func recordHeaderProviderSendsCredentialsAndRecordingName() async throws {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "record",
+      "GEMINI_API_KEY": "test-gemini-key",
+    ])
+    let backend = IntegrationTestingBackend.developerAPI
+
+    let headerProvider = try #require(
+      try backend.makeHeaderProvider(recordingName: "Suite/test/backend", in: environment)
+    )
+    let headers = try await headerProvider()
+
+    #expect(headers == ["x-goog-api-key": "test-gemini-key", "Test-Name": "Suite/test/backend"])
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func liveHeaderProviderOmitsRecordingName() async throws {
+    let environment = IntegrationTestEnvironment(variables: [
+      "GEMINI_API_KEY": "test-gemini-key"
+    ])
+    let backend = IntegrationTestingBackend.developerAPI
+
+    let headerProvider = try #require(
+      try backend.makeHeaderProvider(recordingName: "Suite/test/backend", in: environment)
+    )
+    let headers = try await headerProvider()
+
+    #expect(headers == ["x-goog-api-key": "test-gemini-key"])
+  }
+
+  @Test
+  @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+  func unauthenticatedHeaderProviderSendsOnlyRecordingName() async throws {
+    let environment = IntegrationTestEnvironment(variables: [
+      IntegrationTestMode.environmentVariable: "record",
+      "GEMINI_API_KEY": "test-gemini-key",
+    ])
+    let backend = IntegrationTestingBackend.developerAPI
+
+    let headerProvider = try #require(
+      try backend.makeHeaderProvider(
+        recordingName: "Suite/test/backend",
+        authenticated: false,
+        in: environment
+      )
+    )
+    let headers = try await headerProvider()
+
+    #expect(headers == ["Test-Name": "Suite/test/backend"])
+  }
+
+  @Test
+  func recordingNameIncludesFileFunctionAndBackend() {
+    let backend = IntegrationTestingBackend.firebaseAILogicAgentPlatform(location: "us-central1")
+
+    let name = backend.recordingName(
+      fileID: "MyModuleTests/MySuiteTests.swift",
+      function: "myTest(backend:)"
+    )
+
+    #expect(
+      name == "MyModuleTests/MySuiteTests/myTest/firebase-ai-logic-agent-platform-us-central1"
     )
   }
 }

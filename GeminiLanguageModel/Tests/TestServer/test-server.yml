@@ -1,0 +1,42 @@
+# Configuration for google/test-server, used by `scripts/test-server.sh` to record and replay
+# GeminiLanguageModel integration tests. See `Tests/TestServer/README.md`.
+#
+# Ports must match `TestServerConfiguration` in
+# `Tests/GeminiTestUtilities/IntegrationTestMode.swift`.
+#
+# test-server matches a replayed request by hashing its method, URL, JSON body, previous request
+# in the same recording, and every header *not* listed in `redact_request_headers`. Headers are
+# listed below if they contain credentials or vary by machine, OS, or locale.
+endpoints:
+  - target_host: generativelanguage.googleapis.com
+    target_type: https
+    target_port: 443
+    source_type: http
+    source_port: 1443
+    health: /test-server/health
+    redact_request_headers: &redacted_headers
+      # Credentials. `Authorization` carries `Bearer` OAuth access tokens and
+      # `Firebase` Auth ID tokens, which aren't known before a run and so can't
+      # be listed in TEST_SERVER_SECRETS.
+      - Authorization
+      - X-Goog-Api-Key
+      - X-Firebase-Appcheck
+      # Vary by SDK version or Firebase app (sent by FirebaseAI).
+      - X-Goog-Api-Client
+      - X-Firebase-Appid
+      - X-Firebase-Appversion
+      # Added by URLSession; vary by OS version, CFNetwork version, and locale.
+      - Accept
+      - Accept-Encoding
+      - Accept-Language
+      - Connection
+      - User-Agent
+      # Redundant with the JSON body comparison.
+      - Content-Length
+  - target_host: firebasevertexai.googleapis.com
+    target_type: https
+    target_port: 443
+    source_type: http
+    source_port: 1444
+    health: /test-server/health
+    redact_request_headers: *redacted_headers

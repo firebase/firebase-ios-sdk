@@ -1,0 +1,233 @@
+{
+  "recordID": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentWithSystemInstruction/firebase-ai-logic-agent-platform-global",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/locations/global/publishers/google/models/gemini-3.5-flash-lite:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentWithSystemInstruction/firebase-ai-logic-agent-platform-global"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "How is the weather today?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "systemInstruction": {
+              "parts": [
+                {
+                  "text": "Always speak like a 17th-century pirate."
+                }
+              ]
+            }
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "63ddd6182b13ff46e273b3ed94070ad4efcbfc9942b0581af349a5bc91cf6bcf",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "Ahoy"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ", ye curious landlubber! \n\nIf ye be askin' about"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " the skies above, ye’ll have to cast yer good eye out the window yerself! This here wooden tub"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " be sailin' through the endless digital ether, miles away from any port or sky. \n\nSo check yer own"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": " compass, hoist yer sails if the wind be fair, and batten down the hatches if a storm be brewin'! Now"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ", unless ye have some treasure to speak of, run along before I make ye walk the plank! *Arrr!"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "*"
+                    }
+                  ],
+                  "role": "model"
+                }
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "trafficType": "ON_DEMAND"
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "AY89a1+0IiUNqxJmr+8LnFPmf+0iT8NoVYDSO03Qk40H9lm15Fd2AXEYL4ze/xG8Dq4+Z6SBhSiohe6+GTvNvc6DPIER+DPft7aEikWlzCF4gD69fMYObjymbiY="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP"
+              }
+            ],
+            "createTime": "2026-10-14T02:56:31.314492Z",
+            "modelVersion": "gemini-3.5-flash-lite",
+            "responseId": "X-_OavyYE9CpmecP_9SECA",
+            "usageMetadata": {
+              "candidatesTokenCount": 116,
+              "candidatesTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 116
+                }
+              ],
+              "promptTokenCount": 18,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 18
+                }
+              ],
+              "totalTokenCount": 134,
+              "trafficType": "ON_DEMAND"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,316 @@
+{
+  "recordID": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondWithReasoningAndToolCalls/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.8-flash:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.8-flash:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondWithReasoningAndToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Chicago?"
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "b656d4cd02e0884b52abc91651ffa9accd7f3974f5dd6e63208c351bab089bd1",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "functionCall": {
+                        "args": {
+                          "city": "Chicago"
+                        },
+                        "id": "call_108456",
+                        "name": "getWeather"
+                      },
+                      "thoughtSignature": "ErQCCrECAWkUfROS0YmzsYyOnICH5/lygQuaXw2YTPaK0d4OMXWBy2jdstc4pI99Y4L7J7pIx0kp8excnfMYyqViBG7ZChuqxEdxHl1f6VT7+1l5+gExAM1Tlki4BJbR2vNN3pv0pd/rCESgs0EJyYu1XsZ/5NL6g5BU/DTGAcw2YZkZb3UQyEGe3cJkgn/6PA5JxZUhYsQHh1RMzHzxppFgWzgJTDIKVlNTWRpHt/ZSWrH0h3sd/04jMi6BNPppjPeq99eiPfxnWmiRi1Mev7Wx1BtJyUnNuGLgI/lYKMwKkfLukWl9c5rwPKvcnHzVsKSSJ7Gmmr+w+MZqLfuTSRbIkDPFq0cZ4+HKdTfFWjNaj1YkeST4GRljdso546Wtz8+ILiDYpvS00IDGU9rxBneGn/4VHMA="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.8-flash",
+            "responseId": "_dLOapiDAenN_PUP_pCjsQI",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 71,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 71
+                }
+              ],
+              "serviceTier": "standard",
+              "thoughtsTokenCount": 42,
+              "totalTokenCount": 128
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": ""
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.8-flash",
+            "responseId": "_dLOapiDAenN_PUP_pCjsQI",
+            "usageMetadata": {
+              "candidatesTokenCount": 15,
+              "promptTokenCount": 71,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 71
+                }
+              ],
+              "serviceTier": "standard",
+              "thoughtsTokenCount": 42,
+              "totalTokenCount": 128
+            }
+          }
+        ]
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/gemini-3.8-flash:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/gemini-3.8-flash:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiLanguageModelTests/ToolCallingIntegrationTests/sessionRespondWithReasoningAndToolCalls/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "What is the weather in Chicago?"
+                  }
+                ],
+                "role": "user"
+              },
+              {
+                "parts": [
+                  {
+                    "functionCall": {
+                      "args": {
+                        "city": "Chicago"
+                      },
+                      "id": "call_108456",
+                      "name": "getWeather"
+                    },
+                    "thoughtSignature": "ErQCCrECAWkUfROS0YmzsYyOnICH5/lygQuaXw2YTPaK0d4OMXWBy2jdstc4pI99Y4L7J7pIx0kp8excnfMYyqViBG7ZChuqxEdxHl1f6VT7+1l5+gExAM1Tlki4BJbR2vNN3pv0pd/rCESgs0EJyYu1XsZ/5NL6g5BU/DTGAcw2YZkZb3UQyEGe3cJkgn/6PA5JxZUhYsQHh1RMzHzxppFgWzgJTDIKVlNTWRpHt/ZSWrH0h3sd/04jMi6BNPppjPeq99eiPfxnWmiRi1Mev7Wx1BtJyUnNuGLgI/lYKMwKkfLukWl9c5rwPKvcnHzVsKSSJ7Gmmr+w+MZqLfuTSRbIkDPFq0cZ4+HKdTfFWjNaj1YkeST4GRljdso546Wtz8+ILiDYpvS00IDGU9rxBneGn/4VHMA="
+                  }
+                ],
+                "role": "model"
+              },
+              {
+                "parts": [
+                  {
+                    "functionResponse": {
+                      "id": "call_108456",
+                      "name": "getWeather",
+                      "response": {
+                        "result": "The current weather in Chicago is 22°C and sunny."
+                      }
+                    }
+                  }
+                ],
+                "role": "user"
+              }
+            ],
+            "toolConfig": {
+              "functionCallingConfig": {
+                "mode": "VALIDATED"
+              }
+            },
+            "tools": [
+              {
+                "functionDeclarations": [
+                  {
+                    "description": "Get the current weather for a city.",
+                    "name": "getWeather",
+                    "parametersJsonSchema": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "city": {
+                          "description": "The city name to look up weather for",
+                          "type": "string"
+                        }
+                      },
+                      "propertyOrdering": [
+                        "city"
+                      ],
+                      "required": [
+                        "city"
+                      ],
+                      "title": "Arguments",
+                      "type": "object"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b656d4cd02e0884b52abc91651ffa9accd7f3974f5dd6e63208c351bab089bd1",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "8e3c084c4529fcd3d757bb4496b2170b1d6d91a4e658611bbfd2cba25091e5cb",
+      "response": {
+        "statusCode": 200,
+        "headers": {
+          "Content-Disposition": "attachment",
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "The current weather in Chicago is 22°C (72°F) and sunny."
+                    }
+                  ],
+                  "role": "model"
+                },
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.8-flash",
+            "responseId": "_9LOasHlOK6qsOIPzM2F4A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 20,
+              "promptTokenCount": 112,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 112
+                }
+              ],
+              "serviceTier": "standard",
+              "thoughtsTokenCount": 27,
+              "totalTokenCount": 159
+            }
+          },
+          {
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "text": "",
+                      "thoughtSignature": "EvoBCvcBAWkUfRPUtPdI7JZRE71hmZUkxDJGOO8nFB+T0wUdclZ9w62wWXdjI5yUd83lrW3cPXRqY8rplBIB+utolbiCIGVm2o8Zf52eV3SVhH951C6bOd1EWTV6AVz2u0/vBaWDDUVvQF9y/LdQTb7DVFlQ2peU3B99AUF4p9sv8kkXOXl+gN3Rbs7PoyZl6x3cxOVrui3Ip8JFAt2a5V4C3sTNCSWl2gsjDMbENeaFDHbPQsyERbZc6F5imIuDvI9TlMHFADkejSBh13p3WUSLApmNAz9RhxuxwRHiU6wEYX8R5hw2UKRJdLSb7+HH0RiUO9W5n56Gr98Wrw=="
+                    }
+                  ],
+                  "role": "model"
+                },
+                "finishReason": "STOP",
+                "index": 0
+              }
+            ],
+            "modelVersion": "gemini-3.8-flash",
+            "responseId": "_9LOasHlOK6qsOIPzM2F4A0",
+            "usageMetadata": {
+              "candidatesTokenCount": 20,
+              "promptTokenCount": 154,
+              "promptTokensDetails": [
+                {
+                  "modality": "TEXT",
+                  "tokenCount": 154
+                }
+              ],
+              "serviceTier": "standard",
+              "thoughtsTokenCount": 27,
+              "totalTokenCount": 201
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

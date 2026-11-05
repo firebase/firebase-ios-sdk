@@ -1,0 +1,56 @@
+{
+  "recordID": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentInvalidModelNameThrows/firebase-ai-logic-developer-api",
+  "interactions": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "/v1beta/projects/REDACTED/models/non-existent-model-name-xyz-123:streamGenerateContent?alt=sse",
+        "request": "POST /v1beta/projects/REDACTED/models/non-existent-model-name-xyz-123:streamGenerateContent?alt=sse HTTP/1.1",
+        "headers": {
+          "Content-Type": "application/json",
+          "Test-Name": "GeminiAPIClientTests/GeminiAPIClientIntegrationTests/streamGenerateContentInvalidModelNameThrows/firebase-ai-logic-developer-api"
+        },
+        "bodySegments": [
+          {
+            "contents": [
+              {
+                "parts": [
+                  {
+                    "text": "Hello"
+                  }
+                ],
+                "role": "user"
+              }
+            ]
+          }
+        ],
+        "previousRequest": "b4d6e60a9b97e7b98c63df9308728c5c88c0b40c398046772c63447b94608b4d",
+        "serverAddress": "firebasevertexai.googleapis.com",
+        "port": 443,
+        "protocol": "https"
+      },
+      "shaSum": "efa5a8ca8559623880b0a1759717707f3d34f6c99764eae704f98de7dbd9d30c",
+      "response": {
+        "statusCode": 404,
+        "headers": {
+          "Content-Type": "text/event-stream",
+          "Server": "ESF",
+          "Vary": "Origin, X-Origin, Referer",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN",
+          "X-Xss-Protection": "0"
+        },
+        "bodySegments": [
+          {
+            "error": {
+              "code": 404,
+              "message": "models/non-existent-model-name-xyz-123 is not found for API version v1main, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.",
+              "status": "NOT_FOUND"
+            }
+          }
+        ],
+        "bodyFormat": "json"
+      }
+    }
+  ]
+}

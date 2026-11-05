@@ -36,17 +36,31 @@ If credentials are not present in the environment, integration tests marked with
 `.requireIntegrationTestingBackend` are automatically and cleanly skipped
 without failing test execution.
 
+### Recorded Tests
+
+Suites with recordings can run without credentials by replaying responses from
+[test-server](https://github.com/google/test-server):
+
+```bash
+scripts/test-server.sh replay IntegrationTests
+```
+
+In replay mode, backends are always available, so tests run instead of being
+skipped. See [`Tests/TestServer/README.md`](../../TestServer/README.md) for
+recording, retries, and limitations.
+
 ## Supported Backends
 
 All integration tests are parameterized across
 `IntegrationTestingBackend.availableBackends`:
 
-* `.developerAPI`: Direct Gemini Developer API
-  (`generativelanguage.googleapis.com`).
 * `.firebaseAILogicDeveloperAPI`: Firebase AI Logic proxy to Gemini Developer
   API (`firebasevertexai.googleapis.com`).
 * `.firebaseAILogicAgentPlatform(location:)`: Firebase AI Logic proxy to Gemini
   Enterprise Agent Platform (defaulting to `location: "global"`).
+* `.developerAPI`: Direct Gemini Developer API
+  (`generativelanguage.googleapis.com`). Disabled by default; uncomment it in
+  `IntegrationTestingBackend.allCases` for manual testing.
 
 ## Files in this Directory
 
