@@ -158,6 +158,19 @@ static NSString *const kEventExtensionJson = @"extension_js";
   return resultArray;
 }
 
+- (BOOL)hasStillValidRecords {
+  NSInteger nowInSeconds = (NSInteger)[self.timeFetcher currentTimestampInSeconds];
+
+  @synchronized(self) {
+    for (FIRIAMClearcutLogRecord *record in self.records) {
+      if (record.eventTimestampInSeconds > nowInSeconds - self.recordExpiresInSeconds) {
+        return YES;
+      }
+    }
+  }
+  return NO;
+}
+
 - (void)loadFromCachePath:(NSString *)cacheFilePath {
   NSString *filePath = cacheFilePath == nil ? [self.class determineCacheFilePath] : cacheFilePath;
 

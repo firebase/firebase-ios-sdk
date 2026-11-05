@@ -17,6 +17,7 @@ on:
     - '.github/workflows/_cocoapods.cron.yml'
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
     - cron:  '0 8 * * *'

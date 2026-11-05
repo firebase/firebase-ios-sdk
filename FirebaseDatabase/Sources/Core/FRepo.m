@@ -592,8 +592,8 @@
                node = [FSnapshotUtilities nodeFrom:data];
                [self.eventRaiser
                    raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+                                   applyGetResultForQuery:querySpec
+                                                  newData:node]];
                [self.eventRaiser raiseCallback:^{
                  block(
                      nil,
