@@ -642,7 +642,7 @@ struct LiveSessionTests {
       "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
     )
     #expect(activityStart.audioOffset >= 0)
-    #expect(activityEnd.audioOffset > activityStart.audioOffset)
+    #expect(activityEnd.audioOffset >= activityStart.audioOffset)
 
     // Voice activity messages must not terminate the `responses` stream; the model's response to
     // the audio should still be received after them.

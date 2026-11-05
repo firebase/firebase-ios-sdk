@@ -59,7 +59,7 @@ final class LiveServerVoiceActivityTests: XCTestCase {
     XCTAssertNotEqual(VoiceActivityType.start, VoiceActivityType.unknown)
     XCTAssertNotEqual(VoiceActivityType.end, VoiceActivityType.unknown)
 
-    let types: Set<VoiceActivityType> = [.start, .end, .unknown, .start]
+    let types: Set<VoiceActivityType> = [.start, .end, .unknown]
     XCTAssertEqual(types.count, 3)
   }
 
