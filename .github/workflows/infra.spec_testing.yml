@@ -5,6 +5,8 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '**/CHANGELOG.md'
 
 permissions:
   contents: read

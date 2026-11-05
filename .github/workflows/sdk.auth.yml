@@ -17,6 +17,7 @@ on:
     - '.github/workflows/_cocoapods.cron.yml'
     - 'scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron:  '0 9 * * *'

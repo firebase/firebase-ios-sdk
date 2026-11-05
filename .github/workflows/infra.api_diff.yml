@@ -8,6 +8,7 @@ on:
       - '**/Tests/**'
       - 'Example/**'
       - 'quickstart-ios/**'
+      - '**/CHANGELOG.md'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
