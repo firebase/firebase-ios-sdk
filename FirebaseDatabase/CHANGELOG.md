@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fixed an issue where a completing `getData` call marked an
+  observed or `keepSynced` query inactive in the persistence cache, allowing
+  its cached data to be pruned or triggering an assertion failure on
+  subsequent updates. (#17009)
 - [fixed] Fixed an issue where `getData` on a query with a limit or range could
   remove data from other listeners at or below the query's location, and from
   the disk cache. (#8286, #14137)
