@@ -47,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Once the debug token is registered the debug provider will be able to provide a valid Firebase
 /// App Check token.
 ///
+/// Alternatively, provision a debug token with the Firebase CLI
+/// (`firebase appcheck:debugtokens:create --app <app-id>`), which registers it and saves it to
+/// `~/.config/configstore/firebase-appcheck.json`. Apps launched from Xcode in the iOS Simulator
+/// pick up the saved token automatically, so no manual registration is needed.
+///
 /// To use `AppCheckDebugProvider` on a simulator on a build server:
 /// 1. Create a new Firebase App Check debug token in the Firebase console
 /// 2. Add the debug token to the secure storage of your build environment. E.g. see [Encrypted
@@ -73,6 +78,9 @@ NS_SWIFT_NAME(AppCheckDebugProvider)
 /** Returns the currently used App Check debug token. The priority:
  *  - `AppCheckDebugToken` env variable value
  *  - `FIRAAppCheckDebugToken` env variable value (deprecated)
+ *  - iOS Simulator only: the token for the app's Google App ID in
+ *    `~/.config/configstore/firebase-appcheck.json` on the host machine, as
+ *    provisioned by `firebase appcheck:debugtokens:create`
  *  - A previously generated token, stored locally on the device
  *  - A newly generated random token. The generated token will be stored
  *    locally for future use

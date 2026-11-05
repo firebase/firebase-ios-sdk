@@ -36,8 +36,13 @@ static NSString *const kProjectNumber = @"123456789";
 - (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
                             projectID:(nullable NSString *)projectID
                           googleAppID:(NSString *)googleAppID;
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
+                            projectID:(nullable NSString *)projectID
+                          googleAppID:(NSString *)googleAppID
+                configStoreDebugToken:(nullable NSString *)configStoreDebugToken;
 @property(nonatomic, readonly, copy, nullable) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
+@property(nonatomic, readonly) BOOL usesConfigStoreDebugToken;
 
 @end
 
@@ -84,6 +89,75 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)testInitWithDebugProvider {
   XCTAssertNil(self.provider.projectID);
   XCTAssertEqualObjects(self.provider.googleAppID, kAppID);
+  XCTAssertFalse(self.provider.usesConfigStoreDebugToken);
+}
+
+#pragma mark - ConfigStore debug token
+
+- (void)testInitWithConfigStoreDebugTokenInUse {
+  NSString *configStoreToken = @"config_store_token";
+  // The provider logs the config store attribution instead of the local token registration
+  // instructions, so `localDebugToken` must not be called on the strict mock.
+  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(configStoreToken);
+
+  FIRAppCheckDebugProvider *provider =
+      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                    projectID:kProjectID
+                                                  googleAppID:kAppID
+                                        configStoreDebugToken:configStoreToken];
+
+  XCTAssertTrue(provider.usesConfigStoreDebugToken);
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+- (void)testInitWithConfigStoreDebugTokenOverriddenByEnvironment {
+  // When the core provider resolves a different token (e.g. from `AppCheckDebugToken`), the
+  // config store token is not in use and the regular local token message is logged.
+  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(@"env_token");
+  OCMExpect([self.debugProviderMock localDebugToken]).andReturn(@"local_token");
+
+  FIRAppCheckDebugProvider *provider =
+      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                    projectID:kProjectID
+                                                  googleAppID:kAppID
+                                        configStoreDebugToken:@"config_store_token"];
+
+  XCTAssertFalse(provider.usesConfigStoreDebugToken);
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+- (void)testInitWithoutConfigStoreDebugTokenLogsLocalToken {
+  OCMExpect([self.debugProviderMock localDebugToken]).andReturn(@"local_token");
+
+  FIRAppCheckDebugProvider *provider =
+      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                    projectID:kProjectID
+                                                  googleAppID:kAppID
+                                        configStoreDebugToken:nil];
+
+  XCTAssertFalse(provider.usesConfigStoreDebugToken);
+  OCMVerifyAll(self.debugProviderMock);
+}
+
+- (void)testGetTokenAPIErrorWithConfigStoreDebugTokenDoesNotLogLocalToken {
+  NSString *configStoreToken = @"config_store_token";
+  OCMExpect([self.debugProviderMock currentDebugToken]).andReturn(configStoreToken);
+  FIRAppCheckDebugProvider *provider =
+      [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
+                                                    projectID:kProjectID
+                                                  googleAppID:kAppID
+                                        configStoreDebugToken:configStoreToken];
+  NSError *expectedError = [NSError errorWithDomain:@"testGetTokenAPIError" code:-1 userInfo:nil];
+  OCMExpect([self.debugProviderMock
+      getTokenWithCompletion:([OCMArg invokeBlockWithArgs:[NSNull null], expectedError, nil])]);
+
+  [provider getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+    XCTAssertNil(token);
+    XCTAssertEqualObjects(error, expectedError);
+  }];
+
+  // `localDebugToken` is never stubbed, so the strict mock fails if the fallback message is logged.
+  OCMVerifyAll(self.debugProviderMock);
 }
 
 - (void)testInitWithIncompleteApp {

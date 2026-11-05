@@ -29,6 +29,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
+#import "FirebaseAppCheck/Sources/DebugProvider/FIRAppCheckDebugTokenConfigStore.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -39,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
 @property(nonatomic, readonly, copy, nullable) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
+/// Whether the debug token in use was read from the Firebase CLI config store on the host machine.
+@property(nonatomic, readonly) BOOL usesConfigStoreDebugToken;
 
 @end
 
@@ -47,13 +50,32 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
                             projectID:(nullable NSString *)projectID
                           googleAppID:(NSString *)googleAppID {
+  return [self initWithDebugProvider:debugProvider
+                           projectID:projectID
+                         googleAppID:googleAppID
+               configStoreDebugToken:nil];
+}
+
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
+                            projectID:(nullable NSString *)projectID
+                          googleAppID:(NSString *)googleAppID
+                configStoreDebugToken:(nullable NSString *)configStoreDebugToken {
   self = [super init];
   if (self) {
     _debugProvider = debugProvider;
     _projectID = [projectID copy];
     _googleAppID = [googleAppID copy];
+    // An `AppCheckDebugToken` environment variable takes priority over the config store token.
+    _usesConfigStoreDebugToken =
+        configStoreDebugToken != nil &&
+        [[debugProvider currentDebugToken] isEqualToString:configStoreDebugToken];
 
-    [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken prefix:@""];
+    if (_usesConfigStoreDebugToken) {
+      FIRLogNotice(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenFromConfigStore,
+                   @"Debug token loaded from ~/%@.", FIRAppCheckDebugTokenConfigStore.relativePath);
+    } else {
+      [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken prefix:@""];
+    }
   }
   return self;
 }
@@ -69,16 +91,23 @@ NS_ASSUME_NONNULL_BEGIN
     return nil;
   }
 
+  // On the iOS Simulator, use the debug token provisioned by the Firebase CLI on the host machine
+  // (if any) instead of generating a new one that would need to be registered manually.
+  NSString *configStoreDebugToken =
+      [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:app.options.googleAppID];
+
   GACAppCheckDebugProvider *debugProvider =
       [[GACAppCheckDebugProvider alloc] initWithServiceName:app.name
                                                resourceName:app.resourceName
                                                     baseURL:nil
                                                      APIKey:app.options.APIKey
-                                               requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+                                               requestHooks:@[ [app.heartbeatLogger requestHook] ]
+                                                 debugToken:configStoreDebugToken];
 
   return [self initWithDebugProvider:debugProvider
                            projectID:app.options.projectID
-                         googleAppID:app.options.googleAppID];
+                         googleAppID:app.options.googleAppID
+               configStoreDebugToken:configStoreDebugToken];
 }
 
 - (NSString *)currentDebugToken {
@@ -120,6 +149,16 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)logDebugTokenExchangeError {
+  if (self.usesConfigStoreDebugToken) {
+    FIRLogWarning(kFIRLoggerAppCheck,
+                  kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed,
+                  @"Failed to exchange the debug token loaded from ~/%@. If the token was "
+                  @"rejected by the server, run `firebase appcheck:debugtokens:create --force "
+                  @"--project %@ --app %@` to provision a new token.",
+                  FIRAppCheckDebugTokenConfigStore.relativePath, self.projectID, self.googleAppID);
+    return;
+  }
+
   [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
                                      prefix:@"Failed to exchange debug token. "];
 }

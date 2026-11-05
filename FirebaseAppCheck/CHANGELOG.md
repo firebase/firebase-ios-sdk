@@ -1,3 +1,11 @@
+# Unreleased
+- [added] `AppCheckDebugProvider` now automatically uses a debug token
+  provisioned by the Firebase CLI (`firebase appcheck:debugtokens:create`) when
+  running in the iOS Simulator. The token is read for the app's Google App ID
+  from `~/.config/configstore/firebase-appcheck.json` on the host machine, so
+  no manual token registration is needed. An `AppCheckDebugToken` environment
+  variable still takes priority.
+
 # 12.19.0
 - [fixed] Fixed an issue where the Recaptcha provider could cause build
   errors in binary environments, due to unsupported platforms. (#16564)
