@@ -37,7 +37,7 @@ final class LiveSessionServiceTests: XCTestCase {
       XCTFail("Decoded message is not a voiceActivity message.")
       return
     }
-    XCTAssertEqual(voiceActivity.type, .activityStart)
+    XCTAssertEqual(voiceActivity.type, .start)
     XCTAssertEqual(voiceActivity.audioOffset?.seconds, 2)
     XCTAssertEqual(voiceActivity.audioOffset?.nanos, 520_000_000)
   }
