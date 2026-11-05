@@ -17,26 +17,33 @@
 
 import Foundation
 
-/// A datatype containing media that is part of a `FunctionResponse` message. A
-/// `FunctionResponsePart` consists of data which has an associated datatype. A
-/// `FunctionResponsePart` can only contain one of the accepted types in
-/// `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type
-/// identifying the type and subtype of the media if the `inline_data` field is filled with raw
-/// bytes.
-package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// URI based data.
+/// Audio transcription message.
+package struct BidiGenerateContentTranscription: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// End offset in time of the transcription relative to the start of the audio.
+  package var endOffset: TimeSpan?
+
+  /// Indicates whether the transcription is complete.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var fileData: FunctionResponseFileData?
+  package var finished: Bool?
 
-  /// Inline media bytes.
-  package var inlineData: FunctionResponseBlob?
+  /// The BCP-47 language code of the transcription.
+  package var languageCode: String?
 
-  /// Initializes a new `FunctionResponsePart`.
+  /// Start offset in time of the transcription relative to the start of the audio.
+  package var startOffset: TimeSpan?
+
+  /// The transcription text.
+  package var text: String?
+
+  /// Initializes a new `BidiGenerateContentTranscription`.
   package init() {}
 
   enum CodingKeys: String, CodingKey {
-    case fileData
-    case inlineData
+    case endOffset
+    case finished
+    case languageCode
+    case startOffset
+    case text
   }
 }

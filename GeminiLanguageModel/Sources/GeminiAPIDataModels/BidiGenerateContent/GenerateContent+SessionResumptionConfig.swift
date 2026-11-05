@@ -17,32 +17,25 @@
 
 import Foundation
 
-/// Route information from Google Maps.
-///
-/// > Important: This type is not supported in the Gemini Developer API.
-package struct MapsRoute: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// The total distance of the route, in meters.
+/// Configuration of session resumption mechanism. Included in
+/// `BidiGenerateContentSetup.session_resumption`. If included server will send
+/// SessionResumptionUpdate messages.
+package struct SessionResumptionConfig: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// Session resumption handle of previous session (session to restore). If not present new session
+  /// will be started.
+  package var handle: String?
+
+  /// If set requests server to send updates with message_index of last message sent from client
+  /// included in session state.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var distanceMeters: Int?
+  package var transparent: Bool?
 
-  /// The total duration of the route.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  package var duration: String?
-
-  /// An encoded polyline of the route. See
-  /// https://developers.google.com/maps/documentation/utilities/polylinealgorithm
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  package var encodedPolyline: String?
-
-  /// Initializes a new `MapsRoute`.
+  /// Initializes a new `SessionResumptionConfig`.
   package init() {}
 
   enum CodingKeys: String, CodingKey {
-    case distanceMeters
-    case duration
-    case encodedPolyline
+    case handle
+    case transparent
   }
 }

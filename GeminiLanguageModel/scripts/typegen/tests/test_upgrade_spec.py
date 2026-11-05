@@ -363,6 +363,43 @@ class TestUpgradeSpec(unittest.TestCase):
         upgrade_spec.extract_standalone_enums(schemas, prefixes=["VendorX"])
         self.assertIn("VendorXHarmCategory", schemas)
 
+    def test_extract_standalone_enums_ignores_voice_activity_type(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaSchema": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": ["TYPE_UNSPECIFIED", "STRING", "NUMBER"],
+                    }
+                },
+            },
+            "GoogleAiGenerativelanguageV1betaVoiceActivity": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "TYPE_UNSPECIFIED",
+                            "ACTIVITY_START",
+                            "ACTIVITY_END",
+                        ],
+                    }
+                },
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaType"]["enum"],
+            ["TYPE_UNSPECIFIED", "STRING", "NUMBER"],
+        )
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaVoiceActivity"][
+                "properties"
+            ]["type"]["enum"],
+            ["TYPE_UNSPECIFIED", "ACTIVITY_START", "ACTIVITY_END"],
+        )
+
     def test_upgrade_nullables_string_type(self):
         data = {"type": "string", "nullable": True}
         upgrade_spec.upgrade_nullables(data)
