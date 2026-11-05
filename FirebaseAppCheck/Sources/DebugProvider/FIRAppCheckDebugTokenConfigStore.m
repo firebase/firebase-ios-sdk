@@ -70,11 +70,22 @@ static NSString *const kTokensKey = @"tokens";
 
   NSError *parseError;
   id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-  NSDictionary *tokens = [json isKindOfClass:[NSDictionary class]] ? json[kTokensKey] : nil;
-  if (![tokens isKindOfClass:[NSDictionary class]]) {
+  if (![json isKindOfClass:[NSDictionary class]]) {
     FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
                   @"Failed to parse App Check debug tokens from ~/%@: %@", self.relativePath,
-                  parseError.localizedDescription ?: @"missing `tokens` object");
+                  parseError.localizedDescription ?: @"expected a JSON object");
+    return nil;
+  }
+
+  NSDictionary *tokens = json[kTokensKey];
+  if (!tokens) {
+    // A config store without `tokens` (e.g., `{}` after the last token was removed) is valid.
+    return nil;
+  }
+  if (![tokens isKindOfClass:[NSDictionary class]]) {
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
+                  @"Failed to parse App Check debug tokens from ~/%@: `%@` is not a JSON object",
+                  self.relativePath, kTokensKey);
     return nil;
   }
 

@@ -178,12 +178,15 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *projectArgument = self.projectID.length > 0
                                   ? [NSString stringWithFormat:@" --project %@", self.projectID]
                                   : @"";
+  // App Check Core errors describe the failure in `NSLocalizedFailureReasonErrorKey`; using it
+  // directly avoids Foundation's generic "The operation couldn’t be completed." prefix.
+  NSString *errorDescription = error.localizedFailureReason ?: error.localizedDescription;
   return [NSString stringWithFormat:@"Failed to exchange the debug token loaded from ~/%@: %@\n\n"
                                     @"If the token was rejected by the server, run "
                                     @"`firebase appcheck:debugtokens:create --force%@ --app %@` "
                                     @"to provision a new token.",
-                                    FIRAppCheckDebugTokenConfigStore.relativePath,
-                                    error.localizedDescription, projectArgument, self.googleAppID];
+                                    FIRAppCheckDebugTokenConfigStore.relativePath, errorDescription,
+                                    projectArgument, self.googleAppID];
 }
 
 #pragma mark - FIRAppCheckProvider

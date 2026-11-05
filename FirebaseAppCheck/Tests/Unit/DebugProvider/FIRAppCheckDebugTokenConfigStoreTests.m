@@ -167,6 +167,15 @@ static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
   XCTAssertNil(token);
 }
 
+- (void)testDebugTokenWhenConfigStoreIsEmptyObject {
+  [self writeConfigStoreContents:@"{}"];
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
 - (void)testDebugTokenWhenTokenNotAString {
   [self writeConfigStoreTokens:@{kAppID : @42}];
 
@@ -250,11 +259,34 @@ static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
 @implementation FIRAppCheckDebugTokenConfigStoreTests
 
 - (void)testDebugTokenIsNilOutsideSimulator {
-  NSString *hostHome = NSTemporaryDirectory();
+  // Seed a valid config store so a `nil` result proves the lookup is compiled out rather than
+  // failing to find the file.
+  NSURL *hostHomeURL = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES]
+      URLByAppendingPathComponent:[NSUUID UUID].UUIDString
+                      isDirectory:YES];
+  NSURL *fileURL =
+      [hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath
+                                   isDirectory:NO];
+  NSError *error;
+  XCTAssertTrue(
+      [[NSFileManager defaultManager] createDirectoryAtURL:fileURL.URLByDeletingLastPathComponent
+                               withIntermediateDirectories:YES
+                                                attributes:nil
+                                                     error:&error],
+      @"%@", error);
+  [self addTeardownBlock:^{
+    [[NSFileManager defaultManager] removeItemAtURL:hostHomeURL error:nil];
+  }];
+  NSString *contents = [NSString stringWithFormat:@"{\"tokens\": {\"%@\": \"token\"}}", kAppID];
+  XCTAssertTrue([contents writeToURL:fileURL
+                          atomically:YES
+                            encoding:NSUTF8StringEncoding
+                               error:&error],
+                @"%@", error);
 
   NSString *token = [FIRAppCheckDebugTokenConfigStore
       debugTokenForGoogleAppID:kAppID
-                   environment:@{@"SIMULATOR_HOST_HOME" : hostHome}];
+                   environment:@{@"SIMULATOR_HOST_HOME" : hostHomeURL.path}];
 
   XCTAssertNil(token);
 }

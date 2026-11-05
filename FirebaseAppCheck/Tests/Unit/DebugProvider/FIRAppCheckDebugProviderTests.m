@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
 #import <XCTest/XCTest.h>
 
 #import <OCMock/OCMock.h>
@@ -21,6 +22,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
+#import "FirebaseAppCheck/Sources/DebugProvider/FIRAppCheckDebugTokenConfigStore.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckDebugProvider.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -234,6 +236,19 @@ static NSString *const kProjectNumber = @"123456789";
   XCTAssertTrue([message containsString:expectedCommand], @"%@", message);
 }
 
+- (void)testConfigStoreExchangeFailureMessagePrefersFailureReason {
+  FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
+  NSError *error = [NSError
+      errorWithDomain:@"testDomain"
+                 code:-1
+             userInfo:@{NSLocalizedFailureReasonErrorKey : @"The server responded with an error"}];
+
+  NSString *message = [provider configStoreDebugTokenExchangeFailureMessageForError:error];
+
+  XCTAssertTrue([message containsString:@": The server responded with an error"], @"%@", message);
+  XCTAssertFalse([message containsString:@"couldn’t be completed"], @"%@", message);
+}
+
 - (void)testConfigStoreExchangeFailureMessageIsNilWhenServerUnreachable {
   FIRAppCheckDebugProvider *provider = [self providerUsingConfigStoreDebugToken];
   NSError *error = [NSError errorWithDomain:GACAppCheckErrors.errorDomain
@@ -244,6 +259,31 @@ static NSString *const kProjectNumber = @"123456789";
 
   XCTAssertNil(message);
 }
+
+#if TARGET_OS_SIMULATOR
+/// Exercises `-initWithApp:` end to end, without mocks: config store lookup by each app's Google
+/// App ID, through to the token used by the App Check Core debug provider.
+- (void)testInitWithAppUsesConfigStoreDebugTokenForEachApp {
+  NSString *otherAppID = @"other_test_app_id";
+  NSURL *hostHomeURL = [self temporaryHostHomeWithTokens:@{
+    kAppID : @"config_store_token",
+    otherAppID : @"other_config_store_token",
+  }];
+  [self setEnvironmentVariable:@"SIMULATOR_HOST_HOME" value:hostHomeURL.path];
+  [self setEnvironmentVariable:@"AppCheckDebugToken" value:nil];
+  [self setEnvironmentVariable:@"FIRAAppCheckDebugToken" value:nil];
+  FIRApp *app = [self appWithName:kAppName googleAppID:kAppID];
+  FIRApp *otherApp = [self appWithName:@"other_test_app_name" googleAppID:otherAppID];
+
+  FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
+  FIRAppCheckDebugProvider *otherProvider = [[FIRAppCheckDebugProvider alloc] initWithApp:otherApp];
+
+  XCTAssertEqualObjects([provider currentDebugToken], @"config_store_token");
+  XCTAssertTrue(provider.usesConfigStoreDebugToken);
+  XCTAssertEqualObjects([otherProvider currentDebugToken], @"other_config_store_token");
+  XCTAssertTrue(otherProvider.usesConfigStoreDebugToken);
+}
+#endif  // TARGET_OS_SIMULATOR
 
 #pragma mark - Current Debug token
 
@@ -347,6 +387,63 @@ static NSString *const kProjectNumber = @"123456789";
 }
 
 #pragma mark - Helpers
+
+/// Returns an app with complete options for token exchange and automatic token refresh disabled.
+- (FIRApp *)appWithName:(NSString *)name googleAppID:(NSString *)googleAppID {
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:googleAppID
+                                                    GCMSenderID:kProjectNumber];
+  options.APIKey = kAPIKey;
+  options.projectID = kProjectID;
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
+  app.dataCollectionDefaultEnabled = NO;
+  return app;
+}
+
+/// Creates a temporary host home directory containing a config store with the given tokens,
+/// removed when the test finishes.
+- (NSURL *)temporaryHostHomeWithTokens:(NSDictionary<NSString *, NSString *> *)tokens {
+  NSURL *hostHomeURL = [[NSURL fileURLWithPath:NSTemporaryDirectory() isDirectory:YES]
+      URLByAppendingPathComponent:[NSUUID UUID].UUIDString
+                      isDirectory:YES];
+  NSURL *fileURL =
+      [hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath
+                                   isDirectory:NO];
+  NSError *error;
+  XCTAssertTrue(
+      [[NSFileManager defaultManager] createDirectoryAtURL:fileURL.URLByDeletingLastPathComponent
+                               withIntermediateDirectories:YES
+                                                attributes:nil
+                                                     error:&error],
+      @"%@", error);
+  NSData *data = [NSJSONSerialization dataWithJSONObject:@{@"tokens" : tokens}
+                                                 options:0
+                                                   error:&error];
+  XCTAssertTrue([data writeToURL:fileURL options:NSDataWritingAtomic error:&error], @"%@", error);
+  [self addTeardownBlock:^{
+    [[NSFileManager defaultManager] removeItemAtURL:hostHomeURL error:nil];
+  }];
+  return hostHomeURL;
+}
+
+/// Sets (or unsets, when `value` is `nil`) a process environment variable for the duration of the
+/// test, restoring its previous value afterwards.
+- (void)setEnvironmentVariable:(NSString *)name value:(nullable NSString *)value {
+  const char *previousValue = getenv(name.UTF8String);
+  NSString *previous = previousValue ? @(previousValue) : nil;
+  if (value) {
+    setenv(name.UTF8String, value.UTF8String, 1);
+  } else {
+    unsetenv(name.UTF8String);
+  }
+  [self addTeardownBlock:^{
+    if (previous) {
+      setenv(name.UTF8String, previous.UTF8String, 1);
+    } else {
+      unsetenv(name.UTF8String);
+    }
+  }];
+}
 
 /// Returns a provider whose core debug provider resolved the config store debug token.
 - (FIRAppCheckDebugProvider *)providerUsingConfigStoreDebugToken {
