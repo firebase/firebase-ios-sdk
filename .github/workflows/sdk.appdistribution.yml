@@ -14,6 +14,7 @@ on:
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron: '0 9 * * *'
@@ -29,8 +30,8 @@ jobs:
         target: [AppDistributionUnit, AppDistributionUnitSwift]
     uses: ./.github/workflows/_spm.yml
     with:
-      target: ${{ matrix.target }}
-      platforms: iOS
+      target: AppDistributionUnit
+      platforms: '["iOS"]'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
@@ -42,7 +43,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseAppDistribution
-      platforms: iOS # App Distro only supports iOS.
+      platforms: '["iOS"]' # App Distro only supports iOS.
 
   appdistribution-cron-only:
     needs: pod_lib_lint

@@ -1,0 +1,91 @@
+enum ExplicitEnum {
+  case a(Int?)
+
+    nonisolated enum PartiallyGenerated: nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        case a(Int?.PartiallyGenerated?)
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            let type: String = try content.value(forProperty: "type")
+            switch type {
+            case "a":
+                self = .a(try content.value(forProperty: "value"))
+            default:
+                throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+            }
+        }
+    }
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            description: "D",
+            anyOf: [
+                DiscriminatedA.self
+            ]
+        )
+    }
+
+    private nonisolated struct DiscriminatedA: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("a"))
+        let type: String
+        let value: Int?
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.value = try content.value(forProperty: "value")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                description: "D",
+                representNilExplicitlyInGeneratedContent: true,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("a")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int?.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = true
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "value", value: self.value)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        switch self {
+        case .a(let value):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "a",
+                    "value": value
+                ]
+            )
+        }
+    }
+}
+
+extension ExplicitEnum: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let type: String = try content.value(forProperty: "type")
+        switch type {
+        case "a":
+            self = .a(try content.value(forProperty: "value"))
+        default:
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+        }
+    }
+}

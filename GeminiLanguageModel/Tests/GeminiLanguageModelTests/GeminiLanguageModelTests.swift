@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
-  import CoreGraphics
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
+  #if canImport(CoreGraphics)
+    import CoreGraphics
+  #endif
   import Foundation
-  import FoundationModels
+  #if FoundationModelsFake
+    import FoundationModelsFake
+  #else
+    import FoundationModels
+  #endif
   import GeminiAPIClient
   import GeminiAPIDataModels
   import GeminiTestUtilities
@@ -27,6 +33,20 @@
   #endif
 
   @testable import GeminiLanguageModel
+
+  #if FoundationModelsFake
+    /// Foundation Models' `Tool`, spelled out to avoid clashing with
+    /// `GeminiAPIDataModels.Tool`.
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
+    typealias FoundationModelsTool = FoundationModelsFake.Tool
+  #else
+    /// Foundation Models' `Tool`, spelled out to avoid clashing with
+    /// `GeminiAPIDataModels.Tool`.
+    @available(iOS 26.0, macOS 26.0, visionOS 26.0, watchOS 27.0, *)
+    @available(tvOS, unavailable)
+    typealias FoundationModelsTool = FoundationModels.Tool
+  #endif
 
   @Suite("GeminiLanguageModel Tests", .serialized, .requireFoundationModels)
   struct GeminiLanguageModelTests {
@@ -124,53 +144,56 @@
       #expect(response.content == "Hello world from Gemini!")
     }
 
-    @Test
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithImageAttachmentSendsInlineData() async throws {
-      defer { MockHTTPURLProtocol.reset() }
-      let model = Self.makeMockModel()
-      let expectedURL = try Self.makeExpectedStreamURL()
-      let httpResponse = try HTTPURLResponse.mock(
-        url: expectedURL,
-        headerFields: ["Content-Type": "text/event-stream"]
-      )
-      let ssePayload = """
-        data: {"candidates": [{"content": {"parts": [{"text": "red"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+    #if canImport(ImageIO)
+      @Test
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      func sessionRespondWithImageAttachmentSendsInlineData() async throws {
+        defer { MockHTTPURLProtocol.reset() }
+        let model = Self.makeMockModel()
+        let expectedURL = try Self.makeExpectedStreamURL()
+        let httpResponse = try HTTPURLResponse.mock(
+          url: expectedURL,
+          headerFields: ["Content-Type": "text/event-stream"]
+        )
+        let ssePayload = """
+          data: {"candidates": [{"content": {"parts": [{"text": "red"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
 
-        """
-      let receivedRequest = Mutex<GenerateContentRequest?>(nil)
-      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
-        if let body = request.httpBodyData,
-          let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
-        {
-          receivedRequest.withLock { $0 = decoded }
+          """
+        let receivedRequest = Mutex<GenerateContentRequest?>(nil)
+        MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+          if let body = request.httpBodyData,
+            let decoded = try? JSONDecoder().decode(GenerateContentRequest.self, from: body)
+          {
+            receivedRequest.withLock { $0 = decoded }
+          }
+          proto.client?.urlProtocol(
+            proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+          proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+          proto.client?.urlProtocolDidFinishLoading(proto)
         }
-        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
-        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
-        proto.client?.urlProtocolDidFinishLoading(proto)
-      }
-      let image = try TestImages.solid(.red, width: 32, height: 32)
-      let session = LanguageModelSession(model: model)
+        let image = try TestImages.solid(.red, width: 32, height: 32)
+        let session = LanguageModelSession(model: model)
 
-      let response = try await session.respond {
-        "What color is this image?"
-        Attachment(image)
-      }
+        let response = try await session.respond {
+          "What color is this image?"
+          Attachment(image)
+        }
 
-      #expect(response.content == "red")
-      let capturedRequest = try #require(receivedRequest.withLock { $0 })
-      let parts = try #require(capturedRequest.contents?.first?.parts)
-      #expect(parts.count == 2)
-      #expect(parts[0].data == .text("What color is this image?"))
-      guard case .inlineData(let blob) = parts[1].data else {
-        Issue.record("Expected inline data, got \(String(describing: parts[1].data)).")
-        return
+        #expect(response.content == "red")
+        let capturedRequest = try #require(receivedRequest.withLock { $0 })
+        let parts = try #require(capturedRequest.contents?.first?.parts)
+        #expect(parts.count == 2)
+        #expect(parts[0].data == .text("What color is this image?"))
+        guard case .inlineData(let blob) = parts[1].data else {
+          Issue.record("Expected inline data, got \(String(describing: parts[1].data)).")
+          return
+        }
+        #expect(blob.mimeType == "image/jpeg")
+        let decodedImage = try TestImages.decode(try #require(blob.data))
+        #expect(decodedImage.width == 32)
+        #expect(try TestImages.quadrantColors(of: decodedImage).topLeft == .red)
       }
-      #expect(blob.mimeType == "image/jpeg")
-      let decodedImage = try TestImages.decode(try #require(blob.data))
-      #expect(decodedImage.width == 32)
-      #expect(try TestImages.quadrantColors(of: decodedImage).topLeft == .red)
-    }
+    #endif  // canImport(ImageIO)
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -437,7 +460,7 @@
     /// A mock weather tool for testing tool call execution.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
-    struct MockWeatherTool: FoundationModels.Tool {
+    struct MockWeatherTool: FoundationModelsTool {
 
       let name = "get_weather"
       let description = "Get current weather"
@@ -494,7 +517,7 @@
     /// A mock time tool taking no arguments for testing empty argument tool calling.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
-    struct MockTimeTool: FoundationModels.Tool {
+    struct MockTimeTool: FoundationModelsTool {
       let name = "get_current_time"
       let description = "Get the current time"
 
@@ -595,4 +618,4 @@
       )
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

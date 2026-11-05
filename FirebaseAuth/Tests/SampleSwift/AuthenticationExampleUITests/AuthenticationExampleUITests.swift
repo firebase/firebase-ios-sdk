@@ -56,10 +56,40 @@ class AuthenticationExampleUITests: XCTestCase {
       for label in ["Not Now", "Close", "OK"] {
         if container.buttons[label].exists {
           container.buttons[label].tap()
+          let dismissed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: container
+          )
+          _ = XCTWaiter.wait(for: [dismissed], timeout: 5.0)
           break
         }
       }
     }
+  }
+
+  private func dismissErrorAlertAndPopToAuthMenu() {
+    app.alerts.buttons["OK"].tap()
+    let alertDismissed = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "exists == false"),
+      object: app.alerts.firstMatch
+    )
+    _ = XCTWaiter.wait(for: [alertDismissed], timeout: 5.0)
+
+    app.navigationBars.buttons.firstMatch.tap()
+    _ = app.navigationBars["Firebase Auth"].waitForExistence(timeout: 5.0)
+  }
+
+  private func navigateToUserTab(timeout: TimeInterval = 10.0) {
+    dismissSavePasswordPrompt()
+    let userTabButton = app.tabBars.firstMatch.buttons.element(boundBy: 1)
+    userTabButton.tap()
+    if !app.navigationBars["User"].waitForExistence(timeout: 3.0) {
+      // A late AutoFill / Save Password sheet can overlap the bottom tab bar
+      // and swallow the initial tap on cold simulator runs.
+      dismissSavePasswordPrompt()
+      userTabButton.tap()
+    }
+    wait(forElement: app.navigationBars["User"], timeout: timeout)
   }
 
   func testAuth() {
@@ -124,18 +154,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Login"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-
-    wait(forElement: app.navigationBars["User"], timeout: 10.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -156,17 +180,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Create Account"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -187,17 +206,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Create Account"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -284,12 +298,16 @@ class AuthenticationExampleUITests: XCTestCase {
     // Wait for the error message to appear (if there is an error)
     let errorAlert = app.alerts.staticTexts["Error"]
     let errorExists = errorAlert.waitForExistence(timeout: 5.0)
-
-    app.swipeDown(velocity: .fast)
+    let errorMessage = errorExists
+      ? app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label)
+      .joined(separator: " | ")
+      : "Error"
 
     // Assert that there is no error message (success case)
     // The email sign in link is sent successfully if no error message appears
-    XCTAssertFalse(errorExists, "Error")
+    XCTAssertFalse(errorExists, errorMessage)
+
+    app.swipeDown(velocity: .fast)
 
     // Go back and check that there is no user that is signed in
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
