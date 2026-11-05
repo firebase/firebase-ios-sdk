@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseAuth
-      platforms: iOS
+      platforms: '["iOS"]'
       buildonly_platforms: iOS
       extra_flags: APPLICATION_EXTENSION_API_ONLY=YES
 

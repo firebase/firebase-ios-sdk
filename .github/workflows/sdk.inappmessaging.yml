@@ -28,14 +28,14 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseInAppMessaging-Beta
-      platforms: iOS
+      platforms: '["iOS"]'
       buildonly_platforms: iOS
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseInAppMessaging
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
       timeout_minutes: 30
 
   tests:
