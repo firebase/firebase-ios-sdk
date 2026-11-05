@@ -283,10 +283,14 @@ typedef NSNumber FIRCLSWrappedReportAction;
     FIRCLSDebugLog(@"Unsent reports will be uploaded at startup");
     FIRCLSDataCollectionToken *dataCollectionToken = [FIRCLSDataCollectionToken validToken];
 
-    [self beginSettingsWithToken:dataCollectionToken];
-
     promise = [reportProfilingPromise onQueue:_dispatchQueue
-                                         then:^id _Nullable(id _Nullable value) {
+                                         then:^id _Nullable(NSNumber *_Nullable value) {
+                                           if (![value boolValue]) {
+                                             [self->_unsentReportsAvailable fulfill:nil];
+                                             return @NO;
+                                           }
+
+                                           [self beginSettingsWithToken:dataCollectionToken];
                                            [self beginReportUploadsWithToken:dataCollectionToken
                                                                 blockingSend:launchFailure];
 
@@ -303,31 +307,37 @@ typedef NSNumber FIRCLSWrappedReportAction;
                    self.existingReportManager.unsentReportsCount);
 
     // Wait for an action to get sent, either from processReports: or automatic data collection.
-    promise = [[reportProfilingPromise onQueue:_dispatchQueue
-                                          then:^id _Nullable(id _Nullable value) {
-                                            return [self waitForReportAction];
-                                          }]
+    promise = [reportProfilingPromise
         onQueue:_dispatchQueue
-           then:^id _Nullable(id _Nullable reportAction) {
-             // Process the actions for the reports on disk.
-             FIRCLSReportAction action = [reportAction reportActionValue];
-
-             if (action == FIRCLSReportActionSend) {
-               FIRCLSDebugLog(@"Sending unsent reports.");
-               FIRCLSDataCollectionToken *dataCollectionToken =
-                   [FIRCLSDataCollectionToken validToken];
-
-               [self beginSettingsWithToken:dataCollectionToken];
-
-               [self beginReportUploadsWithToken:dataCollectionToken blockingSend:NO];
-
-             } else if (action == FIRCLSReportActionDelete) {
-               FIRCLSDebugLog(@"Deleting unsent reports.");
-               [self.existingReportManager deleteUnsentReports];
-             } else {
-               FIRCLSErrorLog(@"Unknown report action: %d", action);
+           then:^id _Nullable(NSNumber *_Nullable value) {
+             if (![value boolValue]) {
+               [self->_unsentReportsAvailable fulfill:nil];
+               return @NO;
              }
-             return @(report != nil);
+
+             return [[self waitForReportAction]
+                 onQueue:self->_dispatchQueue
+                    then:^id _Nullable(id _Nullable reportAction) {
+                      // Process the actions for the reports on disk.
+                      FIRCLSReportAction action = [reportAction reportActionValue];
+
+                      if (action == FIRCLSReportActionSend) {
+                        FIRCLSDebugLog(@"Sending unsent reports.");
+                        FIRCLSDataCollectionToken *dataCollectionToken =
+                            [FIRCLSDataCollectionToken validToken];
+
+                        [self beginSettingsWithToken:dataCollectionToken];
+
+                        [self beginReportUploadsWithToken:dataCollectionToken blockingSend:NO];
+
+                      } else if (action == FIRCLSReportActionDelete) {
+                        FIRCLSDebugLog(@"Deleting unsent reports.");
+                        [self.existingReportManager deleteUnsentReports];
+                      } else {
+                        FIRCLSErrorLog(@"Unknown report action: %d", action);
+                      }
+                      return @(report != nil);
+                    }];
            }];
   }
 

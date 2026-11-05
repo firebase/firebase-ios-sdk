@@ -27,6 +27,7 @@
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
@@ -131,7 +132,9 @@
     assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
   }
 
-  FIRCLSContextBaseDeinit();
+  if (_firclsContext.allocator) {
+    FIRCLSContextBaseDeinit();
+  }
 
   [super tearDown];
 }
@@ -208,6 +211,90 @@
 
   XCTAssertTrue([promise.value boolValue]);
   XCTAssertEqual([[self contentsOfActivePath] count], 1);
+}
+
+- (void)resetContextToUninitializedState {
+  FIRCLSContextBaseDeinit();
+  _firclsContext = (FIRCLSContext){0};
+}
+
+- (void)testReportDirectoryFailureWithDataCollectionDisabledRetainsExistingReport {
+  FIRCLSInternalReport *report = [self createActiveReport];
+  XCTAssertNotNil(report);
+  XCTAssertTrue([self createFileWithContents:@"signal"
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
+  self.fileManager.failReportDirectoryCreation = YES;
+  [self resetContextToUninitializedState];
+
+  FBLPromise<NSNumber *> *startup = [self startReportManagerWithDataCollectionEnabled:NO];
+  XCTestExpectation *startupComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"startup complete"];
+  __block NSUInteger startupCompletionCount = 0;
+  [[startup then:^id _Nullable(NSNumber *_Nullable value) {
+    startupCompletionCount++;
+    XCTAssertFalse([value boolValue]);
+    [startupComplete fulfill];
+    return nil;
+  }] catch:^void(NSError *_Nonnull error) {
+    XCTFail(@"Startup failed with error: %@", error);
+    [startupComplete fulfill];
+  }];
+
+  XCTestExpectation *checkComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"unsent report check complete"];
+  checkComplete.assertForOverFulfill = YES;
+  XCTestExpectation *deleteComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"delete completion complete"];
+  __block NSUInteger checkCompletionCount = 0;
+  [[[self.reportManager checkForUnsentReports]
+      then:^id _Nullable(FIRCrashlyticsReport *_Nullable unsentReport) {
+        checkCompletionCount++;
+        XCTAssertNil(unsentReport);
+        [checkComplete fulfill];
+        return [self.reportManager deleteUnsentReports];
+      }] then:^id _Nullable(id _Nullable ignored) {
+    [deleteComplete fulfill];
+    return nil;
+  }];
+
+  [self waitForExpectations:@[ startupComplete, checkComplete, deleteComplete ] timeout:1.0];
+
+  XCTAssertEqual(startupCompletionCount, 1);
+  XCTAssertEqual(checkCompletionCount, 1);
+  XCTAssertFalse(FIRCLSContextIsInitialized());
+  XCTAssertTrue([self.fileManager fileExistsAtPath:report.path]);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1);
+  XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
+  XCTAssertEqual([self.uploadReportArray count], 0);
+}
+
+- (void)testReportDirectoryFailureWithDataCollectionEnabledRetainsExistingReport {
+  FIRCLSInternalReport *report = [self createActiveReport];
+  XCTAssertNotNil(report);
+  XCTAssertTrue([self createFileWithContents:@"signal"
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
+  self.fileManager.failReportDirectoryCreation = YES;
+  [self resetContextToUninitializedState];
+
+  FBLPromise<NSNumber *> *startup = [self startReportManagerWithDataCollectionEnabled:YES];
+  XCTestExpectation *startupComplete =
+      [[XCTestExpectation alloc] initWithDescription:@"startup complete"];
+  [[startup then:^id _Nullable(NSNumber *_Nullable value) {
+    XCTAssertFalse([value boolValue]);
+    [startupComplete fulfill];
+    return nil;
+  }] catch:^void(NSError *_Nonnull error) {
+    XCTFail(@"Startup failed with error: %@", error);
+    [startupComplete fulfill];
+  }];
+
+  [self waitForExpectations:@[ startupComplete ] timeout:1.0];
+
+  XCTAssertFalse(FIRCLSContextIsInitialized());
+  XCTAssertTrue([self.fileManager fileExistsAtPath:report.path]);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1);
+  XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
+  XCTAssertEqual([self.uploadReportArray count], 0);
 }
 
 - (void)waitForPromise:(FBLPromise<NSNumber *> *)promise {

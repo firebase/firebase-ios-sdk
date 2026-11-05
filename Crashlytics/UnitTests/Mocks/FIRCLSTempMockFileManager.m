@@ -53,6 +53,14 @@
   return YES;
 }
 
+- (NSString *)setupNewPathForExecutionIdentifier:(NSString *)executionIdentifier {
+  if (self.failReportDirectoryCreation) {
+    return nil;
+  }
+
+  return [super setupNewPathForExecutionIdentifier:executionIdentifier];
+}
+
 - (NSNumber *)fileSizeAtPath:(NSString *)path {
   if (self.fileSizeAtPathResult != nil) {
     return self.fileSizeAtPathResult;

@@ -494,7 +494,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSErrorLog(@"Crashlytics method called before SDK was initialized: %@", contextLog);
     return;
   }
-  [_contextInitPromise then:^id _Nullable(id _Nullable value) {
+  [_contextInitPromise then:^id _Nullable(NSNumber *_Nullable value) {
+    if (![value boolValue]) {
+      return nil;
+    }
     callback();
     return nil;
   }];

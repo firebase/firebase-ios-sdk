@@ -27,6 +27,8 @@
 // Overrides fileSizeAtPath if set
 @property(nonatomic, copy) NSNumber *fileSizeAtPathResult;
 
+@property(nonatomic) BOOL failReportDirectoryCreation;
+
 // Will be fulfilled when the expected number of removes have happened
 // using removeItemAtPath
 //
