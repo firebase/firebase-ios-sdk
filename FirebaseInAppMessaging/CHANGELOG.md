@@ -1,6 +1,4 @@
 # Unreleased
-- [fixed] Serialized display completion and impression reservation so overlapping
-  triggers cannot lose impression tracking for the next message. (#16763)
 - [fixed] Improved robustness when parsing malformed in-app messaging campaign
   fetch responses, cached campaigns, and persisted impressions. (#16728)
 - [fixed] Fixed an issue where cached In-App Messaging engagement logs from a previous app
