@@ -56,6 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
                configStoreDebugToken:nil];
 }
 
+/// Creates a provider wrapping `debugProvider`.
+///
+/// @param configStoreDebugToken The debug token read from the Firebase CLI config store, if any,
+///     that was passed to `debugProvider`. Used to attribute the token's source in logs.
 - (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider
                             projectID:(nullable NSString *)projectID
                           googleAppID:(NSString *)googleAppID
@@ -91,8 +95,8 @@ NS_ASSUME_NONNULL_BEGIN
     return nil;
   }
 
-  // On the iOS Simulator, use the debug token provisioned by the Firebase CLI on the host machine
-  // (if any) instead of generating a new one that would need to be registered manually.
+  // In a Simulator, use the debug token provisioned by the Firebase CLI on the host machine (if
+  // any) instead of generating a new one that would need to be registered manually.
   NSString *configStoreDebugToken =
       [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:app.options.googleAppID];
 
@@ -148,19 +152,38 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (void)logDebugTokenExchangeError {
+- (void)logDebugTokenExchangeError:(NSError *)error {
   if (self.usesConfigStoreDebugToken) {
-    FIRLogWarning(kFIRLoggerAppCheck,
-                  kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed,
-                  @"Failed to exchange the debug token loaded from ~/%@. If the token was "
-                  @"rejected by the server, run `firebase appcheck:debugtokens:create --force "
-                  @"--project %@ --app %@` to provision a new token.",
-                  FIRAppCheckDebugTokenConfigStore.relativePath, self.projectID, self.googleAppID);
+    NSString *message = [self configStoreDebugTokenExchangeFailureMessageForError:error];
+    if (message) {
+      FIRLogWarning(kFIRLoggerAppCheck,
+                    kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed, @"%@",
+                    message);
+    }
     return;
   }
 
   [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed
                                      prefix:@"Failed to exchange debug token. "];
+}
+
+/// Returns the message to log when exchanging the config store debug token fails, or `nil` when
+/// the failure is not actionable by provisioning a new token (e.g., the server was unreachable).
+- (nullable NSString *)configStoreDebugTokenExchangeFailureMessageForError:(NSError *)error {
+  if ([error.domain isEqualToString:GACAppCheckErrors.errorDomain] &&
+      error.code == GACAppCheckErrorCodeServerUnreachable) {
+    return nil;
+  }
+
+  NSString *projectArgument = self.projectID.length > 0
+                                  ? [NSString stringWithFormat:@" --project %@", self.projectID]
+                                  : @"";
+  return [NSString stringWithFormat:@"Failed to exchange the debug token loaded from ~/%@: %@\n\n"
+                                    @"If the token was rejected by the server, run "
+                                    @"`firebase appcheck:debugtokens:create --force%@ --app %@` "
+                                    @"to provision a new token.",
+                                    FIRAppCheckDebugTokenConfigStore.relativePath,
+                                    error.localizedDescription, projectArgument, self.googleAppID];
 }
 
 #pragma mark - FIRAppCheckProvider
@@ -170,7 +193,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                NSError *_Nullable error) {
     if (error) {
-      [self logDebugTokenExchangeError];
+      [self logDebugTokenExchangeError:error];
       handler(nil, error);
       return;
     }
@@ -184,7 +207,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getLimitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                          NSError *_Nullable error) {
     if (error) {
-      [self logDebugTokenExchangeError];
+      [self logDebugTokenExchangeError:error];
       handler(nil, error);
       return;
     }

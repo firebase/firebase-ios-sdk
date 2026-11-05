@@ -22,17 +22,19 @@ NS_ASSUME_NONNULL_BEGIN
 /// (`firebase appcheck:debugtokens:create`) into the config store file on the developer's host
 /// machine (`~/.config/configstore/firebase-appcheck.json`).
 ///
-/// Only apps running in the iOS Simulator can reach the host file system, using the
-/// `SIMULATOR_HOST_HOME` environment variable that Xcode sets when launching an app in the
-/// Simulator. On all other platforms the lookup is compiled out and always returns `nil`.
+/// Only apps running in a Simulator (iOS, tvOS, watchOS, or visionOS) can reach the host file
+/// system, using the `SIMULATOR_HOST_HOME` environment variable that the Simulator sets to the
+/// host user's home directory. On devices, macOS, and Mac Catalyst the lookup is compiled out and
+/// always returns `nil`.
 @interface FIRAppCheckDebugTokenConfigStore : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// The path of the config store file, relative to the host user's home directory.
 @property(class, nonatomic, readonly) NSString *relativePath;
 
-/// Returns the debug token provisioned for the given app, or `nil` when running outside the iOS
+/// Returns the debug token provisioned for the given app, or `nil` when not running in a
 /// Simulator, when `SIMULATOR_HOST_HOME` is unset, or when the config store file is missing,
 /// unreadable, or contains no token for the app.
 ///

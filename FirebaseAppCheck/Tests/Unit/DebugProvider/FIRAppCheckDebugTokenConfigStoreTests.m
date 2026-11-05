@@ -15,16 +15,15 @@
  */
 
 #import <TargetConditionals.h>
-
-// The host config store can only be read from the iOS Simulator; elsewhere the lookup is
-// compiled out, so there is nothing to test.
-#if TARGET_OS_SIMULATOR
-
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAppCheck/Sources/DebugProvider/FIRAppCheckDebugTokenConfigStore.h"
 
 static NSString *const kAppID = @"1:248211933065:ios:91feeddd848ff1a48f0358";
+
+// The host config store can only be read from a Simulator; elsewhere the lookup is compiled out.
+#if TARGET_OS_SIMULATOR
+
 static NSString *const kOtherAppID = @"1:248211933065:android:0123456789abcdef012345";
 static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
 
@@ -32,7 +31,7 @@ static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
 
 /// A temporary directory standing in for the host user's home directory.
 @property(nonatomic) NSURL *hostHomeURL;
-@property(nonatomic) NSDictionary<NSString *, NSString *> *environment;
+@property(nonatomic, copy) NSDictionary<NSString *, NSString *> *environment;
 
 @end
 
@@ -191,6 +190,71 @@ static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
 
   NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:@""
                                                                    environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
+- (void)testDebugTokenWhenTopLevelJSONIsAnArray {
+  [self writeConfigStoreContents:@"[{\"tokens\": {}}]"];
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
+- (void)testDebugTokenWhenTokenIsNull {
+  [self writeConfigStoreTokens:@{kAppID : [NSNull null]}];
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
+- (void)testDebugTokenWhenSimulatorHostHomeHasTrailingSlash {
+  [self writeConfigStoreTokens:@{kAppID : kToken}];
+  NSDictionary<NSString *, NSString *> *environment =
+      @{@"SIMULATOR_HOST_HOME" : [self.hostHomeURL.path stringByAppendingString:@"/"]};
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:environment];
+
+  XCTAssertEqualObjects(token, kToken);
+}
+
+- (void)testDebugTokenWhenConfigStorePathIsADirectory {
+  NSURL *directoryURL =
+      [self.hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath
+                                        isDirectory:YES];
+  NSError *error;
+  XCTAssertTrue([[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
+                                         withIntermediateDirectories:YES
+                                                          attributes:nil
+                                                               error:&error],
+                @"%@", error);
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
+@end
+
+#else  // TARGET_OS_SIMULATOR
+
+@interface FIRAppCheckDebugTokenConfigStoreTests : XCTestCase
+@end
+
+@implementation FIRAppCheckDebugTokenConfigStoreTests
+
+- (void)testDebugTokenIsNilOutsideSimulator {
+  NSString *hostHome = NSTemporaryDirectory();
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore
+      debugTokenForGoogleAppID:kAppID
+                   environment:@{@"SIMULATOR_HOST_HOME" : hostHome}];
 
   XCTAssertNil(token);
 }

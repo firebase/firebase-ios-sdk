@@ -24,8 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// Environment variable set by Xcode to the host user's home directory when running in the iOS
-/// Simulator.
+/// Environment variable set by the Simulator to the host user's home directory.
 static NSString *const kSimulatorHostHomeEnvKey = @"SIMULATOR_HOST_HOME";
 
 /// Top-level key of the config store file mapping Google App IDs to debug tokens.
@@ -52,7 +51,8 @@ static NSString *const kTokensKey = @"tokens";
   }
 
   NSURL *fileURL = [[NSURL fileURLWithPath:hostHome
-                               isDirectory:YES] URLByAppendingPathComponent:self.relativePath];
+                               isDirectory:YES] URLByAppendingPathComponent:self.relativePath
+                                                                isDirectory:NO];
   NSError *readError;
   NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&readError];
   if (!data) {
@@ -60,9 +60,10 @@ static NSString *const kTokensKey = @"tokens";
     BOOL isMissingFile = [readError.domain isEqualToString:NSCocoaErrorDomain] &&
                          readError.code == NSFileReadNoSuchFileError;
     if (!isMissingFile) {
-      FIRLogDebug(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
-                  @"Failed to read App Check debug tokens from ~/%@: %@", self.relativePath,
-                  readError.localizedDescription);
+      FIRLogWarning(kFIRLoggerAppCheck,
+                    kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
+                    @"Failed to read App Check debug tokens from ~/%@: %@", self.relativePath,
+                    readError.localizedDescription);
     }
     return nil;
   }
@@ -71,9 +72,9 @@ static NSString *const kTokensKey = @"tokens";
   id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
   NSDictionary *tokens = [json isKindOfClass:[NSDictionary class]] ? json[kTokensKey] : nil;
   if (![tokens isKindOfClass:[NSDictionary class]]) {
-    FIRLogDebug(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
-                @"Failed to parse App Check debug tokens from ~/%@: %@", self.relativePath,
-                parseError.localizedDescription ?: @"missing `tokens` object");
+    FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
+                  @"Failed to parse App Check debug tokens from ~/%@: %@", self.relativePath,
+                  parseError.localizedDescription ?: @"missing `tokens` object");
     return nil;
   }
 
