@@ -50,6 +50,8 @@ static NSString *const kProjectNumber = @"123456789";
 
 @property(nonatomic, copy) NSString *resourceName;
 @property(nonatomic) id debugProviderMock;
+/// Returned by `debugProviderMock` whenever `debugTokenSource` is called.
+@property(nonatomic) GACAppCheckDebugTokenSource stubbedDebugTokenSource;
 @property(nonatomic) FIRAppCheckDebugProvider *provider;
 
 @end
@@ -59,7 +61,15 @@ static NSString *const kProjectNumber = @"123456789";
 - (void)setUp {
   self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
   self.debugProviderMock = OCMStrictClassMock([GACAppCheckDebugProvider class]);
-  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceLocal];
+  // A single stub that reads `stubbedDebugTokenSource`, since OCMock uses the first matching stub:
+  // a later `OCMStub` or `OCMExpect` for `debugTokenSource` would be shadowed by this one. Set
+  // `stubbedDebugTokenSource` instead.
+  __weak __typeof__(self) weakSelf = self;
+  OCMStub([self.debugProviderMock debugTokenSource]).andDo(^(NSInvocation *invocation) {
+    GACAppCheckDebugTokenSource source = weakSelf.stubbedDebugTokenSource;
+    [invocation setReturnValue:&source];
+  });
+  self.stubbedDebugTokenSource = GACAppCheckDebugTokenSourceLocal;
   self.provider = [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
                                                                 projectID:nil
                                                               googleAppID:kAppID];
@@ -113,7 +123,7 @@ static NSString *const kProjectNumber = @"123456789";
 #pragma mark - Debug token source
 
 - (void)testInitWithConfigStoreDebugTokenLogsAttribution {
-  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceProvided];
+  self.stubbedDebugTokenSource = GACAppCheckDebugTokenSourceProvided;
 
   FIRAppCheckDebugProvider *provider =
       [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
@@ -126,7 +136,7 @@ static NSString *const kProjectNumber = @"123456789";
 }
 
 - (void)testInitWithEnvironmentVariableDebugTokenDoesNotLogLocalToken {
-  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceEnvironmentVariable];
+  self.stubbedDebugTokenSource = GACAppCheckDebugTokenSourceEnvironmentVariable;
 
   FIRAppCheckDebugProvider *provider =
       [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
@@ -140,7 +150,7 @@ static NSString *const kProjectNumber = @"123456789";
 }
 
 - (void)testInitWithLocalDebugTokenLogsLocalToken {
-  [self expectDebugTokenSource:GACAppCheckDebugTokenSourceLocal];
+  self.stubbedDebugTokenSource = GACAppCheckDebugTokenSourceLocal;
   OCMExpect([self.debugProviderMock localDebugToken]).andReturn(@"local_token");
 
   FIRAppCheckDebugProvider *provider =
@@ -505,16 +515,11 @@ static NSString *const kProjectNumber = @"123456789";
   }];
 }
 
-/// Expects the core debug provider's `debugTokenSource` to be read once, returning `source`.
-- (void)expectDebugTokenSource:(GACAppCheckDebugTokenSource)source {
-  OCMExpect([self.debugProviderMock debugTokenSource]).andReturn(source);
-}
-
 /// Returns a provider whose core debug provider resolved its debug token from `source`, which must
 /// not be `GACAppCheckDebugTokenSourceLocal` (that would log the local token on the strict mock).
 - (FIRAppCheckDebugProvider *)providerWithDebugTokenSource:(GACAppCheckDebugTokenSource)source
                                                  projectID:(nullable NSString *)projectID {
-  [self expectDebugTokenSource:source];
+  self.stubbedDebugTokenSource = source;
   return [[FIRAppCheckDebugProvider alloc] initWithDebugProvider:self.debugProviderMock
                                                        projectID:projectID
                                                      googleAppID:kAppID];
