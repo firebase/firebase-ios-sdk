@@ -29,8 +29,8 @@
   if (self) {
     _error = [NSError errorWithDomain:([error.domain copy] ?: @"")
                                  code:error.code
-                             userInfo:FIRCLSCopyDictionary(error.userInfo)];
-    _userInfo = FIRCLSCopyDictionary(userInfo);
+                             userInfo:FIRCLSCopyDictionary(error.userInfo, NO)];
+    _userInfo = FIRCLSCopyDictionary(userInfo, NO);
     _rolloutsInfoJSON = [rolloutsInfoJSON copy];
     // Take a snapshot of the thread at initialization.
     _stackTrace = [NSThread callStackReturnAddresses];

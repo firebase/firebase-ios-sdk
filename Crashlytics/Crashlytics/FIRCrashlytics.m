@@ -405,7 +405,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)setCustomKeysAndValues:(NSDictionary *)keysAndValues {
-  NSDictionary *copiedKeysAndValues = FIRCLSCopyDictionary(keysAndValues);
+  NSDictionary *copiedKeysAndValues = FIRCLSCopyDictionary(keysAndValues, YES);
   [self performWhenContextReady:@"setCustomKeysAndValues"
                        callback:^{
                          FIRCLSUserLoggingRecordUserKeysAndValues(copiedKeysAndValues);

@@ -26,7 +26,6 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
@@ -124,17 +123,17 @@
 /// and invocation count.
 @interface FIRCLSDescriptionTrackingObject : NSObject
 
-@property(nonatomic, strong) NSMutableString *backingDescription;
+@property(nonatomic, strong, nullable) NSMutableString *backingDescription;
 @property(nonatomic, assign) NSUInteger descriptionCallCount;
 @property(nonatomic, strong, nullable) NSThread *lastDescriptionThread;
 
-- (instancetype)initWithInitialDescription:(NSString *)initialDescription;
+- (instancetype)initWithInitialDescription:(nullable NSString *)initialDescription;
 
 @end
 
 @implementation FIRCLSDescriptionTrackingObject
 
-- (instancetype)initWithInitialDescription:(NSString *)initialDescription {
+- (instancetype)initWithInitialDescription:(nullable NSString *)initialDescription {
   self = [super init];
   if (self) {
     _backingDescription = [initialDescription mutableCopy];
@@ -156,6 +155,7 @@
 @property(nonatomic, strong) FIRCLSMockSettings *mockSettings;
 @property(nonatomic, strong) FIRCLSThreadTrackingOnDemandModel *onDemandModel;
 @property(nonatomic, strong) FIRCrashlytics *crashlytics;
+@property(nonatomic, strong) NSMutableArray<NSData *> *allocatedPathBuffers;
 
 @end
 
@@ -210,12 +210,7 @@
   [self.crashlytics.managerData setValue:self.onDemandModel forKey:@"onDemandModel"];
 
   NSString *reportPath = [self.fileManager setupNewPathForExecutionIdentifier:@"test_report"];
-  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:reportPath
-                                                        executionIdentifier:@"test_report"];
-  FBLPromiseAwait([[[FIRCLSContextManager alloc] init] setupContextWithReport:report
-                                                                     settings:self.mockSettings
-                                                                  fileManager:self.fileManager],
-                  nil);
+  [self configureLoggingContextWithReportPath:reportPath];
 }
 
 - (void)tearDown {
@@ -227,12 +222,76 @@
                   });
   }
   self.crashlytics = nil;
+  [FIRCrashlytics resetInstanceForTesting];
+  FIRCLSContextBaseDeinit();
+  self.allocatedPathBuffers = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
 
   [super tearDown];
 }
 
 #pragma mark - Helpers
+
+- (const char *)allocatedContextPathInReport:(NSString *)reportPath fileName:(NSString *)fileName {
+  const char *fsRep =
+      [[reportPath stringByAppendingPathComponent:fileName] fileSystemRepresentation];
+  NSData *buffer = [NSData dataWithBytes:fsRep length:strlen(fsRep) + 1];
+  [self.allocatedPathBuffers addObject:buffer];
+  return [buffer bytes];
+}
+
+/// Initializes `_firclsContext` for logging, custom keys, non-fatal errors, and custom exceptions
+/// without installing Mach/signal/dyld handlers or write-protecting `_firclsContext.readonly`
+/// (allowing `FIRCLSContextBaseDeinit()` in `-tearDown`).
+- (void)configureLoggingContextWithReportPath:(NSString *)reportPath {
+  self.allocatedPathBuffers = [NSMutableArray array];
+  FIRCLSContextBaseInit();
+
+  _firclsContext.readonly->logging.errorStorage.maxSize = 0;
+  _firclsContext.readonly->logging.errorStorage.maxEntries = self.mockSettings.maxCustomExceptions;
+  _firclsContext.readonly->logging.errorStorage.restrictBySize = false;
+  _firclsContext.readonly->logging.errorStorage.entryCount =
+      &_firclsContext.writable->logging.errorsCount;
+  _firclsContext.readonly->logging.errorStorage.aPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportErrorAFile];
+  _firclsContext.readonly->logging.errorStorage.bPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportErrorBFile];
+
+  _firclsContext.readonly->logging.logStorage.maxSize = self.mockSettings.logBufferSize;
+  _firclsContext.readonly->logging.logStorage.maxEntries = 0;
+  _firclsContext.readonly->logging.logStorage.restrictBySize = true;
+  _firclsContext.readonly->logging.logStorage.entryCount = NULL;
+  _firclsContext.readonly->logging.logStorage.aPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportLogAFile];
+  _firclsContext.readonly->logging.logStorage.bPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportLogBFile];
+
+  _firclsContext.readonly->logging.customExceptionStorage.maxSize = 0;
+  _firclsContext.readonly->logging.customExceptionStorage.maxEntries =
+      self.mockSettings.maxCustomExceptions;
+  _firclsContext.readonly->logging.customExceptionStorage.restrictBySize = false;
+  _firclsContext.readonly->logging.customExceptionStorage.entryCount =
+      &_firclsContext.writable->exception.customExceptionCount;
+  _firclsContext.readonly->logging.customExceptionStorage.aPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportCustomExceptionAFile];
+  _firclsContext.readonly->logging.customExceptionStorage.bPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportCustomExceptionBFile];
+
+  _firclsContext.readonly->logging.userKVStorage.maxCount = self.mockSettings.maxCustomKeys;
+  _firclsContext.readonly->logging.userKVStorage.incrementalPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportUserIncrementalKVFile];
+  _firclsContext.readonly->logging.userKVStorage.compactedPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportUserCompactedKVFile];
+
+  _firclsContext.readonly->logging.internalKVStorage.maxCount = 32;
+  _firclsContext.readonly->logging.internalKVStorage.incrementalPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportInternalIncrementalKVFile];
+  _firclsContext.readonly->logging.internalKVStorage.compactedPath =
+      [self allocatedContextPathInReport:reportPath fileName:FIRCLSReportInternalCompactedKVFile];
+
+  FIRCLSUserLoggingInit(&_firclsContext.readonly->logging, &_firclsContext.writable->logging);
+  _firclsContext.readonly->initialized = true;
+}
 
 /// Waits for `crashlytics.preInitAPIDispatchQueue` and `_firclsLoggingQueue` to drain while keeping
 /// the calling thread (including the main thread!) blocked on a semaphore. If any callback
@@ -713,14 +772,21 @@
 - (void)testClearingUserIDAndCustomKeysWithNilAndNSNull {
   [self markContextReady];
 
+  FIRCLSDescriptionTrackingObject *nilDescObj =
+      [[FIRCLSDescriptionTrackingObject alloc] initWithInitialDescription:nil];
+
   [self.crashlytics setUserID:@"temp-user"];
   [self.crashlytics setCustomValue:@"v1" forKey:@"clear-via-nil"];
   [self.crashlytics setCustomValue:@"v2" forKey:@"clear-via-nsnull"];
   [self.crashlytics setCustomValue:@"v3" forKey:@"keep-key"];
+  [self.crashlytics setCustomValue:@"v4" forKey:@"clear-via-nil-desc-dict"];
 
   [self.crashlytics setUserID:nil];
   [self.crashlytics setCustomValue:nil forKey:@"clear-via-nil"];
-  [self.crashlytics setCustomKeysAndValues:@{@"clear-via-nsnull" : [NSNull null]}];
+  [self.crashlytics setCustomKeysAndValues:@{
+    @"clear-via-nsnull" : [NSNull null],
+    @"clear-via-nil-desc-dict" : nilDescObj,
+  }];
   [self.crashlytics setCustomKeysAndValues:@{}];
 
   // Clearing keys with nil or NSNull triggers an async FIRCLSUserLoggingCompactKVEntries pass on
@@ -732,7 +798,23 @@
   NSDictionary<NSString *, NSString *> *userKVs = [self userKeyValues];
   XCTAssertNil(userKVs[@"clear-via-nil"]);
   XCTAssertNil(userKVs[@"clear-via-nsnull"]);
+  XCTAssertNil(userKVs[@"clear-via-nil-desc-dict"]);
   XCTAssertEqualObjects(userKVs[@"keep-key"], @"v3");
+
+  // Conversely, recordError:userInfo: skips nil-copied values rather than recording "<null>".
+  NSError *error = [NSError errorWithDomain:@"com.test.nilinfo"
+                                       code:1
+                                   userInfo:@{@"kept" : @"ok", @"skipped" : nilDescObj}];
+  [self.crashlytics recordError:error
+                       userInfo:@{@"extraKept" : @"ok2", @"extraSkipped" : nilDescObj}];
+  NSArray<NSDictionary *> *errors = [self errorAContents];
+  XCTAssertEqual(errors.count, 1);
+  NSArray *infoPairs = errors[0][@"error"][@"info"];
+  XCTAssertEqual(infoPairs.count, 1);
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([infoPairs[0][0] UTF8String]), @"kept");
+  NSArray *extraPairs = errors[0][@"error"][@"extra_info"];
+  XCTAssertEqual(extraPairs.count, 1);
+  XCTAssertEqualObjects(FIRCLSFileHexDecodeString([extraPairs[0][0] UTF8String]), @"extraKept");
 }
 
 - (void)testAPICallsBeforeSDKInitializationAreSafeNoOps {

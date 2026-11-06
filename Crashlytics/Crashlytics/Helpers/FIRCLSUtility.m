@@ -205,7 +205,7 @@ id FIRCLSCopyValue(id value) {
   if (!FIRCLSIsValidPointer(value)) {
     return nil;
   }
-  if ([value isEqual:[NSNull null]]) {
+  if (value == [NSNull null]) {
     return [NSNull null];
   }
   if ([value isKindOfClass:[NSString class]]) {
@@ -217,7 +217,7 @@ id FIRCLSCopyValue(id value) {
   return nil;
 }
 
-NSDictionary* FIRCLSCopyDictionary(NSDictionary* dictionary) {
+NSDictionary* FIRCLSCopyDictionary(NSDictionary* dictionary, BOOL mapNilValuesToNSNull) {
   if (!FIRCLSIsValidPointer(dictionary)) {
     return nil;
   }
@@ -227,13 +227,15 @@ NSDictionary* FIRCLSCopyDictionary(NSDictionary* dictionary) {
 
   NSMutableDictionary* copied = [NSMutableDictionary dictionaryWithCapacity:dictionary.count];
   for (id key in dictionary) {
-    NSString* copiedKey = FIRCLSCopyValue(key);
-    if (!copiedKey || [copiedKey isEqual:[NSNull null]]) {
+    id copiedKey = FIRCLSCopyValue(key);
+    if (!copiedKey || copiedKey == [NSNull null]) {
       continue;
     }
     id copiedValue = FIRCLSCopyValue(dictionary[key]);
     if (copiedValue) {
       copied[copiedKey] = copiedValue;
+    } else if (mapNilValuesToNSNull) {
+      copied[copiedKey] = [NSNull null];
     }
   }
   return [copied copy];

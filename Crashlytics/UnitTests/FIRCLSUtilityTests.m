@@ -67,6 +67,45 @@
 
 @end
 
+@interface FIRCLSUtilityUnsafeEqualObject : NSObject <NSCopying>
+
+@property(nonatomic, copy, readonly) NSString *token;
+@property(nonatomic, assign) NSUInteger isEqualCallCount;
+
+- (instancetype)initWithToken:(NSString *)token;
+
+@end
+
+@implementation FIRCLSUtilityUnsafeEqualObject
+
+- (instancetype)initWithToken:(NSString *)token {
+  self = [super init];
+  if (self) {
+    _token = [token copy];
+  }
+  return self;
+}
+
+- (id)copyWithZone:(nullable NSZone *)zone {
+  return self;
+}
+
+- (BOOL)isEqual:(id)object {
+  self.isEqualCallCount += 1;
+  // Intentionally assumes `object` is the same class without checking `isKindOfClass:`.
+  return [self.token isEqualToString:[(FIRCLSUtilityUnsafeEqualObject *)object token]];
+}
+
+- (NSUInteger)hash {
+  return self.token.hash;
+}
+
+- (NSString *)description {
+  return self.token;
+}
+
+@end
+
 @interface FIRCLSUtilityTests : XCTestCase
 
 @end
@@ -226,11 +265,13 @@
 }
 
 - (void)testCopyDictionaryWithNilAndEmptyDictionaries {
-  XCTAssertNil(FIRCLSCopyDictionary(nil));
-  XCTAssertEqualObjects(FIRCLSCopyDictionary(@{}), @{});
+  XCTAssertNil(FIRCLSCopyDictionary(nil, NO));
+  XCTAssertNil(FIRCLSCopyDictionary(nil, YES));
+  XCTAssertEqualObjects(FIRCLSCopyDictionary(@{}, NO), @{});
+  XCTAssertEqualObjects(FIRCLSCopyDictionary(@{}, YES), @{});
 
   NSMutableDictionary *emptyMutable = [NSMutableDictionary dictionary];
-  NSDictionary *copiedEmpty = FIRCLSCopyDictionary(emptyMutable);
+  NSDictionary *copiedEmpty = FIRCLSCopyDictionary(emptyMutable, NO);
   emptyMutable[@"later"] = @"value";
 
   XCTAssertEqualObjects(copiedEmpty, @{});
@@ -259,7 +300,8 @@
   source[noDescKey] = @"should-skip-no-desc-key";
   source[@"no-desc-val"] = noDescVal;
 
-  NSDictionary *copied = FIRCLSCopyDictionary(source);
+  NSDictionary *copiedSkippingNil = FIRCLSCopyDictionary(source, NO);
+  NSDictionary *copiedMappingNilToNSNull = FIRCLSCopyDictionary(source, YES);
 
   // Mutate source keys, values, and entries after copying.
   [mutableKey setString:@"changed-key"];
@@ -267,15 +309,42 @@
   [customVal.backingDescription setString:@"changed-desc"];
   source[@"added-after"] = @"extra";
 
-  XCTAssertFalse([copied isKindOfClass:[NSMutableDictionary class]]);
-  XCTAssertEqual(customVal.descriptionCallCount, 1);
+  XCTAssertFalse([copiedSkippingNil isKindOfClass:[NSMutableDictionary class]]);
+  XCTAssertFalse([copiedMappingNilToNSNull isKindOfClass:[NSMutableDictionary class]]);
+  XCTAssertEqual(customVal.descriptionCallCount, 2);
 
-  NSDictionary *expected = @{
+  NSDictionary *expectedSkippingNil = @{
     @"mut-key" : @"mut-val",
     @"99" : @"obj-desc",
     @"clear-key" : [NSNull null],
   };
-  XCTAssertEqualObjects(copied, expected);
+  XCTAssertEqualObjects(copiedSkippingNil, expectedSkippingNil);
+
+  NSDictionary *expectedMappingNilToNSNull = @{
+    @"mut-key" : @"mut-val",
+    @"99" : @"obj-desc",
+    @"clear-key" : [NSNull null],
+    @"nil-desc-val" : [NSNull null],
+    @"no-desc-val" : [NSNull null],
+  };
+  XCTAssertEqualObjects(copiedMappingNilToNSNull, expectedMappingNilToNSNull);
+}
+
+- (void)testCopyValueAndDictionaryDoNotInvokeIsEqualAgainstNSNull {
+  FIRCLSUtilityUnsafeEqualObject *unsafeKey =
+      [[FIRCLSUtilityUnsafeEqualObject alloc] initWithToken:@"unsafe-key"];
+  FIRCLSUtilityUnsafeEqualObject *unsafeVal =
+      [[FIRCLSUtilityUnsafeEqualObject alloc] initWithToken:@"unsafe-val"];
+
+  XCTAssertNoThrow(FIRCLSCopyValue(unsafeVal));
+  XCTAssertEqualObjects(FIRCLSCopyValue(unsafeVal), @"unsafe-val");
+  XCTAssertEqual(unsafeVal.isEqualCallCount, 0);
+
+  NSDictionary *copied = nil;
+  XCTAssertNoThrow(copied = FIRCLSCopyDictionary(@{unsafeKey : unsafeVal}, NO));
+  XCTAssertEqualObjects(copied, @{@"unsafe-key" : @"unsafe-val"});
+  XCTAssertEqual(unsafeKey.isEqualCallCount, 0);
+  XCTAssertEqual(unsafeVal.isEqualCallCount, 0);
 }
 
 @end
