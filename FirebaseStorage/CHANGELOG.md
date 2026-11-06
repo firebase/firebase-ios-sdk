@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`
   now cancel the underlying download or upload and throw `StorageError.cancelled` when the
   calling Swift task is cancelled. (#11786)

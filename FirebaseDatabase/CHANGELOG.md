@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [fixed] Fixed an issue where the `getData` error said that the client was
   offline when the server rejected the request, e.g. because of security rules.
   (#11835)
