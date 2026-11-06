@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
   and the objects they captured, stayed in memory for as long as the `Auth`
   instance existed. This also affected the `authStateChanges` and

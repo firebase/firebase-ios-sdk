@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
   `recordError`, `recordExceptionModel`, etc.) hopped onto the main thread instead of flushing
   off the main thread during initialization and executing on the caller's thread afterwards.
