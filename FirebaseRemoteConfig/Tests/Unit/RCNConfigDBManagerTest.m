@@ -32,9 +32,29 @@
 - (void)insertExperimentTableWithKey:(NSString *)key
                                value:(NSData *)serializedValue
                    completionHandler:(RCNDBCompletion)handler;
+- (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)serializedValue;
 - (void)deleteExperimentTableForKey:(NSString *)key;
 - (void)createOrOpenDatabase;
 - (BOOL)executeQuery:(const char *)SQL withParams:(NSArray *)params;
+@end
+
+@interface RCNFailingExperimentInsertDBManager : RCNConfigDBManager
+@property(nonatomic) BOOL failExperimentInserts;
+@property(nonatomic) NSUInteger successfulExperimentInsertsBeforeFailure;
+@end
+
+@implementation RCNFailingExperimentInsertDBManager
+
+- (BOOL)insertExperimentTableWithKey:(NSString *)key value:(NSData *)serializedValue {
+  if (_failExperimentInserts) {
+    if (_successfulExperimentInsertsBeforeFailure == 0) {
+      return NO;
+    }
+    _successfulExperimentInsertsBeforeFailure -= 1;
+  }
+  return [super insertExperimentTableWithKey:key value:serializedValue];
+}
+
 @end
 
 @interface RCNConfigDBManagerTest : XCTestCase {
@@ -54,7 +74,7 @@
   _expectionTimeout = 10.0;
   id classMock = OCMClassMock([RCNConfigDBManager class]);
   OCMStub([classMock remoteConfigPathForDatabase]).andReturn(_DBPath);
-  _DBManager = [[RCNConfigDBManager alloc] init];
+  _DBManager = [[RCNFailingExperimentInsertDBManager alloc] init];
 }
 
 - (void)tearDown {
@@ -512,6 +532,111 @@
                          completionHandler:writePayloadCompletion];
 
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceActivatedExperimentsRollsBackAfterInsertFailure {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Failed replacement preserves existing experiments"];
+  NSData *oldPayload = [@"old" dataUsingEncoding:NSUTF8StringEncoding];
+  NSArray<NSData *> *newPayloads = @[
+    [@"new-1" dataUsingEncoding:NSUTF8StringEncoding],
+    [@"new-2" dataUsingEncoding:NSUTF8StringEncoding]
+  ];
+  RCNFailingExperimentInsertDBManager *dbManager =
+      (RCNFailingExperimentInsertDBManager *)_DBManager;
+
+  [_DBManager
+      replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                             values:@[ oldPayload ]
+                  completionHandler:^(BOOL success, NSDictionary *result) {
+                    XCTAssertTrue(success);
+                    dbManager.successfulExperimentInsertsBeforeFailure = 1;
+                    dbManager.failExperimentInserts = YES;
+                    [dbManager replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                                      values:newPayloads
+                                           completionHandler:^(BOOL success, NSDictionary *result) {
+                                             XCTAssertFalse(success);
+                                             [dbManager loadExperimentWithCompletionHandler:^(
+                                                            BOOL success,
+                                                            NSDictionary<NSString *, id> *results) {
+                                               XCTAssertTrue(success);
+                                               XCTAssertEqualObjects(
+                                                   results[@RCNExperimentTableKeyActivePayload],
+                                                   @[ oldPayload ]);
+                                               [expectation fulfill];
+                                             }];
+                                           }];
+                  }];
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceExperimentTableWithNilKeyFailsGracefully {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Nil key fails without throwing"];
+  NSString *nilKey = nil;
+  [_DBManager replaceExperimentTableWithKey:nilKey
+                                     values:@[]
+                          completionHandler:^(BOOL success, NSDictionary *result) {
+                            XCTAssertFalse(success);
+                            XCTAssertNil(result);
+                            [expectation fulfill];
+                          }];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceExperimentTableRollsBackOnNonDataValue {
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Non-NSData element rolls back replacement"];
+  NSData *oldPayload = [@"old" dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *newPayload = [@"new-1" dataUsingEncoding:NSUTF8StringEncoding];
+  NSArray *corruptValues = @[ newPayload, [NSNull null] ];
+
+  [_DBManager
+      replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                             values:@[ oldPayload ]
+                  completionHandler:^(BOOL success, NSDictionary *result) {
+                    XCTAssertTrue(success);
+                    [self->_DBManager
+                        replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                               values:corruptValues
+                                    completionHandler:^(BOOL replaceSuccess,
+                                                        NSDictionary *replaceResult) {
+                                      XCTAssertFalse(replaceSuccess);
+                                      [self->_DBManager loadExperimentWithCompletionHandler:^(
+                                                            BOOL loadSuccess,
+                                                            NSDictionary<NSString *, id> *results) {
+                                        XCTAssertTrue(loadSuccess);
+                                        XCTAssertEqualObjects(
+                                            results[@RCNExperimentTableKeyActivePayload],
+                                            @[ oldPayload ]);
+                                        [expectation fulfill];
+                                      }];
+                                    }];
+                  }];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testReplaceExperimentTableCompletesWhileMainThreadIsBlocked {
+  XCTAssertTrue([NSThread isMainThread]);
+  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  NSData *payload = [@"payload" dataUsingEncoding:NSUTF8StringEncoding];
+  __block BOOL callbackSuccess = NO;
+  __block BOOL callbackOnMainThread = YES;
+
+  [_DBManager replaceExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
+                                     values:@[ payload ]
+                          completionHandler:^(BOOL success, NSDictionary *result) {
+                            callbackSuccess = success;
+                            callbackOnMainThread = [NSThread isMainThread];
+                            dispatch_semaphore_signal(semaphore);
+                          }];
+
+  intptr_t waitResult = dispatch_semaphore_wait(
+      semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_expectionTimeout * NSEC_PER_SEC)));
+  XCTAssertEqual(waitResult, 0);
+  XCTAssertTrue(callbackSuccess);
+  XCTAssertFalse(callbackOnMainThread);
 }
 
 - (void)testWriteAndLoadMetadataMultipleTimes {
