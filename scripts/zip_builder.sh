@@ -18,4 +18,5 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PACKAGE_DIR="${SCRIPT_DIR}/zip_builder"
 
-swift run --package-path "${PACKAGE_DIR}" zip-builder "$@"
+# --force-resolved-versions: build the dependency commits in Package.resolved, like CI.
+swift run --package-path "${PACKAGE_DIR}" --force-resolved-versions zip-builder "$@"

@@ -3,6 +3,11 @@
   capability). Prompts can include image attachments created from a `CGImage`,
   a `CIImage`, a `CVPixelBuffer`, or a file URL; images from remote URLs aren't
   supported yet. (#16895)
+- [changed] **Breaking Change**: Updated the **Public Preview** Live API voice
+  activity types: renamed `VoiceActivityType.activityStart` and `activityEnd` to
+  `start` and `end`, removed `VoiceActivityType.unknown` from the public API,
+  and made `LiveServerVoiceActivity.audioOffset` a non-optional `TimeInterval`
+  (defaulting to `0`).
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

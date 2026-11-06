@@ -40,6 +40,9 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
     "SwiftPMTests", // The SwiftPM tests test module imports.
     "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
+    // The zip builder's test package imports headers the way a SwiftPM package does, through its
+    // targets' include directories, because that's what the tests check.
+    "scripts/zip_builder/Fixtures/",
   ] +
 
   // The following are temporary skips pending working through a first pass of the repo:
