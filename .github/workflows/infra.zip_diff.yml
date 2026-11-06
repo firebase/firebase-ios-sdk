@@ -14,11 +14,26 @@
 
 name: infra.zip_diff
 
+# Pull requests only run this when they change the zip builder itself, so its effect on the zip
+# shows up in review. Pushes to main still run on every change to the zip's inputs, to keep the
+# framework cache current for those pull requests.
 on:
   workflow_dispatch:
   pull_request:
+    paths:
+      - 'scripts/zip_builder/**'
+      - 'zip_builder.jsonc'
+      - 'zip_builder.json'
+      - '.github/workflows/infra.zip_diff.yml'
+      # Docs and the tool's own tests don't change the zip.
+      - '!scripts/zip_builder/**/*.md'
+      - '!scripts/zip_builder/Tests/**'
+      - '!scripts/zip_builder/Fixtures/**'
+  push:
+    branches:
+      - main
     # Everything that can change the zip.
-    paths: &zip_inputs
+    paths:
       - '**/*.swift'
       - '**/*.h'
       - '**/*.m'
@@ -51,10 +66,6 @@ on:
       - '!**/Samples/**'
       - '!SwiftPMTests/**'
       - '!ReleaseTooling/**'
-  push:
-    branches:
-      - main
-    paths: *zip_inputs
 
 permissions:
   contents: read
