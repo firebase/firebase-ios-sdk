@@ -28,12 +28,9 @@ concurrency:
 
 jobs:
   spm:
-    strategy:
-      matrix:
-        target: [FirebaseCrashlyticsUnit, FirebaseCrashlyticsSwiftUnit]
     uses: ./.github/workflows/_spm.yml
     with:
-      target: ${{ matrix.target }}
+      target: FirebaseCrashlyticsUnit
       is_nightly: ${{ github.event_name == 'schedule' }}
 
   catalyst:
