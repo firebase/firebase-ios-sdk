@@ -43,13 +43,62 @@ jobs:
         persist-credentials: false
     - name: Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-    - name: Install iOS platform runtime for ibtool
+    - name: Free disk space before downloading platform runtimes
+      run: |
+        df -h /
+        sudo rm -rf /Applications/Xcode_26.0.1.app /Applications/Xcode_26.1.1.app
+        df -h /
+    - name: Install iOS platform runtime
       uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
         command: sudo xcodebuild -downloadPlatform iOS
+    - name: Install tvOS platform runtime
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform tvOS
+    - name: Install watchOS platform runtime
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform watchOS
+    - name: Preflight Xcode 16.2 destinations and ibtool
+      run: |
+        set -euo pipefail
+        df -h /
+        RUNTIMES=$(xcrun simctl list runtimes)
+        echo "$RUNTIMES"
+        echo "$RUNTIMES" | grep -q "SimRuntime.iOS-18-2"
+        echo "$RUNTIMES" | grep -q "SimRuntime.tvOS-18-2"
+        echo "$RUNTIMES" | grep -q "SimRuntime.watchOS-11-2"
+        TMP_PKG=$(mktemp -d)
+        cat > "$TMP_PKG/Package.swift" << 'EOF'
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+          name: "Preflight",
+          platforms: [.iOS(.v13), .tvOS(.v13), .watchOS(.v7)],
+          products: [.library(name: "Preflight", targets: ["Preflight"])],
+          targets: [.target(name: "Preflight")]
+        )
+        EOF
+        mkdir -p "$TMP_PKG/Sources/Preflight"
+        echo "public struct S {}" > "$TMP_PKG/Sources/Preflight/S.swift"
+        DESTS=$(cd "$TMP_PKG" && xcodebuild -scheme Preflight -showdestinations)
+        rm -rf "$TMP_PKG"
+        for expected in "Any iOS Device" "Any iOS Simulator Device" "Any tvOS Device" "Any tvOS Simulator Device" "Any watchOS Device" "Any watchOS Simulator Device"; do
+          echo "$DESTS" | grep -q "$expected"
+        done
+        xcrun ibtool --compile /tmp/fiam_preflight.storyboardc \
+          FirebaseInAppMessaging/iOS/Resources/FIRInAppMessageDisplayStoryboard.storyboard
+        rm -rf /tmp/fiam_preflight.storyboardc
     - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -88,9 +137,6 @@ jobs:
     # Don't run on private repo.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: build
-    strategy:
-      matrix:
-        linking_type: [static, dynamic]
     runs-on: macos-15
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -98,13 +144,62 @@ jobs:
         persist-credentials: false
     - name: Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
-    - name: Install iOS platform runtime for ibtool
+    - name: Free disk space before downloading platform runtimes
+      run: |
+        df -h /
+        sudo rm -rf /Applications/Xcode_26.0.1.app /Applications/Xcode_26.1.1.app
+        df -h /
+    - name: Install iOS platform runtime
       uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
       with:
         timeout_minutes: 15
         max_attempts: 5
         retry_wait_seconds: 120
         command: sudo xcodebuild -downloadPlatform iOS
+    - name: Install tvOS platform runtime
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform tvOS
+    - name: Install watchOS platform runtime
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform watchOS
+    - name: Preflight Xcode 16.2 destinations and ibtool
+      run: |
+        set -euo pipefail
+        df -h /
+        RUNTIMES=$(xcrun simctl list runtimes)
+        echo "$RUNTIMES"
+        echo "$RUNTIMES" | grep -q "SimRuntime.iOS-18-2"
+        echo "$RUNTIMES" | grep -q "SimRuntime.tvOS-18-2"
+        echo "$RUNTIMES" | grep -q "SimRuntime.watchOS-11-2"
+        TMP_PKG=$(mktemp -d)
+        cat > "$TMP_PKG/Package.swift" << 'EOF'
+        // swift-tools-version: 5.9
+        import PackageDescription
+        let package = Package(
+          name: "Preflight",
+          platforms: [.iOS(.v13), .tvOS(.v13), .watchOS(.v7)],
+          products: [.library(name: "Preflight", targets: ["Preflight"])],
+          targets: [.target(name: "Preflight")]
+        )
+        EOF
+        mkdir -p "$TMP_PKG/Sources/Preflight"
+        echo "public struct S {}" > "$TMP_PKG/Sources/Preflight/S.swift"
+        DESTS=$(cd "$TMP_PKG" && xcodebuild -scheme Preflight -showdestinations)
+        rm -rf "$TMP_PKG"
+        for expected in "Any iOS Device" "Any iOS Simulator Device" "Any tvOS Device" "Any tvOS Simulator Device" "Any watchOS Device" "Any watchOS Simulator Device"; do
+          echo "$DESTS" | grep -q "$expected"
+        done
+        xcrun ibtool --compile /tmp/fiam_preflight.storyboardc \
+          FirebaseInAppMessaging/iOS/Resources/FIRInAppMessageDisplayStoryboard.storyboard
+        rm -rf /tmp/fiam_preflight.storyboardc
     - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -116,11 +211,11 @@ jobs:
          sh -x scripts/build_zip.sh \
            zip_output_dir "$SPEC_REPOS" \
            build-head \
-           ${{ matrix.linking_type }}
+           static
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ always() }}
       with:
-        name: ${{ matrix.linking_type == 'static' && 'Firebase-actions-dir' || 'Firebase-actions-dir-dynamic' }}
+        name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
         # name of.
         path: zip_output_dir
