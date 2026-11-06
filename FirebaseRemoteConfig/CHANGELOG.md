@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).
   The copy now keeps the value's data and source. (#16804)
 - [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values
