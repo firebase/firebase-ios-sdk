@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [added] `AppCheckDebugProvider` now automatically uses a debug token
   provisioned by the Firebase CLI (`firebase appcheck:debugtokens:create`) when
   running in a Simulator. The token is read for the app's Google App ID from
