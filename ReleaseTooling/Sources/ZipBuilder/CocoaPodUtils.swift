@@ -528,6 +528,13 @@ enum CocoaPodUtils {
       podfile += "\n"
     }
 
+    // SwiftProtobuf 1.33.2+ requires Swift 6.2 (Xcode 26+). Pin to 1.30.x (shipped in 11.15.0)
+    // so Xcode 16.2 can compile FirebaseMLModelDownloader in both head and release zip builds.
+    if pods.contains(where: { $0.name.split(separator: "/").first == "FirebaseMLModelDownloader" }),
+       !pods.contains(where: { $0.name.split(separator: "/").first == "SwiftProtobuf" }) {
+      podfile += "  pod 'SwiftProtobuf', '~> 1.30.0'\n"
+    }
+
     // If we're using local pods, explicitly add FirebaseInstallations,
     // and any Google* podspecs if they exist and there are no explicit versions in the Podfile.
     // Note there are versions for local podspecs if we're doing the secondary install for module
