@@ -43,6 +43,13 @@ jobs:
         persist-credentials: false
     - name: Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Install iOS platform runtime for ibtool
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform iOS
     - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -91,6 +98,13 @@ jobs:
         persist-credentials: false
     - name: Xcode 16.2
       run: sudo xcode-select -s /Applications/Xcode_16.2.app/Contents/Developer
+    - name: Install iOS platform runtime for ibtool
+      uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+      with:
+        timeout_minutes: 15
+        max_attempts: 5
+        retry_wait_seconds: 120
+        command: sudo xcodebuild -downloadPlatform iOS
     - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
