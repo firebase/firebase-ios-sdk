@@ -43,6 +43,7 @@ API_AVAILABLE(macos(10.14))
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;
 @property(nonatomic, readwrite, strong) NSMutableArray *scheduledLocalNotifications;
 @property(nonatomic, readwrite, strong) NSMutableArray<UNNotificationRequest *> *requests;
+@property(nonatomic, readwrite, strong) id mockNotificationCenter;
 
 @end
 
@@ -62,6 +63,8 @@ API_AVAILABLE(macos(10.14))
 }
 
 - (void)tearDown {
+  [self.mockNotificationCenter stopMocking];
+  self.mockNotificationCenter = nil;
   [super tearDown];
 }
 
@@ -191,20 +194,18 @@ API_AVAILABLE(macos(10.14))
 #pragma mark - Private Helpers
 
 - (void)mockSchedulingLocalNotifications {
-  id mockNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
-  __block UNNotificationRequest *request;
-  [[[mockNotificationCenter stub] andDo:^(NSInvocation *invocation) {
-    [self.requests addObject:request];
-  }] addNotificationRequest:[OCMArg checkWithBlock:^BOOL(id obj) {
-       if ([obj isKindOfClass:[UNNotificationRequest class]]) {
-         request = obj;
-         [self.requests addObject:request];
-         return YES;
-       }
-       return NO;
-     }]
-      withCompletionHandler:^(NSError *_Nullable error){
-      }];
+  // Mock the whole notification center rather than the real one: the real
+  // +currentNotificationCenter throws in test bundles without an app host (like SwiftPM's).
+  self.mockNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+  OCMStub(ClassMethod([self.mockNotificationCenter currentNotificationCenter]))
+      .andReturn(self.mockNotificationCenter);
+  OCMStub([self.mockNotificationCenter addNotificationRequest:[OCMArg any]
+                                        withCompletionHandler:[OCMArg any]])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained UNNotificationRequest *request;
+        [invocation getArgument:&request atIndex:2];
+        [self.requests addObject:request];
+      });
 }
 
 - (void)testScheduleLocalNotification {
