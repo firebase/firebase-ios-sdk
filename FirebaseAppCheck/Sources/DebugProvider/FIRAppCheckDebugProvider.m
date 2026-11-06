@@ -40,8 +40,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
 @property(nonatomic, readonly, copy, nullable) NSString *projectID;
 @property(nonatomic, readonly, copy) NSString *googleAppID;
-/// Where `debugProvider` got the debug token it exchanges. A provided token is always the one read
-/// from the Firebase CLI config store on the host machine.
+/// Where `debugProvider` got the debug token it exchanges.
+///
+/// The only token `-initWithApp:` passes to `debugProvider` is one read from the Firebase CLI
+/// config store on the host machine, so `GACAppCheckDebugTokenSourceProvided` means that token is
+/// in use.
 @property(nonatomic, readonly) GACAppCheckDebugTokenSource debugTokenSource;
 
 @end
@@ -58,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
     _googleAppID = [googleAppID copy];
     _debugTokenSource = debugProvider.debugTokenSource;
 
-    switch (_debugTokenSource) {
+    switch (_debugTokenSource) {  // No `default:` so `-Wswitch` flags new AppCheckCore sources.
       case GACAppCheckDebugTokenSourceLocal:
         [self logDebugTokenMessageWithMessageCode:kFIRLoggerAppCheckMessageCodeDebugToken
                                            prefix:@""];
