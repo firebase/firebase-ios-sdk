@@ -552,7 +552,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     return;
   }
 
-  [_contextInitGate performWhenReady:callback];
+  [_contextInitGate performWhenReady:contextLog block:callback];
 }
 
 #pragma mark - Test Helpers

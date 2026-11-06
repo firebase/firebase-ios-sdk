@@ -17,6 +17,18 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
+ * Maximum number of pre-initialization blocks buffered before incoming blocks
+ * are logged as an error and dropped.
+ */
+FOUNDATION_EXPORT const NSUInteger FIRCLSContextInitGateMaxPendingBlocks;
+
+/**
+ * Maximum number of non-blocking flush passes before `-markReadyAndFlush`
+ * blocks callers to drain any remaining pending blocks.
+ */
+FOUNDATION_EXPORT const NSUInteger FIRCLSContextInitGateMaxNonBlockingFlushes;
+
+/**
  * Coordinates pre-initialization callback buffering and post-initialization
  * caller-thread execution for Crashlytics APIs.
  *
@@ -27,13 +39,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Performs `block` synchronously on the calling thread once the gate is ready;
- * otherwise buffers `block` in FIFO order until `-markReadyAndFlush` drains it.
+ * otherwise buffers up to `FIRCLSContextInitGateMaxPendingBlocks` blocks in
+ * FIFO order until `-markReadyAndFlush` drains them, logging an error with
+ * `contextLog` and dropping incoming blocks once the buffer is full.
  */
-- (void)performWhenReady:(dispatch_block_t)block;
+- (void)performWhenReady:(nullable NSString *)contextLog block:(dispatch_block_t)block;
 
 /**
  * Drains all buffered blocks in FIFO order and transitions the gate permanently
- * to ready so all subsequent `-performWhenReady:` calls run inline on the
+ * to ready so all subsequent `-performWhenReady:block:` calls run inline on the
  * caller's thread. Any `NSException` thrown by a buffered block is caught and
  * logged so remaining blocks still drain and the gate transitions to ready.
  */
@@ -41,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Discards all buffered blocks without invoking them and permanently closes the
- * gate so any subsequent `-performWhenReady:` calls are also ignored.
+ * gate so any subsequent `-performWhenReady:block:` calls are also ignored.
  */
 - (void)markFailedAndDiscardPending;
 

@@ -27,6 +27,7 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/Helpers/FIRCLSContextInitGate.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
@@ -525,6 +526,30 @@
   NSArray<NSString *> *expected =
       @[ @"log-before-exception", @"log-after-exception", @"post-flush-inline-log" ];
   XCTAssertEqualObjects([self decodedLogMessages], expected);
+}
+
+- (void)testPreInitCallsExceedingMaxPendingBlocksDropsExcessAndAllowsPostInitCalls {
+  XCTAssertTrue([NSThread isMainThread]);
+  FBLPromise *initPromise = [self configurePendingInitPromise];
+
+  for (NSUInteger i = 0; i < FIRCLSContextInitGateMaxPendingBlocks + 10; i++) {
+    [self.crashlytics log:[NSString stringWithFormat:@"log-%lu", (unsigned long)i]];
+  }
+
+  [self fulfillInitPromiseOffMain:initPromise];
+
+  NSArray<NSString *> *flushedLogs = [self decodedLogMessages];
+  XCTAssertEqual(flushedLogs.count, FIRCLSContextInitGateMaxPendingBlocks);
+  for (NSUInteger i = 0; i < FIRCLSContextInitGateMaxPendingBlocks; i++) {
+    NSString *expectedLog = [NSString stringWithFormat:@"log-%lu", (unsigned long)i];
+    XCTAssertEqualObjects(flushedLogs[i], expectedLog);
+  }
+
+  // Subsequent post-init calls run inline and are not dropped.
+  [self.crashlytics log:@"post-init-log"];
+  NSArray<NSString *> *allLogs = [self decodedLogMessages];
+  XCTAssertEqual(allLogs.count, FIRCLSContextInitGateMaxPendingBlocks + 1);
+  XCTAssertEqualObjects(allLogs.lastObject, @"post-init-log");
 }
 
 #pragma mark - Pre-Init Mutable Input Snapshotting

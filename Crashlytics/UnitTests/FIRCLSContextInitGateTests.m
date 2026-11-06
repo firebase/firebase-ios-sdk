@@ -28,10 +28,11 @@ __attribute__((noinline)) static void FIRCLSEnqueueStackScopedBlock(
   char stackBuffer[64];
   snprintf(stackBuffer, sizeof(stackBuffer), "val-%d", baseValue * stackLocalMultiplier);
   NSString *stackScopedString = [NSString stringWithUTF8String:stackBuffer];
-  [gate performWhenReady:^{
-    NSInteger parsed = [[stackScopedString substringFromIndex:4] integerValue];
-    [results addObject:@(parsed + stackLocalMultiplier)];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     NSInteger parsed = [[stackScopedString substringFromIndex:4] integerValue];
+                     [results addObject:@(parsed + stackLocalMultiplier)];
+                   }];
 }
 
 /// Overwrites stack memory after `FIRCLSEnqueueStackScopedBlock` returns so any uncopied stack
@@ -71,7 +72,7 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 - (void)dealloc {
   [_gate markReadyAndFlush];
   if (_onDeallocBlock) {
-    [_gate performWhenReady:_onDeallocBlock];
+    [_gate performWhenReady:@"dealloc" block:_onDeallocBlock];
   }
 }
 
@@ -89,9 +90,10 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   [gate markReadyAndFlush];
 
   __block BOOL ranInline = NO;
-  [gate performWhenReady:^{
-    ranInline = YES;
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     ranInline = YES;
+                   }];
   XCTAssertTrue(ranInline);
 }
 
@@ -101,9 +103,10 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 
   const int blockCount = 100;
   for (int i = 0; i < blockCount; i++) {
-    [gate performWhenReady:^{
-      [order addObject:@(i)];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [order addObject:@(i)];
+                     }];
   }
 
   // Nothing may run before `-markReadyAndFlush`.
@@ -126,20 +129,22 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 
   // Enqueue from the main thread and from a background global queue.
   XCTAssertTrue([NSThread isMainThread]);
-  [gate performWhenReady:^{
-    os_unfair_lock_lock(threadsLockPtr);
-    [recordedThreads addObject:[NSThread currentThread]];
-    os_unfair_lock_unlock(threadsLockPtr);
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     os_unfair_lock_lock(threadsLockPtr);
+                     [recordedThreads addObject:[NSThread currentThread]];
+                     os_unfair_lock_unlock(threadsLockPtr);
+                   }];
 
   dispatch_semaphore_t enqueueSem = dispatch_semaphore_create(0);
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
     XCTAssertFalse([NSThread isMainThread]);
-    [gate performWhenReady:^{
-      os_unfair_lock_lock(threadsLockPtr);
-      [recordedThreads addObject:[NSThread currentThread]];
-      os_unfair_lock_unlock(threadsLockPtr);
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       os_unfair_lock_lock(threadsLockPtr);
+                       [recordedThreads addObject:[NSThread currentThread]];
+                       os_unfair_lock_unlock(threadsLockPtr);
+                     }];
     dispatch_semaphore_signal(enqueueSem);
   });
   XCTAssertEqual(
@@ -170,9 +175,10 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 
   // Post-ready: main-thread caller runs synchronously inline on main thread before returning.
   __block NSThread *postReadyMainThread = nil;
-  [gate performWhenReady:^{
-    postReadyMainThread = [NSThread currentThread];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     postReadyMainThread = [NSThread currentThread];
+                   }];
   XCTAssertEqual(postReadyMainThread, [NSThread mainThread]);
 
   // Post-ready: background-thread caller runs synchronously inline on its own background thread.
@@ -182,9 +188,10 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
     expectedBgCaller = [NSThread currentThread];
     XCTAssertFalse([NSThread isMainThread]);
-    [gate performWhenReady:^{
-      actualBgExecution = [NSThread currentThread];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       actualBgExecution = [NSThread currentThread];
+                     }];
     dispatch_semaphore_signal(postReadyBgSem);
   });
   XCTAssertEqual(
@@ -224,9 +231,10 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   @autoreleasepool {
     NSObject *captured = [[NSObject alloc] init];
     weakCapturedOnFlush = captured;
-    [flushedGate performWhenReady:^{
-      XCTAssertNotNil(captured);
-    }];
+    [flushedGate performWhenReady:@"test"
+                            block:^{
+                              XCTAssertNotNil(captured);
+                            }];
   }
   XCTAssertNotNil(weakCapturedOnFlush, @"Gate must retain buffered block captures prior to flush");
 
@@ -243,10 +251,11 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
     FIRCLSContextInitGate *unflushedGate = [[FIRCLSContextInitGate alloc] init];
     NSObject *captured = [[NSObject alloc] init];
     weakCapturedOnDealloc = captured;
-    [unflushedGate performWhenReady:^{
-      unflushedBlockRan = YES;
-      (void)captured;
-    }];
+    [unflushedGate performWhenReady:@"test"
+                              block:^{
+                                unflushedBlockRan = YES;
+                                (void)captured;
+                              }];
     XCTAssertNotNil(weakCapturedOnDealloc);
   }
   XCTAssertFalse(unflushedBlockRan);
@@ -264,13 +273,15 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
                                               [order addObject:@3];
                                             }];
 
-    [gate performWhenReady:^{
-      (void)probe;
-      [order addObject:@1];
-    }];
-    [gate performWhenReady:^{
-      [order addObject:@2];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       (void)probe;
+                       [order addObject:@1];
+                     }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [order addObject:@2];
+                     }];
   }
 
   // When Batch 1 (`@1`, `@2`) finishes, `batch` releases Block 1 outside `@synchronized(self)`,
@@ -287,34 +298,42 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
   NSMutableArray<NSNumber *> *order = [NSMutableArray array];
 
-  [gate performWhenReady:^{
-    [order addObject:@1];
-    // Enqueued during Batch 1 -> must run in Batch 2 AFTER sibling `@2` finishes.
-    [gate performWhenReady:^{
-      [order addObject:@3];
-      // Enqueued during Batch 2 -> must run in Batch 3 AFTER sibling `@4` finishes.
-      [gate performWhenReady:^{
-        [order addObject:@5];
-      }];
-    }];
-    [gate performWhenReady:^{
-      [order addObject:@4];
-    }];
-  }];
-  [gate performWhenReady:^{
-    [order addObject:@2];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [order addObject:@1];
+                     // Enqueued during Batch 1 -> must run in Batch 2 AFTER sibling `@2` finishes.
+                     [gate performWhenReady:@"test"
+                                      block:^{
+                                        [order addObject:@3];
+                                        // Enqueued during Batch 2 -> must run in Batch 3 AFTER
+                                        // sibling `@4` finishes.
+                                        [gate performWhenReady:@"test"
+                                                         block:^{
+                                                           [order addObject:@5];
+                                                         }];
+                                      }];
+                     [gate performWhenReady:@"test"
+                                      block:^{
+                                        [order addObject:@4];
+                                      }];
+                   }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [order addObject:@2];
+                   }];
 
   [gate markReadyAndFlush];
 
   // Post-ready nested `-performWhenReady:` runs synchronously inline inside the outer block.
-  [gate performWhenReady:^{
-    [order addObject:@6];
-    [gate performWhenReady:^{
-      [order addObject:@7];
-    }];
-    [order addObject:@8];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [order addObject:@6];
+                     [gate performWhenReady:@"test"
+                                      block:^{
+                                        [order addObject:@7];
+                                      }];
+                     [order addObject:@8];
+                   }];
 
   NSArray<NSNumber *> *expected = @[ @1, @2, @3, @4, @5, @6, @7, @8 ];
   XCTAssertEqualObjects(order, expected);
@@ -324,18 +343,22 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
   NSMutableArray<NSNumber *> *order = [NSMutableArray array];
 
-  [gate performWhenReady:^{
-    [order addObject:@1];
-    // Re-entrant `-markReadyAndFlush` while Batch 1 is mid-flight must NOT prematurely flip
-    // `_isReady` to YES or drop subsequently enqueued items.
-    [gate markReadyAndFlush];
-    [gate performWhenReady:^{
-      [order addObject:@3];
-    }];
-  }];
-  [gate performWhenReady:^{
-    [order addObject:@2];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [order addObject:@1];
+                     // Re-entrant `-markReadyAndFlush` while Batch 1 is mid-flight must NOT
+                     // prematurely flip
+                     // `_isReady` to YES or drop subsequently enqueued items.
+                     [gate markReadyAndFlush];
+                     [gate performWhenReady:@"test"
+                                      block:^{
+                                        [order addObject:@3];
+                                      }];
+                   }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [order addObject:@2];
+                   }];
 
   // Race two concurrent threads calling `-markReadyAndFlush` simultaneously.
   dispatch_group_t group = dispatch_group_create();
@@ -358,9 +381,9 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 
 - (void)testSequentialProducerRacingMarkReadyAndFlushPreservesTotalCausalOrder {
   // Repeat across 50 trials to exercise every interleaving of pre-ready buffering, batch draining,
-  // lock contention, and the final `_isReady = YES` flip.
+  // lock contention, and the final `_isReady = YES` flip within the pending capacity limit.
   const int trials = 50;
-  const int itemsPerTrial = 200;
+  const int itemsPerTrial = (int)FIRCLSContextInitGateMaxPendingBlocks;
 
   dispatch_queue_t flushQueue =
       dispatch_queue_create("com.google.firebase.crashlytics.test.handoff", DISPATCH_QUEUE_SERIAL);
@@ -373,13 +396,14 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
         [NSMutableArray arrayWithCapacity:(NSUInteger)itemsPerTrial];
 
     // Pre-seed the first 25 items before kicking off the background flush, then produce the
-    // remaining 175 items concurrently with `-markReadyAndFlush`.
+    // remaining items concurrently with `-markReadyAndFlush`.
     for (int i = 0; i < 25; i++) {
-      [gate performWhenReady:^{
-        os_unfair_lock_lock(orderLockPtr);
-        [observedOrder addObject:@(i)];
-        os_unfair_lock_unlock(orderLockPtr);
-      }];
+      [gate performWhenReady:@"test"
+                       block:^{
+                         os_unfair_lock_lock(orderLockPtr);
+                         [observedOrder addObject:@(i)];
+                         os_unfair_lock_unlock(orderLockPtr);
+                       }];
     }
 
     dispatch_async(flushQueue, ^{
@@ -387,14 +411,15 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
     });
 
     for (int i = 25; i < itemsPerTrial; i++) {
-      [gate performWhenReady:^{
-        os_unfair_lock_lock(orderLockPtr);
-        [observedOrder addObject:@(i)];
-        os_unfair_lock_unlock(orderLockPtr);
-      }];
+      [gate performWhenReady:@"test"
+                       block:^{
+                         os_unfair_lock_lock(orderLockPtr);
+                         [observedOrder addObject:@(i)];
+                         os_unfair_lock_unlock(orderLockPtr);
+                       }];
     }
 
-    // Wait for `flushQueue` to finish in case all 200 items were buffered before flush completed.
+    // Wait for `flushQueue` to finish in case all items were buffered before flush completed.
     dispatch_sync(flushQueue, ^{
                   });
 
@@ -411,8 +436,9 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
 
   const int producerThreads = 8;
-  const int blocksPerThread = 250;
+  const int blocksPerThread = (int)(FIRCLSContextInitGateMaxPendingBlocks / producerThreads);
   const int totalBlocks = producerThreads * blocksPerThread;
+  XCTAssertEqual((NSUInteger)totalBlocks, FIRCLSContextInitGateMaxPendingBlocks);
 
   atomic_int *executionCounts = calloc((size_t)totalBlocks, sizeof(atomic_int));
   XCTAssertTrue(executionCounts != NULL);
@@ -424,9 +450,11 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
     dispatch_group_async(group, concurrentQueue, ^{
       for (int i = 0; i < blocksPerThread; i++) {
         int slot = t * blocksPerThread + i;
-        [gate performWhenReady:^{
-          atomic_fetch_add_explicit(&executionCounts[slot], 1, memory_order_relaxed);
-        }];
+        [gate
+            performWhenReady:@"test"
+                       block:^{
+                         atomic_fetch_add_explicit(&executionCounts[slot], 1, memory_order_relaxed);
+                       }];
       }
     });
   }
@@ -456,12 +484,13 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   __block int nonAtomicInitializedState = 0;
   __block int nonAtomicPreInitAccumulated = 0;
 
-  [gate performWhenReady:^{
-    nonAtomicPreInitAccumulated += 10;
-    dispatch_semaphore_signal(flushEnteredBlock);
-    dispatch_semaphore_wait(allowFlushToFinish, DISPATCH_TIME_FOREVER);
-    nonAtomicPreInitAccumulated += 32;
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     nonAtomicPreInitAccumulated += 10;
+                     dispatch_semaphore_signal(flushEnteredBlock);
+                     dispatch_semaphore_wait(allowFlushToFinish, DISPATCH_TIME_FOREVER);
+                     nonAtomicPreInitAccumulated += 32;
+                   }];
 
   dispatch_queue_t flushQueue =
       dispatch_queue_create("com.google.firebase.crashlytics.test.slowpath", DISPATCH_QUEUE_SERIAL);
@@ -476,15 +505,17 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
                  0);
 
   // Release the flush and hammer `-performWhenReady:` across the exact `_isReady = NO -> YES`
-  // boundary, verifying every block sees initialized state and runs once.
+  // boundary within the pending capacity limit, verifying every block sees initialized state and
+  // runs once.
   __block atomic_int executedCount = 0;
-  const int burstCount = 500;
+  const int burstCount = (int)FIRCLSContextInitGateMaxPendingBlocks;
   dispatch_semaphore_signal(allowFlushToFinish);
   for (int i = 0; i < burstCount; i++) {
-    [gate performWhenReady:^{
-      XCTAssertEqual(nonAtomicInitializedState, 1);
-      atomic_fetch_add_explicit(&executedCount, 1, memory_order_relaxed);
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       XCTAssertEqual(nonAtomicInitializedState, 1);
+                       atomic_fetch_add_explicit(&executedCount, 1, memory_order_relaxed);
+                     }];
   }
 
   dispatch_sync(flushQueue, ^{
@@ -497,10 +528,11 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   __block int observedInitState = 0;
   __block int observedPreInitSum = 0;
   dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
-    [gate performWhenReady:^{
-      observedInitState = nonAtomicInitializedState;
-      observedPreInitSum = nonAtomicPreInitAccumulated;
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       observedInitState = nonAtomicInitializedState;
+                       observedPreInitSum = nonAtomicPreInitAccumulated;
+                     }];
     dispatch_semaphore_signal(readerSem);
   });
   XCTAssertEqual(
@@ -515,20 +547,22 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
-  XCTAssertNoThrow([gate performWhenReady:nil]);
+  XCTAssertNoThrow([gate performWhenReady:@"nil-block" block:nil]);
 
-  [gate performWhenReady:^{
-    [executed addObject:@1];
-    XCTAssertNoThrow([gate performWhenReady:nil]);
-  }];
+  [gate performWhenReady:nil
+                   block:^{
+                     [executed addObject:@1];
+                     XCTAssertNoThrow([gate performWhenReady:nil block:nil]);
+                   }];
 
   XCTAssertNoThrow([gate markReadyAndFlush]);
-  XCTAssertNoThrow([gate performWhenReady:nil]);
+  XCTAssertNoThrow([gate performWhenReady:@"nil-block" block:nil]);
 #pragma clang diagnostic pop
 
-  [gate performWhenReady:^{
-    [executed addObject:@2];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [executed addObject:@2];
+                   }];
 
   NSArray<NSNumber *> *expected = @[ @1, @2 ];
   XCTAssertEqualObjects(executed, expected);
@@ -539,23 +573,27 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gateB = [[FIRCLSContextInitGate alloc] init];
   NSMutableArray<NSString *> *events = [NSMutableArray array];
 
-  [gateA performWhenReady:^{
-    [events addObject:@"A1"];
-  }];
-  [gateB performWhenReady:^{
-    [events addObject:@"B1"];
-  }];
+  [gateA performWhenReady:@"test"
+                    block:^{
+                      [events addObject:@"A1"];
+                    }];
+  [gateB performWhenReady:@"test"
+                    block:^{
+                      [events addObject:@"B1"];
+                    }];
 
   // Flushing `gateA` must not flush or mark `gateB` ready.
   [gateA markReadyAndFlush];
   XCTAssertEqualObjects(events, @[ @"A1" ]);
 
-  [gateA performWhenReady:^{
-    [events addObject:@"A2-inline"];
-  }];
-  [gateB performWhenReady:^{
-    [events addObject:@"B2-buffered"];
-  }];
+  [gateA performWhenReady:@"test"
+                    block:^{
+                      [events addObject:@"A2-inline"];
+                    }];
+  [gateB performWhenReady:@"test"
+                    block:^{
+                      [events addObject:@"B2-buffered"];
+                    }];
   NSArray<NSString *> *expectedBeforeGateBFlush = @[ @"A1", @"A2-inline" ];
   XCTAssertEqualObjects(events, expectedBeforeGateBFlush);
 
@@ -578,13 +616,15 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
                                             }];
     weakProbe = probe;
 
-    [gate performWhenReady:^{
-      (void)probe;
-      [events addObject:@"discarded-1"];
-    }];
-    [gate performWhenReady:^{
-      [events addObject:@"discarded-2"];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       (void)probe;
+                       [events addObject:@"discarded-1"];
+                     }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [events addObject:@"discarded-2"];
+                     }];
 
     probe = nil;
     XCTAssertNotNil(weakProbe);
@@ -604,10 +644,11 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   @autoreleasepool {
     NSObject *postFailureCapture = [[NSObject alloc] init];
     weakPostFailureCapture = postFailureCapture;
-    [gate performWhenReady:^{
-      (void)postFailureCapture;
-      [events addObject:@"post-failure-should-not-run"];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       (void)postFailureCapture;
+                       [events addObject:@"post-failure-should-not-run"];
+                     }];
     postFailureCapture = nil;
   }
   XCTAssertNil(weakPostFailureCapture);
@@ -618,16 +659,18 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
   NSMutableArray<NSString *> *events = [NSMutableArray array];
 
-  [gate performWhenReady:^{
-    [events addObject:@"pre-init"];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"pre-init"];
+                   }];
   [gate markReadyAndFlush];
 
   // Once ready, calling `-markFailedAndDiscardPending` must not close the gate.
   [gate markFailedAndDiscardPending];
-  [gate performWhenReady:^{
-    [events addObject:@"post-ready-inline"];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"post-ready-inline"];
+                   }];
 
   NSArray<NSString *> *expected = @[ @"pre-init", @"post-ready-inline" ];
   XCTAssertEqualObjects(events, expected);
@@ -637,19 +680,22 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
   NSMutableArray<NSString *> *events = [NSMutableArray array];
 
-  [gate performWhenReady:^{
-    [events addObject:@"batch-1"];
-    [gate performWhenReady:^{
-      [events addObject:@"batch-2-should-be-discarded"];
-    }];
-    [gate markFailedAndDiscardPending];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"batch-1"];
+                     [gate performWhenReady:@"test"
+                                      block:^{
+                                        [events addObject:@"batch-2-should-be-discarded"];
+                                      }];
+                     [gate markFailedAndDiscardPending];
+                   }];
 
   [gate markReadyAndFlush];
 
-  [gate performWhenReady:^{
-    [events addObject:@"post-abort-should-not-run"];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"post-abort-should-not-run"];
+                   }];
 
   XCTAssertEqualObjects(events, @[ @"batch-1" ]);
 }
@@ -660,48 +706,253 @@ __attribute__((noinline)) static int FIRCLSClobberStackMemory(int seed) {
   __block __weak FIRCLSDeallocReentrancyProbe *weakProbe = nil;
 
   @autoreleasepool {
-    [gate performWhenReady:^{
-      [events addObject:@"batch-1-before-throw"];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [events addObject:@"batch-1-before-throw"];
+                     }];
 
-    [gate performWhenReady:^{
-      [events addObject:@"throwing-block-start"];
-      // Create and enqueue in an inner scope that exits normally before `@throw` so the throwing
-      // stack frame holds no un-cleaned local strong references under `-fno-objc-arc-exceptions`.
-      {
-        FIRCLSDeallocReentrancyProbe *probe =
-            [[FIRCLSDeallocReentrancyProbe alloc] initWithGate:gate
-                                                onDeallocBlock:^{
-                                                  [events addObject:@"probe-dealloc-drained"];
-                                                }];
-        weakProbe = probe;
-        [gate performWhenReady:^{
-          (void)probe;
-          [events addObject:@"batch-2-queued-before-throw"];
-        }];
-      }
-      @throw [NSException exceptionWithName:@"TestFlushException"
-                                     reason:@"Simulated exception"
-                                   userInfo:nil];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [events addObject:@"throwing-block-start"];
+                       // Create and enqueue in an inner scope that exits normally before `@throw`
+                       // so the throwing stack frame holds no un-cleaned local strong references
+                       // under `-fno-objc-arc-exceptions`.
+                       {
+                         FIRCLSDeallocReentrancyProbe *probe = [[FIRCLSDeallocReentrancyProbe alloc]
+                               initWithGate:gate
+                             onDeallocBlock:^{
+                               [events addObject:@"probe-dealloc-drained"];
+                             }];
+                         weakProbe = probe;
+                         [gate performWhenReady:@"test"
+                                          block:^{
+                                            (void)probe;
+                                            [events addObject:@"batch-2-queued-before-throw"];
+                                          }];
+                       }
+                       @throw [NSException exceptionWithName:@"TestFlushException"
+                                                      reason:@"Simulated exception"
+                                                    userInfo:nil];
+                     }];
 
-    [gate performWhenReady:^{
-      [events addObject:@"batch-1-after-throw"];
-    }];
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [events addObject:@"batch-1-after-throw"];
+                     }];
 
     XCTAssertNoThrow([gate markReadyAndFlush]);
   }
 
   XCTAssertNil(weakProbe);
-  [gate performWhenReady:^{
-    [events addObject:@"post-flush-inline"];
-  }];
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"post-flush-inline"];
+                   }];
 
   NSArray<NSString *> *expected = @[
     @"batch-1-before-throw", @"throwing-block-start", @"batch-1-after-throw",
     @"batch-2-queued-before-throw", @"probe-dealloc-drained", @"post-flush-inline"
   ];
   XCTAssertEqualObjects(events, expected);
+}
+
+- (void)testPendingBlocksExceedingMaxLimitDropsExcessAndReleasesCapturedObjects {
+  XCTAssertEqual(FIRCLSContextInitGateMaxPendingBlocks, 128u);
+
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSNumber *> *order = [NSMutableArray array];
+  __weak NSObject *weakDroppedCapture = nil;
+
+  @autoreleasepool {
+    for (NSUInteger i = 0; i < FIRCLSContextInitGateMaxPendingBlocks; i++) {
+      [gate performWhenReady:@"test"
+                       block:^{
+                         [order addObject:@(i)];
+                       }];
+    }
+
+    for (NSUInteger excess = 0; excess < 20; excess++) {
+      NSObject *capturedByDropped = [[NSObject alloc] init];
+      if (excess == 0) {
+        weakDroppedCapture = capturedByDropped;
+      }
+      NSUInteger droppedIndex = FIRCLSContextInitGateMaxPendingBlocks + excess;
+      [gate performWhenReady:(excess == 0 ? @"overflow-log" : nil)
+                       block:^{
+                         (void)capturedByDropped;
+                         [order addObject:@(droppedIndex)];
+                       }];
+    }
+  }
+
+  // Dropped blocks must not be retained in `_pendingBlocks` even before flush runs.
+  XCTAssertNil(weakDroppedCapture);
+  XCTAssertEqual(order.count, 0u);
+
+  [gate markReadyAndFlush];
+
+  XCTAssertEqual(order.count, FIRCLSContextInitGateMaxPendingBlocks);
+  for (NSUInteger i = 0; i < FIRCLSContextInitGateMaxPendingBlocks; i++) {
+    XCTAssertEqualObjects(order[i], @(i));
+  }
+
+  // Once ready, inline calls are never subject to the pre-init pending block limit.
+  const NSUInteger postReadyCalls = FIRCLSContextInitGateMaxPendingBlocks + 25;
+  __block NSUInteger inlineCount = 0;
+  for (NSUInteger i = 0; i < postReadyCalls; i++) {
+    [gate performWhenReady:@"test"
+                     block:^{
+                       inlineCount++;
+                     }];
+  }
+  XCTAssertEqual(inlineCount, postReadyCalls);
+}
+
+- (void)testPendingBlockLimitReplenishesAcrossFlushBatches {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  NSMutableArray<NSString *> *events = [NSMutableArray array];
+
+  // Fill Batch 1 to the exact 128-block ceiling; when Batch 1 drains, `_pendingBlocks` is emptied
+  // before Block 0 runs, allowing up to 128 Batch-2 blocks while still dropping a 129th.
+  [gate performWhenReady:@"test"
+                   block:^{
+                     [events addObject:@"b1-0"];
+                     for (NSUInteger j = 0; j < FIRCLSContextInitGateMaxPendingBlocks + 5; j++) {
+                       [gate performWhenReady:@"test"
+                                        block:^{
+                                          [events addObject:[NSString
+                                                                stringWithFormat:@"b2-%lu",
+                                                                                 (unsigned long)j]];
+                                        }];
+                     }
+                   }];
+
+  for (NSUInteger i = 1; i < FIRCLSContextInitGateMaxPendingBlocks + 5; i++) {
+    [gate performWhenReady:@"test"
+                     block:^{
+                       [events addObject:[NSString stringWithFormat:@"b1-%lu", (unsigned long)i]];
+                     }];
+  }
+
+  [gate markReadyAndFlush];
+
+  XCTAssertEqual(events.count, FIRCLSContextInitGateMaxPendingBlocks * 2);
+  XCTAssertEqualObjects(events[0], @"b1-0");
+  XCTAssertEqualObjects(events[FIRCLSContextInitGateMaxPendingBlocks - 1], @"b1-127");
+  XCTAssertEqualObjects(events[FIRCLSContextInitGateMaxPendingBlocks], @"b2-0");
+  XCTAssertEqualObjects(events[FIRCLSContextInitGateMaxPendingBlocks * 2 - 1], @"b2-127");
+}
+
+- (void)testConcurrentProducersExceedingLimitBufferAtMostMaxPendingBlocks {
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+
+  const int producerThreads = 8;
+  const int blocksPerThread = 50;
+  const int totalBlocks = producerThreads * blocksPerThread;
+
+  atomic_int *executionCounts = calloc((size_t)totalBlocks, sizeof(atomic_int));
+  XCTAssertTrue(executionCounts != NULL);
+
+  dispatch_group_t group = dispatch_group_create();
+  dispatch_queue_t concurrentQueue = dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0);
+
+  for (int t = 0; t < producerThreads; t++) {
+    dispatch_group_async(group, concurrentQueue, ^{
+      for (int i = 0; i < blocksPerThread; i++) {
+        int slot = t * blocksPerThread + i;
+        [gate
+            performWhenReady:@"test"
+                       block:^{
+                         atomic_fetch_add_explicit(&executionCounts[slot], 1, memory_order_relaxed);
+                       }];
+      }
+    });
+  }
+  dispatch_group_wait(group, DISPATCH_TIME_FOREVER);
+
+  [gate markReadyAndFlush];
+
+  NSUInteger totalExecuted = 0;
+  for (int slot = 0; slot < totalBlocks; slot++) {
+    int count = atomic_load_explicit(&executionCounts[slot], memory_order_relaxed);
+    XCTAssertLessThanOrEqual(count, 1, @"Block %d executed more than once", slot);
+    totalExecuted += (NSUInteger)count;
+  }
+  XCTAssertEqual(totalExecuted, FIRCLSContextInitGateMaxPendingBlocks);
+
+  free(executionCounts);
+}
+
+- (void)testBlockingFinalFlushAfterMaxNonBlockingFlushesTerminatesAndPreservesFIFO {
+  XCTAssertEqual(FIRCLSContextInitGateMaxNonBlockingFlushes, 3u);
+
+  FIRCLSContextInitGate *gate = [[FIRCLSContextInitGate alloc] init];
+  os_unfair_lock orderLock = OS_UNFAIR_LOCK_INIT;
+  os_unfair_lock *orderLockPtr = &orderLock;
+  NSMutableArray<NSNumber *> *order = [NSMutableArray array];
+  dispatch_semaphore_t callerReadySem = dispatch_semaphore_create(0);
+  dispatch_semaphore_t callerDoneSem = dispatch_semaphore_create(0);
+  __block __weak NSObject *weakFinalCapture = nil;
+
+  NSUInteger blockingIndex = FIRCLSContextInitGateMaxNonBlockingFlushes;
+  NSUInteger callerIndex = blockingIndex + 1;
+
+  dispatch_block_t nextPassEnqueue = ^{
+    @autoreleasepool {
+      NSObject *finalCapture = [[NSObject alloc] init];
+      weakFinalCapture = finalCapture;
+      [gate performWhenReady:@"blocking-final"
+                       block:^{
+                         (void)finalCapture;
+                         dispatch_async(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), ^{
+                           dispatch_semaphore_signal(callerReadySem);
+                           [gate performWhenReady:@"caller"
+                                            block:^{
+                                              os_unfair_lock_lock(orderLockPtr);
+                                              [order addObject:@(callerIndex)];
+                                              os_unfair_lock_unlock(orderLockPtr);
+                                            }];
+                           dispatch_semaphore_signal(callerDoneSem);
+                         });
+                         dispatch_semaphore_wait(callerReadySem, DISPATCH_TIME_FOREVER);
+                         usleep(2000);
+                         os_unfair_lock_lock(orderLockPtr);
+                         [order addObject:@(blockingIndex)];
+                         os_unfair_lock_unlock(orderLockPtr);
+                       }];
+    }
+  };
+
+  for (NSUInteger remaining = FIRCLSContextInitGateMaxNonBlockingFlushes; remaining > 0;
+       remaining--) {
+    NSUInteger passIndex = remaining - 1;
+    dispatch_block_t downstream = nextPassEnqueue;
+    nextPassEnqueue = ^{
+      [gate performWhenReady:@"non-blocking-pass"
+                       block:^{
+                         os_unfair_lock_lock(orderLockPtr);
+                         [order addObject:@(passIndex)];
+                         os_unfair_lock_unlock(orderLockPtr);
+                         downstream();
+                       }];
+    };
+  }
+  nextPassEnqueue();
+
+  @autoreleasepool {
+    [gate markReadyAndFlush];
+  }
+
+  XCTAssertNil(weakFinalCapture);
+  XCTAssertEqual(
+      dispatch_semaphore_wait(callerDoneSem, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC)),
+      0);
+
+  NSMutableArray<NSNumber *> *expected = [NSMutableArray arrayWithCapacity:callerIndex + 1];
+  for (NSUInteger i = 0; i <= callerIndex; i++) {
+    [expected addObject:@(i)];
+  }
+  XCTAssertEqualObjects(order, expected);
 }
 
 @end
