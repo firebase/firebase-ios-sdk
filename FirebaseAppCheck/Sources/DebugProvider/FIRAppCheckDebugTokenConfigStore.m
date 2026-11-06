@@ -17,6 +17,7 @@
 #import "FirebaseAppCheck/Sources/DebugProvider/FIRAppCheckDebugTokenConfigStore.h"
 
 #import <TargetConditionals.h>
+#import <errno.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
@@ -38,6 +39,25 @@ static NSString *const kTokensKey = @"tokens";
   return @".config/configstore/firebase-appcheck.json";
 }
 
+#if TARGET_OS_SIMULATOR
+/// Returns whether `error`, from reading the config store file, means that the file does not exist.
+///
+/// Besides a missing file, this includes a path component that is a regular file rather than a
+/// directory (e.g., `~/.config`), since the config store cannot exist at that path either.
++ (BOOL)isMissingConfigStoreError:(nullable NSError *)error {
+  if ([error.domain isEqualToString:NSCocoaErrorDomain] &&
+      error.code == NSFileReadNoSuchFileError) {
+    return YES;
+  }
+  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+  if (![underlyingError isKindOfClass:[NSError class]]) {
+    return NO;
+  }
+  return [underlyingError.domain isEqualToString:NSPOSIXErrorDomain] &&
+         underlyingError.code == ENOTDIR;
+}
+#endif  // TARGET_OS_SIMULATOR
+
 + (nullable NSString *)debugTokenForGoogleAppID:(NSString *)googleAppID {
   return [self debugTokenForGoogleAppID:googleAppID
                             environment:[NSProcessInfo processInfo].environment];
@@ -58,10 +78,8 @@ static NSString *const kTokensKey = @"tokens";
   NSError *readError;
   NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&readError];
   if (!data) {
-    // A missing file simply means the Firebase CLI flow is not in use.
-    BOOL isMissingFile = [readError.domain isEqualToString:NSCocoaErrorDomain] &&
-                         readError.code == NSFileReadNoSuchFileError;
-    if (!isMissingFile) {
+    // A missing file (or a path where it cannot exist) means the Firebase CLI flow is not in use.
+    if (![self isMissingConfigStoreError:readError]) {
       FIRLogWarning(kFIRLoggerAppCheck,
                     kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable,
                     @"Failed to read App Check debug tokens from ~/%@: %@", self.relativePath,

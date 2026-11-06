@@ -27,6 +27,12 @@ static NSString *const kAppID = @"1:248211933065:ios:91feeddd848ff1a48f0358";
 static NSString *const kOtherAppID = @"1:248211933065:android:0123456789abcdef012345";
 static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
 
+@interface FIRAppCheckDebugTokenConfigStore (Tests)
+
++ (BOOL)isMissingConfigStoreError:(nullable NSError *)error;
+
+@end
+
 @interface FIRAppCheckDebugTokenConfigStoreTests : XCTestCase
 
 /// A temporary directory standing in for the host user's home directory.
@@ -247,6 +253,115 @@ static NSString *const kToken = @"29d93e77-7bea-4f2a-b6ed-c1d1db892666";
                                                                    environment:self.environment];
 
   XCTAssertNil(token);
+}
+
+- (void)testDebugTokenWhenConfigStoreParentIsAFile {
+  // `~/.config` is a regular file, so the config store cannot exist; treated like a missing file.
+  [self writeEmptyFileAtRelativePath:@".config"];
+
+  NSString *token = [FIRAppCheckDebugTokenConfigStore debugTokenForGoogleAppID:kAppID
+                                                                   environment:self.environment];
+
+  XCTAssertNil(token);
+}
+
+#pragma mark - Missing config store errors
+
+- (void)testMissingFileIsMissingConfigStoreError {
+  NSError *error = [self configStoreReadError];
+
+  XCTAssertTrue([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error], @"%@", error);
+}
+
+- (void)testConfigParentFileIsMissingConfigStoreError {
+  [self writeEmptyFileAtRelativePath:@".config"];
+
+  NSError *error = [self configStoreReadError];
+
+  XCTAssertTrue([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error], @"%@", error);
+}
+
+- (void)testConfigstoreParentFileIsMissingConfigStoreError {
+  [self writeEmptyFileAtRelativePath:@".config/configstore"];
+
+  NSError *error = [self configStoreReadError];
+
+  XCTAssertTrue([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error], @"%@", error);
+}
+
+- (void)testDirectoryAtConfigStorePathIsNotMissingConfigStoreError {
+  NSURL *directoryURL =
+      [self.hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath
+                                        isDirectory:YES];
+  NSError *createError;
+  XCTAssertTrue([[NSFileManager defaultManager] createDirectoryAtURL:directoryURL
+                                         withIntermediateDirectories:YES
+                                                          attributes:nil
+                                                               error:&createError],
+                @"%@", createError);
+
+  NSError *error = [self configStoreReadError];
+
+  XCTAssertFalse([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error], @"%@", error);
+}
+
+- (void)testUnreadableConfigStoreIsNotMissingConfigStoreError {
+  [self writeConfigStoreTokens:@{kAppID : kToken}];
+  NSString *path =
+      [self.hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath]
+          .path;
+  NSError *attributesError;
+  XCTAssertTrue([[NSFileManager defaultManager] setAttributes:@{NSFilePosixPermissions : @0}
+                                                 ofItemAtPath:path
+                                                        error:&attributesError],
+                @"%@", attributesError);
+
+  NSError *error = [self configStoreReadError];
+
+  XCTAssertFalse([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error], @"%@", error);
+}
+
+- (void)testNilIsNotMissingConfigStoreError {
+  XCTAssertFalse([FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:nil]);
+}
+
+- (void)testNonErrorUnderlyingValueIsNotMissingConfigStoreError {
+  NSError *error = [NSError errorWithDomain:NSCocoaErrorDomain
+                                       code:NSFileReadUnknownError
+                                   userInfo:@{NSUnderlyingErrorKey : @"not an error"}];
+
+  BOOL isMissing = [FIRAppCheckDebugTokenConfigStore isMissingConfigStoreError:error];
+
+  XCTAssertFalse(isMissing);
+}
+
+#pragma mark - Error helpers
+
+/// Writes an empty regular file at `relativePath` under the temporary host home.
+- (void)writeEmptyFileAtRelativePath:(NSString *)relativePath {
+  NSURL *fileURL = [self.hostHomeURL URLByAppendingPathComponent:relativePath isDirectory:NO];
+  NSError *error;
+  XCTAssertTrue(
+      [[NSFileManager defaultManager] createDirectoryAtURL:fileURL.URLByDeletingLastPathComponent
+                               withIntermediateDirectories:YES
+                                                attributes:nil
+                                                     error:&error],
+      @"%@", error);
+  XCTAssertTrue([@"" writeToURL:fileURL atomically:YES encoding:NSUTF8StringEncoding error:&error],
+                @"%@", error);
+}
+
+/// Reads the config store file under the temporary host home the same way the config store does,
+/// and returns the resulting error.
+- (nullable NSError *)configStoreReadError {
+  NSURL *fileURL =
+      [self.hostHomeURL URLByAppendingPathComponent:FIRAppCheckDebugTokenConfigStore.relativePath
+                                        isDirectory:NO];
+  NSError *error;
+  NSData *data = [NSData dataWithContentsOfURL:fileURL options:0 error:&error];
+  XCTAssertNil(data);
+  XCTAssertNotNil(error);
+  return error;
 }
 
 @end
