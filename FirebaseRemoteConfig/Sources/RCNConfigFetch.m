@@ -716,8 +716,11 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
   [URLRequest setValue:fetchTypeHeader forHTTPHeaderField:kFetchTypeHeaderName];
-  // Set the eTag from the last successful fetch, if available.
-  if (_settings.lastETag) {
+  // Set the eTag from the last successful fetch, if available. Skip it when there is
+  // no fetched config locally (e.g. after a device restore the DB can be empty while
+  // the ETag survives in user defaults), so the server returns the full template (#15764).
+  NSDictionary *fetchedForNamespace = _content.fetchedConfig[_FIRNamespace];
+  if (_settings.lastETag && fetchedForNamespace.count > 0) {
     [URLRequest setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
   }
   [URLRequest setHTTPBody:content];
