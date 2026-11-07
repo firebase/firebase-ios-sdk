@@ -22,6 +22,10 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelVertexAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
@@ -106,13 +110,13 @@ final class GenerativeModelVertexAITests: XCTestCase {
 
   let vertexSubdirectory = "mock-responses/vertexai"
 
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
   var model: GenerativeModel!
 
   override func setUp() async throws {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+    httpClient = HTTPClient(configuration: configuration)
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
@@ -120,7 +124,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 
@@ -327,7 +331,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     _ = try await model.generateContent(testPrompt)
@@ -616,7 +620,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -641,7 +645,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -665,7 +669,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -689,7 +693,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -713,7 +717,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -734,7 +738,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -757,7 +761,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -836,7 +840,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: [.googleSearch()],
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-basic-reply-short",
@@ -1224,7 +1228,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.generateContent(testPrompt)
@@ -1627,7 +1631,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -1651,7 +1655,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -1805,7 +1809,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     var responses = 0
@@ -1901,7 +1905,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       tools: [GenerativeModel.Tool(functionDeclarations: [sumFunction])],
       systemInstruction: systemInstruction,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.countTokens("Why is the sky blue?")
@@ -1970,7 +1974,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: requestOptions,
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.countTokens(testPrompt)

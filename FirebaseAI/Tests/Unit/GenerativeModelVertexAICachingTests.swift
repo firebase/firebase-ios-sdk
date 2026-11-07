@@ -19,6 +19,10 @@ import XCTest
 
 @testable import FirebaseAILogic
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelImplicitCachingTests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
@@ -29,13 +33,13 @@ final class GenerativeModelImplicitCachingTests: XCTestCase {
 
   let vertexSubdirectory = "mock-responses/vertexai"
 
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
   var model: GenerativeModel!
 
   override func setUp() async throws {
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = try XCTUnwrap(URLSession(configuration: configuration))
+    httpClient = HTTPClient(configuration: configuration)
     model = GenerativeModel(
       modelName: testModelName,
       modelResourceName: testModelResourceName,
@@ -43,7 +47,7 @@ final class GenerativeModelImplicitCachingTests: XCTestCase {
       apiConfig: apiConfig,
       tools: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 

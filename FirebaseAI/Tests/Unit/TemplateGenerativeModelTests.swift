@@ -17,9 +17,13 @@ import CoreLocation
 import FirebaseCore
 import XCTest
 
+#if !COCOAPODS
+  import GeminiHTTPClient
+#endif // !COCOAPODS
+
 @available(macOS 12.0, watchOS 8.0, *)
 final class TemplateGenerativeModelTests: XCTestCase {
-  var urlSession: URLSession!
+  var httpClient: HTTPClient!
   var model: TemplateGenerativeModel!
   let firebaseInfo = GenerativeModelTestUtil.testFirebaseInfo()
   let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
@@ -28,14 +32,14 @@ final class TemplateGenerativeModelTests: XCTestCase {
     super.setUp()
     let configuration = URLSessionConfiguration.default
     configuration.protocolClasses = [MockURLProtocol.self]
-    urlSession = URLSession(configuration: configuration)
+    httpClient = HTTPClient(configuration: configuration)
     model = TemplateGenerativeModel(
       firebaseInfo: firebaseInfo,
       apiConfig: apiConfig,
       tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
   }
 
@@ -85,7 +89,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.generateContent(
@@ -112,7 +116,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       tools: nil,
       toolConfig: nil,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let stream = try model.generateContentStream(
@@ -142,7 +146,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.generateContent(templateID: "test-template",
@@ -178,7 +182,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       tools: nil,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     let response = try await model.generateContent(templateID: "test-template",
@@ -218,7 +222,7 @@ final class TemplateGenerativeModelTests: XCTestCase {
       tools: tools,
       toolConfig: toolConfig,
       requestOptions: RequestOptions(),
-      urlSession: urlSession
+      httpClient: httpClient
     )
 
     _ = try await model.generateContent(templateID: "test-template", inputs: ["name": "test"])

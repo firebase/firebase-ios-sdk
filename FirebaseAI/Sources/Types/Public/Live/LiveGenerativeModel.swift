@@ -30,6 +30,13 @@ public final class LiveGenerativeModel {
   let urlSession: URLSession
   let requestOptions: RequestOptions
 
+  /// The `URLSession` shared by live models that aren't given one explicitly.
+  ///
+  /// An ephemeral configuration is used rather than `.default` (or `URLSession.shared`) so that
+  /// connections don't share the app's URL cache, cookies, or credentials; authentication is
+  /// header-based, so none of them are needed.
+  static let defaultURLSession = URLSession(configuration: .ephemeral)
+
   init(modelResourceName: String,
        firebaseInfo: FirebaseInfo,
        apiConfig: APIConfig,
@@ -37,7 +44,7 @@ public final class LiveGenerativeModel {
        tools: [GenerativeModel.Tool]? = nil,
        toolConfig: ToolConfig? = nil,
        systemInstruction: ModelContent? = nil,
-       urlSession: URLSession = GenAIURLSession.default,
+       urlSession: URLSession = LiveGenerativeModel.defaultURLSession,
        requestOptions: RequestOptions) {
     self.modelResourceName = modelResourceName
     self.firebaseInfo = firebaseInfo
