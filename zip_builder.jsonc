@@ -1,157 +1,194 @@
 {
-  // TODO: Look into generating a custom JSON Schema for IDE autocomplete/validation, and possibly a CLI dump/init command for default config files.
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "projectName": "Firebase",
-  "bundleIdPrefix": "com.google.firebase",
-  "versionMacroName": "Firebase_VERSION",
-  "skippedProductFolders": [
-    "Firebase",
-    "FirebaseCore",
-    "FirebaseInstallations"
-  ],
-  "wrapperTargetNames": [
-    "Firebase"
-  ],
-  "wrapperSourceFolderNames": [
-    "SwiftPM-PlatformExclude"
-  ],
-  "aggregatePackageNames": [
-    "GoogleUtilities"
-  ],
-  "baseProduct": {
-    "product": "FirebaseAnalytics",
-    "frameworks": [
-      "FirebaseAnalytics",
-      "FirebaseCore",
-      "FirebaseCoreInternal",
-      "FirebaseInstallations",
-      "GoogleAppMeasurement",
-      "GoogleAppMeasurementIdentitySupport",
-      "GoogleAdsOnDeviceConversion",
-      "GoogleUtilities",
-      "nanopb",
-      "FBLPromises"
-    ]
+  // Release config for the zip builder (scripts/zip_builder).
+  // Keys are documented in scripts/zip_builder/docs/configuration.md; every key is optional except
+  // release.name and release.bundleIdPrefix. The version comes from `--version` (or release.version).
+  // TODO: Look into generating a JSON Schema for IDE autocomplete/validation.
+  "release": {
+    "name": "Firebase",
+    "bundleIdPrefix": "com.google.firebase",
+    // Frameworks from dependency packages keep the CocoaPods-era bundle IDs.
+    "dependencyBundleIdPrefix": "org.cocoapods",
+    "archiveName": "{name}-{version}-latest.zip"
   },
-  "extraFiles": [
-    {
-      "product": "FirebaseCrashlytics",
-      "files": [
-        "Crashlytics/run",
-        "Crashlytics/upload-symbols"
+
+  "products": {
+    "exclude": [
+      "FirebaseAuthCombine-Community",
+      "FirebaseFirestoreCombine-Community",
+      "FirebaseFunctionsCombine-Community",
+      "FirebaseStorageCombine-Community",
+      "FirebaseAnalyticsCore",
+      "FirebaseAnalyticsIdentitySupport",
+      // Removed in 13.0.0.
+      "FirebaseMLModelDownloader",
+      "FirebaseAI"
+    ],
+    "add": [
+      {
+        "name": "FirebaseABTesting",
+        "targets": ["FirebaseABTesting"]
+      }
+    ],
+    "rename": {
+      "FirebaseAppDistribution-Beta": "FirebaseAppDistribution",
+      "FirebaseInAppMessaging-Beta": "FirebaseInAppMessaging"
+    },
+    // Built, but without a folder of their own.
+    "withoutFolder": [
+      "FirebaseCore",
+      "FirebaseInstallations"
+    ],
+    // The FirebaseAnalytics folder holds the shared frameworks; other folders don't repeat them.
+    "base": {
+      "product": "FirebaseAnalytics",
+      "frameworks": [
+        "FirebaseAnalytics",
+        "FirebaseCore",
+        "FirebaseCoreInternal",
+        "FirebaseInstallations",
+        "GoogleAppMeasurement",
+        "GoogleAppMeasurementIdentitySupport",
+        "GoogleAdsOnDeviceConversion",
+        "GoogleUtilities",
+        "nanopb",
+        "FBLPromises"
       ]
     },
-    {
-      "destination": ".",
-      "files": [
-        "CoreOnly/NOTICES",
-        "CoreOnly/Sources/Firebase.h",
-        "CoreOnly/Sources/module.modulemap"
+    // Restrict products to the platforms of their podspecs.
+    // Their Package.swift restrictions (via platform conditions on the products' wrapper targets)
+    // aren't inferred, and the podspecs also ship Mac Catalyst.
+    "platforms": {
+      "FirebaseAppDistribution": ["ios", "catalyst"],
+      "FirebaseDatabase": ["ios", "catalyst", "macos", "tvos"],
+      "FirebaseFirestore": ["ios", "catalyst", "macos", "tvos"],
+      "FirebaseInAppMessaging": ["ios", "catalyst"],
+      "FirebasePerformance": ["ios", "catalyst", "tvos"]
+    },
+    // TODO(#7): Bundle legacy transitive frameworks into product directories
+    "extraFrameworks": {
+      "FirebasePerformance": [
+        "FirebaseRemoteConfig",
+        "FirebaseSharedSwift"
       ]
     }
-  ],
-  "excludedProducts": [
-    "FirebaseAuthCombine-Community",
-    "FirebaseFirestoreCombine-Community",
-    "FirebaseFunctionsCombine-Community",
-    "FirebaseStorageCombine-Community",
-    "FirebaseAnalyticsCore",
-    "FirebaseAnalyticsIdentitySupport"
-  ],
-  "extraProducts": [
-    {
-      "name": "FirebaseABTesting",
-      "targets": ["FirebaseABTesting"]
-    }
-  ],
-  "renamedProducts": {
-    "FirebaseAppDistribution-Beta": "FirebaseAppDistribution",
-    "FirebaseInAppMessaging-Beta": "FirebaseInAppMessaging",
-    "GTMSessionFetcherCore": "GTMSessionFetcher",
-    "FirebaseAI": "FirebaseAILogic"
   },
-  "externalArtifacts": [
-    {
-      "productName": "GoogleSignIn",
-      "url": "https://dl.google.com/dl/firebase/ios/carthage/12.18.0/GoogleSignIn-7d06f96449de9f11.zip",
-      "subpath": "GoogleSignIn"
-    }
-  ],
-  // Folder names searched for public/modular interface headers.
-  // Note: "spm_headers" is required for nanopb, and Interop/Extension/Typedefs/SourcesObjC are Firebase-specific.
-  "publicHeaderFolderNames": [
-    "Public",
-    "include",
-    "spm_headers",
-    "Interop",
-    "Extension",
-    "Typedefs",
-    "SourcesObjC"
-  ],
-  "extraHeaderFolderNames": [
-    "Typedefs"
-  ],
-  "excludedHeaderPathSubstrings": [
-    "/Private/",
-    "/Protogen/"
-  ],
-  "filterWrapperTargets": true,
-  "stripExternalBinaryCodeSignatures": false,
 
-  // TODO(b/573213268): Parity Configuration Settings for Initial Release.
+  "frameworks": {
+    // Combine GoogleUtilities-* into one GoogleUtilities framework.
+    "aggregate": ["GoogleUtilities"],
+    // Each pod packages its SwiftPM companion targets into one framework.
+    "merge": {
+      "AppCheckCore": ["AppCheckRecaptchaProvider"],
+      "FirebaseAuth": ["FirebaseAuthInternal"],
+      "FirebaseCrashlytics": ["FirebaseCrashlyticsSwift"],
+      "FirebaseDatabase": ["FirebaseDatabaseInternal"],
+      "FirebaseInAppMessaging": ["FirebaseInAppMessagingInternal", "FirebaseInAppMessaging_iOS"],
+      "FirebaseRemoteConfig": ["FirebaseRemoteConfigInternal"],
+      "FirebaseSessions": ["FirebaseSessionsObjC"]
+    },
+    "rename": {
+      // CocoaPods ships GTMSessionFetcher/Core as the GTMSessionFetcher module.
+      "GTMSessionFetcherCore": "GTMSessionFetcher",
+      // With source Firestore (FIREBASE_SOURCE_FIRESTORE=1, as for the dynamic zip), these give
+      // the legacy names, which the prebuilt binaries already have.
+      "FirebaseFirestoreInternalWrapper": "FirebaseFirestoreInternal",
+      "abseil": "absl",
+      "gRPC-Core": "grpc",
+      "gRPC-cpp": "grpcpp"
+    },
+    // The FirebaseFirestore pod's Objective-C headers forward to FirebaseFirestoreInternal, and the
+    // FirebaseStorage pod ships its Objective-C typedefs as public headers.
+    "publicHeaders": {
+      "FirebaseFirestore": ["FirebaseFirestoreInternal/FirebaseFirestore"],
+      "FirebaseStorage": ["FirebaseStorage/Typedefs"]
+    },
+    // CocoaPods ships these in PrivateHeaders/ (podspec `private_header_files`).
+    "privateHeaders": ["FBLPromisePrivate.h"],
+    // GoogleUtilities' vendored IsAppEncrypted.h is private in its podspec.
+    "hiddenHeaders": ["IsAppEncrypted.h"],
+    // Restrict frameworks to the platforms of their podspecs.
+    "platforms": {
+      "AppCheckRecaptchaProvider": ["ios", "catalyst"],
+      "RecaptchaInterop": ["ios", "catalyst"],
+      "leveldb": ["ios", "catalyst", "macos", "tvos"]
+    }
+  },
+
+  // TODO: Parity settings for the initial release.
   // The settings below minimize the release diff against the legacy CocoaPods zip distribution.
-  // In future releases, these entries can be removed or reverted to enable the modernized modular SPM distribution.
+  // In future releases, they can be removed to ship the modernized modular SwiftPM distribution.
+  "build": {
+    // TODO(#4): Restrict watchOS device slices to [arm64, arm64_32] to match the legacy
+    // watchos-arm64_arm64_32 slice naming.
+    "architectures": {
+      "watchos": ["arm64", "arm64_32"]
+    },
+    // Compile the way the CocoaPods zip build did: sources check `COCOAPODS` / `FIREBASE_BUILD_ZIP_FILE`
+    // (e.g. GoogleUtilities reports the `zip` deployment type) instead of `SWIFT_PACKAGE`.
+    "defineSwiftPackage": false,
+    "defines": [
+      "COCOAPODS=1",
+      "FIREBASE_BUILD_ZIP_FILE=1"
+    ],
+    "swiftConditions": ["COCOAPODS"],
+    // Podspecs build in Swift 5 mode, except FirebaseAILogic.
+    "swiftVersion": {
+      "*": "5.0",
+      "FirebaseAILogic": "6.0"
+    },
+    "versionMacro": "Firebase_VERSION"
+  },
 
-  // TODO(b/573213268): Suppress standalone internal/companion framework packaging (e.g. FirebaseAuthInternal, FirebaseCrashlyticsSwift)
-  "suppressedInternalFrameworks": [
-    "FirebaseAuthInternal",
-    "FirebaseDatabaseInternal",
-    "FirebaseCrashlyticsSwift",
-    "FirebaseSessionsObjC",
-    "FirebaseRemoteConfigInternal",
-    "FirebaseInAppMessagingInternal",
-    "FirebaseInAppMessaging_iOS",
-    "AppCheckRecaptchaProvider",
-    "FirebaseFirestoreInternalWrapper"
-  ],
+  // CocoaPods resource and privacy bundles, and Info.plist values of the legacy zip.
+  "layout": {
+    "privacyBundle": {
+      "*": "{target}_Privacy",
+      "GTMSessionFetcher": "GTMSessionFetcher_Core_Privacy"
+    },
+    "resourceBundles": {
+      "FirebaseInAppMessaging": "InAppMessagingDisplayResources"
+    },
+    // Works around an App Store validation failure for embedded static frameworks (#12439).
+    "infoPlist": {
+      "MinimumOSVersion": "100.0"
+    }
+  },
 
-  // TODO(b/573213268): Restrict watchOS architecture slices to [arm64, arm64_32] to match legacy watchos-arm64_arm64_32 slice naming
-  "targetArchitectures": {
-    "watchos": [
-      "arm64",
-      "arm64_32"
+  "zip": {
+    "files": [
+      {
+        "to": ".",
+        "files": [
+          // The legacy zip's README; it moves here when ReleaseTooling is retired.
+          "ReleaseTooling/Template/README.md",
+          "CoreOnly/NOTICES",
+          "CoreOnly/Sources/Firebase.h",
+          "CoreOnly/Sources/module.modulemap"
+        ]
+      },
+      {
+        "to": "FirebaseCrashlytics",
+        "files": [
+          "Crashlytics/run",
+          "Crashlytics/upload-symbols"
+        ]
+      }
     ]
   },
 
-  // TODO(b/573213268): Restrict auxiliary product platform slices to match legacy distribution platforms
-  "productPlatformOverrides": {
-    "RecaptchaInterop": [
-      "ios",
-      "catalyst"
-    ],
-    "FirebaseInAppMessaging": [
-      "ios",
-      "catalyst"
-    ],
-    "FirebaseDatabase": [
-      "ios",
-      "catalyst",
-      "macos",
-      "tvos"
-    ],
-    "leveldb": [
-      "ios",
-      "catalyst",
-      "macos",
-      "tvos"
-    ]
-  },
-
-  // TODO(b/573213268): Bundle legacy transitive frameworks into product directories
-  "extraFrameworksPerProduct": {
-    "FirebasePerformance": [
-      "FirebaseRemoteConfig",
-      "FirebaseSharedSwift"
+  "verify": {
+    // Modules the import check skips: none of these import in any released zip, legacy included.
+    "skipImports": [
+      // Its module/class name clash breaks its own .swiftinterface.
+      "AppCheckCore",
+      // C++ libraries (prebuilt, or built from source for the dynamic zip) whose modules aren't
+      // importable from Swift or Objective-C.
+      "absl",
+      "grpc",
+      "grpcpp",
+      "openssl_grpc",
+      // C++-only.
+      "leveldb"
     ]
   }
 }

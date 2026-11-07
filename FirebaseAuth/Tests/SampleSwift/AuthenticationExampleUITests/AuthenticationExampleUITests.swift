@@ -23,12 +23,8 @@ class AuthenticationExampleUITests: XCTestCase {
     continueAfterFailure = false
 
     app = XCUIApplication()
+    app.launchArguments.append("--uitesting-reset-auth")
     app.launch()
-  }
-
-  override func tearDown() {
-    super.tearDown()
-    signOut()
   }
 
   func dismissSavePasswordPrompt() {
@@ -39,7 +35,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
       if notNowOption.exists {
         notNowOption.tap()
-      } else {
+      } else if passwordSheet.staticTexts["Not Now"].exists {
         // Fallback: If Apple literally made it StaticText instead of a Button,
         // you can often just tap the text directly!
         passwordSheet.staticTexts["Not Now"].tap()
@@ -48,6 +44,52 @@ class AuthenticationExampleUITests: XCTestCase {
       expectation(for: predicate, evaluatedWith: passwordSheet)
       waitForExpectations(timeout: 5.0)
     }
+
+    // Handle system or compromised/weak password alerts (in-app or SpringBoard).
+    let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+    for container in [
+      app.alerts.firstMatch,
+      springboard.sheets.firstMatch,
+      springboard.alerts.firstMatch,
+    ]
+      where container.exists {
+      for label in ["Not Now", "Close", "OK"] {
+        if container.buttons[label].exists {
+          container.buttons[label].tap()
+          let dismissed = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: container
+          )
+          _ = XCTWaiter.wait(for: [dismissed], timeout: 5.0)
+          break
+        }
+      }
+    }
+  }
+
+  private func dismissErrorAlertAndPopToAuthMenu() {
+    app.alerts.buttons["OK"].tap()
+    let alertDismissed = XCTNSPredicateExpectation(
+      predicate: NSPredicate(format: "exists == false"),
+      object: app.alerts.firstMatch
+    )
+    _ = XCTWaiter.wait(for: [alertDismissed], timeout: 5.0)
+
+    app.navigationBars.buttons.firstMatch.tap()
+    _ = app.navigationBars["Firebase Auth"].waitForExistence(timeout: 5.0)
+  }
+
+  private func navigateToUserTab(timeout: TimeInterval = 10.0) {
+    dismissSavePasswordPrompt()
+    let userTabButton = app.tabBars.firstMatch.buttons.element(boundBy: 1)
+    userTabButton.tap()
+    if !app.navigationBars["User"].waitForExistence(timeout: 3.0) {
+      // A late AutoFill / Save Password sheet can overlap the bottom tab bar
+      // and swallow the initial tap on cold simulator runs.
+      dismissSavePasswordPrompt()
+      userTabButton.tap()
+    }
+    wait(forElement: app.navigationBars["User"], timeout: timeout)
   }
 
   func testAuth() {
@@ -64,6 +106,13 @@ class AuthenticationExampleUITests: XCTestCase {
     let isAnonymousCell = app.cells.containing(.staticText, identifier: "Is User Anonymous?")
       .element
     XCTAssertTrue(isAnonymousCell.staticTexts["Yes"].exists, "The user should be anonymous")
+
+    app.staticTexts["Sign Out"].tap()
+    XCTAssertEqual(
+      app.cells.count,
+      0,
+      "The user shouldn't be signed in after tapping Sign Out."
+    )
   }
 
   func testAuthExistingAccount() {
@@ -82,9 +131,10 @@ class AuthenticationExampleUITests: XCTestCase {
     app.secureTextFields["Password"].typeText(testPassword)
 
     app.buttons["Login"].tap()
+
+    wait(forElement: app.navigationBars["User"], timeout: 10.0)
     dismissSavePasswordPrompt()
 
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)
     XCTAssertTrue(
       app.staticTexts[testEmail].exists,
@@ -104,18 +154,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Login"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-
-    wait(forElement: app.navigationBars["User"], timeout: 10.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -136,17 +180,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Create Account"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -167,17 +206,12 @@ class AuthenticationExampleUITests: XCTestCase {
 
     app.buttons["Create Account"].tap()
 
-    wait(forElement: app.alerts.staticTexts["Error"], timeout: 5.0)
+    wait(forElement: app.alerts.staticTexts["Error"], timeout: 10.0)
     XCTAssertTrue(app.alerts.staticTexts["Error"].exists)
 
-    // Dismiss alert that password was incorrect
-    app.alerts.buttons["OK"].tap()
-
-    // Go back and check that there is no user that is signed in
-    app.navigationBars.buttons.firstMatch.tap()
-    dismissSavePasswordPrompt()
-    app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
+    // Dismiss alert that password was incorrect, go back, and verify no user is signed in
+    dismissErrorAlertAndPopToAuthMenu()
+    navigateToUserTab()
     XCTAssertEqual(
       app.cells.count,
       0,
@@ -197,9 +231,10 @@ class AuthenticationExampleUITests: XCTestCase {
     app.typeText(newPassword)
 
     app.buttons["Create Account"].tap()
+
+    wait(forElement: app.navigationBars["User"], timeout: 10.0)
     dismissSavePasswordPrompt()
 
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
     XCTAssertTrue(app.navigationBars["User"].exists)
     XCTAssertTrue(
       app.staticTexts[newEmail].exists,
@@ -263,12 +298,16 @@ class AuthenticationExampleUITests: XCTestCase {
     // Wait for the error message to appear (if there is an error)
     let errorAlert = app.alerts.staticTexts["Error"]
     let errorExists = errorAlert.waitForExistence(timeout: 5.0)
-
-    app.swipeDown(velocity: .fast)
+    let errorMessage = errorExists
+      ? app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map(\.label)
+      .joined(separator: " | ")
+      : "Error"
 
     // Assert that there is no error message (success case)
     // The email sign in link is sent successfully if no error message appears
-    XCTAssertFalse(errorExists, "Error")
+    XCTAssertFalse(errorExists, errorMessage)
+
+    app.swipeDown(velocity: .fast)
 
     // Go back and check that there is no user that is signed in
     app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
@@ -332,21 +371,6 @@ class AuthenticationExampleUITests: XCTestCase {
       0,
       "The user shouldn't be signed in and the user view should have no cells."
     )
-  }
-
-  // MARK: - Private Helpers
-
-  private func signOut() {
-    if app.tabBars.firstMatch.buttons.element(boundBy: 1).exists {
-      app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
-    }
-    wait(forElement: app.navigationBars["User"], timeout: 5.0)
-    if app.staticTexts["Sign Out"].exists {
-      app.staticTexts["Sign Out"].tap()
-    }
-    if app.tabBars.firstMatch.buttons.element(boundBy: 0).exists {
-      app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
-    }
   }
 }
 

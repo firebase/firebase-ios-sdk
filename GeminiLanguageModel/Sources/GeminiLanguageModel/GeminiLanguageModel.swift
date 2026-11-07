@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
-  package import Foundation
-  public import FoundationModels
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
+  #if canImport(FoundationNetworking)
+    import Foundation
+    package import FoundationNetworking
+  #else
+    package import Foundation
+  #endif
+  #if FoundationModelsFake
+    public import FoundationModelsFake
+  #else
+    public import FoundationModels
+  #endif
   package import GeminiAPIClient
 
   /// **[Public Preview]** A Gemini language model adapter for the Foundation Models framework.
@@ -107,4 +116,4 @@
       ])
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

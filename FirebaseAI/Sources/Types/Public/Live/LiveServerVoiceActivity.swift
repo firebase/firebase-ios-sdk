@@ -21,18 +21,18 @@ import Foundation
 public struct VoiceActivityType: DecodableProtoEnum, Hashable, Sendable {
   enum Kind: String {
     case unspecified = "TYPE_UNSPECIFIED"
-    case activityStart = "ACTIVITY_START"
-    case activityEnd = "ACTIVITY_END"
+    case start = "ACTIVITY_START"
+    case end = "ACTIVITY_END"
   }
 
-  /// Unrecognized or unspecified voice activity signal.
-  public static let unknown = VoiceActivityType(kind: .unspecified)
+  /// Internal-only; unrecognized or unspecified voice activity signal.
+  static let unknown = VoiceActivityType(kind: .unspecified)
 
   /// Start of user speech signal.
-  public static let activityStart = VoiceActivityType(kind: .activityStart)
+  public static let start = VoiceActivityType(kind: .start)
 
   /// End of user speech signal.
-  public static let activityEnd = VoiceActivityType(kind: .activityEnd)
+  public static let end = VoiceActivityType(kind: .end)
 
   /// The raw string representation of the `VoiceActivityType` value.
   let rawValue: String
@@ -51,11 +51,7 @@ public struct VoiceActivityType: DecodableProtoEnum, Hashable, Sendable {
 public struct LiveServerVoiceActivity: Sendable {
   let bidiVoiceActivity: BidiVoiceActivity
 
-  /// The type of voice activity signal (``VoiceActivityType/activityStart`` or
-  /// ``VoiceActivityType/activityEnd``).
-  ///
-  /// This is ``VoiceActivityType/unknown`` if the server didn't specify a type, or sent a type
-  /// that this version of the SDK doesn't recognize.
+  /// The type of voice activity signal (``VoiceActivityType/start`` or ``VoiceActivityType/end``).
   public var type: VoiceActivityType {
     guard let type = bidiVoiceActivity.type,
           VoiceActivityType.Kind(rawValue: type.rawValue) != nil else {
@@ -65,7 +61,7 @@ public struct LiveServerVoiceActivity: Sendable {
   }
 
   /// The time voice activity was detected (in seconds), relative to the start of the audio stream.
-  public var audioOffset: TimeInterval? { bidiVoiceActivity.audioOffset?.timeInterval }
+  public var audioOffset: TimeInterval { bidiVoiceActivity.audioOffset?.timeInterval ?? 0 }
 
   init(_ bidiVoiceActivity: BidiVoiceActivity) {
     self.bidiVoiceActivity = bidiVoiceActivity

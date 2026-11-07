@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [fixed] Delete both legacy Firebase Instance ID keys during IID migration cleanup,
   and skip key deletion when the application tag is unavailable. (#16777)
 

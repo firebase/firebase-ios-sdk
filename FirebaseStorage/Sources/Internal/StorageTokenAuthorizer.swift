@@ -37,6 +37,7 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
     var tokenError: NSError?
     let fetchTokenGroup = DispatchGroup()
+    let serialAuthArgsQueue = self.serialAuthArgsQueue
 
     let scheme = request?.url?.scheme?.lowercased()
     let isHttps = scheme == "https"
@@ -51,32 +52,36 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     if let auth {
       fetchTokenGroup.enter()
       auth.getToken(forcingRefresh: false) { token, error in
-        if let error = error as? NSError {
-          var errorDictionary = error.userInfo
-          errorDictionary["ResponseErrorDomain"] = error.domain
-          errorDictionary["ResponseErrorCode"] = error.code
-          tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
-        } else if let token {
-          let firebaseToken = "Firebase \(token)"
-          request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
+        serialAuthArgsQueue.async {
+          if let error = error as? NSError {
+            var errorDictionary = error.userInfo
+            errorDictionary["ResponseErrorDomain"] = error.domain
+            errorDictionary["ResponseErrorCode"] = error.code
+            tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
+          } else if let token {
+            let firebaseToken = "Firebase \(token)"
+            request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
+          }
+          fetchTokenGroup.leave()
         }
-        fetchTokenGroup.leave()
       }
     }
     if let appCheck {
       fetchTokenGroup.enter()
       appCheck.getToken(forcingRefresh: false) { tokenResult in
-        request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+        serialAuthArgsQueue.async {
+          request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
 
-        if let error = tokenResult.error {
-          FirebaseLogger.log(
-            level: .debug,
-            service: "[FirebaseStorage]",
-            code: "I-STR000001",
-            message: "Failed to fetch AppCheck token. Error: \(error)"
-          )
+          if let error = tokenResult.error {
+            FirebaseLogger.log(
+              level: .debug,
+              service: "[FirebaseStorage]",
+              code: "I-STR000001",
+              message: "Failed to fetch AppCheck token. Error: \(error)"
+            )
+          }
+          fetchTokenGroup.leave()
         }
-        fetchTokenGroup.leave()
       }
     }
 

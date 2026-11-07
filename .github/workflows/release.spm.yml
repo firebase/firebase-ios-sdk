@@ -7,6 +7,10 @@ on:
   pull_request:
     paths:
     - '.github/workflows/release.spm.yml'
+    - '.github/actions/setup_simulator/**'
+    - 'scripts/setup_simulator.sh'
+    - 'scripts/setup_quickstart.sh'
+    - 'scripts/test_quickstart.sh'
     - 'Gemfile*'
   workflow_dispatch:
   schedule:
@@ -97,7 +101,11 @@ jobs:
         fetch-depth: 0 # Required for pulling down repo tags.
         persist-credentials: false
     - name: Set Xcode version
-      run: sudo xcode-select -s /Applications/Xcode_26.2.app
+      run: sudo xcode-select -s /Applications/Xcode_26.2.app/Contents/Developer
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
+      with:
+        platform: iOS
     - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Prereqs
       run: gem install xcpretty

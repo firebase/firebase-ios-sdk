@@ -1,0 +1,74 @@
+struct Forms {
+  var `default`: Int
+  var a, b: Int
+  var observed: Int { didSet {} }
+  var implicit: String!
+  let constant: Int = 3
+  lazy var cached: Int = 3
+  static var shared: Int = 1
+  var computed: Int { a + b }
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "default", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "a", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "b", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "observed", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "implicit", type: String?.self)
+            ]
+        )
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "default", value: self.`default`)
+        addProperty(name: "a", value: self.a)
+        addProperty(name: "b", value: self.b)
+        addProperty(name: "observed", value: self.observed)
+        addProperty(name: "implicit", value: self.implicit)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        var id: FoundationModelsFake.GenerationID
+        var `default`: Int.PartiallyGenerated?
+        var a: Int.PartiallyGenerated?
+        var b: Int.PartiallyGenerated?
+        var observed: Int.PartiallyGenerated?
+        var implicit: String?.PartiallyGenerated?
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.`default` = try content.value(forProperty: "default")
+            self.a = try content.value(forProperty: "a")
+            self.b = try content.value(forProperty: "b")
+            self.observed = try content.value(forProperty: "observed")
+            self.implicit = try content.value(forProperty: "implicit")
+        }
+    }
+}
+
+extension Forms: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.`default` = try content.value(forProperty: "default")
+        self.a = try content.value(forProperty: "a")
+        self.b = try content.value(forProperty: "b")
+        self.observed = try content.value(forProperty: "observed")
+        self.implicit = try content.value(forProperty: "implicit")
+    }
+}

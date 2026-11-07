@@ -83,9 +83,9 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
 }
 
 void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel, NSString *rolloutsInfoJSON) {
-  const char *name = [[exceptionModel.name copy] UTF8String];
-  const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
-  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
+  const char *name = [exceptionModel.name UTF8String];
+  const char *reason = [exceptionModel.reason UTF8String] ?: "";
+  FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, exceptionModel.stackTrace,
                         rolloutsInfoJSON);
 }
 
@@ -93,13 +93,12 @@ NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel,
                                              int previousRecordedOnDemandExceptions,
                                              int previousDroppedOnDemandExceptions,
                                              BOOL shouldSuspendThread) {
-  const char *name = [[exceptionModel.name copy] UTF8String];
-  const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
+  const char *name = [exceptionModel.name UTF8String];
+  const char *reason = [exceptionModel.reason UTF8String] ?: "";
 
-  return FIRCLSExceptionRecordOnDemand(FIRCLSExceptionTypeCustom, name, reason,
-                                       [exceptionModel.stackTrace copy], exceptionModel.isFatal,
-                                       previousRecordedOnDemandExceptions,
-                                       previousDroppedOnDemandExceptions, shouldSuspendThread);
+  return FIRCLSExceptionRecordOnDemand(
+      FIRCLSExceptionTypeCustom, name, reason, exceptionModel.stackTrace, exceptionModel.isFatal,
+      previousRecordedOnDemandExceptions, previousDroppedOnDemandExceptions, shouldSuspendThread);
 }
 
 void FIRCLSExceptionRecordNSException(NSException *exception) {
