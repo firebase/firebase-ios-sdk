@@ -432,6 +432,13 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
     strongSelf->_isInBackground = false;
+    // The session keeps the stream's connection pooled after the task is cancelled, but iOS can
+    // close its socket while the app is suspended. Reusing that connection makes the next stream
+    // fail immediately and enter backoff, so start the stream on a new session. The new session is
+    // set up first so that callbacks from the old one are recognized as stale.
+    NSURLSession *staleSession = strongSelf.session;
+    [strongSelf setUpHttpSession];
+    [staleSession invalidateAndCancel];
     [strongSelf beginRealtimeStream];
   });
 }
@@ -728,6 +735,10 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 - (void)URLSession:(NSURLSession *)session
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
+  if (session != self.session) {
+    // The task belongs to a session that was replaced when the app entered the foreground.
+    return;
+  }
   _isRequestInProgress = false;
   [_pendingStreamData setLength:0];
   if (error != nil && [error code] != NSURLErrorCancelled) {
@@ -739,6 +750,10 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 
 /// Delegate to handle session invalidation
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
+  if (session != self.session) {
+    // A session replaced when the app entered the foreground finished invalidating.
+    return;
+  }
   if (!_isRequestInProgress) {
     if (error != nil) {
       [self->_settings updateRealtimeExponentialBackoffTime];

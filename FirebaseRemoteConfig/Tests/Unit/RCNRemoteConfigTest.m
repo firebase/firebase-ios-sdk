@@ -76,6 +76,12 @@
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
+- (void)retryHTTPConnection;
+- (void)isInForeground;
+- (void)isInBackground;
+- (NSURLSession *)session;
+- (void)setSession:(NSURLSession *)session;
+- (dispatch_queue_t)realtimeLockQueue;
 - (void)createRequestBodyWithCompletion:(void (^)(NSData *_Nonnull requestBody))completion;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
@@ -2066,6 +2072,97 @@ static NSString *UTCToLocal(NSString *utcTime) {
     XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime,
                    @"retryIntervalSeconds: %@", retryInterval);
   }
+}
+
+- (void)testRealtimeUsesNewURLSessionWhenEnteringForeground {
+  RCNConfigRealtime *configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime beginRealtimeStream]).andDo(nil);
+  id staleSession = OCMClassMock([NSURLSession class]);
+  __block NSURLSession *sessionWhenInvalidated;
+  OCMStub([staleSession invalidateAndCancel]).andDo(^(NSInvocation *invocation) {
+    sessionWhenInvalidated = [configRealtime session];
+  });
+  [configRealtime setSession:staleSession];
+
+  [configRealtime isInBackground];
+  [configRealtime isInForeground];
+  // Wait for the queued foreground handling to finish.
+  dispatch_sync([configRealtime realtimeLockQueue], ^{
+                });
+
+  // The stream's pooled connection may have been closed while the app was suspended, so the
+  // stream must not reuse the old session.
+  NSURLSession *session = [configRealtime session];
+  XCTAssertNotNil(session);
+  XCTAssertFalse(session == staleSession);
+  OCMVerify([staleSession invalidateAndCancel]);
+  OCMVerify([configRealtime beginRealtimeStream]);
+  // The new session must already be current when the old one is invalidated, so that the old
+  // session's callbacks are recognized as stale.
+  XCTAssertTrue(sessionWhenInvalidated == session);
+  [staleSession stopMocking];
+}
+
+- (void)testRealtimeIgnoresInvalidationOfReplacedURLSession {
+  id configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
+  OCMStub([configRealtime retryHTTPConnection]).andDo(nil);
+  RCNConfigSettings *settings = _configInstances[RCNTestRCInstanceDefault].settings;
+  [settings updateRealtimeBackoffTimeWithInterval:0];
+  NSTimeInterval throttleEndTime = settings.realtimeExponentialBackoffThrottleEndTime;
+  NSURLSession *replacedSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                       code:NSURLErrorNetworkConnectionLost
+                                   userInfo:nil];
+
+  [configRealtime URLSession:replacedSession didBecomeInvalidWithError:error];
+
+  XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime);
+  OCMVerify(never(), [configRealtime pauseRealtimeStream]);
+  OCMVerify(never(), [configRealtime retryHTTPConnection]);
+  [replacedSession invalidateAndCancel];
+}
+
+- (void)testRealtimeIgnoresTaskErrorFromReplacedURLSession {
+  id configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
+  OCMStub([configRealtime retryHTTPConnection]).andDo(nil);
+  RCNConfigSettings *settings = _configInstances[RCNTestRCInstanceDefault].settings;
+  [settings updateRealtimeBackoffTimeWithInterval:0];
+  NSTimeInterval throttleEndTime = settings.realtimeExponentialBackoffThrottleEndTime;
+  NSURLSession *replacedSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  NSURLSessionTask *task = nil;
+  NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                       code:NSURLErrorNetworkConnectionLost
+                                   userInfo:nil];
+
+  [configRealtime URLSession:replacedSession task:task didCompleteWithError:error];
+
+  XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime);
+  OCMVerify(never(), [configRealtime pauseRealtimeStream]);
+  OCMVerify(never(), [configRealtime retryHTTPConnection]);
+  [replacedSession invalidateAndCancel];
+}
+
+- (void)testRealtimeBacksOffOnTaskErrorFromCurrentURLSession {
+  RCNConfigRealtime *configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
+  OCMStub([configRealtime retryHTTPConnection]).andDo(nil);
+  RCNConfigSettings *settings = _configInstances[RCNTestRCInstanceDefault].settings;
+  [settings updateRealtimeBackoffTimeWithInterval:0];
+  NSTimeInterval throttleEndTime = settings.realtimeExponentialBackoffThrottleEndTime;
+  NSURLSessionTask *task = nil;
+  NSError *error = [NSError errorWithDomain:NSURLErrorDomain
+                                       code:NSURLErrorNetworkConnectionLost
+                                   userInfo:nil];
+
+  [configRealtime URLSession:[configRealtime session] task:task didCompleteWithError:error];
+
+  XCTAssertGreaterThan(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime);
+  OCMVerify([configRealtime pauseRealtimeStream]);
+  OCMVerify([configRealtime retryHTTPConnection]);
 }
 
 /// Returns the error `evaluateStreamResponse:error:` propagates to listeners.
