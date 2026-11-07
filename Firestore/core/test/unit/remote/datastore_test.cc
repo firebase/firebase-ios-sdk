@@ -16,12 +16,17 @@
 
 #include "Firestore/core/src/remote/datastore.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
+#include "Firestore/core/src/api/pipeline.h"
+#include "Firestore/core/src/api/stages.h"
+#include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -45,6 +50,26 @@
 #include "absl/strings/str_cat.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+namespace grpc {
+namespace testing {
+
+class ClientContextTestPeer {
+ public:
+  explicit ClientContextTestPeer(const ClientContext* ctx) : ctx_{ctx} {
+  }
+
+  const std::multimap<std::string, std::string>& GetSendInitialMetadata()
+      const {
+    return ctx_->send_initial_metadata_;
+  }
+
+ private:
+  const ClientContext* const ctx_;
+};
+
+}  // namespace testing
+}  // namespace grpc
 
 namespace firebase {
 namespace firestore {
@@ -104,6 +129,9 @@ class FakeDatastore : public Datastore {
   }
   void CancelLastCall() {
     LastCall()->context()->TryCancel();
+  }
+  grpc::ClientContext* LastCallContext() {
+    return LastCall() ? LastCall()->context() : nullptr;
   }
 };
 
@@ -218,6 +246,12 @@ TEST_F(DatastoreTest, CommitMutationsSuccess) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
+  ASSERT_NE(datastore->LastCallContext(), nullptr);
+  EXPECT_THAT(
+      ::grpc::testing::ClientContextTestPeer(datastore->LastCallContext())
+          .GetSendInitialMetadata(),
+      testing::Contains(testing::Pair("x-goog-is-transaction", "true")));
+
   ForceFinish({{Type::Finish, grpc::Status::OK}});
 
   EXPECT_TRUE(done);
@@ -239,6 +273,12 @@ TEST_F(DatastoreTest, LookupDocumentsZeroRead) {
   // Make sure Auth has a chance to run.
   worker_queue->EnqueueBlocking([] {});
 
+  ASSERT_NE(datastore->LastCallContext(), nullptr);
+  EXPECT_THAT(
+      ::grpc::testing::ClientContextTestPeer(datastore->LastCallContext())
+          .GetSendInitialMetadata(),
+      testing::Contains(testing::Pair("x-goog-is-transaction", "true")));
+
   ForceFinishAnyTypeOrder(
       {{Type::Write, CompletionResult::Ok},
        /*Read after last*/ {Type::Read, CompletionResult::Error}});
@@ -247,6 +287,53 @@ TEST_F(DatastoreTest, LookupDocumentsZeroRead) {
   EXPECT_TRUE(done);
   EXPECT_EQ(resulting_docs.size(), 0);
   EXPECT_TRUE(resulting_status.ok());
+}
+
+TEST_F(DatastoreTest, RunAggregateQuerySetsNonTransactionHeader) {
+  datastore->RunAggregateQuery(testutil::Query("rooms"), {},
+                               [](const StatusOr<model::ObjectValue>&) {});
+  worker_queue->EnqueueBlocking([] {});
+
+  ASSERT_NE(datastore->LastCallContext(), nullptr);
+  EXPECT_THAT(
+      ::grpc::testing::ClientContextTestPeer(datastore->LastCallContext())
+          .GetSendInitialMetadata(),
+      testing::Contains(testing::Pair("x-goog-is-transaction", "false")));
+
+  ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+}
+
+TEST_F(DatastoreTest, RunPipelineSetsTransactionHeaderBasedOnAtomic) {
+  auto stage = std::make_shared<api::CollectionSource>("rooms");
+  api::Pipeline non_atomic_pipeline({stage}, nullptr, /*atomic=*/false);
+  datastore->RunPipeline(non_atomic_pipeline,
+                         [](const StatusOr<api::PipelineSnapshot>&) {});
+  worker_queue->EnqueueBlocking([] {});
+
+  ASSERT_NE(datastore->LastCallContext(), nullptr);
+  EXPECT_THAT(
+      ::grpc::testing::ClientContextTestPeer(datastore->LastCallContext())
+          .GetSendInitialMetadata(),
+      testing::Contains(testing::Pair("x-goog-is-transaction", "false")));
+
+  ForceFinishAnyTypeOrder({{Type::Read, CompletionResult::Error},
+                           {Type::Write, CompletionResult::Error}});
+  ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
+
+  api::Pipeline atomic_pipeline({stage}, nullptr, /*atomic=*/true);
+  datastore->RunPipeline(atomic_pipeline,
+                         [](const StatusOr<api::PipelineSnapshot>&) {});
+  worker_queue->EnqueueBlocking([] {});
+
+  ASSERT_NE(datastore->LastCallContext(), nullptr);
+  EXPECT_THAT(
+      ::grpc::testing::ClientContextTestPeer(datastore->LastCallContext())
+          .GetSendInitialMetadata(),
+      testing::Contains(testing::Pair("x-goog-is-transaction", "true")));
+
+  ForceFinishAnyTypeOrder({{Type::Read, CompletionResult::Error},
+                           {Type::Write, CompletionResult::Error}});
+  ForceFinish({{Type::Finish, grpc::Status{grpc::UNAVAILABLE, ""}}});
 }
 
 TEST_F(DatastoreTest, LookupDocumentsOneSuccessfulRead) {

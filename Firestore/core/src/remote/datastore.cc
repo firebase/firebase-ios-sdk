@@ -192,7 +192,8 @@ void Datastore::CommitMutationsWithCredentials(
       MakeByteBuffer(datastore_serializer_.EncodeCommitRequest(mutations));
 
   std::unique_ptr<GrpcUnaryCall> call_owning = grpc_connection_.CreateUnaryCall(
-      kRpcNameCommit, auth_token, app_check_token, std::move(message));
+      kRpcNameCommit, auth_token, app_check_token, std::move(message),
+      /*is_transaction=*/true);
   GrpcUnaryCall* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
@@ -234,7 +235,8 @@ void Datastore::LookupDocumentsWithCredentials(
 
   std::unique_ptr<GrpcStreamingReader> call_owning =
       grpc_connection_.CreateStreamingReader(
-          kRpcNameLookup, auth_token, app_check_token, std::move(message));
+          kRpcNameLookup, auth_token, app_check_token, std::move(message),
+          /*is_transaction=*/true);
   GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
@@ -294,7 +296,8 @@ void Datastore::RunAggregateQueryWithCredentials(
 
   std::unique_ptr<GrpcUnaryCall> call_owning =
       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,
-                                       app_check_token, std::move(message));
+                                       app_check_token, std::move(message),
+                                       /*is_transaction=*/false);
   GrpcUnaryCall* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
@@ -338,11 +341,18 @@ void Datastore::RunPipelineWithCredentials(
   auto request = datastore_serializer_.EncodeExecutePipelineRequest(pipeline);
   LOG_DEBUG("Run Pipeline: %s", request.ToString());
 
+  bool is_transaction =
+      request->which_consistency_selector ==
+          google_firestore_v1_ExecutePipelineRequest_new_transaction_tag ||
+      (request->which_consistency_selector ==
+           google_firestore_v1_ExecutePipelineRequest_transaction_tag &&
+       request->consistency_selector.transaction != nullptr &&
+       request->consistency_selector.transaction->size > 0);
   grpc::ByteBuffer message = MakeByteBuffer(request);
   std::unique_ptr<GrpcStreamingReader> call_owning =
-      grpc_connection_.CreateStreamingReader(kRpcNameExecutePipeline,
-                                             auth_token, app_check_token,
-                                             std::move(message));
+      grpc_connection_.CreateStreamingReader(
+          kRpcNameExecutePipeline, auth_token, app_check_token,
+          std::move(message), is_transaction);
   GrpcStreamingReader* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
