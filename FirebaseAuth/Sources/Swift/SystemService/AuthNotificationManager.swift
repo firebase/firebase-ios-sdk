@@ -49,7 +49,7 @@
     private let kNotificationProberKey = "warning"
 
     /// Timeout for probing whether the app delegate forwards the remote notification to us.
-    private let kProbingTimeout = 1.0
+    private let kProbingTimeout = 15.0
 
     /// The application.
     private let application: AuthNotificationApplication
@@ -132,23 +132,39 @@
         return forwarded
       }
       if await pendingCount.increment() == 1 {
-        DispatchQueue.main.async {
+        Task { @MainActor in
           let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
               "This fake notification should be forwarded to Firebase Auth."]]
-          if let delegate = self.application.delegate,
-             delegate
-             .responds(to: #selector(UIApplicationDelegate
-                 .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            let appObj = self.application.applicationForDelegate
-            delegate.application?(appObj,
-                                  didReceiveRemoteNotification: proberNotification) { _ in
+
+          var attempts = 0
+          var delegateFound = false
+
+          while attempts < 10 && !delegateFound {
+            if let delegate = self.application.delegate,
+               delegate.responds(
+                 to: #selector(UIApplicationDelegate
+                   .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))
+               ) {
+              let appObj = self.application.applicationForDelegate
+              delegate.application?(
+                appObj,
+                didReceiveRemoteNotification: proberNotification
+              ) { _ in }
+              delegateFound = true
+            } else {
+              attempts += 1
+              try? await Task.sleep(nanoseconds: 300_000_000)
             }
-          } else {
+          }
+
+          if !delegateFound {
             AuthLog.logWarning(
               code: "I-AUT000015",
               message: "The UIApplicationDelegate must handle " +
                 "remote notification for phone number authentication to work."
             )
+            self.isNotificationBeingForwarded = true
+            self.condition.signal()
           }
           kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
             self.condition.signal()
