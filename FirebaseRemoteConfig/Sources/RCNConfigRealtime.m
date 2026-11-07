@@ -366,9 +366,9 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
       [[NSURLSessionConfiguration defaultSessionConfiguration] copy];
   [sessionConfig setTimeoutIntervalForResource:gTimeoutSeconds];
   [sessionConfig setTimeoutIntervalForRequest:gTimeoutSeconds];
-  _session = [NSURLSession sessionWithConfiguration:sessionConfig
-                                           delegate:self
-                                      delegateQueue:[NSOperationQueue mainQueue]];
+  self.session = [NSURLSession sessionWithConfiguration:sessionConfig
+                                               delegate:self
+                                          delegateQueue:[NSOperationQueue mainQueue]];
 }
 
 #pragma mark - Retry Helpers
