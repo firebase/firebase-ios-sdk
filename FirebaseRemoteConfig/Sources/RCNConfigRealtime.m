@@ -637,6 +637,10 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
+  if (session != self.session) {
+    // The task belongs to a session that was replaced when the app entered the foreground.
+    return;
+  }
   if (_isRealtimeDisabled) {
     [_pendingStreamData setLength:0];
     return;
@@ -692,6 +696,11 @@ static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
               dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+  if (session != self.session) {
+    // The task belongs to a session that was replaced when the app entered the foreground.
+    completionHandler(NSURLSessionResponseCancel);
+    return;
+  }
   _isRequestInProgress = false;
   // A new response starts a new stream, so drop any partial message from the previous one.
   [_pendingStreamData setLength:0];

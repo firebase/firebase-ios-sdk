@@ -1871,6 +1871,13 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [self waitForExpectations:@[ notificationExpectation ] timeout:_expectationTimeout];
 }
 
+/// Returns the session that the realtime instance at `index` streams on. The realtime delegate
+/// ignores callbacks from any other session.
+- (NSURLSession *)realtimeSessionForInstance:(NSInteger)index {
+  RCNConfigRealtime *configRealtime = _configRealtime[index];
+  return [configRealtime session];
+}
+
 - (void)testURLSessionDelegateHandlesChunkedJSON {
   NSString *testString = @"} {\"testKey\":\"testValue\"}";
   NSData *testData = [testString dataUsingEncoding:NSUTF8StringEncoding];
@@ -1883,7 +1890,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
             [NSString
                 stringWithFormat:@"Test delegate method handling chunked JSON - instance %d", i]];
 
-    NSURLSession *networkSession = [_configFetch[i] currentNetworkSession];
+    NSURLSession *networkSession = [self realtimeSessionForInstance:i];
     NSURLSessionDataTask *dataTask = [_configFetch[i] URLSessionDataTaskWithContent:[OCMArg any]
                                                                     fetchTypeHeader:[OCMArg any]
                                                                   completionHandler:nil];
@@ -1914,7 +1921,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)receiveStreamData:(NSString *)string {
   NSURLSessionDataTask *dataTask = nil;
   [_configRealtime[RCNTestRCInstanceDefault]
-          URLSession:[_configFetch[RCNTestRCInstanceDefault] currentNetworkSession]
+          URLSession:[self realtimeSessionForInstance:RCNTestRCInstanceDefault]
             dataTask:dataTask
       didReceiveData:[string dataUsingEncoding:NSUTF8StringEncoding]];
 }
@@ -1931,7 +1938,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
 - (void)testRealtimeStreamHandlesUTF8CharacterSplitAcrossReads {
   NSMutableArray *messages = [self recordEvaluatedStreamMessages];
-  NSURLSession *session = [_configFetch[RCNTestRCInstanceDefault] currentNetworkSession];
+  NSURLSession *session = [self realtimeSessionForInstance:RCNTestRCInstanceDefault];
   NSURLSessionDataTask *dataTask = nil;
   // Split U+00E9 ('é', UTF-8 0xC3 0xA9) across two network reads.
   const unsigned char firstRead[] = {'[', '{', '"', 'k', 'e', 'y', '"', ':', '"', 0xC3};
@@ -1986,7 +1993,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
   [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"5\""];
   [_configRealtime[RCNTestRCInstanceDefault]
-              URLSession:[_configFetch[RCNTestRCInstanceDefault] currentNetworkSession]
+              URLSession:[self realtimeSessionForInstance:RCNTestRCInstanceDefault]
                 dataTask:dataTask
       didReceiveResponse:response
        completionHandler:^(NSURLSessionResponseDisposition disposition){
@@ -2010,7 +2017,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
 - (void)testURLSessionDelegateIgnoresInvalidUTF8Data {
   const unsigned char bytes[] = {0xFF, 0xFE, '{', '}'};
   NSData *testData = [NSData dataWithBytes:bytes length:sizeof(bytes)];
-  NSURLSession *networkSession = [_configFetch[0] currentNetworkSession];
+  NSURLSession *networkSession = [self realtimeSessionForInstance:0];
   NSURLSessionDataTask *dataTask = [_configFetch[0] URLSessionDataTaskWithContent:[OCMArg any]
                                                                   fetchTypeHeader:[OCMArg any]
                                                                 completionHandler:nil];
@@ -2140,6 +2147,55 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
   [configRealtime URLSession:replacedSession task:task didCompleteWithError:error];
 
+  XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime);
+  OCMVerify(never(), [configRealtime pauseRealtimeStream]);
+  OCMVerify(never(), [configRealtime retryHTTPConnection]);
+  [replacedSession invalidateAndCancel];
+}
+
+- (void)testRealtimeIgnoresStreamDataFromReplacedURLSession {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+  NSURLSession *replacedSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  NSURLSessionDataTask *dataTask = nil;
+  NSData *partialMessage =
+      [@"[{\"latestTemplateVersionNumber\": \"9\"" dataUsingEncoding:NSUTF8StringEncoding];
+
+  // Data from the replaced session must not be evaluated or combined with the current stream's.
+  [_configRealtime[RCNTestRCInstanceDefault] URLSession:replacedSession
+                                               dataTask:dataTask
+                                         didReceiveData:partialMessage];
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"5\"}"];
+
+  XCTAssertEqualObjects(messages, (@[ @{@"latestTemplateVersionNumber" : @"5"} ]));
+  [replacedSession invalidateAndCancel];
+}
+
+- (void)testRealtimeCancelsResponseFromReplacedURLSession {
+  id configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
+  OCMStub([configRealtime retryHTTPConnection]).andDo(nil);
+  RCNConfigSettings *settings = _configInstances[RCNTestRCInstanceDefault].settings;
+  [settings updateRealtimeBackoffTimeWithInterval:0];
+  NSTimeInterval throttleEndTime = settings.realtimeExponentialBackoffThrottleEndTime;
+  NSURLSession *replacedSession = [NSURLSession
+      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  NSURLSessionDataTask *dataTask = nil;
+  NSHTTPURLResponse *response =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:503
+                                 HTTPVersion:nil
+                                headerFields:nil];
+  __block NSURLSessionResponseDisposition disposition = NSURLSessionResponseAllow;
+
+  [configRealtime URLSession:replacedSession
+                    dataTask:dataTask
+          didReceiveResponse:response
+           completionHandler:^(NSURLSessionResponseDisposition responseDisposition) {
+             disposition = responseDisposition;
+           }];
+
+  XCTAssertEqual(disposition, NSURLSessionResponseCancel);
   XCTAssertEqual(settings.realtimeExponentialBackoffThrottleEndTime, throttleEndTime);
   OCMVerify(never(), [configRealtime pauseRealtimeStream]);
   OCMVerify(never(), [configRealtime retryHTTPConnection]);
