@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Remote Config real-time updates no longer stop for minutes or hours
+  after the app returns from a short time in the background. The real-time
+  stream now opens a new connection instead of reusing one that iOS closed
+  while the app was suspended. (#17023)
+
 # 13.2.0
 - [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).
   The copy now keeps the value's data and source. (#16804)
