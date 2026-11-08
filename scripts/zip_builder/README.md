@@ -265,7 +265,10 @@ Until the new zip replaces the CocoaPods one, a release builds both:
    job summary. Its artifact is `Firebase-release-zip-builder` (`linkage: dynamic` gives
    `Firebase-release-zip-builder-dynamic`, with Firestore built from source).
 
-The zip is built from the branch's `Package.swift`, with `--version` from its `firebaseVersion`. It
+The zip is built from the branch's `Package.swift`, with `--version` from its `firebaseVersion`.
+GoogleAppMeasurement and app-check resolve from their `main` branches
+(`FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT`), because their SwiftPM tags for a release are
+published after it's built, so check that their `main` matches the release's versions. It
 uses no framework cache, so every framework is compiled by that run, and `release` runs `verify`
 before uploading. Like `release.zip.yml`'s artifact, it isn't signed: the release process signs it.
 It doesn't build a Carthage distribution; `release.zip.yml` still does. `plan.json` and the
