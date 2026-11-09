@@ -21,6 +21,26 @@ import Foundation
 /// fractional seconds are optional. `DateFormatter` keeps milliseconds and drops any further
 /// digits.
 enum AuthProtoTimestamp {
+  /// Parses timestamps with fractional seconds.
+  ///
+  /// The POSIX locale also selects the Gregorian calendar, so the year doesn't depend on the
+  /// device's settings. The formatters are reused because creating one is costly, and parsing
+  /// with a formatter that isn't mutated is thread-safe.
+  private static let withFractionalSecondsFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+    return formatter
+  }()
+
+  /// Parses timestamps without fractional seconds, which RFC 3339 allows.
+  private static let withoutFractionalSecondsFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+    return formatter
+  }()
+
   /// Returns the date of an RFC 3339 timestamp from a backend response.
   ///
   /// The date doesn't depend on the device's locale or calendar.
@@ -31,16 +51,9 @@ enum AuthProtoTimestamp {
     guard let timestamp = value as? String else {
       return nil
     }
-    // The POSIX locale also selects the Gregorian calendar, so the year doesn't depend on the
-    // device's settings.
-    let dateFormatter = DateFormatter()
-    dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-    if let date = dateFormatter.date(from: timestamp) {
+    if let date = withFractionalSecondsFormatter.date(from: timestamp) {
       return date
     }
-    // RFC 3339 timestamps may omit the fractional seconds.
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-    return dateFormatter.date(from: timestamp)
+    return withoutFractionalSecondsFormatter.date(from: timestamp)
   }
 }
