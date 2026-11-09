@@ -104,6 +104,7 @@
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
+          var latestUsage: UsageMetadata?
 
           for try await chunk in stream {
             try Task.checkCancellation()
@@ -174,22 +175,26 @@
             }
 
             if let usage = chunk.usageMetadata {
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateUsage(
-                    input: .init(
-                      totalTokenCount: usage.promptTokenCount ?? 0,
-                      cachedTokenCount: usage.cachedContentTokenCount ?? 0
-                    ),
-                    output: .init(
-                      totalTokenCount: usage.candidatesTokenCount ?? 0,
-                      reasoningTokenCount: usage.thoughtsTokenCount ?? 0
-                    )
+              latestUsage = usage
+            }
+          }
+
+          if let usage = latestUsage {
+            await channel.send(
+              .response(
+                entryID: responseEntryID,
+                action: .updateUsage(
+                  input: .init(
+                    totalTokenCount: usage.promptTokenCount ?? 0,
+                    cachedTokenCount: usage.cachedContentTokenCount ?? 0
+                  ),
+                  output: .init(
+                    totalTokenCount: usage.candidatesTokenCount ?? 0,
+                    reasoningTokenCount: usage.thoughtsTokenCount ?? 0
                   )
                 )
               )
-            }
+            )
           }
         } catch {
           throw GeminiErrorMapper.map(error)

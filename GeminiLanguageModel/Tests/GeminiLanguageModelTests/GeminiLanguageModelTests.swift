@@ -318,6 +318,44 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseMultiChunkUsageMetadata() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let chunks = [
+        "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Hello \"}], \"role\": \"model\"}, \"index\": 0}], \"usageMetadata\": {\"promptTokenCount\": 5, \"totalTokenCount\": 5}}\n\n",
+        "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"world!\"}], \"role\": \"model\"}, \"finishReason\": \"STOP\", \"index\": 0}], \"usageMetadata\": {\"candidatesTokenCount\": 2, \"promptTokenCount\": 5, \"totalTokenCount\": 7}}\n\n",
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+
+      let session = LanguageModelSession(model: model)
+      let stream = session.streamResponse(to: "Say hello")
+      var accumulated = ""
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in stream {
+        accumulated = snapshot.content
+        lastUsage = snapshot.usage
+      }
+
+      #expect(accumulated == "Hello world!")
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 5)
+      #expect(usage.output.totalTokenCount == 2)
+      #expect(usage.totalTokenCount == 7)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rateLimitErrorMapping() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
