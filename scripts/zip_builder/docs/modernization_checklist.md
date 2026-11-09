@@ -254,3 +254,27 @@ CocoaPods job regenerates:
 | [`Firebase.podspec`](/Firebase.podspec) | Lists `CoreOnly/NOTICES` in `preserve_paths`, which is how the legacy zip finds it | The entry |
 | [`ReleaseTooling` `manifest --for-notices-generation`](/ReleaseTooling/Sources/ManifestParser/main.swift) | Lists the releasing pods for the workflow | The option (and `podspecs-tester`, if [`infra.spec_testing.yml`](/.github/workflows/infra.spec_testing.yml) is gone too) |
 | [`scripts/check_whitespace.sh`](/scripts/check_whitespace.sh) | Excludes `CoreOnly/NOTICES`, plus three NOTICES paths that no longer exist | Those exclusions (keep `CoreOnly/licenses`) |
+
+### Carthage
+
+The new zip builder packages the Carthage distribution with `zip-builder carthage` (`carthage` in
+[`zip_builder.jsonc`](/zip_builder.jsonc); see [Carthage](how-it-works.md#carthage)), which
+[`release.zip_builder.yml`](/.github/workflows/release.zip_builder.yml) runs after the static
+zip. The legacy zip builder still builds its own during every release build:
+
+| Tooling | What it does | Remove |
+|---|---|---|
+| [`CarthageUtils.swift`](/ReleaseTooling/Sources/ZipBuilder/CarthageUtils.swift) | Archives each folder, adds `Firebase.framework` and `NOTICES`, updates the binary specs | The file |
+| [`ZipBuilder.swift`](/ReleaseTooling/Sources/ZipBuilder/ZipBuilder.swift) | `includeCarthage`, the second GoogleUtilities build, the `CarthageFirebase` distribution, and Carthage's resource handling | Those parts (the file goes with the legacy zip) |
+| [`FrameworkBuilder.swift`](/ReleaseTooling/Sources/ZipBuilder/FrameworkBuilder.swift) | `setCarthage`: builds with `-DFIREBASE_BUILD_CARTHAGE` instead of `-DFIREBASE_BUILD_ZIP_FILE` | The parameter |
+| [`FirebaseBuilder.swift`](/ReleaseTooling/Sources/ZipBuilder/FirebaseBuilder.swift) | Runs `CarthageUtils` and copies its output into the output directory | Those parts |
+| [`main.swift`](/ReleaseTooling/Sources/ZipBuilder/main.swift) | `--enable-carthage-version-check`/`--disable-carthage-version-check`, and the `CarthageJSON` path | The options |
+| [`scripts/zip/build_zip.sh`](/scripts/zip/build_zip.sh) | Passes `--enable-carthage-version-check`, or `--disable-…` for `build-head` | Those flags |
+
+The version check skipped folders whose version a binary spec already listed; `carthage` instead
+replaces that entry, with a warning, so rerunning a release gives fresh specs. Two pieces of
+release data stay: [`ReleaseTooling/CarthageJSON`](/ReleaseTooling/CarthageJSON), the binary specs
+`carthage` reads (`carthage.manifests`), and
+[`ReleaseTooling/Template/dummy_Firebase_lib`](/ReleaseTooling/Template/dummy_Firebase_lib),
+`Firebase.framework`'s placeholder binary (`carthage.umbrellaFramework.binary`). Move both out of
+`ReleaseTooling/` when it's retired, and update the config's paths.
