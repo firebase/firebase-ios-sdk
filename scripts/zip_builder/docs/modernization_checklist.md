@@ -231,3 +231,26 @@ flowchart LR
 Do 11 and 12 on their own first: they change runtime behavior and need the most testing. Frameworks
 and layout (13–19) change install steps, so ship them together with one migration guide rather than
 one major release after another.
+
+## Retiring the legacy release tooling
+
+The new zip builder doesn't use any of the tooling below, but the legacy CocoaPods-based zip
+([`release.zip.yml`](/.github/workflows/release.zip.yml)) still does. Keep it until
+`release.zip.yml` is retired, then delete it together.
+
+### NOTICES
+
+The new zip builder generates `NOTICES` from the package graph (`zip.notices` in
+[`zip_builder.jsonc`](/zip_builder.jsonc); the licenses packages lack are in
+[`CoreOnly/licenses/`](/CoreOnly/licenses)). The legacy zip copies a checked-in file that a daily
+CocoaPods job regenerates:
+
+| Tooling | What it does | Remove |
+|---|---|---|
+| [`infra.notice_generation.yml`](/.github/workflows/infra.notice_generation.yml) | Daily: regenerates `CoreOnly/NOTICES` with CocoaPods and opens a PR | The workflow |
+| [`.github/actions/notices_generation/`](/.github/actions/notices_generation) | The Ruby action it runs: `pod install`, then the acknowledgements plist, deduplicated by license | The directory |
+| [`scripts/create_pull_request.rb`](/scripts/create_pull_request.rb) | Opens the PR; only that workflow uses it | The script |
+| [`CoreOnly/NOTICES`](/CoreOnly/NOTICES) | The generated file the legacy zip ships | The file |
+| [`Firebase.podspec`](/Firebase.podspec) | Lists `CoreOnly/NOTICES` in `preserve_paths`, which is how the legacy zip finds it | The entry |
+| [`ReleaseTooling` `manifest --for-notices-generation`](/ReleaseTooling/Sources/ManifestParser/main.swift) | Lists the releasing pods for the workflow | The option (and `podspecs-tester`, if [`infra.spec_testing.yml`](/.github/workflows/infra.spec_testing.yml) is gone too) |
+| [`scripts/check_whitespace.sh`](/scripts/check_whitespace.sh) | Excludes `CoreOnly/NOTICES`, plus three NOTICES paths that no longer exist | Those exclusions (keep `CoreOnly/licenses`) |

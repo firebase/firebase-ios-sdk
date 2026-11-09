@@ -49,9 +49,11 @@ flowchart LR
    platforms, build settings, the zip's folders.
 4. **buildXCFrameworks** generates an `.xcodeproj` from the plan, archives it once per
    destination, and creates the `.xcframework`s. Unchanged frameworks come from the cache.
-5. **makeZip** lays out the folders, adds extra files, signs, and zips.
+5. **makeZip** lays out the folders, adds extra files, writes `METADATA.md` and the license
+   notices (`NOTICES`, from the licenses `makePlan` found), signs, and zips.
 
-`verify` checks that a finished distribution links, imports and is complete; `diff` compares two.
+`verify` checks that a finished distribution links, imports and is complete; `diff` compares two,
+including the contents of loose files such as `NOTICES`.
 
 `plan.json` holds every decision: the stages after it only carry it out. To find out why the zip
 looks the way it does, read the plan. The rules for _how_ the zip gets constructed are in
@@ -198,7 +200,7 @@ required.
 | `frameworks` | Aggregating, merging and renaming frameworks; public, private and hidden headers; per-framework platforms; dynamic frameworks |
 | `build` | Platforms, deployment targets, architectures, preprocessor definitions, Swift versions, linkage, any build setting |
 | `layout` | Privacy and resource bundles, `Info.plist` values |
-| `zip` | Extra files, external artifacts |
+| `zip` | Extra files, external artifacts, the generated license notices |
 | `verify` | Modules the import check skips |
 
 Every key, with its default and Firebase's reason for setting it, is in
@@ -231,7 +233,7 @@ build/
 ├── created/                      newly built .xcframeworks, before they're cached
 ├── xcframeworks/                 every .xcframework, with its layout applied
 ├── downloads/                    external artifacts, when the config has any
-├── dist/Firebase/                the distribution: README.md, METADATA.md, one folder per product
+├── dist/Firebase/                the distribution: README.md, METADATA.md, NOTICES, one folder per product
 └── Firebase-<version>-latest.zip
 ```
 

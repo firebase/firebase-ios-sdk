@@ -109,6 +109,15 @@ struct Config: Codable, Equatable, Sendable {
   struct Zip: Codable, Equatable, Sendable {
     @Default<Empty<[Files]>> var files: [Files]
     @Default<Empty<[ExternalArtifact]>> var externalArtifacts: [ExternalArtifact]
+    var notices: Notices? // writes the license notices file only when present
+  }
+
+  /// The third-party license notices file written at the zip root (see `Packaging/Notices.swift`).
+  struct Notices: Codable, Equatable, Sendable {
+    @Default<DefaultNoticesFile> var file: String // its file name
+    /// Framework or binary name to package-root-relative license files, added to those planning
+    /// found: for packages without a license file, or whose license file lacks the full text.
+    @Default<Empty<[String: [Path]]>> var extraLicenses: [String: [Path]]
   }
 
   /// Repo-relative files copied into the zip root (`"."`) or a folder.

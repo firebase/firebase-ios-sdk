@@ -45,10 +45,10 @@ earlier stages it needs unless you pass their output (`--plan`, `--xcframeworks`
   frameworks `frameworks.static` keeps static (`keptStatic`, not encoded when empty).
 - `Framework`: name, module name, source package, sources, headers with their visibility, an
   optional custom module map, resources, settings, dependencies, platforms, bundle ID, version,
-  whether it's dynamic, and its post-archive `layout`.
+  whether it's dynamic, its post-archive `layout`, and its `licenses` (see [Licenses](#licenses)).
 - `Source` and `Dependency` have optional platforms: `nil` means every platform for a source, and
   wherever its framework ships for a dependency.
-- `Binary`: a prebuilt `.xcframework`'s name, path, platforms and version.
+- `Binary`: a prebuilt `.xcframework`'s name, path, platforms, version and `licenses`.
 - `Folder`: a zip folder's frameworks and binaries, plus extra files. Folder `"."` is the zip root.
 
 Paths are relative to the package root, so plans and fingerprints match across machines, and
@@ -58,9 +58,9 @@ its own config sections; anything else reaches it through the plan:
 | Stage | Config it reads |
 |---|---|
 | `makePlan` | `release` (bundle ID prefixes), `products.exclude`/`add`/`rename`/`withoutDependencies`, `frameworks.dynamic`/`static` (with `aggregate`, `merge` and `rename`, for final names), `build.platforms`, `build.linkage` |
-| `customize` | `frameworks`, `products`, `build`, `layout`, `zip.files` |
+| `customize` | `frameworks`, `products`, `build`, `layout`, `zip.files`, `zip.notices` (only to warn about missing licenses) |
 | `makeProject`, `buildXCFrameworks` | none: only the plan |
-| `makeZip` | `release.name`, `release.archiveName`, `zip.externalArtifacts`, `products.base.product` |
+| `makeZip` | `release.name`, `release.archiveName`, `zip.externalArtifacts`, `zip.notices`, `products.base.product` |
 | `verify` | `products.base.product`, `verify.skipImports` |
 
 The release version is `--version`, else `release.version`. (`Model/Plan.swift`)
@@ -254,6 +254,24 @@ elsewhere; Catalyst adds `iphoneos`, and a target without Catalyst gets
 tool plugins, macros, module aliases, and binary targets that aren't `.xcframework`s. Every module
 the products reach is checked, wrappers and binaries included. Trait conditions are fine: SwiftPM
 evaluates them while loading the graph. (`Planning/MakePlan.swift`, `unsupportedFeature(of:)`)
+
+### Licenses
+
+Each framework and binary records its license files, for the zip's notices file
+([`zip.notices`](configuration.md#zip)). A library target's license file is the nearest file named
+`LICENSE`, `LICENSE.txt`, `LICENSE.md` or `COPYING` (ignoring case) in its target directory or a
+parent, up to its package's root, inclusive. Packages keep one at their root, and a directory can
+have its own for the targets under it (Firebase's `Crashlytics/LICENSE`, `Firestore/LICENSE`).
+A binary target has no source directory, so it gets its package root's. When a directory has
+several, the first name in that list wins, then the lowest file name, so the choice doesn't
+depend on the file system. No file means `licenses` is `nil`; there's no guessing from other
+names (`NOTICE`, `LICENSE.rtf`) or from directories above the package.
+
+Only shipped modules are planned, so test-only packages and targets never contribute.
+Aggregating and merging union the parts' licenses, sorted, since the shipped framework holds
+their code; renaming keeps them. Licenses aren't part of fingerprints: they don't change what's
+built, and `nil` isn't encoded, so fingerprints match plans without them.
+(`Planning/Licenses.swift`, `licenseFile(of:)`; `Customizing/Merge.swift`, `Framework.absorb`)
 
 ## Customizations
 
@@ -485,9 +503,22 @@ macOS-style slices use `Versions/A/Resources` and `Contents/`. (`Building/Layout
    contributes its entries; a file or bundle is placed as is.
 3. Writes `METADATA.md`: each folder's frameworks, the base folder first and the others marked
    `(~> <base>)`, then every framework's and binary's version.
-4. With `--sign`, signs every unsigned `.xcframework`. Vendors' signed binaries keep their
+4. With `zip.notices`, writes the notices file (`NOTICES` by default) at the root, from the
+   [licenses](#licenses) of every framework and binary in a folder, plus
+   `zip.notices.extraLicenses`. License texts are compared with leading and trailing whitespace
+   trimmed, since copies of one license often differ only in a leading blank line (Firebase's
+   `LICENSE` and the binary packages' Apache text); inner whitespace counts. Items with the same
+   text share one entry, titled by their names, sorted, one per line, and entries are ordered by
+   their titles; each is the titles, a blank line, the trimmed text, and two newlines, and the
+   file is trimmed to end with one newline. That reads like the notices file the CocoaPods-era
+   zip shipped, though titles are now framework names rather than pod names. A missing
+   `extraLicenses` path, or a file of that name already in the distribution (a `zip.files`
+   entry), fails packaging. While planning, `customize` warns about shipped items without a
+   license and `extraLicenses` names that don't ship, so `plan` shows them.
+   (`Packaging/Notices.swift`, `notices`, `renderNotices`)
+5. With `--sign`, signs every unsigned `.xcframework`. Vendors' signed binaries keep their
    signature, since re-signing would replace it in a real release.
-5. Zips with `ditto --norsrc --noextattr --noacl`. Extended attributes are per machine
+6. Zips with `ditto --norsrc --noextattr --noacl`. Extended attributes are per machine
    (`com.apple.provenance`), and `ditto` would store them as `__MACOSX/` or `._*` entries.
    (`Packaging/MakeZip.swift`, `makeZip`; `Packaging/Metadata.swift`)
 
@@ -519,11 +550,12 @@ ignored. `release` passes the `.xcframework`s in `<work-dir>/xcframeworks/` only
 ## Diff
 
 `diff` compares two distributions for pull request comments: folders, loose files, and frameworks
-added, removed or moved. Per framework: slices, architectures, binary kind, headers, `Modules/`
-files, module maps (by trimmed lines), `CFBundleShortVersionString`, `MinimumOSVersion` and
-`CFBundleIdentifier`, resource bundles, and exported symbols; not signatures. Identical per-slice
-differences merge into one entry, and symbol lists keep exact counts but at most 20 names.
-`--exit-code` exits 1 on differences, after the report is written.
+added, removed or moved, and loose files both have whose contents changed (a directory, such as a
+bundle, by its files' contents). Per framework: slices, architectures, binary kind, headers,
+`Modules/` files, module maps (by trimmed lines), `CFBundleShortVersionString`, `MinimumOSVersion`
+and `CFBundleIdentifier`, resource bundles, and exported symbols; not signatures. Identical
+per-slice differences merge into one entry, and symbol lists keep exact counts but at most 20
+names. `--exit-code` exits 1 on differences, after the report is written.
 
 A release version bump changes every framework built from the root package. When at least two
 frameworks' `CFBundleShortVersionString` changed, all from the same old value to the same new one
@@ -531,12 +563,15 @@ in every slice, `diff` reports it once, as `Release version: X → Y (N framewor
 those entries; their other differences stay. Frameworks from dependency packages keep their own
 versions and usually don't change. Mixed bumps, a bump in only some slices, or a single
 framework's (a dependency's update) stay per framework. The bump is a difference, in every format.
-`CFBundleVersion` is `1` in every built framework, so it isn't compared. Nothing else `diff` reads
-carries the version: `METADATA.md` is a loose file, compared by name, headers by path, and
-`build.versionMacro` only changes binary contents, which `diff` doesn't compare.
+`CFBundleVersion` is `1` in every built framework, so it isn't compared. Loose text files can carry
+the version too (`METADATA.md` lists it): when the bump is reported, a loose file whose candidate
+text is the baseline's with every occurrence of the old version replaced by the new one is part of
+the bump, and isn't listed as changed. Any other change in it still lists it. Headers are compared
+by path, and `build.versionMacro` only changes binary contents, which `diff` doesn't compare.
 
-The Markdown shows at most 40 lines per framework and 100 items per layout section, and drops
-sections past 60,000 bytes, under GitHub's 65,536-character comment limit. `--format
+The Markdown shows at most 40 lines per framework and 100 items per layout section (changed loose
+files are one, listed as `~ <path>`), and drops sections past 60,000 bytes, under GitHub's
+65,536-character comment limit. `--format
 github-comment` is the same Markdown arranged as a comment: the `--title` line, then either
 "✅ The distributions match." or the summary (the release version and the table of counts) with
 the rest inside `<details>`; the 60,000 bytes include the title. `--title` also starts

@@ -59,7 +59,8 @@ struct UnknownKeysTests {
     },
     "zip": {
       "files": [{ "to": ".", "files": [] }, { "to": ".", "files": [], "from": "x" }],
-      "externalArtifacts": [{ "to": ".", "url": "https://example.com/a.zip", "strip": true }]
+      "externalArtifacts": [{ "to": ".", "url": "https://example.com/a.zip", "strip": true }],
+      "notices": { "extraLicense": {}, "extraLicenses": { "AnyName": [] } }
     }
     """)
     #expect(warnings == [
@@ -67,6 +68,7 @@ struct UnknownKeysTests {
       "products.base: framework isn't a config key; ignored.",
       "zip.externalArtifacts[0]: strip isn't a config key; ignored.",
       "zip.files[1]: from isn't a config key; ignored.",
+      "zip.notices: extraLicense isn't a config key; ignored.",
     ])
   }
 
@@ -102,7 +104,8 @@ struct UnknownKeysTests {
                "swiftVersion": {}, "settings": {}, "versionMacro": "V" },
     "layout": { "privacyBundle": {}, "resourceBundles": {}, "infoPlist": {} },
     "zip": { "files": [], "externalArtifacts": [{ "to": ".", "url": "u", "subpath": "p",
-                                                  "stripSignatures": true }] },
+                                                  "stripSignatures": true }],
+             "notices": { "file": "NOTICES", "extraLicenses": {} } },
     "verify": { "skipImports": [] }
     }
     """)

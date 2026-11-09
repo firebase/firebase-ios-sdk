@@ -103,6 +103,9 @@ struct Framework: Codable, Equatable, Sendable {
   var version: String
   var isDynamic: Bool
   var layout: Layout // applied after archiving
+  /// Its license files, sorted (`Planning/Licenses.swift`); a merged or aggregated framework has
+  /// its parts' too. `nil` when there are none. Not fingerprinted: they don't change the build.
+  var licenses: [Path]? = nil
 
   /// The paths of its public headers.
   var publicHeaders: [Path] {
@@ -138,6 +141,9 @@ struct Binary: Codable, Equatable, Sendable {
   var path: Path
   var platforms: Set<Platform>
   var version: String
+  /// Its package root's license file, as a list like `Framework.licenses`; `nil` when there's
+  /// none. Not fingerprinted.
+  var licenses: [Path]? = nil
 }
 
 /// A folder of the zip: the frameworks it holds and extra files copied into it.

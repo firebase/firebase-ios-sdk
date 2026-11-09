@@ -161,7 +161,6 @@
         "files": [
           // The legacy zip's README; it moves here when ReleaseTooling is retired.
           "ReleaseTooling/Template/README.md",
-          "CoreOnly/NOTICES",
           "CoreOnly/Sources/Firebase.h",
           "CoreOnly/Sources/module.modulemap"
         ]
@@ -173,7 +172,17 @@
           "Crashlytics/upload-symbols"
         ]
       }
-    ]
+    ],
+    "notices": {
+      // Licenses missing from the packages: BoringSSL ships inside openssl_grpc with no license
+      // file, and grpc-binary's LICENSE lacks gRPC's full third-party text.
+      "extraLicenses": {
+        "openssl_grpc": ["CoreOnly/licenses/BoringSSL.txt"],
+        "grpc": ["CoreOnly/licenses/gRPC.txt"],
+        "grpcpp": ["CoreOnly/licenses/gRPC.txt"],
+        "FirebaseFirestoreInternal": ["Firestore/LICENSE"]
+      }
+    }
   },
 
   "verify": {

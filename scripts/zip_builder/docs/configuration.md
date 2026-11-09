@@ -52,7 +52,7 @@ become frameworks (combined by `frameworks.aggregate` and `frameworks.merge`, th
 | Folder names, after `products.rename` | `products.withoutFolder`, `products.base.product`, keys of `products.platforms` and `products.extraFrameworks`, `zip.files[].to`, `zip.externalArtifacts[].to` |
 | Target names | `products.add[].targets`, `frameworks.merge`, keys of `frameworks.rename` |
 | Package names | `frameworks.aggregate` |
-| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks` |
+| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks`, keys of `zip.notices.extraLicenses` |
 | Module names in the finished zip | `verify.skipImports` |
 | Header file name patterns | `frameworks.privateHeaders`, `frameworks.hiddenHeaders` |
 
@@ -287,8 +287,8 @@ What else goes in the zip, next to the frameworks.
   `products.rename`, and a folder that doesn't exist (including one in `products.withoutFolder`)
   is warned about and skipped. Files are copied by file name, without their directories, so two
   files with the same name can't go in one folder. A missing file fails packaging. Firebase: the
-  zip root gets the legacy zip's `README.md`, `NOTICES`, `Firebase.h` and `module.modulemap`, and
-  the `FirebaseCrashlytics` folder gets the `run` and `upload-symbols` scripts.
+  zip root gets the legacy zip's `README.md`, `Firebase.h` and `module.modulemap`, and the
+  `FirebaseCrashlytics` folder gets the `run` and `upload-symbols` scripts.
 - **`externalArtifacts`** (list of `{ "to", "url", "subpath", "stripSignatures" }`, default `[]`).
   Prebuilt zips downloaded and unpacked into folder `to` (`"."` is the zip root; a missing folder
   is created). Each URL is downloaded once, into `<work-dir>/downloads/`, and reused. The archive's
@@ -296,6 +296,24 @@ What else goes in the zip, next to the frameworks.
   archive: a plain directory contributes its entries, and a file or bundle (such as an
   `.xcframework`) is placed as is. `stripSignatures` (default `false`) removes every
   `_CodeSignature` directory, so `--sign` signs the result with the rest. Firebase has none.
+- **`notices`** (`{ "file", "extraLicenses" }`, default none). Writes a third-party license
+  notices file at the zip root, generated from the license files of every framework and binary
+  the zip ships (see [Licenses](how-it-works.md#licenses)): one entry per license text, ignoring
+  leading and trailing whitespace, titled by the names of everything under it. Without this key
+  there's no such file. Keys:
+  - **`file`** (string, default `"NOTICES"`): its file name.
+  - **`extraLicenses`** (framework or binary name → package-root-relative paths, default `{}`):
+    license files added to those planning found, for a package without a license file, or whose
+    license file lacks the full text. Names are the ones in the zip, after merging and renaming.
+
+  **Gotchas:** a shipped framework or binary with no license file and no `extraLicenses` entry
+  is warned about while planning, and the file leaves it out. An `extraLicenses` name the zip
+  doesn't ship is warned about and skipped; a path that doesn't exist fails packaging, even for
+  a skipped name. A `zip.files` entry with the same name fails packaging rather than being
+  replaced. `externalArtifacts` aren't in the plan, so they get no notice. Firebase: on, with the
+  BoringSSL text for `openssl_grpc` (its package has no license for it), gRPC's full text for
+  `grpc` and `grpcpp`, and `Firestore/LICENSE` for the `FirebaseFirestoreInternal` binary, which
+  is in the root package and so only gets the root `LICENSE`.
 
 ## verify
 
