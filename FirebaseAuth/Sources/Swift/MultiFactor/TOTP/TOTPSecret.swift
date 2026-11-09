@@ -105,7 +105,7 @@ import Foundation
     @objc public let codeIntervalSeconds: Int
 
     /// The time by which enrollment must be completed with a one-time password, or `nil` if the
-    /// server didn't return one.
+    /// server didn't return one or it couldn't be parsed.
     ///
     /// This can be used to show a countdown of when to enter the one-time password.
     @objc public let enrollmentCompletionDeadline: Date?
