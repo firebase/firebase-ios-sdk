@@ -629,8 +629,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       // We had a successful fetch. Update the current eTag in settings if different, or if the
       // server sent a full UPDATE, so that activate applies the new values (#15764).
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
-      BOOL isUpdate = [fetchedConfig[RCNFetchResponseKeyState]
-          isEqualToString:RCNFetchResponseKeyStateUpdate];
+      BOOL isUpdate =
+          [fetchedConfig[RCNFetchResponseKeyState] isEqualToString:RCNFetchResponseKeyStateUpdate];
       if (!strongSelf->_settings.lastETag ||
           !([strongSelf->_settings.lastETag isEqualToString:latestETag]) || isUpdate) {
         strongSelf->_settings.lastETag = latestETag;
