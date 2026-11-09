@@ -11,7 +11,7 @@
 - [fixed] Fixed a crash at launch on iOS 17 and earlier, and the corresponding
   macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
   the app or a library (such as Realm) enumerated Objective-C classes with
-  `objc_copyClassList`. (#17012)
+  `objc_copyClassList`. (#17024)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

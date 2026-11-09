@@ -23,8 +23,8 @@ import Foundation
 /// `Mutex` property requires runtime layout, realizing the class calls the weakly linked `Mutex`
 /// metadata accessor, which is `NULL` on those OS versions and crashes the app.
 ///
-/// Unlike `Mutex`, which is a noncopyable struct that stores its value inline, this type is a class,
-/// so properties of this type have a fixed size that doesn't depend on `Value`.
+/// Unlike `Mutex`, which is a noncopyable struct that stores its value inline, this type is a
+/// class, so properties of this type have a fixed size that doesn't depend on `Value`.
 final class LockedValue<Value: ~Copyable>: @unchecked Sendable {
   private let lock = NSLock()
   private var value: Value
@@ -37,6 +37,9 @@ final class LockedValue<Value: ~Copyable>: @unchecked Sendable {
   }
 
   /// Calls the given closure after acquiring the lock and then releases ownership.
+  ///
+  /// The lock isn't recursive. Calling `withLock` on the same instance from within `body`
+  /// deadlocks, whereas `Mutex` traps.
   ///
   /// - Parameter body: A closure with a parameter of `Value` that has exclusive access to the value
   ///   being stored within this lock.
