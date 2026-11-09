@@ -1,9 +1,10 @@
 # Unreleased
-- [fixed] `TOTPSecret` (`FIRTOTPSecret`) now has the `hashingAlgorithm`,
-  `codeLength`, `codeIntervalSeconds`, and `enrollmentCompletionDeadline`
-  properties that the Android and JavaScript SDKs provide. Apps can use them
-  to show the settings for entering the secret into an authenticator app by
-  hand, and a countdown to the enrollment deadline. (#17032)
+- [added] Added the `hashingAlgorithm`, `codeLength`, `codeIntervalSeconds`,
+  and `enrollmentCompletionDeadline` properties to `TOTPSecret`
+  (`FIRTOTPSecret`), which the Android and JavaScript SDKs also provide. Apps
+  can use them to show the settings for entering the secret into an
+  authenticator app by hand, and a countdown to the enrollment deadline.
+  (#17032)
 
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
