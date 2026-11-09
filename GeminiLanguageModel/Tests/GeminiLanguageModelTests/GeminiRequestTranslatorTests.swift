@@ -338,5 +338,70 @@
       let functionCallingConfig = try #require(toolConfig.functionCallingConfig)
       #expect(functionCallingConfig.mode == FunctionCallingConfig.Mode.validated)
     }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesReasoningLevelToThinkingConfig() throws {
+      let promptEntry = Transcript.Entry.prompt(
+        Transcript.Prompt(
+          id: "prompt-1",
+          segments: [.text(Transcript.TextSegment(content: "Explain quantum entanglement"))]
+        )
+      )
+      let transcript = Transcript(entries: [promptEntry])
+
+      let cases: [(ContextOptions.ReasoningLevel, ThinkingConfig.ThinkingLevel)] = [
+        (.light, .low),
+        (.moderate, .medium),
+        (.deep, .high),
+        (.custom("minimal"), .minimal),
+        (.custom("low"), .low),
+        (.custom("medium"), .medium),
+        (.custom("moderate"), .medium),
+        (.custom("high"), .high),
+        (.custom("deep"), .high),
+        (.custom("ultra"), .unrecognized("ULTRA")),
+      ]
+
+      for (reasoningLevel, expectedThinkingLevel) in cases {
+        // Without schema
+        let requestWithoutSchema = LanguageModelExecutorGenerationRequest(
+          id: UUID(),
+          transcript: transcript,
+          enabledTools: [],
+          schema: nil,
+          generationOptions: GenerationOptions(),
+          contextOptions: ContextOptions(reasoningLevel: reasoningLevel),
+          metadata: [:]
+        )
+
+        let resultWithoutSchema = try GeminiRequestTranslator.translate(requestWithoutSchema)
+        let configWithoutSchema = try #require(resultWithoutSchema.generationConfig)
+        #expect(configWithoutSchema.responseMIMEType == nil)
+        #expect(configWithoutSchema.responseJSONSchema == nil)
+        let thinkingWithoutSchema = try #require(configWithoutSchema.thinkingConfig)
+        #expect(thinkingWithoutSchema.includeThoughts == true)
+        #expect(thinkingWithoutSchema.thinkingLevel == expectedThinkingLevel)
+
+        // With schema
+        let requestWithSchema = LanguageModelExecutorGenerationRequest(
+          id: UUID(),
+          transcript: transcript,
+          enabledTools: [],
+          schema: UserProfile.generationSchema,
+          generationOptions: GenerationOptions(),
+          contextOptions: ContextOptions(reasoningLevel: reasoningLevel),
+          metadata: [:]
+        )
+
+        let resultWithSchema = try GeminiRequestTranslator.translate(requestWithSchema)
+        let configWithSchema = try #require(resultWithSchema.generationConfig)
+        #expect(configWithSchema.responseMIMEType == "application/json")
+        #expect(configWithSchema.responseJSONSchema != nil)
+        let thinkingWithSchema = try #require(configWithSchema.thinkingConfig)
+        #expect(thinkingWithSchema.includeThoughts == true)
+        #expect(thinkingWithSchema.thinkingLevel == expectedThinkingLevel)
+      }
+    }
   }
 #endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
