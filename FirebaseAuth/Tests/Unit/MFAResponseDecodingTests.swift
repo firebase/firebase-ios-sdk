@@ -42,6 +42,32 @@ class MFAResponseDecodingTests: RPCBaseTests {
     XCTAssertEqual(totpSessionInfo.sessionInfo, "SESSION")
   }
 
+  /** @fn testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime
+      @brief The TOTP enrollment deadline is decoded whether or not the timestamp has fractional
+          seconds.
+   */
+  func testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime() throws {
+    // 2026-11-09T14:40:00Z
+    let deadline: TimeInterval = 1_794_235_200
+    let expectedDeadlines: [(String, TimeInterval)] = [
+      ("2026-11-09T14:40:00Z", deadline),
+      ("2026-11-09T14:40:00.123Z", deadline + 0.123),
+      ("2026-11-09T14:40:00.123456Z", deadline + 0.123),
+    ]
+    for (finalizeEnrollmentTime, expectedDeadline) in expectedDeadlines {
+      let response = try StartMFAEnrollmentResponse(dictionary: [
+        "totpSessionInfo": [
+          "sharedSecretKey": "SECRET",
+          "finalizeEnrollmentTime": finalizeEnrollmentTime,
+        ] as [String: AnyHashable],
+      ])
+      let totpSessionInfo = try XCTUnwrap(response.totpSessionInfo)
+      let date = try XCTUnwrap(totpSessionInfo.finalizeEnrollmentTime, finalizeEnrollmentTime)
+      XCTAssertEqual(date.timeIntervalSince1970, expectedDeadline, accuracy: 0.001,
+                     finalizeEnrollmentTime)
+    }
+  }
+
   /** @fn testStartMFAEnrollmentResponseWithoutSharedSecretKeyThrows
       @brief A TOTP session info whose shared secret key is missing or isn't a string is rejected
           with an error instead of crashing.
