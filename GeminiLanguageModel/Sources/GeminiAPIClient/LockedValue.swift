@@ -14,14 +14,19 @@
 
 import Foundation
 
+// TODO: Replace `LockedValue` with `Mutex` once the minimum deployment targets are iOS 18,
+// macOS 15, tvOS 18, watchOS 11, and visionOS 2, where `Mutex` is always available.
 /// A synchronization primitive that protects a value with an `NSLock`, mirroring the API of
 /// `Synchronization.Mutex`.
 ///
 /// Swift classes are listed in the binary's Objective-C class list regardless of their
 /// `@available` annotations, so the Objective-C runtime can realize them on OS versions that
-/// predate `Mutex` (for example, when an app or library calls `objc_copyClassList`). If a stored
-/// `Mutex` property requires runtime layout, realizing the class calls the weakly linked `Mutex`
-/// metadata accessor, which is `NULL` on those OS versions and crashes the app.
+/// predate `Mutex` (for example, when an app or library calls `objc_copyClassList` or looks up a
+/// class by name). If a stored `Mutex` property requires runtime layout, realizing the class calls
+/// the weakly linked `Mutex` metadata accessor, which is `NULL` on those OS versions and crashes
+/// the app. This is a known Swift runtime issue; see
+/// [swiftlang/swift#61215](https://github.com/swiftlang/swift/issues/61215) and
+/// [swiftlang/swift#72657](https://github.com/swiftlang/swift/issues/72657).
 ///
 /// Unlike `Mutex`, which is a noncopyable struct that stores its value inline, this type is a
 /// class, so properties of this type have a fixed size that doesn't depend on `Value`.
