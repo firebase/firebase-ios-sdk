@@ -5,16 +5,18 @@ on:
   pull_request:
     paths:
       - 'scripts/zip_builder/**'
-      - 'zip_builder.json'
+      - 'scripts/zip_builder.sh'
       - 'zip_builder.jsonc'
+      - 'zip_builder.json'
       - '.github/workflows/infra.zip_builder.yml'
   push:
     branches:
       - main
     paths:
       - 'scripts/zip_builder/**'
-      - 'zip_builder.json'
+      - 'scripts/zip_builder.sh'
       - 'zip_builder.jsonc'
+      - 'zip_builder.json'
       - '.github/workflows/infra.zip_builder.yml'
 
 permissions:
@@ -26,7 +28,6 @@ concurrency:
 
 env:
   FIREBASE_CI: true
-  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
   MIN_XCODE: Xcode_26.2
 
 jobs:
@@ -44,12 +45,13 @@ jobs:
       - name: Cache SwiftPM build artifacts
         uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         with:
-          path: |
-            scripts/zip_builder/.build
-            .build
-          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-tests-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved', 'Package.swift') }}
+          path: scripts/zip_builder/.build
+          key: ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-tests-${{ hashFiles('scripts/zip_builder/Package.swift', 'scripts/zip_builder/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-${{ env.MIN_XCODE }}-zip-builder-tests-
 
-      - name: Run zip-builder unit tests
-        run: swift test --package-path scripts/zip_builder
+      # ZIP_BUILDER_E2E also builds the fixture package for iOS with xcodebuild (about 10 s).
+      - name: Run zip-builder tests
+        env:
+          ZIP_BUILDER_E2E: 1
+        run: swift test --package-path scripts/zip_builder --force-resolved-versions

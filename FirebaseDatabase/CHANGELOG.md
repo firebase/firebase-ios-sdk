@@ -1,3 +1,24 @@
+# 13.2.0
+- [fixed] Fixed an issue where the `getData` error said that the client was
+  offline when the server rejected the request, e.g. because of security rules.
+  (#11835)
+- [fixed] Fixed an issue where a completing `getData` call marked an
+  observed or `keepSynced` query inactive in the persistence cache, allowing
+  its cached data to be pruned or triggering an assertion failure on
+  subsequent updates. (#17009)
+- [fixed] Fixed an issue where `getData` on a query with a limit or range could
+  remove data from other listeners at or below the query's location, and from
+  the disk cache. (#8286, #14137)
+- [fixed] Fixed an issue where `getData` never completed if the connection
+  dropped before the server responded. (#16717)
+- [fixed] Fixed an issue where `getData` on a child of an observed location
+  returned the data of the observed location instead of the child. (#12168)
+- [fixed] Fixed an issue where the client could stay offline for hours after a
+  connection attempt timed out, for example after the device woke from sleep.
+  (#9682)
+- [fixed] Keep Realtime Database WebSocket keepalive timers and connection state
+  on the worker queue to avoid cross-thread access. (#16767, #16971)
+
 # 13.1.0
 - [fixed] Fixed a race where calling childByAutoId() concurrently from multiple
   threads could generate duplicate push IDs. (#16768)

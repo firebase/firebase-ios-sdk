@@ -23,6 +23,7 @@ on:
     - '.github/workflows/_cocoapods.cron.yml'
     # Rebuild on Ruby infrastructure changes
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
     # Specified in format 'minutes hours day month dayofweek'
@@ -37,7 +38,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: PerformanceUnit
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
@@ -63,7 +64,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebasePerformance
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
       #TODO: tests are not supported with Xcode 15 because the test spec depends on the iOS 8 GDCWebServer
       buildonly_platforms: iOS, tvOS
 

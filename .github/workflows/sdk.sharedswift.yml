@@ -12,6 +12,7 @@ on:
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
 
   schedule:
     # Run every day at 4am (PDT) / 7am (EDT) - cron uses UTC times

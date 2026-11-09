@@ -1,11 +1,16 @@
 # Unreleased
 - [fixed] Fixed an issue where Remote Config returns empty data after device
   restore if the app was opened once before upgrading to SDK ≥ 12.6.0 (#15764).
+
+# 13.2.0
 - [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).
   The copy now keeps the value's data and source. (#16804)
 - [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values
   that can't be converted to JSON, such as dates or data. These defaults are now skipped and
   an error is logged. (#16797)
+- [fixed] Remote Config real-time updates are no longer missed when an update
+  message is split across network reads or arrives in the same read as another
+  message. (#16793)
 - [fixed] `@RemoteConfigProperty` now uses the in-app default value, or its
   fallback value, after an activation removes its key, instead of keeping the
   previous remote value. (#16816)
