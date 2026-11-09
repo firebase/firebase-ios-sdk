@@ -113,6 +113,53 @@ class MFAResponseDecodingTests: RPCBaseTests {
     }
   }
 
+  /** @fn testMFAEnrollmentDecodesEnrolledAt
+      @brief The enrollment date of a second factor is decoded whether or not the timestamp has
+          fractional seconds. Protobuf timestamps in JSON have 0, 3, 6 or 9 fractional digits.
+   */
+  func testMFAEnrollmentDecodesEnrolledAt() throws {
+    // 2026-11-09T14:40:00Z
+    let enrollmentDate: TimeInterval = 1_794_235_200
+    let expectedEnrollmentDates: [(String, TimeInterval)] = [
+      ("2026-11-09T14:40:00Z", enrollmentDate),
+      ("2026-11-09T14:40:00.123Z", enrollmentDate + 0.123),
+      ("2026-11-09T14:40:00.123456Z", enrollmentDate + 0.123),
+      ("2026-11-09T14:40:00.123456789Z", enrollmentDate + 0.123),
+    ]
+    for (enrolledAt, expectedEnrollmentDate) in expectedEnrollmentDates {
+      let enrollment = AuthProtoMFAEnrollment(dictionary: [
+        "mfaEnrollmentId": "enrollment-id",
+        "enrolledAt": enrolledAt,
+      ])
+      let date = try XCTUnwrap(enrollment.enrolledAt, enrolledAt)
+      XCTAssertEqual(date.timeIntervalSince1970, expectedEnrollmentDate, accuracy: 0.001,
+                     enrolledAt)
+    }
+  }
+
+  /** @fn testMFAEnrollmentWithInvalidEnrolledAt
+      @brief An enrollment date that isn't an RFC 3339 timestamp is decoded as `nil`, and the rest
+          of the enrollment is still decoded.
+   */
+  func testMFAEnrollmentWithInvalidEnrolledAt() {
+    let enrolledAts: [AnyHashable] = [
+      "",
+      "not a date",
+      "2026-11-09", // No time.
+      "2026-11-09T14:40:00", // No time zone.
+      1_794_235_200, // Not a string.
+      NSNull(),
+    ]
+    for enrolledAt in enrolledAts {
+      let enrollment = AuthProtoMFAEnrollment(dictionary: [
+        "mfaEnrollmentId": "enrollment-id",
+        "enrolledAt": enrolledAt,
+      ])
+      XCTAssertEqual(enrollment.mfaEnrollmentID, "enrollment-id")
+      XCTAssertNil(enrollment.enrolledAt, "\(enrolledAt)")
+    }
+  }
+
   #if os(iOS) || os(macOS)
     private let kAppName = "test-MFAResponseDecodingTests"
     private var auth: Auth?
@@ -153,6 +200,23 @@ class MFAResponseDecodingTests: RPCBaseTests {
       let enrollments = mixedEnrollmentsJSON.map { AuthProtoMFAEnrollment(dictionary: $0) }
       let multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       XCTAssertEqual(multiFactor.enrolledFactors.map(\.uid), ["phone-id", "totp-id"])
+    }
+
+    /** @fn testMultiFactorInfoEnrollmentDateWithoutFractionalSeconds
+        @brief The enrollment date of a second factor is the server's timestamp when the timestamp
+            has no fractional seconds, instead of the time the factor was decoded.
+     */
+    func testMultiFactorInfoEnrollmentDateWithoutFractionalSeconds() throws {
+      let enrollment = AuthProtoMFAEnrollment(dictionary: [
+        "totpInfo": [String: AnyHashable](),
+        "mfaEnrollmentId": "totp-id",
+        "enrolledAt": "2023-01-01T00:00:00Z",
+      ])
+      let multiFactor = MultiFactor(withMFAEnrollments: [enrollment])
+      let enrolledFactor = try XCTUnwrap(multiFactor.enrolledFactors.first)
+      // 2023-01-01T00:00:00Z
+      XCTAssertEqual(enrolledFactor.enrollmentDate.timeIntervalSince1970, 1_672_531_200,
+                     accuracy: 0.001)
     }
 
     /** @fn testSecondFactorRequiredErrorSkipsHintsWithoutEnrollmentID
