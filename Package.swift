@@ -411,8 +411,8 @@ func packageTargets() -> [Target] {
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/13.0.1/FirebaseAnalytics.zip",
-      checksum: "0122046d46caca4795e3c71b56c68ad5549d892853815c028854f02e9fe14ed7"
+      url: "https://dl.google.com/firebase/ios/swiftpm/13.2.0/FirebaseAnalytics.zip",
+      checksum: "e916c5b1bf160b5c40a949e58261b13b5edc76c19f24b1eb2d675da1de63ad74"
     ),
     .testTarget(
       name: "AnalyticsSwiftUnit",
@@ -719,10 +719,6 @@ func packageTargets() -> [Target] {
       exclude: [
         "third_party/FirebaseDataEncoder/LICENSE",
         "third_party/FirebaseDataEncoder/METADATA",
-      ],
-      // TODO(ncooke3): Can this be upgraded to Swift 6?
-      swiftSettings: [
-        .swiftLanguageMode(SwiftLanguageMode.v5),
       ]
     ),
     .testTarget(
@@ -908,9 +904,6 @@ func packageTargets() -> [Target] {
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseMessaging/Tests/UnitTests",
-      exclude: [
-        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1481,7 +1474,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, "13.0.1" ..< "13.1.0")
+  return .package(url: appMeasurementURL, "13.2.0" ..< "13.3.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1855,12 +1848,18 @@ func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"
 
   if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
-    return .package(path: localPath)
+    // Pin the package name so a checkout in a directory not named `app-check` still resolves.
+    return .package(name: "app-check", path: localPath)
   }
 
   if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
     return .package(url: appCheckURL, branch: branch)
   }
 
-  return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
+  // Point SPM CI to the tip of main of https://github.com/google/app-check until 12.1.0 is tagged.
+  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+    return .package(url: appCheckURL, branch: "main")
+  }
+
+  return .package(url: appCheckURL, "12.1.0" ..< "13.0.0")
 }

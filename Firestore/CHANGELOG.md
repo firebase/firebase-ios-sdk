@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
 - [feature] Added support for window functions in Pipelines, with the `addWindowFields`
   stage for computing aggregates such as running totals and moving averages over

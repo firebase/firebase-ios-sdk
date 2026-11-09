@@ -246,17 +246,18 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
     return;
   }
 
-  if (keysAndValues.count == 0) {
-    FIRCLSSDKLogWarn("User provided empty key/value dictionary\n");
-    return;
-  }
-
   if (!FIRCLSIsValidPointer(keysAndValues)) {
     FIRCLSSDKLogWarn("User provided bad key/value dictionary\n");
     return;
   }
 
-  NSMutableDictionary *sanitizedKeysAndValues = [keysAndValues mutableCopy];
+  if (keysAndValues.count == 0) {
+    FIRCLSSDKLogWarn("User provided empty key/value dictionary\n");
+    return;
+  }
+
+  NSMutableDictionary *sanitizedKeysAndValues =
+      [NSMutableDictionary dictionaryWithCapacity:keysAndValues.count];
   BOOL containsNullValue = NO;
 
   for (NSString *key in keysAndValues) {
@@ -270,7 +271,7 @@ void FIRCLSUserLoggingRecordKeysAndValues(NSDictionary *keysAndValues,
     // ensure that any invalid pointer is actually set to nil
     if (!FIRCLSIsValidPointer(value) && value != nil) {
       FIRCLSSDKLogWarn("Bad value pointer being clamped to nil\n");
-      sanitizedKeysAndValues[key] = [NSNull null];
+      value = nil;
     }
 
     if ([value respondsToSelector:@selector(description)] && ![value isEqual:[NSNull null]]) {
@@ -424,9 +425,17 @@ void FIRCLSLog(NSString *format, ...) {
   NSString *msg = [[NSString alloc] initWithFormat:format arguments:args];
   va_end(args);
 
+  FIRCLSLogString(msg);
+}
+
+void FIRCLSLogString(NSString *message) {
+  if (!message) {
+    return;
+  }
+
   FIRCLSUserLoggingABStorage *currentStorage = &_firclsContext.readonly->logging.logStorage;
   const char **activePath = &_firclsContext.writable->logging.activeUserLogPath;
-  FIRCLSLogInternal(currentStorage, activePath, msg);
+  FIRCLSLogInternal(currentStorage, activePath, message);
 }
 
 void FIRCLSLogToStorage(FIRCLSUserLoggingABStorage *storage,

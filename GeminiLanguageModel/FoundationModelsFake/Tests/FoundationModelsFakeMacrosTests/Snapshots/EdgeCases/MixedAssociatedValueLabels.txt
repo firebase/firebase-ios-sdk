@@ -1,0 +1,170 @@
+enum Mixed {
+  case mix(Int, label: String, Double)
+  case labeledFirst(x: Int, String)
+
+    nonisolated enum PartiallyGenerated: nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        case mix(Int.PartiallyGenerated?, label: String.PartiallyGenerated?, Double.PartiallyGenerated?)
+        case labeledFirst(x: Int.PartiallyGenerated?, String.PartiallyGenerated?)
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            let type: String = try content.value(forProperty: "type")
+            switch type {
+            case "mix":
+                self = .mix(
+                    try content.value(forProperty: "value"),
+                    label: try content.value(forProperty: "label"),
+                    try content.value(forProperty: "value2")
+                )
+            case "labeledFirst":
+                self = .labeledFirst(
+                    x: try content.value(forProperty: "x"),
+                    try content.value(forProperty: "value1")
+                )
+            default:
+                throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+            }
+        }
+    }
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            anyOf: [
+                DiscriminatedMix.self,
+                DiscriminatedLabeledFirst.self
+            ]
+        )
+    }
+
+    private nonisolated struct DiscriminatedMix: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("mix"))
+        let type: String
+        let value: Int
+        let label: String
+        let value2: Double
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.value = try content.value(forProperty: "value")
+            self.label = try content.value(forProperty: "label")
+            self.value2 = try content.value(forProperty: "value2")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("mix")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int.self),
+                    FoundationModelsFake.GenerationSchema.Property(name: "label", type: String.self),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value2", type: Double.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "value", value: self.value)
+            addProperty(name: "label", value: self.label)
+            addProperty(name: "value2", value: self.value2)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    private nonisolated struct DiscriminatedLabeledFirst: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("labeledFirst"))
+        let type: String
+        let x: Int
+        let value1: String
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.x = try content.value(forProperty: "x")
+            self.value1 = try content.value(forProperty: "value1")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("labeledFirst")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "x", type: Int.self),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value1", type: String.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "x", value: self.x)
+            addProperty(name: "value1", value: self.value1)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        switch self {
+        case .mix(let value, let label, let value2):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "mix",
+                    "value": value,
+                    "label": label,
+                    "value2": value2
+                ]
+            )
+        case .labeledFirst(let x, let value1):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "labeledFirst",
+                    "x": x,
+                    "value1": value1
+                ]
+            )
+        }
+    }
+}
+
+extension Mixed: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let type: String = try content.value(forProperty: "type")
+        switch type {
+        case "mix":
+            self = .mix(
+                try content.value(forProperty: "value"),
+                label: try content.value(forProperty: "label"),
+                try content.value(forProperty: "value2")
+            )
+        case "labeledFirst":
+            self = .labeledFirst(
+                x: try content.value(forProperty: "x"),
+                try content.value(forProperty: "value1")
+            )
+        default:
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+        }
+    }
+}

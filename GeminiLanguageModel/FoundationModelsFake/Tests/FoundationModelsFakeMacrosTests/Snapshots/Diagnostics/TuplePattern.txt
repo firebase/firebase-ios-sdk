@@ -1,0 +1,48 @@
+struct Pair {
+  var (a, b): (Int, Int)
+  var c: Int
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "c", type: Int.self)
+            ]
+        )
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "c", value: self.c)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        var id: FoundationModelsFake.GenerationID
+        var c: Int.PartiallyGenerated?
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.c = try content.value(forProperty: "c")
+        }
+    }
+}
+
+extension Pair: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.c = try content.value(forProperty: "c")
+    }
+}

@@ -2,3 +2,5 @@
 .DS_Store
 *.xcodeproj
 DerivedData/
+# Commit the resolved versions; CI builds with --force-resolved-versions.
+!Package.resolved

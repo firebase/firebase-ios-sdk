@@ -1,0 +1,51 @@
+struct InternalThing: Hashable {
+  var id: String
+  var value: Int
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "id", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int.self)
+            ]
+        )
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "id", value: self.id)
+        addProperty(name: "value", value: self.value)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated struct PartiallyGenerated: nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Hashable {
+        var id: String.PartiallyGenerated?
+        var value: Int.PartiallyGenerated?
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = try content.value(forProperty: "id")
+            self.value = try content.value(forProperty: "value")
+        }
+    }
+}
+
+extension InternalThing: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.id = try content.value(forProperty: "id")
+        self.value = try content.value(forProperty: "value")
+    }
+}
