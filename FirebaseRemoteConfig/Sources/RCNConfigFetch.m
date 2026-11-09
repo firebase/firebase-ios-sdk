@@ -626,10 +626,13 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                     @"Empty response with no fetched config.");
       }
 
-      // We had a successful fetch. Update the current eTag in settings if different.
+      // We had a successful fetch. Update the current eTag in settings if different, or if the
+      // server sent a full UPDATE, so that activate applies the new values (#15764).
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      BOOL isUpdate = [fetchedConfig[RCNFetchResponseKeyState]
+          isEqualToString:RCNFetchResponseKeyStateUpdate];
       if (!strongSelf->_settings.lastETag ||
-          !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
+          !([strongSelf->_settings.lastETag isEqualToString:latestETag]) || isUpdate) {
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
@@ -720,7 +723,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
   // no fetched config locally (e.g. after a device restore the DB can be empty while
   // the ETag survives in user defaults), so the server returns the full template (#15764).
   NSDictionary *fetchedForNamespace = _content.fetchedConfig[_FIRNamespace];
-  if (_settings.lastETag && fetchedForNamespace.count > 0) {
+  if (_settings.lastETag && fetchedForNamespace != nil) {
     [URLRequest setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
   }
   [URLRequest setHTTPBody:content];

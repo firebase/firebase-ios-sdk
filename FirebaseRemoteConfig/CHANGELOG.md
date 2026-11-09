@@ -1,5 +1,6 @@
 # Unreleased
-- [fixed] Fixed an issue where Remote Config returns empty data after device restore if the app was opened once before upgrading to SDK ≥ 12.6.0 (#15764).
+- [fixed] Fixed an issue where Remote Config returns empty data after device
+  restore if the app was opened once before upgrading to SDK ≥ 12.6.0 (#15764).
 - [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).
   The copy now keeps the value's data and source. (#16804)
 - [fixed] Fixed a crash when an array or dictionary passed to `setDefaults` contains values

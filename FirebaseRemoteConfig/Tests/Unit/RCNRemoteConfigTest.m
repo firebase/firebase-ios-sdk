@@ -385,6 +385,58 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+// #15764: no if-none-match when there is no local fetched config; sent once config exists.
+- (void)testIfNoneMatchHeaderSkippedWhenFetchedConfigIsEmpty {
+  RCNConfigContent *content = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  RCNConfigFetch *fetch = [[RCNConfigFetch alloc] initWithContent:content
+                                                        DBManager:_DBManager
+                                                         settings:_settings
+                                                        analytics:nil
+                                                       experiment:_experimentMock
+                                                            queue:_queue
+                                                        namespace:_fullyQualifiedNamespace
+                                                          options:[self secondAppOptions]];
+  _settings.lastETag = @"etag1";
+  RCNConfigFetcherCompletion noop = ^(NSData *data, NSURLResponse *response, NSError *error) {
+  };
+
+  NSURLSessionDataTask *task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                                                    fetchTypeHeader:@"Base/1"
+                                                  completionHandler:noop];
+  XCTAssertNil([task.originalRequest valueForHTTPHeaderField:@"if-none-match"]);
+
+  [content updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @{@"k" : @"v"}}
+                              forNamespace:_fullyQualifiedNamespace];
+  task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                              fetchTypeHeader:@"Base/1"
+                            completionHandler:noop];
+  XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"], @"etag1");
+}
+
+// #15764: after a restore, activate already ran on the empty DB (applyTime > etagUpdateTime).
+// An UPDATE with the SAME etag must still be activated.
+- (void)testUpdateWithSameETagIsActivatedAfterRestore {
+  int i = RCNTestRCInstanceSecondApp;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"recovered after restore"];
+  _settings.lastETag = @"etag1-2";        // same etag the stubbed server returns
+  _settings.lastETagUpdateTime = 100;     // T1: restored from backup
+  _settings.lastApplyTimeInterval = 101;  // T2: activate already ran on the empty DB
+
+  [_configInstances[i]
+      fetchWithExpirationDuration:0
+                completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                  XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
+                  [self->_configInstances[i]
+                      activateWithCompletion:^(BOOL changed, NSError *activateError) {
+                        XCTAssertTrue(changed);
+                        XCTAssertEqualObjects(self->_configInstances[i][@"key1-2"].stringValue,
+                                              @"value1-2");
+                        [expectation fulfill];
+                      }];
+                }];
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 - (void)testFetchAndActivate {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
