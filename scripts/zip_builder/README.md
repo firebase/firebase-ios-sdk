@@ -242,8 +242,9 @@ are recreated by every build, so a build with nothing to compile leaves no archi
 
 - [`.github/workflows/infra.zip_builder.yml`](/.github/workflows/infra.zip_builder.yml): runs the tests, including the end-to-end build of the
   fixture package.
-- [`.github/workflows/infra.zip_diff.yml`](/.github/workflows/infra.zip_diff.yml): builds the zip from a pull request's base and merge
-  commits, and comments their `diff` on the pull request. Its steps are in
+- [`.github/workflows/infra.zip_diff.yml`](/.github/workflows/infra.zip_diff.yml): for pull requests that change the zip builder (its
+  sources, CI scripts or `zip_builder.jsonc`), builds the zip from the base and merge commits, and
+  comments their `diff` on the pull request. Its steps are in
   [`ci/zip_diff.sh`](ci/zip_diff.sh): each zip is built with its own commit's version, and the
   `diff` step writes the comment with `--format github-comment`, which the
   [`pr_comment`](/.github/actions/pr_comment) action posts.

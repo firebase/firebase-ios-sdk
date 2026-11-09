@@ -904,9 +904,6 @@ func packageTargets() -> [Target] {
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseMessaging/Tests/UnitTests",
-      exclude: [
-        "FIRMessagingContextManagerServiceTest.m", // TODO: Adapt its NSBundle usage to SPM.
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1851,12 +1848,18 @@ func appCheckDependency() -> Package.Dependency {
   let appCheckURL = "https://github.com/google/app-check.git"
 
   if let localPath = Context.environment["FIREBASE_APP_CHECK_LOCAL_PATH"] {
-    return .package(path: localPath)
+    // Pin the package name so a checkout in a directory not named `app-check` still resolves.
+    return .package(name: "app-check", path: localPath)
   }
 
   if let branch = Context.environment["FIREBASE_APP_CHECK_BRANCH"] {
     return .package(url: appCheckURL, branch: branch)
   }
 
-  return .package(url: appCheckURL, "12.0.0" ..< "13.0.0")
+  // Point SPM CI to the tip of main of https://github.com/google/app-check until 12.1.0 is tagged.
+  if Context.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
+    return .package(url: appCheckURL, branch: "main")
+  }
+
+  return .package(url: appCheckURL, "12.1.0" ..< "13.0.0")
 }

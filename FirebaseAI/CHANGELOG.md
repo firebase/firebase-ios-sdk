@@ -1,4 +1,4 @@
-# Unreleased
+# 13.2.0
 - [feature] `GeminiLanguageModel` now supports image input (the `vision`
   capability). Prompts can include image attachments created from a `CGImage`,
   a `CIImage`, a `CVPixelBuffer`, or a file URL; images from remote URLs aren't

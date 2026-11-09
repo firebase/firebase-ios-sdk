@@ -201,6 +201,46 @@ NSString* FIRCLSNSDataToNSString(NSData* data) {
   return string;
 }
 
+id FIRCLSCopyValue(id value) {
+  if (!FIRCLSIsValidPointer(value)) {
+    return nil;
+  }
+  if (value == [NSNull null]) {
+    return [NSNull null];
+  }
+  if ([value isKindOfClass:[NSString class]]) {
+    return [value copy];
+  }
+  if ([value respondsToSelector:@selector(description)]) {
+    return [[value description] copy];
+  }
+  return nil;
+}
+
+NSDictionary* FIRCLSCopyDictionary(NSDictionary* dictionary, BOOL mapNilValuesToNSNull) {
+  if (!FIRCLSIsValidPointer(dictionary)) {
+    return nil;
+  }
+  if (dictionary.count == 0) {
+    return @{};
+  }
+
+  NSMutableDictionary* copied = [NSMutableDictionary dictionaryWithCapacity:dictionary.count];
+  for (id key in dictionary) {
+    id copiedKey = FIRCLSCopyValue(key);
+    if (!copiedKey || copiedKey == [NSNull null]) {
+      continue;
+    }
+    id copiedValue = FIRCLSCopyValue(dictionary[key]);
+    if (copiedValue) {
+      copied[copiedKey] = copiedValue;
+    } else if (mapNilValuesToNSNull) {
+      copied[copiedKey] = [NSNull null];
+    }
+  }
+  return [copied copy];
+}
+
 void FIRCLSAddOperationAfter(float timeInSeconds, NSOperationQueue* queue, void (^block)(void)) {
   dispatch_queue_t afterQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
   FIRCLSDispatchAfter(timeInSeconds, afterQueue, ^{
