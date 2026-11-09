@@ -327,6 +327,31 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                         [defaultConfig[@"default_namespace"][@"new_date_key"] stringValue]);
 }
 
+/// Array and dictionary defaults that can't be serialized as JSON are skipped instead of raising.
+- (void)testCopyFromDictionarySkipsDefaultsThatAreNotValidJSON {
+  NSData *data = [@"value1" dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *namespaceToConfig = @{
+    @"default_namespace" : @{
+      @"string_key" : @"string_value",
+      @"array_key" : @[ @"value1", @2 ],
+      @"dictionary_key" : @{@"key1" : @"value1"},
+      @"array_with_date_key" : @[ [NSDate date] ],
+      @"dictionary_with_data_key" : @{@"key1" : data},
+    }
+  };
+  XCTAssertNoThrow([_configContent copyFromDictionary:namespaceToConfig
+                                             toSource:RCNDBSourceDefault
+                                         forNamespace:@"default_namespace"]);
+
+  NSDictionary *defaultConfig = _configContent.defaultConfig[@"default_namespace"];
+  XCTAssertEqual(defaultConfig.count, 3);
+  XCTAssertEqualObjects([defaultConfig[@"string_key"] stringValue], @"string_value");
+  XCTAssertEqualObjects([defaultConfig[@"array_key"] JSONValue], (@[ @"value1", @2 ]));
+  XCTAssertEqualObjects([defaultConfig[@"dictionary_key"] JSONValue], @{@"key1" : @"value1"});
+  XCTAssertNil(defaultConfig[@"array_with_date_key"]);
+  XCTAssertNil(defaultConfig[@"dictionary_with_data_key"]);
+}
+
 - (void)testCopyFromDictionaryUpdatesActiveConfig {
   // Active config values must be RCNConfigValue format
   NSDictionary *embeddedDictionary = @{@"active_embedded_key" : @"active_embedded_Value"};
@@ -865,6 +890,165 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                               [expectation fulfill];
                             }];
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+#pragma mark - Malformed server responses
+
+- (void)testUpdateConfigContentWithMalformedStateIsIgnored {
+  NSString *namespace = @"test_namespace";
+  NSArray *malformedStates = @[ @1, [NSNull null], @[ @"UPDATE" ], @{@"state" : @"UPDATE"} ];
+  for (id state in malformedStates) {
+    NSDictionary *response = @{RCNFetchResponseKeyState : state, @"entries" : @{@"key" : @"value"}};
+    XCTAssertNoThrow([_configContent updateConfigContentWithResponse:response
+                                                        forNamespace:namespace]);
+  }
+  XCTAssertNil(_configContent.fetchedConfig[namespace]);
+}
+
+- (void)testUpdateConfigContentWithMalformedEntriesKeepsValidValues {
+  NSString *namespace = @"test_namespace";
+
+  // Seed a valid value so the retention checks below are meaningful.
+  NSDictionary *seedResponse = [self createFetchResponseWithConfigEntries:@{@"valid" : @"value"}
+                                                             p13nMetadata:nil
+                                                          rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:seedResponse forNamespace:namespace];
+  XCTAssertEqual([_configContent.fetchedConfig[namespace] count], 1);
+
+  // A non-dictionary `entries` drops the whole update and leaves the stored values untouched.
+  NSArray *malformedEntries = @[ @"entries", @[ @"key", @"value" ], [NSNull null], @1 ];
+  for (id entries in malformedEntries) {
+    NSDictionary *response = @{
+      RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
+      RCNFetchResponseKeyEntries : entries
+    };
+    XCTAssertNoThrow([_configContent updateConfigContentWithResponse:response
+                                                        forNamespace:namespace]);
+    NSDictionary *fetchedConfig = _configContent.fetchedConfig[namespace];
+    XCTAssertEqual(fetchedConfig.count, 1);
+    XCTAssertEqualObjects([fetchedConfig[@"valid"] stringValue], @"value");
+  }
+
+  // A dictionary `entries` with some non-string values applies the update and skips only the
+  // invalid values.
+  NSDictionary *entries = @{
+    @"valid" : @"value2",
+    @"number" : @1,
+    @"null" : [NSNull null],
+    @"array" : @[ @"value" ],
+    @"dictionary" : @{@"key" : @"value"}
+  };
+  NSDictionary *response = [self createFetchResponseWithConfigEntries:entries
+                                                         p13nMetadata:nil
+                                                      rolloutMetadata:nil];
+  XCTAssertNoThrow([_configContent updateConfigContentWithResponse:response
+                                                      forNamespace:namespace]);
+  NSDictionary *fetchedConfig = _configContent.fetchedConfig[namespace];
+  XCTAssertEqual(fetchedConfig.count, 1);
+  XCTAssertEqualObjects([fetchedConfig[@"valid"] stringValue], @"value2");
+}
+
+- (void)testUpdateConfigContentWithMalformedMetadataDoesNotCrash {
+  NSString *namespace = @"test_namespace";
+  NSArray *malformedValues = @[ @"metadata", @1, [NSNull null] ];
+  for (id value in malformedValues) {
+    NSDictionary *response = @{
+      RCNFetchResponseKeyState : RCNFetchResponseKeyStateUpdate,
+      RCNFetchResponseKeyEntries : @{@"key" : @"value"},
+      RCNFetchResponseKeyPersonalizationMetadata : value,
+      RCNFetchResponseKeyRolloutMetadata : value
+    };
+    XCTAssertNoThrow([_configContent updateConfigContentWithResponse:response
+                                                        forNamespace:namespace]);
+
+    XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+    [_configContent
+        getConfigUpdateForNamespace:namespace
+                  completionHandler:^(FIRRemoteConfigUpdate *update) {
+                    XCTAssertEqualObjects([update updatedKeys], [NSSet setWithObject:@"key"]);
+                    [expectation fulfill];
+                  }];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+  }
+}
+
+- (void)testConfigUpdate_malformedP13nMetadataValue_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *key = @"key";
+  // Activate personalization metadata whose per-parameter value is not a dictionary.
+  NSMutableDictionary *fetchResponse =
+      [self createFetchResponseWithConfigEntries:nil
+                                    p13nMetadata:@{key : @"not a dictionary"}
+                                 rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+  [_configContent activatePersonalization];
+
+  fetchResponse = [self createFetchResponseWithConfigEntries:nil
+                                                p13nMetadata:@{key : @{@"choiceId" : @"id1"}}
+                                             rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent
+      getConfigUpdateForNamespace:namespace
+                completionHandler:^(FIRRemoteConfigUpdate *update) {
+                  XCTAssertEqualObjects([update updatedKeys], [NSSet setWithObject:key]);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testConfigUpdate_malformedRolloutMetadataEntriesAreSkipped {
+  NSString *namespace = @"test_namespace";
+  NSArray *rolloutMetadata = @[
+    @"not a dictionary", [NSNull null], @{
+      RCNFetchResponseKeyRolloutID : @1,
+      RCNFetchResponseKeyVariantID : @"A",
+      RCNFetchResponseKeyAffectedParameterKeys : @[ @"numberRolloutId" ]
+    },
+    @{
+      RCNFetchResponseKeyRolloutID : @"rollout_1",
+      RCNFetchResponseKeyVariantID : [NSNull null],
+      RCNFetchResponseKeyAffectedParameterKeys : @[ @"nullVariantId" ]
+    },
+    @{
+      RCNFetchResponseKeyRolloutID : @"rollout_1",
+      RCNFetchResponseKeyVariantID : @"A",
+      RCNFetchResponseKeyAffectedParameterKeys : @"stringKeys"
+    },
+    @{
+      RCNFetchResponseKeyRolloutID : @"rollout_2",
+      RCNFetchResponseKeyVariantID : @"B",
+      RCNFetchResponseKeyAffectedParameterKeys : @[ @"validKey", @2, [NSNull null] ]
+    }
+  ];
+  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:nil
+                                                                     p13nMetadata:nil
+                                                                  rolloutMetadata:rolloutMetadata];
+  XCTAssertNoThrow([_configContent updateConfigContentWithResponse:fetchResponse
+                                                      forNamespace:namespace]);
+
+  XCTestExpectation *expectation = [self expectationWithDescription:NSStringFromSelector(_cmd)];
+  [_configContent
+      getConfigUpdateForNamespace:namespace
+                completionHandler:^(FIRRemoteConfigUpdate *update) {
+                  XCTAssertEqualObjects([update updatedKeys], [NSSet setWithObject:@"validKey"]);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testExperimentsWithNonStringAffectedKeysOnlyReturnStringKeys {
+  NSDictionary *experiment = @{
+    @"experimentId" : @"exp_1",
+    @"variantId" : @"1",
+    @"affectedParameterKeys" : @[ @"validKey", @1, [NSNull null], @{} ]
+  };
+  NSData *payload = [NSJSONSerialization dataWithJSONObject:experiment options:0 error:nil];
+  NSMutableSet<NSString *> *changedKeys =
+      [_configContent getKeysAffectedByChangedExperiments:[NSMutableArray array]
+                                fetchedExperimentPayloads:[@[ payload ] mutableCopy]];
+  XCTAssertEqualObjects(changedKeys, [NSSet setWithObject:@"validKey"]);
 }
 
 #pragma mark - Test Helpers

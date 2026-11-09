@@ -15,16 +15,15 @@ on:
         required: true
 
       # The platforms to build on. Defaults to all.
-      # To target specific platforms, pass a comma or space separated string of
-      # platforms.
+      # To target specific platforms, pass a JSON array of platforms.
       #
       # Examples:
-      # - build/test only for macOS: `macOS`
-      # - build/test only for macOS and tvOS: `macOS, tvOS`
+      # - build/test only for macOS: `'["macOS"]'`
+      # - build/test only for macOS and tvOS: `'["macOS", "tvOS"]'`
       platforms:
         type: string
         required: false
-        default: "iOS, tvOS, macOS, watchOS, catalyst, visionOS"
+        default: '["iOS", "tvOS", "macOS", "watchOS", "catalyst", "visionOS"]'
 
       # By default, all platforms will be tested (see matrix in `spm` job).
       # To build instead of test, pass a comma or space separated string of
@@ -134,7 +133,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-15, macos-26, xcode-27]
-        platform: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+        platform: ${{ fromJSON(inputs.platforms) }}
         include:
           - os: macos-15
             xcode: Xcode_26.2
@@ -187,7 +186,6 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
-      if: contains(inputs.platforms, matrix.platform)
       env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
         TARGET: ${{ inputs.target }}

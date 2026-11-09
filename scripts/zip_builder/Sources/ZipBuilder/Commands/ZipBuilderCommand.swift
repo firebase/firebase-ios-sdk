@@ -1,0 +1,28 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import ArgumentParser
+
+/// Builds a release zip of `.xcframework`s from a Swift package (see docs/how-it-works.md).
+@main
+struct ZipBuilderCommand: AsyncParsableCommand {
+  static let configuration = CommandConfiguration(
+    commandName: "zip-builder",
+    abstract: "Build a release zip of .xcframeworks from a Swift package.",
+    subcommands: [PlanCommand.self, ProjectCommand.self, BuildCommand.self, PackageCommand.self,
+                  ReleaseCommand.self, VerifyCommand.self, DiffCommand.self]
+  )
+}

@@ -20,28 +20,33 @@
 
 #import "FIRAuthApiTestsBase.h"
 
-/** The testing email address for testCreateAccountWithEmailAndPassword. */
-static NSString *const kOldUserEmail = @"user+user_old_email@example.com";
-
-/** The testing email address for testUpdatingUsersEmail. */
-static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
-
 @interface AccountInfoTests : FIRAuthApiTestsBase
-
 @end
 
-@implementation AccountInfoTests
+@implementation AccountInfoTests {
+  NSString *_oldUserEmail;
+}
 
 - (void)setUp {
+  [super setUp];
+  SKIP_IF_ON_MOBILE_HARNESS
+  _oldUserEmail = [self fakeRandomEmail];
   XCTestExpectation *expectation = [self expectationWithDescription:@"setup old email expectation"];
   FIRAuth *auth = [FIRAuth auth];
-  [auth createUserWithEmail:kOldUserEmail
+  [auth createUserWithEmail:_oldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {
-                   // Succeed whether or not the user already exists.
+                   XCTAssertNil(error);
                    [expectation fulfill];
                  }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+}
+
+- (void)tearDown {
+  if (_oldUserEmail && [[FIRAuth auth].currentUser.email isEqualToString:_oldUserEmail]) {
+    [self deleteCurrentUser];
+  }
+  [super tearDown];
 }
 
 - (void)testUpdatingUsersEmailAlreadyInUse {
@@ -53,7 +58,7 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Created account with email and password."];
-  [auth createUserWithEmail:kOldUserEmail
+  [auth createUserWithEmail:_oldUserEmail
                    password:@"password"
                  completion:^(FIRAuthDataResult *user, NSError *error) {
                    XCTAssertEqual(error.code, FIRAuthErrorCodeEmailAlreadyInUse);
