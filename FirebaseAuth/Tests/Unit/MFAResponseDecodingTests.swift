@@ -129,5 +129,41 @@ class MFAResponseDecodingTests: RPCBaseTests {
         XCTAssertEqual(resolver.hints.map(\.uid), ["phone-id", "totp-id"])
       }
     }
+
+    /** @fn testGenerateSecretExposesTOTPEnrollmentParameters
+        @brief The secret from `TOTPMultiFactorGenerator.generateSecret(with:)` exposes the hashing
+            algorithm, code length, code interval and enrollment deadline from the response.
+     */
+    func testGenerateSecretExposesTOTPEnrollmentParameters() async throws {
+      let auth = try XCTUnwrap(auth)
+      let tokenService = SecureTokenService(withRequestConfiguration: nil,
+                                            accessToken: RPCBaseTests.kFakeAccessToken,
+                                            accessTokenExpirationDate: Date.distantFuture,
+                                            refreshToken: kRefreshToken)
+      let user = User(withTokenService: tokenService, backend: authBackend)
+      user.auth = auth
+      rpcIssuer.respondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is StartMFAEnrollmentRequest)
+        return try self.rpcIssuer.respond(withJSON: [
+          "totpSessionInfo": [
+            "sharedSecretKey": "SECRET",
+            "verificationCodeLength": 6,
+            "hashingAlgorithm": "SHA1",
+            "periodSec": 30,
+            "sessionInfo": "SESSION",
+            "finalizeEnrollmentTime": "2026-11-09T14:40:00.123456Z",
+          ] as [String: AnyHashable],
+        ])
+      }
+      let session = MultiFactorSession.session(for: user)
+      let secret = try await TOTPMultiFactorGenerator.generateSecret(with: session)
+      XCTAssertEqual(secret.sharedSecretKey(), "SECRET")
+      XCTAssertEqual(secret.hashingAlgorithm, "SHA1")
+      XCTAssertEqual(secret.codeLength, 6)
+      XCTAssertEqual(secret.codeIntervalSeconds, 30)
+      // 2026-11-09T14:40:00.123456Z, to the millisecond.
+      let deadline = try XCTUnwrap(secret.enrollmentCompletionDeadline)
+      XCTAssertEqual(deadline.timeIntervalSince1970, 1_794_235_200.123, accuracy: 0.001)
+    }
   #endif
 }
