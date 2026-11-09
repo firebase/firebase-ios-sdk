@@ -44,7 +44,7 @@ class MFAResponseDecodingTests: RPCBaseTests {
 
   /** @fn testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime
       @brief The TOTP enrollment deadline is decoded whether or not the timestamp has fractional
-          seconds.
+          seconds. Protobuf timestamps in JSON have 0, 3, 6 or 9 fractional digits.
    */
   func testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime() throws {
     // 2026-11-09T14:40:00Z
@@ -53,6 +53,7 @@ class MFAResponseDecodingTests: RPCBaseTests {
       ("2026-11-09T14:40:00Z", deadline),
       ("2026-11-09T14:40:00.123Z", deadline + 0.123),
       ("2026-11-09T14:40:00.123456Z", deadline + 0.123),
+      ("2026-11-09T14:40:00.123456789Z", deadline + 0.123),
     ]
     for (finalizeEnrollmentTime, expectedDeadline) in expectedDeadlines {
       let response = try StartMFAEnrollmentResponse(dictionary: [
@@ -65,6 +66,32 @@ class MFAResponseDecodingTests: RPCBaseTests {
       let date = try XCTUnwrap(totpSessionInfo.finalizeEnrollmentTime, finalizeEnrollmentTime)
       XCTAssertEqual(date.timeIntervalSince1970, expectedDeadline, accuracy: 0.001,
                      finalizeEnrollmentTime)
+    }
+  }
+
+  /** @fn testStartMFAEnrollmentResponseWithInvalidFinalizeEnrollmentTime
+      @brief A TOTP enrollment deadline that isn't an RFC 3339 timestamp is decoded as `nil`, and
+          the rest of the TOTP session info is still decoded.
+   */
+  func testStartMFAEnrollmentResponseWithInvalidFinalizeEnrollmentTime() throws {
+    let finalizeEnrollmentTimes: [AnyHashable] = [
+      "",
+      "not a date",
+      "2026-11-09", // No time.
+      "2026-11-09T14:40:00", // No time zone.
+      1_794_235_200, // Not a string.
+      NSNull(),
+    ]
+    for finalizeEnrollmentTime in finalizeEnrollmentTimes {
+      let response = try StartMFAEnrollmentResponse(dictionary: [
+        "totpSessionInfo": [
+          "sharedSecretKey": "SECRET",
+          "finalizeEnrollmentTime": finalizeEnrollmentTime,
+        ] as [String: AnyHashable],
+      ])
+      let totpSessionInfo = try XCTUnwrap(response.totpSessionInfo)
+      XCTAssertEqual(totpSessionInfo.sharedSecretKey, "SECRET")
+      XCTAssertNil(totpSessionInfo.finalizeEnrollmentTime, "\(finalizeEnrollmentTime)")
     }
   }
 
