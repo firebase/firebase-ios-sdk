@@ -33,20 +33,6 @@ struct AuthProtoStartMFATOTPEnrollmentResponseInfo {
     hashingAlgorithm = dictionary["hashingAlgorithm"] as? String
     periodSec = dictionary["periodSec"] as? Int ?? 0
     sessionInfo = dictionary["sessionInfo"] as? String
-    if let finalizeEnrollmentTime = dictionary["finalizeEnrollmentTime"] as? String {
-      // The POSIX locale also selects the Gregorian calendar, so the year doesn't depend on the
-      // device's settings. RFC 3339 timestamps may omit the fractional seconds.
-      let dateFormatter = DateFormatter()
-      dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-      if let date = dateFormatter.date(from: finalizeEnrollmentTime) {
-        self.finalizeEnrollmentTime = date
-      } else {
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        self.finalizeEnrollmentTime = dateFormatter.date(from: finalizeEnrollmentTime)
-      }
-    } else {
-      finalizeEnrollmentTime = nil
-    }
+    finalizeEnrollmentTime = AuthProtoTimestamp.date(from: dictionary["finalizeEnrollmentTime"])
   }
 }
