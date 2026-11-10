@@ -20,17 +20,25 @@ import Testing
 import AVFoundation
 @testable import struct FirebaseAILogic.APIConfig
 
+// Each test has a `timeLimit(_:)` so a hung test fails instead of stalling the CI job. The trait
+// can't be applied to the suite because it requires iOS 16, which is newer than the deployment
+// target, and suites can't be marked `@available`.
 @Suite(.serialized)
 struct LiveSessionTests {
+  /// Arguments for running a test against each supported Live model on each backend.
+  ///
+  /// Gemini 2.5 Live models will be removed after they're retired.
   private static let arguments = InstanceConfig.liveConfigs.flatMap { config in
     switch config.apiConfig.service {
     case .agentPlatform:
       [
         (config, ModelNames.gemini2_5_FlashLive),
+        (config, ModelNames.gemini3_8_Live),
       ]
     case .googleAI:
       [
         (config, ModelNames.gemini2_5_FlashLivePreview),
+        (config, ModelNames.gemini3_8_Live),
       ]
     }
   }
@@ -42,6 +50,12 @@ struct LiveSessionTests {
   }
 
   private let oneSecondInNanoseconds = UInt64(1e+9)
+
+  /// Silence to send after speech so that automatic activity detection signals the end of it.
+  ///
+  /// The model doesn't respond until it detects the end of the user's speech. With the default
+  /// configuration, Gemini 3.x Live models require more than one second of silence for that.
+  private let endOfSpeechSilence = generateRawPCMSilence(duration: 3)
   private let tools: [GenerativeModel.Tool] = [
     .functionDeclarations([
       FunctionDeclaration(
@@ -123,9 +137,18 @@ struct LiveSessionTests {
       If you don't receive a video, send "Test is broken, I didn't receive a video.".
       """.trimmingCharacters(in: .whitespacesAndNewlines)
     )
+
+    /// Makes the model's response long enough to be interrupted.
+    static let countSlowly = ModelContent(
+      role: "system",
+      parts: """
+      Whenever you hear someone speak, slowly count out loud from one to twenty.
+      """.trimmingCharacters(in: .whitespacesAndNewlines)
+    )
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -134,30 +157,29 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.helloGoodbye
     )
 
-    let session = try await model.connect()
+    try await model.withSession { session in
+      let audioFile = try #require(
+        NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+      )
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(endOfSpeechSilence)
 
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
-    await session.sendAudioRealtime(audioFile.data)
-    // The model can't infer that we're done speaking until we send null bytes
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "goodbye")
+      #expect(modelResponse == "goodbye")
+    }
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func sendVideoRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -166,43 +188,45 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.animalInVideo
     )
 
-    let session = try await model.connect()
-    guard let videoFile = NSDataAsset(name: "cat") else {
-      Issue.record("Missing video file 'cat' in Assets")
-      return
+    try await model.withSession { session in
+      guard let videoFile = NSDataAsset(name: "cat") else {
+        Issue.record("Missing video file 'cat' in Assets")
+        return
+      }
+
+      let frames = try await videoFile.videoFrames()
+      for frame in frames {
+        await session.sendVideoRealtime(frame, mimeType: "image/png")
+      }
+
+      // the model doesn't respond unless we send some audio too
+      // vertex also responds if you send text, but google ai doesn't
+      // (they both respond with audio though)
+      guard let audioFile = NSDataAsset(name: "hello") else {
+        Issue.record("Missing audio file 'hello.wav' in Assets")
+        return
+      }
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(endOfSpeechSilence)
+
+      // Responses to video input can take longer than the default timeout.
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(timeout: 10),
+        "Model did not respond in time with a non empty response"
+      )
+
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
+
+      // model response varies
+      #expect(["kitten", "cat", "kitty"].contains(modelResponse))
     }
-
-    let frames = try await videoFile.videoFrames()
-    for frame in frames {
-      await session.sendVideoRealtime(frame, mimeType: "image/png")
-    }
-
-    // the model doesn't respond unless we send some audio too
-    // vertex also responds if you send text, but google ai doesn't
-    // (they both respond with audio though)
-    guard let audioFile = NSDataAsset(name: "hello") else {
-      Issue.record("Missing audio file 'hello.wav' in Assets")
-      return
-    }
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
-
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    // model response varies
-    #expect(["kitten", "cat", "kitty"].contains(modelResponse))
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -211,44 +235,45 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.lastNames
     )
 
-    let session = try await model.connect()
-    await session.sendTextRealtime("Alex")
+    try await model.withSession { session in
+      await session.sendTextRealtime("Alex")
 
-    guard let toolCall = try await session.collectNextToolCall() else {
-      return
+      guard let toolCall = try await session.collectNextToolCall() else {
+        return
+      }
+
+      let functionCalls = try #require(toolCall.functionCalls)
+
+      #expect(functionCalls.count == 1)
+      let functionCall = try #require(functionCalls.first)
+
+      #expect(functionCall.name == "getLastName")
+      guard let response = getLastName(args: functionCall.args) else {
+        return
+      }
+      await session.sendFunctionResponses([
+        FunctionResponsePart(
+          name: functionCall.name,
+          response: ["lastName": .string(response)],
+          functionId: functionCall.functionId
+        ),
+      ])
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
+
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
+
+      #expect(modelResponse == "smith")
     }
-
-    let functionCalls = try #require(toolCall.functionCalls)
-
-    #expect(functionCalls.count == 1)
-    let functionCall = try #require(functionCalls.first)
-
-    #expect(functionCall.name == "getLastName")
-    guard let response = getLastName(args: functionCall.args) else {
-      return
-    }
-    await session.sendFunctionResponses([
-      FunctionResponsePart(
-        name: functionCall.name,
-        response: ["lastName": .string(response)],
-        functionId: functionCall.functionId
-      ),
-    ])
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
-
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "smith")
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_manual_sessionResumption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -256,28 +281,28 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.nameTracker
     )
 
-    var session = try await model.connect(
+    let newHandle = try await model.withSession(
       sessionResumption: SessionResumptionConfig()
-    )
-
-    await session.sendTextRealtime("My name is Alex.")
-
-    guard let newHandle = try await session.collectNextSessionHandle() else {
+    ) { session in
+      await session.sendTextRealtime("My name is Alex.")
+      return try await session.collectNextSessionHandle()
+    }
+    guard let newHandle else {
       return
     }
 
-    session = try await model.connect(
+    // `withSession` ensures the session is closed before attempting to resume.
+    let text = try await model.withSession(
       sessionResumption: SessionResumptionConfig(handle: newHandle)
-    )
+    ) { session in
+      await session.sendTextRealtime("What is my name?")
 
-    await session.sendTextRealtime("What is my name?")
+      return try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
+    }
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
-
-    await session.close()
     let modelResponse = text
       .trimmingCharacters(in: .whitespacesAndNewlines)
       .trimmingCharacters(in: .punctuationCharacters)
@@ -286,7 +311,8 @@ struct LiveSessionTests {
     #expect(modelResponse == "alex")
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   // baseline test to ensure the model isn't retaining context automatically; which would invalidate
   // our other sessionResumption tests
   func realtime_sessionResumption_disabled(_ config: InstanceConfig,
@@ -297,25 +323,25 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.nameTracker
     )
 
-    var session = try await model.connect(
-      sessionResumption: SessionResumptionConfig()
-    )
-
-    await session.sendTextRealtime("My name is Alex.")
+    try await model.withSession(sessionResumption: SessionResumptionConfig()) { session in
+      await session.sendTextRealtime("My name is Alex.")
+      // Wait until the server has processed the message before closing the session; otherwise
+      // the message might never be sent, and the test would pass without proving anything.
+      _ = try await session.collectNextSessionHandle()
+    }
 
     // re-connect without specifying the new handle (so it should be a new session)
-    session = try await model.connect(
+    let text = try await model.withSession(
       sessionResumption: SessionResumptionConfig()
-    )
+    ) { session in
+      await session.sendTextRealtime("What is my name?")
 
-    await session.sendTextRealtime("What is my name?")
+      return try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
+    }
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
-
-    await session.close()
     let modelResponse = text
       .trimmingCharacters(in: .whitespacesAndNewlines)
       .trimmingCharacters(in: .punctuationCharacters)
@@ -325,7 +351,8 @@ struct LiveSessionTests {
     #expect(modelResponse == "michael")
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_resumeSession(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -333,27 +360,34 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.nameTracker
     )
 
-    let session = try await model.connect(
+    let text = try await model.withSession(
       sessionResumption: SessionResumptionConfig()
-    )
+    ) { session -> String? in
+      await session.sendTextRealtime("My name is Alex.")
 
-    await session.sendTextRealtime("My name is Alex.")
+      guard let newHandle = try await session.collectNextSessionHandle() else {
+        return nil
+      }
 
-    guard let newHandle = try await session.collectNextSessionHandle() else {
+      await session.close()
+      try await session.resumeSession(
+        sessionResumption: SessionResumptionConfig(handle: newHandle)
+      )
+
+      await session.sendTextRealtime("What is my name?")
+
+      // Unwrap before returning; returning `#require` directly from a `String?` closure would
+      // make it check a `String??`, which is never `nil`.
+      let transcript = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
+      return transcript
+    }
+    guard let text else {
       return
     }
 
-    await session.close()
-    try await session.resumeSession(sessionResumption: SessionResumptionConfig(handle: newHandle))
-
-    await session.sendTextRealtime("What is my name?")
-
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
-
-    await session.close()
     let modelResponse = text
       .trimmingCharacters(in: .whitespacesAndNewlines)
       .trimmingCharacters(in: .punctuationCharacters)
@@ -362,14 +396,17 @@ struct LiveSessionTests {
     #expect(modelResponse == "alex")
   }
 
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
   @Test(
-    arguments: arguments.filter {
-      // TODO: (b/450982184) Remove when Vertex AI adds support for Function IDs and Cancellation
-      switch $0.0.apiConfig.service {
+    .timeLimit(.minutes(1)),
+    arguments: arguments.filter { config, modelName in
+      switch config.apiConfig.service {
       case .googleAI:
         true
       case .agentPlatform:
-        false
+        // TODO: (b/450982184) Remove when Agent Platform adds support for Function IDs and
+        // Cancellation in Gemini 2.5 Live models.
+        modelName != ModelNames.gemini2_5_FlashLive
       }
     }
   )
@@ -382,35 +419,53 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.lastNames
     )
 
-    let session = try await model.connect()
-    await session.sendTextRealtime("Alex")
+    try await model.withSession { session in
+      await session.sendTextRealtime("Alex")
 
-    guard let toolCall = try await session.collectNextToolCall() else {
-      return
+      guard let toolCall = try await session.collectNextToolCall() else {
+        return
+      }
+
+      let functionCalls = try #require(toolCall.functionCalls)
+
+      #expect(functionCalls.count == 1)
+      let functionCall = try #require(functionCalls.first)
+      let id = try #require(functionCall.functionId)
+
+      await session.sendTextRealtime("Actually, I don't care about the last name of Alex anymore.")
+
+      // TODO: Remove the known issue once the SDK supports `FunctionDeclaration.behavior`, and test
+      // a `BLOCKING` function on Gemini 3.8 Live instead. Gemini 3.8 Live calls functions with
+      // `NON_BLOCKING` behavior by default, and only cancels `BLOCKING` calls automatically.
+      try await withKnownIssue("Gemini 3.8 Live doesn't cancel non-blocking function calls") {
+        // Without a timeout, this test would hang if the model never cancels the function call.
+        let cancellation = try await withTimeout(seconds: 10) {
+          () -> LiveServerToolCallCancellation? in
+          for try await cancellation in session.responsesOf(LiveServerToolCallCancellation.self) {
+            return cancellation
+          }
+          return nil
+        } ?? nil
+
+        let cancelledCall = try #require(
+          cancellation,
+          "Model did not cancel the function call in time"
+        )
+        #expect(cancelledCall.ids == [id])
+      } when: {
+        modelName == ModelNames.gemini3_8_Live
+      }
     }
-
-    let functionCalls = try #require(toolCall.functionCalls)
-
-    #expect(functionCalls.count == 1)
-    let functionCall = try #require(functionCalls.first)
-    let id = try #require(functionCall.functionId)
-
-    await session.sendTextRealtime("Actually, I don't care about the last name of Alex anymore.")
-
-    for try await cancellation in session.responsesOf(LiveServerToolCallCancellation.self) {
-      #expect(cancellation.ids == [id])
-      break
-    }
-
-    await session.close()
   }
 
-  @Test(arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens })
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens })
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
-      generationConfig: generationConfig
+      generationConfig: generationConfig,
+      systemInstruction: SystemInstructions.countSlowly
     )
 
     let audioFile = try #require(
@@ -418,28 +473,30 @@ struct LiveSessionTests {
     )
 
     try await retry(times: 3, delayInSeconds: 2.0) {
-      let session = try await model.connect()
-      await session.sendAudioRealtime(audioFile.data)
-      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+      try await model.withSession { session in
+        await session.sendAudioRealtime(audioFile.data)
+        await session.sendAudioRealtime(endOfSpeechSilence)
 
-      // Wait a second to allow the model to start generating (and cause a proper interruption)
-      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
-      await session.sendAudioRealtime(audioFile.data)
-      await session.sendAudioRealtime(Data(repeating: 0, count: audioFile.data.count))
+        // Wait a second to allow the model to start generating (and cause a proper interruption)
+        try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+        await session.sendAudioRealtime(audioFile.data)
+        await session.sendAudioRealtime(endOfSpeechSilence)
 
-      for try await content in session.responsesOf(LiveServerContent.self) {
-        if content.wasInterrupted {
-          break
-        }
+        for try await content in session.responsesOf(LiveServerContent.self) {
+          if content.wasInterrupted {
+            break
+          }
 
-        if content.isTurnComplete {
-          throw NoInterruptionError()
+          if content.isTurnComplete {
+            throw NoInterruptionError()
+          }
         }
       }
     }
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -447,25 +504,26 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.yesOrNo
     )
 
-    let session = try await model.connect()
-    await session.sendContent("Does five plus")
-    await session.sendContent(" five equal ten?", turnComplete: true)
+    try await model.withSession { session in
+      await session.sendContent("Does five plus")
+      await session.sendContent(" five equal ten?", turnComplete: true)
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    #expect(modelResponse == "yes")
+      #expect(modelResponse == "yes")
+    }
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_speechConfig(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -477,22 +535,21 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.yesOrNo
     )
 
-    let session = try await model.connect()
+    try await model.withSession { session in
+      await session.sendTextRealtime("does five plus five equal ten?")
 
-    await session.sendTextRealtime("does five plus five equal ten?")
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "yes")
+      #expect(modelResponse == "yes")
+    }
   }
 
   private func getLastName(args: JSONObject) -> String? {
@@ -510,7 +567,8 @@ struct LiveSessionTests {
     }
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_automaticActivityDetection_disabled(_ config: InstanceConfig,
                                                     modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -525,40 +583,47 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.helloCount
     )
 
-    let session = try await model.connect()
+    try await model.withSession { session in
+      let audioFile = try #require(
+        NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+      )
+      let silentData = generateRawPCMSilence(duration: 1)
 
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
-    let silentData = generateRawPCMSilence(duration: 1)
+      await session.sendStartActivityRealtime()
 
-    await session.sendStartActivityRealtime()
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(silentData)
 
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(silentData)
+      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
 
-    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(silentData)
 
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(silentData)
+      await session.sendStopActivityRealtime()
 
-    await session.sendStopActivityRealtime()
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "2")
+      // TODO: Investigate why Gemini 3.8 Live sometimes counts more than two "Hello"s when automatic
+      // activity detection is disabled, then remove the known issue.
+      withKnownIssue("Gemini 3.8 Live miscounts the number of times it hears Hello",
+                     isIntermittent: true) {
+        #expect(modelResponse == "2")
+      } when: {
+        modelName == ModelNames.gemini3_8_Live
+      }
+    }
   }
 
-  @Test(arguments: arguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_automaticActivityDetection_enabled(_ config: InstanceConfig,
                                                    modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -576,37 +641,37 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.helloCount
     )
 
-    let session = try await model.connect()
+    try await model.withSession { session in
+      let audioFile = try #require(
+        NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+      )
 
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
+      let silentData = generateRawPCMSilence(duration: 1)
 
-    let silentData = generateRawPCMSilence(duration: 1)
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(silentData)
 
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(silentData)
+      try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
 
-    try await Task.sleep(nanoseconds: oneSecondInNanoseconds)
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(silentData)
 
-    await session.sendAudioRealtime(audioFile.data)
-    await session.sendAudioRealtime(silentData)
+      let text = try #require(
+        try await session.tryCollectNextValidAudioOutputTranscript(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    let text = try #require(
-      try await session.tryCollectNextValidAudioOutputTranscript(),
-      "Model did not respond in time with a non empty response"
-    )
+      let modelResponse = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    await session.close()
-    let modelResponse = text
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
-
-    #expect(modelResponse == "1")
+      #expect(modelResponse == "1")
+    }
   }
 
-  @Test(arguments: voiceActivityArguments)
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @Test(.timeLimit(.minutes(1)), arguments: voiceActivityArguments)
   func realtime_voiceActivity(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
       modelName: modelName,
@@ -614,44 +679,67 @@ struct LiveSessionTests {
       systemInstruction: SystemInstructions.helloGoodbye
     )
 
-    let session = try await model.connect()
+    try await model.withSession { session in
+      let audioFile = try #require(
+        NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
+      )
+      await session.sendAudioRealtime(audioFile.data)
+      await session.sendAudioRealtime(endOfSpeechSilence)
 
-    let audioFile = try #require(
-      NSDataAsset(name: "hello"), "Missing audio file 'hello.wav' in Assets"
-    )
-    await session.sendAudioRealtime(audioFile.data)
-    // Automatic activity detection only signals the end of speech after enough silence; with the
-    // default configuration, Gemini 3.x Live models require more than one second of it.
-    await session.sendAudioRealtime(generateRawPCMSilence(duration: 3))
+      let turn = try #require(
+        try await session.tryCollectNextTurnWithVoiceActivity(),
+        "Model did not respond in time with a non empty response"
+      )
 
-    let turn = try #require(
-      try await session.tryCollectNextTurnWithVoiceActivity(),
-      "Model did not respond in time with a non empty response"
-    )
 
-    await session.close()
+      // The server should signal both the start and the end of the user's speech.
+      let receivedTypes = turn.voiceActivities.map(\.type)
+      let activityStart = try #require(
+        turn.voiceActivities.first { $0.type == .start },
+        "Missing ACTIVITY_START voice activity; received: \(receivedTypes)"
+      )
+      let activityEnd = try #require(
+        turn.voiceActivities.first { $0.type == .end },
+        "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
+      )
+      #expect(activityStart.audioOffset >= 0)
+      #expect(activityEnd.audioOffset >= activityStart.audioOffset)
 
-    // The server should signal both the start and the end of the user's speech.
-    let receivedTypes = turn.voiceActivities.map(\.type)
-    let activityStart = try #require(
-      turn.voiceActivities.first { $0.type == .start },
-      "Missing ACTIVITY_START voice activity; received: \(receivedTypes)"
-    )
-    let activityEnd = try #require(
-      turn.voiceActivities.first { $0.type == .end },
-      "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
-    )
-    #expect(activityStart.audioOffset >= 0)
-    #expect(activityEnd.audioOffset >= activityStart.audioOffset)
+      // Voice activity messages must not terminate the `responses` stream; the model's response to
+      // the audio should still be received after them.
+      let modelResponse = turn.transcript
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .trimmingCharacters(in: .punctuationCharacters)
+        .lowercased()
 
-    // Voice activity messages must not terminate the `responses` stream; the model's response to
-    // the audio should still be received after them.
-    let modelResponse = turn.transcript
-      .trimmingCharacters(in: .whitespacesAndNewlines)
-      .trimmingCharacters(in: .punctuationCharacters)
-      .lowercased()
+      #expect(modelResponse == "goodbye")
+    }
+  }
+}
 
-    #expect(modelResponse == "goodbye")
+private extension LiveGenerativeModel {
+  /// Starts a ``LiveSession``, passes it to `body`, and closes it when `body` returns or throws.
+  ///
+  /// Use this instead of ``connect(sessionResumption:)`` so that a failing test, such as one that
+  /// fails a `#require` expectation, doesn't leave its session connected. Open sessions count
+  /// toward the backend's concurrent session quota, which can cause other tests to fail.
+  ///
+  /// - Parameters:
+  ///   - sessionResumption: Optional configuration for session resumption.
+  ///   - body: A closure that uses the connected session.
+  /// - Returns: The value returned by `body`.
+  /// - Throws: Any error thrown while connecting, or by `body`.
+  func withSession<T>(sessionResumption: SessionResumptionConfig? = nil,
+                      _ body: (LiveSession) async throws -> T) async throws -> T {
+    let session = try await connect(sessionResumption: sessionResumption)
+    do {
+      let result = try await body(session)
+      await session.close()
+      return result
+    } catch {
+      await session.close()
+      throw error
+    }
   }
 }
 
