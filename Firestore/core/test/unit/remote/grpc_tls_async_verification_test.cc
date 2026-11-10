@@ -647,7 +647,12 @@ TEST(AsyncTlsVerifierTest, DefaultSchedulerDeliversCancelOnAnotherThread) {
           recorder.Record(std::move(status));
           return;
         }
-        std::lock_guard<std::mutex> lock(handshake_mutex);
+        {
+          // Blocks until the cancelling thread releases the lock.
+          std::lock_guard<std::mutex> lock(handshake_mutex);
+        }
+        // Must be the last access to test state: the test may return as soon
+        // as it observes the record.
         recorder.Record(std::move(status));
       },
       &sync_status));
