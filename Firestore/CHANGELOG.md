@@ -6,12 +6,16 @@
   and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
   Certificates are evaluated asynchronously so verification never blocks gRPC
   threads, and missing intermediate certificates are never fetched over the
-  network on behalf of the server. A custom `host` that is an IP address must
-  be written in canonical form (for IPv6, as RFC 5952 prints it), and
-  internationalized host names must be Punycode-encoded.
+  network on behalf of the server.
+- [changed] On all platforms, a custom `host` that is an IP address must be
+  written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
+  internationalized host names must be Punycode-encoded, and port 0 is
+  rejected.
 - [changed] On Linux, Firestore now verifies gRPC TLS server certificates
   against the system CA store and honors distro distrust lists instead of an
-  embedded root certificate bundle.
+  embedded root certificate bundle. `SSL_CERT_FILE`/`SSL_CERT_DIR` override
+  the system store, and if no CA certificates are found, RPCs fail with
+  `UNAVAILABLE` rather than falling back to an embedded bundle.
 - [changed] On Windows, Firestore now verifies gRPC TLS server certificates
   with CryptoAPI, honoring the Windows certificate stores (including enterprise
   roots and the `Disallowed` store), instead of an embedded root certificate
