@@ -60,14 +60,33 @@ TEST(GrpcTlsTargetHostTest, Ipv6Literals) {
   ExpectHost("[::1]:443", "::1", Kind::kIpv6);
   ExpectHost("2001:db8::1", "2001:db8::1", Kind::kIpv6);
   ExpectHost("[2001:db8::1]:8443", "2001:db8::1", Kind::kIpv6);
-  ExpectHost("[2001:0db8:0000:0000:0000:0000:0000:0001]",
-             "2001:0db8:0000:0000:0000:0000:0000:0001", Kind::kIpv6);
-  ExpectHost("[::ffff:127.0.0.1]:443", "::ffff:127.0.0.1", Kind::kIpv6);
   ExpectHost("[::ffff:7f00:1]:443", "::ffff:7f00:1", Kind::kIpv6);
   ExpectHost("1::", "1::", Kind::kIpv6);
   ExpectHost("::", "::", Kind::kIpv6);
   ExpectHost("1:2:3:4:5:6:7:8", "1:2:3:4:5:6:7:8", Kind::kIpv6);
-  ExpectHost("1:2:3:4:5:6:1.2.3.4", "1:2:3:4:5:6:1.2.3.4", Kind::kIpv6);
+}
+
+// IPv6 hosts are returned in one canonical text form (RFC 5952: lowercase,
+// no leading zeros, longest run of two or more zero groups compressed), so
+// every platform verifier sees the same host. Embedded IPv4 notation is
+// rewritten in hex, because Apple's SecPolicyCreateSSL only matches
+// IPv4-mapped addresses written that way.
+TEST(GrpcTlsTargetHostTest, Ipv6LiteralsAreCanonicalized) {
+  ExpectHost("[2001:0db8:0000:0000:0000:0000:0000:0001]", "2001:db8::1",
+             Kind::kIpv6);
+  ExpectHost("2001:DB8::1", "2001:db8::1", Kind::kIpv6);
+  ExpectHost("[0:0:0:0:0:0:0:1]:443", "::1", Kind::kIpv6);
+  ExpectHost("0:0:0:0:0:0:0:0", "::", Kind::kIpv6);
+  ExpectHost("1:0:0:0:0:0:0:0", "1::", Kind::kIpv6);
+  ExpectHost("2001:db8:0:1:1:1:1:1", "2001:db8:0:1:1:1:1:1", Kind::kIpv6);
+  ExpectHost("2001:0:0:1:0:0:0:1", "2001:0:0:1::1", Kind::kIpv6);
+  ExpectHost("2001:db8:0:0:1:0:0:1", "2001:db8::1:0:0:1", Kind::kIpv6);
+  ExpectHost("[fe80::0001%en0]:443", "fe80::1", Kind::kIpv6);
+  // IPv4-mapped and other embedded-IPv4 forms (security review S9).
+  ExpectHost("[::ffff:127.0.0.1]:443", "::ffff:7f00:1", Kind::kIpv6);
+  ExpectHost("::ffff:127.0.0.1", "::ffff:7f00:1", Kind::kIpv6);
+  ExpectHost("[::FFFF:7F00:0001]", "::ffff:7f00:1", Kind::kIpv6);
+  ExpectHost("1:2:3:4:5:6:1.2.3.4", "1:2:3:4:5:6:102:304", Kind::kIpv6);
 }
 
 TEST(GrpcTlsTargetHostTest, Ipv6ZoneIdsAreStripped) {
@@ -86,6 +105,11 @@ TEST(GrpcTlsTargetHostTest, RejectsMalformedTargets) {
       "host:123456",
       "host:-1",
       "host:+1",
+      // Port 0 is not a connectable port (security review S13/S21).
+      "host:0",
+      "host:00000",
+      "[::1]:0",
+      "127.0.0.1:0",
       "https://firestore.googleapis.com",
       "dns:///firestore.googleapis.com",
       "unix:/tmp/grpc.sock",
@@ -114,6 +138,25 @@ TEST(GrpcTlsTargetHostTest, RejectsMalformedTargets) {
       "[[::1]]",
       "[fe80::1%]:443",
       "fe80::1%",
+      // Zone IDs are restricted to unreserved characters (S14).
+      "[::1%!!!]:443",
+      "fe80::1%!!!",
+      "fe80::1%en 0",
+      // Octal-looking or short-form IPv4 (S15).
+      "0177.0.0.1",
+      "0177.0.0.1:443",
+      "127.1",
+      // Non-ASCII (IDN) hosts must be Punycode-encoded (S16).
+      "b\xc3\xbc"
+      "cher.example",
+      "b\xc3\xbc"
+      "cher.example:443",
+      // Cases carried over from the Apple-only parser's tests.
+      "https://firestore.googleapis.com:443",
+      "dns://8.8.8.8",
+      "dns:",
+      "ipv4:",
+      "ipv6:",
       "%en0",
       "[%en0]",
       "1.2.3",
