@@ -234,14 +234,9 @@ if(APPLE)
     src/remote/grpc_tls_credentials_provider_apple.*
   )
 elseif(WIN32)
-  # TODO(b/578640397): Replace the embedded root bundle with a Windows
-  # CryptoAPI verifier.
   firebase_ios_glob(
     core_sources APPEND
-    src/remote/grpc_root_certificate_finder.h
-    src/remote/grpc_root_certificate_finder_generated.cc
-    src/remote/grpc_root_certificates_generated.*
-    src/remote/grpc_tls_credentials_provider_embedded.cc
+    src/remote/grpc_tls_credentials_provider_windows.*
   )
 else()
   # Linux and every other non-Apple, non-Windows platform verify against the
@@ -290,6 +285,11 @@ target_link_libraries(
   grpc++
   protobuf-nanopb-static
 )
+
+if(WIN32)
+  # CryptoAPI, for grpc_tls_credentials_provider_windows.cc.
+  target_link_libraries(firestore_core PRIVATE crypt32)
+endif()
 
 if(APPLE)
   target_link_libraries(

@@ -1590,6 +1590,7 @@ func firestoreTargets() -> [Target] {
           "core/src/remote/grpc_root_certificates_generated.cc",
           "core/src/remote/grpc_tls_credentials_provider_embedded.cc",
           "core/src/remote/grpc_tls_credentials_provider_linux.cc",
+          "core/src/remote/grpc_tls_credentials_provider_windows.cc",
           "core/src/util/filesystem_win.cc",
           "core/src/util/log_stdio.cc",
           "core/src/util/secure_random_openssl.cc",
