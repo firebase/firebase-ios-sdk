@@ -21,19 +21,20 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 
-#import <arpa/inet.h>
 #include <functional>
 #include <memory>
 #include <string>
 #include <type_traits>
 #include <utility>
 
+#include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "absl/types/optional.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/tls_certificate_verifier.h"
@@ -51,134 +52,23 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
   }
 }
 
+// Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or an
+// empty string if `target_name` is malformed. Uses the parser shared with the
+// Linux and Windows verifiers, which strips ports, brackets, and IPv6 zone IDs
+// and returns IPv6 literals in canonical form; IPv4-mapped addresses are
+// written in hex (`::ffff:7f00:1`), the only form SecPolicy matches.
 std::string ExtractTlsHostName(absl::string_view target_name) {
-  if (target_name.empty()) {
-    return "";
+  absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
+  return host.has_value() ? host->host : std::string();
+}
+
+bool ContainsNonAscii(absl::string_view s) {
+  for (char c : s) {
+    if (static_cast<unsigned char>(c) >= 0x80) {
+      return true;
+    }
   }
-
-  @autoreleasepool {
-    NSString* target = [[NSString alloc] initWithBytes:target_name.data()
-                                                length:target_name.size()
-                                              encoding:NSUTF8StringEncoding];
-    if (target == nil || target.length == 0) {
-      return "";
-    }
-
-    if ([target rangeOfCharacterFromSet:[NSCharacterSet controlCharacterSet]]
-                .location != NSNotFound ||
-        [target rangeOfCharacterFromSet:[NSCharacterSet
-                                            whitespaceAndNewlineCharacterSet]]
-                .location != NSNotFound ||
-        [target
-            rangeOfCharacterFromSet:
-                [NSCharacterSet characterSetWithCharactersInString:@"/,?#@"]]
-                .location != NSNotFound) {
-      return "";
-    }
-
-    BOOL has_open_bracket = [target rangeOfString:@"["].location != NSNotFound;
-    BOOL has_close_bracket = [target rangeOfString:@"]"].location != NSNotFound;
-
-    // Handle bare unbracketed IPv6 literals.
-    if (!has_open_bracket && !has_close_bracket &&
-        [target rangeOfString:@":"].location != NSNotFound) {
-      NSRange percent_range = [target rangeOfString:@"%"];
-      NSString* candidate = target;
-      if (percent_range.location != NSNotFound) {
-        if (percent_range.location == 0 ||
-            percent_range.location + 1 == target.length ||
-            [target rangeOfString:@"%" options:NSBackwardsSearch].location !=
-                percent_range.location) {
-          return "";
-        }
-        candidate = [target substringToIndex:percent_range.location];
-      }
-      struct in6_addr addr6;
-      if (inet_pton(AF_INET6, candidate.UTF8String, &addr6) == 1) {
-        return util::MakeString((__bridge CFStringRef)candidate);
-      }
-      if (percent_range.location != NSNotFound) {
-        return "";
-      }
-    }
-
-    // Handle bracketed IPv6 ([ipv6] or [ipv6]:port).
-    if (has_open_bracket || has_close_bracket) {
-      if (![target hasPrefix:@"["]) {
-        return "";
-      }
-      NSUInteger close_bracket = [target rangeOfString:@"]"].location;
-      if (close_bracket == NSNotFound || close_bracket == 1) {
-        return "";
-      }
-      if ([target rangeOfString:@"[" options:NSBackwardsSearch].location != 0 ||
-          [target rangeOfString:@"]" options:NSBackwardsSearch].location !=
-              close_bracket) {
-        return "";
-      }
-      NSString* inner =
-          [target substringWithRange:NSMakeRange(1, close_bracket - 1)];
-      NSRange inner_percent = [inner rangeOfString:@"%"];
-      NSString* ipv6_candidate = inner;
-      if (inner_percent.location != NSNotFound) {
-        if (inner_percent.location == 0 ||
-            inner_percent.location + 1 == inner.length ||
-            [inner rangeOfString:@"%" options:NSBackwardsSearch].location !=
-                inner_percent.location) {
-          return "";
-        }
-        ipv6_candidate = [inner substringToIndex:inner_percent.location];
-      }
-
-      struct in6_addr addr6;
-      if (inet_pton(AF_INET6, ipv6_candidate.UTF8String, &addr6) != 1) {
-        return "";
-      }
-
-      NSString* suffix = [target substringFromIndex:close_bracket + 1];
-      NSString* normalized =
-          [NSString stringWithFormat:@"[%@]%@", ipv6_candidate, suffix];
-      NSURLComponents* comps = [NSURLComponents
-          componentsWithString:[@"https://"
-                                   stringByAppendingString:normalized]];
-      if (comps == nil || comps.host.length == 0) {
-        return "";
-      }
-      if (suffix.length > 0) {
-        if (comps.port == nil ||
-            ![suffix isEqualToString:[@":" stringByAppendingString:
-                                               comps.port.stringValue]]) {
-          return "";
-        }
-      } else if (comps.port != nil) {
-        return "";
-      }
-      return util::MakeString((__bridge CFStringRef)ipv6_candidate);
-    }
-
-    // Non-bracketed host or host:port.
-    if ([target rangeOfString:@"%"].location != NSNotFound) {
-      return "";
-    }
-    NSURLComponents* comps = [NSURLComponents
-        componentsWithString:[@"https://" stringByAppendingString:target]];
-    if (comps == nil || comps.host.length == 0) {
-      return "";
-    }
-    if ([target rangeOfString:@":"].location != NSNotFound) {
-      if (comps.port == nil ||
-          ![target
-              isEqualToString:[NSString stringWithFormat:@"%@:%@", comps.host,
-                                                         comps.port]]) {
-        return "";
-      }
-    } else {
-      if (![target isEqualToString:comps.host]) {
-        return "";
-      }
-    }
-    return util::MakeString((__bridge CFStringRef)comps.host);
-  }
+  return false;
 }
 
 CFArrayRef CreateCertificateChainFromPem(absl::string_view pem_chain,
@@ -355,11 +245,17 @@ SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
   @autoreleasepool {
     std::string host = ExtractTlsHostName(target_name);
     if (host.empty()) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             absl::StrCat("Invalid or empty TLS target host "
-                                          "name: '",
-                                          absl::CHexEscape(target_name), "'")));
+      SetStatus(
+          out_status,
+          grpc::Status(
+              grpc::StatusCode::UNAUTHENTICATED,
+              ContainsNonAscii(target_name)
+                  ? absl::StrCat("TLS target host name must be ASCII; encode "
+                                 "internationalized names as Punycode "
+                                 "(A-labels): '",
+                                 absl::CHexEscape(target_name), "'")
+                  : absl::StrCat("Invalid or empty TLS target host name: '",
+                                 absl::CHexEscape(target_name), "'")));
       return nullptr;
     }
 
@@ -406,6 +302,21 @@ SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
                        absl::StrCat("SecTrustCreateWithCertificates failed "
                                     "with OSStatus ",
                                     trust_status)));
+      return nullptr;
+    }
+
+    // Never let trustd fetch missing intermediates (AIA caIssuers URLs) or
+    // other resources over the network on behalf of the unauthenticated peer:
+    // a server could otherwise make the device request any URL it chooses.
+    // Incomplete chains fail closed instead, as they do on Linux and Windows.
+    // This also turns off online revocation checks, which are not requested.
+    OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(trust, false);
+    if (fetch_status != errSecSuccess) {
+      SetStatus(out_status,
+                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                             absl::StrCat("SecTrustSetNetworkFetchAllowed "
+                                          "failed with OSStatus ",
+                                          fetch_status)));
       return nullptr;
     }
 
@@ -592,11 +503,14 @@ std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
   // `SecPolicyCreateSSL(/*server=*/true, cf_host)` on the channel target name,
   // enforcing Apple's strict RFC 9525 and HT210176 requirements (SAN-only,
   // PSL wildcard validation, and OS/MDM/OTA trust settings). In addition,
-  // gRPC's default per-RPC `check_call_host(true)` (`ClientAuthFilter` ->
-  // `SslCheckCallHost`) verifies the per-call HTTP/2 `:authority` header
-  // before attaching sensitive bearer credentials (such as Firebase Auth and
-  // AppCheck tokens). Leaving this enabled preserves defense-in-depth and
-  // avoids calling the deprecated `set_check_call_host` setter.
+  // gRPC's per-call check (`ClientAuthFilter` -> `SslCheckCallHost`) matches
+  // each call's `:authority` against the peer certificate and fails the call
+  // before any request headers are sent, so a mismatch never transmits the
+  // Firebase Auth and App Check tokens that Firestore adds as call metadata.
+  // Leaving it enabled preserves defense-in-depth and avoids calling the
+  // deprecated `set_check_call_host` setter. Because gRPC compares IP
+  // addresses there as text, IP-literal hosts must be written in canonical
+  // form (as `inet_ntop` prints them); see `CreateDefaultTlsCredentials()`.
 
   // Creates a dedicated verifier instance per channel credentials object.
   // In gRPC, `TlsCredentials::cmp_impl` compares credentials options by

@@ -52,6 +52,11 @@ namespace remote {
  * `Disallowed` store. Evaluation runs on the Windows thread pool (via
  * `AsyncTlsVerifier`), so it never blocks gRPC threads. See
  * `grpc_tls_credentials_provider_windows.h`.
+ *
+ * On every platform, gRPC also matches each call's authority against the
+ * server certificate, comparing IP addresses as text. A host that is an IP
+ * literal must therefore be written in canonical form: for IPv6, as RFC 5952
+ * and `inet_ntop` print it (`[2001:db8::1]`, not `[2001:DB8:0::1]`).
  */
 std::shared_ptr<grpc::ChannelCredentials> CreateDefaultTlsCredentials();
 

@@ -5,7 +5,10 @@
   root certificate bundle, enabling automatic OS root store, enterprise MDM,
   and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
   Certificates are evaluated asynchronously so verification never blocks gRPC
-  threads.
+  threads, and missing intermediate certificates are never fetched over the
+  network on behalf of the server. A custom `host` that is an IP address must
+  be written in canonical form (for IPv6, as RFC 5952 prints it), and
+  internationalized host names must be Punycode-encoded.
 - [changed] On Linux, Firestore now verifies gRPC TLS server certificates
   against the system CA store and honors distro distrust lists instead of an
   embedded root certificate bundle.
