@@ -86,10 +86,13 @@ grpc::Status TlsVerificationCancelledStatus();
  *   invoked. This honors gRPC's rule that the callback must not run on the
  *   calling thread before `Verify()` returns.
  * - Otherwise `FinishStart()` returns `false` and the callback is invoked
- *   exactly once, on the thread that resolves the verification.
+ *   exactly once: by `Complete()` or `CancelAll()` on the calling thread, or,
+ *   for `Cancel()`, by the task it returns, which the caller must run on
+ *   another thread.
  *
  * Callbacks are always invoked with no lock held, so a callback may safely
- * call back into the tracker.
+ * call back into the tracker. The tracker never touches its own state after
+ * invoking a callback.
  *
  * Verifications are identified by a unique id rather than by the gRPC request
  * pointer: gRPC frees the request once the callback runs, so a later request
@@ -134,9 +137,19 @@ class TlsAsyncVerificationTracker {
 
   /**
    * Resolves the pending verification for `request` with
-   * `TlsVerificationCancelledStatus()`. A no-op if there is none.
+   * `TlsVerificationCancelledStatus()`, but does not invoke its callback:
+   * gRPC calls `ExternalCertificateVerifier::Cancel()` with its handshake lock
+   * held, and the callback takes that lock, so it must not run on the
+   * cancelling thread. Instead, returns a task that invokes the callback, for
+   * the caller to run on another thread.
+   *
+   * Returns an empty function if there is nothing to deliver: `request` has no
+   * pending verification, or it was resolved while `Verify()` is still on the
+   * stack, in which case `FinishStart()` reports the cancellation.
+   *
+   * `request` is used only as a lookup key and is never dereferenced.
    */
-  void Cancel(const Request* request);
+  [[nodiscard]] std::function<void()> Cancel(const Request* request);
 
   /**
    * Resolves every pending verification with
@@ -190,9 +203,12 @@ class TlsAsyncVerificationTracker {
  * the verification was cancelled or the verifier destroyed, is safe; only the
  * first resolution reaches gRPC.
  *
- * `Cancel()` and destruction resolve pending verifications with
- * `TlsVerificationCancelledStatus()` and do not stop the evaluator's work;
- * its eventual completion is ignored.
+ * `Cancel()` resolves the verification with `TlsVerificationCancelledStatus()`
+ * immediately, without blocking, and delivers that status to gRPC through the
+ * `Scheduler` (gRPC forbids invoking the callback inside `Cancel()`).
+ * Destroying the verifier resolves any remaining verifications the same way,
+ * but inline. Neither stops the evaluator's work; its eventual completion is
+ * ignored.
  *
  * Platform verifiers (Apple `SecTrust`, Windows CryptoAPI) are built by
  * supplying an `Evaluator`.
@@ -203,7 +219,18 @@ class AsyncTlsVerifier
   using Evaluator = std::function<void(TlsVerificationInput input,
                                        TlsVerificationCallback completion)>;
 
-  explicit AsyncTlsVerifier(Evaluator evaluator);
+  /**
+   * Runs `task` soon, on a thread other than the caller's, without blocking
+   * the caller.
+   */
+  using Scheduler = std::function<void(std::function<void()> task)>;
+
+  /**
+   * Creates a verifier that evaluates with `evaluator` and delivers
+   * cancellations with `scheduler`. If `scheduler` is empty, each cancellation
+   * is delivered on a new detached thread (cancellations are rare).
+   */
+  explicit AsyncTlsVerifier(Evaluator evaluator, Scheduler scheduler = {});
   ~AsyncTlsVerifier() override;
 
   AsyncTlsVerifier(const AsyncTlsVerifier&) = delete;
@@ -223,6 +250,7 @@ class AsyncTlsVerifier
 
  private:
   Evaluator evaluator_;
+  Scheduler scheduler_;
   std::shared_ptr<TlsAsyncVerificationTracker> tracker_;
 };
 
