@@ -279,7 +279,7 @@
     /// A weather tool that counts how many times the model calls it.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
-    struct CountingWeatherTool: FoundationModels.Tool {
+    struct CountingWeatherTool: FoundationModelsTool {
       /// The number of calls, shared by all copies of the tool.
       final class CallCount: Sendable {
         let value = Mutex(0)
