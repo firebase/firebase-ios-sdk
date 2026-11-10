@@ -513,9 +513,50 @@
       }
 
       #expect(outputTokenCounts.last == 30)
-      // While streaming, snapshots report Gemini's running totals rather than a count of chunks.
+      // While streaming, snapshots report Gemini's running totals (10, then 20) rather than a
+      // count of chunks. Snapshots may be merged, so not every total is necessarily reported.
       let streamedOutputTokenCounts = outputTokenCounts.filter { $0 < 30 }
-      #expect(streamedOutputTokenCounts.contains { $0 >= 10 })
+      #expect(!streamedOutputTokenCounts.isEmpty)
+      #expect(streamedOutputTokenCounts.allSatisfy { [10, 20].contains($0) })
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseCachedTokensWithoutPromptTokenCount() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // A cached token count above the input total would crash `LanguageModelSession`.
+      let chunks = [
+        Self.streamChunk(
+          "Hello!",
+          isFinal: true,
+          usageMetadata:
+            #"{"cachedContentTokenCount": 40, "candidatesTokenCount": 2, "totalTokenCount": 42}"#
+        )
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in session.streamResponse(to: "Say hello") {
+        lastUsage = snapshot.usage
+      }
+
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 0)
+      #expect(usage.input.cachedTokenCount == 0)
+      #expect(usage.output.totalTokenCount == 2)
     }
 
     @Test

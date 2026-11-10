@@ -203,6 +203,10 @@
           }
 
           if let usage = latestUsage {
+            // `cachedTokenCount` is documented to be at most `totalTokenCount`, and a cached count
+            // above the total traps (see above), so clamp it in case Gemini omits or under-reports
+            // `promptTokenCount`.
+            let promptTokenCount = usage.promptTokenCount ?? 0
             // The session's output total includes reasoning tokens (`reasoningTokenCount` is
             // documented to be at most `totalTokenCount`), but Gemini's `candidatesTokenCount`
             // excludes thinking tokens, which it reports separately.
@@ -213,8 +217,8 @@
                 entryID: responseEntryID,
                 action: .updateUsage(
                   input: .init(
-                    totalTokenCount: usage.promptTokenCount ?? 0,
-                    cachedTokenCount: usage.cachedContentTokenCount ?? 0
+                    totalTokenCount: promptTokenCount,
+                    cachedTokenCount: min(usage.cachedContentTokenCount ?? 0, promptTokenCount)
                   ),
                   output: .init(
                     totalTokenCount: candidatesTokenCount + thoughtsTokenCount,
