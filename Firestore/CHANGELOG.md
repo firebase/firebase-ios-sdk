@@ -9,6 +9,14 @@
 - [changed] On Linux, Firestore now verifies gRPC TLS server certificates
   against the system CA store and honors distro distrust lists instead of an
   embedded root certificate bundle.
+- [changed] On Windows, Firestore now verifies gRPC TLS server certificates
+  with CryptoAPI, honoring the Windows certificate stores (including enterprise
+  roots and the `Disallowed` store), instead of an embedded root certificate
+  bundle.
+- [removed] Removed the embedded gRPC root certificate bundle (`roots.pem`)
+  from all platforms, reducing binary size.
+- [fixed] Fixed MSVC build errors when building Firestore with CMake on
+  Windows.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
