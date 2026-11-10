@@ -35,6 +35,9 @@ struct TlsTargetHost {
    * without brackets or zone ID. IPv6 addresses are in canonical RFC 5952 text
    * form, except that embedded IPv4 (such as IPv4-mapped) addresses are also
    * written in hex (`::ffff:7f00:1`), the form every platform verifier accepts.
+   * This form is internal to the certificate verifiers; it is not what users
+   * should write as a host (gRPC's per-call check expects `inet_ntop` text,
+   * see `CreateDefaultTlsCredentials()`).
    */
   std::string host;
   Kind kind = Kind::kDns;
