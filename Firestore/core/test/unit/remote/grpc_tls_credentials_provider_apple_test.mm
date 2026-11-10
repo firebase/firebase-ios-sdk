@@ -24,6 +24,12 @@
 #import <Security/Security.h>
 #import <dispatch/dispatch.h>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -347,6 +353,9 @@ struct CertOptions {
   // generating one. Combined with the same `common_name`, this produces
   // cross-signed variants of one CA (same subject and key, different issuer).
   const GeneratedCertificate* reuse_key_from = nullptr;
+  // If set, adds an Authority Information Access extension whose caIssuers
+  // URL points here.
+  std::string aia_ca_issuers_url;
 };
 
 struct GeneratedCertificate {
@@ -475,6 +484,22 @@ GeneratedCertificate GenerateCertificate(const CertOptions& options,
   AppendBytes(&extensions_body,
               DerExtension({0x55, 0x1D, 0x23}, /*critical=*/false,
                            DerSequence(DerTlv(0x80, aki_bytes))));
+
+  // AuthorityInfoAccess (1.3.6.1.5.5.7.1.1):
+  //   SEQUENCE OF SEQUENCE { caIssuers (1.3.6.1.5.5.7.48.2),
+  //                          uniformResourceIdentifier [6] IA5String }
+  if (!options.aia_ca_issuers_url.empty()) {
+    ByteVec access_description;
+    AppendBytes(&access_description,
+                DerOid({0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x02}));
+    AppendBytes(&access_description,
+                DerTlv(0x86, ByteVec(options.aia_ca_issuers_url.begin(),
+                                     options.aia_ca_issuers_url.end())));
+    AppendBytes(&extensions_body,
+                DerExtension({0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x01, 0x01},
+                             /*critical=*/false,
+                             DerSequence(DerSequence(access_description))));
+  }
 
   // SubjectAltName (2.5.29.17)
   if (!options.dns_sans.empty() || !options.ipv4_sans.empty() ||
@@ -813,9 +838,12 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  for (const auto& target : {"[::1]:443", "[2001:db8::1]", "[2001:db8::1]:8443",
-                             "[::ffff:7f00:1]:443", "[fe80::1%en0]:443",
-                             "fe80::1%en0", "::1", "2001:db8::1"}) {
+  for (const auto& target :
+       {"[::1]:443", "[2001:db8::1]", "[2001:db8::1]:8443",
+        "[::ffff:7f00:1]:443", "[fe80::1%en0]:443", "fe80::1%en0", "::1",
+        "2001:db8::1",
+        // IPv4-mapped literals in dotted form.
+        "[::ffff:127.0.0.1]:443", "[::ffff:127.0.0.1]", "::ffff:127.0.0.1"}) {
     grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
                                                          target, anchors.get());
     EXPECT_TRUE(status.ok())
@@ -1721,6 +1749,143 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
                        /*wait_for_ready=*/true);
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(echoed, "unblocked");
+}
+
+// ===========================================================================
+// 6. Network Fetch Hardening
+// ===========================================================================
+
+// A loopback HTTP server that serves one body for every request and counts
+// connections. Used to detect Authority Information Access (AIA) fetches.
+class CountingHttpServer {
+ public:
+  explicit CountingHttpServer(ByteVec body) : body_(std::move(body)) {
+    fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    HARD_ASSERT(fd_ >= 0, "socket() failed");
+    int one = 1;
+    setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = 0;
+    HARD_ASSERT(
+        bind(fd_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0,
+        "bind() failed");
+    HARD_ASSERT(listen(fd_, 16) == 0, "listen() failed");
+    socklen_t len = sizeof(addr);
+    HARD_ASSERT(getsockname(fd_, reinterpret_cast<sockaddr*>(&addr), &len) == 0,
+                "getsockname() failed");
+    port_ = ntohs(addr.sin_port);
+    thread_ = std::thread([this] { Serve(); });
+  }
+
+  ~CountingHttpServer() {
+    stop_ = true;
+    thread_.join();
+    close(fd_);
+  }
+
+  CountingHttpServer(const CountingHttpServer&) = delete;
+  CountingHttpServer& operator=(const CountingHttpServer&) = delete;
+
+  std::string Url(absl::string_view path) const {
+    return absl::StrCat("http://127.0.0.1:", port_, "/", path);
+  }
+
+  int request_count() const {
+    return request_count_.load();
+  }
+
+ private:
+  void Serve() {
+    while (!stop_) {
+      pollfd pfd = {fd_, POLLIN, 0};
+      if (poll(&pfd, 1, /*timeout_ms=*/50) <= 0) {
+        continue;
+      }
+      int client = accept(fd_, nullptr, nullptr);
+      if (client < 0) {
+        continue;
+      }
+      ++request_count_;
+      int one = 1;
+      setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+      char request[4096];
+      (void)recv(client, request, sizeof(request), 0);
+      std::string header = absl::StrCat(
+          "HTTP/1.1 200 OK\r\nContent-Type: application/pkix-cert\r\n"
+          "Content-Length: ",
+          body_.size(), "\r\nConnection: close\r\n\r\n");
+      (void)send(client, header.data(), header.size(), 0);
+      (void)send(client, body_.data(), body_.size(), 0);
+      close(client);
+    }
+  }
+
+  ByteVec body_;
+  int fd_ = -1;
+  int port_ = 0;
+  std::atomic<bool> stop_{false};
+  std::atomic<int> request_count_{0};
+  std::thread thread_;
+};
+
+// A server that omits its intermediate must be rejected, and trustd must not
+// fetch the intermediate from the leaf's AIA URL on behalf of the
+// (unauthenticated) peer: that would let any server make the device issue
+// HTTP requests to a URL of its choosing.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyNeverFetchesMissingIntermediateViaAia) {
+  CertOptions root_opts;
+  root_opts.common_name = "Firestore Test AIA Root CA";
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate root =
+      GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test AIA Intermediate CA";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate intermediate = GenerateCertificate(inter_opts, &root);
+
+  // Serves the missing intermediate, so a fetch would complete the chain.
+  CountingHttpServer aia_server(intermediate.cert_der);
+
+  const void* values[] = {root.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> anchors(
+      CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+
+  // Distinct URLs per path, so a cached fetch cannot mask the second one.
+  for (bool use_async : {false, true}) {
+    SCOPED_TRACE(use_async ? "async" : "sync");
+    CertOptions leaf_opts;
+    leaf_opts.common_name = "aia.firestore.local";
+    leaf_opts.dns_sans = {"aia.firestore.local"};
+    leaf_opts.aia_ca_issuers_url = aia_server.Url(
+        use_async ? "async-intermediate.cer" : "sync-intermediate.cer");
+    GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
+
+    grpc::Status status;
+    if (use_async) {
+      dispatch_queue_t queue = MakeTestQueue("test.async.aia");
+      AsyncRecorder recorder(queue);
+      VerifyAppleTlsCertificateChainAsync(
+          TlsVerificationInput{leaf.cert_pem, "aia.firestore.local"},
+          anchors.get(), queue, recorder.AsCallback());
+      ASSERT_TRUE(recorder.WaitForCount(1));
+      status = recorder.status();
+    } else {
+      status = VerifyAppleTlsCertificateChain(
+          leaf.cert_pem, "aia.firestore.local", anchors.get());
+    }
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << status.error_message();
+  }
+
+  EXPECT_EQ(aia_server.request_count(), 0);
 }
 
 }  // namespace
