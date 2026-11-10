@@ -8,6 +8,12 @@
   `start` and `end`, removed `VoiceActivityType.unknown` from the public API,
   and made `LiveServerVoiceActivity.audioOffset` a non-optional `TimeInterval`
   (defaulting to `0`).
+- [fixed] Fixed a crash in `GeminiLanguageModel` when the Gemini Developer API
+  served part of a prompt from its implicit cache. (#17042)
+- [fixed] Fixed `LanguageModelSession.streamResponse` delivering a
+  `GeminiLanguageModel` response all at once, after it finished, when using the
+  Gemini Enterprise Agent Platform. Streamed snapshots now also report output
+  token usage as the response is generated. (#17042)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

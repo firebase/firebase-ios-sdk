@@ -104,7 +104,22 @@
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
+          // Usage is reported once, after the stream ends, instead of after every chunk
+          // (#17040). Gemini's intermediate usage metadata can't be forwarded as is:
+          //
+          // - `LanguageModelSession` only delivers streamed snapshots while the turn's output
+          //   token count keeps rising. The Gemini Enterprise Agent Platform omits
+          //   `candidatesTokenCount` until the final chunk, so reporting it as 0 after every
+          //   chunk held back all snapshots until the response finished.
+          // - `LanguageModelSession` traps if the uncached input token count (`total - cached`)
+          //   decreases. Gemini reports `cachedContentTokenCount` only in the final chunk, so
+          //   reporting earlier chunks' usage crashed on implicit cache hits.
+          //
+          // While streaming, the `appendText` token counts track Gemini's running output totals
+          // instead; the final usage replaces them.
           var latestUsage: UsageMetadata?
+          var responseTokenCounter = StreamedTokenCounter()
+          var reasoningTokenCounter = StreamedTokenCounter()
 
           for try await chunk in stream {
             try Task.checkCancellation()
@@ -127,17 +142,23 @@
 
                 if case .text(let text) = part.data, !text.isEmpty {
                   if part.thought == true {
+                    let tokenCount = reasoningTokenCounter.tokenCount(
+                      forRunningTotal: chunk.usageMetadata?.thoughtsTokenCount
+                    )
                     await channel.send(
                       .reasoning(
                         entryID: reasoningEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   } else {
+                    let tokenCount = responseTokenCounter.tokenCount(
+                      forRunningTotal: chunk.usageMetadata?.candidatesTokenCount
+                    )
                     await channel.send(
                       .response(
                         entryID: responseEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   }
