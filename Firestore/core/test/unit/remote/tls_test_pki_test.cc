@@ -124,11 +124,13 @@ TEST(TlsTestPkiTest, ExpiredLeafFailsValidation) {
 TEST(TlsTestPkiTest, LeafHasRequestedSubjectAltNames) {
   TestPki pki =
       CreateTestPki("sans", {"pki.firestore.test"}, {"127.0.0.1", "::1"});
-  EXPECT_EQ(
-      X509_check_host(pki.leaf.x509(), "pki.firestore.test", 0, 0, nullptr), 1);
-  EXPECT_NE(
-      X509_check_host(pki.leaf.x509(), "other.firestore.test", 0, 0, nullptr),
-      1);
+  // BoringSSL, unlike OpenSSL, does not treat a zero length as "use strlen".
+  auto check_host = [&](const std::string& host) {
+    return X509_check_host(pki.leaf.x509(), host.data(), host.size(), 0,
+                           nullptr);
+  };
+  EXPECT_EQ(check_host("pki.firestore.test"), 1);
+  EXPECT_NE(check_host("other.firestore.test"), 1);
   EXPECT_EQ(X509_check_ip_asc(pki.leaf.x509(), "127.0.0.1", 0), 1);
   EXPECT_EQ(X509_check_ip_asc(pki.leaf.x509(), "::1", 0), 1);
   EXPECT_NE(X509_check_ip_asc(pki.leaf.x509(), "10.0.0.1", 0), 1);
