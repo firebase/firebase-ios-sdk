@@ -244,13 +244,11 @@ elseif(WIN32)
     src/remote/grpc_tls_credentials_provider_embedded.cc
   )
 else()
-  # TODO(b/578640397): Verify against the system CA store instead.
+  # Linux and every other non-Apple, non-Windows platform verify against the
+  # system CA store.
   firebase_ios_glob(
     core_sources APPEND
-    src/remote/grpc_root_certificate_finder.h
-    src/remote/grpc_root_certificate_finder_generated.cc
-    src/remote/grpc_root_certificates_generated.*
-    src/remote/grpc_tls_credentials_provider_embedded.cc
+    src/remote/grpc_tls_credentials_provider_linux.*
   )
 endif()
 
@@ -303,6 +301,14 @@ if(APPLE)
     FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
+  )
+elseif(NOT WIN32)
+  # grpc_tls_credentials_provider_linux.cc parses and verifies certificates
+  # itself. `OpenSSL::Crypto` is either the system OpenSSL or an alias of the
+  # BoringSSL `crypto` target built with gRPC (see the top-level CMakeLists.txt).
+  target_link_libraries(
+    firestore_core PUBLIC
+    OpenSSL::Crypto
   )
 endif()
 

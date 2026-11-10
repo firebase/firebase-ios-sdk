@@ -39,8 +39,14 @@ namespace remote {
  * on a private dispatch queue, via `AsyncTlsVerifier`), so IPC to `trustd`
  * never blocks gRPC threads.
  *
- * On non-Apple platforms, credentials are backed by the embedded `roots.pem`
- * certificate bundle via `LoadGrpcRootCertificate()`.
+ * On Linux and other non-Apple, non-Windows platforms, certificate chains are
+ * validated against the system CA store (`SSL_CERT_FILE`/`SSL_CERT_DIR` or the
+ * distro bundle), certificates on the distro distrust lists are rejected, and
+ * the hostname is checked against the leaf's subjectAltNames. See
+ * `grpc_tls_credentials_provider_linux.h`.
+ *
+ * On Windows, credentials are backed by the embedded `roots.pem` certificate
+ * bundle via `LoadGrpcRootCertificate()`.
  */
 std::shared_ptr<grpc::ChannelCredentials> CreateDefaultTlsCredentials();
 
