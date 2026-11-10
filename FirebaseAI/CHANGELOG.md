@@ -8,6 +8,10 @@
   `start` and `end`, removed `VoiceActivityType.unknown` from the public API,
   and made `LiveServerVoiceActivity.audioOffset` a non-optional `TimeInterval`
   (defaulting to `0`).
+- [fixed] Fixed a crash at launch on iOS 17 and earlier, and the corresponding
+  macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
+  the app or a library (such as Realm) enumerated Objective-C classes with
+  `objc_copyClassList`. (#17024)
 - [fixed] Fixed a crash in `GeminiLanguageModel` when the Gemini Developer API
   served part of a prompt from its implicit cache. (#17042)
 - [fixed] Fixed `LanguageModelSession.streamResponse` delivering a
