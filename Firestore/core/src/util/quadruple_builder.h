@@ -16,7 +16,6 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_BUILDER_H_
 #define FIRESTORE_CORE_SRC_UTIL_QUADRUPLE_BUILDER_H_
 
-#include <bit>
 #include <cstddef>
 #include <cstdint>
 

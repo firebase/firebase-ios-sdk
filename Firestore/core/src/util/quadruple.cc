@@ -20,6 +20,7 @@
 #include <limits>
 #include <vector>
 
+#include "Firestore/core/src/util/bits.h"
 #include "Firestore/core/src/util/quadruple_builder.h"
 
 namespace firebase {
@@ -89,7 +90,7 @@ Quadruple::Quadruple(int64_t x) {
       mantissa_lo_ = 0;
     } else {
       uint64_t ux = static_cast<uint64_t>(x);
-      int leading_zeros = __builtin_clzll(ux);
+      int leading_zeros = 63 - Bits::Log2FloorNonZero64(ux);
       // Left-justify with the leading 1 dropped.
       mantissa_hi_ = ux << (leading_zeros + 1);
       mantissa_lo_ = 0;
@@ -225,7 +226,8 @@ Quadruple::operator double() const {
     }
     default:
       int32_t unbiased_exp = static_cast<int32_t>(exponent_ - kExponentBias);
-      return scalb((1LL << 52) | (mantissa_hi_ >> 12), -52 + unbiased_exp) *
+      return ldexp(static_cast<double>((1ULL << 52) | (mantissa_hi_ >> 12)),
+                   -52 + unbiased_exp) *
              (negative_ ? -1 : 1);
   }
 }
