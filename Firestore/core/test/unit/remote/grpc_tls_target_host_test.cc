@@ -16,10 +16,20 @@
 
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 
+#include <cstdint>
+#include <cstring>
+#include <random>
 #include <string>
 #include <vector>
 
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
 #include "gtest/gtest.h"
+
+#if !defined(_WIN32)
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#endif  // !defined(_WIN32)
 
 namespace firebase {
 namespace firestore {
@@ -94,6 +104,55 @@ TEST(GrpcTlsTargetHostTest, Ipv6ZoneIdsAreStripped) {
   ExpectHost("[fe80::1%en0]:443", "fe80::1", Kind::kIpv6);
   ExpectHost("[fe80::1%25eth0]", "fe80::1", Kind::kIpv6);
 }
+
+#if !defined(_WIN32)
+// Cross-checks IPv6 canonicalization against the system's inet_pton and
+// inet_ntop for random addresses written in non-canonical forms.
+TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
+  std::mt19937 rng(20261110);
+  for (int iteration = 0; iteration < 5000; ++iteration) {
+    uint16_t groups[8];
+    for (uint16_t& group : groups) {
+      // Bias toward zero groups so compression cases are common.
+      group = rng() % 3 == 0 ? 0 : static_cast<uint16_t>(rng() % 0x10000);
+    }
+
+    // Non-canonical spelling: every group zero-padded and uppercase.
+    std::string spelled;
+    for (int i = 0; i < 8; ++i) {
+      absl::StrAppend(&spelled, i == 0 ? "" : ":",
+                      absl::StrFormat("%04X", groups[i]));
+    }
+
+    absl::optional<TlsTargetHost> parsed =
+        ParseTlsTargetHost(absl::StrCat("[", spelled, "]:443"));
+    ASSERT_TRUE(parsed.has_value()) << spelled;
+    ASSERT_EQ(parsed->kind, TlsTargetHost::Kind::kIpv6);
+
+    // Same address as the system parser sees it.
+    in6_addr expected = {};
+    in6_addr actual = {};
+    ASSERT_EQ(inet_pton(AF_INET6, spelled.c_str(), &expected), 1);
+    ASSERT_EQ(inet_pton(AF_INET6, parsed->host.c_str(), &actual), 1)
+        << parsed->host;
+    EXPECT_EQ(0, memcmp(&expected, &actual, sizeof(expected)))
+        << spelled << " -> " << parsed->host;
+
+    // Idempotent.
+    absl::optional<TlsTargetHost> reparsed = ParseTlsTargetHost(parsed->host);
+    ASSERT_TRUE(reparsed.has_value());
+    EXPECT_EQ(reparsed->host, parsed->host);
+
+    // Identical to inet_ntop's RFC 5952 output, except where inet_ntop uses
+    // embedded IPv4 notation (which we deliberately write in hex).
+    char text[INET6_ADDRSTRLEN];
+    ASSERT_NE(inet_ntop(AF_INET6, &expected, text, sizeof(text)), nullptr);
+    if (std::string(text).find('.') == std::string::npos) {
+      EXPECT_EQ(parsed->host, text) << spelled;
+    }
+  }
+}
+#endif  // !defined(_WIN32)
 
 TEST(GrpcTlsTargetHostTest, RejectsMalformedTargets) {
   const std::vector<std::string> malformed = {

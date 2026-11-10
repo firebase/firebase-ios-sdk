@@ -32,7 +32,9 @@ struct TlsTargetHost {
 
   /**
    * The bare host: a DNS name, a dotted-quad IPv4 address, or an IPv6 address
-   * without brackets or zone ID.
+   * without brackets or zone ID. IPv6 addresses are in canonical RFC 5952 text
+   * form, except that embedded IPv4 (such as IPv4-mapped) addresses are also
+   * written in hex (`::ffff:7f00:1`), the form every platform verifier accepts.
    */
   std::string host;
   Kind kind = Kind::kDns;
@@ -48,7 +50,9 @@ struct TlsTargetHost {
  *
  * Returns `nullopt` for anything else: an empty host; control, whitespace,
  * non-ASCII, or URL-reserved characters; an empty, non-numeric, or out-of-range
- * port; malformed brackets; and malformed IPv4 or IPv6 literals.
+ * port (valid ports are 1-65535); malformed brackets; malformed IPv4 literals
+ * (including leading zeros, which some parsers read as octal); and malformed
+ * IPv6 literals or zone IDs.
  */
 absl::optional<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
 
