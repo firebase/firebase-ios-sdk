@@ -15,12 +15,6 @@
 include(CheckSymbolExists)
 include(CheckIncludeFiles)
 
-include(python_setup)
-FirebaseSetupPythonInterpreter(
-  OUTVAR MY_PYTHON_EXECUTABLE
-  KEY FirestoreCore
-)
-
 ## firestore_util
 
 # The set of sources to use for firestore_util are complex.
@@ -220,7 +214,6 @@ firebase_ios_glob(
   EXCLUDE ${nanopb_sources}
   # Platform-specific TLS credentials providers are added per platform below.
   # Only the platform-neutral `grpc_tls_credentials_provider.h` stays here.
-  src/remote/grpc_root_certificate*
   src/remote/grpc_tls_credentials_provider_*
 )
 
@@ -311,46 +304,6 @@ elseif(NOT WIN32)
     OpenSSL::Crypto
   )
 endif()
-
-
-## gRPC Certificates
-
-# Source files should be generated in place so that the Xcode build can pick
-# them up.
-set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/remote)
-
-# `roots.pem` is a file containing root certificates that is distributed
-# alongside gRPC and is necessary to establish SSL connections. Embed this file
-# into the binary by converting it to a char array.
-#
-# gRPC certificates are regenerated manually (`firestore_gen_grpc_certs`) rather
-# than as an automatic `OUTPUT` rule on the checked-in source files so that
-# normal CMake builds do not overwrite `grpc_root_certificates_generated.{cc,h}`
-# when the checked-in root bundle has been updated ahead of the pinned CMake
-# gRPC archive in `cmake/external/grpc.cmake`.
-set(
-  FIRESTORE_GRPC_ROOTS_PEM
-  "${FIREBASE_EXTERNAL_SOURCE_DIR}/grpc/etc/roots.pem"
-  CACHE FILEPATH
-  "Path to roots.pem used by the manual firestore_gen_grpc_certs target"
-)
-
-add_custom_target(
-  firestore_gen_grpc_certs
-  COMMENT "Generating root certificates for embedding"
-  COMMAND
-  ${MY_PYTHON_EXECUTABLE} ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-  --output_header=${OUTPUT_DIR}/grpc_root_certificates_generated.h
-  --output_source=${OUTPUT_DIR}/grpc_root_certificates_generated.cc
-  --cpp_namespace=firebase::firestore::remote
-  --array=grpc_root_certificates_generated_data
-  --array_size=grpc_root_certificates_generated_size
-  ${FIRESTORE_GRPC_ROOTS_PEM}
-  VERBATIM
-  DEPENDS
-  ${FIRESTORE_GRPC_ROOTS_PEM}
-  ${FIREBASE_SOURCE_DIR}/scripts/binary_to_array.py
-)
 
 
 add_subdirectory(test/unit/testutil)

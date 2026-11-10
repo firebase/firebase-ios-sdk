@@ -1586,9 +1586,6 @@ func firestoreTargets() -> [Target] {
 
           // Exclude alternate implementations for other platforms
           "core/src/remote/connectivity_monitor_noop.cc",
-          "core/src/remote/grpc_root_certificate_finder_generated.cc",
-          "core/src/remote/grpc_root_certificates_generated.cc",
-          "core/src/remote/grpc_tls_credentials_provider_embedded.cc",
           "core/src/remote/grpc_tls_credentials_provider_linux.cc",
           "core/src/remote/grpc_tls_credentials_provider_windows.cc",
           "core/src/util/filesystem_win.cc",
