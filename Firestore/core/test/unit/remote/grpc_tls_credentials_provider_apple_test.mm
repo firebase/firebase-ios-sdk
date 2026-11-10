@@ -1192,6 +1192,23 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
             grpc::StatusCode::UNAUTHENTICATED);
 }
 
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyRejectsNonAsciiTargetNameWithPunycodeHint) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                       "b\xc3\xbc"
+                                                       "cher.example:443",
+                                                       anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("Punycode"), std::string::npos)
+      << status.error_message();
+}
+
 TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsEmptyTargetName) {
   CertOptions leaf_opts;
   leaf_opts.common_name = "test.firestore.local";

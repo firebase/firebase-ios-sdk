@@ -39,6 +39,11 @@ namespace remote {
  * on a private dispatch queue, via `AsyncTlsVerifier`), so IPC to `trustd`
  * never blocks gRPC threads.
  *
+ * On every platform, gRPC also matches each call's authority against the
+ * server certificate, comparing IP addresses as text. A host that is an IP
+ * literal must therefore be written in canonical form: for IPv6, as RFC 5952
+ * and `inet_ntop` print it (`[2001:db8::1]`, not `[2001:DB8:0::1]`).
+ *
  * On non-Apple platforms, credentials are backed by the embedded `roots.pem`
  * certificate bundle via `LoadGrpcRootCertificate()`.
  */

@@ -6,7 +6,9 @@
   and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
   Certificates are evaluated asynchronously so verification never blocks gRPC
   threads, and missing intermediate certificates are never fetched over the
-  network on behalf of the server.
+  network on behalf of the server. A custom `host` that is an IP address must
+  be written in canonical form (for IPv6, as RFC 5952 prints it), and
+  internationalized host names must be Punycode-encoded.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
