@@ -34,6 +34,7 @@
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
+#include "absl/strings/str_format.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/tls_certificate_verifier.h"
@@ -49,6 +50,20 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
   if (out_status != nullptr) {
     *out_status = status;
   }
+}
+
+// Returns the IPv6 literal to pass to `SecPolicyCreateSSL`. SecPolicy matches
+// IPv4-mapped addresses only in hex form (`::ffff:7f00:1`), so dotted forms
+// such as `::ffff:127.0.0.1` are rewritten; other literals are unchanged.
+// `literal` must be the zone-free text that `addr` was parsed from.
+std::string Ipv6HostForSecPolicy(const struct in6_addr& addr,
+                                 NSString* literal) {
+  if (IN6_IS_ADDR_V4MAPPED(&addr)) {
+    return absl::StrFormat("::ffff:%x:%x",
+                           (addr.s6_addr[12] << 8) | addr.s6_addr[13],
+                           (addr.s6_addr[14] << 8) | addr.s6_addr[15]);
+  }
+  return util::MakeString((__bridge CFStringRef)literal);
 }
 
 std::string ExtractTlsHostName(absl::string_view target_name) {
@@ -95,7 +110,7 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
       }
       struct in6_addr addr6;
       if (inet_pton(AF_INET6, candidate.UTF8String, &addr6) == 1) {
-        return util::MakeString((__bridge CFStringRef)candidate);
+        return Ipv6HostForSecPolicy(addr6, candidate);
       }
       if (percent_range.location != NSNotFound) {
         return "";
@@ -153,7 +168,7 @@ std::string ExtractTlsHostName(absl::string_view target_name) {
       } else if (comps.port != nil) {
         return "";
       }
-      return util::MakeString((__bridge CFStringRef)ipv6_candidate);
+      return Ipv6HostForSecPolicy(addr6, ipv6_candidate);
     }
 
     // Non-bracketed host or host:port.
@@ -406,6 +421,21 @@ SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
                        absl::StrCat("SecTrustCreateWithCertificates failed "
                                     "with OSStatus ",
                                     trust_status)));
+      return nullptr;
+    }
+
+    // Never let trustd fetch missing intermediates (AIA caIssuers URLs) or
+    // other resources over the network on behalf of the unauthenticated peer:
+    // a server could otherwise make the device request any URL it chooses.
+    // Incomplete chains fail closed instead, as they do on Linux and Windows.
+    // This also turns off online revocation checks, which are not requested.
+    OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(trust, false);
+    if (fetch_status != errSecSuccess) {
+      SetStatus(out_status,
+                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                             absl::StrCat("SecTrustSetNetworkFetchAllowed "
+                                          "failed with OSStatus ",
+                                          fetch_status)));
       return nullptr;
     }
 
