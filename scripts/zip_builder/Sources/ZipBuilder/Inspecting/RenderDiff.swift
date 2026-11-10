@@ -48,14 +48,16 @@ private func frameworkLines(_ framework: FrameworkDiff) -> [String] {
 /// Folder, framework and loose-file changes, as list lines.
 private func layoutLines(_ report: DiffReport, limit: Int = .max) -> [String] {
   var lines: [String] = []
-  func section(_ title: String, _ changes: Changes) {
-    guard !changes.isEmpty else { return }
-    lines.append("\(title): \(changes.added.count) added, \(changes.removed.count) removed")
-    let items = changes.removed.map { "  - " + $0 } + changes.added.map { "  + " + $0 }
+  func list(_ items: [String]) {
     lines += items.prefix(limit)
     if items.count > limit {
       lines.append("  … and \(items.count - limit) more")
     }
+  }
+  func section(_ title: String, _ changes: Changes) {
+    guard !changes.isEmpty else { return }
+    lines.append("\(title): \(changes.added.count) added, \(changes.removed.count) removed")
+    list(changes.removed.map { "  - " + $0 } + changes.added.map { "  + " + $0 })
   }
   section("Folders", report.folders)
   section("Frameworks", report.frameworks)
@@ -66,6 +68,10 @@ private func layoutLines(_ report: DiffReport, limit: Int = .max) -> [String] {
     }
   }
   section("Loose files", report.files)
+  if !report.changedFiles.isEmpty {
+    lines.append("Changed loose files: \(report.changedFiles.count)")
+    list(report.changedFiles.map { "  ~ " + $0 })
+  }
   return lines
 }
 
@@ -154,7 +160,8 @@ private func markdownSummary(_ report: DiffReport) -> String {
               ("Frameworks moved", report.moved.count),
               ("Frameworks changed", report.changed.count),
               ("Loose files added", report.files.added.count),
-              ("Loose files removed", report.files.removed.count)]
+              ("Loose files removed", report.files.removed.count),
+              ("Loose files changed", report.changedFiles.count)]
   return text + "| Change | Count |\n|---|---:|\n" + rows.map { "| \($0.0) | \($0.1) |\n" }.joined()
 }
 

@@ -55,6 +55,7 @@ struct DiffCommentTests {
     #expect(comment.hasPrefix("### Zip diff\n\n| Change | Count |\n|---|---:|\n"))
     #expect(comment.contains("""
     | Loose files removed | 0 |
+    | Loose files changed | 0 |
 
     <details><summary>Details</summary>
 

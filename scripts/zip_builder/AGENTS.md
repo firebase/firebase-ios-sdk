@@ -10,13 +10,13 @@ One executable target, `Sources/ZipBuilder`, in folders that follow the pipeline
 
 | Folder | Stage | Main entry point |
 |---|---|---|
-| `Commands/` | CLI, one file per subcommand | `ZipBuilderCommand`; shared stage steps in `SharedOptions.swift` |
+| `Commands/` | CLI, one file per subcommand | `ZipBuilderCommand`; shared stage steps in `SharedOptions.swift`; `CarthageCommand.swift` runs the Carthage steps |
 | `Config/` | the config file | `Config.swift` → `Config.load(from:)`; defaults in `Default.swift`; `UnknownKeys.swift` → `warnAboutUnknownKeys` |
 | `Model/` | the plan | `Plan.swift` → `Plan`; `XcodeSettings.swift`, `Platform.swift` |
-| `Planning/` | 1–2: load and plan | `LoadPackage.swift` → `loadPackage`; `MakePlan.swift` → `makePlan`; `DynamicFrameworks.swift` → `dynamicTargets`; `HeaderSearchPaths.swift` → `dependencyIncludeDirectories` |
+| `Planning/` | 1–2: load and plan | `LoadPackage.swift` → `loadPackage`; `MakePlan.swift` → `makePlan`; `DynamicFrameworks.swift` → `dynamicTargets`; `HeaderSearchPaths.swift` → `dependencyIncludeDirectories`; `Licenses.swift` → `licenseFile(of:)` |
 | `Customizing/` | 3: apply the config | `Customize.swift` → `customize`; `Merge.swift` → aggregate, merge, rename; `Folders.swift` → `arrangingFolders` |
 | `Building/` | 4: project and build | `MakeProject.swift` → `makeProject`; `BuildXCFrameworks.swift` → `buildXCFrameworks`; `Linking.swift` → linkage check (`checkDynamicFrameworksLinkNothingStatic`), `reachedDependencies`; `FrameworkCache.swift` → `fingerprints`, `FrameworkCache` |
-| `Packaging/` | 5: the zip | `MakeZip.swift` → `makeZip`; `Metadata.swift` → `metadata` |
+| `Packaging/` | 5: the zip, and Carthage | `MakeZip.swift` → `makeZip`; `Metadata.swift` → `metadata`; `Notices.swift` → `notices`, `renderNotices`, `warnAboutMissingLicenses`; `Carthage.swift` → `restricting`, `checkUnsigned`, `replacingFrameworks`, `addCarthageFiles`; `CarthageArchives.swift` → `makeCarthageArchives`, `carthageArchiveName`, `renderManifest`; `UmbrellaFramework.swift` → `makeUmbrellaFramework` |
 | `Inspecting/` | verify and diff | `Verify.swift` → `verify`; `Diff.swift` → `diffDistributions`; `RenderDiff.swift` → `renderText`, `renderMarkdown`, `renderGitHubComment`; `Distribution.swift` → `readDistribution`, `readXCFrameworks` |
 | `Support/` | shell, logging, files | `Shell.swift` → `shell`, `runTool`; `Output.swift` → `warn` |
 
@@ -34,7 +34,9 @@ per step. Its `diff` step writes the pull request comment with `diff --format gi
   path names in `Sources/`. If Firebase needs a behavior, add a general config key.
 - **The plan is the contract.** Only `makePlan` and `customize` make decisions. `makeProject` and
   `buildXCFrameworks` read no config; they carry out the plan. `makeZip` reads only `release`,
-  `zip` and `products.base`; `verify` only `products.base` and `verify`.
+  `zip` and `products.base`; `verify` only `products.base` and `verify`. `carthage` reads
+  `carthage`, and plans and builds through `makePlan`, `customize` and `buildXCFrameworks`; its one
+  choice, which frameworks the extra build compiles, is `restricting` a plan.
 - **Fingerprint text is byte-stable.** `FingerprintTests.goldenFingerprints` must pass unchanged.
   Changing the text invalidates every cache entry, CI's included; do it only on purpose, and bump
   `fingerprintFormat` with it.
