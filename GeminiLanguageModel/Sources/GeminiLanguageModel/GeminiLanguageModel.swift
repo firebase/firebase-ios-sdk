@@ -124,6 +124,16 @@
     /// calling tools until a tool throws an error or the mode changes. To stop sooner, change the
     /// tool calling mode from a `LanguageModelSession.DynamicProfile`, for example after the first
     /// tool call.
+    ///
+    /// The limit counts the tool-calling turns since the most recent prompt in the transcript that
+    /// the session sends to the model, which reflects any `historyTransform(_:)` from a
+    /// `LanguageModelSession.DynamicProfile`. A transform that removes earlier tool calls allows
+    /// more than 10 tool-calling turns per prompt, and a transform that removes prompts counts
+    /// tool-calling turns across prompts.
+    ///
+    /// If Gemini returns a function call when the tool calling mode is `disallowed` or when no
+    /// tools are enabled, the session also throws ``GeminiLanguageModel/Error/invalidResponse(_:)``
+    /// instead of running the tool.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,

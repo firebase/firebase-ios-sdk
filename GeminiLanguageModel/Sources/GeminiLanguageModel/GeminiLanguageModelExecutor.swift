@@ -109,6 +109,11 @@
         let isAtToolCallingTurnLimit =
           GeminiRequestTranslator.toolCallingTurns(in: request.transcript)
           >= configuration.maximumToolCallingTurns
+        let functionCallRejectionReason = Self.functionCallRejectionReason(
+          for: request,
+          isAtToolCallingTurnLimit: isAtToolCallingTurnLimit,
+          maximumToolCallingTurns: configuration.maximumToolCallingTurns
+        )
         let generateRequest = try GeminiRequestTranslator.translate(
           request,
           isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
@@ -191,15 +196,13 @@
                 }
 
                 if case .functionCall(let call) = part.data {
-                  // Gemini doesn't always follow a function calling mode of `NONE`, so never pass a
-                  // function call to the session once the limit is reached.
-                  guard !isAtToolCallingTurnLimit else {
+                  // Gemini doesn't always follow a function calling mode of `NONE`, and the session
+                  // runs every tool call that it receives, so never pass a function call to the
+                  // session when function calling is disabled for this request.
+                  if let functionCallRejectionReason {
                     throw GeminiLanguageModel.Error.invalidResponse(
                       GeminiLanguageModel.Error.InvalidResponse(
-                        debugDescription: """
-                          Gemini returned a function call after the maximum of \
-                          \(configuration.maximumToolCallingTurns) tool-calling turns was reached.
-                          """
+                        debugDescription: functionCallRejectionReason
                       )
                     )
                   }
@@ -267,6 +270,41 @@
         } catch {
           throw GeminiErrorMapper.map(error)
         }
+      }
+
+      /// Returns why a function call in the response to a request must be rejected, or `nil` if
+      /// the request allows function calls.
+      ///
+      /// `LanguageModelSession` runs every tool call that the executor sends it, even when the
+      /// tool calling mode is `disallowed` (tested on macOS 27.2). Gemini sometimes returns a
+      /// function call when function calling is disabled, including for tools that the request
+      /// doesn't declare, so the executor rejects function calls in these cases instead.
+      ///
+      /// - Parameters:
+      ///   - request: The generation request from the Foundation Models session.
+      ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
+      ///     tool-calling turns for the current prompt.
+      ///   - maximumToolCallingTurns: The maximum number of tool-calling turns per prompt.
+      /// - Returns: A description of why a function call must be rejected, or `nil` if function
+      ///   calls are allowed.
+      static func functionCallRejectionReason(
+        for request: LanguageModelExecutorGenerationRequest,
+        isAtToolCallingTurnLimit: Bool,
+        maximumToolCallingTurns: Int
+      ) -> String? {
+        if request.generationOptions.toolCallingMode?.kind == .disallowed {
+          return "Gemini returned a function call when the tool calling mode was `disallowed`."
+        }
+        if request.enabledToolDefinitions.isEmpty {
+          return "Gemini returned a function call when no tools were enabled."
+        }
+        if isAtToolCallingTurnLimit {
+          return """
+            Gemini returned a function call after the maximum of \(maximumToolCallingTurns) \
+            tool-calling turns was reached.
+            """
+        }
+        return nil
       }
     }
   }

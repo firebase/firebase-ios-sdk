@@ -14,6 +14,10 @@
   response; if Gemini returns a function call anyway, the session throws
   `GeminiLanguageModel.Error.invalidResponse`. The limit also applies when the
   tool calling mode is `required`.
+- [fixed] When the tool calling mode is `disallowed` or no tools are enabled,
+  `GeminiLanguageModel` now throws `GeminiLanguageModel.Error.invalidResponse`
+  if Gemini returns a function call, instead of running the tool or failing
+  with a parsing error.
 - [fixed] Fixed a crash at launch on iOS 17 and earlier, and the corresponding
   macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
   the app or a library (such as Realm) enumerated Objective-C classes with

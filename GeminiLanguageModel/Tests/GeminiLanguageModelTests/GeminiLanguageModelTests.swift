@@ -691,7 +691,7 @@
         proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
         proto.client?.urlProtocolDidFinishLoading(proto)
       }
-      let session = LanguageModelSession(model: model)
+      let session = LanguageModelSession(model: model, tools: [MockWeatherTool()])
 
       do {
         _ = try await session.respond(to: "What's the weather?")
@@ -936,6 +936,47 @@
       let requests = recordedRequests.all
       #expect(requests.count == maximumTurns + 2)
       #expect(requests.last?.toolConfig?.functionCallingConfig?.mode == .validated)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallWithToolCallingModeDisallowedThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      do {
+        _ = try await session.respond(
+          to: "What is the weather in Paris?",
+          options: GenerationOptions(toolCallingMode: .disallowed)
+        )
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("tool calling mode was `disallowed`"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallWithoutToolsThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
+      let session = LanguageModelSession(model: Self.makeMockModel())
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("no tools were enabled"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
     }
 
     // MARK: - Helper Methods
