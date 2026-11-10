@@ -28,6 +28,24 @@
 
 #if defined(_WIN32)
 
+// <wincrypt.h> (included above) defines macros that collide with OpenSSL and
+// BoringSSL type names. This file uses only the OpenSSL meanings.
+#undef X509_NAME
+#undef X509_EXTENSIONS
+#undef PKCS7_ISSUER_AND_SERIAL
+#undef PKCS7_SIGNER_INFO
+#undef OCSP_REQUEST
+#undef OCSP_RESPONSE
+
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+#include <openssl/obj_mac.h>
+#include <openssl/pem.h>
+#include <openssl/x509.h>
+#include <openssl/x509v3.h>
+#include <ws2tcpip.h>  // NOLINT(build/include_order)
+
+#include <atomic>
 #include <chrono>              // NOLINT(build/c++11)
 #include <condition_variable>  // NOLINT(build/c++11)
 #include <cstring>
@@ -230,6 +248,159 @@ class StatusRecorder {
   std::shared_ptr<State> state_ = std::make_shared<State>();
 };
 
+/**
+ * A minimal HTTP/1.0 server on 127.0.0.1 that answers every request with the
+ * same body and counts the requests, standing in for an AIA `caIssuers` URL.
+ */
+class CountingHttpServer {
+ public:
+  explicit CountingHttpServer(std::string body) : body_(std::move(body)) {
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+      ADD_FAILURE() << "WSAStartup failed";
+      return;
+    }
+    wsa_started_ = true;
+
+    listener_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (listener_ == INVALID_SOCKET) {
+      ADD_FAILURE() << "socket failed: " << WSAGetLastError();
+      return;
+    }
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = 0;
+    int addr_len = sizeof(addr);
+    if (bind(listener_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) !=
+            0 ||
+        listen(listener_, SOMAXCONN) != 0 ||
+        getsockname(listener_, reinterpret_cast<sockaddr*>(&addr), &addr_len) !=
+            0) {
+      ADD_FAILURE() << "bind/listen failed: " << WSAGetLastError();
+      return;
+    }
+    port_ = ntohs(addr.sin_port);
+    thread_ = std::thread([this] { ServeLoop(); });
+  }
+
+  ~CountingHttpServer() {
+    stopping_ = true;
+    if (listener_ != INVALID_SOCKET) {
+      closesocket(listener_);  // Unblocks accept().
+    }
+    if (thread_.joinable()) {
+      thread_.join();
+    }
+    if (wsa_started_) {
+      WSACleanup();
+    }
+  }
+
+  CountingHttpServer(const CountingHttpServer&) = delete;
+  CountingHttpServer& operator=(const CountingHttpServer&) = delete;
+
+  bool started() const {
+    return port_ != 0;
+  }
+
+  /** A URL on this server that no other test uses. */
+  std::string url() const {
+    return "http://127.0.0.1:" + std::to_string(port_) + "/issuer.cer";
+  }
+
+  int request_count() const {
+    return request_count_;
+  }
+
+ private:
+  void ServeLoop() {
+    while (!stopping_) {
+      SOCKET client = accept(listener_, nullptr, nullptr);
+      if (client == INVALID_SOCKET) {
+        return;
+      }
+      ++request_count_;
+      char buffer[4096];
+      recv(client, buffer, sizeof(buffer), 0);
+      std::string response =
+          "HTTP/1.0 200 OK\r\nContent-Type: application/pkix-cert\r\n"
+          "Content-Length: " +
+          std::to_string(body_.size()) + "\r\nConnection: close\r\n\r\n" +
+          body_;
+      send(client, response.data(), static_cast<int>(response.size()), 0);
+      shutdown(client, SD_SEND);
+      closesocket(client);
+    }
+  }
+
+  std::string body_;
+  bool wsa_started_ = false;
+  SOCKET listener_ = INVALID_SOCKET;
+  int port_ = 0;
+  std::atomic<bool> stopping_{false};
+  std::atomic<int> request_count_{0};
+  std::thread thread_;
+};
+
+/**
+ * Returns `cert` re-signed by `issuer` with an AIA `caIssuers` URL, as PEM.
+ * The subject, key, and SANs are unchanged.
+ */
+std::string ReissueWithCaIssuersUrl(const TestCertificate& cert,
+                                    const TestCertificate& issuer,
+                                    const std::string& url) {
+  std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(cert.x509()),
+                                                   X509_free);
+  if (!copy) {
+    ADD_FAILURE() << "X509_dup failed";
+    return "";
+  }
+  X509V3_CTX ctx;
+  X509V3_set_ctx(&ctx, issuer.x509(), copy.get(), nullptr, nullptr, 0);
+  std::string value = "caIssuers;URI:" + url;
+  X509_EXTENSION* ext =
+      X509V3_EXT_nconf_nid(nullptr, &ctx, NID_info_access, value.c_str());
+  if (ext == nullptr || !X509_add_ext(copy.get(), ext, -1)) {
+    X509_EXTENSION_free(ext);
+    ADD_FAILURE() << "Adding the AIA extension failed";
+    return "";
+  }
+  X509_EXTENSION_free(ext);
+  if (X509_sign(copy.get(), issuer.key(), EVP_sha256()) <= 0) {
+    ADD_FAILURE() << "X509_sign failed";
+    return "";
+  }
+
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  if (!bio || !PEM_write_bio_X509(bio.get(), copy.get())) {
+    ADD_FAILURE() << "PEM_write_bio_X509 failed";
+    return "";
+  }
+  char* data = nullptr;
+  long size = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+  return std::string(data, static_cast<size_t>(size));
+}
+
+/** Decodes the first PEM certificate in `pem` into a CryptoAPI context. */
+PCCERT_CONTEXT CreateCertContextFromPem(const std::string& pem) {
+  DWORD der_size = 0;
+  if (!CryptStringToBinaryA(pem.c_str(), static_cast<DWORD>(pem.size()),
+                            CRYPT_STRING_BASE64HEADER, nullptr, &der_size,
+                            nullptr, nullptr)) {
+    return nullptr;
+  }
+  std::string der(der_size, '\0');
+  if (!CryptStringToBinaryA(pem.c_str(), static_cast<DWORD>(pem.size()),
+                            CRYPT_STRING_BASE64HEADER,
+                            reinterpret_cast<BYTE*>(&der[0]), &der_size,
+                            nullptr, nullptr)) {
+    return nullptr;
+  }
+  return CertCreateCertificateContext(
+      kCertEncoding, reinterpret_cast<const BYTE*>(der.data()), der_size);
+}
+
 class GrpcTlsCredentialsProviderWindowsTest : public ::testing::Test {
  protected:
   GrpcTlsCredentialsProviderWindowsTest()
@@ -292,6 +463,46 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMissingIntermediate) {
   grpc::Status status =
       VerifyWindowsTlsCertificateChain(pki_.leaf.cert_pem(), kHost, trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       DoesNotFetchMissingIntermediatesViaAia) {
+  // The server sends only the leaf, whose AIA extension points at a local
+  // server that would hand out the missing intermediate. The verifier must not
+  // contact it on behalf of an unauthenticated peer.
+  CountingHttpServer aia_server(pki_.intermediate.cert_der());
+  ASSERT_TRUE(aia_server.started());
+  std::string leaf_pem =
+      ReissueWithCaIssuersUrl(pki_.leaf, pki_.intermediate, aia_server.url());
+  ASSERT_FALSE(leaf_pem.empty());
+
+  grpc::Status status = VerifyWindowsTlsCertificateChain(
+      leaf_pem, kHost, ExclusiveRootConfig({&pki_.root}));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_EQ(aia_server.request_count(), 0);
+
+  // Control: the same setup with AIA retrieval left on (a separate server,
+  // URL, leaf, and engine, so nothing is cached) does fetch the intermediate,
+  // so the assertions above aren't vacuous.
+  CountingHttpServer control_server(pki_.intermediate.cert_der());
+  ASSERT_TRUE(control_server.started());
+  std::string control_leaf_pem = ReissueWithCaIssuersUrl(
+      pki_.leaf, pki_.intermediate, control_server.url());
+  WindowsTrustConfig control_trust = ExclusiveRootConfig({&pki_.root});
+  PCCERT_CONTEXT control_leaf = CreateCertContextFromPem(control_leaf_pem);
+  ASSERT_NE(control_leaf, nullptr);
+  CERT_CHAIN_PARA chain_para = {};
+  chain_para.cbSize = sizeof(chain_para);
+  PCCERT_CHAIN_CONTEXT chain = nullptr;
+  ASSERT_TRUE(CertGetCertificateChain(
+      static_cast<HCERTCHAINENGINE>(control_trust.chain_engine.get()),
+      control_leaf, nullptr, nullptr, &chain_para, /*dwFlags=*/0, nullptr,
+      &chain));
+  EXPECT_EQ(chain->TrustStatus.dwErrorStatus,
+            static_cast<DWORD>(CERT_TRUST_NO_ERROR));
+  EXPECT_GT(control_server.request_count(), 0);
+  CertFreeCertificateChain(chain);
+  CertFreeCertificateContext(control_leaf);
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsWrongHostname) {
