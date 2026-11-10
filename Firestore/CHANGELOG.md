@@ -13,7 +13,9 @@
   rejected.
 - [changed] On Linux, Firestore now verifies gRPC TLS server certificates
   against the system CA store and honors distro distrust lists instead of an
-  embedded root certificate bundle.
+  embedded root certificate bundle. `SSL_CERT_FILE`/`SSL_CERT_DIR` override
+  the system store, and if no CA certificates are found, RPCs fail with
+  `UNAVAILABLE` rather than falling back to an embedded bundle.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
