@@ -1369,53 +1369,61 @@ class QueueBlocker {
   bool released_ = false;
 };
 
-// Records completions of an asynchronous verification.
+// Records completions of an asynchronous verification. The recorded state is
+// shared with the callbacks, so a callback that runs after the recorder is
+// destroyed (for example, after an early ASSERT failure) stays safe.
 class AsyncRecorder {
  public:
   explicit AsyncRecorder(dispatch_queue_t expected_queue = nullptr)
-      : expected_queue_(expected_queue) {
+      : state_(std::make_shared<State>()) {
+    state_->expected_queue = expected_queue;
   }
 
   TlsVerificationCallback AsCallback() {
-    return [this](grpc::Status status) {
-      bool on_queue =
-          expected_queue_ == nullptr || IsCurrentQueue(expected_queue_);
-      std::lock_guard<std::mutex> lock(mutex_);
-      ++count_;
-      status_ = std::move(status);
-      all_on_expected_queue_ = all_on_expected_queue_ && on_queue;
-      cv_.notify_all();
+    std::shared_ptr<State> state = state_;
+    return [state](grpc::Status status) {
+      bool on_queue = state->expected_queue == nullptr ||
+                      IsCurrentQueue(state->expected_queue);
+      std::lock_guard<std::mutex> lock(state->mutex);
+      ++state->count;
+      state->status = std::move(status);
+      state->all_on_expected_queue = state->all_on_expected_queue && on_queue;
+      state->cv.notify_all();
     };
   }
 
   bool WaitForCount(int expected) {
-    std::unique_lock<std::mutex> lock(mutex_);
-    return cv_.wait_for(lock, kAsyncTimeout,
-                        [&] { return count_ >= expected; });
+    std::unique_lock<std::mutex> lock(state_->mutex);
+    return state_->cv.wait_for(lock, kAsyncTimeout,
+                               [&] { return state_->count >= expected; });
   }
 
   int count() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return count_;
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->count;
   }
 
   grpc::Status status() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return status_;
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->status;
   }
 
   bool all_on_expected_queue() const {
-    std::lock_guard<std::mutex> lock(mutex_);
-    return all_on_expected_queue_;
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->all_on_expected_queue;
   }
 
  private:
-  dispatch_queue_t expected_queue_;
-  mutable std::mutex mutex_;
-  std::condition_variable cv_;
-  int count_ = 0;
-  grpc::Status status_;
-  bool all_on_expected_queue_ = true;
+  struct State {
+    dispatch_queue_t expected_queue = nullptr;
+    std::mutex mutex;
+    std::condition_variable cv;
+    int count = 0;
+    grpc::Status status;
+    bool all_on_expected_queue = true;
+  };
+
+  std::shared_ptr<State> state_;
 };
 
 // A gRPC verification request backed by test-owned strings.
