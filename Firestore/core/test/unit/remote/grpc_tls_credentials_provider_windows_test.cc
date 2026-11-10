@@ -28,7 +28,8 @@
 
 #if defined(_WIN32)
 
-#include <chrono>  // NOLINT(build/c++11)
+#include <chrono>              // NOLINT(build/c++11)
+#include <condition_variable>  // NOLINT(build/c++11)
 #include <cstring>
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
@@ -199,6 +200,44 @@ class FakeRequest {
   grpc::experimental::TlsCustomVerificationCheckRequest request_{&c_request_};
 };
 
+/**
+ * Records the statuses a verification callback receives. Callbacks share
+ * ownership of the recorded state, so a late callback (for example, after an
+ * assertion fails and the test returns early) never touches freed memory.
+ */
+class StatusRecorder {
+ public:
+  TlsVerificationCallback AsCallback() const {
+    std::shared_ptr<State> state = state_;
+    return [state](grpc::Status status) {
+      std::lock_guard<std::mutex> lock(state->mutex);
+      state->statuses.push_back(std::move(status));
+      state->changed.notify_all();
+    };
+  }
+
+  /** Waits until at least `count` statuses are recorded. */
+  bool WaitForCount(size_t count) const {
+    std::unique_lock<std::mutex> lock(state_->mutex);
+    return state_->changed.wait_for(
+        lock, kTimeout, [&] { return state_->statuses.size() >= count; });
+  }
+
+  std::vector<grpc::Status> statuses() const {
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->statuses;
+  }
+
+ private:
+  struct State {
+    std::mutex mutex;
+    std::condition_variable changed;
+    std::vector<grpc::Status> statuses;
+  };
+
+  std::shared_ptr<State> state_ = std::make_shared<State>();
+};
+
 class GrpcTlsCredentialsProviderWindowsTest : public ::testing::Test {
  protected:
   GrpcTlsCredentialsProviderWindowsTest()
@@ -347,18 +386,16 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, VerifiesAsynchronously) {
       CreateWindowsTlsVerifier(engine.config());
 
   FakeRequest request(pki_.ServerChainPem(), kHost);
-  std::promise<grpc::Status> result;
+  StatusRecorder recorder;
   grpc::Status sync_status;
-  bool sync = verifier->Verify(
-      request.get(),
-      [&result](grpc::Status status) { result.set_value(std::move(status)); },
-      &sync_status);
+  bool sync =
+      verifier->Verify(request.get(), recorder.AsCallback(), &sync_status);
 
   ASSERT_FALSE(sync) << "verification must not run on the calling thread";
-  auto future = result.get_future();
-  ASSERT_EQ(future.wait_for(kTimeout), std::future_status::ready);
-  grpc::Status status = future.get();
-  EXPECT_TRUE(status.ok()) << status.error_message();
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  std::vector<grpc::Status> statuses = recorder.statuses();
+  ASSERT_EQ(statuses.size(), 1u);
+  EXPECT_TRUE(statuses[0].ok()) << statuses[0].error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
@@ -377,25 +414,14 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
   std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(config);
 
   FakeRequest request(pki_.ServerChainPem(), kHost);
-  std::mutex mutex;
-  std::vector<grpc::Status> statuses;
-  std::promise<void> first_callback;
+  StatusRecorder recorder;
   grpc::Status sync_status;
-  bool sync = verifier->Verify(
-      request.get(),
-      [&](grpc::Status status) {
-        std::lock_guard<std::mutex> lock(mutex);
-        statuses.push_back(std::move(status));
-        if (statuses.size() == 1) {
-          first_callback.set_value();
-        }
-      },
-      &sync_status);
+  bool sync =
+      verifier->Verify(request.get(), recorder.AsCallback(), &sync_status);
   ASSERT_FALSE(sync);
 
   verifier->Cancel(request.get());
-  auto first = first_callback.get_future();
-  ASSERT_EQ(first.wait_for(kTimeout), std::future_status::ready);
+  ASSERT_TRUE(recorder.WaitForCount(1));
 
   // Let the held evaluation finish; its result must be ignored. Destroying the
   // verifier must not wait for it either.
@@ -403,10 +429,9 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
   verifier.reset();
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-  std::lock_guard<std::mutex> lock(mutex);
+  std::vector<grpc::Status> statuses = recorder.statuses();
   ASSERT_EQ(statuses.size(), 1u);
-  EXPECT_EQ(statuses[0].error_code(),
-            TlsVerificationCancelledStatus().error_code());
+  EXPECT_EQ(statuses[0].error_code(), grpc::StatusCode::CANCELLED);
 }
 
 }  // namespace
