@@ -430,6 +430,8 @@
         usageMetadata: #"{"promptTokenCount": 5, "candidatesTokenCount": 5, "totalTokenCount": 10}"#
       )
       let snapshotReceived = DispatchSemaphore(value: 0)
+      // Stops the background chunk loop promptly if the test exits early.
+      defer { snapshotReceived.signal() }
       let isResponseComplete = Mutex(false)
       let intermediateChunkCount = Mutex(0)
       MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in

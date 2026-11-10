@@ -105,7 +105,8 @@
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
           // Usage is reported once, after the stream ends, instead of after every chunk (#17040).
-          // `LanguageModelSession`'s handling of usage isn't documented; in testing (macOS 27.2):
+          // `updateUsage` is documented to replace the turn's usage totals; in testing (macOS
+          // 27.2), `LanguageModelSession` also has these undocumented constraints:
           //
           // - It only produces a streamed snapshot for an event that raises the turn's output
           //   token count above its previous high. The Gemini Enterprise Agent Platform omits
@@ -114,7 +115,7 @@
           // - `updateUsage` traps if the uncached input token count (`total - cached`) decreases.
           //   The Gemini Developer API reports `cachedContentTokenCount` only in the final chunk,
           //   so reporting earlier chunks' usage crashed on implicit cache hits.
-          // - The last `updateUsage` replaces the turn's usage, even if it lowers the output count.
+          // - The final `updateUsage` is accepted even if it lowers the output count.
           //
           // While streaming, the `appendText` token counts track Gemini's running output totals
           // instead (see `StreamedTokenCounter`); the final usage replaces them.
@@ -202,8 +203,9 @@
           }
 
           if let usage = latestUsage {
-            // In testing, the session's output total includes reasoning tokens, but Gemini's
-            // `candidatesTokenCount` excludes thinking tokens, which it reports separately.
+            // The session's output total includes reasoning tokens (`reasoningTokenCount` is
+            // documented to be at most `totalTokenCount`), but Gemini's `candidatesTokenCount`
+            // excludes thinking tokens, which it reports separately.
             let candidatesTokenCount = usage.candidatesTokenCount ?? 0
             let thoughtsTokenCount = usage.thoughtsTokenCount ?? 0
             await channel.send(
