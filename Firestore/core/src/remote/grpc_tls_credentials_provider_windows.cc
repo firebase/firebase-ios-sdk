@@ -267,7 +267,7 @@ std::string DescribeChainPolicyError(DWORD error) {
 VOID CALLBACK RunThreadPoolTask(PTP_CALLBACK_INSTANCE instance, PVOID context) {
   std::unique_ptr<std::function<void()>> task(
       static_cast<std::function<void()>*>(context));
-  // Chain building may fetch intermediates or root updates over the network.
+  // Chain building may fetch root updates over the network.
   CallbackMayRunLong(instance);
   (*task)();
 }
@@ -393,6 +393,12 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   chain_para.RequestedUsage.Usage.cUsageIdentifier = 1;
   chain_para.RequestedUsage.Usage.rgpszUsageIdentifier = usages;
 
+  // CERT_CHAIN_DISABLE_AIA: never fetch a missing issuer from the URL in a
+  // certificate the (still unauthenticated) peer sent; that would let any
+  // server make this client issue HTTP requests to a host of its choosing.
+  // The server must send its intermediates, as TLS requires. Root updates
+  // (AuthRoot auto-update) are controlled separately and stay enabled.
+  //
   // No revocation flags: like the bundled-roots verification this replaces,
   // and like browsers, don't block on online CRL/OCSP checks. Certificates
   // in the `Disallowed` store and Microsoft's distrust lists are still
@@ -400,8 +406,8 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   PCCERT_CHAIN_CONTEXT raw_chain = nullptr;
   if (!CertGetCertificateChain(
           static_cast<HCERTCHAINENGINE>(config.chain_engine.get()), leaf.get(),
-          /*pTime=*/nullptr, intermediates.get(), &chain_para, /*dwFlags=*/0,
-          /*pvReserved=*/nullptr, &raw_chain)) {
+          /*pTime=*/nullptr, intermediates.get(), &chain_para,
+          CERT_CHAIN_DISABLE_AIA, /*pvReserved=*/nullptr, &raw_chain)) {
     return Unauthenticated(absl::StrCat(
         "CertGetCertificateChain failed with error ", GetLastError()));
   }

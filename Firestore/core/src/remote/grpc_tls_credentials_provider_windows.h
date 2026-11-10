@@ -84,8 +84,11 @@ struct WindowsTrustConfig {
  * have a matching `iPAddress` subjectAltName. Returns `UNAUTHENTICATED` with a
  * description on any failure.
  *
- * This call can block: CryptoAPI may fetch missing intermediates (AIA) or
- * root updates over the network. Never call it on a gRPC thread.
+ * Missing intermediates are never fetched from the URLs in the peer's
+ * certificates (AIA), so the peer must send its full chain.
+ *
+ * This call can block: CryptoAPI may fetch root updates over the network.
+ * Never call it on a gRPC thread.
  */
 grpc::Status VerifyWindowsTlsCertificateChain(
     absl::string_view pem_chain,
