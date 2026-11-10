@@ -29,6 +29,10 @@ permissions:
 env:
   # Firebase's minimum supported Xcode, as in release.zip.yml: the binaries are built with it.
   MIN_XCODE: Xcode_26.2
+  # Resolve GoogleAppMeasurement and app-check from their main branches (see Package.swift). A
+  # release is built before those repos publish its SwiftPM tags, much as release.zip.yml builds
+  # from staged pods. When this is run, their main should match the release's versions.
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 
 on:
   pull_request:
@@ -72,13 +76,8 @@ jobs:
         run: |
           echo "VERSION=$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)" \
             >> "$GITHUB_ENV"
-          # Package.swift checks whether these variables are set at all, so they're only set
-          # when wanted. On PRs, use GoogleAppMeasurement's main branch like the other zip
-          # workflows: main's Package.swift can require a GoogleAppMeasurement tag that isn't
-          # published yet. Release runs build the checked-out Package.swift as is.
-          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
-            echo "FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1" >> "$GITHUB_ENV"
-          fi
+          # Package.swift checks whether the variable is set at all, so it's only set for the
+          # dynamic zip.
           if [[ "$LINKAGE" == dynamic ]]; then
             echo "FIREBASE_SOURCE_FIRESTORE=1" >> "$GITHUB_ENV"
           fi

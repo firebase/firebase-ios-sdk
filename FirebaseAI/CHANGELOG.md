@@ -8,6 +8,17 @@
   `start` and `end`, removed `VoiceActivityType.unknown` from the public API,
   and made `LiveServerVoiceActivity.audioOffset` a non-optional `TimeInterval`
   (defaulting to `0`).
+- [fixed] Fixed a crash at launch on iOS 17 and earlier, and the corresponding
+  macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
+  the app or a library (such as Realm) enumerated Objective-C classes with
+  `objc_copyClassList`. (#17024)
+- [fixed] Fixed a crash in `GeminiLanguageModel` when part of a prompt was
+  served from the Gemini Developer API's implicit cache. (#17042)
+- [fixed] Fixed `LanguageModelSession.streamResponse` delivering a
+  `GeminiLanguageModel` response all at once, after it finished, when using the
+  Gemini Enterprise Agent Platform. (#17040)
+- [fixed] Fixed `GeminiLanguageModel` to include reasoning tokens in the output
+  and total token counts. (#17042)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
