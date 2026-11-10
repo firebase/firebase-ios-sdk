@@ -123,6 +123,55 @@ struct MakeZipTests {
     #expect(!entries.contains { $0.contains("__MACOSX") || $0.contains("/._") })
   }
 
+  @Test func writesNoticesOnlyWhenConfigured() async throws {
+    let fixture = try ZipFixture()
+    try fixture.fake.addFile("package/LICENSE", "\nApache\n")
+    var plan = ZipFixture.plan
+    // The configured file comes from `zip.notices`, not `zip.files`.
+    plan.folders[0].files = ["Template/README.md"]
+    for index in plan.frameworks.indices {
+      plan.frameworks[index].licenses = ["LICENSE"]
+    }
+    plan.binaries[0].licenses = ["LICENSE"]
+    let root = try distributionRoot(workDir: fixture.workDir, config: config())
+
+    let zip = try await makeZip(xcframeworks: fixture.xcframeworks, plan: plan,
+                                config: config(#", "zip": { "notices": {} }"#),
+                                packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                                signingIdentity: nil, version: "1.2.3")
+    // C ships in no folder, so it isn't listed.
+    #expect(try String(contentsOf: root.appendingPathComponent("NOTICES"), encoding: .utf8)
+      == "A\nB\nBin\n\nApache\n")
+    let entries = try await shell("zipinfo", ["-1", zip]).split(separator: "\n")
+    #expect(entries.contains("Mini/NOTICES"))
+
+    // Another name, and none without `zip.notices`.
+    _ = try await makeZip(xcframeworks: fixture.xcframeworks, plan: plan,
+                          config: config(#", "zip": { "notices": { "file": "LICENSES.txt" } }"#),
+                          packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                          signingIdentity: nil, version: "1.2.3")
+    #expect(layout(of: root).filter { !$0.contains("/") }
+      == ["Base", "LICENSES.txt", "METADATA.md", "Other", "README.md"])
+    _ = try await makeZip(xcframeworks: fixture.xcframeworks, plan: plan, config: config(),
+                          packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                          signingIdentity: nil, version: "1.2.3")
+    #expect(layout(of: root).filter { !$0.contains("/") }
+      == ["Base", "METADATA.md", "Other", "README.md"])
+  }
+
+  @Test func noticesDontReplaceAZipFile() async throws {
+    let fixture = try ZipFixture()
+    // ZipFixture.plan's root folder already has CoreOnly/NOTICES.
+    let error = await #expect(throws: ZipBuilderError.self) {
+      try await makeZip(xcframeworks: fixture.xcframeworks, plan: ZipFixture.plan,
+                        config: config(#", "zip": { "notices": {} }"#),
+                        packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                        signingIdentity: nil, version: "1.2.3")
+    }
+    #expect(error?.description.contains("zip.notices: NOTICES is already in the distribution")
+      == true)
+  }
+
   @Test func aMissingXCFrameworkIsAnError() async throws {
     let fixture = try ZipFixture()
     var plan = ZipFixture.plan

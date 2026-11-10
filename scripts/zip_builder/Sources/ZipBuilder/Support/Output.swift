@@ -41,6 +41,7 @@ func warn(_ message: String, file: String = #fileID, function: String = #functio
 /// Warnings collected instead of printed, so tests can check them.
 final class Warnings: @unchecked Sendable {
   /// Set by tests with `Warnings.$collected.withValue(…)`; warnings go here instead of stderr.
+  /// `carthage` sets it too, to drop the warnings of a plan it only reads names from.
   @TaskLocal static var collected: Warnings?
 
   private let lock = NSLock()

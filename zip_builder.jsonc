@@ -161,7 +161,6 @@
         "files": [
           // The legacy zip's README; it moves here when ReleaseTooling is retired.
           "ReleaseTooling/Template/README.md",
-          "CoreOnly/NOTICES",
           "CoreOnly/Sources/Firebase.h",
           "CoreOnly/Sources/module.modulemap"
         ]
@@ -173,7 +172,17 @@
           "Crashlytics/upload-symbols"
         ]
       }
-    ]
+    ],
+    "notices": {
+      // Licenses missing from the packages: BoringSSL ships inside openssl_grpc with no license
+      // file, and grpc-binary's LICENSE lacks gRPC's full third-party text.
+      "extraLicenses": {
+        "openssl_grpc": ["CoreOnly/licenses/BoringSSL.txt"],
+        "grpc": ["CoreOnly/licenses/gRPC.txt"],
+        "grpcpp": ["CoreOnly/licenses/gRPC.txt"],
+        "FirebaseFirestoreInternal": ["Firestore/LICENSE"]
+      }
+    }
   },
 
   "verify": {
@@ -190,5 +199,33 @@
       // C++-only.
       "leveldb"
     ]
+  },
+
+  // Read only by the `carthage` command, which packages the finished distribution for Carthage.
+  "carthage": {
+    // Where each archive is downloaded from. {version} is the release version, {archive} the file
+    // name.
+    "url": "https://dl.google.com/dl/firebase/ios/carthage/{version}/{archive}",
+    // Each folder's Carthage binary spec (version -> URL), relative to the package root. {folder}
+    // is the distribution folder name.
+    "manifests": "ReleaseTooling/CarthageJSON/{folder}Binary.json",
+    // An extra build with these defines added to build.defines, limited to the frameworks the
+    // `rebuild` product needs, as planned for the whole release. Its frameworks replace the
+    // distribution's: GoogleUtilities reports the `carthage` deployment type
+    // (FIREBASE_BUILD_CARTHAGE) in Firebase's usage telemetry instead of `zip`.
+    "defines": ["FIREBASE_BUILD_CARTHAGE=1"],
+    "rebuild": "FirebaseCore",
+    // Files from the distribution root to copy into its xcframeworks (Carthage only keeps
+    // frameworks), by path in the distribution.
+    "files": { "FirebaseAnalytics/FirebaseCore.xcframework": ["NOTICES"] },
+    // A static framework added to `folder` that only carries the umbrella header and module, so
+    // Carthage users can `import Firebase`.
+    "umbrellaFramework": {
+      "folder": "FirebaseAnalytics",
+      "name": "Firebase",
+      "header": "CoreOnly/Sources/Firebase.h",
+      "binary": "ReleaseTooling/Template/dummy_Firebase_lib",
+      "bundleIdentifier": "com.firebase.Firebase-Firebase"
+    }
   }
 }
