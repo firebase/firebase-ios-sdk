@@ -457,6 +457,10 @@ std::shared_ptr<grpc::ChannelCredentials> CreateWindowsTlsCredentials(
   // gRPC still populates `peer_cert_full_chain()` for the verifier.
   options.set_verify_server_certs(false);
 
+  // gRPC's default per-RPC `check_call_host` stays enabled, as on Apple and
+  // Linux; see the note on canonical IP-literal hosts in
+  // grpc_tls_credentials_provider.h.
+
   // A fresh verifier per credentials object, as on Apple platforms: gRPC
   // compares TLS credentials by verifier identity, so this keeps channels
   // from sharing subchannels.
