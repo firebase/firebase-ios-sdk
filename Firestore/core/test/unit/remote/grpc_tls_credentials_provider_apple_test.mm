@@ -1888,6 +1888,67 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   EXPECT_EQ(aia_server.request_count(), 0);
 }
 
+// Positive control for the test above: with network fetch explicitly allowed,
+// trustd must fetch the intermediate from the AIA URL. This proves the harness
+// can observe a fetch, so the zero-fetch assertion above cannot pass
+// vacuously.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AiaHarnessObservesFetchWhenNetworkFetchAllowed) {
+  CertOptions root_opts;
+  root_opts.common_name = "Firestore Test AIA Control Root CA";
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate root =
+      GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test AIA Control Intermediate CA";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate intermediate = GenerateCertificate(inter_opts, &root);
+
+  CountingHttpServer aia_server(intermediate.cert_der);
+
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "aia-control.firestore.local";
+  leaf_opts.dns_sans = {"aia-control.firestore.local"};
+  leaf_opts.aia_ca_issuers_url = aia_server.Url("control-intermediate.cer");
+  GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
+
+  const void* leaf_values[] = {leaf.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> certs(CFArrayCreate(kCFAllocatorDefault, leaf_values,
+                                              1, &kCFTypeArrayCallBacks));
+  const void* root_values[] = {root.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> anchors(CFArrayCreate(
+      kCFAllocatorDefault, root_values, 1, &kCFTypeArrayCallBacks));
+  ScopedCFRef<SecPolicyRef> policy(SecPolicyCreateSSL(
+      /*server=*/true, CFSTR("aia-control.firestore.local")));
+  ASSERT_TRUE(policy);
+
+  SecTrustRef raw_trust = nullptr;
+  ASSERT_EQ(
+      SecTrustCreateWithCertificates(certs.get(), policy.get(), &raw_trust),
+      errSecSuccess);
+  ScopedCFRef<SecTrustRef> trust(raw_trust);
+  ASSERT_EQ(SecTrustSetAnchorCertificates(trust.get(), anchors.get()),
+            errSecSuccess);
+  ASSERT_EQ(SecTrustSetAnchorCertificatesOnly(trust.get(), true),
+            errSecSuccess);
+  ASSERT_EQ(SecTrustSetNetworkFetchAllowed(trust.get(), true), errSecSuccess);
+
+  CFErrorRef raw_error = nullptr;
+  bool trusted = SecTrustEvaluateWithError(trust.get(), &raw_error);
+  ScopedCFRef<CFErrorRef> error(raw_error);
+
+  EXPECT_GE(aia_server.request_count(), 1)
+      << "trustd did not fetch the AIA URL even with network fetch allowed; "
+         "VerifyNeverFetchesMissingIntermediateViaAia cannot detect fetches "
+         "on this OS. trusted="
+      << trusted;
+}
+
 }  // namespace
 }  // namespace remote
 }  // namespace firestore
