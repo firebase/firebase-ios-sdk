@@ -22,12 +22,15 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
+#import <dispatch/dispatch.h>
 
 #include <array>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 #include <ctime>
 #include <memory>
 #include <mutex>
@@ -36,6 +39,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 #include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -46,6 +50,7 @@
 #include "gtest/gtest.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
+#include "grpc/credentials.h"
 #include "grpcpp/channel.h"
 #include "grpcpp/client_context.h"
 #include "grpcpp/completion_queue.h"
@@ -54,6 +59,8 @@ SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/generic/generic_stub.h"
 #include "grpcpp/security/credentials.h"
 #include "grpcpp/security/server_credentials.h"
+#include "grpcpp/security/tls_certificate_verifier.h"
+#include "grpcpp/security/tls_credentials_options.h"
 #include "grpcpp/server.h"
 #include "grpcpp/server_builder.h"
 #include "grpcpp/support/byte_buffer.h"
@@ -326,6 +333,8 @@ std::string EncodePkcs8EcPrivateKeyPem(const ByteVec& x963_private_key) {
   return PemEncode("PRIVATE KEY", DerSequence(pkcs8_body));
 }
 
+struct GeneratedCertificate;
+
 struct CertOptions {
   std::string common_name;
   bool is_ca = false;
@@ -334,6 +343,10 @@ struct CertOptions {
   std::vector<std::string> dns_sans;
   std::vector<std::array<uint8_t, 4>> ipv4_sans;
   std::vector<std::array<uint8_t, 16>> ipv6_sans;
+  // If set, the new certificate reuses this certificate's key pair instead of
+  // generating one. Combined with the same `common_name`, this produces
+  // cross-signed variants of one CA (same subject and key, different issuer).
+  const GeneratedCertificate* reuse_key_from = nullptr;
 };
 
 struct GeneratedCertificate {
@@ -346,18 +359,30 @@ struct GeneratedCertificate {
   ByteVec ski_bytes;
 };
 
-GeneratedCertificate GenerateCertificate(const CertOptions& options,
-                                         const GeneratedCertificate* issuer) {
-  static std::atomic<uint64_t> next_serial{0x1000};
-
+// Returns a +1 reference to a new random P-256 private key, or nullptr.
+SecKeyRef CreateRandomP256Key() {
   NSDictionary* key_attrs = @{
     (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeECSECPrimeRandom,
     (__bridge id)kSecAttrKeySizeInBits : @256,
   };
   CFErrorRef raw_error = nullptr;
-  ScopedCFRef<SecKeyRef> priv_key(
-      SecKeyCreateRandomKey((__bridge CFDictionaryRef)key_attrs, &raw_error));
+  SecKeyRef key =
+      SecKeyCreateRandomKey((__bridge CFDictionaryRef)key_attrs, &raw_error);
   ScopedCFRef<CFErrorRef> key_error(raw_error);
+  return key;
+}
+
+GeneratedCertificate GenerateCertificate(const CertOptions& options,
+                                         const GeneratedCertificate* issuer) {
+  static std::atomic<uint64_t> next_serial{0x1000};
+
+  CFErrorRef raw_error = nullptr;
+  ScopedCFRef<SecKeyRef> priv_key;
+  if (options.reuse_key_from != nullptr) {
+    priv_key = options.reuse_key_from->private_key;
+  } else {
+    priv_key.Reset(CreateRandomP256Key());
+  }
   HARD_ASSERT(priv_key.get() != nullptr, "SecKeyCreateRandomKey failed");
 
   ScopedCFRef<SecKeyRef> pub_key(SecKeyCopyPublicKey(priv_key.get()));
@@ -714,14 +739,16 @@ std::string ReadByteBuffer(const grpc::ByteBuffer& buffer) {
   return out;
 }
 
-grpc::Status PerformUnaryEcho(const std::shared_ptr<grpc::Channel>& channel,
-                              const std::string& payload,
-                              std::string* out_response = nullptr) {
+grpc::Status PerformUnaryEcho(
+    const std::shared_ptr<grpc::Channel>& channel,
+    const std::string& payload,
+    std::string* out_response = nullptr,
+    std::chrono::milliseconds deadline = std::chrono::seconds(5),
+    bool wait_for_ready = false) {
   grpc::GenericStub stub(channel);
   grpc::ClientContext context;
-  context.set_deadline(std::chrono::system_clock::now() +
-                       std::chrono::seconds(5));
-  context.set_wait_for_ready(false);
+  context.set_deadline(std::chrono::system_clock::now() + deadline);
+  context.set_wait_for_ready(wait_for_ready);
 
   grpc::Slice req_slice(payload);
   grpc::ByteBuffer request(&req_slice, 1);
@@ -1290,6 +1317,402 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   grpc::Status status = PerformUnaryEcho(channel, "should-fail-expired-leaf");
   EXPECT_FALSE(status.ok());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
+}
+
+// ===========================================================================
+// 5. Asynchronous SecTrust Evaluation
+// ===========================================================================
+
+constexpr auto kAsyncTimeout = std::chrono::seconds(10);
+
+char kTestQueueKey;
+
+// Creates a serial queue that `IsCurrentQueue()` can recognize.
+dispatch_queue_t MakeTestQueue(const char* label) {
+  dispatch_queue_t queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_set_specific(queue, &kTestQueueKey, const_cast<char*>(label),
+                              nullptr);
+  return queue;
+}
+
+bool IsCurrentQueue(dispatch_queue_t queue) {
+  void* expected = dispatch_queue_get_specific(queue, &kTestQueueKey);
+  return expected != nullptr &&
+         dispatch_get_specific(&kTestQueueKey) == expected;
+}
+
+// Blocks a serial queue until `Release()` (or destruction), so tests control
+// when queued evaluations run.
+class QueueBlocker {
+ public:
+  explicit QueueBlocker(dispatch_queue_t queue)
+      : semaphore_(dispatch_semaphore_create(0)) {
+    dispatch_semaphore_t semaphore = semaphore_;
+    dispatch_async(queue, ^{
+      dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    });
+  }
+
+  ~QueueBlocker() {
+    Release();
+  }
+
+  void Release() {
+    if (!released_) {
+      released_ = true;
+      dispatch_semaphore_signal(semaphore_);
+    }
+  }
+
+ private:
+  dispatch_semaphore_t semaphore_;
+  bool released_ = false;
+};
+
+// Records completions of an asynchronous verification.
+class AsyncRecorder {
+ public:
+  explicit AsyncRecorder(dispatch_queue_t expected_queue = nullptr)
+      : expected_queue_(expected_queue) {
+  }
+
+  TlsVerificationCallback AsCallback() {
+    return [this](grpc::Status status) {
+      bool on_queue =
+          expected_queue_ == nullptr || IsCurrentQueue(expected_queue_);
+      std::lock_guard<std::mutex> lock(mutex_);
+      ++count_;
+      status_ = std::move(status);
+      all_on_expected_queue_ = all_on_expected_queue_ && on_queue;
+      cv_.notify_all();
+    };
+  }
+
+  bool WaitForCount(int expected) {
+    std::unique_lock<std::mutex> lock(mutex_);
+    return cv_.wait_for(lock, kAsyncTimeout,
+                        [&] { return count_ >= expected; });
+  }
+
+  int count() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return count_;
+  }
+
+  grpc::Status status() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return status_;
+  }
+
+  bool all_on_expected_queue() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return all_on_expected_queue_;
+  }
+
+ private:
+  dispatch_queue_t expected_queue_;
+  mutable std::mutex mutex_;
+  std::condition_variable cv_;
+  int count_ = 0;
+  grpc::Status status_;
+  bool all_on_expected_queue_ = true;
+};
+
+// A gRPC verification request backed by test-owned strings.
+class FakeVerificationRequest {
+ public:
+  FakeVerificationRequest(std::string pem_chain, std::string target_name)
+      : pem_chain_(std::move(pem_chain)), target_name_(std::move(target_name)) {
+    std::memset(&c_request_, 0, sizeof(c_request_));
+    c_request_.target_name = target_name_.c_str();
+    c_request_.peer_info.peer_cert_full_chain = pem_chain_.c_str();
+  }
+
+  FakeVerificationRequest(const FakeVerificationRequest&) = delete;
+  FakeVerificationRequest& operator=(const FakeVerificationRequest&) = delete;
+
+  grpc::experimental::TlsCustomVerificationCheckRequest* get() {
+    return &request_;
+  }
+
+ private:
+  std::string pem_chain_;
+  std::string target_name_;
+  grpc_tls_custom_verification_check_request c_request_;
+  grpc::experimental::TlsCustomVerificationCheckRequest request_{&c_request_};
+};
+
+// Waits until everything currently queued on `queue`, plus one round of
+// work those items enqueue (such as `SecTrustEvaluateAsyncWithError` results),
+// has run, or until a short grace period passes.
+void DrainQueue(dispatch_queue_t queue) {
+  for (int i = 0; i < 3; ++i) {
+    // Returning means everything queued before this no-op has run.
+    dispatch_sync_f(queue, nullptr, [](void*) {});
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncSucceedsAndCompletesOnQueueForValidChain) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.valid");
+  AsyncRecorder recorder(queue);
+
+  VerifyAppleTlsCertificateChainAsync(
+      TlsVerificationInput{pki.ServerChainPem(), "test.firestore.local:443"},
+      anchors.get(), queue, recorder.AsCallback());
+
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_TRUE(recorder.status().ok()) << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+  DrainQueue(queue);
+  EXPECT_EQ(recorder.count(), 1);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncRejectsUntrustedRootLikeSyncPath) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.untrusted");
+  AsyncRecorder recorder(queue);
+
+  VerifyAppleTlsCertificateChainAsync(
+      TlsVerificationInput{pki_b.ServerChainPem(), "test.firestore.local:443"},
+      root_a_anchors.get(), queue, recorder.AsCallback());
+
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  grpc::Status sync_status = VerifyAppleTlsCertificateChain(
+      pki_b.ServerChainPem(), "test.firestore.local:443", root_a_anchors.get());
+  EXPECT_EQ(recorder.status().error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_EQ(recorder.status().error_code(), sync_status.error_code());
+  EXPECT_NE(recorder.status().error_message().find(
+                "Apple SecTrust TLS certificate verification failed for "
+                "'test.firestore.local'"),
+            std::string::npos)
+      << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncReportsSetupFailuresOnQueueLikeSyncPath) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.setup");
+
+  struct Case {
+    std::string pem_chain;
+    std::string target_name;
+  };
+  std::vector<Case> cases = {
+      {"not a PEM block at all", "test.firestore.local"},
+      {pki.ServerChainPem(), ""},
+      {pki.ServerChainPem(), "bad host/name"},
+  };
+  for (const Case& c : cases) {
+    AsyncRecorder recorder(queue);
+    VerifyAppleTlsCertificateChainAsync(
+        TlsVerificationInput{c.pem_chain, c.target_name}, anchors.get(), queue,
+        recorder.AsCallback());
+    ASSERT_TRUE(recorder.WaitForCount(1));
+    grpc::Status sync_status = VerifyAppleTlsCertificateChain(
+        c.pem_chain, c.target_name, anchors.get());
+    EXPECT_EQ(recorder.status().error_code(),
+              grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(recorder.status().error_message(), sync_status.error_message());
+    EXPECT_TRUE(recorder.all_on_expected_queue());
+    DrainQueue(queue);
+    EXPECT_EQ(recorder.count(), 1);
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierVerifyReturnsBeforeEvaluationRuns) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.async");
+  AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
+  FakeVerificationRequest request(pki.ServerChainPem(),
+                                  "test.firestore.local:443");
+  AsyncRecorder recorder(queue);
+
+  QueueBlocker blocker(queue);
+  grpc::Status sync_status;
+  EXPECT_FALSE(
+      verifier.Verify(request.get(), recorder.AsCallback(), &sync_status));
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  EXPECT_EQ(recorder.count(), 0);
+
+  blocker.Release();
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_TRUE(recorder.status().ok()) << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierCancelInFlightDeliversCancelledOnceAndDestroysCleanly) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.cancel");
+  auto verifier =
+      std::make_unique<AppleSecTrustCertificateVerifier>(anchors.get(), queue);
+  FakeVerificationRequest request(pki.ServerChainPem(),
+                                  "test.firestore.local:443");
+  AsyncRecorder recorder;
+
+  QueueBlocker blocker(queue);
+  grpc::Status sync_status;
+  ASSERT_FALSE(
+      verifier->Verify(request.get(), recorder.AsCallback(), &sync_status));
+
+  // Cancellation is delivered on another queue, never inside Cancel() (gRPC
+  // holds its handshake lock there), and does not wait for the blocked
+  // evaluation queue.
+  verifier->Cancel(request.get());
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_EQ(recorder.status().error_code(),
+            TlsVerificationCancelledStatus().error_code());
+  EXPECT_EQ(recorder.status().error_message(),
+            TlsVerificationCancelledStatus().error_message());
+
+  // Destroy the verifier while its evaluation is still queued, then let the
+  // evaluation run. Its completion must be ignored without touching freed
+  // memory.
+  verifier.reset();
+  blocker.Release();
+  DrainQueue(queue);
+  EXPECT_EQ(recorder.count(), 1);
+  EXPECT_EQ(recorder.status().error_code(), grpc::StatusCode::CANCELLED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     CrossSignedIntermediateBuildsPathToEitherAnchor) {
+  CertOptions root_opts;
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  root_opts.common_name = "Firestore Test Cross Root R1";
+  GeneratedCertificate r1 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+  root_opts.common_name = "Firestore Test Cross Root R2";
+  GeneratedCertificate r2 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+  root_opts.common_name = "Firestore Test Unrelated Root R3";
+  GeneratedCertificate r3 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  // One intermediate CA (same subject and key) signed by both R1 and R2.
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test Cross-Signed Intermediate";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate inter_by_r1 = GenerateCertificate(inter_opts, &r1);
+  inter_opts.reuse_key_from = &inter_by_r1;
+  GeneratedCertificate inter_by_r2 = GenerateCertificate(inter_opts, &r2);
+  ASSERT_EQ(inter_by_r1.subject_der, inter_by_r2.subject_der);
+  ASSERT_EQ(inter_by_r1.ski_bytes, inter_by_r2.ski_bytes);
+
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "cross.firestore.local";
+  leaf_opts.dns_sans = {"cross.firestore.local"};
+  GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &inter_by_r1);
+
+  // The server sends both cross-signs, as real servers commonly do.
+  std::string chain =
+      absl::StrCat(leaf.cert_pem, inter_by_r1.cert_pem, inter_by_r2.cert_pem);
+
+  auto anchors_of = [](const GeneratedCertificate& root) {
+    const void* values[] = {root.sec_certificate.get()};
+    return ScopedCFRef<CFArrayRef>(
+        CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+  };
+  ScopedCFRef<CFArrayRef> r1_anchors = anchors_of(r1);
+  ScopedCFRef<CFArrayRef> r2_anchors = anchors_of(r2);
+  ScopedCFRef<CFArrayRef> r3_anchors = anchors_of(r3);
+
+  // Synchronous path.
+  grpc::Status via_r1 = VerifyAppleTlsCertificateChain(
+      chain, "cross.firestore.local", r1_anchors.get());
+  EXPECT_TRUE(via_r1.ok()) << via_r1.error_message();
+  grpc::Status via_r2 = VerifyAppleTlsCertificateChain(
+      chain, "cross.firestore.local", r2_anchors.get());
+  EXPECT_TRUE(via_r2.ok()) << via_r2.error_message();
+  EXPECT_EQ(VerifyAppleTlsCertificateChain(chain, "cross.firestore.local",
+                                           r3_anchors.get())
+                .error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+
+  // Asynchronous path agrees.
+  dispatch_queue_t queue = MakeTestQueue("test.async.cross");
+  struct Case {
+    CFArrayRef anchors;
+    bool expect_ok;
+  };
+  for (const Case& c :
+       {Case{r1_anchors.get(), true}, Case{r2_anchors.get(), true},
+        Case{r3_anchors.get(), false}}) {
+    AsyncRecorder recorder(queue);
+    VerifyAppleTlsCertificateChainAsync(
+        TlsVerificationInput{chain, "cross.firestore.local"}, c.anchors, queue,
+        recorder.AsCallback());
+    ASSERT_TRUE(recorder.WaitForCount(1));
+    EXPECT_EQ(recorder.status().ok(), c.expect_ok)
+        << recorder.status().error_message();
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackHandshakeWaitsForAsyncVerificationOnInjectedQueue) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv4-loopback.firestore.local";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  dispatch_queue_t queue = MakeTestQueue("test.loopback.injected");
+  grpc::experimental::TlsChannelCredentialsOptions options;
+  options.set_verify_server_certs(false);
+  options.set_certificate_verifier(
+      grpc::experimental::ExternalCertificateVerifier::Create<
+          AppleSecTrustCertificateVerifier>(root_anchors.get(), queue));
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+      server.target(), grpc::experimental::TlsCredentials(options));
+
+  // While the verification queue is blocked, the handshake cannot complete.
+  QueueBlocker blocker(queue);
+  grpc::Status blocked_status =
+      PerformUnaryEcho(channel, "blocked", /*out_response=*/nullptr,
+                       std::chrono::milliseconds(500));
+  EXPECT_FALSE(blocked_status.ok());
+
+  // Once verification runs, the same channel connects. wait_for_ready covers
+  // the case where gRPC gave up on the first connection attempt and is
+  // backing off before reconnecting.
+  blocker.Release();
+  std::string echoed;
+  grpc::Status status =
+      PerformUnaryEcho(channel, "unblocked", &echoed, std::chrono::seconds(10),
+                       /*wait_for_ready=*/true);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_EQ(echoed, "unblocked");
 }
 
 }  // namespace

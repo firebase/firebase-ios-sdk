@@ -33,9 +33,11 @@ namespace remote {
  * Creates the default TLS `grpc::ChannelCredentials` for the current platform.
  *
  * On Apple platforms, certificate chain and hostname verification are delegated
- * to `Security.framework` (`SecTrustEvaluateWithError`) so that apps inherit
- * Apple's system root store, enterprise MDM roots, and background Over-The-Air
- * (`com.apple.trustd.valid`) CA revocations.
+ * to `Security.framework` so that apps inherit Apple's system root store,
+ * enterprise MDM roots, and background Over-The-Air (`com.apple.trustd.valid`)
+ * CA revocations. Evaluation is asynchronous (`SecTrustEvaluateAsyncWithError`
+ * on a private dispatch queue, via `AsyncTlsVerifier`), so IPC to `trustd`
+ * never blocks gRPC threads.
  *
  * On non-Apple platforms, credentials are backed by the embedded `roots.pem`
  * certificate bundle via `LoadGrpcRootCertificate()`.

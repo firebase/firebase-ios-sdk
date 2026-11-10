@@ -4,6 +4,8 @@
   certificates using `Security.framework` (`SecTrust`) instead of an embedded
   root certificate bundle, enabling automatic OS root store, enterprise MDM,
   and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
+  Certificates are evaluated asynchronously so verification never blocks gRPC
+  threads.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)

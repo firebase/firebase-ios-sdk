@@ -23,9 +23,14 @@
 
 #import <CoreFoundation/CoreFoundation.h>
 
+#if defined(__OBJC__)
+#import <dispatch/dispatch.h>
+#endif  // defined(__OBJC__)
+
 #include <memory>
 #include <string>
 
+#include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/string_view.h"
 
@@ -38,9 +43,13 @@ namespace firestore {
 namespace remote {
 
 /**
- * Evaluates a PEM-encoded X.509 peer certificate chain for `target_name` using
- * Apple's `Security.framework` (`SecPolicyCreateSSL` +
+ * Synchronously evaluates a PEM-encoded X.509 peer certificate chain for
+ * `target_name` using Apple's `Security.framework` (`SecPolicyCreateSSL` +
  * `SecTrustEvaluateWithError`).
+ *
+ * This blocks on IPC to `trustd` and must not be called on gRPC threads. The
+ * production verifier uses `VerifyAppleTlsCertificateChainAsync()`; this
+ * function is kept for tests and produces the same results.
  *
  * If `anchor_certs` (an array of `SecCertificateRef`s) is non-null, trust
  * evaluation is restricted exclusively to those anchor certificates via
@@ -55,11 +64,49 @@ grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
 
 /**
  * Creates gRPC `TlsCredentials` backed by Apple's `Security.framework`
- * certificate verifier. Passing a non-null `anchor_certs` array restricts trust
- * evaluation exclusively to those custom anchors (for testing).
+ * certificate verifier (`AppleSecTrustCertificateVerifier`), which evaluates
+ * asynchronously so that verification never blocks gRPC threads. Passing a
+ * non-null `anchor_certs` array restricts trust evaluation exclusively to those
+ * custom anchors (for testing).
  */
 std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
     CFArrayRef anchor_certs = nullptr);
+
+#if defined(__OBJC__)
+
+/**
+ * Asynchronously evaluates `input.pem_chain` for `input.target_name`, with the
+ * same policy, anchors, and error mapping as
+ * `VerifyAppleTlsCertificateChain()`.
+ *
+ * Returns immediately. The evaluation is dispatched to `queue`, and from there
+ * started with `SecTrustEvaluateAsyncWithError`, which Apple requires to be
+ * called from the same queue it delivers its result on. `completion` is invoked
+ * exactly once, on `queue`, including when the chain cannot be parsed.
+ *
+ * `anchor_certs` is retained for as long as the evaluation needs it.
+ */
+void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
+                                         CFArrayRef anchor_certs,
+                                         dispatch_queue_t queue,
+                                         TlsVerificationCallback completion);
+
+/**
+ * The gRPC `ExternalCertificateVerifier` used by `CreateAppleTlsCredentials()`.
+ *
+ * Each verification is evaluated with `VerifyAppleTlsCertificateChainAsync()`
+ * on `queue`. If `queue` is null, the verifier creates and owns a private
+ * serial queue. Tests inject a queue to control when evaluations run.
+ * Cancellations are delivered on a global dispatch queue, never inside
+ * `Cancel()` and never behind a busy `queue`.
+ */
+class AppleSecTrustCertificateVerifier final : public AsyncTlsVerifier {
+ public:
+  explicit AppleSecTrustCertificateVerifier(CFArrayRef anchor_certs,
+                                            dispatch_queue_t queue = nullptr);
+};
+
+#endif  // defined(__OBJC__)
 
 }  // namespace remote
 }  // namespace firestore
