@@ -104,19 +104,20 @@
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
-          // Usage is reported once, after the stream ends, instead of after every chunk
-          // (#17040). Gemini's intermediate usage metadata can't be forwarded as is:
+          // Usage is reported once, after the stream ends, instead of after every chunk (#17040).
+          // `LanguageModelSession`'s handling of usage isn't documented; in testing (macOS 27.2):
           //
-          // - `LanguageModelSession` only delivers streamed snapshots while the turn's output
-          //   token count keeps rising. The Gemini Enterprise Agent Platform omits
-          //   `candidatesTokenCount` until the final chunk, so reporting it as 0 after every
-          //   chunk held back all snapshots until the response finished.
-          // - `LanguageModelSession` traps if the uncached input token count (`total - cached`)
-          //   decreases. Gemini reports `cachedContentTokenCount` only in the final chunk, so
-          //   reporting earlier chunks' usage crashed on implicit cache hits.
+          // - It only produces a streamed snapshot for an event that raises the turn's output
+          //   token count above its previous high. The Gemini Enterprise Agent Platform omits
+          //   token counts until the final chunk, so reporting 0 after every chunk held back all
+          //   snapshots until the response finished.
+          // - `updateUsage` traps if the uncached input token count (`total - cached`) decreases.
+          //   The Gemini Developer API reports `cachedContentTokenCount` only in the final chunk,
+          //   so reporting earlier chunks' usage crashed on implicit cache hits.
+          // - The last `updateUsage` replaces the turn's usage, even if it lowers the output count.
           //
           // While streaming, the `appendText` token counts track Gemini's running output totals
-          // instead; the final usage replaces them.
+          // instead (see `StreamedTokenCounter`); the final usage replaces them.
           var latestUsage: UsageMetadata?
           var responseTokenCounter = StreamedTokenCounter()
           var reasoningTokenCounter = StreamedTokenCounter()
@@ -142,7 +143,7 @@
 
                 if case .text(let text) = part.data, !text.isEmpty {
                   if part.thought == true {
-                    let tokenCount = reasoningTokenCounter.tokenCount(
+                    let tokenCount = reasoningTokenCounter.nextTokenCount(
                       forRunningTotal: chunk.usageMetadata?.thoughtsTokenCount
                     )
                     await channel.send(
@@ -152,7 +153,7 @@
                       )
                     )
                   } else {
-                    let tokenCount = responseTokenCounter.tokenCount(
+                    let tokenCount = responseTokenCounter.nextTokenCount(
                       forRunningTotal: chunk.usageMetadata?.candidatesTokenCount
                     )
                     await channel.send(
@@ -201,6 +202,10 @@
           }
 
           if let usage = latestUsage {
+            // The session's output total includes reasoning tokens, but Gemini's
+            // `candidatesTokenCount` excludes thinking tokens, which it reports separately.
+            let candidatesTokenCount = usage.candidatesTokenCount ?? 0
+            let thoughtsTokenCount = usage.thoughtsTokenCount ?? 0
             await channel.send(
               .response(
                 entryID: responseEntryID,
@@ -210,8 +215,8 @@
                     cachedTokenCount: usage.cachedContentTokenCount ?? 0
                   ),
                   output: .init(
-                    totalTokenCount: usage.candidatesTokenCount ?? 0,
-                    reasoningTokenCount: usage.thoughtsTokenCount ?? 0
+                    totalTokenCount: candidatesTokenCount + thoughtsTokenCount,
+                    reasoningTokenCount: thoughtsTokenCount
                   )
                 )
               )

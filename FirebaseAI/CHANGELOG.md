@@ -12,12 +12,14 @@
   macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
   the app or a library (such as Realm) enumerated Objective-C classes with
   `objc_copyClassList`. (#17024)
-- [fixed] Fixed a crash in `GeminiLanguageModel` when the Gemini Developer API
-  served part of a prompt from its implicit cache. (#17042)
+- [fixed] Fixed a crash in `GeminiLanguageModel` when part of a prompt was
+  served from the Gemini Developer API's implicit cache. (#17042)
 - [fixed] Fixed `LanguageModelSession.streamResponse` delivering a
   `GeminiLanguageModel` response all at once, after it finished, when using the
-  Gemini Enterprise Agent Platform. Streamed snapshots now also report output
-  token usage as the response is generated. (#17042)
+  Gemini Enterprise Agent Platform. (#17042)
+- [fixed] Fixed `GeminiLanguageModel` leaving thinking tokens out of the output
+  token count; `usage.output.totalTokenCount` now includes
+  `usage.output.reasoningTokenCount`. (#17042)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

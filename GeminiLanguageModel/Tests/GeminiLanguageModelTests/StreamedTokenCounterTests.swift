@@ -19,40 +19,50 @@ import Testing
 @Suite("StreamedTokenCounter Tests")
 struct StreamedTokenCounterTests {
   @Test
-  func tokenCountReportsGrowthOfRunningTotal() {
+  func nextTokenCountReportsGrowthOfRunningTotal() {
     var counter = StreamedTokenCounter()
 
-    let tokenCounts = [10, 25, 40].map { counter.tokenCount(forRunningTotal: $0) }
+    let tokenCounts = [10, 25, 40].map { counter.nextTokenCount(forRunningTotal: $0) }
 
     #expect(tokenCounts == [10, 15, 15])
     #expect(counter.reportedTokenCount == 40)
   }
 
   @Test
-  func tokenCountIsOneWithoutRunningTotal() {
+  func nextTokenCountIsOneWithoutRunningTotal() {
     var counter = StreamedTokenCounter()
 
-    let tokenCounts = [nil, nil, nil].map { counter.tokenCount(forRunningTotal: $0) }
+    let tokenCounts = [nil, nil, nil].map { counter.nextTokenCount(forRunningTotal: $0) }
 
     #expect(tokenCounts == [1, 1, 1])
     #expect(counter.reportedTokenCount == 3)
   }
 
   @Test
-  func tokenCountIsOneWhenRunningTotalDoesNotGrow() {
+  func nextTokenCountIsOneWhenRunningTotalDoesNotGrow() {
     var counter = StreamedTokenCounter()
 
-    let tokenCounts = [12, 12, 12].map { counter.tokenCount(forRunningTotal: $0) }
+    let tokenCounts = [12, 12, 12].map { counter.nextTokenCount(forRunningTotal: $0) }
 
     #expect(tokenCounts == [12, 1, 1])
     #expect(counter.reportedTokenCount == 14)
   }
 
   @Test
-  func tokenCountCatchesUpWhenRunningTotalAppears() {
+  func nextTokenCountIsOneWhenRunningTotalDecreases() {
     var counter = StreamedTokenCounter()
 
-    let tokenCounts = [nil, nil, 20].map { counter.tokenCount(forRunningTotal: $0) }
+    let tokenCounts = [20, 10].map { counter.nextTokenCount(forRunningTotal: $0) }
+
+    #expect(tokenCounts == [20, 1])
+    #expect(counter.reportedTokenCount == 21)
+  }
+
+  @Test
+  func nextTokenCountCatchesUpWhenRunningTotalAppears() {
+    var counter = StreamedTokenCounter()
+
+    let tokenCounts = [nil, nil, 20].map { counter.nextTokenCount(forRunningTotal: $0) }
 
     #expect(tokenCounts == [1, 1, 18])
     #expect(counter.reportedTokenCount == 20)
