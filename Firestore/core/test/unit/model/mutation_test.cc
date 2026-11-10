@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/mutation.h"
 
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
