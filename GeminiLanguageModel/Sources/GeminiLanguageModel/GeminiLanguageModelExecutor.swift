@@ -104,6 +104,24 @@
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
+          // Usage is reported once, after the stream ends, instead of after every chunk (#17040).
+          // `updateUsage` is documented to replace the turn's usage totals; in testing (macOS
+          // 27.2), `LanguageModelSession` also has these undocumented constraints:
+          //
+          // - It only produces a streamed snapshot for an event that raises the turn's output
+          //   token count above its previous high. The Gemini Enterprise Agent Platform omits
+          //   token counts until the final chunk, so reporting 0 after every chunk held back all
+          //   snapshots until the response finished.
+          // - `updateUsage` traps if the uncached input token count (`total - cached`) decreases.
+          //   The Gemini Developer API reports `cachedContentTokenCount` only in the final chunk,
+          //   so reporting earlier chunks' usage crashed on implicit cache hits.
+          // - The final `updateUsage` is accepted even if it lowers the output count.
+          //
+          // While streaming, the `appendText` token counts track Gemini's running output totals
+          // instead (see `StreamedTokenCounter`); the final usage replaces them.
+          var latestUsage: UsageMetadata?
+          var responseTokenCounter = StreamedTokenCounter()
+          var reasoningTokenCounter = StreamedTokenCounter()
 
           for try await chunk in stream {
             try Task.checkCancellation()
@@ -126,17 +144,23 @@
 
                 if case .text(let text) = part.data, !text.isEmpty {
                   if part.thought == true {
+                    let tokenCount = reasoningTokenCounter.nextTokenCount(
+                      forRunningTotal: chunk.usageMetadata?.thoughtsTokenCount
+                    )
                     await channel.send(
                       .reasoning(
                         entryID: reasoningEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   } else {
+                    let tokenCount = responseTokenCounter.nextTokenCount(
+                      forRunningTotal: chunk.usageMetadata?.candidatesTokenCount
+                    )
                     await channel.send(
                       .response(
                         entryID: responseEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   }
@@ -174,22 +198,35 @@
             }
 
             if let usage = chunk.usageMetadata {
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateUsage(
-                    input: .init(
-                      totalTokenCount: usage.promptTokenCount ?? 0,
-                      cachedTokenCount: usage.cachedContentTokenCount ?? 0
-                    ),
-                    output: .init(
-                      totalTokenCount: usage.candidatesTokenCount ?? 0,
-                      reasoningTokenCount: usage.thoughtsTokenCount ?? 0
-                    )
+              latestUsage = usage
+            }
+          }
+
+          if let usage = latestUsage {
+            // `cachedTokenCount` is documented to be at most `totalTokenCount`, and a cached count
+            // above the total traps (see above), so clamp it in case Gemini omits or under-reports
+            // `promptTokenCount`.
+            let promptTokenCount = usage.promptTokenCount ?? 0
+            // The session's output total includes reasoning tokens (`reasoningTokenCount` is
+            // documented to be at most `totalTokenCount`), but Gemini's `candidatesTokenCount`
+            // excludes thinking tokens, which it reports separately.
+            let candidatesTokenCount = usage.candidatesTokenCount ?? 0
+            let thoughtsTokenCount = usage.thoughtsTokenCount ?? 0
+            await channel.send(
+              .response(
+                entryID: responseEntryID,
+                action: .updateUsage(
+                  input: .init(
+                    totalTokenCount: promptTokenCount,
+                    cachedTokenCount: min(usage.cachedContentTokenCount ?? 0, promptTokenCount)
+                  ),
+                  output: .init(
+                    totalTokenCount: candidatesTokenCount + thoughtsTokenCount,
+                    reasoningTokenCount: thoughtsTokenCount
                   )
                 )
               )
-            }
+            )
           }
         } catch {
           throw GeminiErrorMapper.map(error)
