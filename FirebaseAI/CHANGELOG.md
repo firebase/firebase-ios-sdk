@@ -16,10 +16,9 @@
   served from the Gemini Developer API's implicit cache. (#17042)
 - [fixed] Fixed `LanguageModelSession.streamResponse` delivering a
   `GeminiLanguageModel` response all at once, after it finished, when using the
-  Gemini Enterprise Agent Platform. (#17042)
-- [fixed] Fixed `GeminiLanguageModel` leaving thinking tokens out of the output
-  token count; `usage.output.totalTokenCount` now includes
-  `usage.output.reasoningTokenCount`. (#17042)
+  Gemini Enterprise Agent Platform. (#17040)
+- [fixed] Fixed `GeminiLanguageModel` to include reasoning tokens in the output
+  and total token counts. (#17042)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`

@@ -18,7 +18,8 @@
 /// output usage. When Gemini reports running totals mid-stream (the Gemini Developer API does; the
 /// Gemini Enterprise Agent Platform doesn't until the final chunk), reporting the tokens generated
 /// since the previous part keeps `usage.output` close to the real value while streaming. The exact
-/// usage, reported once the stream ends, replaces it.
+/// usage, reported once the stream ends, replaces it. Thinking tokens are only counted while
+/// streaming if thought text is streamed; otherwise the final usage adds them.
 ///
 /// Every count is at least 1. In testing, `LanguageModelSession` only produces a streamed snapshot
 /// when the output token count rises (this isn't documented), so text sent with a count of 0

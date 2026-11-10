@@ -202,7 +202,7 @@
           }
 
           if let usage = latestUsage {
-            // The session's output total includes reasoning tokens, but Gemini's
+            // In testing, the session's output total includes reasoning tokens, but Gemini's
             // `candidatesTokenCount` excludes thinking tokens, which it reports separately.
             let candidatesTokenCount = usage.candidatesTokenCount ?? 0
             let thoughtsTokenCount = usage.thoughtsTokenCount ?? 0

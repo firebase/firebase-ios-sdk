@@ -422,7 +422,8 @@
       )
       // The Gemini Enterprise Agent Platform omits token counts until the final chunk. In testing,
       // `LanguageModelSession` delivers each streamed snapshot only when a later event arrives, so
-      // intermediate chunks keep arriving, as on a slow network, until the consumer receives one.
+      // intermediate chunks keep arriving, as they would while the model is still generating,
+      // until the consumer receives one.
       let finalChunk = Self.streamChunk(
         "done.",
         isFinal: true,
