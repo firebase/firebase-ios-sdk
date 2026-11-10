@@ -21,6 +21,10 @@
 
 #if defined(_WIN32)
 
+// <winsock2.h> must precede <windows.h>, which otherwise pulls in the
+// conflicting <winsock.h> unless WIN32_LEAN_AND_MEAN is defined.
+#include <winsock2.h>  // NOLINT(build/include_order)
+
 #include <windows.h>  // NOLINT(build/include_order)
 
 #include <wincrypt.h>  // NOLINT(build/include_order)

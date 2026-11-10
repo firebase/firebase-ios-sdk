@@ -18,8 +18,6 @@
 
 #if defined(_WIN32)
 
-#include <winsock2.h>  // NOLINT(build/include_order)
-
 #include <ws2tcpip.h>  // NOLINT(build/include_order)
 
 #include <cstdint>
