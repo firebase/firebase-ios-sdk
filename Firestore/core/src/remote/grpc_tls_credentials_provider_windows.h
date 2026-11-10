@@ -52,12 +52,13 @@ struct WindowsTrustConfig {
    * (Group Policy) roots, automatic root updates, and the `Disallowed` store.
    *
    * Tests set this to an engine restricted to their own roots (for example,
-   * one created with `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot`). The engine
-   * is not owned and must outlive every verification that uses it, including
-   * asynchronous ones that are still running after their gRPC call was
-   * cancelled.
+   * one created with `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot`). The pointer
+   * holds the `HCERTCHAINENGINE` and should free it with
+   * `CertFreeCertificateChainEngine`. Every copy of the config shares
+   * ownership, so asynchronous evaluations that outlive their gRPC call keep
+   * the engine alive.
    */
-  HCERTCHAINENGINE chain_engine = nullptr;
+  std::shared_ptr<void> chain_engine;
 
   /**
    * Test hook: if set, runs on the worker thread before each asynchronous
@@ -75,8 +76,9 @@ struct WindowsTrustConfig {
  * `CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL)` for a server
  * named by the host in `target_name` (`host`, `host:port`, or `[ipv6]:port`).
  * This covers path building, expiry, the server-auth EKU, explicit distrust,
- * and hostname matching. Returns `UNAUTHENTICATED` with a description on any
- * failure.
+ * and DNS hostname matching. For an IP address target, the leaf must instead
+ * have a matching `iPAddress` subjectAltName. Returns `UNAUTHENTICATED` with a
+ * description on any failure.
  *
  * This call can block: CryptoAPI may fetch missing intermediates (AIA) or
  * root updates over the network. Never call it on a gRPC thread.

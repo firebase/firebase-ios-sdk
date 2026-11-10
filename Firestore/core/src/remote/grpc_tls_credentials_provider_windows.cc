@@ -18,7 +18,12 @@
 
 #if defined(_WIN32)
 
+#include <winsock2.h>  // NOLINT(build/include_order)
+
+#include <ws2tcpip.h>  // NOLINT(build/include_order)
+
 #include <cstdint>
+#include <cstring>
 #include <functional>
 #include <memory>
 #include <string>
@@ -42,6 +47,7 @@ SUPPRESS_END()
 // crypt32 explicitly.
 #if defined(_MSC_VER)
 #pragma comment(lib, "crypt32")
+#pragma comment(lib, "ws2_32")
 #endif
 
 namespace firebase {
@@ -150,6 +156,75 @@ bool Utf8ToWide(absl::string_view utf8, std::wstring* out) {
   return MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8.data(),
                              static_cast<int>(utf8.size()), &(*out)[0],
                              size) == size;
+}
+
+/** Converts an IP address literal to its binary (network order) form. */
+bool IpAddressToBytes(const TlsTargetHost& target, std::string* out) {
+  if (target.kind == TlsTargetHost::Kind::kIpv4) {
+    in_addr addr;
+    if (InetPtonA(AF_INET, target.host.c_str(), &addr) != 1) {
+      return false;
+    }
+    out->assign(reinterpret_cast<const char*>(&addr), sizeof(addr));
+    return true;
+  }
+  if (target.kind == TlsTargetHost::Kind::kIpv6) {
+    in6_addr addr;
+    if (InetPtonA(AF_INET6, target.host.c_str(), &addr) != 1) {
+      return false;
+    }
+    out->assign(reinterpret_cast<const char*>(&addr), sizeof(addr));
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Checks that `leaf` has an `iPAddress` subjectAltName equal to the IP address
+ * in `target`. As RFC 6125 and browsers require, the subject common name is
+ * never consulted.
+ */
+grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
+                                           const TlsTargetHost& target) {
+  std::string expected;
+  if (!IpAddressToBytes(target, &expected)) {
+    return Unauthenticated(
+        absl::StrCat("Invalid IP address TLS target: '", target.host, "'"));
+  }
+
+  PCERT_EXTENSION extension =
+      CertFindExtension(szOID_SUBJECT_ALT_NAME2, leaf->pCertInfo->cExtension,
+                        leaf->pCertInfo->rgExtension);
+  if (extension != nullptr) {
+    CERT_ALT_NAME_INFO* names = nullptr;
+    DWORD names_size = 0;
+    if (!CryptDecodeObjectEx(kCertEncoding, X509_ALTERNATE_NAME,
+                             extension->Value.pbData, extension->Value.cbData,
+                             CRYPT_DECODE_ALLOC_FLAG,
+                             /*pDecodePara=*/nullptr, &names, &names_size)) {
+      return Unauthenticated(absl::StrCat(
+          "Failed to decode the leaf certificate's subjectAltName: error ",
+          GetLastError()));
+    }
+    bool matched = false;
+    for (DWORD i = 0; i < names->cAltEntry; ++i) {
+      const CERT_ALT_NAME_ENTRY& entry = names->rgAltEntry[i];
+      if (entry.dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS &&
+          entry.IPAddress.cbData == expected.size() &&
+          std::memcmp(entry.IPAddress.pbData, expected.data(),
+                      expected.size()) == 0) {
+        matched = true;
+        break;
+      }
+    }
+    LocalFree(names);
+    if (matched) {
+      return grpc::Status::OK;
+    }
+  }
+  return Unauthenticated(absl::StrCat(
+      "Windows TLS certificate verification failed for '", target.host,
+      "': the certificate has no matching IP address subjectAltName"));
 }
 
 std::string DescribeChainPolicyError(DWORD error) {
@@ -325,20 +400,25 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   // in the `Disallowed` store and Microsoft's distrust lists are still
   // rejected.
   PCCERT_CHAIN_CONTEXT raw_chain = nullptr;
-  if (!CertGetCertificateChain(config.chain_engine, leaf.get(),
-                               /*pTime=*/nullptr, intermediates.get(),
-                               &chain_para, /*dwFlags=*/0,
-                               /*pvReserved=*/nullptr, &raw_chain)) {
+  if (!CertGetCertificateChain(
+          static_cast<HCERTCHAINENGINE>(config.chain_engine.get()), leaf.get(),
+          /*pTime=*/nullptr, intermediates.get(), &chain_para, /*dwFlags=*/0,
+          /*pvReserved=*/nullptr, &raw_chain)) {
     return Unauthenticated(absl::StrCat(
         "CertGetCertificateChain failed with error ", GetLastError()));
   }
   CertChainPtr chain(raw_chain);
 
+  // CryptoAPI's SSL policy matches DNS names. Its handling of IP address
+  // targets against `iPAddress` subjectAltNames isn't consistent across
+  // Windows versions, so for IP targets the policy skips the name check
+  // (null server name) and `VerifyIpAddressSubjectAltName()` does it.
+  const bool is_ip_target = target->kind != TlsTargetHost::Kind::kDns;
   SSL_EXTRA_CERT_CHAIN_POLICY_PARA ssl_para = {};
   ssl_para.cbSize = sizeof(ssl_para);
   ssl_para.dwAuthType = AUTHTYPE_SERVER;
   ssl_para.fdwChecks = 0;
-  ssl_para.pwszServerName = &server_name[0];
+  ssl_para.pwszServerName = is_ip_target ? nullptr : &server_name[0];
 
   CERT_CHAIN_POLICY_PARA policy_para = {};
   policy_para.cbSize = sizeof(policy_para);
@@ -356,6 +436,9 @@ grpc::Status VerifyWindowsTlsCertificateChain(
     return Unauthenticated(absl::StrCat(
         "Windows TLS certificate verification failed for '", target->host,
         "': ", DescribeChainPolicyError(policy_status.dwError)));
+  }
+  if (is_ip_target) {
+    return VerifyIpAddressSubjectAltName(leaf.get(), *target);
   }
   return grpc::Status::OK;
 }

@@ -71,66 +71,58 @@ constexpr auto kTimeout = std::chrono::seconds(30);
 constexpr DWORD kCertEncoding = X509_ASN_ENCODING | PKCS_7_ASN_ENCODING;
 
 /**
- * A certificate chain engine that trusts exactly the given roots, so the tests
- * neither depend on nor modify the machine's root store.
+ * Creates a certificate chain engine that trusts exactly `roots`, so the tests
+ * neither depend on nor modify the machine's root store. Returns a config that
+ * shares ownership of the engine (and its root store), so evaluations still
+ * running after a test body returns keep them alive.
  */
-class ExclusiveRootEngine {
- public:
-  explicit ExclusiveRootEngine(
-      const std::vector<const TestCertificate*>& roots) {
-    store_ = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0,
-                           CERT_STORE_CREATE_NEW_FLAG, nullptr);
-    if (store_ == nullptr) {
-      ADD_FAILURE() << "CertOpenStore failed: " << GetLastError();
-      return;
-    }
-    for (const TestCertificate* root : roots) {
-      const std::string& der = root->cert_der();
-      if (!CertAddEncodedCertificateToStore(
-              store_, kCertEncoding, reinterpret_cast<const BYTE*>(der.data()),
-              static_cast<DWORD>(der.size()), CERT_STORE_ADD_ALWAYS, nullptr)) {
-        ADD_FAILURE() << "CertAddEncodedCertificateToStore failed: "
-                      << GetLastError();
-      }
-    }
-
-    CERT_CHAIN_ENGINE_CONFIG config = {};
-    config.cbSize = sizeof(config);
-    config.hExclusiveRoot = store_;
-    if (!CertCreateCertificateChainEngine(&config, &engine_)) {
-      ADD_FAILURE() << "CertCreateCertificateChainEngine failed: "
-                    << GetLastError();
-      engine_ = nullptr;
-    }
-  }
-
-  ~ExclusiveRootEngine() {
-    if (engine_ != nullptr) {
-      CertFreeCertificateChainEngine(engine_);
-    }
-    if (store_ != nullptr) {
-      CertCloseStore(store_, 0);
-    }
-  }
-
-  ExclusiveRootEngine(const ExclusiveRootEngine&) = delete;
-  ExclusiveRootEngine& operator=(const ExclusiveRootEngine&) = delete;
-
-  WindowsTrustConfig config() const {
-    WindowsTrustConfig config;
-    config.chain_engine = engine_;
+WindowsTrustConfig ExclusiveRootConfig(
+    const std::vector<const TestCertificate*>& roots) {
+  WindowsTrustConfig config;
+  HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0,
+                                   CERT_STORE_CREATE_NEW_FLAG, nullptr);
+  if (store == nullptr) {
+    ADD_FAILURE() << "CertOpenStore failed: " << GetLastError();
     return config;
   }
+  for (const TestCertificate* root : roots) {
+    const std::string& der = root->cert_der();
+    if (!CertAddEncodedCertificateToStore(
+            store, kCertEncoding, reinterpret_cast<const BYTE*>(der.data()),
+            static_cast<DWORD>(der.size()), CERT_STORE_ADD_ALWAYS, nullptr)) {
+      ADD_FAILURE() << "CertAddEncodedCertificateToStore failed: "
+                    << GetLastError();
+    }
+  }
 
- private:
-  HCERTSTORE store_ = nullptr;
-  HCERTCHAINENGINE engine_ = nullptr;
-};
+  CERT_CHAIN_ENGINE_CONFIG engine_config = {};
+  engine_config.cbSize = sizeof(engine_config);
+  engine_config.hExclusiveRoot = store;
+  HCERTCHAINENGINE engine = nullptr;
+  if (!CertCreateCertificateChainEngine(&engine_config, &engine)) {
+    ADD_FAILURE() << "CertCreateCertificateChainEngine failed: "
+                  << GetLastError();
+    CertCloseStore(store, 0);
+    return config;
+  }
+  config.chain_engine =
+      std::shared_ptr<void>(engine, [store](void* engine_handle) {
+        CertFreeCertificateChainEngine(
+            static_cast<HCERTCHAINENGINE>(engine_handle));
+        CertCloseStore(store, 0);
+      });
+  return config;
+}
 
 /**
  * Adds a certificate to the current user's `Disallowed` store for the lifetime
  * of this object. Adding to `Disallowed` (unlike `Root`) needs no elevation and
  * shows no UI.
+ *
+ * Note: this modifies the real per-user store. If the process dies before the
+ * destructor runs, the (freshly generated, never reused) test certificate stays
+ * in `Disallowed`, which is harmless but should be removed by hand on a
+ * developer machine (certmgr.msc > Untrusted Certificates).
  */
 class ScopedDisallowedCertificate {
  public:
@@ -250,78 +242,94 @@ class GrpcTlsCredentialsProviderWindowsTest : public ::testing::Test {
 };
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, AcceptsValidChain) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
-  EXPECT_TRUE(VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost,
-                                               engine.config())
-                  .ok());
+  EXPECT_TRUE(
+      VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost, trust)
+          .ok());
   grpc::Status with_port = VerifyWindowsTlsCertificateChain(
-      pki_.ServerChainPem(), std::string(kHost) + ":443", engine.config());
+      pki_.ServerChainPem(), std::string(kHost) + ":443", trust);
   EXPECT_TRUE(with_port.ok()) << with_port.error_message();
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest, MatchesIpAddressTargets) {
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+
+  // The leaf has an iPAddress subjectAltName of 127.0.0.1 only.
+  for (const char* target : {"127.0.0.1", "127.0.0.1:443"}) {
+    grpc::Status status =
+        VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), target, trust);
+    EXPECT_TRUE(status.ok()) << target << ": " << status.error_message();
+  }
+  for (const char* target : {"10.0.0.1", "10.0.0.1:443", "[::1]:443"}) {
+    grpc::Status status =
+        VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), target, trust);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED) << target;
+  }
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, AcceptsCrossSignedPath) {
   // Only `cross_root` is trusted, so the chain must be built through
   // `cross_intermediate`, which the server sends instead of `intermediate`.
-  ExclusiveRootEngine engine({&pki_.cross_root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.cross_root});
 
   grpc::Status status = VerifyWindowsTlsCertificateChain(
-      PemChain({&pki_.leaf, &pki_.cross_intermediate}), kHost, engine.config());
+      PemChain({&pki_.leaf, &pki_.cross_intermediate}), kHost, trust);
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsUntrustedRoot) {
-  ExclusiveRootEngine engine({&other_pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&other_pki_.root});
 
-  grpc::Status status = VerifyWindowsTlsCertificateChain(
-      pki_.ServerChainPem(), kHost, engine.config());
+  grpc::Status status =
+      VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost, trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMissingIntermediate) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
-  grpc::Status status = VerifyWindowsTlsCertificateChain(
-      pki_.leaf.cert_pem(), kHost, engine.config());
+  grpc::Status status =
+      VerifyWindowsTlsCertificateChain(pki_.leaf.cert_pem(), kHost, trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsWrongHostname) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
   grpc::Status status = VerifyWindowsTlsCertificateChain(
-      pki_.ServerChainPem(), "other.firestore.test", engine.config());
+      pki_.ServerChainPem(), "other.firestore.test", trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_THAT(status.error_message(), HasSubstr("CERT_E_CN_NO_MATCH"));
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsExpiredLeaf) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
   grpc::Status status = VerifyWindowsTlsCertificateChain(
-      pki_.ExpiredServerChainPem(), kHost, engine.config());
+      pki_.ExpiredServerChainPem(), kHost, trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_THAT(status.error_message(), HasSubstr("CERT_E_EXPIRED"));
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsDisallowedIntermediate) {
-  ExclusiveRootEngine engine({&pki_.root});
-  ASSERT_TRUE(VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost,
-                                               engine.config())
-                  .ok());
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+  ASSERT_TRUE(
+      VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost, trust)
+          .ok());
 
   ScopedDisallowedCertificate disallowed(pki_.intermediate);
   ASSERT_TRUE(disallowed.ok());
   // A fresh engine, so nothing cached from the first evaluation is reused.
-  ExclusiveRootEngine fresh_engine({&pki_.root});
+  WindowsTrustConfig fresh_trust = ExclusiveRootConfig({&pki_.root});
 
-  grpc::Status status = VerifyWindowsTlsCertificateChain(
-      pki_.ServerChainPem(), kHost, fresh_engine.config());
+  grpc::Status status = VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(),
+                                                         kHost, fresh_trust);
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
   const std::string chain = pki_.ServerChainPem();
 
   for (const std::string& bad_chain :
@@ -332,14 +340,14 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
         std::string("-----BEGIN CERTIFICATE-----\nAAAA\n"
                     "-----END CERTIFICATE-----\n")}) {
     grpc::Status status =
-        VerifyWindowsTlsCertificateChain(bad_chain, kHost, engine.config());
+        VerifyWindowsTlsCertificateChain(bad_chain, kHost, trust);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << bad_chain;
   }
 
   for (const char* bad_target : {"", "[::1", "host:notaport", "a b"}) {
     grpc::Status status =
-        VerifyWindowsTlsCertificateChain(chain, bad_target, engine.config());
+        VerifyWindowsTlsCertificateChain(chain, bad_target, trust);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << bad_target;
     EXPECT_THAT(status.error_message(), HasSubstr("target host name"));
@@ -347,12 +355,12 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackHandshakeSucceeds) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
   TlsLoopbackServer server(pki_.leaf.private_key_pem(), pki_.ServerChainPem());
   ASSERT_TRUE(server.started());
 
-  auto channel = CreateLoopbackChannel(
-      server, CreateWindowsTlsCredentials(engine.config()), kHost);
+  auto channel =
+      CreateLoopbackChannel(server, CreateWindowsTlsCredentials(trust), kHost);
   std::string response;
   grpc::Status status = PerformUnaryEcho(channel, "ping", &response);
   EXPECT_TRUE(status.ok()) << status.error_message();
@@ -360,30 +368,28 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackHandshakeSucceeds) {
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackRejectsWrongHostname) {
-  ExclusiveRootEngine engine({&pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
   TlsLoopbackServer server(pki_.leaf.private_key_pem(), pki_.ServerChainPem());
   ASSERT_TRUE(server.started());
 
   auto channel = CreateLoopbackChannel(
-      server, CreateWindowsTlsCredentials(engine.config()),
-      "other.firestore.test");
+      server, CreateWindowsTlsCredentials(trust), "other.firestore.test");
   EXPECT_FALSE(PerformUnaryEcho(channel, "ping").ok());
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackRejectsUntrustedRoot) {
-  ExclusiveRootEngine engine({&other_pki_.root});
+  WindowsTrustConfig trust = ExclusiveRootConfig({&other_pki_.root});
   TlsLoopbackServer server(pki_.leaf.private_key_pem(), pki_.ServerChainPem());
   ASSERT_TRUE(server.started());
 
-  auto channel = CreateLoopbackChannel(
-      server, CreateWindowsTlsCredentials(engine.config()), kHost);
+  auto channel =
+      CreateLoopbackChannel(server, CreateWindowsTlsCredentials(trust), kHost);
   EXPECT_FALSE(PerformUnaryEcho(channel, "ping").ok());
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, VerifiesAsynchronously) {
-  ExclusiveRootEngine engine({&pki_.root});
-  std::unique_ptr<AsyncTlsVerifier> verifier =
-      CreateWindowsTlsVerifier(engine.config());
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+  std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(trust);
 
   FakeRequest request(pki_.ServerChainPem(), kHost);
   StatusRecorder recorder;
@@ -399,16 +405,12 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, VerifiesAsynchronously) {
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
-  // The held evaluation outlives this test body, so it shares ownership of the
-  // engine it uses.
-  auto engine = std::make_shared<ExclusiveRootEngine>(
-      std::vector<const TestCertificate*>{&pki_.root});
   std::promise<void> release_evaluation;
   std::shared_future<void> evaluation_released =
       release_evaluation.get_future().share();
 
-  WindowsTrustConfig config = engine->config();
-  config.before_async_evaluation = [engine, evaluation_released] {
+  WindowsTrustConfig config = ExclusiveRootConfig({&pki_.root});
+  config.before_async_evaluation = [evaluation_released] {
     evaluation_released.wait();
   };
   std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(config);

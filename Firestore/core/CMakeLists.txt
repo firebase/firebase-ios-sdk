@@ -287,8 +287,8 @@ target_link_libraries(
 )
 
 if(WIN32)
-  # CryptoAPI, for grpc_tls_credentials_provider_windows.cc.
-  target_link_libraries(firestore_core PRIVATE crypt32)
+  # CryptoAPI and InetPton, for grpc_tls_credentials_provider_windows.cc.
+  target_link_libraries(firestore_core PRIVATE crypt32 ws2_32)
 endif()
 
 if(APPLE)
