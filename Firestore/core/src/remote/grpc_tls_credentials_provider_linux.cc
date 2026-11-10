@@ -773,6 +773,8 @@ std::shared_ptr<grpc::ChannelCredentials> CreateLinuxTlsCredentials(
   options.set_certificate_verifier(
       grpc::experimental::ExternalCertificateVerifier::Create<
           LinuxBlocklistCertificateVerifier>(std::move(store)));
+  // gRPC's per-call `check_call_host` stays enabled (the default); see
+  // grpc_tls_credentials_provider.h for why IP-literal hosts must be canonical.
   return grpc::experimental::TlsCredentials(options);
 }
 
