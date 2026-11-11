@@ -49,23 +49,76 @@
           toolCallingMode: request.generationOptions.toolCallingMode,
           hasFunctionDeclarations: hasFunctionDeclarations
         )
-        $0.generationConfig = try translateGenerationConfig(schema: request.schema)
+        $0.generationConfig = try translateGenerationConfig(
+          schema: request.schema,
+          reasoningLevel: request.contextOptions.reasoningLevel
+        )
       }
     }
 
-    /// Translates an optional `GenerationSchema` into a Gemini `GenerationConfig`.
+    /// Translates an optional `GenerationSchema` and `ContextOptions.ReasoningLevel` into a Gemini `GenerationConfig`.
     ///
-    /// - Parameter schema: An optional generation schema specifying structured output constraints.
-    /// - Returns: A `GenerationConfig` configured with response schema, or `nil` if `schema`
-    ///   is `nil`.
+    /// - Parameters:
+    ///   - schema: An optional generation schema specifying structured output constraints.
+    ///   - reasoningLevel: An optional reasoning level configuring model thinking depth.
+    /// - Returns: A `GenerationConfig` configured with response schema and/or thinking config, or
+    ///   `nil` if both `schema` and `reasoningLevel` are `nil`.
     /// - Throws: An error if encoding the schema fails or if an unsupported generation guide is
     ///   detected.
-    static func translateGenerationConfig(schema: GenerationSchema?) throws -> GenerationConfig? {
-      guard let schema else { return nil }
+    static func translateGenerationConfig(
+      schema: GenerationSchema?,
+      reasoningLevel: ContextOptions.ReasoningLevel? = nil
+    ) throws -> GenerationConfig? {
+      let thinkingConfig = translateThinkingConfig(reasoningLevel: reasoningLevel)
+      guard schema != nil || thinkingConfig != nil else { return nil }
 
       return try GenerationConfig {
-        $0.responseMIMEType = "application/json"
-        $0.responseJSONSchema = try schema.toGeminiJSONSchema()
+        if let schema {
+          $0.responseMIMEType = "application/json"
+          $0.responseJSONSchema = try schema.toGeminiJSONSchema()
+        }
+        $0.thinkingConfig = thinkingConfig
+      }
+    }
+
+    /// Translates an optional `ContextOptions.ReasoningLevel` into a Gemini `ThinkingConfig`.
+    ///
+    /// - Parameter reasoningLevel: The reasoning level from the request's context options.
+    /// - Returns: A `ThinkingConfig` with `includeThoughts = true` and the mapped `ThinkingLevel`,
+    ///   or `nil` if `reasoningLevel` is `nil`.
+    static func translateThinkingConfig(
+      reasoningLevel: ContextOptions.ReasoningLevel?
+    ) -> ThinkingConfig? {
+      guard let reasoningLevel else { return nil }
+
+      let level: ThinkingConfig.ThinkingLevel
+      switch reasoningLevel {
+      case .light:
+        level = .low
+      case .moderate:
+        level = .medium
+      case .deep:
+        level = .high
+      case .custom(let rawValue):
+        switch rawValue.lowercased() {
+        case "minimal":
+          level = .minimal
+        case "low":
+          level = .low
+        case "medium", "moderate":
+          level = .medium
+        case "high", "deep":
+          level = .high
+        default:
+          level = .unrecognized(rawValue.uppercased())
+        }
+      @unknown default:
+        level = .medium
+      }
+
+      return ThinkingConfig {
+        $0.includeThoughts = true
+        $0.thinkingLevel = level
       }
     }
 
