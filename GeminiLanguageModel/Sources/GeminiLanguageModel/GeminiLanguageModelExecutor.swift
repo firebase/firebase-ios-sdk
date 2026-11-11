@@ -155,9 +155,9 @@
             if let candidates = chunk.candidates, let candidate = candidates.first,
               let parts = candidate.content?.parts
             {
-              // Check every function call in the chunk before streaming any of its parts, so that
-              // a rejected function call doesn't leave a partial response (such as its thought
-              // signature) in the transcript.
+              // Check every function call in the chunk before streaming any of the chunk's parts,
+              // so that a rejected function call's own parts (such as its thought signature)
+              // aren't streamed. Parts from earlier chunks have already been streamed.
               try Self.validateFunctionCalls(
                 in: parts,
                 for: request,
@@ -200,9 +200,13 @@
                   }
                 }
 
-                // `validateFunctionCalls` has already checked that every function call has a name
-                // and is allowed for this request.
-                if case .functionCall(let call) = part.data, let name = call.name {
+                if case .functionCall(let call) = part.data {
+                  // `validateFunctionCalls` has already checked that every function call in this
+                  // chunk has a name and is allowed for this request.
+                  guard let name = call.name, !name.isEmpty else {
+                    assertionFailure("A function call without a name wasn't rejected.")
+                    continue
+                  }
                   let callID = call.id ?? UUID().uuidString
                   let argsString: String
                   if let args = call.args, !args.isEmpty {
@@ -280,7 +284,7 @@
       ) throws {
         for part in parts {
           guard case .functionCall(let call) = part.data else { continue }
-          guard let name = call.name else {
+          guard let name = call.name, !name.isEmpty else {
             throw GeminiLanguageModel.Error.invalidResponse(
               GeminiLanguageModel.Error.InvalidResponse(
                 debugDescription: "Gemini returned a function call without a name."

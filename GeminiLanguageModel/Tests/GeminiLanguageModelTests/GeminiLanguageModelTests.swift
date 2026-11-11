@@ -1029,7 +1029,7 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func functionCallToToolThatIsNotEnabledThrowsInvalidResponse() async throws {
+    func functionCallToUnknownToolThrowsInvalidResponse() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let recordedRequests = try Self.mockToolCallingLoop(functionName: "get_current_time") { _ in
         true
@@ -1070,7 +1070,70 @@
       #expect(recordedRequests.all.count == 1)
     }
 
-    /// A case for `functionCallRejectionReason(_:)`.
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallWithEmptyNameThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockToolCallingLoop(functionName: "") { _ in true }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("without a name"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func streamResponseDoesNotStreamPartsOfChunkWithRejectedFunctionCall() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // One chunk with a thought, text, and a function call with a thought signature.
+      let ssePayload = """
+        data: {"candidates": [{"content": {"parts": [{"text": "Checking the weather.", "thought": true}, {"text": "Let me check."}, {"functionCall": {"id": "call-1", "name": "get_weather", "args": {"location": "Paris"}}, "thoughtSignature": "c2lnbmF0dXJl"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+        """
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { _, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(ssePayload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+
+      do {
+        let stream = session.streamResponse(
+          to: "What is the weather in Paris?",
+          options: GenerationOptions(toolCallingMode: .disallowed)
+        )
+        for try await _ in stream {}
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("tool calling mode was `disallowed`"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      let promptIndex = try #require(
+        session.transcript.firstIndex { entry in
+          guard case .prompt = entry else { return false }
+          return true
+        }
+      )
+      #expect(session.transcript[(promptIndex + 1)...].isEmpty)
+    }
+
+    /// A test case for `GeminiLanguageModel.Executor.functionCallRejectionReason`.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
     struct FunctionCallRejectionCase: Sendable, CustomTestStringConvertible {
@@ -1089,11 +1152,25 @@
       /// A substring of the expected rejection reason, or `nil` if the call is allowed.
       let expectedReasonSubstring: String?
 
+      /// A description of the test case for test reports.
       var testDescription: String {
-        """
-        mode: \(toolCallingMode.map { "\($0.kind)" } ?? "nil"), function: \(functionName), \
-        tool enabled: \(enablesWeatherTool), at limit: \(isAtToolCallingTurnLimit)
-        """
+        let modeDescription: String
+        switch toolCallingMode?.kind {
+        case nil:
+          modeDescription = "nil"
+        case .allowed:
+          modeDescription = "allowed"
+        case .required:
+          modeDescription = "required"
+        case .disallowed:
+          modeDescription = "disallowed"
+        @unknown default:
+          modeDescription = "unknown"
+        }
+        return """
+          mode: \(modeDescription), function: \(functionName), \
+          tool enabled: \(enablesWeatherTool), at limit: \(isAtToolCallingTurnLimit)
+          """
       }
 
       /// The cases to test, in order of rejection precedence.

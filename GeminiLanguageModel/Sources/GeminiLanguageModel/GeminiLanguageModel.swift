@@ -126,23 +126,25 @@
     /// modifier of a `LanguageModelSession.DynamicProfile`, for example from `required` to
     /// `allowed` after the first tool call, as shown in [`GenerationOptions.ToolCallingMode`](https://developer.apple.com/documentation/foundationmodels/generationoptions/toolcallingmode-swift.struct).
     ///
-    /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that
-    /// isn't enabled for the request, the session throws
-    /// ``GeminiLanguageModel/Error/invalidResponse(_:)`` and the tool doesn't run.
-    ///
-    /// > Warning: Gemini doesn't always follow the `disallowed` tool calling mode, especially after
-    /// > several tool calls in response to a prompt. Changing the mode to `disallowed` partway
-    /// > through a prompt can end the prompt with this error instead of a response.
-    ///
-    /// By default, when the session throws an error, it reverts its transcript to how it was before
-    /// the prompt, even if tools have already run. To keep the tool calls and their output, set the
-    /// session's [`transcriptErrorHandlingPolicy`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/transcripterrorhandlingpolicy)
-    /// to `preserveTranscript`.
-    ///
     /// The limit is counted from the transcript that the session sends to the model, after any
     /// `historyTransform(_:)` of a `LanguageModelSession.DynamicProfile`. A transform that removes
     /// earlier tool calls can stop the limit from being reached, and a transform that removes
     /// prompts can make the limit apply across prompts.
+    ///
+    /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that the
+    /// session doesn't have, the session throws ``GeminiLanguageModel/Error/invalidResponse(_:)``
+    /// and the tool doesn't run.
+    ///
+    /// > Warning: Gemini doesn't always follow the `disallowed` tool calling mode, especially after
+    /// > several tool calls in response to a prompt. Changing the mode to `disallowed` partway
+    /// > through a prompt can make the session throw
+    /// > ``GeminiLanguageModel/Error/invalidResponse(_:)`` instead of returning a response.
+    ///
+    /// By default, when the session throws an error, it reverts its transcript to how it was before
+    /// the prompt, even if tools have already run. To keep the tool calls and their outputs, set
+    /// the session's [`transcriptErrorHandlingPolicy`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/transcripterrorhandlingpolicy)
+    /// to `preserveTranscript`, or use the [`transcriptErrorHandlingPolicy(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/transcripterrorhandlingpolicy%28_%29)
+    /// modifier of a `LanguageModelSession.DynamicProfile`.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,

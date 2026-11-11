@@ -50,6 +50,15 @@
       var city: String
     }
 
+    @Generable(
+      description: "Postal code arguments with a pattern guide that Gemini doesn't support")
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct PostalCodeArguments {
+      @Guide(description: "A postal code", .pattern(#/^\d{5}$/#))
+      var postalCode: String
+    }
+
     @Generable(description: "Empty arguments")
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
@@ -374,6 +383,8 @@
             Transcript.Reasoning(
               segments: [.text(Transcript.TextSegment(content: "Check two cities."))])
           ),
+          .response(
+            Transcript.Response(segments: [.text(Transcript.TextSegment(content: "Checking."))])),
           .toolCalls(Transcript.ToolCalls(id: "calls-2", [londonCall, tokyoCall])),
           .toolOutput(Self.makeToolOutput(id: "call-2")),
           .toolOutput(Self.makeToolOutput(id: "call-3")),
@@ -488,8 +499,76 @@
       let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
 
       let functionDeclarations = try #require(result.tools?.first?.functionDeclarations)
-      #expect(functionDeclarations.map(\.name) == ["get_current_weather"])
+      #expect(functionDeclarations.map(\.name) == ["getWeather"])
       #expect(result.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithoutEnabledToolsAtToolCallingTurnLimitDeclaresInstructionsTools()
+      throws
+    {
+      let toolDefinition = Self.makeWeatherToolDefinition()
+      let parisCall = try Self.makeToolCall(id: "call-1", city: "Paris")
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(
+          entries: [
+            .instructions(Transcript.Instructions(segments: [], toolDefinitions: [toolDefinition])),
+            .prompt(
+              Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Paris?"))])),
+            .toolCalls(Transcript.ToolCalls(id: "calls-1", [parisCall])),
+            .toolOutput(Self.makeToolOutput(id: "call-1")),
+          ]
+        ),
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .required),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: true)
+
+      let functionDeclarations = try #require(result.tools?.first?.functionDeclarations)
+      #expect(functionDeclarations.map(\.name) == ["getWeather"])
+      #expect(result.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesDisallowedRequestWithUntranslatableInstructionsToolOmitsTools() throws {
+      let toolDefinition = Transcript.ToolDefinition(
+        name: "lookUpPostalCode",
+        description: "Look up a postal code.",
+        parameters: PostalCodeArguments.generationSchema
+      )
+      let lookUpCall = Transcript.ToolCall(
+        id: "call-1",
+        toolName: "lookUpPostalCode",
+        arguments: try GeneratedContent(json: #"{"postalCode": "94043"}"#)
+      )
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(
+          entries: [
+            .instructions(Transcript.Instructions(segments: [], toolDefinitions: [toolDefinition])),
+            .prompt(
+              Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "94043?"))])),
+            .toolCalls(Transcript.ToolCalls(id: "calls-1", [lookUpCall])),
+          ]
+        ),
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .disallowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
+
+      #expect(result.tools == nil)
+      #expect(result.toolConfig == nil)
     }
 
     @Test
@@ -569,7 +648,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private static func makeWeatherToolDefinition() -> Transcript.ToolDefinition {
       Transcript.ToolDefinition(
-        name: "get_current_weather",
+        name: "getWeather",
         description: "Get the current weather for a city.",
         parameters: LocationArguments.generationSchema
       )
