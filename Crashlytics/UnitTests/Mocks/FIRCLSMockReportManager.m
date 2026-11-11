@@ -43,4 +43,11 @@
   // This stuff does operations on the main thread, which we don't want during tests.
 }
 
+- (void)beginSettingsWithToken:(FIRCLSDataCollectionToken *)token {
+  // Intentionally doesn't call super: the real method starts a settings download over the
+  // network, and its process-wide dispatch_once would leak state between tests.
+  self.beginSettingsCallCount += 1;
+  self.beginSettingsCalledOnMainThread = [NSThread isMainThread];
+}
+
 @end
