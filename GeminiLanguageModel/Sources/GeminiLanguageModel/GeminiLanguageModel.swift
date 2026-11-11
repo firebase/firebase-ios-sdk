@@ -42,7 +42,7 @@
   /// [`LanguageModel`](https://developer.apple.com/documentation/foundationmodels/languagemodel)
   /// protocol and can be used with the Foundation Models framework when [initializing](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/init%28model:tools:instructions:%29)
   /// a [`LanguageModelSession`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession),
-  /// or by [setting the model](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/model%28_%29)
+  /// or by [setting the model](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/model%28_:%29)
   /// on a [`DynamicProfile`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile).
   ///
   /// For more details on using Gemini to generate content with the Foundation Models framework,
@@ -122,18 +122,21 @@
     ///
     /// The limit also applies when the tool calling mode is `required`. With `required`, the model
     /// otherwise keeps calling tools until a tool throws an error or the mode changes. To stop
-    /// sooner, change the mode with the [`toolCallingMode(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/toolcallingmode%28_%29)
+    /// sooner, change the mode with the [`toolCallingMode(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/toolcallingmode%28_:%29)
     /// modifier of a `LanguageModelSession.DynamicProfile`, for example from `required` to
     /// `allowed` after the first tool call, as shown in [`GenerationOptions.ToolCallingMode`](https://developer.apple.com/documentation/foundationmodels/generationoptions/toolcallingmode-swift.struct).
     ///
     /// The limit is counted from the transcript that the session sends to the model, after any
-    /// `historyTransform(_:)` of a `LanguageModelSession.DynamicProfile`. A transform that removes
-    /// earlier tool calls can stop the limit from being reached, and a transform that removes
-    /// prompts can make the limit apply across prompts.
+    /// [`historyTransform(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/historytransform%28_:%29)
+    /// of a `LanguageModelSession.DynamicProfile`. A transform that removes earlier tool calls can
+    /// stop the limit from being reached, and a transform that removes prompts can make the limit
+    /// apply across prompts. Each tool-calling turn adds several transcript entries, such as the
+    /// tool calls, their outputs, and the model's reasoning, so a transform that keeps a fixed
+    /// number of recent entries keeps far fewer tool-calling turns than entries.
     ///
-    /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that the
-    /// session doesn't have, the session throws ``GeminiLanguageModel/Error/invalidResponse(_:)``
-    /// and the tool doesn't run.
+    /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that
+    /// isn't enabled for the request, the session throws
+    /// ``GeminiLanguageModel/Error/invalidResponse(_:)`` and the tool doesn't run.
     ///
     /// > Warning: Gemini doesn't always follow the `disallowed` tool calling mode, especially after
     /// > several tool calls in response to a prompt. Changing the mode to `disallowed` partway
@@ -143,7 +146,7 @@
     /// By default, when the session throws an error, it reverts its transcript to how it was before
     /// the prompt, even if tools have already run. To keep the tool calls and their outputs, set
     /// the session's [`transcriptErrorHandlingPolicy`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/transcripterrorhandlingpolicy)
-    /// to `preserveTranscript`, or use the [`transcriptErrorHandlingPolicy(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/transcripterrorhandlingpolicy%28_%29)
+    /// to `preserveTranscript`, or use the [`transcriptErrorHandlingPolicy(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/transcripterrorhandlingpolicy%28_:%29)
     /// modifier of a `LanguageModelSession.DynamicProfile`.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([

@@ -888,7 +888,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondDisablesFunctionCallingAtToolCallingTurnLimit() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
       try #require(maximumTurns == 10)
       let recordedRequests = try Self.mockToolCallingLoop { $0 <= maximumTurns }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
@@ -913,7 +913,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func functionCallAfterToolCallingTurnLimitThrowsInvalidResponse() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
       let recordedRequests = try Self.mockToolCallingLoop { _ in true }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
       session.transcriptErrorHandlingPolicy = .preserveTranscript
@@ -936,7 +936,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func newPromptResetsToolCallingTurnCount() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
       // Each prompt receives `maximumTurns` function calls, then text.
       let recordedRequests = try Self.mockToolCallingLoop { requestNumber in
         requestNumber % (maximumTurns + 1) != 0
@@ -958,7 +958,7 @@
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func parallelFunctionCallsCountAsOneToolCallingTurn() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
       let recordedRequests = try Self.mockToolCallingLoop(functionCallsPerResponse: 2) {
         $0 <= maximumTurns
       }
@@ -1133,6 +1133,115 @@
       #expect(session.transcript[(promptIndex + 1)...].isEmpty)
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func promptAfterToolCallingTurnLimitErrorWithPreservedTranscriptSucceeds() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
+      // The first prompt receives function calls until it fails at the turn limit.
+      let recordedRequests = try Self.mockToolCallingLoop { $0 <= maximumTurns + 1 }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+      await #expect(throws: GeminiLanguageModel.Error.self) {
+        try await session.respond(to: "What is the weather in Paris?")
+      }
+
+      let response = try await session.respond(to: "Summarize what you found.")
+
+      #expect(response.content == Self.weatherResponseText)
+      let requests = recordedRequests.all
+      #expect(requests.count == maximumTurns + 2)
+      let lastRequest = try #require(requests.last)
+      #expect(lastRequest.toolConfig?.functionCallingConfig?.mode == .validated)
+      // The transcript ends with the last tool output, so the new prompt joins its user turn.
+      let lastContent = try #require(lastRequest.contents?.last)
+      #expect(lastContent.role == "user")
+      let lastParts = try #require(lastContent.parts)
+      #expect(lastParts.count == 2)
+      guard case .functionResponse(let functionResponse) = lastParts.first?.data else {
+        Issue.record("Expected a functionResponse part before the new prompt.")
+        return
+      }
+      #expect(functionResponse.name == "get_weather")
+      guard case .text(let promptText) = lastParts.last?.data else {
+        Issue.record("Expected the new prompt's text part.")
+        return
+      }
+      #expect(promptText == "Summarize what you found.")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func rejectedFunctionCallDoesNotStreamAllowedCallOrTextInSameChunk() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockStreamResponses([
+        Self.functionCallsChunk(
+          [
+            (id: "call-1", name: "get_weather"),
+            (id: "call-2", name: "get_current_time"),
+          ],
+          leadingText: "Let me check."
+        )
+      ])
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+
+      do {
+        _ = try await session.respond(to: "What are the weather and time in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(
+          invalidResponse.debugDescription.contains(
+            "`get_current_time`, which isn't an enabled tool"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+      let promptIndex = try #require(
+        session.transcript.firstIndex { entry in
+          guard case .prompt = entry else { return false }
+          return true
+        }
+      )
+      #expect(session.transcript[(promptIndex + 1)...].isEmpty)
+    }
+
+    /// Checks that a function call from an earlier chunk of a response, which has already been
+    /// streamed to the session, isn't kept or run when a later chunk is rejected, even when the
+    /// transcript is preserved.
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func rejectedFunctionCallInLaterChunkKeepsNoEarlierToolCalls() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockStreamResponses([
+        Self.functionCallsChunk([(id: "call-1", name: "get_weather")], isFinal: false)
+          + Self.functionCallsChunk([(id: "call-2", name: "get_current_time")])
+      ])
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+
+      do {
+        _ = try await session.respond(to: "What are the weather and time in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(
+          invalidResponse.debugDescription.contains(
+            "`get_current_time`, which isn't an enabled tool"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+      let promptIndex = try #require(
+        session.transcript.firstIndex { entry in
+          guard case .prompt = entry else { return false }
+          return true
+        }
+      )
+      #expect(session.transcript[(promptIndex + 1)...].isEmpty)
+    }
+
     /// A test case for `GeminiLanguageModel.Executor.functionCallRejectionReason`.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
@@ -1183,10 +1292,12 @@
           isAtToolCallingTurnLimit: true, expectedReasonSubstring: "`disallowed`"),
         .init(
           toolCallingMode: .required, functionName: "get_weather", enablesWeatherTool: true,
-          isAtToolCallingTurnLimit: true, expectedReasonSubstring: "limit of 2 tool-calling turns"),
+          isAtToolCallingTurnLimit: true,
+          expectedReasonSubstring: "limit of 10 tool-calling turns"),
         .init(
           toolCallingMode: nil, functionName: "get_time", enablesWeatherTool: false,
-          isAtToolCallingTurnLimit: true, expectedReasonSubstring: "limit of 2 tool-calling turns"),
+          isAtToolCallingTurnLimit: true,
+          expectedReasonSubstring: "limit of 10 tool-calling turns"),
         .init(
           toolCallingMode: nil, functionName: "get_weather", enablesWeatherTool: false,
           isAtToolCallingTurnLimit: false, expectedReasonSubstring: "isn't an enabled tool"),
@@ -1222,8 +1333,7 @@
       let reason = GeminiLanguageModel.Executor.functionCallRejectionReason(
         forFunctionNamed: testCase.functionName,
         in: request,
-        isAtToolCallingTurnLimit: testCase.isAtToolCallingTurnLimit,
-        maximumToolCallingTurns: 2
+        isAtToolCallingTurnLimit: testCase.isAtToolCallingTurnLimit
       )
 
       if let expectedReasonSubstring = testCase.expectedReasonSubstring {
@@ -1311,6 +1421,57 @@
       return recordedRequests
     }
 
+    /// Mocks a model that responds to each request with a server-sent events payload.
+    ///
+    /// - Parameter ssePayloads: The payloads to respond with, in request order. Requests after
+    ///   the last payload receive the last payload.
+    /// - Returns: The requests that the mock receives.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func mockStreamResponses(_ ssePayloads: [String]) throws -> RecordedRequests {
+      try #require(!ssePayloads.isEmpty)
+      let expectedURL = try makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let recordedRequests = RecordedRequests()
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        let body = try #require(request.httpBodyData)
+        let requestNumber = recordedRequests.append(
+          try JSONDecoder().decode(GenerateContentRequest.self, from: body)
+        )
+        let payload = ssePayloads[min(requestNumber, ssePayloads.count) - 1]
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      return recordedRequests
+    }
+
+    /// Returns a server-sent event for a streamed chunk with parallel function calls.
+    ///
+    /// - Parameters:
+    ///   - calls: The identifier and function name of each function call, in order.
+    ///   - leadingText: The text of a part before the function calls, or `nil` for none.
+    ///   - isFinal: Whether the chunk ends the response with a `STOP` finish reason.
+    /// - Returns: The `data:` line and its terminating blank line.
+    private static func functionCallsChunk(
+      _ calls: [(id: String, name: String)],
+      leadingText: String? = nil,
+      isFinal: Bool = true
+    ) -> String {
+      let textParts = leadingText.map { [#"{"text": "\#($0)"}"#] } ?? []
+      let functionCallParts = calls.map { call in
+        #"{"functionCall": {"id": "\#(call.id)", "name": "\#(call.name)", "#
+          + #""args": {"location": "Paris"}}}"#
+      }
+      let parts = textParts + functionCallParts
+      let finishReason = isFinal ? #", "finishReason": "STOP""# : ""
+      return #"data: {"candidates": [{"content": {"parts": [\#(parts.joined(separator: ", "))], "#
+        + #""role": "model"}\#(finishReason), "index": 0}]}"#
+        + "\n\n"
+    }
+
     /// Returns the number of tool-calling turns (non-empty tool-calls entries) in a transcript.
     ///
     /// - Parameter transcript: The transcript to search.
@@ -1336,7 +1497,6 @@
     }
 
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-
     private static func makeMockModel(
       modelResource: ModelResource = .gemini38Flash,
       endpointConfiguration: EndpointConfiguration = .geminiDeveloperAPI,

@@ -314,7 +314,7 @@
     func sessionRespondRequiredToolCallingStopsAtToolCallingTurnLimit(
       backend: IntegrationTestingBackend
     ) async throws {
-      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
       let model = try await backend.makeModel()
       let tool = CountingWeatherTool()
       let session = LanguageModelSession(model: model, tools: [tool])
