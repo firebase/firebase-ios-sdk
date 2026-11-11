@@ -318,6 +318,298 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseReportsFinalChunkUsage() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let chunks = [
+        Self.streamChunk(
+          "Hello ",
+          usageMetadata: #"{"promptTokenCount": 5, "totalTokenCount": 5}"#
+        ),
+        Self.streamChunk(
+          "world!",
+          isFinal: true,
+          usageMetadata:
+            #"{"promptTokenCount": 5, "candidatesTokenCount": 2, "totalTokenCount": 7}"#
+        ),
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var accumulated = ""
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in session.streamResponse(to: "Say hello") {
+        accumulated = snapshot.content
+        lastUsage = snapshot.usage
+      }
+
+      #expect(accumulated == "Hello world!")
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 5)
+      #expect(usage.output.totalTokenCount == 2)
+      #expect(usage.totalTokenCount == 7)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseCachedTokensOnlyInFinalChunk() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // The Gemini Developer API reports implicitly cached tokens only in the final chunk. In
+      // testing, reporting the first chunk's usage before it decreased the uncached input token
+      // count, which crashes `LanguageModelSession`.
+      let chunks = [
+        Self.streamChunk(
+          "Hello ",
+          usageMetadata:
+            #"{"promptTokenCount": 50, "candidatesTokenCount": 2, "totalTokenCount": 52}"#
+        ),
+        Self.streamChunk(
+          "world!",
+          isFinal: true,
+          usageMetadata: #"{"promptTokenCount": 50, "cachedContentTokenCount": 40, "#
+            + #""candidatesTokenCount": 4, "totalTokenCount": 54}"#
+        ),
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var accumulated = ""
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in session.streamResponse(to: "Say hello") {
+        accumulated = snapshot.content
+        lastUsage = snapshot.usage
+      }
+
+      #expect(accumulated == "Hello world!")
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 50)
+      #expect(usage.input.cachedTokenCount == 40)
+      #expect(usage.output.totalTokenCount == 4)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseDeliversSnapshotsBeforeResponseCompletes() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // The Gemini Enterprise Agent Platform omits token counts until the final chunk. In testing,
+      // `LanguageModelSession` delivers each streamed snapshot only when a later event arrives, so
+      // intermediate chunks keep arriving, as they would while the model is still generating,
+      // until the consumer receives one.
+      let finalChunk = Self.streamChunk(
+        "done.",
+        isFinal: true,
+        usageMetadata: #"{"promptTokenCount": 5, "candidatesTokenCount": 5, "totalTokenCount": 10}"#
+      )
+      let snapshotReceived = DispatchSemaphore(value: 0)
+      // Stops the background chunk loop promptly if the test exits early.
+      defer { snapshotReceived.signal() }
+      let isResponseComplete = Mutex(false)
+      let intermediateChunkCount = Mutex(0)
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        nonisolated(unsafe) let proto = proto
+        DispatchQueue.global().async {
+          let deadline = DispatchTime.now() + .seconds(5)
+          repeat {
+            let index = intermediateChunkCount.withLock { count in
+              count += 1
+              return count
+            }
+            let chunk = Self.streamChunk("\(index) ", usageMetadata: "{}")
+            proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+          } while snapshotReceived.wait(timeout: .now() + .milliseconds(20)) == .timedOut
+            && DispatchTime.now() < deadline
+          isResponseComplete.withLock { $0 = true }
+          proto.client?.urlProtocol(proto, didLoad: Data(finalChunk.utf8))
+          proto.client?.urlProtocolDidFinishLoading(proto)
+        }
+      }
+      let session = LanguageModelSession(model: model)
+
+      var accumulated = ""
+      var receivedSnapshotBeforeResponseCompleted: Bool?
+      for try await snapshot in session.streamResponse(to: "Count") {
+        if receivedSnapshotBeforeResponseCompleted == nil {
+          receivedSnapshotBeforeResponseCompleted = !isResponseComplete.withLock { $0 }
+          snapshotReceived.signal()
+        }
+        accumulated = snapshot.content
+      }
+
+      #expect(receivedSnapshotBeforeResponseCompleted == true)
+      let chunkCount = intermediateChunkCount.withLock { $0 }
+      #expect(accumulated == (1...chunkCount).map { "\($0) " }.joined() + "done.")
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseUsageTracksRunningOutputTokenCount() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      let chunks = [
+        Self.streamChunk(
+          "One ",
+          usageMetadata:
+            #"{"promptTokenCount": 5, "candidatesTokenCount": 10, "totalTokenCount": 15}"#
+        ),
+        Self.streamChunk(
+          "two ",
+          usageMetadata:
+            #"{"promptTokenCount": 5, "candidatesTokenCount": 20, "totalTokenCount": 25}"#
+        ),
+        Self.streamChunk(
+          "three.",
+          isFinal: true,
+          usageMetadata:
+            #"{"promptTokenCount": 5, "candidatesTokenCount": 30, "totalTokenCount": 35}"#
+        ),
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var outputTokenCounts: [Int] = []
+      for try await snapshot in session.streamResponse(to: "Count to three") {
+        outputTokenCounts.append(snapshot.usage.output.totalTokenCount)
+      }
+
+      #expect(outputTokenCounts.last == 30)
+      // While streaming, snapshots report Gemini's running totals (10, then 20) rather than a
+      // count of chunks. Snapshots may be merged, so not every total is necessarily reported.
+      let streamedOutputTokenCounts = outputTokenCounts.filter { $0 < 30 }
+      #expect(!streamedOutputTokenCounts.isEmpty)
+      #expect(streamedOutputTokenCounts.allSatisfy { [10, 20].contains($0) })
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseCachedTokensWithoutPromptTokenCount() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // A cached token count above the input total would crash `LanguageModelSession`.
+      let chunks = [
+        Self.streamChunk(
+          "Hello!",
+          isFinal: true,
+          usageMetadata:
+            #"{"cachedContentTokenCount": 40, "candidatesTokenCount": 2, "totalTokenCount": 42}"#
+        )
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in session.streamResponse(to: "Say hello") {
+        lastUsage = snapshot.usage
+      }
+
+      let usage = try #require(lastUsage)
+      #expect(usage.input.totalTokenCount == 0)
+      #expect(usage.input.cachedTokenCount == 0)
+      #expect(usage.output.totalTokenCount == 2)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionStreamResponseUsageIncludesReasoningTokens() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let model = Self.makeMockModel()
+      let expectedURL = try Self.makeExpectedStreamURL()
+      let httpResponse = try HTTPURLResponse.mock(
+        url: expectedURL,
+        headerFields: ["Content-Type": "text/event-stream"]
+      )
+      // Gemini's `candidatesTokenCount` excludes thinking tokens, which it reports separately in
+      // `thoughtsTokenCount`.
+      let chunks = [
+        Self.streamChunk(
+          "Thinking it over.",
+          isThought: true,
+          usageMetadata:
+            #"{"promptTokenCount": 5, "thoughtsTokenCount": 7, "totalTokenCount": 12}"#
+        ),
+        Self.streamChunk(
+          "Answer.",
+          isFinal: true,
+          usageMetadata: #"{"promptTokenCount": 5, "candidatesTokenCount": 4, "#
+            + #""thoughtsTokenCount": 7, "totalTokenCount": 16}"#
+        ),
+      ]
+      MockHTTPURLProtocol.setHandler(for: expectedURL) { request, proto in
+        proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
+        for chunk in chunks {
+          proto.client?.urlProtocol(proto, didLoad: Data(chunk.utf8))
+        }
+        proto.client?.urlProtocolDidFinishLoading(proto)
+      }
+      let session = LanguageModelSession(model: model)
+
+      var accumulated = ""
+      var lastUsage: LanguageModelSession.Usage?
+      for try await snapshot in session.streamResponse(to: "Think, then answer") {
+        accumulated = snapshot.content
+        lastUsage = snapshot.usage
+      }
+
+      #expect(accumulated == "Answer.")
+      let usage = try #require(lastUsage)
+      #expect(usage.output.reasoningTokenCount == 7)
+      #expect(usage.output.totalTokenCount == 11)
+      #expect(usage.totalTokenCount == 16)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func rateLimitErrorMapping() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let model = Self.makeMockModel()
@@ -616,6 +908,27 @@
             "https://\(host)/\(apiVersion)/\(urlResourceName):streamGenerateContent?alt=sse"
         )
       )
+    }
+
+    /// Returns a server-sent event for a streamed `generateContent` chunk.
+    ///
+    /// - Parameters:
+    ///   - text: The text of the chunk's single part.
+    ///   - isThought: Whether the part is a thought summary.
+    ///   - isFinal: Whether the chunk ends the response with a `STOP` finish reason.
+    ///   - usageMetadata: The chunk's `usageMetadata` JSON object.
+    /// - Returns: The `data:` line and its terminating blank line.
+    private static func streamChunk(
+      _ text: String,
+      isThought: Bool = false,
+      isFinal: Bool = false,
+      usageMetadata: String
+    ) -> String {
+      let thought = isThought ? #", "thought": true"# : ""
+      let finishReason = isFinal ? #", "finishReason": "STOP""# : ""
+      return #"data: {"candidates": [{"content": {"parts": [{"text": "\#(text)"\#(thought)}], "#
+        + #""role": "model"}\#(finishReason), "index": 0}], "usageMetadata": \#(usageMetadata)}"#
+        + "\n\n"
     }
   }
 #endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
