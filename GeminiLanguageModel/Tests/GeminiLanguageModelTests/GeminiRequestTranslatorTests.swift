@@ -76,7 +76,7 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(request)
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
 
       #expect(result.systemInstruction == nil)
       #expect(result.contents?.count == 1)
@@ -105,7 +105,7 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(request)
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
 
       #expect(result.contents?.count == 1)
       let generationConfig = try #require(result.generationConfig)
@@ -217,19 +217,23 @@
     func translatesToolCallingModes() throws {
       let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .allowed,
-        hasFunctionDeclarations: true
+        hasFunctionDeclarations: true,
+        isAtToolCallingTurnLimit: false
       )
       let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .required,
-        hasFunctionDeclarations: true
+        hasFunctionDeclarations: true,
+        isAtToolCallingTurnLimit: false
       )
       let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .disallowed,
-        hasFunctionDeclarations: true
+        hasFunctionDeclarations: true,
+        isAtToolCallingTurnLimit: false
       )
       let unsetConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: nil,
-        hasFunctionDeclarations: true
+        hasFunctionDeclarations: true,
+        isAtToolCallingTurnLimit: false
       )
 
       #expect(allowedConfig?.functionCallingConfig?.mode == .validated)
@@ -243,19 +247,23 @@
     func translatesToolCallingModesWithoutDeclarationsReturnsNil() throws {
       let allowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .allowed,
-        hasFunctionDeclarations: false
+        hasFunctionDeclarations: false,
+        isAtToolCallingTurnLimit: false
       )
       let requiredConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .required,
-        hasFunctionDeclarations: false
+        hasFunctionDeclarations: false,
+        isAtToolCallingTurnLimit: false
       )
       let disallowedConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: .disallowed,
-        hasFunctionDeclarations: false
+        hasFunctionDeclarations: false,
+        isAtToolCallingTurnLimit: false
       )
       let nilConfig = try GeminiRequestTranslator.translateToolConfig(
         toolCallingMode: nil,
-        hasFunctionDeclarations: false
+        hasFunctionDeclarations: false,
+        isAtToolCallingTurnLimit: false
       )
 
       #expect(allowedConfig == nil)
@@ -298,8 +306,10 @@
         metadata: [:]
       )
 
-      let resultWithTool = try GeminiRequestTranslator.translate(requestWithTool)
-      let resultWithoutTools = try GeminiRequestTranslator.translate(requestWithoutTools)
+      let resultWithTool = try GeminiRequestTranslator.translate(
+        requestWithTool, isAtToolCallingTurnLimit: false)
+      let resultWithoutTools = try GeminiRequestTranslator.translate(
+        requestWithoutTools, isAtToolCallingTurnLimit: false)
 
       let unwrappedToolConfig = try #require(resultWithTool.toolConfig)
       let functionCallingConfig = try #require(unwrappedToolConfig.functionCallingConfig)
@@ -332,7 +342,7 @@
         metadata: [:]
       )
 
-      let result = try GeminiRequestTranslator.translate(request)
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
 
       let toolConfig = try #require(result.toolConfig)
       let functionCallingConfig = try #require(toolConfig.functionCallingConfig)
@@ -341,37 +351,49 @@
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func toolCallingTurnsCountsToolCallsSinceMostRecentPrompt() throws {
-      let arguments = try GeneratedContent(json: #"{"city": "Paris"}"#)
-      let parisCall = Transcript.ToolCall(
-        id: "call-1", toolName: "getWeather", arguments: arguments)
-      let londonCall = Transcript.ToolCall(
-        id: "call-2", toolName: "getWeather", arguments: arguments)
-      let tokyoCall = Transcript.ToolCall(
-        id: "call-3", toolName: "getWeather", arguments: arguments)
+    func toolCallingTurnCountCountsToolCallsSinceMostRecentPrompt() throws {
+      let parisCall = try Self.makeToolCall(id: "call-1", city: "Paris")
+      let londonCall = try Self.makeToolCall(id: "call-2", city: "London")
+      let tokyoCall = try Self.makeToolCall(id: "call-3", city: "Tokyo")
+      let romeCall = try Self.makeToolCall(id: "call-4", city: "Rome")
       let transcript = Transcript(
         entries: [
+          .instructions(
+            Transcript.Instructions(
+              segments: [.text(Transcript.TextSegment(content: "Be brief."))],
+              toolDefinitions: []
+            )
+          ),
           .prompt(Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Paris?"))])),
           .toolCalls(Transcript.ToolCalls(id: "calls-1", [parisCall])),
           .toolOutput(Self.makeToolOutput(id: "call-1")),
           .response(
             Transcript.Response(segments: [.text(Transcript.TextSegment(content: "Sunny."))])),
           .prompt(Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Others?"))])),
+          .reasoning(
+            Transcript.Reasoning(
+              segments: [.text(Transcript.TextSegment(content: "Check two cities."))])
+          ),
           .toolCalls(Transcript.ToolCalls(id: "calls-2", [londonCall, tokyoCall])),
           .toolOutput(Self.makeToolOutput(id: "call-2")),
           .toolOutput(Self.makeToolOutput(id: "call-3")),
           .toolCalls(Transcript.ToolCalls(id: "calls-3", [])),
-          .toolCalls(Transcript.ToolCalls(id: "calls-4", [parisCall])),
-          .toolOutput(Self.makeToolOutput(id: "call-1")),
+          .toolCalls(Transcript.ToolCalls(id: "calls-4", [romeCall])),
+          .toolOutput(Self.makeToolOutput(id: "call-4")),
         ]
       )
 
-      let turns = GeminiRequestTranslator.toolCallingTurns(in: transcript)
-      let emptyTranscriptTurns = GeminiRequestTranslator.toolCallingTurns(
-        in: Transcript(entries: []))
+      let turnCount = GeminiRequestTranslator.toolCallingTurnCount(in: transcript)
 
-      #expect(turns == 2)
-      #expect(emptyTranscriptTurns == 0)
+      #expect(turnCount == 2)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func toolCallingTurnCountInEmptyTranscriptIsZero() {
+      let turnCount = GeminiRequestTranslator.toolCallingTurnCount(in: Transcript(entries: []))
+
+      #expect(turnCount == 0)
     }
 
     @Test(arguments: [
@@ -428,8 +450,135 @@
       #expect(result.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesToolConfigAtToolCallingTurnLimitWithoutDeclarationsReturnsNil() throws {
+      let toolConfig = try GeminiRequestTranslator.translateToolConfig(
+        toolCallingMode: .required,
+        hasFunctionDeclarations: false,
+        isAtToolCallingTurnLimit: true
+      )
+
+      #expect(toolConfig == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesDisallowedRequestAfterToolCallsDeclaresInstructionsToolsWithNone() throws {
+      let toolDefinition = Self.makeWeatherToolDefinition()
+      let parisCall = try Self.makeToolCall(id: "call-1", city: "Paris")
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(
+          entries: [
+            .instructions(Transcript.Instructions(segments: [], toolDefinitions: [toolDefinition])),
+            .prompt(
+              Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Paris?"))])),
+            .toolCalls(Transcript.ToolCalls(id: "calls-1", [parisCall])),
+            .toolOutput(Self.makeToolOutput(id: "call-1")),
+          ]
+        ),
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .disallowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
+
+      let functionDeclarations = try #require(result.tools?.first?.functionDeclarations)
+      #expect(functionDeclarations.map(\.name) == ["get_current_weather"])
+      #expect(result.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesDisallowedRequestWithoutToolCallsOmitsTools() throws {
+      let toolDefinition = Self.makeWeatherToolDefinition()
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(
+          entries: [
+            .instructions(Transcript.Instructions(segments: [], toolDefinitions: [toolDefinition])),
+            .prompt(
+              Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Paris?"))])),
+          ]
+        ),
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .disallowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
+
+      #expect(result.tools == nil)
+      #expect(result.toolConfig == nil)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func translatesRequestWithoutEnabledToolsAfterToolCallsOmitsTools() throws {
+      let toolDefinition = Self.makeWeatherToolDefinition()
+      let parisCall = try Self.makeToolCall(id: "call-1", city: "Paris")
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(
+          entries: [
+            .instructions(Transcript.Instructions(segments: [], toolDefinitions: [toolDefinition])),
+            .prompt(
+              Transcript.Prompt(segments: [.text(Transcript.TextSegment(content: "Paris?"))])),
+            .toolCalls(Transcript.ToolCalls(id: "calls-1", [parisCall])),
+            .toolOutput(Self.makeToolOutput(id: "call-1")),
+          ]
+        ),
+        enabledTools: [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: .allowed),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let result = try GeminiRequestTranslator.translate(request, isAtToolCallingTurnLimit: false)
+
+      #expect(result.tools == nil)
+      #expect(result.toolConfig == nil)
+    }
+
     // MARK: - Helper Methods
 
+    /// Returns a `getWeather` tool call for a city.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the tool call.
+    ///   - city: The city argument of the tool call.
+    /// - Returns: A tool call to `getWeather`.
+    /// - Throws: An error if the arguments can't be parsed.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func makeToolCall(id: String, city: String) throws -> Transcript.ToolCall {
+      Transcript.ToolCall(
+        id: id,
+        toolName: "getWeather",
+        arguments: try GeneratedContent(json: #"{"city": "\#(city)"}"#)
+      )
+    }
+
+    /// Returns the definition of a tool that gets the current weather for a city.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func makeWeatherToolDefinition() -> Transcript.ToolDefinition {
+      Transcript.ToolDefinition(
+        name: "get_current_weather",
+        description: "Get the current weather for a city.",
+        parameters: LocationArguments.generationSchema
+      )
+    }
+
+    /// Returns the output of a `getWeather` tool call.
+    ///
+    /// - Parameter id: The identifier of the tool call that produced the output.
+    /// - Returns: The tool output.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private static func makeToolOutput(id: String) -> Transcript.ToolOutput {
       Transcript.ToolOutput(

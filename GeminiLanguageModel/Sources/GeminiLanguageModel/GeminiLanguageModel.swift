@@ -117,23 +117,30 @@
     ///
     /// - After 10 tool-calling turns, the next request tells Gemini not to call tools, so that
     ///   the model gives a final response.
-    /// - If Gemini returns a function call anyway, the session throws
+    /// - If Gemini calls a tool anyway, the session throws
     ///   ``GeminiLanguageModel/Error/invalidResponse(_:)``.
     ///
-    /// The limit also applies when the tool calling mode is `required`, which otherwise keeps
-    /// calling tools until a tool throws an error or the mode changes. To stop sooner, change the
-    /// tool calling mode from a `LanguageModelSession.DynamicProfile`, for example after the first
-    /// tool call.
+    /// The limit also applies when the tool calling mode is `required`. With `required`, the model
+    /// otherwise keeps calling tools until a tool throws an error or the mode changes. To stop
+    /// sooner, change the mode with the [`toolCallingMode(_:)`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/dynamicprofile/toolcallingmode%28_%29)
+    /// modifier of a `LanguageModelSession.DynamicProfile`, for example from `required` to
+    /// `allowed` after the first tool call, as shown in [`GenerationOptions.ToolCallingMode`](https://developer.apple.com/documentation/foundationmodels/generationoptions/toolcallingmode-swift.struct).
     ///
-    /// The limit counts the tool-calling turns since the most recent prompt in the transcript that
-    /// the session sends to the model, which reflects any `historyTransform(_:)` from a
-    /// `LanguageModelSession.DynamicProfile`. A transform that removes earlier tool calls allows
-    /// more than 10 tool-calling turns per prompt, and a transform that removes prompts counts
-    /// tool-calling turns across prompts.
+    /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that
+    /// isn't enabled for the request, the session throws
+    /// ``GeminiLanguageModel/Error/invalidResponse(_:)`` and the tool doesn't run. Gemini doesn't
+    /// always follow `disallowed` after several tool calls in response to a prompt, so prefer
+    /// `allowed` when you change the mode after a tool call.
     ///
-    /// If Gemini returns a function call when the tool calling mode is `disallowed` or when no
-    /// tools are enabled, the session also throws ``GeminiLanguageModel/Error/invalidResponse(_:)``
-    /// instead of running the tool.
+    /// By default, when the session throws an error, it reverts its transcript to how it was before
+    /// the prompt, even if tools have already run. To keep the tool calls and their output, set the
+    /// session's [`transcriptErrorHandlingPolicy`](https://developer.apple.com/documentation/foundationmodels/languagemodelsession/transcripterrorhandlingpolicy)
+    /// to `preserveTranscript`.
+    ///
+    /// The limit is counted from the transcript that the session sends to the model, after any
+    /// `historyTransform(_:)` of a `LanguageModelSession.DynamicProfile`. A transform that removes
+    /// earlier tool calls can stop the limit from being reached, and a transform that removes
+    /// prompts can make the limit apply across prompts.
     public var capabilities: LanguageModelCapabilities {
       LanguageModelCapabilities([
         .guidedGeneration,

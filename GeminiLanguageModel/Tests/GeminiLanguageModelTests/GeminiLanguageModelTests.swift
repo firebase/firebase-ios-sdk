@@ -48,7 +48,13 @@
     typealias FoundationModelsTool = FoundationModels.Tool
   #endif
 
-  @Suite("GeminiLanguageModel Tests", .serialized, .requireFoundationModels)
+  @Suite(
+    "GeminiLanguageModel Tests",
+    .serialized,
+    .requireFoundationModels,
+    // Fails runaway tool-call loops instead of hanging.
+    .timeLimit(.minutes(1))
+  )
   struct GeminiLanguageModelTests {
     @Generable(description: "A city summary")
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
@@ -883,7 +889,8 @@
     func sessionRespondDisablesFunctionCallingAtToolCallingTurnLimit() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
-      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: maximumTurns)
+      try #require(maximumTurns == 10)
+      let recordedRequests = try Self.mockToolCallingLoop { $0 <= maximumTurns }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
 
       let response = try await session.respond(
@@ -891,8 +898,9 @@
         options: GenerationOptions(toolCallingMode: .required)
       )
 
-      #expect(maximumTurns == 10)
       #expect(response.content == Self.weatherResponseText)
+      #expect(Self.toolCallsEntryCount(in: session.transcript) == maximumTurns)
+      #expect(Self.toolOutputEntryCount(in: session.transcript) == maximumTurns)
       let requests = recordedRequests.all
       #expect(requests.count == maximumTurns + 1)
       #expect(requests.dropLast().allSatisfy { $0.toolConfig?.functionCallingConfig?.mode == .any })
@@ -906,19 +914,22 @@
     func functionCallAfterToolCallingTurnLimitThrowsInvalidResponse() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
-      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
+      let recordedRequests = try Self.mockToolCallingLoop { _ in true }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
 
       do {
         _ = try await session.respond(to: "What is the weather in Paris?")
         Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
       } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
-        #expect(invalidResponse.debugDescription.contains("maximum of 10 tool-calling turns"))
+        #expect(
+          invalidResponse.debugDescription.contains("limit of \(maximumTurns) tool-calling turns"))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
 
       #expect(recordedRequests.all.count == maximumTurns + 1)
+      #expect(Self.toolOutputEntryCount(in: session.transcript) == maximumTurns)
     }
 
     @Test
@@ -926,24 +937,55 @@
     func newPromptResetsToolCallingTurnCount() async throws {
       defer { MockHTTPURLProtocol.reset() }
       let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
-      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: maximumTurns)
+      // Each prompt receives `maximumTurns` function calls, then text.
+      let recordedRequests = try Self.mockToolCallingLoop { requestNumber in
+        requestNumber % (maximumTurns + 1) != 0
+      }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
       _ = try await session.respond(to: "What is the weather in Paris?")
 
-      let response = try await session.respond(to: "Thanks! Anything else?")
+      let response = try await session.respond(to: "And in London?")
 
       #expect(response.content == Self.weatherResponseText)
+      let modes = recordedRequests.all.map { $0.toolConfig?.functionCallingConfig?.mode }
+      let validatedModes = Array(
+        repeating: FunctionCallingConfig.Mode?.some(.validated), count: maximumTurns)
+      let promptModes = validatedModes + [FunctionCallingConfig.Mode.none]
+      #expect(modes == promptModes + promptModes)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func parallelFunctionCallsCountAsOneToolCallingTurn() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.Configuration.defaultMaximumToolCallingTurns
+      let recordedRequests = try Self.mockToolCallingLoop(functionCallsPerResponse: 2) {
+        $0 <= maximumTurns
+      }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      let response = try await session.respond(
+        to: "What is the weather in Paris and London?",
+        options: GenerationOptions(toolCallingMode: .required)
+      )
+
+      #expect(response.content == Self.weatherResponseText)
+      #expect(Self.toolCallsEntryCount(in: session.transcript) == maximumTurns)
+      #expect(Self.toolOutputEntryCount(in: session.transcript) == 2 * maximumTurns)
       let requests = recordedRequests.all
-      #expect(requests.count == maximumTurns + 2)
-      #expect(requests.last?.toolConfig?.functionCallingConfig?.mode == .validated)
+      #expect(requests.count == maximumTurns + 1)
+      #expect(requests.dropLast().allSatisfy { $0.toolConfig?.functionCallingConfig?.mode == .any })
+      #expect(
+        requests.last?.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
     }
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func functionCallWithToolCallingModeDisallowedThrowsInvalidResponse() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
+      let recordedRequests = try Self.mockToolCallingLoop { _ in true }
       let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
 
       do {
         _ = try await session.respond(
@@ -957,21 +999,50 @@
         Issue.record("Unexpected error thrown: \(error)")
       }
 
-      #expect(recordedRequests.all.count == 1)
+      let requests = recordedRequests.all
+      #expect(requests.count == 1)
+      #expect(requests.first?.tools == nil)
+      #expect(Self.toolOutputEntryCount(in: session.transcript) == 0)
     }
 
     @Test
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func functionCallWithoutToolsThrowsInvalidResponse() async throws {
+    func disallowedRequestAfterToolCallsDeclaresToolsWithFunctionCallingNone() async throws {
       defer { MockHTTPURLProtocol.reset() }
-      let recordedRequests = try Self.mockToolCallingLoop(functionCallResponseCount: .max)
-      let session = LanguageModelSession(model: Self.makeMockModel())
+      let recordedRequests = try Self.mockToolCallingLoop { $0 == 1 }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+      _ = try await session.respond(to: "What is the weather in Paris?")
+
+      let response = try await session.respond(
+        to: "Summarize that without calling tools.",
+        options: GenerationOptions(toolCallingMode: .disallowed)
+      )
+
+      #expect(response.content == Self.weatherResponseText)
+      let requests = recordedRequests.all
+      #expect(requests.count == 3)
+      let lastRequest = try #require(requests.last)
+      #expect(lastRequest.tools?.first?.functionDeclarations?.map(\.name) == ["get_weather"])
+      #expect(
+        lastRequest.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+    }
+
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallToToolThatIsNotEnabledThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockToolCallingLoop(functionName: "get_current_time") { _ in
+        true
+      }
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
 
       do {
-        _ = try await session.respond(to: "What is the weather in Paris?")
+        _ = try await session.respond(to: "What time is it?")
         Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
       } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
-        #expect(invalidResponse.debugDescription.contains("no tools were enabled"))
+        #expect(
+          invalidResponse.debugDescription.contains(
+            "`get_current_time`, which isn't an enabled tool"))
       } catch {
         Issue.record("Unexpected error thrown: \(error)")
       }
@@ -979,9 +1050,116 @@
       #expect(recordedRequests.all.count == 1)
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallWithoutToolsThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockToolCallingLoop { _ in true }
+      let session = LanguageModelSession(model: Self.makeMockModel())
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(
+          invalidResponse.debugDescription.contains("`get_weather`, which isn't an enabled tool"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+    }
+
+    /// A case for `functionCallRejectionReason(_:)`.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct FunctionCallRejectionCase: Sendable, CustomTestStringConvertible {
+      /// The tool calling mode of the request.
+      let toolCallingMode: GenerationOptions.ToolCallingMode?
+
+      /// The name of the function that Gemini calls.
+      let functionName: String
+
+      /// Whether the request enables `MockWeatherTool`.
+      let enablesWeatherTool: Bool
+
+      /// Whether the session has reached the tool-calling turn limit.
+      let isAtToolCallingTurnLimit: Bool
+
+      /// A substring of the expected rejection reason, or `nil` if the call is allowed.
+      let expectedReasonSubstring: String?
+
+      var testDescription: String {
+        """
+        mode: \(toolCallingMode.map { "\($0.kind)" } ?? "nil"), function: \(functionName), \
+        tool enabled: \(enablesWeatherTool), at limit: \(isAtToolCallingTurnLimit)
+        """
+      }
+
+      /// The cases to test, in order of rejection precedence.
+      static let all: [FunctionCallRejectionCase] = [
+        .init(
+          toolCallingMode: .disallowed, functionName: "get_weather", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: "`disallowed`"),
+        .init(
+          toolCallingMode: .disallowed, functionName: "get_weather", enablesWeatherTool: false,
+          isAtToolCallingTurnLimit: true, expectedReasonSubstring: "`disallowed`"),
+        .init(
+          toolCallingMode: .required, functionName: "get_weather", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: true, expectedReasonSubstring: "limit of 2 tool-calling turns"),
+        .init(
+          toolCallingMode: nil, functionName: "get_time", enablesWeatherTool: false,
+          isAtToolCallingTurnLimit: true, expectedReasonSubstring: "limit of 2 tool-calling turns"),
+        .init(
+          toolCallingMode: nil, functionName: "get_weather", enablesWeatherTool: false,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: "isn't an enabled tool"),
+        .init(
+          toolCallingMode: .allowed, functionName: "get_time", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: "isn't an enabled tool"),
+        .init(
+          toolCallingMode: nil, functionName: "get_weather", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: nil),
+        .init(
+          toolCallingMode: .allowed, functionName: "get_weather", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: nil),
+        .init(
+          toolCallingMode: .required, functionName: "get_weather", enablesWeatherTool: true,
+          isAtToolCallingTurnLimit: false, expectedReasonSubstring: nil),
+      ]
+    }
+
+    @Test(arguments: FunctionCallRejectionCase.all)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallRejectionReason(_ testCase: FunctionCallRejectionCase) throws {
+      let request = LanguageModelExecutorGenerationRequest(
+        id: UUID(),
+        transcript: Transcript(entries: []),
+        enabledTools: testCase.enablesWeatherTool
+          ? [Transcript.ToolDefinition(tool: MockWeatherTool())] : [],
+        schema: nil,
+        generationOptions: GenerationOptions(toolCallingMode: testCase.toolCallingMode),
+        contextOptions: ContextOptions(),
+        metadata: [:]
+      )
+
+      let reason = GeminiLanguageModel.Executor.functionCallRejectionReason(
+        forFunctionNamed: testCase.functionName,
+        in: request,
+        isAtToolCallingTurnLimit: testCase.isAtToolCallingTurnLimit,
+        maximumToolCallingTurns: 2
+      )
+
+      if let expectedReasonSubstring = testCase.expectedReasonSubstring {
+        let reason = try #require(reason)
+        #expect(reason.contains(expectedReasonSubstring))
+      } else {
+        #expect(reason == nil)
+      }
+    }
+
     // MARK: - Helper Methods
 
-    /// The text of the final response returned by `mockToolCallingLoop(functionCallResponseCount:)`.
+    /// The final text response sent by `mockToolCallingLoop`.
     private static let weatherResponseText = "The weather in Paris is sunny, 72°F."
 
     /// Records the Gemini requests intercepted by `MockHTTPURLProtocol`.
@@ -1004,24 +1182,26 @@
       }
     }
 
-    /// Mocks a model that calls `MockWeatherTool` and then responds with text.
+    /// Mocks a model that responds to each request with either function calls or text.
     ///
-    /// - Parameter functionCallResponseCount: The number of requests that receive a function call
-    ///   in response; later requests receive `weatherResponseText`.
+    /// - Parameters:
+    ///   - functionName: The name of the function that the mock calls.
+    ///   - functionCallsPerResponse: The number of parallel function calls in each function-call
+    ///     response.
+    ///   - respondsWithFunctionCalls: Returns whether the request with the given 1-based number
+    ///     receives function calls; other requests receive `weatherResponseText`.
     /// - Returns: The requests that the mock receives.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     private static func mockToolCallingLoop(
-      functionCallResponseCount: Int
+      functionName: String = "get_weather",
+      functionCallsPerResponse: Int = 1,
+      respondsWithFunctionCalls: @escaping @Sendable (_ requestNumber: Int) -> Bool
     ) throws -> RecordedRequests {
       let expectedURL = try makeExpectedStreamURL()
       let httpResponse = try HTTPURLResponse.mock(
         url: expectedURL,
         headerFields: ["Content-Type": "text/event-stream"]
       )
-      let functionCallSSE = """
-        data: {"candidates": [{"content": {"parts": [{"functionCall": {"id": "call-1", "name": "get_weather", "args": {"location": "Paris"}}}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
-
-        """
       let textSSE = """
         data: {"candidates": [{"content": {"parts": [{"text": "\(weatherResponseText)"}], "role": "model"}, "finishReason": "STOP", "index": 0}]}
 
@@ -1032,12 +1212,50 @@
         let requestNumber = recordedRequests.append(
           try JSONDecoder().decode(GenerateContentRequest.self, from: body)
         )
-        let payload = requestNumber <= functionCallResponseCount ? functionCallSSE : textSSE
+        let payload: String
+        if respondsWithFunctionCalls(requestNumber) {
+          let parts = (1...functionCallsPerResponse).map { index in
+            """
+            {"functionCall": {"id": "call-\(requestNumber)-\(index)", "name": "\(functionName)", \
+            "args": {"location": "Paris"}}}
+            """
+          }
+          payload = """
+            data: {"candidates": [{"content": {"parts": [\(parts.joined(separator: ", "))], "role": "model"}, "finishReason": "STOP", "index": 0}]}
+
+            """
+        } else {
+          payload = textSSE
+        }
         proto.client?.urlProtocol(proto, didReceive: httpResponse, cacheStoragePolicy: .notAllowed)
         proto.client?.urlProtocol(proto, didLoad: Data(payload.utf8))
         proto.client?.urlProtocolDidFinishLoading(proto)
       }
       return recordedRequests
+    }
+
+    /// Returns the number of tool-calling turns (non-empty tool-calls entries) in a transcript.
+    ///
+    /// - Parameter transcript: The transcript to search.
+    /// - Returns: The number of non-empty `Transcript.Entry.toolCalls` entries.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func toolCallsEntryCount(in transcript: Transcript) -> Int {
+      transcript.filter { entry in
+        guard case .toolCalls(let toolCalls) = entry else { return false }
+        return !toolCalls.isEmpty
+      }.count
+    }
+
+    /// Returns the number of tool outputs in a transcript.
+    ///
+    /// - Parameter transcript: The transcript to search.
+    /// - Returns: The number of `Transcript.Entry.toolOutput` entries.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    private static func toolOutputEntryCount(in transcript: Transcript) -> Int {
+      transcript.filter { entry in
+        guard case .toolOutput = entry else { return false }
+        return true
+      }.count
     }
 
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
