@@ -128,9 +128,11 @@
     ///
     /// If Gemini calls a tool when the tool calling mode is `disallowed`, or calls a tool that
     /// isn't enabled for the request, the session throws
-    /// ``GeminiLanguageModel/Error/invalidResponse(_:)`` and the tool doesn't run. Gemini doesn't
-    /// always follow `disallowed` after several tool calls in response to a prompt, so prefer
-    /// `allowed` when you change the mode after a tool call.
+    /// ``GeminiLanguageModel/Error/invalidResponse(_:)`` and the tool doesn't run.
+    ///
+    /// > Warning: Gemini doesn't always follow the `disallowed` tool calling mode, especially after
+    /// > several tool calls in response to a prompt. Changing the mode to `disallowed` partway
+    /// > through a prompt can end the prompt with this error instead of a response.
     ///
     /// By default, when the session throws an error, it reverts its transcript to how it was before
     /// the prompt, even if tools have already run. To keep the tool calls and their output, set the

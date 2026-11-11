@@ -300,15 +300,14 @@
         }
       }
 
-      /// Returns why a function call in the response to a request must not be passed to the
-      /// session, or `nil` if it can be.
+      /// Returns the reason to reject a function call from Gemini, or `nil` if the session can run
+      /// it.
       ///
       /// `LanguageModelSession` runs any tool call that names one of the session's tools, even
-      /// when the tool calling mode is `disallowed` or the tool isn't enabled for the request
-      /// (tested on macOS 27.2). Gemini sometimes returns a function call when it's told not to
-      /// call functions, or for a function that the request doesn't declare, so the executor only
-      /// passes on function calls to the request's enabled tools while function calling is
-      /// enabled.
+      /// when the tool calling mode is `disallowed` or the tool isn't enabled for the request.
+      /// Gemini sometimes returns a function call when it's told not to call functions, or for a
+      /// function that the request doesn't declare, so the executor only passes on function calls
+      /// to the request's enabled tools while function calling is enabled.
       ///
       /// - Parameters:
       ///   - name: The name of the function that Gemini called.
@@ -316,8 +315,7 @@
       ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
       ///     tool-calling turns for the current prompt.
       ///   - maximumToolCallingTurns: The maximum number of tool-calling turns per prompt.
-      /// - Returns: A description of why the function call must not be passed to the session, or
-      ///   `nil` if it can be.
+      /// - Returns: The reason to reject the function call, or `nil` if the session can run it.
       static func functionCallRejectionReason(
         forFunctionNamed name: String,
         in request: LanguageModelExecutorGenerationRequest,
