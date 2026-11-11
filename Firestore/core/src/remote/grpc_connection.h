@@ -92,12 +92,6 @@ class GrpcConnection {
 
   static void SetClientLanguage(std::string language_token);
 
-  /**
-   * Don't use SSL, send all traffic unencrypted. Call before creating any
-   * streams or calls.
-   */
-  static void UseInsecureChannel(const std::string& host);
-
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(
       const credentials::AuthToken& auth_token,

@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <mutex>
 #include <string>
-#include <unordered_set>
 #include <utility>
 
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
@@ -63,32 +62,6 @@ const char* const kXGoogRequestParams = "x-goog-request-params";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
-}
-
-class InsecureHosts {
-  using Guard = std::lock_guard<std::mutex>;
-
- public:
-  bool Contains(const std::string& host) const {
-    Guard guard{mutex_};
-    return hosts_.find(host) != hosts_.end();
-  }
-
-  void Insert(const std::string& host) {
-    HARD_ASSERT(!host.empty(), "Empty host name");
-
-    Guard guard{mutex_};
-    hosts_.insert(host);
-  }
-
- private:
-  std::unordered_set<std::string> hosts_;
-  mutable std::mutex mutex_;
-};
-
-InsecureHosts& InsecureHostsConfig() {
-  static util::NoDestructor<InsecureHosts> insecure_hosts;
-  return *insecure_hosts;
 }
 
 std::string GetCppLanguageToken() {
@@ -247,7 +220,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   args.SetInt(GRPC_ARG_MAX_METADATA_SIZE, 1024 * 1024);
 
   // For the case when `Settings.set_ssl_enabled(false)`.
-  if (InsecureHostsConfig().Contains(host)) {
+  if (!database_info_->ssl_enabled()) {
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);
   }
@@ -327,10 +300,6 @@ void GrpcConnection::Unregister(GrpcCall* call) {
 
 void GrpcConnection::SetClientLanguage(std::string language_token) {
   LanguageToken().Set(std::move(language_token));
-}
-
-void GrpcConnection::UseInsecureChannel(const std::string& host) {
-  InsecureHostsConfig().Insert(host);
 }
 
 }  // namespace remote

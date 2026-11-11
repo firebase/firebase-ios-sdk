@@ -237,9 +237,6 @@ class RemoteStoreEventCapture : public RemoteStoreCallback {
 
   NSString *projectID = [FSTIntegrationTestCase projectID];
   FIRFirestoreSettings *settings = [FSTIntegrationTestCase settings];
-  if (!settings.sslEnabled) {
-    GrpcConnection::UseInsecureChannel(MakeString(settings.host));
-  }
 
   DatabaseId database_id(MakeString(projectID), MakeString([FSTIntegrationTestCase databaseID]));
 
