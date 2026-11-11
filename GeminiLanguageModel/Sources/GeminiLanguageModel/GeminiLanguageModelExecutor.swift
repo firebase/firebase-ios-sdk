@@ -143,6 +143,7 @@
             try Task.checkCancellation()
 
             try GeminiErrorMapper.checkGuardrails(in: chunk)
+            try Self.validateFinishReason(of: chunk)
 
             if let candidates = chunk.candidates, let candidate = candidates.first,
               let parts = candidate.content?.parts
@@ -254,6 +255,32 @@
         } catch {
           throw GeminiErrorMapper.map(error)
         }
+      }
+
+      /// Checks that a response chunk didn't stop because of a function call that Gemini blocked.
+      ///
+      /// Instead of returning a function call part, Gemini can stop a response with the
+      /// `UNEXPECTED_TOOL_CALL` finish reason (for example, when it tries to call a function while
+      /// function calling is disabled) or the `MALFORMED_FUNCTION_CALL` finish reason, typically
+      /// with no content.
+      ///
+      /// - Parameter chunk: A response chunk from Gemini.
+      /// - Throws: `GeminiLanguageModel.Error.invalidResponse` if the chunk's finish reason is
+      ///   `UNEXPECTED_TOOL_CALL` or `MALFORMED_FUNCTION_CALL`.
+      static func validateFinishReason(of chunk: GenerateContentResponse) throws {
+        guard let finishReason = chunk.candidates?.first?.finishReason,
+          finishReason == .unexpectedToolCall || finishReason == .malformedFunctionCall
+        else {
+          return
+        }
+        throw GeminiLanguageModel.Error.invalidResponse(
+          GeminiLanguageModel.Error.InvalidResponse(
+            debugDescription: """
+              Gemini stopped with the `\(finishReason.rawValue)` finish reason instead of \
+              returning a valid function call.
+              """
+          )
+        )
       }
 
       /// Checks that the function calls in a response can be passed to the session.

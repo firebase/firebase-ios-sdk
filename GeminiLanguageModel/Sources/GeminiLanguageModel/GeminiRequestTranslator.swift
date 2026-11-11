@@ -227,8 +227,8 @@
     ///     `isFunctionCallingDisabled(for:isAtToolCallingTurnLimit:)`). If `true`, function calling
     ///     is disabled whatever `toolCallingMode` is, so that the model gives a final response.
     /// - Returns: A `ToolConfig`, or `nil` if no configuration is needed.
-    /// - Throws: `LanguageModelError.unsupportedCapability` if `toolCallingMode` is a mode that
-    ///   this version of the SDK does not recognize.
+    /// - Throws: `LanguageModelError.unsupportedCapability` if function calling isn't disabled and
+    ///   `toolCallingMode` is a mode that this version of the SDK does not recognize.
     static func translateToolConfig(
       toolCallingMode: GenerationOptions.ToolCallingMode?,
       hasFunctionDeclarations: Bool,
@@ -239,19 +239,19 @@
       // declarations.
       let functionCallingConfig: FunctionCallingConfig?
       if hasFunctionDeclarations {
-        // `GenerationOptions.toolCallingMode` is optional and defaults to `nil` unless set by the
-        // caller. Omitting `functionCallingConfig` in that case causes the backend to default to
-        // `AUTO`, so `nil` maps to the allowed mode.
-        let allowedMode = FunctionCallingConfig.Mode.validated
-        let requestedMode: FunctionCallingConfig.Mode
-        if let mode = toolCallingMode {
+        let callingMode: FunctionCallingConfig.Mode
+        if isFunctionCallingDisabled {
+          // Disabled function calling (such as at the turn limit) overrides the requested mode,
+          // including `required`, which would otherwise keep calling tools indefinitely.
+          callingMode = FunctionCallingConfig.Mode.none
+        } else if let mode = toolCallingMode {
           switch mode.kind {
           case .allowed:
-            requestedMode = allowedMode
+            callingMode = .validated
           case .required:
-            requestedMode = .any
+            callingMode = .any
           case .disallowed:
-            requestedMode = FunctionCallingConfig.Mode.none
+            callingMode = FunctionCallingConfig.Mode.none
           @unknown default:
             // A mode added in a later OS release; its semantics are unknown, so approximating it
             // with the allowed mode could silently diverge from what the caller requested.
@@ -263,12 +263,11 @@
             )
           }
         } else {
-          requestedMode = allowedMode
+          // `GenerationOptions.toolCallingMode` is optional and defaults to `nil` unless set by
+          // the caller. Omitting `functionCallingConfig` in that case causes the backend to
+          // default to `AUTO`, so `nil` maps to the allowed mode.
+          callingMode = .validated
         }
-        // Disabled function calling (such as at the turn limit) overrides the requested mode,
-        // including `required`, which would otherwise keep calling tools indefinitely.
-        let callingMode =
-          isFunctionCallingDisabled ? FunctionCallingConfig.Mode.none : requestedMode
         functionCallingConfig = FunctionCallingConfig { $0.mode = callingMode }
       } else {
         functionCallingConfig = nil

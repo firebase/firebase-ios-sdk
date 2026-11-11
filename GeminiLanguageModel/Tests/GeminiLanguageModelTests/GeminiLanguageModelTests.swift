@@ -1242,6 +1242,53 @@
       #expect(session.transcript[(promptIndex + 1)...].isEmpty)
     }
 
+    @Test
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func unexpectedToolCallAfterToolCallingTurnLimitThrowsInvalidResponse() async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
+      let functionCallPayloads = (1...maximumTurns).map { requestNumber in
+        Self.functionCallsChunk([(id: "call-\(requestNumber)", name: "get_weather")])
+      }
+      let recordedRequests = try Self.mockStreamResponses(
+        functionCallPayloads + [Self.finishReasonChunk("UNEXPECTED_TOOL_CALL")]
+      )
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("`UNEXPECTED_TOOL_CALL`"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      let requests = recordedRequests.all
+      #expect(requests.count == maximumTurns + 1)
+      #expect(
+        requests.last?.toolConfig?.functionCallingConfig?.mode == FunctionCallingConfig.Mode.none)
+    }
+
+    @Test(arguments: ["UNEXPECTED_TOOL_CALL", "MALFORMED_FUNCTION_CALL"])
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func functionCallFinishReasonThrowsInvalidResponse(finishReason: String) async throws {
+      defer { MockHTTPURLProtocol.reset() }
+      let recordedRequests = try Self.mockStreamResponses([Self.finishReasonChunk(finishReason)])
+      let session = LanguageModelSession(model: Self.makeMockModel(), tools: [MockWeatherTool()])
+
+      do {
+        _ = try await session.respond(to: "What is the weather in Paris?")
+        Issue.record("Expected GeminiLanguageModel.Error.invalidResponse")
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        #expect(invalidResponse.debugDescription.contains("`\(finishReason)`"))
+      } catch {
+        Issue.record("Unexpected error thrown: \(error)")
+      }
+
+      #expect(recordedRequests.all.count == 1)
+    }
+
     /// A test case for `GeminiLanguageModel.Executor.functionCallRejectionReason`.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
@@ -1446,6 +1493,14 @@
         proto.client?.urlProtocolDidFinishLoading(proto)
       }
       return recordedRequests
+    }
+
+    /// Returns a server-sent event for a streamed chunk with a finish reason and no content.
+    ///
+    /// - Parameter finishReason: The raw value of the chunk's finish reason.
+    /// - Returns: The `data:` line and its terminating blank line.
+    private static func finishReasonChunk(_ finishReason: String) -> String {
+      #"data: {"candidates": [{"finishReason": "\#(finishReason)", "index": 0}]}"# + "\n\n"
     }
 
     /// Returns a server-sent event for a streamed chunk with parallel function calls.
