@@ -147,7 +147,7 @@ struct LiveSessionTests {
     )
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func sendAudioRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
@@ -178,7 +178,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func sendVideoRealtime_receiveAudioOutputTranscripts(_ config: InstanceConfig,
                                                        modelName: String) async throws {
@@ -225,7 +225,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_functionCalling(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -272,7 +272,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_manual_sessionResumption(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -285,10 +285,10 @@ struct LiveSessionTests {
       sessionResumption: SessionResumptionConfig()
     ) { session in
       await session.sendTextRealtime("My name is Alex.")
-      return try await session.collectNextSessionHandle()
-    }
-    guard let newHandle else {
-      return
+      return try #require(
+        try await session.collectNextSessionHandle(),
+        "Model did not send a session resumption handle"
+      )
     }
 
     // `withSession` ensures the session is closed before attempting to resume.
@@ -311,7 +311,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "alex")
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   // baseline test to ensure the model isn't retaining context automatically; which would invalidate
   // our other sessionResumption tests
@@ -351,7 +351,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "michael")
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_resumeSession(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -362,12 +362,13 @@ struct LiveSessionTests {
 
     let text = try await model.withSession(
       sessionResumption: SessionResumptionConfig()
-    ) { session -> String? in
+    ) { session in
       await session.sendTextRealtime("My name is Alex.")
 
-      guard let newHandle = try await session.collectNextSessionHandle() else {
-        return nil
-      }
+      let newHandle = try #require(
+        try await session.collectNextSessionHandle(),
+        "Model did not send a session resumption handle"
+      )
 
       await session.close()
       try await session.resumeSession(
@@ -376,16 +377,10 @@ struct LiveSessionTests {
 
       await session.sendTextRealtime("What is my name?")
 
-      // Unwrap before returning; returning `#require` directly from a `String?` closure would
-      // make it check a `String??`, which is never `nil`.
-      let transcript = try #require(
+      return try #require(
         try await session.tryCollectNextValidAudioOutputTranscript(),
         "Model did not respond in time with a non empty response"
       )
-      return transcript
-    }
-    guard let text else {
-      return
     }
 
     let modelResponse = text
@@ -396,7 +391,7 @@ struct LiveSessionTests {
     #expect(modelResponse == "alex")
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(
     .timeLimit(.minutes(1)),
     arguments: arguments.filter { config, modelName in
@@ -434,31 +429,22 @@ struct LiveSessionTests {
 
       await session.sendTextRealtime("Actually, I don't care about the last name of Alex anymore.")
 
-      // TODO: Remove the known issue once the SDK supports `FunctionDeclaration.behavior`, and test
-      // a `BLOCKING` function on Gemini 3.8 Live instead. Gemini 3.8 Live calls functions with
-      // `NON_BLOCKING` behavior by default, and only cancels `BLOCKING` calls automatically.
-      try await withKnownIssue("Gemini 3.8 Live doesn't cancel non-blocking function calls") {
-        // Without a timeout, this test would hang if the model never cancels the function call.
-        let cancellation = try await withTimeout(seconds: 10) {
-          () -> LiveServerToolCallCancellation? in
-          for try await cancellation in session.responsesOf(LiveServerToolCallCancellation.self) {
-            return cancellation
-          }
-          return nil
-        } ?? nil
-
-        let cancelledCall = try #require(
-          cancellation,
-          "Model did not cancel the function call in time"
-        )
-        #expect(cancelledCall.ids == [id])
+      let cancellation = try await session.tryCollectNextToolCallCancellation()
+      // TODO: Remove the known issue once the SDK supports `FunctionDeclaration.behavior`,
+      // and test a `BLOCKING` function on Gemini 3.8 Live instead. Gemini 3.8 Live calls functions
+      // with `NON_BLOCKING` behavior by default, and only cancels `BLOCKING` calls automatically.
+      try withKnownIssue("Gemini 3.8 Live doesn't cancel non-blocking function calls") {
+        _ = try #require(cancellation, "Model did not cancel the function call in time")
       } when: {
         modelName == ModelNames.gemini3_8_Live
+      }
+      if let cancellation {
+        #expect(cancellation.ids == [id])
       }
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments.filter { !$0.0.useLimitedUseAppCheckTokens })
   // Getting a limited use token adds too much of an overhead; we can't interrupt the model in time
   func realtime_interruption(_ config: InstanceConfig, modelName: String) async throws {
@@ -482,20 +468,29 @@ struct LiveSessionTests {
         await session.sendAudioRealtime(audioFile.data)
         await session.sendAudioRealtime(endOfSpeechSilence)
 
-        for try await content in session.responsesOf(LiveServerContent.self) {
-          if content.wasInterrupted {
-            break
-          }
+        // Each attempt has its own timeout so that all three fit within the test's time limit, even
+        // though `countSlowly` makes an uninterrupted response long.
+        let wasInterrupted = try await withTimeout(seconds: 10) {
+          for try await content in session.responsesOf(LiveServerContent.self) {
+            if content.wasInterrupted {
+              return true
+            }
 
-          if content.isTurnComplete {
-            throw NoInterruptionError()
+            if content.isTurnComplete {
+              return false
+            }
           }
+          return false
+        } ?? false
+
+        guard wasInterrupted else {
+          throw NoInterruptionError()
         }
       }
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func incremental_works(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -522,7 +517,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_speechConfig(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -567,7 +562,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_automaticActivityDetection_disabled(_ config: InstanceConfig,
                                                     modelName: String) async throws {
@@ -611,8 +606,9 @@ struct LiveSessionTests {
         .trimmingCharacters(in: .punctuationCharacters)
         .lowercased()
 
-      // TODO: Investigate why Gemini 3.8 Live sometimes counts more than two "Hello"s when automatic
-      // activity detection is disabled, then remove the known issue.
+      // TODO: Investigate why Gemini 3.8 Live sometimes counts more than two "Hello"s
+      // when automatic activity detection is disabled, then remove the known issue.
+      #expect(Int(modelResponse) != nil, "Expected a number, but the model said: \(modelResponse)")
       withKnownIssue("Gemini 3.8 Live miscounts the number of times it hears Hello",
                      isIntermittent: true) {
         #expect(modelResponse == "2")
@@ -622,7 +618,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: arguments)
   func realtime_automaticActivityDetection_enabled(_ config: InstanceConfig,
                                                    modelName: String) async throws {
@@ -670,7 +666,7 @@ struct LiveSessionTests {
     }
   }
 
-  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) // Required by `timeLimit(_:)`.
+  @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
   @Test(.timeLimit(.minutes(1)), arguments: voiceActivityArguments)
   func realtime_voiceActivity(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).liveModel(
@@ -690,7 +686,6 @@ struct LiveSessionTests {
         try await session.tryCollectNextTurnWithVoiceActivity(),
         "Model did not respond in time with a non empty response"
       )
-
 
       // The server should signal both the start and the end of the user's speech.
       let receivedTypes = turn.voiceActivities.map(\.type)
@@ -718,9 +713,9 @@ struct LiveSessionTests {
 }
 
 private extension LiveGenerativeModel {
-  /// Starts a ``LiveSession``, passes it to `body`, and closes it when `body` returns or throws.
+  /// Connects a ``LiveSession``, passes it to `body`, and closes it when `body` returns or throws.
   ///
-  /// Use this instead of ``connect(sessionResumption:)`` so that a failing test, such as one that
+  /// Use this instead of `connect(sessionResumption:)` so that a failing test, such as one that
   /// fails a `#require` expectation, doesn't leave its session connected. Open sessions count
   /// toward the backend's concurrent session quota, which can cause other tests to fail.
   ///
@@ -820,6 +815,22 @@ private extension LiveSession {
     }
 
     return turn
+  }
+
+  /// Waits for the next `LiveServerToolCallCancellation` from the model, returning `nil` if it
+  /// takes longer than the timeout.
+  func tryCollectNextToolCallCancellation(timeout: TimeInterval = 10.0) async throws
+    -> LiveServerToolCallCancellation? {
+    let cancellation = try await withTimeout(seconds: timeout) {
+      () -> LiveServerToolCallCancellation? in
+      for try await cancellation in self.responsesOf(LiveServerToolCallCancellation.self) {
+        return cancellation
+      }
+      return nil
+    }
+
+    // `nil` if the timeout elapsed or the stream ended without a cancellation.
+    return cancellation ?? nil
   }
 
   /// Collects the next session handle via the `LiveSessionResumptionUpdate` message.
