@@ -37,6 +37,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
+#include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/exception.h"
 #include "Firestore/core/src/util/executor.h"
@@ -127,7 +128,17 @@ void Firestore::set_settings(const Settings& settings) {
         "no longer be changed. You can only set settings before calling any "
         "other methods on a Firestore instance.");
   }
-  if (!settings.ssl_enabled() && settings.host() == Settings::DefaultHost) {
+  absl::optional<remote::TlsTargetHost> parsed_host =
+      remote::ParseTlsTargetHost(settings.host());
+  if (!parsed_host.has_value() ||
+      (parsed_host->kind == remote::TlsTargetHost::Kind::kIpv6 &&
+       settings.host().front() != '[')) {
+    util::ThrowInvalidArgument(
+        "Invalid host '%s': expected 'host[:port]', 'IPv4[:port]', or "
+        "'[IPv6][:port]'.",
+        settings.host());
+  }
+  if (!settings.ssl_enabled() && settings.IsDefaultHost()) {
     util::ThrowIllegalState(
         "You can't set the 'sslEnabled' setting to false unless you also set a "
         "non-default 'host'.");

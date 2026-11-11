@@ -61,6 +61,13 @@ class Settings {
     return host_;
   }
 
+  /**
+   * Returns true if `host()` refers to `DefaultHost`
+   * (`firestore.googleapis.com`), ignoring letter case, an optional `:port`,
+   * and any trailing `.` characters.
+   */
+  bool IsDefaultHost() const;
+
   void set_ssl_enabled(bool value) {
     ssl_enabled_ = value;
   }

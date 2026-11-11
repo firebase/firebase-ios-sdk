@@ -18,9 +18,12 @@
 #include <cstddef>
 #include <memory>
 
+#include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/hashing.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,6 +58,20 @@ Settings& Settings::operator=(const Settings& other) {
     cache_settings_ = CopyCacheSettings(*other.cache_settings_);
   }
   return *this;
+}
+
+bool Settings::IsDefaultHost() const {
+  absl::optional<remote::TlsTargetHost> parsed =
+      remote::ParseTlsTargetHost(host_);
+  if (!parsed.has_value() ||
+      parsed->kind != remote::TlsTargetHost::Kind::kDns) {
+    return false;
+  }
+  absl::string_view bare_host = parsed->host;
+  while (!bare_host.empty() && bare_host.back() == '.') {
+    bare_host.remove_suffix(1);
+  }
+  return absl::EqualsIgnoreCase(bare_host, DefaultHost);
 }
 
 std::unique_ptr<LocalCacheSettings> Settings::CopyCacheSettings(

@@ -134,8 +134,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
 }
 
 - (BOOL)isUsingDefaultHost {
-  NSString *defaultHost = [NSString stringWithUTF8String:Settings::DefaultHost];
-  return [self.host isEqualToString:defaultHost];
+  return self.internalSettings.IsDefaultHost();
 }
 
 - (Settings)internalSettings {

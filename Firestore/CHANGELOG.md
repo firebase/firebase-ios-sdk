@@ -23,6 +23,13 @@
   on behalf of the server.
 - [removed] Removed the embedded gRPC root certificate bundle (`roots.pem`)
   from all platforms, reducing binary size.
+- [fixed] Fixed `sslEnabled = false` on one Firestore instance causing other
+  instances in the same process that target the same `host` to also connect in
+  plaintext even when `sslEnabled = true`.
+- [fixed] Fixed `settings.host` validation so that `sslEnabled = false` is
+  rejected for all spellings of the default production host (including `:port`,
+  uppercase letters, and trailing dots) and malformed or URI-scheme hosts are
+  rejected with an invalid-argument error.
 - [fixed] Fixed MSVC build errors when building Firestore with CMake on
   Windows.
 
