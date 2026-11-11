@@ -653,6 +653,28 @@ struct LiveSessionTests {
 
     #expect(modelResponse == "goodbye")
   }
+
+  @Test(arguments: arguments)
+  func releasedSession_isClosed(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: generationConfig
+    )
+
+    // Keep only `responses`; the session is released at the end of the `do` scope. This
+    // deliberately doesn't call `close()`, because releasing the session should close it.
+    let responses: AsyncThrowingStream<LiveServerMessage, Error>
+    do {
+      let session = try await model.connect()
+      responses = session.responses
+    }
+
+    // The `responses` stream only finishes once the session's connection has been torn down.
+    let didFinish: Void? = try await withTimeout(seconds: 5) {
+      for try await _ in responses {}
+    }
+    #expect(didFinish != nil, "The responses stream did not finish after the session was released")
+  }
 }
 
 private extension LiveSession {

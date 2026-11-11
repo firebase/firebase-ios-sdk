@@ -19,6 +19,11 @@
   Gemini Enterprise Agent Platform. (#17040)
 - [fixed] Fixed `GeminiLanguageModel` to include reasoning tokens in the output
   and total token counts. (#17042)
+- [fixed] Fixed an issue where a Live API `LiveSession` released without
+  calling `close()` kept its connection to the server open. Releasing a
+  `LiveSession` now closes it, as documented, and finishes its `responses`
+  stream, so keep a reference to the session while consuming `responses`.
+  (#17045)
 
 # 13.1.0
 - [feature] **Public Preview**: Added `SpeechMetadata` support to `TextPart`
