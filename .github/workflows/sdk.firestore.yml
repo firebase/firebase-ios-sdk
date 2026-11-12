@@ -201,6 +201,13 @@ jobs:
     # A cold Debug build of gRPC and its dependencies with MSVC is slow.
     timeout-minutes: 120
 
+    env:
+      # Enables GrpcTlsProdSmokeTest (in firestore_remote_test), which performs
+      # real TLS handshakes with firestore.googleapis.com through the Windows
+      # TLS credentials provider. With this set, an unreachable network fails
+      # the job instead of skipping the test.
+      FIRESTORE_TLS_PROD_SMOKE: 1
+
     defaults:
       run:
         shell: bash
