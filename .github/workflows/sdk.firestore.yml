@@ -76,7 +76,6 @@ jobs:
               #
               # Note that this doesn't include check scripts because changing those will
               # already trigger the check workflow.
-              - 'scripts/binary_to_array.py'
               - 'scripts/build.sh'
               - 'scripts/install_prereqs.sh'
               - 'scripts/localize_podfile.swift'
@@ -190,6 +189,109 @@ jobs:
       run: |
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+  cmake-windows:
+    needs: [changes, check]
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+
+    runs-on: windows-2022
+    # A cold Debug build of gRPC and its dependencies with MSVC is slow.
+    timeout-minutes: 120
+
+    env:
+      # Enables GrpcTlsProdSmokeTest (in firestore_remote_test), which performs
+      # real TLS handshakes with firestore.googleapis.com through the Windows
+      # TLS credentials provider. With this set, an unreachable network fails
+      # the job instead of skipping the test.
+      FIRESTORE_TLS_PROD_SMOKE: 1
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Check out with LF line endings: the runner's default core.autocrlf=true
+    # converts cmake/external/*.patch to CRLF, and those patches then fail to
+    # apply to the LF sources of the downloaded dependencies (e.g. snappy).
+    - name: Configure Git
+      run: |
+        git config --global core.longpaths true
+        git config --global core.autocrlf false
+
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      with:
+        python-version: '3.11'
+
+    # Load the x64 MSVC developer environment (vcvars64.bat) into $GITHUB_ENV
+    # so later steps can find cl, link, and the Windows SDK. This is done
+    # inline because the repository only allows a fixed set of actions.
+    - name: Setup MSVC
+      shell: pwsh
+      run: |
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vs = & $vswhere -latest -products * `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+          -property installationPath
+        if (-not $vs) { throw "Visual Studio with the x64 C++ tools not found" }
+        $vcvars = Join-Path $vs 'VC\Auxiliary\Build\vcvars64.bat'
+        $vars = cmd /c "`"$vcvars`" >nul && set"
+        if ($LASTEXITCODE -ne 0) { throw "vcvars64.bat failed" }
+        foreach ($line in $vars) {
+          if ($line -match '^([^=]+)=(.*)$') {
+            "$($Matches[1])=$($Matches[2])" |
+              Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+        }
+
+    # Set up CMake after MSVC so that the pinned version takes precedence over
+    # the copy bundled with Visual Studio.
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+      with:
+        cmake-version: '3.31.2'
+
+    - name: Setup ninja
+      run: python -m pip install 'ninja==1.13.2'
+
+    - name: Show toolchain
+      run: |
+        # Git Bash's /usr/bin/link must not shadow the MSVC linker.
+        which cmake ninja cl link
+        cmake --version
+        ninja --version
+
+    # Build the bundled BoringSSL and zlib rather than picking up copies that
+    # happen to be installed on the runner (for example, by Strawberry Perl).
+    # OPENSSL_NO_ASM avoids a dependency on NASM, which the runner lacks.
+    - name: Configure
+      run: |
+        cmake -S . -B build -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_C_COMPILER=cl \
+          -DCMAKE_CXX_COMPILER=cl \
+          -DFIREBASE_IOS_BUILD_TESTS=ON \
+          -DCMAKE_DISABLE_FIND_PACKAGE_OpenSSL=TRUE \
+          -DCMAKE_DISABLE_FIND_PACKAGE_ZLIB=TRUE \
+          -DOPENSSL_NO_ASM=ON
+
+    - name: Build
+      run: |
+        cmake --build build --target \
+          firestore_model_test \
+          firestore_remote_test \
+          firestore_util_test
+
+    - name: Test
+      run: |
+        ctest --test-dir build --output-on-failure \
+          -R '^firestore_(model|remote|util)_test$'
 
   sanitizers-mac:
     needs: [changes, check]

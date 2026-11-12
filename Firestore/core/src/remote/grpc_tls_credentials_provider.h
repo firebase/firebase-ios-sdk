@@ -45,8 +45,13 @@ namespace remote {
  * the hostname is checked against the leaf's subjectAltNames. See
  * `grpc_tls_credentials_provider_linux.h`.
  *
- * On Windows, credentials are backed by the embedded `roots.pem` certificate
- * bundle via `LoadGrpcRootCertificate()`.
+ * On Windows, certificate chain, trust, and hostname verification are
+ * delegated to CryptoAPI (`CertGetCertificateChain` and
+ * `CertVerifyCertificateChainPolicy`), so apps honor the Windows certificate
+ * stores, including enterprise roots, automatic root updates, and the
+ * `Disallowed` store. Evaluation runs on the Windows thread pool (via
+ * `AsyncTlsVerifier`), so it never blocks gRPC threads. See
+ * `grpc_tls_credentials_provider_windows.h`.
  *
  * On every platform, gRPC also matches each call's authority against the
  * server certificate, comparing IP addresses as text. A host that is an IP

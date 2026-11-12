@@ -16,6 +16,15 @@
   embedded root certificate bundle. `SSL_CERT_FILE`/`SSL_CERT_DIR` override
   the system store, and if no CA certificates are found, RPCs fail with
   `UNAVAILABLE` rather than falling back to an embedded bundle.
+- [changed] On Windows, Firestore now verifies gRPC TLS server certificates
+  with CryptoAPI, honoring the Windows certificate stores (including enterprise
+  roots and the `Disallowed` store), instead of an embedded root certificate
+  bundle. Missing intermediate certificates are never fetched over the network
+  on behalf of the server.
+- [removed] Removed the embedded gRPC root certificate bundle (`roots.pem`)
+  from all platforms, reducing binary size.
+- [fixed] Fixed MSVC build errors when building Firestore with CMake on
+  Windows.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
