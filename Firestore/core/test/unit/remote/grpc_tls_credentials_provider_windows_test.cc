@@ -37,23 +37,17 @@
 #undef OCSP_REQUEST
 #undef OCSP_RESPONSE
 
-#include <openssl/bio.h>
-#include <openssl/evp.h>
-#include <openssl/obj_mac.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 #include <ws2tcpip.h>  // NOLINT(build/include_order)
 
 #include <atomic>
-#include <chrono>              // NOLINT(build/c++11)
-#include <condition_variable>  // NOLINT(build/c++11)
+#include <chrono>
+#include <condition_variable>
 #include <cstring>
-#include <future>  // NOLINT(build/c++11)
+#include <future>
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -63,6 +57,12 @@
 #include "Firestore/core/test/unit/remote/tls_test_pki.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "openssl/bio.h"
+#include "openssl/evp.h"
+#include "openssl/obj_mac.h"
+#include "openssl/pem.h"
+#include "openssl/x509.h"
+#include "openssl/x509v3.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpc/credentials.h"
