@@ -107,10 +107,6 @@ Utility CI script to provide configuration for build.sh
 
 Utility script to update a Podfile to point to local podspecs.
 
-### [make_release_notes.py](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/make_release_notes.py)
-
-Converts GitHub-flavored markdown changelogs to devsite-compatible release notes.
-
 ### [pod_lib_lint.rb](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/pod_lib_lint.rb)
 
 Wrapper script for running `pod lib lint` tests to include dependencies from the monorepo.
