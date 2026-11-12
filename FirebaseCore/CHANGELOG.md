@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] The heartbeat user agent is now built on a background queue, and only
+  when a new heartbeat needs to be recorded, instead of on the main thread each
+  time the app becomes active. This avoids main-thread hangs while the App Store
+  receipt is checked. (#16726)
+
 # Firebase 13.0.0
 - [feature] Added support for Swift Package Traits (SE-0450) to allow developers
   to opt out of unused features and prune heavy dependencies. To opt out of

@@ -63,9 +63,10 @@ NSString *_Nullable FIRHeaderValueFromHeartbeatsPayload(FIRHeartbeatsPayload *he
 }
 
 - (void)log {
-  NSString *userAgent = _userAgentProvider();
 #ifndef FIREBASE_BUILD_CMAKE
-  [_heartbeatController log:userAgent];
+  // The user agent is built lazily on the heartbeat storage queue, and only if a heartbeat needs
+  // to be recorded, since building it can block (e.g. while checking the App Store receipt).
+  [_heartbeatController logWithAgentProvider:_userAgentProvider];
 #endif  // FIREBASE_BUILD_CMAKE
 }
 
