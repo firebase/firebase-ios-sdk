@@ -218,6 +218,10 @@ firebase_ios_glob(
   src/remote/*.cc
   src/remote/*.h
   EXCLUDE ${nanopb_sources}
+  # Platform-specific TLS credentials providers are added per platform below.
+  # Only the platform-neutral `grpc_tls_credentials_provider.h` stays here.
+  src/remote/grpc_root_certificate*
+  src/remote/grpc_tls_credentials_provider_*
 )
 
 if(APPLE)
@@ -228,10 +232,23 @@ if(APPLE)
     src/remote/connectivity_monitor_apple.mm
     src/remote/firebase_metadata_provider_apple.mm
     src/remote/grpc_tls_credentials_provider_apple.*
-    EXCLUDE
+  )
+elseif(WIN32)
+  # TODO(b/578640397): Replace the embedded root bundle with a Windows
+  # CryptoAPI verifier.
+  firebase_ios_glob(
+    core_sources APPEND
+    src/remote/grpc_root_certificate_finder.h
     src/remote/grpc_root_certificate_finder_generated.cc
-    src/remote/grpc_root_certificates_generated.cc
+    src/remote/grpc_root_certificates_generated.*
     src/remote/grpc_tls_credentials_provider_embedded.cc
+  )
+else()
+  # Linux and every other non-Apple, non-Windows platform verify against the
+  # system CA store.
+  firebase_ios_glob(
+    core_sources APPEND
+    src/remote/grpc_tls_credentials_provider_linux.*
   )
 endif()
 
@@ -284,6 +301,14 @@ if(APPLE)
     FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
+  )
+elseif(NOT WIN32)
+  # grpc_tls_credentials_provider_linux.cc parses and verifies certificates
+  # itself. `OpenSSL::Crypto` is either the system OpenSSL or an alias of the
+  # BoringSSL `crypto` target built with gRPC (see the top-level CMakeLists.txt).
+  target_link_libraries(
+    firestore_core PUBLIC
+    OpenSSL::Crypto
   )
 endif()
 

@@ -147,6 +147,11 @@ jobs:
     env:
       MINT_PATH: ${{ github.workspace }}/mint
       USE_LATEST_CMAKE: false
+      # Runs GrpcTlsProdSmokeTest (grpc_tls_prod_smoke_test.cc), which performs
+      # real TLS handshakes with firestore.googleapis.com through the platform
+      # TLS credentials provider. With this set, an unreachable network fails
+      # the job instead of skipping the test.
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     runs-on: ${{ matrix.os }}
     steps:
