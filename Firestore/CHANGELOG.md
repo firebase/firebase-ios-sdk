@@ -1,3 +1,7 @@
+# 13.1.2
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
+
 # 13.1.1
 - [fixed] Security Update: Removed compromised eMudhra intermediate CA root certificates from embedded trust store. (#16930)
 
