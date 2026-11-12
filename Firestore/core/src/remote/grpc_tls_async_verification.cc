@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <utility>
 #include <vector>
 

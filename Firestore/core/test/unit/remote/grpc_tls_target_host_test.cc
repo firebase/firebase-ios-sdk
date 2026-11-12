@@ -27,7 +27,7 @@
 #include "gtest/gtest.h"
 
 #if !defined(_WIN32)
-#include <arpa/inet.h>
+#include <arpa/inet.h>  // NOLINT(build/include)
 #include <netinet/in.h>
 #endif  // !defined(_WIN32)
 
