@@ -18,12 +18,6 @@
 
 #if !defined(__APPLE__) && !defined(_WIN32)
 
-#include <openssl/bio.h>
-#include <openssl/obj_mac.h>
-#include <openssl/objects.h>
-#include <openssl/pem.h>
-#include <openssl/x509.h>
-
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -44,6 +38,11 @@
 #include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
+#include "openssl/bio.h"
+#include "openssl/obj_mac.h"
+#include "openssl/objects.h"
+#include "openssl/pem.h"
+#include "openssl/x509.h"
 
 namespace firebase {
 namespace firestore {

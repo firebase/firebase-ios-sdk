@@ -18,21 +18,20 @@
 
 #if !defined(__APPLE__)
 
-#include <openssl/bio.h>
-#include <openssl/bn.h>
-#include <openssl/evp.h>
-#include <openssl/obj_mac.h>
-#include <openssl/pem.h>
-#include <openssl/rand.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
-
 #include <atomic>
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
+#include "openssl/bio.h"
+#include "openssl/bn.h"
+#include "openssl/evp.h"
+#include "openssl/obj_mac.h"
+#include "openssl/pem.h"
+#include "openssl/rand.h"
+#include "openssl/x509.h"
+#include "openssl/x509v3.h"
 
 namespace firebase {
 namespace firestore {
