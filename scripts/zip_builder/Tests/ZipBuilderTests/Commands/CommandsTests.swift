@@ -26,7 +26,7 @@ struct CommandsTests {
   @Test func hasOneSubcommandPerStage() {
     let names = ZipBuilderCommand.configuration.subcommands.map { $0._commandName }
     #expect(names == [
-      "plan", "project", "build", "package", "release", "verify", "diff", "notices",
+      "plan", "project", "build", "package", "release", "verify", "diff", "notices", "carthage",
     ])
   }
 

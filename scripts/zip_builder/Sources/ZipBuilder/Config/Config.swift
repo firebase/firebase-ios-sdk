@@ -28,6 +28,7 @@ struct Config: Codable, Equatable, Sendable {
   @Default<Empty<Layout>> var layout: Layout
   @Default<Empty<Zip>> var zip: Zip
   @Default<Empty<Verify>> var verify: Verify
+  var carthage: Carthage? // only the `carthage` command reads it, and fails without it
 
   /// The release's identity.
   struct Release: Codable, Equatable, Sendable {
@@ -146,6 +147,30 @@ struct Config: Codable, Equatable, Sendable {
   struct Verify: Codable, Equatable, Sendable {
     /// Modules the import check skips, e.g. C++-only dependencies nobody imports directly.
     @Default<Empty<[String]>> var skipImports: [String]
+  }
+
+  /// How the `carthage` command turns a finished distribution into Carthage archives and binary
+  /// specs (see `Packaging/Carthage.swift`).
+  struct Carthage: Codable, Equatable, Sendable {
+    var url: String // where each archive is downloaded from; `{version}` and `{archive}`
+    var manifests: Path // each folder's binary spec, package-root-relative; `{folder}`
+    /// Preprocessor macros added to `build.defines` for an extra build of `rebuild`, whose
+    /// frameworks replace the distribution's. Set both, or neither.
+    var defines: [String]?
+    var rebuild: String? // a product name, as in `Package.swift`
+    /// Distribution-relative `.xcframework` path to the distribution-root files copied into it.
+    @Default<Empty<[Path: [Path]]>> var files: [Path: [Path]]
+    var umbrellaFramework: UmbrellaFramework?
+  }
+
+  /// A static framework added to a folder that only carries an umbrella header and module map,
+  /// so Carthage users can import the release's umbrella module.
+  struct UmbrellaFramework: Codable, Equatable, Sendable {
+    var folder: String // a folder of the distribution
+    var name: String // `<name>.framework`, its module and binary
+    var header: Path // package-root-relative
+    var binary: Path // package-root-relative, copied as the framework's binary
+    var bundleIdentifier: String
   }
 
   /// The config file names, preferred first. Both are read as JSON5, so `//` comments work in

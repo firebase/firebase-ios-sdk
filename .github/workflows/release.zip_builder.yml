@@ -19,7 +19,7 @@
 # The zip is built from the checked-out commit's Package.swift, without any cache, and isn't
 # signed: like release.zip.yml's artifact, it's signed later in the release process. To compare it
 # with release.zip.yml's zip, pass that run's ID as `compare_run_id`; the diff goes in the job
-# summary.
+# summary. Static runs also package the distribution for Carthage (`zip-builder carthage`).
 name: release.zip_builder
 
 permissions:
@@ -29,6 +29,10 @@ permissions:
 env:
   # Firebase's minimum supported Xcode, as in release.zip.yml: the binaries are built with it.
   MIN_XCODE: Xcode_26.2
+  # Resolve GoogleAppMeasurement and app-check from their main branches (see Package.swift). A
+  # release is built before those repos publish its SwiftPM tags, much as release.zip.yml builds
+  # from staged pods. When this is run, their main should match the release's versions.
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 
 on:
   pull_request:
@@ -67,27 +71,48 @@ jobs:
       - name: Xcode
         run: sudo xcode-select -s /Applications/${{ env.MIN_XCODE }}.app/Contents/Developer
 
+      # For the steps below, which both load the package.
+      - name: Environment
+        run: |
+          echo "VERSION=$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)" \
+            >> "$GITHUB_ENV"
+          # Package.swift checks whether the variable is set at all, so it's only set for the
+          # dynamic zip.
+          if [[ "$LINKAGE" == dynamic ]]; then
+            echo "FIREBASE_SOURCE_FIRESTORE=1" >> "$GITHUB_ENV"
+          fi
+
       # No framework cache: a release zip is compiled entirely by this run. `release` also runs
       # `verify`, which fails the job if the zip doesn't link, import or have every slice.
       - name: Build the release zip
         run: |
-          # Package.swift checks whether these variables are set at all, so they're only exported
-          # when wanted. On PRs, use GoogleAppMeasurement's main branch like the other zip
-          # workflows: main's Package.swift can require a GoogleAppMeasurement tag that isn't
-          # published yet. Release runs build the checked-out Package.swift as is.
-          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
-            export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
-          fi
-          if [[ "$LINKAGE" == dynamic ]]; then export FIREBASE_SOURCE_FIRESTORE=1; fi
           swift run --package-path scripts/zip_builder -c release --force-resolved-versions \
             zip-builder release --package-path . --work-dir "$RUNNER_TEMP/zip" \
-            --cache-dir "$RUNNER_TEMP/empty-cache" --linkage "$LINKAGE" \
-            --version "$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"
+            --cache-dir "$RUNNER_TEMP/empty-cache" --linkage "$LINKAGE" --version "$VERSION"
+
+      # Carthage ships the static frameworks. `carthage` packages the distribution `release` left
+      # in the work dir. Its extra build (FIREBASE_BUILD_CARTHAGE) compiles the few frameworks the
+      # `carthage.rebuild` product needs again: its defines are in their fingerprints.
+      - name: Build the Carthage distribution
+        if: env.LINKAGE == 'static'
+        run: |
+          swift run --package-path scripts/zip_builder -c release --force-resolved-versions \
+            zip-builder carthage --package-path . --work-dir "$RUNNER_TEMP/zip" \
+            --cache-dir "$RUNNER_TEMP/empty-cache" --version "$VERSION"
 
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ env.LINKAGE == 'static' && 'Firebase-release-zip-builder' || 'Firebase-release-zip-builder-dynamic' }}
           path: ${{ runner.temp }}/zip/Firebase-*-latest.zip
+          if-no-files-found: error
+          compression-level: 0
+
+      # <version>/: one archive and one updated binary spec per folder.
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: env.LINKAGE == 'static'
+        with:
+          name: Firebase-release-zip-builder-carthage
+          path: ${{ runner.temp }}/zip/carthage
           if-no-files-found: error
           compression-level: 0
 
@@ -99,6 +124,8 @@ jobs:
           path: |
             ${{ runner.temp }}/zip/plan.json
             ${{ runner.temp }}/zip/logs
+            ${{ runner.temp }}/zip/carthage-build/plan.json
+            ${{ runner.temp }}/zip/carthage-build/logs
           if-no-files-found: ignore
 
       - name: Download release.zip's release zip

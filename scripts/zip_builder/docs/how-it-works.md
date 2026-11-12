@@ -33,7 +33,8 @@ flowchart LR
 
 Every decision happens while planning; the later stages only carry out the plan, so `plan.json`
 shows what will be built. Each CLI command runs one stage into the work directory, recomputing the
-earlier stages it needs unless you pass their output (`--plan`, `--xcframeworks`).
+earlier stages it needs unless you pass their output (`--plan`, `--xcframeworks`). `carthage`
+post-processes a finished distribution afterwards (see [Carthage](#carthage)).
 
 ## The plan
 
@@ -62,6 +63,7 @@ its own config sections; anything else reaches it through the plan:
 | `makeProject`, `buildXCFrameworks` | none: only the plan |
 | `makeZip` | `release.name`, `release.archiveName`, `zip.externalArtifacts`, `zip.notices` (only with `atBuildTime`), `products.base.product` |
 | `verify` | `products.base.product`, `verify.skipImports` |
+| `carthage` | `carthage`; plans and builds with the rest (see [Carthage](#carthage)) |
 
 The release version is `--version`, else `release.version`. (`Model/Plan.swift`)
 
@@ -605,6 +607,58 @@ the rest inside `<details>`; the 60,000 bytes include the title. `--title` also 
 `--format markdown`; with `text` or `json` it's an error, so a missing title never goes
 unnoticed. The tool adds nothing PR-specific: the caller supplies the title.
 (`Inspecting/Diff.swift`, `Inspecting/ChangedFiles.swift`, `Inspecting/RenderDiff.swift`)
+
+## Carthage
+
+`carthage` turns a finished, unsigned distribution into Carthage archives and binary specs, as
+the CocoaPods-era builder's Carthage step did. It reads the config's `carthage` group (see
+[configuration.md](configuration.md#carthage)) and never changes its input: it works on a copy in
+`<work-dir>/carthage-build/dist/<release.name>/`. In order:
+
+1. **Planning,** when there's an extra build or an umbrella framework: the whole release is
+   planned with the config (and `--linkage`, `--platforms`), plus `carthage.defines` in
+   `build.defines`.
+2. **Signature check.** It changes the extra build's frameworks and the `carthage.files`
+   targets, so it fails if one of them has a `_CodeSignature`: changing it would break the
+   signature, and signing comes later in the release process. Vendors' binaries are signed even
+   in an unsigned distribution and aren't changed, so they don't count.
+3. **The extra build** (`carthage.defines` with `carthage.rebuild`). The frameworks it compiles
+   are the frameworks and binaries a plan of the `rebuild` product alone (like `--product`)
+   holds, and everything they reach, taken from the whole release's plan
+   (`Packaging/Carthage.swift`, `restricting`). The product's own plan only gives the names: an
+   aggregate planned for one product only holds that product's parts, under the full aggregate's
+   name (Firebase's GoogleUtilities would lose its Network and swizzler parts), so it can't
+   replace the distribution's. The product plan's warnings are dropped, since they repeat the
+   whole plan's or only reflect planning one product. The build is a normal `build` into
+   `<work-dir>/carthage-build/` (its `plan.json`, logs and `xcframeworks/`, with layout), with
+   the same framework cache: the defines are in the project settings, so in every fingerprint,
+   and its entries never mix with the zip's. Each framework it compiled replaces every copy in
+   the distribution; one the distribution lacks is warned about. Binaries aren't replaced: the
+   build only copies them.
+4. **`carthage.files`** copies root files into `.xcframework`s, since Carthage only keeps
+   frameworks (Firebase's `NOTICES` into `FirebaseCore.xcframework`).
+5. **The umbrella framework** (`carthage.umbrellaFramework`): a static framework with only the
+   umbrella header, `module.modulemap` (`framework module <name> { header "<header>" export * }`),
+   the placeholder binary and an `Info.plist`, so `import <name>` works without the loose root
+   files. The `Info.plist` has the CocoaPods-era builder's keys, with the release version without
+   its pre-release suffix and `MinimumOSVersion` from the planned `IPHONEOS_DEPLOYMENT_TARGET`
+   (that builder hard-coded `15.0`, Firebase's iOS deployment target); its hard-coded
+   `DTSDKName = iphonesimulator11.2` described no real SDK and is dropped.
+   (`Packaging/UmbrellaFramework.swift`)
+6. **Archives**, one per folder (root files such as `README.md` and `NOTICES` aren't archived),
+   in `<output>/<version>/`, by default `<work-dir>/carthage/<version>/`, which is emptied first.
+   Each is zipped with `zip --symlinks -r` from the distribution root, as before, so the folder
+   is the archive's top level and the links of versioned macOS frameworks stay links. The name
+   is `<folder>-<hash>.zip`, with the first 16 hex digits of a SHA-256 over the folder's sorted
+   relative paths with each file's contents hash, or each link's target (links aren't
+   followed). The CocoaPods-era hash included absolute paths, so names depended on the machine;
+   now the same contents give the same name anywhere.
+7. **Binary specs.** Each folder's spec (`carthage.manifests`) gets `version → url`, and is
+   written next to the archives in the existing files' layout: versions sorted as strings, two
+   spaces, `"version": "url"` with slashes unescaped, and a final newline, so rewriting an
+   unchanged file gives the same bytes. A missing spec is created and a version already listed
+   with another URL is replaced, both with a warning. The release process commits the written
+   specs and uploads them with the archives. (`Packaging/CarthageArchives.swift`)
 
 ## Non-goals
 

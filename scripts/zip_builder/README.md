@@ -73,8 +73,9 @@ looks the way it does, read the plan. The rules for _how_ the zip gets construct
 | `verify <distribution>` | Performs some quality checks on a packaged `.zip`, to avoid potentional issues |
 | `diff <baseline> <candidate>` | Compares two packaged `.zip` files, and shows what has been added or removed |
 | `notices` | Writes the license notices file (`zip.notices`) on its own, to standard output or `--output` |
+| `carthage [<distribution>]` | Packages a finished, unsigned distribution for Carthage: one archive per folder, plus updated binary specs (see [Carthage](docs/how-it-works.md#carthage)) |
 
-Shared options (for the 4 main stages, `release` and `notices`):
+Shared options (for the 4 main stages, `release`, `notices` and `carthage`):
 
 - `--package-path`: directory containing the `Package.swift` file (default `.`)
 - `--config`: path to config file (default `<package-path>/zip_builder.jsonc`, else `zip_builder.json`)
@@ -110,6 +111,12 @@ Stage options:
 - `notices`: `--output <file>` (relative to the current directory; without it, the text goes to
   stdout). It fails when the config has no `zip.notices`, and writes the file whatever
   `zip.notices.atBuildTime` says. `--product` limits the notices to that product's frameworks.
+- `carthage`: the distribution (a directory or a zip; default `<work-dir>/dist/<release.name>`),
+  `--output <dir>` (default `<work-dir>/carthage`; writes `<dir>/<version>/`) and `--cache-dir`
+  (for its extra build). It takes the shared options except `--product` and
+  `--without-dependencies`; pass the `--linkage` and `--platforms` the distribution was built
+  with. It needs the config's [`carthage`](docs/configuration.md#carthage) group, and fails on a
+  signed distribution: run it before signing.
 
 ### Stage continuation
 
@@ -207,9 +214,19 @@ FIREBASE_SOURCE_FIRESTORE=1 \
   ./scripts/zip_builder.sh release --linkage dynamic --work-dir build-dynamic
 ```
 
+**Package for Carthage.** After `release` (unsigned, static), `carthage` packages
+`build/dist/Firebase` into `build/carthage/<version>/`: an archive per folder and each folder's
+binary spec with the new version added. Its extra build compiles FirebaseCore and what it needs
+again with `FIREBASE_BUILD_CARTHAGE=1`.
+
+```bash
+./scripts/zip_builder.sh release --version "13.0.0"
+./scripts/zip_builder.sh carthage --version "13.0.0"
+```
+
 ## Configuration at a glance
 
-The config has seven groups, one per concern. Only `release.name` and `release.bundleIdPrefix` are
+The config has eight groups, one per concern. Only `release.name` and `release.bundleIdPrefix` are
 required.
 
 | Group | What it controls |
@@ -221,6 +238,7 @@ required.
 | `layout` | Privacy and resource bundles, `Info.plist` values |
 | `zip` | Extra files, external artifacts, the generated license notices |
 | `verify` | Modules the import check skips |
+| `carthage` | The `carthage` command: archive URLs, binary specs, an extra build, extra files, an umbrella framework |
 
 Every key, with its default and Firebase's reason for setting it, is in
 [docs/configuration.md](docs/configuration.md). The tool also reads `zip_builder.json`, but prefer
@@ -259,6 +277,10 @@ build/
 `project` adds `Firebase.xcodeproj` and `Generated/`. `archives/`, `created/` and `xcframeworks/`
 are recreated by every build, so a build with nothing to compile leaves no archives.
 
+`carthage` adds `carthage-build/` (its extra build's work directory, with the same layout, and
+`dist/Firebase/`, the copy it changes) and `carthage/<version>/` (one `<folder>-<hash>.zip` and
+one `<folder>Binary.json` per folder).
+
 ## CI
 
 - [`.github/workflows/infra.zip_builder.yml`](/.github/workflows/infra.zip_builder.yml): runs the tests, including the end-to-end build of the
@@ -275,8 +297,9 @@ are recreated by every build, so a build with nothing to compile leaves no archi
   daily, regenerates `CoreOnly/licenses/NOTICES` with `notices`, and opens a pull request when
   it changed.
 - [`.github/workflows/release.zip_builder.yml`](/.github/workflows/release.zip_builder.yml): builds the
-  release zip, alongside [`release.zip.yml`](/.github/workflows/release.zip.yml), which builds it
-  with the CocoaPods-based builder in `ReleaseTooling/`. See [Release zip](#release-zip).
+  release zip and, for the static linkage, its Carthage distribution, alongside
+  [`release.zip.yml`](/.github/workflows/release.zip.yml), which builds both with the
+  CocoaPods-based builder in `ReleaseTooling/`. See [Release zip](#release-zip).
 
 ### Release zip
 
@@ -289,13 +312,20 @@ Until the new zip replaces the CocoaPods one, a release builds both:
    job summary. Its artifact is `Firebase-release-zip-builder` (`linkage: dynamic` gives
    `Firebase-release-zip-builder-dynamic`, with Firestore built from source).
 
-The zip is built from the branch's `Package.swift`, with `--version` from its `firebaseVersion`. It
+The zip is built from the branch's `Package.swift`, with `--version` from its `firebaseVersion`.
+GoogleAppMeasurement and app-check resolve from their `main` branches
+(`FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT`), because their SwiftPM tags for a release are
+published after it's built, so check that their `main` matches the release's versions. It
 uses no framework cache, so every framework is compiled by that run, and `release` runs `verify`
 before uploading. Like `release.zip.yml`'s artifact, it isn't signed: the release process signs it.
-It doesn't build a Carthage distribution; `release.zip.yml` still does. `plan.json` and the
-build logs are uploaded as a `-logs` artifact. Its `NOTICES` is the branch's checked-in
-`CoreOnly/licenses/NOTICES`, not generated by the run: if the daily notices pull request hasn't
-landed on the branch, [regenerate it](#common-tasks) there first.
+The static run then runs `carthage` on the same work directory and version, and uploads
+`<work-dir>/carthage` (`<version>/`: the archives and the updated binary specs) as
+`Firebase-release-zip-builder-carthage`; its extra build uses the same empty cache directory, so
+it's compiled by that run too. `release.zip.yml` still builds the Carthage distribution with the
+legacy tool as well. `plan.json` and the build logs, the extra build's included, are uploaded as a
+`-logs` artifact. Its `NOTICES` is the branch's checked-in `CoreOnly/licenses/NOTICES`, not
+generated by the run: if the daily notices pull request hasn't landed on the branch,
+[regenerate it](#common-tasks) there first.
 
 Direct dependencies are pinned to exact commits in `Package.swift`, `Package.resolved` (committed)
 pins the transitive ones, and both CI and `scripts/zip_builder.sh` build with
