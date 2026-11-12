@@ -8,6 +8,15 @@
   `start` and `end`, removed `VoiceActivityType.unknown` from the public API,
   and made `LiveServerVoiceActivity.audioOffset` a non-optional `TimeInterval`
   (defaulting to `0`).
+- [changed] `GeminiLanguageModel` now limits each prompt to 10 tool-calling
+  turns, including when `toolCallingMode` is `.required`. After 10 turns, the
+  next request asks Gemini for a final response without calling tools; if
+  Gemini calls a tool anyway, the session throws
+  `GeminiLanguageModel.Error.invalidResponse`. (#17043)
+- [fixed] Fixed `GeminiLanguageModel` running a tool, or throwing a
+  `GeneratedContent.ParsingError`, when Gemini called a tool that wasn't enabled
+  for the request, including when `toolCallingMode` was `.disallowed`. It now
+  throws `GeminiLanguageModel.Error.invalidResponse` instead. (#17043)
 - [fixed] Fixed a crash at launch on iOS 17 and earlier, and the corresponding
   macOS, tvOS, watchOS, and visionOS versions, in apps built with Xcode 27 when
   the app or a library (such as Realm) enumerated Objective-C classes with
