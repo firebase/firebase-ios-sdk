@@ -16,8 +16,9 @@
 
 import Foundation
 
-/// Lays out the distribution in `<workDir>/dist/<release.name>/`, signs it when given an identity,
-/// and zips it into `<workDir>/<release.archiveName>`.
+/// Lays out the distribution in `<workDir>/dist/<release.name>/`, with `METADATA.md` and, with
+/// `zip.notices`, the license notices; signs it when given an identity, and zips it into
+/// `<workDir>/<release.archiveName>`.
 ///
 /// `xcframeworks` is the build stage's output directory, holding one `<Name>.xcframework` per
 /// framework and binary in the plan. Returns the zip's path.
@@ -34,6 +35,15 @@ func makeZip(xcframeworks: Path, plan: Plan, config: Config, packageRoot: Path, 
                                    downloads: workDir.appendingPathComponent("downloads"))
   try Data(metadata(plan, baseFolder: config.products.base?.product).utf8)
     .write(to: root.appendingPathComponent("METADATA.md"))
+  if let noticesConfig = config.zip.notices {
+    let file = root.appendingPathComponent(noticesConfig.file)
+    // A `zip.files` entry of the same name would be replaced without a word.
+    guard !manager.fileExists(atPath: file.path) else {
+      throw ZipBuilderError("zip.notices: \(noticesConfig.file) is already in the distribution; "
+        + "remove it from zip.files, or set zip.notices.file.")
+    }
+    try Data(notices(plan, noticesConfig, packageRoot: packageRoot).utf8).write(to: file)
+  }
 
   if let signingIdentity {
     let (signed, kept) = try await signXCFrameworks(in: root, identity: signingIdentity)

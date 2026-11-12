@@ -24,6 +24,7 @@ struct DiffReport: Codable, Equatable, Sendable {
   var releaseVersion: ReleaseVersionChange? // a version bump shared by the changed frameworks
   var folders = Changes()
   var files = Changes() // loose files: `NOTICES` at the root, `FirebaseCrashlytics/run` in a folder
+  var changedFiles: [String] = [] // loose files both sides have, with different contents
   var frameworks = Changes() // `Folder/Framework`, for frameworks only one side has
   var moved: [Move] = []
   var changed: [FrameworkDiff] = []
@@ -34,7 +35,8 @@ struct DiffReport: Codable, Equatable, Sendable {
 
   /// Whether anything other than the release version changed.
   var hasLayoutOrFrameworkChanges: Bool {
-    !(folders.isEmpty && files.isEmpty && frameworks.isEmpty && moved.isEmpty && changed.isEmpty)
+    !(folders.isEmpty && files.isEmpty && changedFiles.isEmpty && frameworks.isEmpty
+      && moved.isEmpty && changed.isEmpty)
   }
 }
 
@@ -146,6 +148,8 @@ func diffDistributions(_ baseline: Distribution, _ candidate: Distribution,
       : FrameworkDiff(name: new.name, folder: new.folder, differences: differences)
   }
   collapseReleaseVersion(in: &report)
+  report.changedFiles = try changedLooseFiles(baseline, candidate,
+                                              releaseVersion: report.releaseVersion)
   return report
 }
 
@@ -188,6 +192,25 @@ private func copiesToCompare(_ old: [XCFramework],
 private func looseFiles(_ distribution: Distribution) -> [String] {
   distribution.files + distribution.folders.flatMap { folder in
     folder.files.map { folder.name + "/" + $0 }
+  }
+}
+
+/// The loose files both sides have whose contents differ (a directory's by its files'
+/// contents), in the baseline's order. A text file whose only change is the release version
+/// bump, i.e. the candidate's text is the baseline's with every occurrence of the old version
+/// replaced by the new one, is part of `releaseVersion` and isn't listed, like the frameworks'
+/// versions: `METADATA.md` lists the release version.
+private func changedLooseFiles(_ baseline: Distribution, _ candidate: Distribution,
+                               releaseVersion: ReleaseVersionChange?) throws -> [String] {
+  let candidateFiles = Set(looseFiles(candidate))
+  return try looseFiles(baseline).filter { file in
+    guard candidateFiles.contains(file) else { return false }
+    let old = baseline.root + "/" + file, new = candidate.root + "/" + file
+    guard try contentHash(old) != contentHash(new) else { return false }
+    guard let version = releaseVersion,
+          let oldText = try? String(contentsOfFile: old, encoding: .utf8),
+          let newText = try? String(contentsOfFile: new, encoding: .utf8) else { return true }
+    return oldText.replacingOccurrences(of: version.from, with: version.to) != newText
   }
 }
 

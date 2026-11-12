@@ -46,6 +46,7 @@ struct ConfigTests {
     #expect(config.build.linkage == .static)
     #expect(config.layout.privacyBundle.isEmpty && config.layout.infoPlist.isEmpty)
     #expect(config.zip.files.isEmpty && config.zip.externalArtifacts.isEmpty)
+    #expect(config.zip.notices == nil) // no notices file unless asked for
     #expect(config.verify.skipImports.isEmpty)
   }
 
@@ -62,6 +63,12 @@ struct ConfigTests {
     let artifact = try #require(config.zip.externalArtifacts.first)
     #expect(artifact.subpath == nil)
     #expect(!artifact.stripSignatures)
+
+    let notices = try #require(load("""
+    { "release": { "name": "Mini", "bundleIdPrefix": "com.example" }, "zip": { "notices": {} } }
+    """).zip.notices)
+    #expect(notices.file == "NOTICES")
+    #expect(notices.extraLicenses.isEmpty)
   }
 
   @Test func allowsJSON5Comments() throws {
@@ -276,6 +283,16 @@ struct ConfigTests {
     #expect(config.layout.privacyBundle["GTMSessionFetcher"] == "GTMSessionFetcher_Core_Privacy")
     #expect(config.layout.infoPlist == ["MinimumOSVersion": "100.0"])
     #expect(config.zip.files.map(\.to) == [".", "FirebaseCrashlytics"])
+    // The notices are generated, so the checked-in copy isn't shipped.
+    #expect(!config.zip.files.flatMap(\.files).contains("CoreOnly/NOTICES"))
+    #expect(config.zip.notices?.file == "NOTICES")
+    #expect(config.zip.notices?.extraLicenses.keys.sorted()
+      == ["FirebaseFirestoreInternal", "grpc", "grpcpp", "openssl_grpc"])
+    let extraLicenses = config.zip.notices?.extraLicenses.values.flatMap { $0 } ?? []
+    for path in extraLicenses {
+      #expect(FileManager.default.fileExists(atPath: repoRoot.appendingPathComponent(path).path),
+              "\(path)")
+    }
     #expect(config.verify.skipImports == ["AppCheckCore", "absl", "grpc", "grpcpp",
                                           "openssl_grpc", "leveldb"])
   }

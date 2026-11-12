@@ -52,13 +52,15 @@ become frameworks (combined by `frameworks.aggregate` and `frameworks.merge`, th
 | Folder names, after `products.rename` | `products.withoutFolder`, `products.base.product`, keys of `products.platforms` and `products.extraFrameworks`, `zip.files[].to`, `zip.externalArtifacts[].to` |
 | Target names | `products.add[].targets`, `frameworks.merge`, keys of `frameworks.rename` |
 | Package names | `frameworks.aggregate` |
-| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks` |
+| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks`, keys of `zip.notices.extraLicenses` |
 | Module names in the finished zip | `verify.skipImports` |
+| Paths and folders in the finished distribution | keys of `carthage.files`, `carthage.umbrellaFramework.folder` (`carthage.rebuild` is a product name) |
 | Header file name patterns | `frameworks.privateHeaders`, `frameworks.hiddenHeaders` |
 
-**Who reads what.** Planning and `customize` read every group except `verify`. Packaging reads
-`release`, `zip` and `products.base`; `verify` reads `products.base` and `verify`. The build stage
-reads no config: everything it needs is already in the plan.
+**Who reads what.** Planning and `customize` read every group except `verify` and `carthage`.
+Packaging reads `release`, `zip` and `products.base`; `verify` reads `products.base` and
+`verify`; `carthage` reads `carthage`, and plans with the rest. The build stage reads no config:
+everything it needs is already in the plan.
 
 ## release
 
@@ -287,8 +289,8 @@ What else goes in the zip, next to the frameworks.
   `products.rename`, and a folder that doesn't exist (including one in `products.withoutFolder`)
   is warned about and skipped. Files are copied by file name, without their directories, so two
   files with the same name can't go in one folder. A missing file fails packaging. Firebase: the
-  zip root gets the legacy zip's `README.md`, `NOTICES`, `Firebase.h` and `module.modulemap`, and
-  the `FirebaseCrashlytics` folder gets the `run` and `upload-symbols` scripts.
+  zip root gets the legacy zip's `README.md`, `Firebase.h` and `module.modulemap`, and the
+  `FirebaseCrashlytics` folder gets the `run` and `upload-symbols` scripts.
 - **`externalArtifacts`** (list of `{ "to", "url", "subpath", "stripSignatures" }`, default `[]`).
   Prebuilt zips downloaded and unpacked into folder `to` (`"."` is the zip root; a missing folder
   is created). Each URL is downloaded once, into `<work-dir>/downloads/`, and reused. The archive's
@@ -296,6 +298,24 @@ What else goes in the zip, next to the frameworks.
   archive: a plain directory contributes its entries, and a file or bundle (such as an
   `.xcframework`) is placed as is. `stripSignatures` (default `false`) removes every
   `_CodeSignature` directory, so `--sign` signs the result with the rest. Firebase has none.
+- **`notices`** (`{ "file", "extraLicenses" }`, default none). Writes a third-party license
+  notices file at the zip root, generated from the license files of every framework and binary
+  the zip ships (see [Licenses](how-it-works.md#licenses)): one entry per license text, ignoring
+  leading and trailing whitespace, titled by the names of everything under it. Without this key
+  there's no such file. Keys:
+  - **`file`** (string, default `"NOTICES"`): its file name.
+  - **`extraLicenses`** (framework or binary name → package-root-relative paths, default `{}`):
+    license files added to those planning found, for a package without a license file, or whose
+    license file lacks the full text. Names are the ones in the zip, after merging and renaming.
+
+  **Gotchas:** a shipped framework or binary with no license file and no `extraLicenses` entry
+  is warned about while planning, and the file leaves it out. An `extraLicenses` name the zip
+  doesn't ship is warned about and skipped; a path that doesn't exist fails packaging, even for
+  a skipped name. A `zip.files` entry with the same name fails packaging rather than being
+  replaced. `externalArtifacts` aren't in the plan, so they get no notice. Firebase: on, with the
+  BoringSSL text for `openssl_grpc` (its package has no license for it), gRPC's full text for
+  `grpc` and `grpcpp`, and `Firestore/LICENSE` for the `FirebaseFirestoreInternal` binary, which
+  is in the root package and so only gets the root `LICENSE`.
 
 ## verify
 
@@ -314,6 +334,48 @@ folder links on its own and every module is import-checked.
   the framework's name; neither does a C++-only one. List those if nobody imports them directly.
 
 `verify` also reads `products.base.product`: every folder is linked together with that folder.
+
+## carthage
+
+How the `carthage` command packages a finished distribution for Carthage (see
+[Carthage](how-it-works.md#carthage)). Only that command reads this group, and it fails without
+it. Names here are distribution names: folders after `products.rename`, and paths inside the
+distribution, except `rebuild`, a product name.
+
+- **`url`** (string, required). Where each archive is downloaded from, written into the binary
+  specs. `{version}` is the release version and `{archive}` the archive's file name. Firebase:
+  `"https://dl.google.com/dl/firebase/ios/carthage/{version}/{archive}"`.
+- **`manifests`** (string, required). Each folder's Carthage binary spec (a JSON object of
+  version → URL), relative to the package root; `{folder}` is the folder name. The repo's file
+  is read and left alone: the updated copy is written next to the archives. A missing one is
+  created, with a warning. Firebase: `"ReleaseTooling/CarthageJSON/{folder}Binary.json"`.
+- **`defines`** and **`rebuild`** (list of macros, and a product name; default none, set both or
+  neither). An extra build with `defines` added to `build.defines`, of the frameworks the
+  `rebuild` product needs, as planned for the whole release (so an aggregate is complete). Its
+  frameworks replace the distribution's, in every folder holding them; one the distribution
+  doesn't have is warned about. Prebuilt binaries are never replaced, since defines can't change
+  them. Firebase: `["FIREBASE_BUILD_CARTHAGE=1"]` and `"FirebaseCore"`, so GoogleUtilities
+  reports the `carthage` deployment type in Firebase's usage telemetry instead of `zip`.
+- **`files`** (distribution path of an `.xcframework` → distribution-root file names, default
+  `{}`). Copies root files into an `.xcframework`, since Carthage only keeps frameworks. A
+  missing file or `.xcframework`, or a file already there, fails the command. Firebase:
+  `{ "FirebaseAnalytics/FirebaseCore.xcframework": ["NOTICES"] }`, the generated
+  [notices](#zip).
+- **`umbrellaFramework`** (`{ "folder", "name", "header", "binary", "bundleIdentifier" }`,
+  default none). A static framework, `<folder>/<name>.framework`, holding only an umbrella header
+  and a module map exporting it, so Carthage users can import the umbrella module. `header` and
+  `binary` are package-root-relative: the header is copied into `Headers/`, and the binary
+  (a placeholder library) becomes the framework's binary. Its `Info.plist` gets
+  `bundleIdentifier`, the release version without a pre-release suffix, and the planned iOS
+  deployment target as `MinimumOSVersion`. A missing folder, header or binary, or an existing
+  framework of that name, fails the command. Firebase: `Firebase.framework` in
+  `FirebaseAnalytics`, with `CoreOnly/Sources/Firebase.h`, the legacy builder's
+  `ReleaseTooling/Template/dummy_Firebase_lib`, and its bundle ID
+  `com.firebase.Firebase-Firebase`.
+
+**Gotcha:** `carthage` changes the extra build's frameworks and the `files` targets, so it fails
+when one of those is signed: run it before signing. Vendors' signed binaries elsewhere in the
+distribution are fine; they're archived as they are.
 
 ## Recipes
 

@@ -21,9 +21,10 @@ import Foundation
 /// while typos stay visible. `packageRoot` resolves `frameworks.publicHeaders`; `version` is the
 /// release version, for `build.versionMacro`. Folders are arranged last
 /// (`Customizing/Folders.swift`), because restricting platforms needs every product's closure.
+/// With `zip.notices`, the final plan's missing licenses are warned about.
 func customize(_ plan: Plan, _ config: Config, packageRoot: Path, version: String) -> Plan {
   let frameworks = config.frameworks
-  return plan
+  let customized = plan
     .aggregatingPackages(frameworks.aggregate)
     .merging(frameworks.merge, platforms: frameworks.platforms)
     .renaming(frameworks.rename)
@@ -36,6 +37,10 @@ func customize(_ plan: Plan, _ config: Config, packageRoot: Path, version: Strin
                        version: version)
     .applyingLayout(config.layout)
     .arrangingFolders(config.products, files: config.zip.files)
+  if let notices = config.zip.notices {
+    warnAboutMissingLicenses(customized, notices)
+  }
+  return customized
 }
 
 extension Plan {
