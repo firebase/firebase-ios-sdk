@@ -211,7 +211,8 @@ struct MakePlanTests {
   @Test func binaryPlatformsComeFromInfoPlist() async throws {
     let plan = try await MiniPackage.plan()
     #expect(plan.binaries == [
-      Binary(name: "Prebuilt", path: "Prebuilt.xcframework", platforms: [.ios], version: "1.2.3"),
+      Binary(name: "Prebuilt", path: "Prebuilt.xcframework", platforms: [.ios], version: "1.2.3",
+             licenses: ["LICENSE"]),
     ])
   }
 

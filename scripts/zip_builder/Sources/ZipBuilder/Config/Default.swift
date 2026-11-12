@@ -93,6 +93,13 @@ enum DefaultArchiveName: DefaultValue {
   }
 }
 
+/// The name earlier releases gave their license notices.
+enum DefaultNoticesFile: DefaultValue {
+  static var defaultValue: String {
+    "NOTICES"
+  }
+}
+
 /// Static, like the CocoaPods-era zip; dynamic is opt-in.
 enum DefaultLinkage: DefaultValue {
   static var defaultValue: Linkage {
