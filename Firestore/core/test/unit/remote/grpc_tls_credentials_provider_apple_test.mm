@@ -24,7 +24,7 @@
 #import <Security/Security.h>
 #import <dispatch/dispatch.h>
 
-#include <arpa/inet.h>
+#include <arpa/inet.h>  // NOLINT(build/include)
 #include <netinet/in.h>
 #include <poll.h>
 #include <sys/socket.h>

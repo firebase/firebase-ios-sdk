@@ -17,15 +17,15 @@
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 
 #include <atomic>
-#include <chrono>              // NOLINT(build/c++11)
-#include <condition_variable>  // NOLINT(build/c++11)
+#include <chrono>
+#include <condition_variable>
 #include <cstring>
 #include <deque>
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <random>
 #include <string>
-#include <thread>  // NOLINT(build/c++11)
+#include <thread>
 #include <utility>
 #include <vector>
 

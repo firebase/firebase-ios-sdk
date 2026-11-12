@@ -16,10 +16,11 @@
 
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 
-#include <algorithm>
-#include <array>
 #include <cstddef>
 #include <cstdint>
+
+#include <algorithm>
+#include <array>
 #include <vector>
 
 #include "absl/strings/ascii.h"

@@ -200,7 +200,8 @@ private func framework(for module: ResolvedModule, _ context: Planning) throws -
     bundleID: bundleID,
     version: version,
     isDynamic: isDynamic,
-    layout: Layout()
+    layout: Layout(),
+    licenses: licenseFile(of: module, context.graph).map { [context.relative($0)] }
   )
 }
 
@@ -314,7 +315,8 @@ private func binary(for module: ResolvedModule, _ context: Planning) throws -> B
   }
   return try Binary(name: module.name, path: context.relative(binary.artifactPath),
                     platforms: xcframeworkPlatforms(at: binary.artifactPath.pathString),
-                    version: context.version(of: module))
+                    version: context.version(of: module),
+                    licenses: licenseFile(of: module, context.graph).map { [context.relative($0)] })
 }
 
 /// The platforms an `.xcframework` has slices for, from its `Info.plist`.

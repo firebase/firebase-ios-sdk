@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>
 #include <string>
 #include <unordered_map>
 
