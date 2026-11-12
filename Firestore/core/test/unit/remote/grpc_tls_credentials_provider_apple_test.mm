@@ -2010,10 +2010,11 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFErrorRef> error(raw_error);
 
   // The harness is proven working above, so zero fetches here means trustd
-  // itself declined to fetch. Some environments (notably macOS CI runners)
-  // never let trustd perform AIA fetches, even when explicitly allowed. That
-  // is not a defect in the code under test, so skip rather than fail; it does
-  // mean the zero-fetch assertion above is vacuous in such an environment.
+  // itself declined to fetch. Observed: trustd on the iOS and tvOS simulators
+  // fetches, but macOS trustd does not, both on GitHub macOS runners and on a
+  // developer Mac, even with network fetch explicitly allowed. That is not a
+  // defect in the code under test, so skip rather than fail; it does mean the
+  // zero-fetch assertion above only discriminates where trustd fetches.
   const int trustd_requests = aia_server.request_count() - probe_requests;
   if (trustd_requests == 0) {
     GTEST_SKIP() << "trustd did not fetch the AIA URL even with network fetch "
