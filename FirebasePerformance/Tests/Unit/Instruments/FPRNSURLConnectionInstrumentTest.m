@@ -14,8 +14,6 @@
 
 #pragma mark - Unswizzle based tests
 
-#if !SWIFT_PACKAGE
-
 #import "FirebasePerformance/Tests/Unit/Instruments/FPRNSURLConnectionInstrumentTestDelegates.h"
 
 #import <XCTest/XCTest.h>
@@ -519,5 +517,3 @@
 }
 
 @end
-
-#endif  // SWIFT_PACKAGE
