@@ -212,10 +212,26 @@ jobs:
       with:
         python-version: '3.11'
 
+    # Load the x64 MSVC developer environment (vcvars64.bat) into $GITHUB_ENV
+    # so later steps can find cl, link, and the Windows SDK. This is done
+    # inline because the repository only allows a fixed set of actions.
     - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
-      with:
-        arch: x64
+      shell: pwsh
+      run: |
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vs = & $vswhere -latest -products * `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+          -property installationPath
+        if (-not $vs) { throw "Visual Studio with the x64 C++ tools not found" }
+        $vcvars = Join-Path $vs 'VC\Auxiliary\Build\vcvars64.bat'
+        $vars = cmd /c "`"$vcvars`" >nul && set"
+        if ($LASTEXITCODE -ne 0) { throw "vcvars64.bat failed" }
+        foreach ($line in $vars) {
+          if ($line -match '^([^=]+)=(.*)$') {
+            "$($Matches[1])=$($Matches[2])" |
+              Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
+        }
 
     # Set up CMake after MSVC so that the pinned version takes precedence over
     # the copy bundled with Visual Studio.
