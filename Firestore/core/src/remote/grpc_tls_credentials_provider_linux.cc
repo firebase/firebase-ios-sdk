@@ -19,12 +19,6 @@
 #if !defined(__APPLE__) && !defined(_WIN32)
 
 #include <dirent.h>
-#include <openssl/bio.h>
-#include <openssl/err.h>
-#include <openssl/pem.h>
-#include <openssl/sha.h>
-#include <openssl/x509.h>
-#include <openssl/x509v3.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -43,6 +37,12 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
+#include "openssl/bio.h"
+#include "openssl/err.h"
+#include "openssl/pem.h"
+#include "openssl/sha.h"
+#include "openssl/x509.h"
+#include "openssl/x509v3.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/credentials.h"

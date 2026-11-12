@@ -18,11 +18,6 @@
 
 #if !defined(__APPLE__)
 
-#include <openssl/pem.h>
-#include <openssl/x509.h>
-#include <openssl/x509_vfy.h>
-#include <openssl/x509v3.h>
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,6 +25,10 @@
 #include "Firestore/core/src/util/warnings.h"
 #include "Firestore/core/test/unit/remote/tls_loopback_server.h"
 #include "gtest/gtest.h"
+#include "openssl/pem.h"
+#include "openssl/x509.h"
+#include "openssl/x509_vfy.h"
+#include "openssl/x509v3.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/credentials.h"
