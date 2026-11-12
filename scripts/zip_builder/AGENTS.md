@@ -10,14 +10,14 @@ One executable target, `Sources/ZipBuilder`, in folders that follow the pipeline
 
 | Folder | Stage | Main entry point |
 |---|---|---|
-| `Commands/` | CLI, one file per subcommand | `ZipBuilderCommand`; shared stage steps in `SharedOptions.swift` |
+| `Commands/` | CLI, one file per subcommand | `ZipBuilderCommand`; shared stage steps in `SharedOptions.swift`; `NoticesCommand.swift` writes the notices file on its own |
 | `Config/` | the config file | `Config.swift` → `Config.load(from:)`; defaults in `Default.swift`; `UnknownKeys.swift` → `warnAboutUnknownKeys` |
 | `Model/` | the plan | `Plan.swift` → `Plan`; `XcodeSettings.swift`, `Platform.swift` |
 | `Planning/` | 1–2: load and plan | `LoadPackage.swift` → `loadPackage`; `MakePlan.swift` → `makePlan`; `DynamicFrameworks.swift` → `dynamicTargets`; `HeaderSearchPaths.swift` → `dependencyIncludeDirectories`; `Licenses.swift` → `licenseFile(of:)` |
 | `Customizing/` | 3: apply the config | `Customize.swift` → `customize`; `Merge.swift` → aggregate, merge, rename; `Folders.swift` → `arrangingFolders` |
 | `Building/` | 4: project and build | `MakeProject.swift` → `makeProject`; `BuildXCFrameworks.swift` → `buildXCFrameworks`; `Linking.swift` → linkage check (`checkDynamicFrameworksLinkNothingStatic`), `reachedDependencies`; `FrameworkCache.swift` → `fingerprints`, `FrameworkCache` |
 | `Packaging/` | 5: the zip | `MakeZip.swift` → `makeZip`; `Metadata.swift` → `metadata`; `Notices.swift` → `notices`, `renderNotices`, `warnAboutMissingLicenses` |
-| `Inspecting/` | verify and diff | `Verify.swift` → `verify`; `Diff.swift` → `diffDistributions`; `RenderDiff.swift` → `renderText`, `renderMarkdown`, `renderGitHubComment`; `Distribution.swift` → `readDistribution`, `readXCFrameworks` |
+| `Inspecting/` | verify and diff | `Verify.swift` → `verify`; `Diff.swift` → `diffDistributions`; `ChangedFiles.swift` → `changedLooseFiles`, `unifiedDiff`; `RenderDiff.swift` → `renderText`, `renderMarkdown`, `renderGitHubComment`; `Distribution.swift` → `readDistribution`, `readXCFrameworks` |
 | `Support/` | shell, logging, files | `Shell.swift` → `shell`, `runTool`; `Output.swift` → `warn` |
 
 Tests in `Tests/ZipBuilderTests` mirror these folders. The fixture package is

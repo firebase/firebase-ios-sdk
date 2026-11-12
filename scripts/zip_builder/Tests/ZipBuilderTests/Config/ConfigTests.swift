@@ -68,7 +68,14 @@ struct ConfigTests {
     { "release": { "name": "Mini", "bundleIdPrefix": "com.example" }, "zip": { "notices": {} } }
     """).zip.notices)
     #expect(notices.file == "NOTICES")
+    #expect(notices.atBuildTime) // makeZip writes it unless told not to
     #expect(notices.extraLicenses.isEmpty)
+
+    let separate = try #require(load("""
+    { "release": { "name": "Mini", "bundleIdPrefix": "com.example" },
+      "zip": { "notices": { "atBuildTime": false } } }
+    """).zip.notices)
+    #expect(!separate.atBuildTime)
   }
 
   @Test func allowsJSON5Comments() throws {
@@ -283,13 +290,17 @@ struct ConfigTests {
     #expect(config.layout.privacyBundle["GTMSessionFetcher"] == "GTMSessionFetcher_Core_Privacy")
     #expect(config.layout.infoPlist == ["MinimumOSVersion": "100.0"])
     #expect(config.zip.files.map(\.to) == [".", "FirebaseCrashlytics"])
-    // The notices are generated, so the checked-in copy isn't shipped.
+    // The notices are generated separately (`notices`), checked in, and copied like any file.
     #expect(!config.zip.files.flatMap(\.files).contains("CoreOnly/NOTICES"))
+    #expect(config.zip.files[0].files.contains("CoreOnly/licenses/NOTICES"))
+    #expect(config.zip.notices?.atBuildTime == false)
     #expect(config.zip.notices?.file == "NOTICES")
     #expect(config.zip.notices?.extraLicenses.keys.sorted()
       == ["FirebaseFirestoreInternal", "grpc", "grpcpp", "openssl_grpc"])
     let extraLicenses = config.zip.notices?.extraLicenses.values.flatMap { $0 } ?? []
-    for path in extraLicenses {
+    // Packaging fails on a missing file, so check every path the zip copies, the checked-in
+    // notices included.
+    for path in extraLicenses + config.zip.files.flatMap(\.files) {
       #expect(FileManager.default.fileExists(atPath: repoRoot.appendingPathComponent(path).path),
               "\(path)")
     }

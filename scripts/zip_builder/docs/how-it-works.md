@@ -60,7 +60,7 @@ its own config sections; anything else reaches it through the plan:
 | `makePlan` | `release` (bundle ID prefixes), `products.exclude`/`add`/`rename`/`withoutDependencies`, `frameworks.dynamic`/`static` (with `aggregate`, `merge` and `rename`, for final names), `build.platforms`, `build.linkage` |
 | `customize` | `frameworks`, `products`, `build`, `layout`, `zip.files`, `zip.notices` (only to warn about missing licenses) |
 | `makeProject`, `buildXCFrameworks` | none: only the plan |
-| `makeZip` | `release.name`, `release.archiveName`, `zip.externalArtifacts`, `zip.notices`, `products.base.product` |
+| `makeZip` | `release.name`, `release.archiveName`, `zip.externalArtifacts`, `zip.notices` (only with `atBuildTime`), `products.base.product` |
 | `verify` | `products.base.product`, `verify.skipImports` |
 
 The release version is `--version`, else `release.version`. (`Model/Plan.swift`)
@@ -503,24 +503,41 @@ macOS-style slices use `Versions/A/Resources` and `Contents/`. (`Building/Layout
    contributes its entries; a file or bundle is placed as is.
 3. Writes `METADATA.md`: each folder's frameworks, the base folder first and the others marked
    `(~> <base>)`, then every framework's and binary's version.
-4. With `zip.notices`, writes the notices file (`NOTICES` by default) at the root, from the
-   [licenses](#licenses) of every framework and binary in a folder, plus
-   `zip.notices.extraLicenses`. License texts are compared with leading and trailing whitespace
-   trimmed, since copies of one license often differ only in a leading blank line (Firebase's
-   `LICENSE` and the binary packages' Apache text); inner whitespace counts. Items with the same
-   text share one entry, titled by their names, sorted, one per line, and entries are ordered by
-   their titles; each is the titles, a blank line, the trimmed text, and two newlines, and the
-   file is trimmed to end with one newline. That reads like the notices file the CocoaPods-era
-   zip shipped, though titles are now framework names rather than pod names. A missing
-   `extraLicenses` path, or a file of that name already in the distribution (a `zip.files`
-   entry), fails packaging. While planning, `customize` warns about shipped items without a
-   license and `extraLicenses` names that don't ship, so `plan` shows them.
-   (`Packaging/Notices.swift`, `notices`, `renderNotices`)
+4. With `zip.notices` and its `atBuildTime` (the default), writes the notices file (`NOTICES` by
+   default) at the root, from the [licenses](#licenses) of every framework and binary in a
+   folder, plus `zip.notices.extraLicenses`. License texts are compared with leading and
+   trailing whitespace trimmed, since copies of one license often differ only in a leading blank
+   line (Firebase's `LICENSE` and the binary packages' Apache text); inner whitespace counts.
+   Items with the same text share one entry, titled by their names, sorted, one per line, and
+   entries are ordered by their titles; each is the titles, a blank line, the trimmed text, and
+   two newlines, and the file is trimmed to end with one newline. That reads like the notices
+   file the CocoaPods-era zip shipped, though titles are now framework names rather than pod
+   names. A missing `extraLicenses` path, or a file of that name already in the distribution (a
+   `zip.files` entry), fails packaging. While planning, `customize` warns about shipped items
+   without a license and `extraLicenses` names that don't ship, so `plan` shows them, whatever
+   `atBuildTime` says. (`Packaging/Notices.swift`, `notices`, `renderNotices`)
 5. With `--sign`, signs every unsigned `.xcframework`. Vendors' signed binaries keep their
    signature, since re-signing would replace it in a real release.
 6. Zips with `ditto --norsrc --noextattr --noacl`. Extended attributes are per machine
    (`com.apple.provenance`), and `ditto` would store them as `__MACOSX/` or `._*` entries.
    (`Packaging/MakeZip.swift`, `makeZip`; `Packaging/Metadata.swift`)
+
+### The notices command
+
+`notices` writes the same notices text as step 4, without building anything: it plans (or reads
+`--plan`) and calls the same `notices` function, so its output matches what `makeZip` would
+write for that plan, byte for byte. It writes to `--output` (relative to the current directory),
+else to standard output, which carries nothing else; it ignores `atBuildTime` and fails without
+`zip.notices`. `--product` narrows the plan, and so the notices, as for every stage.
+
+It exists so a release can check the file in instead of generating it in every build, with
+`zip.notices.atBuildTime: false`: a change to the notices then shows up as a change to a
+checked-in file, which someone reviews, rather than appearing in a release zip unnoticed. The
+checked-in file ships through `zip.files`, like any other file, and the duplicate-name check of
+step 4 doesn't apply. Its cost is staleness: it's only as current as its last generation, so it
+needs regenerating when the shipped frameworks or their licenses change. Firebase regenerates
+it daily with the `infra.zip_builder_notices` workflow, which opens a pull request when it
+changed. (`Commands/NoticesCommand.swift`)
 
 ## Verify
 
@@ -551,7 +568,10 @@ ignored. `release` passes the `.xcframework`s in `<work-dir>/xcframeworks/` only
 
 `diff` compares two distributions for pull request comments: folders, loose files, and frameworks
 added, removed or moved, and loose files both have whose contents changed (a directory, such as a
-bundle, by its files' contents). Per framework: slices, architectures, binary kind, headers,
+bundle, by its files' contents). A changed loose file that's text on both sides (valid UTF-8
+without NUL bytes) comes with its unified diff from the baseline to the candidate, from
+`diff -u` (three lines of context, labeled `a/<path>` and `b/<path>`); a binary or a directory
+is listed by name only. Per framework: slices, architectures, binary kind, headers,
 `Modules/` files, module maps (by trimmed lines), `CFBundleShortVersionString`, `MinimumOSVersion`
 and `CFBundleIdentifier`, resource bundles, and exported symbols; not signatures. Identical
 per-slice differences merge into one entry, and symbol lists keep exact counts but at most 20
@@ -569,15 +589,22 @@ text is the baseline's with every occurrence of the old version replaced by the 
 the bump, and isn't listed as changed. Any other change in it still lists it. Headers are compared
 by path, and `build.versionMacro` only changes binary contents, which `diff` doesn't compare.
 
-The Markdown shows at most 40 lines per framework and 100 items per layout section (changed loose
-files are one, listed as `~ <path>`), and drops sections past 60,000 bytes, under GitHub's
-65,536-character comment limit. `--format
-github-comment` is the same Markdown arranged as a comment: the `--title` line, then either
+The text report prints each changed file's diff under its name, indented, in full; JSON has it as
+`changedFiles[].diff` (no `diff` key for files without one). The Markdown shows at most 40 lines
+per framework and 100 items per layout section (changed loose files are one, listed as
+`~ <path>`). After the layout, each changed text file's diff gets a collapsed
+`<details><summary><path></summary>` with a `diff` code block, at most 300 lines, with a note
+for the rest; its fence is longer than any run of backticks in the diff, so a Markdown file's own
+fences can't end it. File diffs come before the frameworks: there are few loose files, and a
+change to one, such as the license notices, is easy to miss among framework details. Sections
+are added while they fit in 60,000 bytes, under GitHub's 65,536-character comment limit, and a
+note counts the file diffs and frameworks left out. `--format github-comment` is the same
+Markdown arranged as a comment: the `--title` line, then either
 "✅ The distributions match." or the summary (the release version and the table of counts) with
 the rest inside `<details>`; the 60,000 bytes include the title. `--title` also starts
 `--format markdown`; with `text` or `json` it's an error, so a missing title never goes
 unnoticed. The tool adds nothing PR-specific: the caller supplies the title.
-(`Inspecting/Diff.swift`, `Inspecting/RenderDiff.swift`)
+(`Inspecting/Diff.swift`, `Inspecting/ChangedFiles.swift`, `Inspecting/RenderDiff.swift`)
 
 ## Non-goals
 

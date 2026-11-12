@@ -105,7 +105,7 @@ struct UnknownKeysTests {
     "layout": { "privacyBundle": {}, "resourceBundles": {}, "infoPlist": {} },
     "zip": { "files": [], "externalArtifacts": [{ "to": ".", "url": "u", "subpath": "p",
                                                   "stripSignatures": true }],
-             "notices": { "file": "NOTICES", "extraLicenses": {} } },
+             "notices": { "file": "NOTICES", "atBuildTime": true, "extraLicenses": {} } },
     "verify": { "skipImports": [] }
     }
     """)

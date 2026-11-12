@@ -100,9 +100,10 @@ struct NoticesTests {
     try package.write("LICENSE", "\nApache\n")
     try package.write("Bin/LICENSE", "Vendor\n")
     try package.write("extra/A.txt", "Extra\n")
-    let text = try ZipBuilder.notices(licensedPlan(), notices(["A": ["extra/A.txt"]]),
-                                      packageRoot: package.root.path)
-    #expect(text == "A\n\nExtra\n\nA\nB\n\nApache\n\nBin\n\nVendor\n")
+    let notices = try ZipBuilder.notices(licensedPlan(), notices(["A": ["extra/A.txt"]]),
+                                         packageRoot: package.root.path)
+    #expect(notices.text == "A\n\nExtra\n\nA\nB\n\nApache\n\nBin\n\nVendor\n")
+    #expect(notices.entryCount == 3)
   }
 
   @Test func aMissingLicenseFileFails() throws {
@@ -151,6 +152,14 @@ struct NoticesTests {
     // Every fixture framework has a license; the test target never ships.
     #expect(with.warnings == [
       "zip.notices.extraLicenses: SwiftLibTests isn't a shipped framework or binary; skipped.",
+    ])
+    // Generating the file separately (`notices`) still checks the licenses while planning.
+    let separate = try await collectingWarnings {
+      try await MiniPackage.customizedPlan(#""zip": { "notices": { "atBuildTime": false, "#
+        + #""extraLicenses": { "Nope": ["LICENSE"] } } }"#)
+    }
+    #expect(separate.warnings == [
+      "zip.notices.extraLicenses: Nope isn't a shipped framework or binary; skipped.",
     ])
   }
 }
