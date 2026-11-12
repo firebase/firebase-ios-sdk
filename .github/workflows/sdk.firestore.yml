@@ -213,8 +213,13 @@ jobs:
         shell: bash
 
     steps:
-    - name: Enable Git long paths
-      run: git config --global core.longpaths true
+    # Check out with LF line endings: the runner's default core.autocrlf=true
+    # converts cmake/external/*.patch to CRLF, and those patches then fail to
+    # apply to the LF sources of the downloaded dependencies (e.g. snappy).
+    - name: Configure Git
+      run: |
+        git config --global core.longpaths true
+        git config --global core.autocrlf false
 
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       with:
