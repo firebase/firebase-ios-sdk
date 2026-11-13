@@ -213,6 +213,33 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  lt_start is a wall-clock time. The trigger must fire at that wall-clock time even when the
+ *  app has overridden the default time zone (for example, to UTC).
+ */
+- (void)testFutureStartTimeKeepsWallClockWithDefaultTimeZoneOverride {
+  NSTimeZone *originalDefault = [NSTimeZone defaultTimeZone];
+  // Override with a zone that differs from the system time zone.
+  NSString *overrideName = @"Pacific/Kiritimati";
+  if ([[NSTimeZone systemTimeZone].name isEqualToString:overrideName]) {
+    overrideName = @"America/Los_Angeles";
+  }
+  [NSTimeZone setDefaultTimeZone:[NSTimeZone timeZoneWithName:overrideName]];
+  NSDictionary *message = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"2999-01-15 09:00:00",
+    kMessageIdentifierKey : kMessageIdentifierValue,
+  };
+  BOOL handled = [FIRMessagingContextManagerService handleContextManagerMessage:message];
+  [NSTimeZone setDefaultTimeZone:originalDefault];
+
+  XCTAssertTrue(handled);
+  XCTAssertEqual(self.requests.count, 1);
+  UNCalendarNotificationTrigger *trigger =
+      (UNCalendarNotificationTrigger *)self.requests.firstObject.trigger;
+  XCTAssertEqual(trigger.dateComponents.hour, 9);
+  XCTAssertEqual(trigger.dateComponents.minute, 0);
+}
+
+/**
  *  Context Manager message with future start date should be successfully scheduled.
  */
 - (void)testMessageWithFutureStartTime {

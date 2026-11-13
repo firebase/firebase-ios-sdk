@@ -104,17 +104,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 + (BOOL)handleContextManagerLocalTimeMessage:(NSDictionary *)message {
   // The start time was already validated as a non-empty NSString by the caller.
   NSString *startTimeString = message[kFIRMessagingContextManagerLocalTimeStart];
-  static NSDateFormatter *dateFormatter;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    dateFormatter = [[NSDateFormatter alloc] init];
-    dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-    // The payload times are wall clock times in the device time zone reported at
-    // check-in, which is localTimeZone, so parse them in that zone instead of
-    // following a process-wide default time zone override.
-    dateFormatter.timeZone = [NSTimeZone localTimeZone];
-    [dateFormatter setDateFormat:kLocalTimeFormatString];
-  });
+  // Parse in the default time zone, which +[NSCalendar currentCalendar] also uses when
+  // scheduleLocalNotificationForMessage:atDate: builds the trigger, so the trigger keeps the
+  // payload's wall-clock time even if the app overrides the default time zone.
+  NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+  dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+  [dateFormatter setDateFormat:kLocalTimeFormatString];
   NSDate *startDate = [dateFormatter dateFromString:startTimeString];
   if (!startDate) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeContextManagerService002,
