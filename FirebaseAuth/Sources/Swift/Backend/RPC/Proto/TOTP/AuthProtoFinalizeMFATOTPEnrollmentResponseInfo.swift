@@ -33,12 +33,6 @@ struct AuthProtoStartMFATOTPEnrollmentResponseInfo {
     hashingAlgorithm = dictionary["hashingAlgorithm"] as? String
     periodSec = dictionary["periodSec"] as? Int ?? 0
     sessionInfo = dictionary["sessionInfo"] as? String
-    if let finalizeEnrollmentTime = dictionary["finalizeEnrollmentTime"] as? String {
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-      self.finalizeEnrollmentTime = dateFormatter.date(from: finalizeEnrollmentTime)
-    } else {
-      finalizeEnrollmentTime = nil
-    }
+    finalizeEnrollmentTime = AuthProtoTimestamp.date(from: dictionary["finalizeEnrollmentTime"])
   }
 }

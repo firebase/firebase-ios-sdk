@@ -42,6 +42,59 @@ class MFAResponseDecodingTests: RPCBaseTests {
     XCTAssertEqual(totpSessionInfo.sessionInfo, "SESSION")
   }
 
+  /** @fn testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime
+      @brief The TOTP enrollment deadline is decoded whether or not the timestamp has fractional
+          seconds. Protobuf timestamps in JSON have 0, 3, 6 or 9 fractional digits.
+   */
+  func testStartMFAEnrollmentResponseDecodesFinalizeEnrollmentTime() throws {
+    // 2026-11-09T14:40:00Z
+    let deadline: TimeInterval = 1_794_235_200
+    let expectedDeadlines: [(String, TimeInterval)] = [
+      ("2026-11-09T14:40:00Z", deadline),
+      ("2026-11-09T14:40:00.123Z", deadline + 0.123),
+      ("2026-11-09T14:40:00.123456Z", deadline + 0.123),
+      ("2026-11-09T14:40:00.123456789Z", deadline + 0.123),
+    ]
+    for (finalizeEnrollmentTime, expectedDeadline) in expectedDeadlines {
+      let response = try StartMFAEnrollmentResponse(dictionary: [
+        "totpSessionInfo": [
+          "sharedSecretKey": "SECRET",
+          "finalizeEnrollmentTime": finalizeEnrollmentTime,
+        ] as [String: AnyHashable],
+      ])
+      let totpSessionInfo = try XCTUnwrap(response.totpSessionInfo)
+      let date = try XCTUnwrap(totpSessionInfo.finalizeEnrollmentTime, finalizeEnrollmentTime)
+      XCTAssertEqual(date.timeIntervalSince1970, expectedDeadline, accuracy: 0.001,
+                     finalizeEnrollmentTime)
+    }
+  }
+
+  /** @fn testStartMFAEnrollmentResponseWithInvalidFinalizeEnrollmentTime
+      @brief A TOTP enrollment deadline that isn't an RFC 3339 timestamp is decoded as `nil`, and
+          the rest of the TOTP session info is still decoded.
+   */
+  func testStartMFAEnrollmentResponseWithInvalidFinalizeEnrollmentTime() throws {
+    let finalizeEnrollmentTimes: [AnyHashable] = [
+      "",
+      "not a date",
+      "2026-11-09", // No time.
+      "2026-11-09T14:40:00", // No time zone.
+      1_794_235_200, // Not a string.
+      NSNull(),
+    ]
+    for finalizeEnrollmentTime in finalizeEnrollmentTimes {
+      let response = try StartMFAEnrollmentResponse(dictionary: [
+        "totpSessionInfo": [
+          "sharedSecretKey": "SECRET",
+          "finalizeEnrollmentTime": finalizeEnrollmentTime,
+        ] as [String: AnyHashable],
+      ])
+      let totpSessionInfo = try XCTUnwrap(response.totpSessionInfo)
+      XCTAssertEqual(totpSessionInfo.sharedSecretKey, "SECRET")
+      XCTAssertNil(totpSessionInfo.finalizeEnrollmentTime, "\(finalizeEnrollmentTime)")
+    }
+  }
+
   /** @fn testStartMFAEnrollmentResponseWithoutSharedSecretKeyThrows
       @brief A TOTP session info whose shared secret key is missing or isn't a string is rejected
           with an error instead of crashing.
@@ -128,6 +181,42 @@ class MFAResponseDecodingTests: RPCBaseTests {
         )
         XCTAssertEqual(resolver.hints.map(\.uid), ["phone-id", "totp-id"])
       }
+    }
+
+    /** @fn testGenerateSecretExposesTOTPEnrollmentParameters
+        @brief The secret from `TOTPMultiFactorGenerator.generateSecret(with:)` exposes the hashing
+            algorithm, code length, code interval and enrollment deadline from the response.
+     */
+    func testGenerateSecretExposesTOTPEnrollmentParameters() async throws {
+      let auth = try XCTUnwrap(auth)
+      let tokenService = SecureTokenService(withRequestConfiguration: nil,
+                                            accessToken: RPCBaseTests.kFakeAccessToken,
+                                            accessTokenExpirationDate: Date.distantFuture,
+                                            refreshToken: kRefreshToken)
+      let user = User(withTokenService: tokenService, backend: authBackend)
+      user.auth = auth
+      rpcIssuer.respondBlock = {
+        XCTAssertTrue(self.rpcIssuer.request is StartMFAEnrollmentRequest)
+        return try self.rpcIssuer.respond(withJSON: [
+          "totpSessionInfo": [
+            "sharedSecretKey": "SECRET",
+            "verificationCodeLength": 6,
+            "hashingAlgorithm": "SHA1",
+            "periodSec": 30,
+            "sessionInfo": "SESSION",
+            "finalizeEnrollmentTime": "2026-11-09T14:40:00.123456Z",
+          ] as [String: AnyHashable],
+        ])
+      }
+      let session = MultiFactorSession.session(for: user)
+      let secret = try await TOTPMultiFactorGenerator.generateSecret(with: session)
+      XCTAssertEqual(secret.sharedSecretKey(), "SECRET")
+      XCTAssertEqual(secret.hashingAlgorithm, "SHA1")
+      XCTAssertEqual(secret.codeLength, 6)
+      XCTAssertEqual(secret.codeIntervalSeconds, 30)
+      // 2026-11-09T14:40:00.123456Z, to the millisecond.
+      let deadline = try XCTUnwrap(secret.enrollmentCompletionDeadline)
+      XCTAssertEqual(deadline.timeIntervalSince1970, 1_794_235_200.123, accuracy: 0.001)
     }
   #endif
 }
