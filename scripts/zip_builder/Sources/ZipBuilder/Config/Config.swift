@@ -114,8 +114,12 @@ struct Config: Codable, Equatable, Sendable {
   }
 
   /// The third-party license notices file written at the zip root (see `Packaging/Notices.swift`).
+  /// The `notices` command writes the same file whatever `atBuildTime` says.
   struct Notices: Codable, Equatable, Sendable {
     @Default<DefaultNoticesFile> var file: String // its file name
+    /// Whether `makeZip` writes the file. When false, the release generates it separately with
+    /// the `notices` command and ships it through `zip.files`.
+    @Default<True> var atBuildTime: Bool
     /// Framework or binary name to package-root-relative license files, added to those planning
     /// found: for packages without a license file, or whose license file lacks the full text.
     @Default<Empty<[String: [Path]]>> var extraLicenses: [String: [Path]]

@@ -50,10 +50,12 @@ flowchart LR
 4. **buildXCFrameworks** generates an `.xcodeproj` from the plan, archives it once per
    destination, and creates the `.xcframework`s. Unchanged frameworks come from the cache.
 5. **makeZip** lays out the folders, adds extra files, writes `METADATA.md` and the license
-   notices (`NOTICES`, from the licenses `makePlan` found), signs, and zips.
+   notices (`NOTICES`, from the licenses `makePlan` found; or the `notices` command writes them
+   ahead of time, to check in and ship as an extra file), signs, and zips.
 
 `verify` checks that a finished distribution links, imports and is complete; `diff` compares two,
-including the contents of loose files such as `NOTICES`.
+including the contents of loose files: changed text files such as `NOTICES` come with a line
+diff.
 
 `plan.json` holds every decision: the stages after it only carry it out. To find out why the zip
 looks the way it does, read the plan. The rules for _how_ the zip gets constructed are in
@@ -70,9 +72,10 @@ looks the way it does, read the plan. The rules for _how_ the zip gets construct
 | `release` | Executes the full pipeline (plan->project->build->package), and then runs `verify` |
 | `verify <distribution>` | Performs some quality checks on a packaged `.zip`, to avoid potentional issues |
 | `diff <baseline> <candidate>` | Compares two packaged `.zip` files, and shows what has been added or removed |
+| `notices` | Writes the license notices file (`zip.notices`) on its own, to standard output or `--output` |
 | `carthage [<distribution>]` | Packages a finished, unsigned distribution for Carthage: one archive per folder, plus updated binary specs (see [Carthage](docs/how-it-works.md#carthage)) |
 
-Shared options (for the 4 main stages, `release` and `carthage`):
+Shared options (for the 4 main stages, `release`, `notices` and `carthage`):
 
 - `--package-path`: directory containing the `Package.swift` file (default `.`)
 - `--config`: path to config file (default `<package-path>/zip_builder.jsonc`, else `zip_builder.json`)
@@ -86,7 +89,7 @@ Shared options (for the 4 main stages, `release` and `carthage`):
 - `-q`/`--quiet`: only warnings and errors get logged
 - `-v`/`--verbose`: include debug logs
 
-Logs go to stderr; stdout only carries the `verify` and `diff` reports.
+Logs go to stderr; stdout only carries the `verify` and `diff` reports, and the `notices` text.
 
 Stage options:
 
@@ -103,7 +106,11 @@ Stage options:
   `markdown` and `github-comment`; an error with the others), `--output <file>`, `--no-symbols`
   (skips the slow symbol comparison) and `--exit-code` (exits 1 on differences, after writing the
   report). `github-comment` is a PR comment: the title, then a match line, or the summary with the
-  details collapsed.
+  details collapsed. Changed text files get a unified diff: in full in `text`, as `diff` in
+  `json`, and in a collapsed block of at most 300 lines each in the Markdown formats.
+- `notices`: `--output <file>` (relative to the current directory; without it, the text goes to
+  stdout). It fails when the config has no `zip.notices`, and writes the file whatever
+  `zip.notices.atBuildTime` says. `--product` limits the notices to that product's frameworks.
 - `carthage`: the distribution (a directory or a zip; default `<work-dir>/dist/<release.name>`),
   `--output <dir>` (default `<work-dir>/carthage`; writes `<dir>/<version>/`) and `--cache-dir`
   (for its extra build). It takes the shared options except `--product` and
@@ -119,7 +126,8 @@ For example, you can call `project` directly with the `--plan` argument to pass 
 generated `plan.json` file. If you _don't_ pass in a plan, then the CLI will automatically generate
 one for you.
 
-- `--plan <path>`: path to a `plan.json` file (supported by `project`, `build`, and `package`).
+- `--plan <path>`: path to a `plan.json` file (supported by `project`, `build`, `package` and
+  `notices`).
 - `--project <path>`: path to an `.xcodeproj` file (supported by `build` and `package`).
 - `--xcframeworks <dir>`: directory of `.xcframework` files (supported by `package`).
 
@@ -170,6 +178,17 @@ directories, then diff them. On pull requests, [CI does this](#CI) and comments 
 # … make the change …
 ./scripts/zip_builder.sh release --work-dir /tmp/after
 ./scripts/zip_builder.sh diff /tmp/before/dist/Firebase /tmp/after/dist/Firebase
+```
+
+**Regenerate the license notices.** Firebase's zip ships the checked-in
+`CoreOnly/licenses/NOTICES` (`zip.notices.atBuildTime` is `false`), which the daily
+`infra.zip_builder_notices` workflow keeps current. To update it by hand, for example after
+adding a dependency, write it again; it plans, but builds nothing. `diff` on two
+releases shows any change to it line by line.
+
+```bash
+VERSION="$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"
+./scripts/zip_builder.sh notices --version "$VERSION" --output CoreOnly/licenses/NOTICES
 ```
 
 **Force a clean build.** Pass a fresh cache, and delete the work directory to drop Xcode's derived
@@ -274,6 +293,9 @@ one `<folder>Binary.json` per folder).
   [`pr_comment`](/.github/actions/pr_comment) action posts.
 - [`.github/workflows/infra.zip_quickstart.yml`](/.github/workflows/infra.zip_quickstart.yml): builds the zip and runs the quickstart samples
   against it.
+- [`.github/workflows/infra.zip_builder_notices.yml`](/.github/workflows/infra.zip_builder_notices.yml):
+  daily, regenerates `CoreOnly/licenses/NOTICES` with `notices`, and opens a pull request when
+  it changed.
 - [`.github/workflows/release.zip_builder.yml`](/.github/workflows/release.zip_builder.yml): builds the
   release zip and, for the static linkage, its Carthage distribution, alongside
   [`release.zip.yml`](/.github/workflows/release.zip.yml), which builds both with the
@@ -301,7 +323,9 @@ The static run then runs `carthage` on the same work directory and version, and 
 `Firebase-release-zip-builder-carthage`; its extra build uses the same empty cache directory, so
 it's compiled by that run too. `release.zip.yml` still builds the Carthage distribution with the
 legacy tool as well. `plan.json` and the build logs, the extra build's included, are uploaded as a
-`-logs` artifact.
+`-logs` artifact. Its `NOTICES` is the branch's checked-in `CoreOnly/licenses/NOTICES`, not
+generated by the run: if the daily notices pull request hasn't landed on the branch,
+[regenerate it](#common-tasks) there first.
 
 Direct dependencies are pinned to exact commits in `Package.swift`, `Package.resolved` (committed)
 pins the transitive ones, and both CI and `scripts/zip_builder.sh` build with

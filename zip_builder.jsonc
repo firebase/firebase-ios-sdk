@@ -161,6 +161,8 @@
         "files": [
           // The legacy zip's README; it moves here when ReleaseTooling is retired.
           "ReleaseTooling/Template/README.md",
+          // Generated from zip.notices below; see its comment.
+          "CoreOnly/licenses/NOTICES",
           "CoreOnly/Sources/Firebase.h",
           "CoreOnly/Sources/module.modulemap"
         ]
@@ -174,6 +176,10 @@
       }
     ],
     "notices": {
+      // Generated separately and checked in: the daily infra.zip_builder_notices workflow runs
+      // `zip-builder notices --output CoreOnly/licenses/NOTICES` and opens a PR when it changes,
+      // and zip.files above copies it. These settings apply to that command.
+      "atBuildTime": false,
       // Licenses missing from the packages: BoringSSL ships inside openssl_grpc with no license
       // file, and grpc-binary's LICENSE lacks gRPC's full third-party text.
       "extraLicenses": {

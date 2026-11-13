@@ -20,10 +20,12 @@ import Foundation
 // See docs/how-it-works.md#licenses.
 
 /// The text of the notices file: the license texts of every framework and binary the zip ships
-/// (`Framework.licenses`, `Binary.licenses`, plus `config.extraLicenses`). Fails when a license
-/// file can't be read, or when an `extraLicenses` path doesn't exist, even one for something
-/// this plan doesn't ship, so a typo shows up in a `--product` build too.
-func notices(_ plan: Plan, _ config: Config.Notices, packageRoot: Path) throws -> String {
+/// (`Framework.licenses`, `Binary.licenses`, plus `config.extraLicenses`), and how many entries
+/// (distinct license texts) it has. `makeZip` and the `notices` command both write this text.
+/// Fails when a license file can't be read, or when an `extraLicenses` path doesn't exist, even
+/// one for something this plan doesn't ship, so a typo shows up in a `--product` build too.
+func notices(_ plan: Plan, _ config: Config.Notices,
+             packageRoot: Path) throws -> (text: String, entryCount: Int) {
   for (name, paths) in config.extraLicenses.sorted(by: { $0.key < $1.key }) {
     for path in paths where !FileManager.default.fileExists(atPath: fullPath(path, packageRoot)) {
       throw ZipBuilderError(
@@ -43,7 +45,8 @@ func notices(_ plan: Plan, _ config: Config.Notices, packageRoot: Path) throws -
         return text
       }
     }
-  return renderNotices(licenseTexts)
+  let entries = noticeEntries(licenseTexts)
+  return (render(entries), entries.count)
 }
 
 /// Renders the notices file from each shipped item's license texts, by its name in the zip.
@@ -54,6 +57,15 @@ func notices(_ plan: Plan, _ config: Config.Notices, packageRoot: Path) throws -
 /// trimmed and ends with one newline. That's the layout of the notices file earlier releases
 /// shipped.
 func renderNotices(_ licenseTexts: [String: [String]]) -> String {
+  render(noticeEntries(licenseTexts))
+}
+
+/// One entry of the notices file: the names of the items under it, one per line, and the
+/// license text they share.
+private typealias NoticeEntry = (titles: String, text: String)
+
+/// The notices file's entries, in order (see `renderNotices`).
+private func noticeEntries(_ licenseTexts: [String: [String]]) -> [NoticeEntry] {
   var namesByText: [String: [String]] = [:]
   for (name, texts) in licenseTexts {
     // Copies of one license often differ only in a leading blank line or a trailing newline.
@@ -62,11 +74,14 @@ func renderNotices(_ licenseTexts: [String: [String]]) -> String {
       namesByText[text, default: []].append(name)
     }
   }
-  let entries = namesByText
+  return namesByText
     .map { text, names in (titles: names.sorted().joined(separator: "\n"), text: text) }
     // Two entries can't have the same titles and text; the text only orders an item with
     // several licenses whose entries have no other titles.
     .sorted { ($0.titles, $0.text) < ($1.titles, $1.text) }
+}
+
+private func render(_ entries: [NoticeEntry]) -> String {
   let body = entries.map { "\($0.titles)\n\n\($0.text)\n\n" }.joined()
   return body.trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
 }

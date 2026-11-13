@@ -240,16 +240,18 @@ The new zip builder doesn't use any of the tooling below, but the legacy CocoaPo
 
 ### NOTICES
 
-The new zip builder generates `NOTICES` from the package graph (`zip.notices` in
-[`zip_builder.jsonc`](/zip_builder.jsonc); the licenses packages lack are in
-[`CoreOnly/licenses/`](/CoreOnly/licenses)). The legacy zip copies a checked-in file that a daily
-CocoaPods job regenerates:
+The new zip builder's `NOTICES` comes from the package graph: the daily
+[`infra.zip_builder_notices.yml`](/.github/workflows/infra.zip_builder_notices.yml) runs
+`zip-builder notices` (with `zip.notices` in [`zip_builder.jsonc`](/zip_builder.jsonc)) to update
+[`CoreOnly/licenses/NOTICES`](/CoreOnly/licenses/NOTICES), and opens a PR when it changes; the
+licenses packages lack are next to it in [`CoreOnly/licenses/`](/CoreOnly/licenses). The legacy zip
+copies a different checked-in file that a daily CocoaPods job regenerates:
 
 | Tooling | What it does | Remove |
 |---|---|---|
 | [`infra.notice_generation.yml`](/.github/workflows/infra.notice_generation.yml) | Daily: regenerates `CoreOnly/NOTICES` with CocoaPods and opens a PR | The workflow |
 | [`.github/actions/notices_generation/`](/.github/actions/notices_generation) | The Ruby action it runs: `pod install`, then the acknowledgements plist, deduplicated by license | The directory |
-| [`scripts/create_pull_request.rb`](/scripts/create_pull_request.rb) | Opens the PR; only that workflow uses it | The script |
+| [`scripts/create_pull_request.rb`](/scripts/create_pull_request.rb) | Opens the PR | Nothing: `infra.zip_builder_notices.yml` uses it too |
 | [`CoreOnly/NOTICES`](/CoreOnly/NOTICES) | The generated file the legacy zip ships | The file |
 | [`Firebase.podspec`](/Firebase.podspec) | Lists `CoreOnly/NOTICES` in `preserve_paths`, which is how the legacy zip finds it | The entry |
 | [`ReleaseTooling` `manifest --for-notices-generation`](/ReleaseTooling/Sources/ManifestParser/main.swift) | Lists the releasing pods for the workflow | The option (and `podspecs-tester`, if [`infra.spec_testing.yml`](/.github/workflows/infra.spec_testing.yml) is gone too) |

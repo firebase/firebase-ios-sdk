@@ -23,6 +23,7 @@ struct ZipBuilderCommand: AsyncParsableCommand {
     commandName: "zip-builder",
     abstract: "Build a release zip of .xcframeworks from a Swift package.",
     subcommands: [PlanCommand.self, ProjectCommand.self, BuildCommand.self, PackageCommand.self,
-                  ReleaseCommand.self, VerifyCommand.self, DiffCommand.self, CarthageCommand.self]
+                  ReleaseCommand.self, VerifyCommand.self, DiffCommand.self, NoticesCommand.self,
+                  CarthageCommand.self]
   )
 }

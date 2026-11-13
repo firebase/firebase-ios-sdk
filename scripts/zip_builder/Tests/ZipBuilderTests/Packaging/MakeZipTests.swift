@@ -157,6 +157,13 @@ struct MakeZipTests {
                           signingIdentity: nil, version: "1.2.3")
     #expect(layout(of: root).filter { !$0.contains("/") }
       == ["Base", "METADATA.md", "Other", "README.md"])
+    // Nor when it's generated separately (`notices`).
+    _ = try await makeZip(xcframeworks: fixture.xcframeworks, plan: plan,
+                          config: config(#", "zip": { "notices": { "atBuildTime": false } }"#),
+                          packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                          signingIdentity: nil, version: "1.2.3")
+    #expect(layout(of: root).filter { !$0.contains("/") }
+      == ["Base", "METADATA.md", "Other", "README.md"])
   }
 
   @Test func noticesDontReplaceAZipFile() async throws {
@@ -170,6 +177,15 @@ struct MakeZipTests {
     }
     #expect(error?.description.contains("zip.notices: NOTICES is already in the distribution")
       == true)
+
+    // Generated separately, the notices are that `zip.files` entry, copied as is.
+    _ = try await makeZip(xcframeworks: fixture.xcframeworks, plan: ZipFixture.plan,
+                          config: config(#", "zip": { "notices": { "atBuildTime": false } }"#),
+                          packageRoot: fixture.packageRoot, workDir: fixture.workDir,
+                          signingIdentity: nil, version: "1.2.3")
+    let root = try distributionRoot(workDir: fixture.workDir, config: config())
+    #expect(try String(contentsOf: root.appendingPathComponent("NOTICES"), encoding: .utf8)
+      == "notices")
   }
 
   @Test func aMissingXCFrameworkIsAnError() async throws {

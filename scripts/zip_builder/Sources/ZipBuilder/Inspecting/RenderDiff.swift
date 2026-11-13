@@ -22,6 +22,10 @@ let markdownLinesPerFramework = 40
 /// How many items each Markdown layout section (folders, frameworks, moves, loose files) lists.
 let markdownLayoutItemsPerSection = 100
 
+/// How many lines of a changed loose file's diff the Markdown shows. Enough for a typical
+/// license change in the notices, while one file can't take the whole comment.
+let markdownLinesPerFileDiff = 300
+
 /// A difference as a heading line and its detail lines.
 func describe(_ difference: Difference) -> (heading: String, lines: [String]) {
   let slices = difference.slices.isEmpty ? "" : " [\(difference.slices.joined(separator: ", "))]"
@@ -45,8 +49,10 @@ private func frameworkLines(_ framework: FrameworkDiff) -> [String] {
   }
 }
 
-/// Folder, framework and loose-file changes, as list lines.
-private func layoutLines(_ report: DiffReport, limit: Int = .max) -> [String] {
+/// Folder, framework and loose-file changes, as list lines. With `diffs`, each changed text
+/// file's diff follows its line, indented.
+private func layoutLines(_ report: DiffReport, limit: Int = .max,
+                         diffs: Bool = false) -> [String] {
   var lines: [String] = []
   func list(_ items: [String]) {
     lines += items.prefix(limit)
@@ -70,7 +76,24 @@ private func layoutLines(_ report: DiffReport, limit: Int = .max) -> [String] {
   section("Loose files", report.files)
   if !report.changedFiles.isEmpty {
     lines.append("Changed loose files: \(report.changedFiles.count)")
-    list(report.changedFiles.map { "  ~ " + $0 })
+    if diffs {
+      for file in report.changedFiles {
+        lines.append("  ~ " + file.path)
+        lines += diffLines(file.diff).map { "    " + $0 }
+      }
+    } else {
+      list(report.changedFiles.map { "  ~ " + $0.path })
+    }
+  }
+  return lines
+}
+
+/// A unified diff's lines, without the empty one after its final newline.
+private func diffLines(_ diff: String?) -> [String] {
+  guard let diff, !diff.isEmpty else { return [] }
+  var lines = diff.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+  if lines.last == "" {
+    lines.removeLast()
   }
   return lines
 }
@@ -86,7 +109,7 @@ func renderText(_ report: DiffReport) -> String {
     lines.append("Release version: \(version.from) → \(version.to) "
       + "(\(frameworkCount(version.frameworks)))")
   }
-  lines += layoutLines(report)
+  lines += layoutLines(report, diffs: true)
   if !report.changed.isEmpty {
     lines.append("Changed frameworks: \(report.changed.count)")
     for framework in report.changed {
@@ -165,7 +188,8 @@ private func markdownSummary(_ report: DiffReport) -> String {
   return text + "| Change | Count |\n|---|---:|\n" + rows.map { "| \($0.0) | \($0.1) |\n" }.joined()
 }
 
-/// The layout changes, then one collapsible section per changed framework, each at most
+/// The layout changes, then one collapsible section per changed text file's diff, each at most
+/// `markdownLinesPerFileDiff` lines, then one per changed framework, each at most
 /// `markdownLinesPerFramework` lines, while they fit in `limit` bytes.
 private func markdownDetails(_ report: DiffReport, limit: Int) -> String {
   var text = ""
@@ -173,22 +197,71 @@ private func markdownDetails(_ report: DiffReport, limit: Int) -> String {
   if !layout.isEmpty {
     text += "\n```text\n" + layout.joined(separator: "\n") + "\n```\n"
   }
-  if !report.changed.isEmpty {
-    text += "\n### Changed frameworks\n\n"
+
+  // File diffs come first: there are few loose files, and a change to one (the license
+  // notices) is easy to miss among framework details. Each heading goes with its first
+  // section, so it's left out when nothing under it fits.
+  var fileSections = report.changedFiles.compactMap { file in
+    file.diff.map { markdownSection(path: file.path, diff: $0) }
+  }
+  if !fileSections.isEmpty {
+    fileSections[0] = "\n### Changed loose files\n\n" + fileSections[0]
+  }
+  var frameworkSections = report.changed.map(markdownSection)
+  if !frameworkSections.isEmpty {
+    frameworkSections[0] = "\n### Changed frameworks\n\n" + frameworkSections[0]
   }
 
   // Adds sections until the next one wouldn't fit. The note's room is always kept, even for the
   // last section.
-  for (index, framework) in report.changed.enumerated() {
-    let section = markdownSection(framework)
-    let note = "\n_\(report.changed.count - index) more changed frameworks are not shown, to stay "
-      + "under GitHub's comment size limit. Run `diff --format text` for the full report._\n"
+  let sections = fileSections + frameworkSections
+  for (index, section) in sections.enumerated() {
+    let note = omittedSectionsNote(files: max(fileSections.count - index, 0),
+                                   frameworks: min(frameworkSections.count,
+                                                   sections.count - index))
     guard text.utf8.count + section.utf8.count + note.utf8.count <= limit else {
       return text + note
     }
     text += section
   }
   return text
+}
+
+/// The note for the sections that didn't fit, naming how many of each kind are left out.
+private func omittedSectionsNote(files: Int, frameworks: Int) -> String {
+  let counts = [(files, "loose file diffs"), (frameworks, "changed frameworks")]
+  let omitted = counts.filter { $0.0 > 0 }.map { "\($0.0) more \($0.1)" }
+  return "\n_\(omitted.joined(separator: " and ")) are not shown, to stay under GitHub's "
+    + "comment size limit. Run `diff --format text` for the full report._\n"
+}
+
+/// A collapsible section holding a changed file's diff, at most `markdownLinesPerFileDiff`
+/// lines.
+private func markdownSection(path: String, diff: String) -> String {
+  var lines = diffLines(diff)
+  if lines.count > markdownLinesPerFileDiff {
+    let hidden = lines.count - markdownLinesPerFileDiff
+    lines = Array(lines.prefix(markdownLinesPerFileDiff))
+    lines.append("… \(hidden) more lines in the text report")
+  }
+  // A fence longer than any run of backticks in the diff, so a Markdown file's own fences
+  // (context lines start with a space, which a closing fence allows) can't end the block.
+  let fence = String(repeating: "`", count: max(3, longestBacktickRun(in: lines) + 1))
+  return "<details><summary>\(path)</summary>\n\n\(fence)diff\n"
+    + lines.joined(separator: "\n") + "\n\(fence)\n\n</details>\n"
+}
+
+/// The length of the longest run of consecutive backticks in `lines`.
+private func longestBacktickRun(in lines: [String]) -> Int {
+  var longest = 0
+  for line in lines {
+    var run = 0
+    for character in line {
+      run = character == "`" ? run + 1 : 0
+      longest = max(longest, run)
+    }
+  }
+  return longest
 }
 
 /// A collapsible section: the difference titles as its summary, then at most
