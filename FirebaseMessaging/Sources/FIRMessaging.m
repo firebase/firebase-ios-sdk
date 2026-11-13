@@ -318,7 +318,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)setupRmqManager {
   self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
-  [self.rmq2Manager loadRmqId];
 }
 
 - (void)setupTopics {
@@ -350,8 +349,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   BOOL isOldMessage = NO;
   NSString *messageID = message[kFIRMessagingMessageIDKey];
   if (messageID.length) {
-    [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
-
     BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];

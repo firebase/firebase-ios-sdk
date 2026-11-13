@@ -93,18 +93,22 @@ import Foundation
     /// Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
     private let secretKey: String
 
-    /// Hashing algorithm used.
-    private let hashingAlgorithm: String?
+    /// The hashing algorithm used to generate the one-time passwords, for example `"SHA1"`, or
+    /// `nil` if the server didn't return one.
+    @objc public let hashingAlgorithm: String?
 
-    /// Length of the one-time passwords to be generated.
-    private let codeLength: Int
+    /// The number of digits in each one-time password, or `0` if the server didn't return it.
+    @objc public let codeLength: Int
 
-    /// The interval (in seconds) when the OTP codes should change.
-    private let codeIntervalSeconds: Int
+    /// The interval, in seconds, after which the one-time password changes, or `0` if the server
+    /// didn't return it.
+    @objc public let codeIntervalSeconds: Int
 
-    /// The timestamp by which TOTP enrollment should be completed. This can be used by callers to
-    /// show a countdown of when to enter OTP code by.
-    private let enrollmentCompletionDeadline: Date?
+    /// The time by which enrollment must be completed with a one-time password, or `nil` if the
+    /// server didn't return one or it couldn't be parsed.
+    ///
+    /// This can be used to show a countdown of when to enter the one-time password.
+    @objc public let enrollmentCompletionDeadline: Date?
 
     /// Additional session information.
     let sessionInfo: String?

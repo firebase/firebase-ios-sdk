@@ -480,6 +480,11 @@ enum FunctionsConstants {
 
         do {
           for try await line in stream.lines {
+            // SSE comment lines (e.g. the server's `: ping` heartbeat) and blank
+            // event separators carry no data and must be ignored.
+            if line.isEmpty || line.hasPrefix(":") {
+              continue
+            }
             guard line.hasPrefix("data:") else {
               continuation.finish(
                 throwing: FunctionsError(

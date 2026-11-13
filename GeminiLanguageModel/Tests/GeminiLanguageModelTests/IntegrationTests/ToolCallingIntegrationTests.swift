@@ -12,11 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
   import Foundation
-  import FoundationModels
+  #if FoundationModelsFake
+    import FoundationModelsFake
+  #else
+    import FoundationModels
+  #endif
   import GeminiAPIClient
   import GeminiTestUtilities
+  import Synchronization
   import Testing
 
   @testable import GeminiLanguageModel
@@ -25,13 +30,15 @@
   @Suite(
     "Tool Calling Integration Tests",
     .requireFoundationModels,
-    .tags(.integration)
+    .tags(.integration),
+    // Fails runaway tool-call loops instead of hanging until the request times out.
+    .timeLimit(.minutes(2))
   )
   struct ToolCallingIntegrationTests {
     /// A tool that provides mock weather information for a given city.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
-    struct WeatherTool: FoundationModels.Tool {
+    struct WeatherTool: FoundationModelsTool {
       let name = "getWeather"
       let description = "Get the current weather for a city."
 
@@ -51,7 +58,7 @@
     /// A tool that provides the current time and takes no arguments.
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     @available(tvOS, unavailable)
-    struct CurrentTimeTool: FoundationModels.Tool {
+    struct CurrentTimeTool: FoundationModelsTool {
       let name = "getCurrentTime"
       let description = "Get the current time."
 
@@ -115,6 +122,11 @@
         return false
       }
       #expect(hasToolOutput)
+      let hasReasoning = session.transcript.contains { entry in
+        if case .reasoning = entry { return true }
+        return false
+      }
+      #expect(hasReasoning, "Expected the tool call's thought signature in a reasoning entry.")
       #expect(response.usage.totalTokenCount > 0)
     }
 
@@ -236,36 +248,6 @@
       arguments: IntegrationTestingBackend.availableBackends
     )
     @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
-    func sessionRespondWithReasoningAndToolCalls(
-      backend: IntegrationTestingBackend
-    ) async throws {
-      let model = try await backend.makeModel(modelID: ModelResource.gemini38FlashID)
-      let session = LanguageModelSession(
-        model: model,
-        tools: [WeatherTool()]
-      )
-
-      let response = try await session.respond(
-        to: "What is the weather in Chicago?"
-      )
-
-      #expect(!response.content.isEmpty)
-      let containsChicagoOrTemp =
-        response.content.localizedCaseInsensitiveContains("Chicago")
-        || response.content.contains("22")
-      #expect(containsChicagoOrTemp)
-      let hasToolCalls = session.transcript.contains { entry in
-        if case .toolCalls = entry { return true }
-        return false
-      }
-      #expect(hasToolCalls)
-    }
-
-    @Test(
-      .requireIntegrationTestingBackend,
-      arguments: IntegrationTestingBackend.availableBackends
-    )
-    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
     func sessionRespondToolCallAndGuidedGeneration(backend: IntegrationTestingBackend) async throws
     {
       let model = try await backend.makeModel()
@@ -293,5 +275,72 @@
       #expect(hasToolOutput)
       #expect(response.usage.totalTokenCount > 0)
     }
+
+    /// A weather tool that counts how many times the model calls it.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct CountingWeatherTool: FoundationModelsTool {
+      /// A call counter that all copies of the tool share.
+      final class CallCounter: Sendable {
+        /// The number of calls so far.
+        let count = Mutex(0)
+      }
+
+      let name = "getWeather"
+      let description = "Get the current weather for a city."
+
+      /// The counter of calls to the tool, shared by all copies of the tool.
+      private let counter = CallCounter()
+
+      /// The number of times the model has called the tool.
+      var callCount: Int { counter.count.withLock { $0 } }
+
+      @Generable
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      @available(tvOS, unavailable)
+      struct Arguments {
+        @Guide(description: "The city name to look up weather for")
+        var city: String
+      }
+
+      func call(arguments: Arguments) async throws -> String {
+        counter.count.withLock { $0 += 1 }
+        return "The current weather in \(arguments.city) is 22°C and sunny."
+      }
+    }
+
+    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondRequiredToolCallingStopsAtToolCallingTurnLimit(
+      backend: IntegrationTestingBackend
+    ) async throws {
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
+      let model = try await backend.makeModel()
+      let tool = CountingWeatherTool()
+      let session = LanguageModelSession(model: model, tools: [tool])
+      // Keeps the tool calls in the transcript if Gemini calls a tool after the limit.
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+
+      // With `required`, the model calls a tool in every response until the limit is reached.
+      do {
+        let response = try await session.respond(
+          to: "What is the weather in Paris right now?",
+          options: GenerationOptions(toolCallingMode: .required)
+        )
+        #expect(!response.content.isEmpty)
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        // Gemini sometimes calls a tool after being told not to, which ends the turn with this
+        // error instead of a response.
+        #expect(invalidResponse.debugDescription.contains("tool-calling turns per prompt"))
+      }
+
+      let toolCallingTurnCount = session.transcript.filter { entry in
+        guard case .toolCalls(let toolCalls) = entry else { return false }
+        return !toolCalls.isEmpty
+      }.count
+      #expect(toolCallingTurnCount == maximumTurns)
+      // A tool-calling turn can call the tool more than once.
+      #expect(tool.callCount >= maximumTurns)
+    }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

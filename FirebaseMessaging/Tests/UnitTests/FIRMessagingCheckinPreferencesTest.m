@@ -84,4 +84,77 @@ static NSString *const kSecretToken = @"567890";
   XCTAssertFalse([checkin hasValidCheckinInfo]);
 }
 
+- (void)testUpdateWithCheckinPlistContentsDropsNonStringValues {
+  int64_t now = FIRMessagingCurrentTimestampInMilliseconds();
+  NSArray *invalidValues = @[ @123, @{@"version" : @"1.0"}, [NSNull null] ];
+  for (id invalidValue in invalidValues) {
+    FIRMessagingCheckinPreferences *checkin =
+        [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kDeviceAuthId
+                                                     secretToken:kSecretToken];
+    [checkin updateWithCheckinPlistContents:@{
+      kFIRMessagingVersionInfoStringKey : invalidValue,
+      kFIRMessagingDigestStringKey : invalidValue,
+      kFIRMessagingDeviceDataVersionKey : invalidValue,
+      kFIRMessagingLastCheckinTimeKey : @(now),
+      kFIRMessagingGServicesDictionaryKey : @{@"name" : @"value"},
+    }];
+
+    XCTAssertNil(checkin.versionInfo, @"%@", invalidValue);
+    XCTAssertNil(checkin.digest, @"%@", invalidValue);
+    XCTAssertNil(checkin.deviceDataVersion, @"%@", invalidValue);
+    XCTAssertEqual(checkin.lastCheckinTimestampMillis, now, @"%@", invalidValue);
+    XCTAssertTrue([checkin hasCheckinInfo], @"%@", invalidValue);
+    NSDictionary *plistContents = [checkin checkinPlistContents];
+    XCTAssertEqualObjects(plistContents[kFIRMessagingVersionInfoStringKey], @"", @"%@",
+                          invalidValue);
+    XCTAssertEqualObjects(plistContents[kFIRMessagingGServicesDictionaryKey],
+                          (@{@"name" : @"value"}), @"%@", invalidValue);
+    XCTAssertTrue([NSPropertyListSerialization propertyList:plistContents
+                                           isValidForFormat:NSPropertyListXMLFormat_v1_0],
+                  @"%@", invalidValue);
+  }
+}
+
+- (void)testUpdateWithCheckinPlistContentsDropsNonNumericLastCheckinTime {
+  NSArray *invalidValues = @[ [NSNull null], @[ @1 ], @{@"time" : @1} ];
+  for (id invalidValue in invalidValues) {
+    FIRMessagingCheckinPreferences *checkin =
+        [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kDeviceAuthId
+                                                     secretToken:kSecretToken];
+    [checkin updateWithCheckinPlistContents:@{
+      kFIRMessagingLastCheckinTimeKey : invalidValue,
+      kFIRMessagingVersionInfoStringKey : @"1.0",
+    }];
+
+    XCTAssertEqual(checkin.lastCheckinTimestampMillis, 0, @"%@", invalidValue);
+    XCTAssertEqualObjects(checkin.versionInfo, @"1.0", @"%@", invalidValue);
+  }
+}
+
+- (void)testUpdateWithCheckinPlistContentsAcceptsStringLastCheckinTime {
+  FIRMessagingCheckinPreferences *checkin =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kDeviceAuthId
+                                                   secretToken:kSecretToken];
+  [checkin updateWithCheckinPlistContents:@{kFIRMessagingLastCheckinTimeKey : @"1234"}];
+
+  XCTAssertEqual(checkin.lastCheckinTimestampMillis, 1234);
+}
+
+- (void)testUpdateWithCheckinPlistContentsDropsNonDictionaryGServices {
+  NSArray *invalidValues = @[ @"name=value", @[ @"name" ], @5 ];
+  for (id invalidValue in invalidValues) {
+    FIRMessagingCheckinPreferences *checkin =
+        [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kDeviceAuthId
+                                                     secretToken:kSecretToken];
+    [checkin updateWithCheckinPlistContents:@{
+      kFIRMessagingGServicesDictionaryKey : invalidValue,
+      kFIRMessagingDigestStringKey : @"digest",
+    }];
+
+    XCTAssertEqualObjects([checkin checkinPlistContents][kFIRMessagingGServicesDictionaryKey], @{},
+                          @"%@", invalidValue);
+    XCTAssertEqualObjects(checkin.digest, @"digest", @"%@", invalidValue);
+  }
+}
+
 @end

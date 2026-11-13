@@ -17,10 +17,9 @@ import XCTest
 @testable import FirebaseAILogic
 
 final class BackendTests: XCTestCase {
-  @available(*, deprecated)
   func testAgentPlatform_defaultLocation() {
     let expectedAPIConfig = APIConfig(
-      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: "global"),
       version: .v1beta
     )
 
@@ -29,11 +28,10 @@ final class BackendTests: XCTestCase {
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }
 
-  @available(*, deprecated)
   func testAgentPlatform_customLocation() {
     let customLocation = "europe-west1"
     let expectedAPIConfig = APIConfig(
-      service: .enterprise(endpoint: .firebaseProxyProd, location: customLocation),
+      service: .agentPlatform(endpoint: .firebaseProxyProd, location: customLocation),
       version: .v1beta
     )
 
@@ -49,29 +47,6 @@ final class BackendTests: XCTestCase {
     )
 
     let backend = Backend.googleAI()
-
-    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
-  }
-
-  func testEnterprise_defaultLocation() {
-    let expectedAPIConfig = APIConfig(
-      service: .enterprise(endpoint: .firebaseProxyProd, location: "global"),
-      version: .v1beta
-    )
-
-    let backend = Backend.enterprise()
-
-    XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
-  }
-
-  func testEnterprise_customLocation() {
-    let customLocation = "europe-west1"
-    let expectedAPIConfig = APIConfig(
-      service: .enterprise(endpoint: .firebaseProxyProd, location: customLocation),
-      version: .v1beta
-    )
-
-    let backend = Backend.enterprise(location: customLocation)
 
     XCTAssertEqual(backend.apiConfig, expectedAPIConfig)
   }

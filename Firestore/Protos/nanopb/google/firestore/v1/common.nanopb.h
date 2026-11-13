@@ -34,6 +34,16 @@ namespace firestore {
 #endif
 
 
+/* Enum definitions */
+typedef enum _google_firestore_v1_TransactionOptions_ConcurrencyMode {
+    google_firestore_v1_TransactionOptions_ConcurrencyMode_CONCURRENCY_MODE_UNSPECIFIED = 0,
+    google_firestore_v1_TransactionOptions_ConcurrencyMode_OPTIMISTIC = 1,
+    google_firestore_v1_TransactionOptions_ConcurrencyMode_PESSIMISTIC = 2
+} google_firestore_v1_TransactionOptions_ConcurrencyMode;
+#define _google_firestore_v1_TransactionOptions_ConcurrencyMode_MIN google_firestore_v1_TransactionOptions_ConcurrencyMode_CONCURRENCY_MODE_UNSPECIFIED
+#define _google_firestore_v1_TransactionOptions_ConcurrencyMode_MAX google_firestore_v1_TransactionOptions_ConcurrencyMode_PESSIMISTIC
+#define _google_firestore_v1_TransactionOptions_ConcurrencyMode_ARRAYSIZE ((google_firestore_v1_TransactionOptions_ConcurrencyMode)(google_firestore_v1_TransactionOptions_ConcurrencyMode_PESSIMISTIC+1))
+
 /* Struct definitions */
 typedef struct _google_firestore_v1_DocumentMask {
     pb_size_t field_paths_count;
@@ -42,13 +52,6 @@ typedef struct _google_firestore_v1_DocumentMask {
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_DocumentMask) */
 } google_firestore_v1_DocumentMask;
-
-typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
-    pb_bytes_array_t *retry_transaction;
-
-    std::string ToString(int indent = 0) const;
-/* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
-} google_firestore_v1_TransactionOptions_ReadWrite;
 
 typedef struct _google_firestore_v1_Precondition {
     pb_size_t which_condition_type;
@@ -71,6 +74,14 @@ typedef struct _google_firestore_v1_TransactionOptions_ReadOnly {
 /* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadOnly) */
 } google_firestore_v1_TransactionOptions_ReadOnly;
 
+typedef struct _google_firestore_v1_TransactionOptions_ReadWrite {
+    pb_bytes_array_t *retry_transaction;
+    google_firestore_v1_TransactionOptions_ConcurrencyMode concurrency_mode;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_TransactionOptions_ReadWrite) */
+} google_firestore_v1_TransactionOptions_ReadWrite;
+
 typedef struct _google_firestore_v1_TransactionOptions {
     pb_size_t which_mode;
     union {
@@ -88,20 +99,21 @@ typedef struct _google_firestore_v1_TransactionOptions {
 #define google_firestore_v1_DocumentMask_init_default {0, NULL}
 #define google_firestore_v1_Precondition_init_default {0, {0}}
 #define google_firestore_v1_TransactionOptions_init_default {0, {google_firestore_v1_TransactionOptions_ReadOnly_init_default}}
-#define google_firestore_v1_TransactionOptions_ReadWrite_init_default {NULL}
+#define google_firestore_v1_TransactionOptions_ReadWrite_init_default {NULL, _google_firestore_v1_TransactionOptions_ConcurrencyMode_MIN}
 #define google_firestore_v1_TransactionOptions_ReadOnly_init_default {0, {google_protobuf_Timestamp_init_default}}
 #define google_firestore_v1_DocumentMask_init_zero {0, NULL}
 #define google_firestore_v1_Precondition_init_zero {0, {0}}
 #define google_firestore_v1_TransactionOptions_init_zero {0, {google_firestore_v1_TransactionOptions_ReadOnly_init_zero}}
-#define google_firestore_v1_TransactionOptions_ReadWrite_init_zero {NULL}
+#define google_firestore_v1_TransactionOptions_ReadWrite_init_zero {NULL, _google_firestore_v1_TransactionOptions_ConcurrencyMode_MIN}
 #define google_firestore_v1_TransactionOptions_ReadOnly_init_zero {0, {google_protobuf_Timestamp_init_zero}}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1_DocumentMask_field_paths_tag 1
-#define google_firestore_v1_TransactionOptions_ReadWrite_retry_transaction_tag 1
 #define google_firestore_v1_Precondition_exists_tag 1
 #define google_firestore_v1_Precondition_update_time_tag 2
 #define google_firestore_v1_TransactionOptions_ReadOnly_read_time_tag 2
+#define google_firestore_v1_TransactionOptions_ReadWrite_retry_transaction_tag 1
+#define google_firestore_v1_TransactionOptions_ReadWrite_concurrency_mode_tag 2
 #define google_firestore_v1_TransactionOptions_read_only_tag 2
 #define google_firestore_v1_TransactionOptions_read_write_tag 3
 
@@ -109,7 +121,7 @@ typedef struct _google_firestore_v1_TransactionOptions {
 extern const pb_field_t google_firestore_v1_DocumentMask_fields[2];
 extern const pb_field_t google_firestore_v1_Precondition_fields[3];
 extern const pb_field_t google_firestore_v1_TransactionOptions_fields[3];
-extern const pb_field_t google_firestore_v1_TransactionOptions_ReadWrite_fields[2];
+extern const pb_field_t google_firestore_v1_TransactionOptions_ReadWrite_fields[3];
 extern const pb_field_t google_firestore_v1_TransactionOptions_ReadOnly_fields[2];
 
 /* Maximum encoded size of messages (where known) */
@@ -127,6 +139,8 @@ extern const pb_field_t google_firestore_v1_TransactionOptions_ReadOnly_fields[2
 
 #endif
 
+const char* EnumToString(
+    google_firestore_v1_TransactionOptions_ConcurrencyMode value);
 }  // namespace firestore
 }  // namespace firebase
 

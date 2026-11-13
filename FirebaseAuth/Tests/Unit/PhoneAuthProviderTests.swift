@@ -362,7 +362,7 @@
         "enrolledAt": "2023-01-01T00:00:00Z",
       ]
       let proto = AuthProtoMFAEnrollment(dictionary: dictionary)
-      let mfi = PhoneMultiFactorInfo(proto: proto)
+      let mfi = try XCTUnwrap(PhoneMultiFactorInfo(proto: proto))
 
       let session = MultiFactorSession(mfaCredential: "pending-credential")
       session.multiFactorInfo = mfi

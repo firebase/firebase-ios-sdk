@@ -32,12 +32,6 @@ struct AuthProtoMFAEnrollment: AuthProto {
     }
     mfaEnrollmentID = dictionary["mfaEnrollmentId"] as? String
     displayName = dictionary["displayName"] as? String
-    if let enrolledAt = dictionary["enrolledAt"] as? String {
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-      self.enrolledAt = dateFormatter.date(from: enrolledAt)
-    } else {
-      enrolledAt = nil
-    }
+    enrolledAt = AuthProtoTimestamp.date(from: dictionary["enrolledAt"])
   }
 }

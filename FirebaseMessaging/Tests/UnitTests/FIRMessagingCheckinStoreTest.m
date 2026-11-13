@@ -181,6 +181,66 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+/**
+ *  A version info of an unexpected type in the checkin plist, for example one saved by an older
+ *  SDK version, is dropped when the checkin is loaded. The other values are kept.
+ */
+- (void)testCachedCheckinPreferencesDropsNonStringVersionInfo {
+  XCTestExpectation *checkinSaveSuccessExpectation =
+      [self expectationWithDescription:@"Checkin save should succeed"];
+  self.checkinStore.keychain = [[FIRMessagingFakeKeychain alloc] init];
+  FIRMessagingCheckinPreferences *preferences =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
+  [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
+  [self.checkinStore saveCheckinPreferences:preferences
+                                    handler:^(NSError *error) {
+                                      XCTAssertNil(error);
+                                      [checkinSaveSuccessExpectation fulfill];
+                                    }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+
+  // Save a numeric version info, and read the plist from disk again as on the next launch.
+  NSMutableDictionary *plistContents = [[self.plist contentAsDictionary] mutableCopy];
+  plistContents[kFIRMessagingVersionInfoStringKey] = @123;
+  XCTAssertTrue([self.plist writeDictionary:plistContents error:NULL]);
+  self.checkinStore.plist =
+      [[FIRMessagingBackupExcludedPlist alloc] initWithPlistFile:kFakeCheckinPlistName
+                                                    subDirectory:kSubDirectoryName];
+
+  FIRMessagingCheckinPreferences *cachedPreferences = [self.checkinStore cachedCheckinPreferences];
+  XCTAssertEqualObjects(cachedPreferences.deviceID, kAuthID);
+  XCTAssertEqualObjects(cachedPreferences.secretToken, kSecret);
+  XCTAssertEqualObjects(cachedPreferences.digest, kDigest);
+  XCTAssertNil(cachedPreferences.versionInfo);
+}
+
+/**
+ *  Checkin credentials in the plist, where older SDK versions saved them, are used if they are
+ *  missing from the keychain.
+ */
+- (void)testCachedCheckinPreferencesUsesPlistCredentials {
+  self.checkinStore.keychain = [[FIRMessagingFakeKeychain alloc] init];
+  XCTAssertTrue([self.plist writeDictionary:[[self class] checkinPreferences] error:NULL]);
+
+  FIRMessagingCheckinPreferences *cachedPreferences = [self.checkinStore cachedCheckinPreferences];
+  XCTAssertEqualObjects(cachedPreferences.deviceID, kAuthID);
+  XCTAssertEqualObjects(cachedPreferences.secretToken, kSecret);
+  XCTAssertEqualObjects(cachedPreferences.digest, kDigest);
+}
+
+/**
+ *  Checkin credentials of an unexpected type in the plist are ignored.
+ */
+- (void)testCachedCheckinPreferencesIgnoresNonStringPlistCredentials {
+  self.checkinStore.keychain = [[FIRMessagingFakeKeychain alloc] init];
+  NSMutableDictionary *plistContents = [[[self class] checkinPreferences] mutableCopy];
+  plistContents[kFIRMessagingDeviceAuthIdKey] = @1234;
+  plistContents[kFIRMessagingSecretTokenKey] = @5678;
+  XCTAssertTrue([self.plist writeDictionary:plistContents error:NULL]);
+
+  XCTAssertNil([self.checkinStore cachedCheckinPreferences]);
+}
+
 #pragma mark - Private Helpers
 
 + (NSDictionary *)checkinPreferences {

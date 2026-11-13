@@ -162,5 +162,100 @@ import XCTest
         XCTFail("Stream threw unexpected error type: \(error)")
       }
     }
+
+    // MARK: - SSE comment / heartbeat handling (#16605)
+
+    func testStream_ignoresSSECommentHeartbeats() async throws {
+      let responseBody = """
+      : ping
+
+      data: {"message": "hello"}
+
+      : ping
+
+      data: {"message": "world"}
+
+      data: {"result": "done"}
+
+
+      """
+      try setUpStreamingResponse(body: responseBody)
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      var received: [String] = []
+      for try await chunk in try callable.stream() {
+        received.append(chunk)
+      }
+      XCTAssertEqual(received, ["hello", "world"])
+    }
+
+    func testStream_onlyHeartbeatsThenResult_completesWithoutError() async throws {
+      let responseBody = """
+      : ping
+
+      : ping
+
+      data: {"result": "done"}
+
+
+      """
+      try setUpStreamingResponse(body: responseBody)
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      var received: [String] = []
+      for try await chunk in try callable.stream() {
+        received.append(chunk)
+      }
+      XCTAssertEqual(received, [])
+    }
+
+    func testStream_nonSSEBody_throwsDataLoss() async throws {
+      try setUpStreamingResponse(body: "{\"result\": 17}\n")
+
+      let callable: Callable<EmptyRequest, String> = makeFunctions()
+        .httpsCallable("testStream")
+      do {
+        for try await _ in try callable.stream() {
+          XCTFail("Expected error to be thrown from stream.")
+        }
+        XCTFail("Stream should not finish successfully for a non-SSE body.")
+      } catch let error as FunctionsError {
+        XCTAssertEqual(error.code, .dataLoss)
+        XCTAssertEqual(error.localizedDescription, "Unexpected format for streamed response.")
+      }
+    }
+
+    // MARK: - Helpers
+
+    private func makeFunctions() -> Functions {
+      Functions(
+        projectID: "test-project",
+        region: "us-central1",
+        customDomain: nil,
+        auth: nil,
+        messaging: nil,
+        appCheck: nil
+      )
+    }
+
+    private func setUpStreamingResponse(body: String) throws {
+      let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+      addTeardownBlock {
+        try? FileManager.default.removeItem(at: tempURL)
+      }
+      try body.write(to: tempURL, atomically: true, encoding: .utf8)
+
+      MockURLProtocol.requestHandler = { request in
+        let response = HTTPURLResponse(
+          url: request.url!,
+          statusCode: 200,
+          httpVersion: nil,
+          headerFields: ["Content-Type": "text/event-stream"]
+        )!
+        return (response, tempURL.lines)
+      }
+    }
   }
 #endif

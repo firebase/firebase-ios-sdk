@@ -21,8 +21,9 @@ struct StartMFAEnrollmentResponse: AuthRPCResponse {
   init(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneSessionInfo"] as? [String: AnyHashable] {
       phoneSessionInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
-    } else if let data = dictionary["totpSessionInfo"] as? [String: AnyHashable] {
-      totpSessionInfo = AuthProtoStartMFATOTPEnrollmentResponseInfo(dictionary: data)
+    } else if let data = dictionary["totpSessionInfo"] as? [String: AnyHashable],
+              let info = AuthProtoStartMFATOTPEnrollmentResponseInfo(dictionary: data) {
+      totpSessionInfo = info
     } else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }

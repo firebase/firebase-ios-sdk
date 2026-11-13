@@ -251,17 +251,15 @@ import Foundation
 
     convenience init(withMFAEnrollments mfaEnrollments: [AuthProtoMFAEnrollment]) {
       self.init()
-      var multiFactorInfoArray: [MultiFactorInfo] = []
-      for enrollment in mfaEnrollments {
+      enrolledFactors = mfaEnrollments.compactMap { enrollment in
         if enrollment.phoneInfo != nil {
-          let multiFactorInfo = PhoneMultiFactorInfo(proto: enrollment)
-          multiFactorInfoArray.append(multiFactorInfo)
+          return PhoneMultiFactorInfo(proto: enrollment)
         } else if enrollment.totpInfo != nil {
-          let multiFactorInfo = TOTPMultiFactorInfo(proto: enrollment)
-          multiFactorInfoArray.append(multiFactorInfo)
+          return TOTPMultiFactorInfo(proto: enrollment)
+        } else {
+          return nil
         }
       }
-      enrolledFactors = multiFactorInfoArray
     }
 
     override init() {

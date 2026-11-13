@@ -1,0 +1,50 @@
+struct SearchTerm {
+  var id: GenerationID
+  var searchTerm: String
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "searchTerm", description: "A two- or three- word search term", type: String.self)
+            ]
+        )
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "searchTerm", value: self.searchTerm)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            id: self.id,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        var id: FoundationModelsFake.GenerationID
+        var searchTerm: String.PartiallyGenerated?
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.searchTerm = try content.value(forProperty: "searchTerm")
+        }
+    }
+}
+
+extension SearchTerm: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.id = content.id ?? FoundationModelsFake.GenerationID()
+        self.searchTerm = try content.value(forProperty: "searchTerm")
+    }
+}

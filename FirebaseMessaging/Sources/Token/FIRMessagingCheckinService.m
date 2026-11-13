@@ -39,6 +39,64 @@ static NSUInteger const kCheckinType = 2;  // DeviceType IOS in l/w/a/_checkin.p
 static NSUInteger const kCheckinVersion = 2;
 static NSUInteger const kFragment = 0;
 
+/// Returns `value` if it is a string that can be saved in the checkin preferences, otherwise nil.
+static NSString *_Nullable FIRMessagingCheckinString(id _Nullable value) {
+  if (![value isKindOfClass:[NSString class]]) {
+    return nil;
+  }
+  // The checkin preferences are saved as an XML property list, and the write fails if a string
+  // contains U+0000. Other control characters and noncharacters such as U+FFFE and U+FFFF are
+  // saved and read back unchanged. A failed write also deletes the saved checkin credentials.
+  static NSCharacterSet *nul;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    nul = [NSCharacterSet characterSetWithRange:NSMakeRange(0, 1)];
+  });
+  return [value rangeOfCharacterFromSet:nul].location == NSNotFound ? value : nil;
+}
+
+/// Returns a checkin ID (`android_id` or `security_token`) as a string of ASCII decimal digits,
+/// or nil if `value` isn't a non-negative integer. The IDs are 64-bit integers, which the proto3
+/// JSON format sends as strings, so both numbers and strings of digits are accepted.
+static NSString *_Nullable FIRMessagingCheckinID(id _Nullable value) {
+  NSString *string;
+  if ([value isKindOfClass:[NSNumber class]]) {
+    // A JSON boolean is an NSNumber whose string value is "1" or "0".
+    if (CFGetTypeID((__bridge CFTypeRef)value) == CFBooleanGetTypeID()) {
+      return nil;
+    }
+    // Other numbers get the same digit check as strings, which rejects values such as 1.5 or -1.
+    string = [value stringValue];
+  } else {
+    string = FIRMessagingCheckinString(value);
+  }
+  static NSCharacterSet *nonDigits;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    nonDigits = [[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+  });
+  if (string.length == 0 || [string rangeOfCharacterFromSet:nonDigits].location != NSNotFound) {
+    return nil;
+  }
+  return string;
+}
+
+/// Returns an error if `response` is an HTTP response with a status code other than 2xx.
+static NSError *_Nullable FIRMessagingCheckinHTTPError(NSURLResponse *_Nullable response) {
+  if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+    return nil;
+  }
+  NSInteger statusCode = ((NSHTTPURLResponse *)response).statusCode;
+  if (statusCode >= 200 && statusCode < 300) {
+    return nil;
+  }
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Device checkin failed with HTTP status code %ld.", (long)statusCode];
+  FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService009, @"%@", failureReason);
+  return [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                           failureReason:failureReason];
+}
+
 @interface FIRMessagingCheckinService ()
 
 @property(nonatomic, readwrite, strong) NSURLSession *session;
@@ -99,6 +157,15 @@ static NSUInteger const kFragment = 0;
           return;
         }
 
+        // Don't parse or save anything from an error response.
+        NSError *HTTPError = FIRMessagingCheckinHTTPError(response);
+        if (HTTPError) {
+          if (completion) {
+            completion(nil, HTTPError);
+          }
+          return;
+        }
+
         NSError *serializationError = nil;
         NSDictionary *dataResponse = [NSJSONSerialization JSONObjectWithData:data
                                                                      options:0
@@ -113,18 +180,37 @@ static NSUInteger const kFragment = 0;
           return;
         }
 
-        NSString *deviceAuthID = [dataResponse[@"android_id"] stringValue];
-        NSString *secretToken = [dataResponse[@"security_token"] stringValue];
-        if ([deviceAuthID length] == 0) {
+        if (![dataResponse isKindOfClass:[NSDictionary class]]) {
+          NSString *failureReason = @"Invalid checkin response: expected a JSON object.";
+          FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService010, @"%@", failureReason);
+          NSError *responseError =
+              [NSError messagingErrorWithCode:kFIRMessagingErrorCodeRegistrarFailedToCheckIn
+                                failureReason:failureReason];
+          if (completion) {
+            completion(nil, responseError);
+          }
+          return;
+        }
+
+        // The device ID and secret authenticate all later requests, so both are required.
+        NSString *deviceAuthID = FIRMessagingCheckinID(dataResponse[@"android_id"]);
+        NSString *secretToken = FIRMessagingCheckinID(dataResponse[@"security_token"]);
+        if ([deviceAuthID length] == 0 || [secretToken length] == 0) {
+          NSString *failureReason =
+              [deviceAuthID length] ? @"Invalid security token." : @"Invalid device auth ID.";
           NSError *error = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidRequest
-                                             failureReason:@"Invalid device auth ID."];
+                                             failureReason:failureReason];
           if (completion) {
             completion(nil, error);
           }
           return;
         }
 
-        int64_t lastCheckinTimestampMillis = [dataResponse[@"time_msec"] longLongValue];
+        // The other values are optional. Values of an unexpected type are treated as missing.
+        id timeMsec = dataResponse[@"time_msec"];
+        BOOL hasTimeMsec =
+            [timeMsec isKindOfClass:[NSNumber class]] || [timeMsec isKindOfClass:[NSString class]];
+        int64_t lastCheckinTimestampMillis = hasTimeMsec ? [timeMsec longLongValue] : 0;
         int64_t currentTimestampMillis = FIRMessagingCurrentTimestampInMilliseconds();
         // Somehow the server clock gets out of sync with the device clock.
         // Reset the last checkin timestamp in case this happens.
@@ -135,8 +221,9 @@ static NSUInteger const kFragment = 0;
           lastCheckinTimestampMillis = currentTimestampMillis;
         }
 
-        NSString *deviceDataVersionInfo = dataResponse[@"device_data_version_info"] ?: @"";
-        NSString *digest = dataResponse[@"digest"] ?: @"";
+        NSString *deviceDataVersionInfo =
+            FIRMessagingCheckinString(dataResponse[@"device_data_version_info"]) ?: @"";
+        NSString *digest = FIRMessagingCheckinString(dataResponse[@"digest"]) ?: @"";
 
         FIRMessagingLoggerDebug(kFIRMessagingMessageCodeService003,
                                 @"Checkin successful with authId: %@, "
@@ -144,18 +231,25 @@ static NSUInteger const kFragment = 0;
                                 @"lastCheckinTimestamp: %lld",
                                 deviceAuthID, digest, lastCheckinTimestampMillis);
 
-        NSString *versionInfo = dataResponse[@"version_info"] ?: @"";
+        NSString *versionInfo = FIRMessagingCheckinString(dataResponse[@"version_info"]) ?: @"";
         NSMutableDictionary *gservicesData = [NSMutableDictionary dictionary];
 
-        // Read gServices data.
-        NSArray *flatSettings = dataResponse[@"setting"];
-        for (NSDictionary *dict in flatSettings) {
-          if (dict[@"name"] && dict[@"value"]) {
-            gservicesData[dict[@"name"]] = dict[@"value"];
+        // Read gServices data. Only string names and values are kept.
+        id flatSettings = dataResponse[@"setting"];
+        if (flatSettings && ![flatSettings isKindOfClass:[NSArray class]]) {
+          FIRMessagingLoggerDebug(kFIRMessagingInvalidSettingResponse,
+                                  @"Invalid settings in checkin response: %@", flatSettings);
+          flatSettings = nil;
+        }
+        for (id setting in flatSettings) {
+          NSDictionary *dict = [setting isKindOfClass:[NSDictionary class]] ? setting : nil;
+          NSString *name = FIRMessagingCheckinString(dict[@"name"]);
+          NSString *value = FIRMessagingCheckinString(dict[@"value"]);
+          if (name && value) {
+            gservicesData[name] = value;
           } else {
             FIRMessagingLoggerDebug(kFIRMessagingInvalidSettingResponse,
-                                    @"Invalid setting in checkin response: (%@: %@)", dict[@"name"],
-                                    dict[@"value"]);
+                                    @"Invalid setting in checkin response: %@", setting);
           }
         }
 

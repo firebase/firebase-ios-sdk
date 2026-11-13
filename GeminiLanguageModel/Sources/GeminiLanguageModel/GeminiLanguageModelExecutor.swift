@@ -12,9 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
-  package import Foundation
-  public import FoundationModels
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
+  #if canImport(FoundationNetworking)
+    import Foundation
+    package import FoundationNetworking
+  #else
+    package import Foundation
+  #endif
+  #if FoundationModelsFake
+    public import FoundationModelsFake
+  #else
+    public import FoundationModels
+  #endif
   package import GeminiAPIClient
   import GeminiAPIDataModels
 
@@ -57,6 +66,14 @@
         }
       }
 
+      /// The maximum number of tool-calling turns allowed in response to a single prompt.
+      ///
+      /// A tool-calling turn is a model response that calls one or more tools. When this limit is
+      /// reached, the next request tells Gemini not to call functions; if it returns a function
+      /// call anyway, the executor throws `GeminiLanguageModel.Error.invalidResponse`. Keep the
+      /// `GeminiLanguageModel.capabilities` docs and the changelog in sync with this value.
+      static let maximumToolCallingTurns = 10
+
       private let configuration: Configuration
 
       /// Initializes a new executor with the specified configuration.
@@ -79,7 +96,15 @@
         model: GeminiLanguageModel,
         streamingInto channel: LanguageModelExecutorGenerationChannel
       ) async throws {
-        let generateRequest = try GeminiRequestTranslator.translate(request)
+        // The session keeps calling tools for as long as the model returns function calls, so
+        // limit the number of tool-calling turns to bound the number of requests.
+        let isAtToolCallingTurnLimit =
+          GeminiRequestTranslator.toolCallingTurnCount(in: request.transcript)
+          >= Self.maximumToolCallingTurns
+        let generateRequest = try GeminiRequestTranslator.translate(
+          request,
+          isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
+        )
 
         let client = GeminiAPIClient(
           modelResource: configuration.modelResource,
@@ -95,15 +120,45 @@
 
         do {
           let stream = try await client.generateContentStream(for: generateRequest)
+          // Usage is reported once, after the stream ends, instead of after every chunk (#17040).
+          // `updateUsage` is documented to replace the turn's usage totals; in testing (macOS
+          // 27.2), `LanguageModelSession` also has these undocumented constraints:
+          //
+          // - It only produces a streamed snapshot for an event that raises the turn's output
+          //   token count above its previous high. The Gemini Enterprise Agent Platform omits
+          //   token counts until the final chunk, so reporting 0 after every chunk held back all
+          //   snapshots until the response finished.
+          // - `updateUsage` traps if the uncached input token count (`total - cached`) decreases.
+          //   The Gemini Developer API reports `cachedContentTokenCount` only in the final chunk,
+          //   so reporting earlier chunks' usage crashed on implicit cache hits.
+          // - The final `updateUsage` is accepted even if it lowers the output count.
+          //
+          // While streaming, the `appendText` token counts track Gemini's running output totals
+          // instead (see `StreamedTokenCounter`); the final usage replaces them.
+          var latestUsage: UsageMetadata?
+          var responseTokenCounter = StreamedTokenCounter()
+          var reasoningTokenCounter = StreamedTokenCounter()
 
           for try await chunk in stream {
             try Task.checkCancellation()
 
             try GeminiErrorMapper.checkGuardrails(in: chunk)
+            try Self.validateFinishReason(of: chunk)
 
             if let candidates = chunk.candidates, let candidate = candidates.first,
               let parts = candidate.content?.parts
             {
+              // Check every function call in the chunk before streaming any of the chunk's parts,
+              // so that a rejected function call's own parts (such as its thought signature)
+              // aren't streamed. Parts from earlier chunks have already been streamed: when this
+              // throws, the session discards their tool calls, but with the `preserveTranscript`
+              // policy it keeps their text and reasoning.
+              try Self.validateFunctionCalls(
+                in: parts,
+                for: request,
+                isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
+              )
+
               for part in parts {
                 if let thoughtSignature = part.thoughtSignature, !thoughtSignature.isEmpty {
                   let signatureData = Data(thoughtSignature.utf8)
@@ -117,23 +172,32 @@
 
                 if case .text(let text) = part.data, !text.isEmpty {
                   if part.thought == true {
+                    let tokenCount = reasoningTokenCounter.nextTokenCount(
+                      forRunningTotal: chunk.usageMetadata?.thoughtsTokenCount
+                    )
                     await channel.send(
                       .reasoning(
                         entryID: reasoningEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   } else {
+                    let tokenCount = responseTokenCounter.nextTokenCount(
+                      forRunningTotal: chunk.usageMetadata?.candidatesTokenCount
+                    )
                     await channel.send(
                       .response(
                         entryID: responseEntryID,
-                        action: .appendText(text, tokenCount: 1)
+                        action: .appendText(text, tokenCount: tokenCount)
                       )
                     )
                   }
                 }
 
                 if case .functionCall(let call) = part.data {
+                  // `validateFunctionCalls` has already checked that every function call in this
+                  // chunk has a name and is allowed for this request, so this doesn't throw.
+                  let name = try Self.functionName(of: call)
                   let callID = call.id ?? UUID().uuidString
                   let argsString: String
                   if let args = call.args, !args.isEmpty {
@@ -148,7 +212,7 @@
                       entryID: toolCallsEntryID,
                       action: .toolCall(
                         id: callID,
-                        name: call.name,
+                        name: name,
                         action: .appendArguments(argsString, tokenCount: 1)
                       )
                     )
@@ -158,27 +222,151 @@
             }
 
             if let usage = chunk.usageMetadata {
-              await channel.send(
-                .response(
-                  entryID: responseEntryID,
-                  action: .updateUsage(
-                    input: .init(
-                      totalTokenCount: usage.promptTokenCount ?? 0,
-                      cachedTokenCount: usage.cachedContentTokenCount ?? 0
-                    ),
-                    output: .init(
-                      totalTokenCount: usage.candidatesTokenCount ?? 0,
-                      reasoningTokenCount: usage.thoughtsTokenCount ?? 0
-                    )
+              latestUsage = usage
+            }
+          }
+
+          if let usage = latestUsage {
+            // `cachedTokenCount` is documented to be at most `totalTokenCount`, and a cached count
+            // above the total traps (see above), so clamp it in case Gemini omits or under-reports
+            // `promptTokenCount`.
+            let promptTokenCount = usage.promptTokenCount ?? 0
+            // The session's output total includes reasoning tokens (`reasoningTokenCount` is
+            // documented to be at most `totalTokenCount`), but Gemini's `candidatesTokenCount`
+            // excludes thinking tokens, which it reports separately.
+            let candidatesTokenCount = usage.candidatesTokenCount ?? 0
+            let thoughtsTokenCount = usage.thoughtsTokenCount ?? 0
+            await channel.send(
+              .response(
+                entryID: responseEntryID,
+                action: .updateUsage(
+                  input: .init(
+                    totalTokenCount: promptTokenCount,
+                    cachedTokenCount: min(usage.cachedContentTokenCount ?? 0, promptTokenCount)
+                  ),
+                  output: .init(
+                    totalTokenCount: candidatesTokenCount + thoughtsTokenCount,
+                    reasoningTokenCount: thoughtsTokenCount
                   )
                 )
               )
-            }
+            )
           }
         } catch {
           throw GeminiErrorMapper.map(error)
         }
       }
+
+      /// Checks that a response chunk didn't stop because of a function call that Gemini blocked.
+      ///
+      /// Instead of returning a function call part, Gemini can stop a response with the
+      /// `UNEXPECTED_TOOL_CALL` finish reason (for example, when it tries to call a function while
+      /// function calling is disabled) or the `MALFORMED_FUNCTION_CALL` finish reason, typically
+      /// with no content.
+      ///
+      /// - Parameter chunk: A response chunk from Gemini.
+      /// - Throws: `GeminiLanguageModel.Error.invalidResponse` if the chunk's finish reason is
+      ///   `UNEXPECTED_TOOL_CALL` or `MALFORMED_FUNCTION_CALL`.
+      static func validateFinishReason(of chunk: GenerateContentResponse) throws {
+        guard let finishReason = chunk.candidates?.first?.finishReason,
+          finishReason == .unexpectedToolCall || finishReason == .malformedFunctionCall
+        else {
+          return
+        }
+        throw GeminiLanguageModel.Error.invalidResponse(
+          GeminiLanguageModel.Error.InvalidResponse(
+            debugDescription: """
+              Gemini stopped with the `\(finishReason.rawValue)` finish reason instead of \
+              returning a valid function call.
+              """
+          )
+        )
+      }
+
+      /// Checks that the function calls in a response can be passed to the session.
+      ///
+      /// - Parameters:
+      ///   - parts: The parts of a response chunk from Gemini.
+      ///   - request: The generation request from the Foundation Models session.
+      ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
+      ///     tool-calling turns for the current prompt.
+      /// - Throws: `GeminiLanguageModel.Error.invalidResponse` if a function call has no name or
+      ///   if the request doesn't allow it (see `functionCallRejectionReason`).
+      static func validateFunctionCalls(
+        in parts: [Part],
+        for request: LanguageModelExecutorGenerationRequest,
+        isAtToolCallingTurnLimit: Bool
+      ) throws {
+        for part in parts {
+          guard case .functionCall(let call) = part.data else { continue }
+          let name = try functionName(of: call)
+          if let reason = functionCallRejectionReason(
+            forFunctionNamed: name,
+            in: request,
+            isAtToolCallingTurnLimit: isAtToolCallingTurnLimit
+          ) {
+            throw GeminiLanguageModel.Error.invalidResponse(
+              GeminiLanguageModel.Error.InvalidResponse(debugDescription: reason)
+            )
+          }
+        }
+      }
+
+      /// Returns the name of the function that a function call from Gemini calls.
+      ///
+      /// - Parameter call: A function call from Gemini.
+      /// - Returns: The non-empty name of the function.
+      /// - Throws: `GeminiLanguageModel.Error.invalidResponse` if the function call has no name or
+      ///   an empty name.
+      static func functionName(of call: FunctionCall) throws -> String {
+        guard let name = call.name, !name.isEmpty else {
+          throw GeminiLanguageModel.Error.invalidResponse(
+            GeminiLanguageModel.Error.InvalidResponse(
+              debugDescription: "Gemini returned a function call without a name."
+            )
+          )
+        }
+        return name
+      }
+
+      /// Returns the reason to reject a function call from Gemini, or `nil` if the session can run
+      /// it.
+      ///
+      /// `LanguageModelSession` runs any tool call that names one of the session's tools, even
+      /// when the tool calling mode is `disallowed` or the tool isn't enabled for the request.
+      /// Gemini sometimes returns a function call when it's told not to call functions, or for a
+      /// function that the request doesn't declare, so the executor only passes on function calls
+      /// to the request's enabled tools while function calling is enabled.
+      ///
+      /// - Parameters:
+      ///   - name: The name of the function that Gemini called.
+      ///   - request: The generation request from the Foundation Models session.
+      ///   - isAtToolCallingTurnLimit: Whether the session has reached the maximum number of
+      ///     tool-calling turns for the current prompt.
+      /// - Returns: The reason to reject the function call, or `nil` if the session can run it.
+      static func functionCallRejectionReason(
+        forFunctionNamed name: String,
+        in request: LanguageModelExecutorGenerationRequest,
+        isAtToolCallingTurnLimit: Bool
+      ) -> String? {
+        if request.generationOptions.toolCallingMode?.kind == .disallowed {
+          return """
+            Gemini returned a function call to `\(name)` when the tool calling mode was \
+            `disallowed`.
+            """
+        }
+        if isAtToolCallingTurnLimit {
+          return """
+            Gemini returned a function call to `\(name)` after function calling was disabled \
+            because the limit of \(maximumToolCallingTurns) tool-calling turns per prompt was \
+            reached.
+            """
+        }
+        if !request.enabledToolDefinitions.contains(where: { $0.name == name }) {
+          return "Gemini returned a function call to `\(name)`, which isn't an enabled tool."
+        }
+        return nil
+      }
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

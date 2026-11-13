@@ -63,15 +63,31 @@ NS_SWIFT_NAME(__FunctionExprBridge)
 @end
 
 NS_SWIFT_SENDABLE
-NS_SWIFT_NAME(__AggregateFunctionBridge)
-@interface __FIRAggregateFunctionBridge : NSObject
-- (id)initWithName:(NSString *)name Args:(NSArray<__FIRExprBridge *> *)args;
-@end
-
-NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__OrderingBridge)
 @interface __FIROrderingBridge : NSObject
 - (id)initWithExpr:(__FIRExprBridge *)expr Direction:(NSString *)direction;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__WindowSpecBridge)
+@interface __FIRWindowSpecBridge : NSObject
+- (id)initWithGroups:(NSArray<__FIRExprBridge *> *)groups
+                sort:(NSArray<__FIROrderingBridge *> *_Nullable)sort
+           preceding:(id _Nullable)preceding
+           following:(id _Nullable)following
+                type:(NSString *_Nullable)type
+                unit:(id _Nullable)unit;
+@end
+
+// Bridges both Swift `AggregateFunction` and `WindowFunction` (such as `Rank` or an aggregate
+// framed with `over(_:)`).
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__AggregateFunctionBridge)
+@interface __FIRAggregateFunctionBridge : NSObject
+- (id)initWithName:(NSString *)name Args:(NSArray<__FIRExprBridge *> *)args;
+- (id)initWithName:(NSString *)name
+              Args:(NSArray<__FIRExprBridge *> *)args
+            Window:(__FIRWindowSpecBridge *_Nullable)window;
 @end
 
 NS_SWIFT_SENDABLE
@@ -118,6 +134,12 @@ NS_SWIFT_NAME(__DocumentsSourceStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__LiteralsSourceStageBridge)
+@interface __FIRLiteralsSourceStageBridge : __FIRStageBridge
+- (id)initWithData:(NSArray<NSDictionary<NSString *, __FIRExprBridge *> *> *)data;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__WhereStageBridge)
 @interface __FIRWhereStageBridge : __FIRStageBridge
 
@@ -142,6 +164,14 @@ NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__AddFieldsStageBridge)
 @interface __FIRAddFieldsStageBridge : __FIRStageBridge
 - (id)initWithFields:(NSDictionary<NSString *, __FIRExprBridge *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__AddWindowFieldsStageBridge)
+@interface __FIRAddWindowFieldsStageBridge : __FIRStageBridge
+- (id)initWithWindow:(__FIRWindowSpecBridge *)window
+              fields:(NSDictionary<NSString *, __FIRAggregateFunctionBridge *> *)fields
+             options:(NSDictionary<NSString *, __FIRExprBridge *> *_Nullable)options;
 @end
 
 NS_SWIFT_SENDABLE
@@ -236,6 +266,33 @@ NS_SWIFT_NAME(__RawStageBridge)
 @end
 
 NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__DeleteStageBridge)
+@interface __FIRDeleteStageBridge : __FIRStageBridge
+- (id)init;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__UpdateStageBridge)
+@interface __FIRUpdateStageBridge : __FIRStageBridge
+- (id)initWithFields:(NSDictionary<NSString *, __FIRExprBridge *> *)fields;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__InsertStageBridge)
+@interface __FIRInsertStageBridge : __FIRStageBridge
+- (id)initWithCollectionPath:(NSString *_Nullable)collectionPath
+        documentIdExpression:(__FIRExprBridge *_Nullable)documentIdExpression;
+@end
+
+NS_SWIFT_SENDABLE
+NS_SWIFT_NAME(__UpsertStageBridge)
+@interface __FIRUpsertStageBridge : __FIRStageBridge
+- (id)initWithAdditionalFields:(NSDictionary<NSString *, __FIRExprBridge *> *)additionalFields
+                collectionPath:(NSString *_Nullable)collectionPath
+          documentIdExpression:(__FIRExprBridge *_Nullable)documentIdExpression;
+@end
+
+NS_SWIFT_SENDABLE
 NS_SWIFT_NAME(__PipelineResultBridge)
 @interface __FIRPipelineResultBridge : NSObject
 
@@ -291,6 +348,9 @@ NS_SWIFT_NAME(__PipelineBridge)
 
 /** :nodoc: */
 - (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages db:(FIRFirestore *)db;
+- (id)initWithStages:(NSArray<__FIRStageBridge *> *)stages
+                  db:(FIRFirestore *)db
+              atomic:(BOOL)atomic;
 
 - (void)executeWithCompletion:(void (^)(__FIRPipelineSnapshotBridge *_Nullable result,
                                         NSError *_Nullable error))completion;

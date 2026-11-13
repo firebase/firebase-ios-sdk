@@ -36,9 +36,9 @@ job in presubmit.
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
       with:
-        ruby-version: '3.4.1'
+        ruby-version: '3.4.11'
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test

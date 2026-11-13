@@ -39,14 +39,7 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentSimplePrompt() async throws {
     let client = makeClient()
-    let request = GenerateContentRequest(
-      contents: [
-        Content(
-          parts: [Part(data: .text("Reply with the single word 'HELLO'."))],
-          role: "user"
-        )
-      ]
-    )
+    let request = makePromptRequest("Reply with the single word 'HELLO'.")
 
     let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
@@ -67,15 +60,12 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentMultiTurn() async throws {
     let client = makeClient()
-    let contents = [
-      Content(parts: [Part(data: .text("My favorite color is teal."))], role: "user"),
-      Content(parts: [Part(data: .text("Got it! Your favorite color is teal."))], role: "model"),
-      Content(
-        parts: [Part(data: .text("What is my favorite color? Answer in one word."))],
-        role: "user"
-      ),
+    let contents: [Content] = [
+      .text("My favorite color is teal.", role: "user"),
+      .text("Got it! Your favorite color is teal.", role: "model"),
+      .text("What is my favorite color? Answer in one word.", role: "user"),
     ]
-    let request = GenerateContentRequest(contents: contents)
+    let request = GenerateContentRequest { $0.contents = contents }
 
     let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
@@ -96,19 +86,11 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func streamGenerateContentWithSystemInstruction() async throws {
     let client = makeClient()
-    let systemInstruction = Content(
-      parts: [Part(data: .text("Always speak like a 17th-century pirate."))]
-    )
-    let request = GenerateContentRequest(
-      model: nil,
-      systemInstruction: systemInstruction,
-      contents: [
-        Content(
-          parts: [Part(data: .text("How is the weather today?"))],
-          role: "user"
-        )
-      ]
-    )
+    let systemInstruction = Content.text("Always speak like a 17th-century pirate.")
+    let request = GenerateContentRequest {
+      $0.systemInstruction = systemInstruction
+      $0.contents = [.text("How is the weather today?", role: "user")]
+    }
 
     let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
@@ -133,14 +115,7 @@ struct GeminiAPIClientIntegrationTests {
       payloadResourceName: "models/non-existent-model-name-xyz-123"
     )
     let client = makeClient(modelResource: invalidResource)
-    let request = GenerateContentRequest(
-      contents: [
-        Content(
-          parts: [Part(data: .text("Hello"))],
-          role: "user"
-        )
-      ]
-    )
+    let request = makePromptRequest("Hello")
 
     await #expect(throws: (any Error).self) {
       let stream = try await client.generateContentStream(for: request)
@@ -155,14 +130,7 @@ struct GeminiAPIClientIntegrationTests {
       modelResource: Self.defaultModelResource,
       endpointConfiguration: Self.defaultEndpointConfiguration
     )
-    let request = GenerateContentRequest(
-      contents: [
-        Content(
-          parts: [Part(data: .text("Hello"))],
-          role: "user"
-        )
-      ]
-    )
+    let request = makePromptRequest("Hello")
 
     do {
       let stream = try await client.generateContentStream(for: request)
@@ -179,14 +147,9 @@ struct GeminiAPIClientIntegrationTests {
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
   func countTokensSimplePrompt() async throws {
     let client = makeClient()
-    let request = CountTokensRequest(
-      contents: [
-        Content(
-          parts: [Part(data: .text("The quick brown fox jumps over the lazy dog."))],
-          role: "user"
-        )
-      ]
-    )
+    let request = CountTokensRequest {
+      $0.contents = [.text("The quick brown fox jumps over the lazy dog.", role: "user")]
+    }
 
     let response = try await client.countTokens(for: request)
 
@@ -227,14 +190,7 @@ struct GeminiAPIClientIntegrationTests {
         ]
       }
     )
-    let request = GenerateContentRequest(
-      contents: [
-        Content(
-          parts: [Part(data: .text("Reply with the single word 'HELLO'."))],
-          role: "user"
-        )
-      ]
-    )
+    let request = makePromptRequest("Reply with the single word 'HELLO'.")
 
     let stream = try await client.generateContentStream(for: request)
     var accumulatedText = ""
@@ -260,6 +216,14 @@ struct GeminiAPIClientIntegrationTests {
       return nil
     }
     return textParts.isEmpty ? nil : textParts.joined()
+  }
+
+  /// Returns a request containing a single user turn with `prompt`.
+  ///
+  /// - Parameter prompt: The text of the user turn.
+  /// - Returns: A `GenerateContentRequest` with one user `Content`.
+  private func makePromptRequest(_ prompt: String) -> GenerateContentRequest {
+    GenerateContentRequest { $0.contents = [.text(prompt, role: "user")] }
   }
 
   @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)

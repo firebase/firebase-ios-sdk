@@ -198,6 +198,24 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
   return cachedValueObject;
 }
 
+/**
+ * Returns the cached value for the config flag only if it is a scalar type (NSNumber or NSString)
+ * that responds to -intValue, -floatValue and -boolValue. Any other cached type (e.g. NSData,
+ * NSArray, NSDictionary, NSDate) is ignored so that a corrupt cache does not crash on every launch.
+ */
+- (nullable id)cachedScalarValueForConfigFlag:(NSString *)configFlag {
+  id cachedValueObject = [self cachedValueForConfigFlag:configFlag];
+  if ([cachedValueObject isKindOfClass:[NSNumber class]] ||
+      [cachedValueObject isKindOfClass:[NSString class]]) {
+    return cachedValueObject;
+  }
+  if (cachedValueObject) {
+    FPRLogDebug(kFPRConfigurationFetchFailure, @"Ignoring cached value of unexpected type for %@.",
+                configFlag);
+  }
+  return nil;
+}
+
 #pragma mark - Config value fetch methods.
 
 - (NSString *)getStringValueForFlag:(NSString *)flagName defaultValue:(NSString *)defaultValue {
@@ -210,7 +228,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 }
 
 - (int)getIntValueForFlag:(NSString *)flagName defaultValue:(int)defaultValue {
-  id cachedValueObject = [self cachedValueForConfigFlag:flagName];
+  id cachedValueObject = [self cachedScalarValueForConfigFlag:flagName];
   if (cachedValueObject) {
     return [cachedValueObject intValue];
   }
@@ -219,7 +237,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 }
 
 - (float)getFloatValueForFlag:(NSString *)flagName defaultValue:(float)defaultValue {
-  id cachedValueObject = [self cachedValueForConfigFlag:flagName];
+  id cachedValueObject = [self cachedScalarValueForConfigFlag:flagName];
   if (cachedValueObject) {
     return [cachedValueObject floatValue];
   }
@@ -228,7 +246,7 @@ typedef NS_ENUM(NSInteger, FPRConfigValueType) {
 }
 
 - (BOOL)getBoolValueForFlag:(NSString *)flagName defaultValue:(BOOL)defaultValue {
-  id cachedValueObject = [self cachedValueForConfigFlag:flagName];
+  id cachedValueObject = [self cachedScalarValueForConfigFlag:flagName];
   if (cachedValueObject) {
     return [cachedValueObject boolValue];
   }

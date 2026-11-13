@@ -38,8 +38,17 @@ static NSString *const RCNDatabaseName = @"RemoteConfig.sqlite3";
 /// The storage sub-directory that the Remote Config database resides in.
 static NSString *const RCNRemoteConfigStorageSubDirectory = @"Google/RemoteConfig";
 
-/// Introduce a dedicated serial queue for gIsNewDatabase access.
-static dispatch_queue_t gIsNewDatabaseQueue;
+/// Returns the dedicated serial queue for gIsNewDatabase access, creating it on first use so it is
+/// valid regardless of whether `+sharedInstance` or `-init` is called first.
+static dispatch_queue_t RCNIsNewDatabaseQueue(void) {
+  static dispatch_queue_t queue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    queue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
+                                  DISPATCH_QUEUE_SERIAL);
+  });
+  return queue;
+}
 
 /// Remote Config database path for deprecated V0 version.
 static NSString *RemoteConfigPathForOldDatabaseV0(void) {
@@ -85,7 +94,7 @@ static BOOL RemoteConfigCreateFilePathIfNotExist(NSString *filePath) {
   }
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager fileExistsAtPath:filePath]) {
-    dispatch_sync(gIsNewDatabaseQueue, ^{
+    dispatch_sync(RCNIsNewDatabaseQueue(), ^{
       gIsNewDatabase = YES;
     });
     NSError *error;
@@ -124,8 +133,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   static dispatch_once_t onceToken;
   static RCNConfigDBManager *sharedInstance;
   dispatch_once(&onceToken, ^{
-    gIsNewDatabaseQueue = dispatch_queue_create("com.google.FirebaseRemoteConfig.gIsNewDatabase",
-                                                DISPATCH_QUEUE_SERIAL);
     sharedInstance = [[RCNConfigDBManager alloc] init];
   });
   return sharedInstance;
@@ -169,9 +176,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     }
     NSMutableArray<NSString *> *namespaceArray = [[NSMutableArray alloc] init];
     while (sqlite3_step(statement) == SQLITE_ROW) {
+      const char *namespaceText = (const char *)sqlite3_column_text(statement, 0);
       NSString *configNamespace =
-          [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 0)];
-      [namespaceArray addObject:configNamespace];
+          namespaceText ? [[NSString alloc] initWithUTF8String:namespaceText] : nil;
+      if (configNamespace) {
+        [namespaceArray addObject:configNamespace];
+      }
     }
     sqlite3_finalize(statement);
 
@@ -730,8 +740,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   [self bindStringsToStatement:statement stringArray:params];
 
   while (sqlite3_step(statement) == SQLITE_ROW) {
+    const char *bundleIdentifierText = (const char *)sqlite3_column_text(statement, 0);
     NSString *dbBundleIdentifier =
-        [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 0)];
+        bundleIdentifierText ? [[NSString alloc] initWithUTF8String:bundleIdentifierText] : nil;
 
     if (dbBundleIdentifier && ![dbBundleIdentifier isEqualToString:bundleIdentifier]) {
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000014",
@@ -835,7 +846,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                            options:NSJSONReadingMutableContainers
                                                              error:&error];
     }
-    if (!experimentMetadata) {
+    if (![experimentMetadata isKindOfClass:[NSDictionary class]]) {
       experimentMetadata = [[NSMutableDictionary alloc] init];
     }
 
@@ -901,7 +912,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                   error);
     }
   }
-  if (!rollout) {
+  if (![rollout isKindOfClass:[NSArray class]]) {
     rollout = [[NSArray alloc] init];
   }
   return rollout;
@@ -942,7 +953,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                               options:0
                                                                 error:&error];
     }
-    if (!activePersonalization) {
+    if (![activePersonalization isKindOfClass:[NSDictionary class]]) {
       activePersonalization = [[NSMutableDictionary alloc] init];
     }
 
@@ -955,7 +966,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                                                options:0
                                                                  error:&error];
     }
-    if (!fetchedPersonalization) {
+    if (![fetchedPersonalization isKindOfClass:[NSDictionary class]]) {
       fetchedPersonalization = [[NSMutableDictionary alloc] init];
     }
 
@@ -1065,9 +1076,16 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   [self bindStringsToStatement:statement stringArray:params];
 
   while (sqlite3_step(statement) == SQLITE_ROW) {
+    const char *namespaceText = (const char *)sqlite3_column_text(statement, 1);
+    const char *keyText = (const char *)sqlite3_column_text(statement, 2);
     NSString *configNamespace =
-        [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 1)];
-    NSString *key = [[NSString alloc] initWithUTF8String:(char *)sqlite3_column_text(statement, 2)];
+        namespaceText ? [[NSString alloc] initWithUTF8String:namespaceText] : nil;
+    NSString *key = keyText ? [[NSString alloc] initWithUTF8String:keyText] : nil;
+    if (!configNamespace || !key) {
+      FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000084",
+                    @"Skipping corrupt row while loading config from database.");
+      continue;
+    }
     NSData *value = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 3)
                                    length:sqlite3_column_bytes(statement, 3)];
     if (!namespaceToConfig[configNamespace]) {
@@ -1227,7 +1245,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
 - (BOOL)isNewDatabase {
   __block BOOL isNew;
-  dispatch_sync(gIsNewDatabaseQueue, ^{
+  dispatch_sync(RCNIsNewDatabaseQueue(), ^{
     isNew = gIsNewDatabase;
   });
   return isNew;

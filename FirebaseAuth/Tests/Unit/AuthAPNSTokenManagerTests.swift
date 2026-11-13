@@ -277,6 +277,65 @@
       }
     }
 
+    /** @fn testConcurrentGetTokenInternalCallbacksAllCompleteOnTimeout
+        @brief Tests that concurrent callers to `getTokenInternal` across multiple threads do not
+            drop callbacks when registration times out.
+     */
+    func testConcurrentGetTokenInternalCallbacksAllCompleteOnTimeout() throws {
+      let waiterCount = 50
+      manager = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: 0.05
+      )
+      let manager = try XCTUnwrap(manager)
+      let expectation = self.expectation(description: #function)
+      expectation.expectedFulfillmentCount = waiterCount
+
+      DispatchQueue.concurrentPerform(iterations: waiterCount) { _ in
+        manager.getTokenInternal { result in
+          switch result {
+          case let .success(token):
+            XCTFail("Unexpected success: \(token)")
+          case let .failure(error):
+            XCTAssertEqual(
+              error as NSError,
+              AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+            )
+          }
+          expectation.fulfill()
+        }
+      }
+
+      waitForExpectations(timeout: 2)
+    }
+
+    /** @fn testPendingCallbackCompletesAfterManagerIsReleased
+        @brief Tests that a pending callback still gets the timeout error when the caller releases
+            its reference to the manager before the deadline.
+     */
+    func testPendingCallbackCompletesAfterManagerIsReleased() {
+      let expectation = self.expectation(description: #function)
+      var tokenManager: AuthAPNSTokenManager? = AuthAPNSTokenManager(
+        withApplication: fakeApplication!,
+        timeout: kRegistrationTimeout
+      )
+      tokenManager?.getTokenInternal { result in
+        switch result {
+        case let .success(token):
+          XCTFail("Unexpected success: \(token)")
+        case let .failure(error):
+          XCTAssertEqual(
+            error as NSError,
+            AuthErrorUtils.missingAppTokenError(underlyingError: nil) as NSError
+          )
+        }
+        expectation.fulfill()
+      }
+      // Release the only reference outside the manager before the timeout fires.
+      tokenManager = nil
+      waitForExpectations(timeout: 2)
+    }
+
     /** @fn testCancel
         @brief Tests cancelling the pending callbacks.
      */

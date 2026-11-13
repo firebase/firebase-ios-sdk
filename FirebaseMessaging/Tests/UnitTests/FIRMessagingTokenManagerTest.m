@@ -17,12 +17,14 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
+#import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 @interface FIRMessaging (ExposedForTest)
@@ -53,6 +55,7 @@
   id _mockInstallations;
   id _mockCheckinStore;
   id _mockAuthService;
+  id _mockTokenStore;
   FIRMessagingTestUtilities *_testUtil;
 }
 
@@ -74,6 +77,7 @@
 }
 
 - (void)tearDown {
+  [_mockTokenStore stopMocking];
   [_mockCheckinStore stopMocking];
   [_mockAuthService stopMocking];
   [_testUtil cleanupAfterTest:self];
@@ -250,6 +254,131 @@
   // defaultFCMToken should not be set yet so that updateDefaultFCMToken can detect the change.
   XCTAssertNil([_messaging.tokenManager defaultFCMToken]);
   OCMVerifyAll(_mockTokenManager);
+}
+
+#pragma mark - setAPNSToken:withUserInfo:
+
+- (FIRMessagingTokenStore *)tokenStore {
+  return [_messaging.tokenManager valueForKey:@"_tokenStore"];
+}
+
+/// Saves a default token that was fetched with the given sandbox APNs token.
+- (void)cacheDefaultTokenWithSandboxAPNSToken:(NSData *)APNSToken {
+  FIRMessagingTokenInfo *tokenInfo =
+      [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:@"123456789123"
+                                                        scope:kFIRMessagingDefaultTokenScope
+                                                        token:@"cached-token"
+                                                   appVersion:@"1.0"
+                                                firebaseAppID:@"app-id"
+                                                    tokenType:@"V4"];
+  tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:APNSToken isSandbox:YES];
+  [[self tokenStore] saveTokenInfo:tokenInfo handler:nil];
+}
+
+/// Sets a sandbox APNs token, which is what the simulator always uses, so that the tests behave the
+/// same on all platforms.
+- (void)setSandboxAPNSToken:(NSData *)APNSToken {
+  [_messaging.tokenManager
+      setAPNSToken:APNSToken
+      withUserInfo:@{kFIRMessagingAPNSTokenType : @(FIRMessagingAPNSTokenTypeSandbox)}];
+}
+
+/// Matches token options that contain the given sandbox APNs token.
+- (id)tokenOptionsWithSandboxAPNSToken:(NSData *)APNSToken {
+  return [OCMArg checkWithBlock:^BOOL(NSDictionary *options) {
+    return [options[kFIRMessagingTokenOptionsAPNSKey] isEqual:APNSToken] &&
+           [options[kFIRMessagingTokenOptionsAPNSIsSandboxKey] isEqual:@YES];
+  }];
+}
+
+- (void)testSetAPNSTokenReadsCachedTokensOnceAndFetchesDefaultTokenWhenNoTokenIsCached {
+  NSData *APNSToken = [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
+  _mockTokenStore = OCMPartialMock([self tokenStore]);
+  // Save the installation ID handler instead of calling it, to check what happens synchronously.
+  __block FIRInstallationsIDHandler installationIDHandler;
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(id handler) {
+        installationIDHandler = [handler copy];
+        return YES;
+      }]]);
+  OCMExpect([_mockTokenManager
+                tokenWithAuthorizedEntity:@"123456789123"
+                                    scope:kFIRMessagingDefaultTokenScope
+                                  options:[self tokenOptionsWithSandboxAPNSToken:APNSToken]
+                                  handler:OCMOCK_ANY])
+      .andDo(nil);
+
+  [self setSandboxAPNSToken:APNSToken];
+
+  // The cached tokens are read from the keychain only once before `setAPNSToken` returns.
+  OCMVerify(times(1), [_mockTokenStore cachedTokenInfos]);
+  // No token is cached, so the default token is fetched once the installation ID is available.
+  XCTAssertNotNil(installationIDHandler);
+  installationIDHandler(@"fake-fid", nil);
+  OCMVerifyAll(_mockTokenManager);
+  // The callback reads the cached tokens again, since they may have changed by then.
+  OCMVerify(times(2), [_mockTokenStore cachedTokenInfos]);
+}
+
+- (void)testSetAPNSTokenReadsCachedTokensOnceAndKeepsTokenCachedWithSameAPNSToken {
+  // This is the usual case at app launch: the APNs token is the same as when the cached token was
+  // fetched.
+  NSData *APNSToken = [@"fakeAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
+  [self cacheDefaultTokenWithSandboxAPNSToken:APNSToken];
+  _mockTokenStore = OCMPartialMock([self tokenStore]);
+
+  [self setSandboxAPNSToken:APNSToken];
+
+  // The cached tokens are read from the keychain only once.
+  OCMVerify(times(1), [_mockTokenStore cachedTokenInfos]);
+  // The cached token is still valid, so it's kept and nothing is fetched.
+  XCTAssertNotNil([[self tokenStore] tokenInfoWithAuthorizedEntity:@"123456789123"
+                                                             scope:kFIRMessagingDefaultTokenScope]);
+  OCMVerify(never(), [(FIRInstallations *)_testUtil.mockInstallations
+                         installationIDWithCompletion:OCMOCK_ANY]);
+}
+
+- (void)testSetAPNSTokenReadsCachedTokensOnceAndRefetchesTokenInvalidatedByAPNSTokenChange {
+  NSData *oldAPNSToken = [@"oldAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
+  NSData *newAPNSToken = [@"newAPNSToken" dataUsingEncoding:NSUTF8StringEncoding];
+  [self cacheDefaultTokenWithSandboxAPNSToken:oldAPNSToken];
+  _mockTokenStore = OCMPartialMock([self tokenStore]);
+  // Save the installation ID handler instead of calling it, to check what happens synchronously.
+  __block FIRInstallationsIDHandler installationIDHandler;
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(id handler) {
+        installationIDHandler = [handler copy];
+        return YES;
+      }]]);
+  OCMExpect(
+      [_mockTokenManager
+          fetchNewTokenWithAuthorizedEntity:@"123456789123"
+                                      scope:kFIRMessagingDefaultTokenScope
+                                 instanceID:@"fake-fid"
+                                    options:[self tokenOptionsWithSandboxAPNSToken:newAPNSToken]
+                                    handler:OCMOCK_ANY])
+      .andDo(nil);
+  // No token is left after the invalidation, so the default token is requested too. Don't let that
+  // request run.
+  OCMStub([_mockTokenManager tokenWithAuthorizedEntity:OCMOCK_ANY
+                                                 scope:OCMOCK_ANY
+                                               options:OCMOCK_ANY
+                                               handler:OCMOCK_ANY])
+      .andDo(nil);
+
+  [self setSandboxAPNSToken:newAPNSToken];
+
+  // The cached tokens are read from the keychain only once before `setAPNSToken` returns.
+  OCMVerify(times(1), [_mockTokenStore cachedTokenInfos]);
+  // The token fetched with the old APNs token is invalidated, and re-fetched with the new one once
+  // the installation ID is available.
+  XCTAssertNil([[self tokenStore] tokenInfoWithAuthorizedEntity:@"123456789123"
+                                                          scope:kFIRMessagingDefaultTokenScope]);
+  XCTAssertNotNil(installationIDHandler);
+  installationIDHandler(@"fake-fid", nil);
+  OCMVerifyAll(_mockTokenManager);
+  // The callback reads the cached tokens again, since they may have changed by then.
+  OCMVerify(times(2), [_mockTokenStore cachedTokenInfos]);
 }
 
 @end

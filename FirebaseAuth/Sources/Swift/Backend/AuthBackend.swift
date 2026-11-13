@@ -116,15 +116,15 @@ final class AuthBackend: AuthBackendProtocol {
       if let mfaResponse = response as? AuthMFAResponse,
          mfaResponse.idToken == nil,
          let enrollments = mfaResponse.mfaInfo {
-        var info: [MultiFactorInfo] = []
-        for enrollment in enrollments {
+        let info: [MultiFactorInfo] = enrollments.compactMap { enrollment in
           // check which MFA factors are enabled.
-          if let _ = enrollment.phoneInfo {
-            info.append(PhoneMultiFactorInfo(proto: enrollment))
-          } else if let _ = enrollment.totpInfo {
-            info.append(TOTPMultiFactorInfo(proto: enrollment))
+          if enrollment.phoneInfo != nil {
+            return PhoneMultiFactorInfo(proto: enrollment)
+          } else if enrollment.totpInfo != nil {
+            return TOTPMultiFactorInfo(proto: enrollment)
           } else {
             AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
+            return nil
           }
         }
         return AuthErrorUtils.secondFactorRequiredError(
@@ -456,13 +456,13 @@ final class AuthBackend: AuthBackendProtocol {
         message: serverDetailErrorMessage, credential: credential, email: email
       )
     default:
-      if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
-        for underlyingError in underlyingErrors {
-          if let reason = underlyingError["reason"] {
-            if reason.starts(with: "keyInvalid") {
+      if let underlyingErrors = errorDictionary["errors"] as? [Any] {
+        for case let underlyingError as [String: Any] in underlyingErrors {
+          if let reason = underlyingError["reason"] as? String {
+            if reason.hasPrefix("keyInvalid") {
               return AuthErrorUtils.invalidAPIKeyError()
             }
-            if underlyingError["reason"] == "ipRefererBlocked" {
+            if reason == "ipRefererBlocked" {
               return AuthErrorUtils.appNotAuthorizedError()
             }
           }
