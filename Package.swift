@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.2.0"
+let firebaseVersion = "13.3.0"
 
 /// The name of the "Firestore" package trait.
 let firestoreTraitName = "Firestore"
