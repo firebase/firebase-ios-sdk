@@ -439,6 +439,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return nil;
   }
   NSURL *url = [NSURL URLWithString:urlString];
+  // The link is delivered as an NSUserActivity webpageURL, which raises for any scheme other than
+  // http or https.
+  NSString *scheme = url.scheme.lowercaseString;
+  if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) {
+    return nil;
+  }
   return url;
 }
 
