@@ -1586,6 +1586,9 @@ func firestoreTargets() -> [Target] {
 
           // Exclude alternate implementations for other platforms
           "core/src/remote/connectivity_monitor_noop.cc",
+          "core/src/remote/grpc_root_certificate_finder_generated.cc",
+          "core/src/remote/grpc_root_certificates_generated.cc",
+          "core/src/remote/grpc_tls_credentials_provider_embedded.cc",
           "core/src/util/filesystem_win.cc",
           "core/src/util/log_stdio.cc",
           "core/src/util/secure_random_openssl.cc",
@@ -1614,6 +1617,7 @@ func firestoreTargets() -> [Target] {
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedFramework("Network"),
+          .linkedFramework("Security"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1710,6 +1714,7 @@ func firestoreTargets() -> [Target] {
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("Network"),
+        .linkedFramework("Security"),
         .linkedLibrary("c++"),
       ]
     ),

@@ -1,3 +1,17 @@
+# Unreleased
+
+- [changed] On Apple platforms, Firestore now verifies gRPC TLS server
+  certificates using `Security.framework` (`SecTrust`) instead of an embedded
+  root certificate bundle, enabling automatic OS root store, enterprise MDM,
+  and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
+  Certificates are evaluated asynchronously so verification never blocks gRPC
+  threads, and missing intermediate certificates are never fetched over the
+  network on behalf of the server.
+- [changed] On all platforms, a custom `host` that is an IP address must be
+  written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
+  internationalized host names must be Punycode-encoded, and port 0 is
+  rejected.
+
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
 - [feature] Added support for window functions in Pipelines, with the `addWindowFields`

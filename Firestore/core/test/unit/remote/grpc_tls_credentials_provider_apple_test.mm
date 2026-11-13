@@ -1,0 +1,2033 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_apple.h"
+
+#if defined(__APPLE__)
+
+#import <CommonCrypto/CommonDigest.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <Foundation/Foundation.h>
+#import <Security/Security.h>
+#import <dispatch/dispatch.h>
+
+#include <arpa/inet.h>  // NOLINT(build/include)
+#include <netinet/in.h>
+#include <poll.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <ctime>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "Firestore/core/src/remote/grpc_tls_async_verification.h"
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
+#include "Firestore/core/src/util/defer.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/string_apple.h"
+#include "Firestore/core/src/util/warnings.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_replace.h"
+#include "gtest/gtest.h"
+
+SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
+#include "grpc/credentials.h"
+#include "grpcpp/channel.h"
+#include "grpcpp/client_context.h"
+#include "grpcpp/completion_queue.h"
+#include "grpcpp/create_channel.h"
+#include "grpcpp/generic/async_generic_service.h"
+#include "grpcpp/generic/generic_stub.h"
+#include "grpcpp/security/credentials.h"
+#include "grpcpp/security/server_credentials.h"
+#include "grpcpp/security/tls_certificate_verifier.h"
+#include "grpcpp/security/tls_credentials_options.h"
+#include "grpcpp/server.h"
+#include "grpcpp/server_builder.h"
+#include "grpcpp/support/byte_buffer.h"
+#include "grpcpp/support/channel_arguments.h"
+#include "grpcpp/support/slice.h"
+#include "grpcpp/support/status.h"
+SUPPRESS_END()
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+namespace {
+
+using ByteVec = std::vector<uint8_t>;
+
+// RAII wrapper for CoreFoundation / Security.framework references.
+template <typename T>
+class ScopedCFRef {
+ public:
+  ScopedCFRef() = default;
+  explicit ScopedCFRef(T ref) : ref_(ref) {
+  }
+  ~ScopedCFRef() {
+    Reset();
+  }
+
+  ScopedCFRef(const ScopedCFRef& other) : ref_(other.ref_) {
+    if (ref_ != nullptr) {
+      CFRetain(ref_);
+    }
+  }
+
+  ScopedCFRef& operator=(const ScopedCFRef& other) {
+    if (this != &other) {
+      Reset();
+      ref_ = other.ref_;
+      if (ref_ != nullptr) {
+        CFRetain(ref_);
+      }
+    }
+    return *this;
+  }
+
+  ScopedCFRef(ScopedCFRef&& other) noexcept : ref_(other.ref_) {
+    other.ref_ = nullptr;
+  }
+
+  ScopedCFRef& operator=(ScopedCFRef&& other) noexcept {
+    if (this != &other) {
+      Reset();
+      ref_ = other.ref_;
+      other.ref_ = nullptr;
+    }
+    return *this;
+  }
+
+  void Reset(T new_ref = nullptr) {
+    if (ref_ != nullptr) {
+      CFRelease(ref_);
+    }
+    ref_ = new_ref;
+  }
+
+  T get() const {
+    return ref_;
+  }
+
+  explicit operator bool() const {
+    return ref_ != nullptr;
+  }
+
+ private:
+  T ref_ = nullptr;
+};
+
+// ---------------------------------------------------------------------------
+// Minimal deterministic ASN.1 DER + X.509v3 + PKCS#8 P-256 generator
+// ---------------------------------------------------------------------------
+
+void AppendBytes(ByteVec* out, const ByteVec& bytes) {
+  out->insert(out->end(), bytes.begin(), bytes.end());
+}
+
+void AppendDerLength(ByteVec* out, size_t len) {
+  if (len < 0x80) {
+    out->push_back(static_cast<uint8_t>(len));
+  } else if (len <= 0xFF) {
+    out->push_back(0x81);
+    out->push_back(static_cast<uint8_t>(len));
+  } else if (len <= 0xFFFF) {
+    out->push_back(0x82);
+    out->push_back(static_cast<uint8_t>((len >> 8) & 0xFF));
+    out->push_back(static_cast<uint8_t>(len & 0xFF));
+  } else {
+    HARD_ASSERT(len <= 0xFFFFFF, "ASN.1 element exceeds 16 MiB");
+    out->push_back(0x83);
+    out->push_back(static_cast<uint8_t>((len >> 16) & 0xFF));
+    out->push_back(static_cast<uint8_t>((len >> 8) & 0xFF));
+    out->push_back(static_cast<uint8_t>(len & 0xFF));
+  }
+}
+
+ByteVec DerTlv(uint8_t tag, const ByteVec& content) {
+  ByteVec out;
+  out.reserve(1 + 4 + content.size());
+  out.push_back(tag);
+  AppendDerLength(&out, content.size());
+  AppendBytes(&out, content);
+  return out;
+}
+
+ByteVec DerSequence(const ByteVec& content) {
+  return DerTlv(0x30, content);
+}
+
+ByteVec DerSet(const ByteVec& content) {
+  return DerTlv(0x31, content);
+}
+
+ByteVec DerOctetString(const ByteVec& content) {
+  return DerTlv(0x04, content);
+}
+
+ByteVec DerOid(std::initializer_list<uint8_t> oid_bytes) {
+  return DerTlv(0x06, ByteVec(oid_bytes));
+}
+
+ByteVec DerUtf8String(absl::string_view text) {
+  return DerTlv(0x0C, ByteVec(reinterpret_cast<const uint8_t*>(text.data()),
+                              reinterpret_cast<const uint8_t*>(text.data()) +
+                                  text.size()));
+}
+
+ByteVec DerBitString(uint8_t unused_bits, const ByteVec& bits) {
+  ByteVec content;
+  content.reserve(1 + bits.size());
+  content.push_back(unused_bits);
+  AppendBytes(&content, bits);
+  return DerTlv(0x03, content);
+}
+
+ByteVec DerUint64(uint64_t value) {
+  ByteVec raw;
+  for (int shift = 56; shift >= 0; shift -= 8) {
+    uint8_t byte = static_cast<uint8_t>((value >> shift) & 0xFF);
+    if (!raw.empty() || byte != 0 || shift == 0) {
+      raw.push_back(byte);
+    }
+  }
+  if ((raw.front() & 0x80) != 0) {
+    raw.insert(raw.begin(), 0x00);
+  }
+  return DerTlv(0x02, raw);
+}
+
+ByteVec DerTime(std::chrono::system_clock::time_point tp) {
+  std::time_t tt = std::chrono::system_clock::to_time_t(tp);
+  struct tm utc_tm{};
+  gmtime_r(&tt, &utc_tm);
+
+  int year = utc_tm.tm_year + 1900;
+  char buf[32] = {};
+  if (year >= 1950 && year <= 2049) {
+    std::snprintf(buf, sizeof(buf), "%02d%02d%02d%02d%02d%02dZ", year % 100,
+                  utc_tm.tm_mon + 1, utc_tm.tm_mday, utc_tm.tm_hour,
+                  utc_tm.tm_min, utc_tm.tm_sec);
+    return DerTlv(0x17, ByteVec(buf, buf + 13));  // UTCTime
+  }
+
+  std::snprintf(buf, sizeof(buf), "%04d%02d%02d%02d%02d%02dZ", year,
+                utc_tm.tm_mon + 1, utc_tm.tm_mday, utc_tm.tm_hour,
+                utc_tm.tm_min, utc_tm.tm_sec);
+  return DerTlv(0x18, ByteVec(buf, buf + 15));  // GeneralizedTime
+}
+
+ByteVec DerCommonNameRdnSequence(absl::string_view common_name) {
+  // Name ::= SEQUENCE { RelativeDistinguishedName (SET { AttributeTypeAndValue
+  // }) }
+  // id-at-commonName = 2.5.4.3 -> {0x55, 0x04, 0x03}
+  ByteVec atv;
+  AppendBytes(&atv, DerOid({0x55, 0x04, 0x03}));
+  AppendBytes(&atv, DerUtf8String(common_name));
+  return DerSequence(DerSet(DerSequence(atv)));
+}
+
+ByteVec DerExtension(std::initializer_list<uint8_t> oid_bytes,
+                     bool critical,
+                     const ByteVec& extn_value_der) {
+  ByteVec ext;
+  AppendBytes(&ext, DerOid(oid_bytes));
+  if (critical) {
+    // Canonical DER BOOLEAN TRUE = 01 01 FF. (FALSE is DEFAULT and MUST be
+    // omitted.)
+    AppendBytes(&ext, ByteVec{0x01, 0x01, 0xFF});
+  }
+  AppendBytes(&ext, DerOctetString(extn_value_der));
+  return DerSequence(ext);
+}
+
+ByteVec ComputeKeyIdentifier(const ByteVec& public_key_x963) {
+  // RFC 7093 Method 1: leftmost 160 bits (20 bytes) of SHA-256 over the
+  // SubjectPublicKey BIT STRING value.
+  uint8_t digest[CC_SHA256_DIGEST_LENGTH] = {};
+  CC_SHA256(public_key_x963.data(),
+            static_cast<CC_LONG>(public_key_x963.size()), digest);
+  return ByteVec(digest, digest + 20);
+}
+
+std::string PemEncode(absl::string_view label, const ByteVec& der) {
+  NSData* data = [NSData dataWithBytes:der.data() length:der.size()];
+  NSString* b64 = [data
+      base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength |
+                                     NSDataBase64EncodingEndLineWithLineFeed];
+  std::string body = util::MakeString(b64);
+  while (!body.empty() && (body.back() == '\n' || body.back() == '\r')) {
+    body.pop_back();
+  }
+  return absl::StrCat("-----BEGIN ", label, "-----\n", body, "\n-----END ",
+                      label, "-----\n");
+}
+
+ByteVec CopyCFDataBytes(CFDataRef data) {
+  HARD_ASSERT(data != nullptr, "Expected non-null CFDataRef");
+  const uint8_t* ptr = CFDataGetBytePtr(data);
+  CFIndex len = CFDataGetLength(data);
+  return ByteVec(ptr, ptr + len);
+}
+
+// Encodes a 97-byte Apple P-256 ANSI X9.63 private key (`04 || X || Y || D`)
+// as standard RFC 5208 PKCS#8 `PrivateKeyInfo` wrapping RFC 5915
+// `ECPrivateKey` so BoringSSL (`grpc::SslServerCredentials`) loads it
+// natively.
+std::string EncodePkcs8EcPrivateKeyPem(const ByteVec& x963_private_key) {
+  HARD_ASSERT(x963_private_key.size() == 97 && x963_private_key[0] == 0x04,
+              "Expected 97-byte uncompressed P-256 key representation");
+
+  ByteVec pub_point(x963_private_key.begin(), x963_private_key.begin() + 65);
+  ByteVec scalar_d(x963_private_key.begin() + 65, x963_private_key.end());
+
+  // ECPrivateKey ::= SEQUENCE {
+  //   version        INTEGER (1),
+  //   privateKey     OCTET STRING (32-byte scalar D),
+  //   publicKey  [1] EXPLICIT BIT STRING (0x00 || 65-byte point)
+  // }
+  ByteVec ec_priv_body;
+  AppendBytes(&ec_priv_body, DerUint64(1));
+  AppendBytes(&ec_priv_body, DerOctetString(scalar_d));
+  AppendBytes(&ec_priv_body, DerTlv(0xA1, DerBitString(0x00, pub_point)));
+  ByteVec ec_priv_der = DerSequence(ec_priv_body);
+
+  // PrivateKeyAlgorithmIdentifier ::= SEQUENCE {
+  //   id-ecPublicKey (1.2.840.10045.2.1),
+  //   prime256v1     (1.2.840.10045.3.1.7)
+  // }
+  ByteVec alg_id_body;
+  AppendBytes(&alg_id_body, DerOid({0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01}));
+  AppendBytes(&alg_id_body,
+              DerOid({0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07}));
+
+  // PrivateKeyInfo ::= SEQUENCE {
+  //   version               INTEGER (0),
+  //   privateKeyAlgorithm   AlgorithmIdentifier,
+  //   privateKey            OCTET STRING (ECPrivateKey DER)
+  // }
+  ByteVec pkcs8_body;
+  AppendBytes(&pkcs8_body, DerUint64(0));
+  AppendBytes(&pkcs8_body, DerSequence(alg_id_body));
+  AppendBytes(&pkcs8_body, DerOctetString(ec_priv_der));
+
+  return PemEncode("PRIVATE KEY", DerSequence(pkcs8_body));
+}
+
+struct GeneratedCertificate;
+
+struct CertOptions {
+  std::string common_name;
+  bool is_ca = false;
+  std::chrono::seconds not_before_offset = std::chrono::hours(-1);
+  std::chrono::seconds not_after_offset = std::chrono::hours(24);
+  std::vector<std::string> dns_sans;
+  std::vector<std::array<uint8_t, 4>> ipv4_sans;
+  std::vector<std::array<uint8_t, 16>> ipv6_sans;
+  // If set, the new certificate reuses this certificate's key pair instead of
+  // generating one. Combined with the same `common_name`, this produces
+  // cross-signed variants of one CA (same subject and key, different issuer).
+  const GeneratedCertificate* reuse_key_from = nullptr;
+  // If set, adds an Authority Information Access extension whose caIssuers
+  // URL points here.
+  std::string aia_ca_issuers_url;
+};
+
+struct GeneratedCertificate {
+  ScopedCFRef<SecKeyRef> private_key;
+  ScopedCFRef<SecCertificateRef> sec_certificate;
+  std::string private_key_pem;
+  ByteVec cert_der;
+  std::string cert_pem;
+  ByteVec subject_der;
+  ByteVec ski_bytes;
+};
+
+// Returns a +1 reference to a new random P-256 private key, or nullptr.
+SecKeyRef CreateRandomP256Key() {
+  NSDictionary* key_attrs = @{
+    (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeECSECPrimeRandom,
+    (__bridge id)kSecAttrKeySizeInBits : @256,
+  };
+  CFErrorRef raw_error = nullptr;
+  SecKeyRef key =
+      SecKeyCreateRandomKey((__bridge CFDictionaryRef)key_attrs, &raw_error);
+  ScopedCFRef<CFErrorRef> key_error(raw_error);
+  return key;
+}
+
+GeneratedCertificate GenerateCertificate(const CertOptions& options,
+                                         const GeneratedCertificate* issuer) {
+  static std::atomic<uint64_t> next_serial{0x1000};
+
+  CFErrorRef raw_error = nullptr;
+  ScopedCFRef<SecKeyRef> priv_key;
+  if (options.reuse_key_from != nullptr) {
+    priv_key = options.reuse_key_from->private_key;
+  } else {
+    priv_key.Reset(CreateRandomP256Key());
+  }
+  HARD_ASSERT(priv_key.get() != nullptr, "SecKeyCreateRandomKey failed");
+
+  ScopedCFRef<SecKeyRef> pub_key(SecKeyCopyPublicKey(priv_key.get()));
+  HARD_ASSERT(pub_key.get() != nullptr, "SecKeyCopyPublicKey failed");
+
+  raw_error = nullptr;
+  ScopedCFRef<CFDataRef> pub_ext(
+      SecKeyCopyExternalRepresentation(pub_key.get(), &raw_error));
+  ScopedCFRef<CFErrorRef> pub_error(raw_error);
+  HARD_ASSERT(pub_ext.get() != nullptr,
+              "SecKeyCopyExternalRepresentation(public) failed");
+  ByteVec pub_x963 = CopyCFDataBytes(pub_ext.get());
+  HARD_ASSERT(pub_x963.size() == 65 && pub_x963[0] == 0x04,
+              "Unexpected P-256 public key representation");
+
+  raw_error = nullptr;
+  ScopedCFRef<CFDataRef> priv_ext(
+      SecKeyCopyExternalRepresentation(priv_key.get(), &raw_error));
+  ScopedCFRef<CFErrorRef> priv_error(raw_error);
+  HARD_ASSERT(priv_ext.get() != nullptr,
+              "SecKeyCopyExternalRepresentation(private) failed");
+  ByteVec priv_x963 = CopyCFDataBytes(priv_ext.get());
+
+  ByteVec subject_der = DerCommonNameRdnSequence(options.common_name);
+  ByteVec ski_bytes = ComputeKeyIdentifier(pub_x963);
+  const ByteVec& issuer_name_der =
+      issuer != nullptr ? issuer->subject_der : subject_der;
+  const ByteVec& aki_bytes = issuer != nullptr ? issuer->ski_bytes : ski_bytes;
+  SecKeyRef signing_key =
+      issuer != nullptr ? issuer->private_key.get() : priv_key.get();
+
+  // Signature AlgorithmIdentifier: ecdsa-with-SHA256 (1.2.840.10045.4.3.2),
+  // parameters MUST be omitted per RFC 5758 Section 3.2.
+  ByteVec sig_alg_der =
+      DerSequence(DerOid({0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02}));
+
+  // SubjectPublicKeyInfo for P-256.
+  ByteVec spki_alg_body;
+  AppendBytes(&spki_alg_body,
+              DerOid({0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x02, 0x01}));
+  AppendBytes(&spki_alg_body,
+              DerOid({0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x03, 0x01, 0x07}));
+  ByteVec spki_body;
+  AppendBytes(&spki_body, DerSequence(spki_alg_body));
+  AppendBytes(&spki_body, DerBitString(0x00, pub_x963));
+  ByteVec spki_der = DerSequence(spki_body);
+
+  // Validity.
+  auto now = std::chrono::system_clock::now();
+  ByteVec validity_body;
+  AppendBytes(&validity_body, DerTime(now + options.not_before_offset));
+  AppendBytes(&validity_body, DerTime(now + options.not_after_offset));
+  ByteVec validity_der = DerSequence(validity_body);
+
+  // X.509v3 Extensions.
+  ByteVec extensions_body;
+  if (options.is_ca) {
+    // BasicConstraints (2.5.29.19, critical): SEQUENCE { cA BOOLEAN TRUE }
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x13}, /*critical=*/true,
+                             DerSequence(ByteVec{0x01, 0x01, 0xFF})));
+    // KeyUsage (2.5.29.15, critical): keyCertSign (bit 5) | cRLSign (bit 6)
+    // -> 0000_0110 = 0x06 with 1 unused trailing bit.
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x0F}, /*critical=*/true,
+                             DerBitString(0x01, ByteVec{0x06})));
+  } else {
+    // BasicConstraints (2.5.29.19, critical): SEQUENCE {} (cA DEFAULT FALSE)
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x13}, /*critical=*/true,
+                             DerSequence(ByteVec{})));
+    // KeyUsage (2.5.29.15, critical): digitalSignature (bit 0)
+    // -> 1000_0000 = 0x80 with 7 unused trailing bits.
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x0F}, /*critical=*/true,
+                             DerBitString(0x07, ByteVec{0x80})));
+    // ExtendedKeyUsage (2.5.29.37): id-kp-serverAuth (1.3.6.1.5.5.7.3.1)
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x25}, /*critical=*/false,
+                             DerSequence(DerOid({0x2B, 0x06, 0x01, 0x05, 0x05,
+                                                 0x07, 0x03, 0x01}))));
+  }
+
+  // SubjectKeyIdentifier (2.5.29.14): KeyIdentifier ::= OCTET STRING
+  AppendBytes(&extensions_body,
+              DerExtension({0x55, 0x1D, 0x0E}, /*critical=*/false,
+                           DerOctetString(ski_bytes)));
+
+  // AuthorityKeyIdentifier (2.5.29.35): SEQUENCE { [0] IMPLICIT KeyIdentifier }
+  AppendBytes(&extensions_body,
+              DerExtension({0x55, 0x1D, 0x23}, /*critical=*/false,
+                           DerSequence(DerTlv(0x80, aki_bytes))));
+
+  // AuthorityInfoAccess (1.3.6.1.5.5.7.1.1):
+  //   SEQUENCE OF SEQUENCE { caIssuers (1.3.6.1.5.5.7.48.2),
+  //                          uniformResourceIdentifier [6] IA5String }
+  if (!options.aia_ca_issuers_url.empty()) {
+    ByteVec access_description;
+    AppendBytes(&access_description,
+                DerOid({0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x30, 0x02}));
+    AppendBytes(&access_description,
+                DerTlv(0x86, ByteVec(options.aia_ca_issuers_url.begin(),
+                                     options.aia_ca_issuers_url.end())));
+    AppendBytes(&extensions_body,
+                DerExtension({0x2B, 0x06, 0x01, 0x05, 0x05, 0x07, 0x01, 0x01},
+                             /*critical=*/false,
+                             DerSequence(DerSequence(access_description))));
+  }
+
+  // SubjectAltName (2.5.29.17)
+  if (!options.dns_sans.empty() || !options.ipv4_sans.empty() ||
+      !options.ipv6_sans.empty()) {
+    ByteVec general_names;
+    for (const std::string& dns : options.dns_sans) {
+      // dNSName [2] IMPLICIT IA5String
+      ByteVec dns_bytes(dns.begin(), dns.end());
+      AppendBytes(&general_names, DerTlv(0x82, dns_bytes));
+    }
+    for (const auto& ipv4 : options.ipv4_sans) {
+      // iPAddress [7] IMPLICIT OCTET STRING (4 bytes for IPv4)
+      AppendBytes(&general_names,
+                  DerTlv(0x87, ByteVec(ipv4.begin(), ipv4.end())));
+    }
+    for (const auto& ipv6 : options.ipv6_sans) {
+      // iPAddress [7] IMPLICIT OCTET STRING (16 bytes for IPv6)
+      AppendBytes(&general_names,
+                  DerTlv(0x87, ByteVec(ipv6.begin(), ipv6.end())));
+    }
+    AppendBytes(&extensions_body,
+                DerExtension({0x55, 0x1D, 0x11}, /*critical=*/false,
+                             DerSequence(general_names)));
+  }
+
+  // TBSCertificate ::= SEQUENCE {
+  //   version         [0] EXPLICIT INTEGER (2 = v3),
+  //   serialNumber        INTEGER,
+  //   signature           AlgorithmIdentifier,
+  //   issuer              Name,
+  //   validity            Validity,
+  //   subject             Name,
+  //   subjectPublicKeyInfo SubjectPublicKeyInfo,
+  //   extensions      [3] EXPLICIT Extensions
+  // }
+  uint64_t serial = next_serial.fetch_add(1, std::memory_order_relaxed);
+  ByteVec tbs_body;
+  AppendBytes(&tbs_body, DerTlv(0xA0, DerUint64(2)));
+  AppendBytes(&tbs_body, DerUint64(serial));
+  AppendBytes(&tbs_body, sig_alg_der);
+  AppendBytes(&tbs_body, issuer_name_der);
+  AppendBytes(&tbs_body, validity_der);
+  AppendBytes(&tbs_body, subject_der);
+  AppendBytes(&tbs_body, spki_der);
+  AppendBytes(&tbs_body, DerTlv(0xA3, DerSequence(extensions_body)));
+  ByteVec tbs_der = DerSequence(tbs_body);
+
+  // Sign TBSCertificate with issuer's P-256 key (ECDSA-SHA256 X9.62 DER).
+  ScopedCFRef<CFDataRef> tbs_cf_data(
+      CFDataCreate(kCFAllocatorDefault, tbs_der.data(),
+                   static_cast<CFIndex>(tbs_der.size())));
+  raw_error = nullptr;
+  ScopedCFRef<CFDataRef> sig_cf_data(SecKeyCreateSignature(
+      signing_key, kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+      tbs_cf_data.get(), &raw_error));
+  ScopedCFRef<CFErrorRef> sig_error(raw_error);
+  HARD_ASSERT(sig_cf_data.get() != nullptr, "SecKeyCreateSignature failed");
+  ByteVec sig_der = CopyCFDataBytes(sig_cf_data.get());
+
+  // Certificate ::= SEQUENCE { tbsCertificate, signatureAlgorithm,
+  // signatureValue }
+  ByteVec cert_body;
+  AppendBytes(&cert_body, tbs_der);
+  AppendBytes(&cert_body, sig_alg_der);
+  AppendBytes(&cert_body, DerBitString(0x00, sig_der));
+  ByteVec cert_der = DerSequence(cert_body);
+
+  ScopedCFRef<CFDataRef> cert_cf_data(
+      CFDataCreate(kCFAllocatorDefault, cert_der.data(),
+                   static_cast<CFIndex>(cert_der.size())));
+  ScopedCFRef<SecCertificateRef> sec_cert(
+      SecCertificateCreateWithData(kCFAllocatorDefault, cert_cf_data.get()));
+  HARD_ASSERT(sec_cert.get() != nullptr,
+              "Generated X.509 DER rejected by SecCertificateCreateWithData");
+
+  GeneratedCertificate result;
+  result.private_key = std::move(priv_key);
+  result.sec_certificate = std::move(sec_cert);
+  result.private_key_pem = EncodePkcs8EcPrivateKeyPem(priv_x963);
+  result.cert_pem = PemEncode("CERTIFICATE", cert_der);
+  result.cert_der = std::move(cert_der);
+  result.subject_der = std::move(subject_der);
+  result.ski_bytes = std::move(ski_bytes);
+  return result;
+}
+
+struct ThreeTierPki {
+  GeneratedCertificate root;
+  GeneratedCertificate intermediate;
+  GeneratedCertificate leaf;
+
+  std::string ServerChainPem() const {
+    return absl::StrCat(leaf.cert_pem, intermediate.cert_pem);
+  }
+
+  ScopedCFRef<CFArrayRef> RootAnchorArray() const {
+    const void* values[] = {root.sec_certificate.get()};
+    return ScopedCFRef<CFArrayRef>(
+        CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+  }
+};
+
+ThreeTierPki BuildThreeTierPki(const CertOptions& leaf_options,
+                               absl::string_view pki_label = "Primary") {
+  CertOptions root_opts;
+  root_opts.common_name = absl::StrCat("Firestore Test Root CA ", pki_label);
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate root =
+      GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  CertOptions inter_opts;
+  inter_opts.common_name =
+      absl::StrCat("Firestore Test Intermediate CA ", pki_label);
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate intermediate = GenerateCertificate(inter_opts, &root);
+
+  GeneratedCertificate leaf = GenerateCertificate(leaf_options, &intermediate);
+  return ThreeTierPki{std::move(root), std::move(intermediate),
+                      std::move(leaf)};
+}
+
+// ---------------------------------------------------------------------------
+// In-process gRPC TLS loopback server & unary echo client helpers
+// ---------------------------------------------------------------------------
+
+// Ephemeral localhost gRPC TLS server backed by `grpc::AsyncGenericService`
+// (compatible across both CMake gRPC 1.69.0 and CocoaPods/SPM gRPC 1.83.1+).
+class TlsLoopbackServer {
+ public:
+  TlsLoopbackServer(const std::string& server_private_key_pem,
+                    const std::string& server_cert_chain_pem) {
+    grpc::SslServerCredentialsOptions ssl_options;
+    ssl_options.pem_key_cert_pairs.push_back(
+        {server_private_key_pem, server_cert_chain_pem});
+
+    grpc::ServerBuilder builder;
+    builder.AddListeningPort("127.0.0.1:0",
+                             grpc::SslServerCredentials(ssl_options), &port_);
+    builder.RegisterAsyncGenericService(&generic_service_);
+    cq_ = builder.AddCompletionQueue();
+    server_ = builder.BuildAndStart();
+
+    if (server_ != nullptr && port_ > 0) {
+      server_thread_ = std::thread([this] { ServeLoop(); });
+    }
+  }
+
+  ~TlsLoopbackServer() {
+    if (server_ != nullptr) {
+      server_->Shutdown(std::chrono::system_clock::now());
+    }
+    {
+      std::lock_guard<std::mutex> lock(mu_);
+      shutting_down_ = true;
+      if (cq_ != nullptr) {
+        cq_->Shutdown();
+      }
+    }
+    if (server_thread_.joinable()) {
+      server_thread_.join();
+    }
+  }
+
+  TlsLoopbackServer(const TlsLoopbackServer&) = delete;
+  TlsLoopbackServer& operator=(const TlsLoopbackServer&) = delete;
+
+  bool started() const {
+    return server_ != nullptr && port_ > 0;
+  }
+
+  int port() const {
+    return port_;
+  }
+
+  std::string target() const {
+    return absl::StrCat("127.0.0.1:", port_);
+  }
+
+ private:
+  enum class Step { kRequest, kRead, kWriteAndFinish };
+
+  struct CallState {
+    grpc::GenericServerContext ctx;
+    grpc::GenericServerAsyncReaderWriter stream{&ctx};
+    grpc::ByteBuffer request;
+    Step step = Step::kRequest;
+  };
+
+  void SpawnCall() {
+    std::lock_guard<std::mutex> lock(mu_);
+    if (shutting_down_) {
+      return;
+    }
+    auto* state = new CallState();
+    generic_service_.RequestCall(&state->ctx, &state->stream, cq_.get(),
+                                 cq_.get(), state);
+  }
+
+  void ServeLoop() {
+    SpawnCall();
+
+    void* tag = nullptr;
+    bool ok = false;
+    while (cq_->Next(&tag, &ok)) {
+      auto* state = static_cast<CallState*>(tag);
+      if (!ok) {
+        delete state;
+        continue;
+      }
+
+      switch (state->step) {
+        case Step::kRequest: {
+          SpawnCall();
+          std::lock_guard<std::mutex> lock(mu_);
+          if (shutting_down_) {
+            delete state;
+            break;
+          }
+          state->step = Step::kRead;
+          state->stream.Read(&state->request, state);
+          break;
+        }
+        case Step::kRead: {
+          std::lock_guard<std::mutex> lock(mu_);
+          if (shutting_down_) {
+            delete state;
+            break;
+          }
+          state->step = Step::kWriteAndFinish;
+          state->stream.WriteAndFinish(state->request, grpc::WriteOptions{},
+                                       grpc::Status::OK, state);
+          break;
+        }
+        case Step::kWriteAndFinish:
+          delete state;
+          break;
+      }
+    }
+  }
+
+  int port_ = 0;
+  grpc::AsyncGenericService generic_service_;
+  std::unique_ptr<grpc::ServerCompletionQueue> cq_;
+  std::unique_ptr<grpc::Server> server_;
+  std::mutex mu_;
+  bool shutting_down_ = false;
+  std::thread server_thread_;
+};
+
+std::string ReadByteBuffer(const grpc::ByteBuffer& buffer) {
+  std::vector<grpc::Slice> slices;
+  grpc::Status dump_status = buffer.Dump(&slices);
+  HARD_ASSERT(dump_status.ok(), "ByteBuffer::Dump failed");
+  std::string out;
+  for (const grpc::Slice& slice : slices) {
+    out.append(reinterpret_cast<const char*>(slice.begin()), slice.size());
+  }
+  return out;
+}
+
+grpc::Status PerformUnaryEcho(
+    const std::shared_ptr<grpc::Channel>& channel,
+    const std::string& payload,
+    std::string* out_response = nullptr,
+    std::chrono::milliseconds deadline = std::chrono::seconds(5),
+    bool wait_for_ready = false) {
+  grpc::GenericStub stub(channel);
+  grpc::ClientContext context;
+  context.set_deadline(std::chrono::system_clock::now() + deadline);
+  context.set_wait_for_ready(wait_for_ready);
+
+  grpc::Slice req_slice(payload);
+  grpc::ByteBuffer request(&req_slice, 1);
+  grpc::ByteBuffer response;
+  grpc::Status status;
+
+  grpc::CompletionQueue cq;
+  std::unique_ptr<grpc::GenericClientAsyncResponseReader> call =
+      stub.PrepareUnaryCall(&context, "/firestore.TlsLoopbackTest/Echo",
+                            request, &cq);
+  HARD_ASSERT(call != nullptr, "PrepareUnaryCall returned null");
+  call->StartCall();
+
+  void* finish_tag = reinterpret_cast<void*>(1);
+  call->Finish(&response, &status, finish_tag);
+
+  void* got_tag = nullptr;
+  bool ok = false;
+  HARD_ASSERT(cq.Next(&got_tag, &ok) && got_tag == finish_tag,
+              "Expected unary RPC finish tag from CompletionQueue");
+  cq.Shutdown();
+  while (cq.Next(&got_tag, &ok)) {
+  }
+
+  if (status.ok() && out_response != nullptr) {
+    *out_response = ReadByteBuffer(response);
+  }
+  return status;
+}
+
+// ===========================================================================
+// 1. ExtractTlsHostName Unit Tests (tested through
+// VerifyAppleTlsCertificateChain)
+// ===========================================================================
+
+TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "firestore.googleapis.com";
+  leaf_opts.dns_sans = {"firestore.googleapis.com"};
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  for (const auto& target :
+       {"firestore.googleapis.com", "firestore.googleapis.com:443", "127.0.0.1",
+        "127.0.0.1:50051"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
+    EXPECT_TRUE(status.ok())
+        << "target: " << target << " error: " << status.error_message();
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv6.firestore.local";
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0x20, 0x01, 0x0d, 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  for (const auto& target :
+       {"[::1]:443", "[2001:db8::1]", "[2001:db8::1]:8443",
+        "[::ffff:7f00:1]:443", "[fe80::1%en0]:443", "fe80::1%en0", "::1",
+        "2001:db8::1",
+        // IPv4-mapped literals in dotted form.
+        "[::ffff:127.0.0.1]:443", "[::ffff:127.0.0.1]", "::ffff:127.0.0.1"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
+    EXPECT_TRUE(status.ok())
+        << "target: " << target << " error: " << status.error_message();
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "firestore.googleapis.com";
+  leaf_opts.dns_sans = {"firestore.googleapis.com"};
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
+      {0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  const std::string embedded_nul_target(
+      "firestore.googleapis.com\0evil",
+      sizeof("firestore.googleapis.com\0evil") - 1);
+  const std::vector<std::string> malformed_targets = {
+      "",
+      ":443",
+      "firestore.googleapis.com:",
+      "firestore.googleapis.com:notaport",
+      "https://firestore.googleapis.com",
+      "https://firestore.googleapis.com:443",
+      "unix:/tmp/grpc.sock",
+      "dns:///firestore.googleapis.com",
+      "dns://8.8.8.8",
+      "dns:",
+      "ipv4:",
+      "ipv6:",
+      "foo:bar:baz",
+      "[example.com]:443",
+      "[::1",
+      "[]",
+      "[::1]:",
+      "[::1]:notaport",
+      "[fe80::1%]:443",
+      "fe80::1%",
+      "[::1]junk",
+      "firestore.googleapis.com\n",
+      embedded_nul_target};
+
+  for (const auto& target : malformed_targets) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                         target, anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << "target: " << target;
+  }
+}
+
+// ===========================================================================
+// 2. ParsePemCertificateChain Unit Tests (tested through
+// VerifyAppleTlsCertificateChain)
+// ===========================================================================
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParsePemCertificateChainSingleCertificate) {
+  CertOptions opts;
+  opts.common_name = "single.firestore.local";
+  opts.dns_sans = {"single.firestore.local"};
+  GeneratedCertificate cert = GenerateCertificate(opts, /*issuer=*/nullptr);
+
+  const void* values[] = {cert.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> anchor(
+      CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      cert.cert_pem, "single.firestore.local", anchor.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParsePemCertificateChainMultiCertPreservesExactOrder) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "leaf.firestore.local";
+  leaf_opts.dns_sans = {"leaf.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  std::string leaf_first_chain = absl::StrCat(
+      pki.leaf.cert_pem, pki.intermediate.cert_pem, pki.root.cert_pem);
+  grpc::Status ok_status = VerifyAppleTlsCertificateChain(
+      leaf_first_chain, "leaf.firestore.local", anchors.get());
+  EXPECT_TRUE(ok_status.ok()) << ok_status.error_message();
+
+  std::string reversed_chain = absl::StrCat(
+      pki.intermediate.cert_pem, pki.leaf.cert_pem, pki.root.cert_pem);
+  grpc::Status bad_status = VerifyAppleTlsCertificateChain(
+      reversed_chain, "leaf.firestore.local", anchors.get());
+  EXPECT_EQ(bad_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParsePemCertificateChainHandlesCrlfAndBlankWhitespaceLines) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "crlf.firestore.local";
+  leaf_opts.dns_sans = {"crlf.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  std::string crlf_leaf = absl::StrReplaceAll(
+      pki.leaf.cert_pem,
+      {{"-----BEGIN CERTIFICATE-----", "-----BEGIN CERTIFICATE-----   \t"},
+       {"\n", "\r\n\r\n"}});
+  std::string crlf_inter =
+      absl::StrReplaceAll(pki.intermediate.cert_pem, {{"\n", "\r\n"}});
+
+  std::string whitespace_padded_pem = absl::StrCat(
+      "  \t\r\n\r\n", crlf_leaf, "   \t  \r\n\n", crlf_inter, "\r\n  \t \r\n");
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      whitespace_padded_pem, "crlf.firestore.local", anchors.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParsePemCertificateChainFailsClosedOnEmptyOrNonPemInput) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  for (const auto& bad_input :
+       {"", "   \t\r\n  \n ", "not a PEM block at all"}) {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        bad_input, "test.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParsePemCertificateChainFailsClosedOnUnclosedOrCorruptedBlocks) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "valid.firestore.local";
+  leaf_opts.dns_sans = {"valid.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  EXPECT_TRUE(VerifyAppleTlsCertificateChain(
+                  pki.ServerChainPem(), "valid.firestore.local", anchors.get())
+                  .ok());
+
+  // Unclosed BEGIN CERTIFICATE block.
+  {
+    grpc::Status status =
+        VerifyAppleTlsCertificateChain("-----BEGIN CERTIFICATE-----\nMIIB\n",
+                                       "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+
+  // Malformed base64 inside PEM block.
+  {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        "-----BEGIN CERTIFICATE-----\n***not-valid-base64***\n"
+        "-----END CERTIFICATE-----\n",
+        "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+
+  // Valid base64 encoding non-DER garbage bytes.
+  std::string garbage_pem = PemEncode(
+      "CERTIFICATE", ByteVec{'n', 'o', 't', '-', 'x', '5', '0', '9', '-', 'd',
+                             'e', 'r', '-', 'b', 'y', 't', 'e', 's'});
+  {
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        garbage_pem, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+
+  // Valid leaf followed by a trailing corrupted PEM block MUST fail closed
+  // rather than silently returning only the first certificate.
+  {
+    std::string valid_then_corrupt = absl::StrCat(
+        pki.ServerChainPem(), "-----BEGIN CERTIFICATE-----\n@@@corrupt@@@\n"
+                              "-----END CERTIFICATE-----\n");
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        valid_then_corrupt, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+  {
+    std::string valid_then_garbage_der =
+        absl::StrCat(pki.ServerChainPem(), garbage_pem);
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        valid_then_garbage_der, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+  {
+    std::string valid_then_unclosed =
+        absl::StrCat(pki.ServerChainPem(), "-----BEGIN CERTIFICATE-----\nMIIB");
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        valid_then_unclosed, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+  {
+    std::string valid_then_truncated_header =
+        absl::StrCat(pki.ServerChainPem(), "-----BEGIN CERTIFICAT\nMIIB\n");
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        valid_then_truncated_header, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+  {
+    std::string valid_then_trailing_junk =
+        absl::StrCat(pki.ServerChainPem(), "unexpected trailing metadata\n");
+    grpc::Status status = VerifyAppleTlsCertificateChain(
+        valid_then_trailing_junk, "valid.firestore.local", anchors.get());
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  }
+}
+
+// ===========================================================================
+// 3. VerifyAppleTlsCertificateChain Direct SecTrust Unit Tests
+// ===========================================================================
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyValidThreeTierChainWithMatchingDnsSan) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyValidThreeTierChainWithMatchingIpv4San) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv4-loopback.firestore.local";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      pki.ServerChainPem(), "127.0.0.1:443", anchors.get());
+  EXPECT_TRUE(status.ok()) << status.error_message();
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyValidThreeTierChainWithMatchingIpv6San) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv6-loopback.firestore.local";
+  leaf_opts.ipv6_sans = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "[::1]:443",
+                                             anchors.get())
+                  .ok());
+  EXPECT_TRUE(
+      VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "::1", anchors.get())
+          .ok());
+  EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                             "[::1%en0]:443", anchors.get())
+                  .ok());
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsExpiredLeafCertificate) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  leaf_opts.not_before_offset = std::chrono::hours(-48);
+  leaf_opts.not_after_offset = std::chrono::hours(-24);
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyRejectsNotYetValidLeafCertificate) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  leaf_opts.not_before_offset = std::chrono::hours(24);
+  leaf_opts.not_after_offset = std::chrono::hours(48);
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsWrongTargetHostName) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(
+      pki.ServerChainPem(), "wrong.firestore.local", anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsUntrustedRoot) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+
+  // Chain signed by Root B evaluated against custom anchor Root A.
+  grpc::Status custom_anchor_status = VerifyAppleTlsCertificateChain(
+      pki_b.ServerChainPem(), "test.firestore.local:443", root_a_anchors.get());
+  EXPECT_EQ(custom_anchor_status.error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+
+  // Ephemeral chain signed by Root B evaluated against default Apple OS trust.
+  grpc::Status os_trust_status = VerifyAppleTlsCertificateChain(
+      pki_b.ServerChainPem(), "test.firestore.local:443",
+      /*anchor_certs=*/nullptr);
+  EXPECT_EQ(os_trust_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyRejectsMissingOrUntrustedIntermediate) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+  ScopedCFRef<CFArrayRef> root_b_anchors = pki_b.RootAnchorArray();
+
+  // Leaf signed by Intermediate B (omitted from PEM chain) against Root A.
+  grpc::Status wrong_anchor_status = VerifyAppleTlsCertificateChain(
+      pki_b.leaf.cert_pem, "test.firestore.local:443", root_a_anchors.get());
+  EXPECT_EQ(wrong_anchor_status.error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+
+  // Leaf signed by Intermediate B (omitted from PEM chain) against Root B.
+  grpc::Status missing_inter_status = VerifyAppleTlsCertificateChain(
+      pki_b.leaf.cert_pem, "test.firestore.local:443", root_b_anchors.get());
+  EXPECT_EQ(missing_inter_status.error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyRejectsNonAsciiTargetNameWithPunycodeHint) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
+                                                       "b\xc3\xbc"
+                                                       "cher.example:443",
+                                                       anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("Punycode"), std::string::npos)
+      << status.error_message();
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsEmptyTargetName) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  grpc::Status status =
+      VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "", anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+}
+
+// ===========================================================================
+// 4. End-to-End In-Process gRPC Server TLS Loopback Tests
+// ===========================================================================
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerSucceedsWithValidIpv4SanChain) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv4-loopback.firestore.local";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+      server.target(), CreateAppleTlsCredentials(root_anchors.get()));
+
+  std::string echoed;
+  grpc::Status status =
+      PerformUnaryEcho(channel, "ping-ipv4-loopback", &echoed);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::OK)
+      << status.error_message();
+  EXPECT_EQ(echoed, "ping-ipv4-loopback");
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerSucceedsWithDnsSanAndSslTargetNameOverride) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "loopback.firestore.test";
+  leaf_opts.dns_sans = {"loopback.firestore.test"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  grpc::ChannelArguments args;
+  args.SetSslTargetNameOverride("loopback.firestore.test");
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateCustomChannel(
+      server.target(), CreateAppleTlsCredentials(root_anchors.get()), args);
+
+  std::string echoed;
+  grpc::Status status =
+      PerformUnaryEcho(channel, "ping-dns-override-loopback", &echoed);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::OK)
+      << status.error_message();
+  EXPECT_EQ(echoed, "ping-dns-override-loopback");
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerRejectsUntrustedRoot) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "127.0.0.1";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+
+  TlsLoopbackServer server(pki_b.leaf.private_key_pem, pki_b.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  // Custom anchor Root A must reject server chain signed by Root B.
+  std::shared_ptr<grpc::Channel> custom_anchor_channel = grpc::CreateChannel(
+      server.target(), CreateAppleTlsCredentials(root_a_anchors.get()));
+  grpc::Status custom_status =
+      PerformUnaryEcho(custom_anchor_channel, "should-fail-root-a");
+  EXPECT_FALSE(custom_status.ok());
+  EXPECT_EQ(custom_status.error_code(), grpc::StatusCode::UNAVAILABLE);
+
+  // Default OS trust (`CreateDefaultTlsCredentials()`) must also reject
+  // ephemeral Root B.
+  std::shared_ptr<grpc::Channel> default_trust_channel =
+      grpc::CreateChannel(server.target(), CreateDefaultTlsCredentials());
+  grpc::Status default_status =
+      PerformUnaryEcho(default_trust_channel, "should-fail-os-trust");
+  EXPECT_FALSE(default_status.ok());
+  EXPECT_EQ(default_status.error_code(), grpc::StatusCode::UNAVAILABLE);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerRejectsWrongHostName) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "expected.firestore.test";
+  leaf_opts.dns_sans = {"expected.firestore.test"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  grpc::ChannelArguments args;
+  args.SetSslTargetNameOverride("wrong.firestore.test");
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateCustomChannel(
+      server.target(), CreateAppleTlsCredentials(root_anchors.get()), args);
+
+  grpc::Status status = PerformUnaryEcho(channel, "should-fail-wrong-host");
+  EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerRejectsMissingIntermediate) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "127.0.0.1";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  // Server presents ONLY leaf.cert_pem (omitting intermediate.cert_pem), while
+  // client trusts only root.
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.leaf.cert_pem);
+  ASSERT_TRUE(server.started());
+
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+      server.target(), CreateAppleTlsCredentials(root_anchors.get()));
+
+  grpc::Status status = PerformUnaryEcho(channel, "should-fail-missing-inter");
+  EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackGrpcServerRejectsExpiredLeafCertificate) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "127.0.0.1";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  leaf_opts.not_before_offset = std::chrono::hours(-48);
+  leaf_opts.not_after_offset = std::chrono::hours(-24);
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+      server.target(), CreateAppleTlsCredentials(root_anchors.get()));
+
+  grpc::Status status = PerformUnaryEcho(channel, "should-fail-expired-leaf");
+  EXPECT_FALSE(status.ok());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE);
+}
+
+// ===========================================================================
+// 5. Asynchronous SecTrust Evaluation
+// ===========================================================================
+
+constexpr auto kAsyncTimeout = std::chrono::seconds(10);
+
+char kTestQueueKey;
+
+// Creates a serial queue that `IsCurrentQueue()` can recognize.
+dispatch_queue_t MakeTestQueue(const char* label) {
+  dispatch_queue_t queue = dispatch_queue_create(label, DISPATCH_QUEUE_SERIAL);
+  dispatch_queue_set_specific(queue, &kTestQueueKey, const_cast<char*>(label),
+                              nullptr);
+  return queue;
+}
+
+bool IsCurrentQueue(dispatch_queue_t queue) {
+  void* expected = dispatch_queue_get_specific(queue, &kTestQueueKey);
+  return expected != nullptr &&
+         dispatch_get_specific(&kTestQueueKey) == expected;
+}
+
+// Blocks a serial queue until `Release()` (or destruction), so tests control
+// when queued evaluations run.
+class QueueBlocker {
+ public:
+  explicit QueueBlocker(dispatch_queue_t queue)
+      : semaphore_(dispatch_semaphore_create(0)) {
+    dispatch_semaphore_t semaphore = semaphore_;
+    dispatch_async(queue, ^{
+      dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    });
+  }
+
+  ~QueueBlocker() {
+    Release();
+  }
+
+  void Release() {
+    if (!released_) {
+      released_ = true;
+      dispatch_semaphore_signal(semaphore_);
+    }
+  }
+
+ private:
+  dispatch_semaphore_t semaphore_;
+  bool released_ = false;
+};
+
+// Records completions of an asynchronous verification. The recorded state is
+// shared with the callbacks, so a callback that runs after the recorder is
+// destroyed (for example, after an early ASSERT failure) stays safe.
+class AsyncRecorder {
+ public:
+  explicit AsyncRecorder(dispatch_queue_t expected_queue = nullptr)
+      : state_(std::make_shared<State>()) {
+    state_->expected_queue = expected_queue;
+  }
+
+  TlsVerificationCallback AsCallback() {
+    std::shared_ptr<State> state = state_;
+    return [state](grpc::Status status) {
+      bool on_queue = state->expected_queue == nullptr ||
+                      IsCurrentQueue(state->expected_queue);
+      std::lock_guard<std::mutex> lock(state->mutex);
+      ++state->count;
+      state->status = std::move(status);
+      state->all_on_expected_queue = state->all_on_expected_queue && on_queue;
+      state->cv.notify_all();
+    };
+  }
+
+  bool WaitForCount(int expected) {
+    std::unique_lock<std::mutex> lock(state_->mutex);
+    return state_->cv.wait_for(lock, kAsyncTimeout,
+                               [&] { return state_->count >= expected; });
+  }
+
+  int count() const {
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->count;
+  }
+
+  grpc::Status status() const {
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->status;
+  }
+
+  bool all_on_expected_queue() const {
+    std::lock_guard<std::mutex> lock(state_->mutex);
+    return state_->all_on_expected_queue;
+  }
+
+ private:
+  struct State {
+    dispatch_queue_t expected_queue = nullptr;
+    std::mutex mutex;
+    std::condition_variable cv;
+    int count = 0;
+    grpc::Status status;
+    bool all_on_expected_queue = true;
+  };
+
+  std::shared_ptr<State> state_;
+};
+
+// A gRPC verification request backed by test-owned strings.
+class FakeVerificationRequest {
+ public:
+  FakeVerificationRequest(std::string pem_chain, std::string target_name)
+      : pem_chain_(std::move(pem_chain)), target_name_(std::move(target_name)) {
+    std::memset(&c_request_, 0, sizeof(c_request_));
+    c_request_.target_name = target_name_.c_str();
+    c_request_.peer_info.peer_cert_full_chain = pem_chain_.c_str();
+  }
+
+  FakeVerificationRequest(const FakeVerificationRequest&) = delete;
+  FakeVerificationRequest& operator=(const FakeVerificationRequest&) = delete;
+
+  grpc::experimental::TlsCustomVerificationCheckRequest* get() {
+    return &request_;
+  }
+
+ private:
+  std::string pem_chain_;
+  std::string target_name_;
+  grpc_tls_custom_verification_check_request c_request_;
+  grpc::experimental::TlsCustomVerificationCheckRequest request_{&c_request_};
+};
+
+// Waits until everything currently queued on `queue`, plus one round of
+// work those items enqueue (such as `SecTrustEvaluateAsyncWithError` results),
+// has run, or until a short grace period passes.
+void DrainQueue(dispatch_queue_t queue) {
+  for (int i = 0; i < 3; ++i) {
+    // Returning means everything queued before this no-op has run.
+    dispatch_sync_f(queue, nullptr, [](void*) {});
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncSucceedsAndCompletesOnQueueForValidChain) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.valid");
+  AsyncRecorder recorder(queue);
+
+  VerifyAppleTlsCertificateChainAsync(
+      TlsVerificationInput{pki.ServerChainPem(), "test.firestore.local:443"},
+      anchors.get(), queue, recorder.AsCallback());
+
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_TRUE(recorder.status().ok()) << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+  DrainQueue(queue);
+  EXPECT_EQ(recorder.count(), 1);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncRejectsUntrustedRootLikeSyncPath) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.untrusted");
+  AsyncRecorder recorder(queue);
+
+  VerifyAppleTlsCertificateChainAsync(
+      TlsVerificationInput{pki_b.ServerChainPem(), "test.firestore.local:443"},
+      root_a_anchors.get(), queue, recorder.AsCallback());
+
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  grpc::Status sync_status = VerifyAppleTlsCertificateChain(
+      pki_b.ServerChainPem(), "test.firestore.local:443", root_a_anchors.get());
+  EXPECT_EQ(recorder.status().error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_EQ(recorder.status().error_code(), sync_status.error_code());
+  EXPECT_NE(recorder.status().error_message().find(
+                "Apple SecTrust TLS certificate verification failed for "
+                "'test.firestore.local'"),
+            std::string::npos)
+      << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyAsyncReportsSetupFailuresOnQueueLikeSyncPath) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.async.setup");
+
+  struct Case {
+    std::string pem_chain;
+    std::string target_name;
+  };
+  std::vector<Case> cases = {
+      {"not a PEM block at all", "test.firestore.local"},
+      {pki.ServerChainPem(), ""},
+      {pki.ServerChainPem(), "bad host/name"},
+  };
+  for (const Case& c : cases) {
+    AsyncRecorder recorder(queue);
+    VerifyAppleTlsCertificateChainAsync(
+        TlsVerificationInput{c.pem_chain, c.target_name}, anchors.get(), queue,
+        recorder.AsCallback());
+    ASSERT_TRUE(recorder.WaitForCount(1));
+    grpc::Status sync_status = VerifyAppleTlsCertificateChain(
+        c.pem_chain, c.target_name, anchors.get());
+    EXPECT_EQ(recorder.status().error_code(),
+              grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(recorder.status().error_message(), sync_status.error_message());
+    EXPECT_TRUE(recorder.all_on_expected_queue());
+    DrainQueue(queue);
+    EXPECT_EQ(recorder.count(), 1);
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierVerifyReturnsBeforeEvaluationRuns) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.async");
+  AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
+  FakeVerificationRequest request(pki.ServerChainPem(),
+                                  "test.firestore.local:443");
+  AsyncRecorder recorder(queue);
+
+  QueueBlocker blocker(queue);
+  grpc::Status sync_status;
+  EXPECT_FALSE(
+      verifier.Verify(request.get(), recorder.AsCallback(), &sync_status));
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  EXPECT_EQ(recorder.count(), 0);
+
+  blocker.Release();
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_TRUE(recorder.status().ok()) << recorder.status().error_message();
+  EXPECT_TRUE(recorder.all_on_expected_queue());
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierCancelInFlightDeliversCancelledOnceAndDestroysCleanly) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "test.firestore.local";
+  leaf_opts.dns_sans = {"test.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.cancel");
+  auto verifier =
+      std::make_unique<AppleSecTrustCertificateVerifier>(anchors.get(), queue);
+  FakeVerificationRequest request(pki.ServerChainPem(),
+                                  "test.firestore.local:443");
+  AsyncRecorder recorder;
+
+  QueueBlocker blocker(queue);
+  grpc::Status sync_status;
+  ASSERT_FALSE(
+      verifier->Verify(request.get(), recorder.AsCallback(), &sync_status));
+
+  // Cancellation is delivered on another queue, never inside Cancel() (gRPC
+  // holds its handshake lock there), and does not wait for the blocked
+  // evaluation queue.
+  verifier->Cancel(request.get());
+  ASSERT_TRUE(recorder.WaitForCount(1));
+  EXPECT_EQ(recorder.status().error_code(),
+            TlsVerificationCancelledStatus().error_code());
+  EXPECT_EQ(recorder.status().error_message(),
+            TlsVerificationCancelledStatus().error_message());
+
+  // Destroy the verifier while its evaluation is still queued, then let the
+  // evaluation run. Its completion must be ignored without touching freed
+  // memory.
+  verifier.reset();
+  blocker.Release();
+  DrainQueue(queue);
+  EXPECT_EQ(recorder.count(), 1);
+  EXPECT_EQ(recorder.status().error_code(), grpc::StatusCode::CANCELLED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     CrossSignedIntermediateBuildsPathToEitherAnchor) {
+  CertOptions root_opts;
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  root_opts.common_name = "Firestore Test Cross Root R1";
+  GeneratedCertificate r1 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+  root_opts.common_name = "Firestore Test Cross Root R2";
+  GeneratedCertificate r2 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+  root_opts.common_name = "Firestore Test Unrelated Root R3";
+  GeneratedCertificate r3 = GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  // One intermediate CA (same subject and key) signed by both R1 and R2.
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test Cross-Signed Intermediate";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate inter_by_r1 = GenerateCertificate(inter_opts, &r1);
+  inter_opts.reuse_key_from = &inter_by_r1;
+  GeneratedCertificate inter_by_r2 = GenerateCertificate(inter_opts, &r2);
+  ASSERT_EQ(inter_by_r1.subject_der, inter_by_r2.subject_der);
+  ASSERT_EQ(inter_by_r1.ski_bytes, inter_by_r2.ski_bytes);
+
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "cross.firestore.local";
+  leaf_opts.dns_sans = {"cross.firestore.local"};
+  GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &inter_by_r1);
+
+  // The server sends both cross-signs, as real servers commonly do.
+  std::string chain =
+      absl::StrCat(leaf.cert_pem, inter_by_r1.cert_pem, inter_by_r2.cert_pem);
+
+  auto anchors_of = [](const GeneratedCertificate& root) {
+    const void* values[] = {root.sec_certificate.get()};
+    return ScopedCFRef<CFArrayRef>(
+        CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+  };
+  ScopedCFRef<CFArrayRef> r1_anchors = anchors_of(r1);
+  ScopedCFRef<CFArrayRef> r2_anchors = anchors_of(r2);
+  ScopedCFRef<CFArrayRef> r3_anchors = anchors_of(r3);
+
+  // Synchronous path.
+  grpc::Status via_r1 = VerifyAppleTlsCertificateChain(
+      chain, "cross.firestore.local", r1_anchors.get());
+  EXPECT_TRUE(via_r1.ok()) << via_r1.error_message();
+  grpc::Status via_r2 = VerifyAppleTlsCertificateChain(
+      chain, "cross.firestore.local", r2_anchors.get());
+  EXPECT_TRUE(via_r2.ok()) << via_r2.error_message();
+  EXPECT_EQ(VerifyAppleTlsCertificateChain(chain, "cross.firestore.local",
+                                           r3_anchors.get())
+                .error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+
+  // Asynchronous path agrees.
+  dispatch_queue_t queue = MakeTestQueue("test.async.cross");
+  struct Case {
+    CFArrayRef anchors;
+    bool expect_ok;
+  };
+  for (const Case& c :
+       {Case{r1_anchors.get(), true}, Case{r2_anchors.get(), true},
+        Case{r3_anchors.get(), false}}) {
+    AsyncRecorder recorder(queue);
+    VerifyAppleTlsCertificateChainAsync(
+        TlsVerificationInput{chain, "cross.firestore.local"}, c.anchors, queue,
+        recorder.AsCallback());
+    ASSERT_TRUE(recorder.WaitForCount(1));
+    EXPECT_EQ(recorder.status().ok(), c.expect_ok)
+        << recorder.status().error_message();
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LoopbackHandshakeWaitsForAsyncVerificationOnInjectedQueue) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "ipv4-loopback.firestore.local";
+  leaf_opts.ipv4_sans = {{127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> root_anchors = pki.RootAnchorArray();
+
+  TlsLoopbackServer server(pki.leaf.private_key_pem, pki.ServerChainPem());
+  ASSERT_TRUE(server.started());
+
+  dispatch_queue_t queue = MakeTestQueue("test.loopback.injected");
+  grpc::experimental::TlsChannelCredentialsOptions options;
+  options.set_verify_server_certs(false);
+  options.set_certificate_verifier(
+      grpc::experimental::ExternalCertificateVerifier::Create<
+          AppleSecTrustCertificateVerifier>(root_anchors.get(), queue));
+  std::shared_ptr<grpc::Channel> channel = grpc::CreateChannel(
+      server.target(), grpc::experimental::TlsCredentials(options));
+
+  // While the verification queue is blocked, the handshake cannot complete.
+  QueueBlocker blocker(queue);
+  grpc::Status blocked_status =
+      PerformUnaryEcho(channel, "blocked", /*out_response=*/nullptr,
+                       std::chrono::milliseconds(500));
+  EXPECT_FALSE(blocked_status.ok());
+
+  // Once verification runs, the same channel connects. wait_for_ready covers
+  // the case where gRPC gave up on the first connection attempt and is
+  // backing off before reconnecting.
+  blocker.Release();
+  std::string echoed;
+  grpc::Status status =
+      PerformUnaryEcho(channel, "unblocked", &echoed, std::chrono::seconds(10),
+                       /*wait_for_ready=*/true);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_EQ(echoed, "unblocked");
+}
+
+// ===========================================================================
+// 6. Network Fetch Hardening
+// ===========================================================================
+
+// A loopback HTTP server that serves one body for every request and counts
+// connections. Used to detect Authority Information Access (AIA) fetches.
+class CountingHttpServer {
+ public:
+  explicit CountingHttpServer(ByteVec body) : body_(std::move(body)) {
+    fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    HARD_ASSERT(fd_ >= 0, "socket() failed");
+    int one = 1;
+    setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = 0;
+    HARD_ASSERT(
+        bind(fd_, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) == 0,
+        "bind() failed");
+    HARD_ASSERT(listen(fd_, 16) == 0, "listen() failed");
+    socklen_t len = sizeof(addr);
+    HARD_ASSERT(getsockname(fd_, reinterpret_cast<sockaddr*>(&addr), &len) == 0,
+                "getsockname() failed");
+    port_ = ntohs(addr.sin_port);
+    thread_ = std::thread([this] { Serve(); });
+  }
+
+  ~CountingHttpServer() {
+    stop_ = true;
+    thread_.join();
+    close(fd_);
+  }
+
+  CountingHttpServer(const CountingHttpServer&) = delete;
+  CountingHttpServer& operator=(const CountingHttpServer&) = delete;
+
+  std::string Url(absl::string_view path) const {
+    return absl::StrCat("http://127.0.0.1:", port_, "/", path);
+  }
+
+  int request_count() const {
+    return request_count_.load();
+  }
+
+  // Issues one HTTP GET from this process and returns true if the server
+  // answered with the configured body. Proves the server is reachable and
+  // counting, independently of trustd.
+  bool ProbeFromTestProcess() const {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+      return false;
+    }
+    util::Defer close_sock([&] { close(sock); });
+    int one = 1;
+    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+    sockaddr_in addr = {};
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_port = htons(static_cast<uint16_t>(port_));
+    if (connect(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) != 0) {
+      return false;
+    }
+    std::string request =
+        "GET /probe HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+    if (send(sock, request.data(), request.size(), 0) !=
+        static_cast<ssize_t>(request.size())) {
+      return false;
+    }
+    std::string response;
+    char buf[4096];
+    ssize_t n;
+    while ((n = recv(sock, buf, sizeof(buf), 0)) > 0) {
+      response.append(buf, static_cast<size_t>(n));
+    }
+    std::string body(body_.begin(), body_.end());
+    return response.size() >= body.size() &&
+           response.compare(response.size() - body.size(), body.size(), body) ==
+               0;
+  }
+
+ private:
+  void Serve() {
+    while (!stop_) {
+      pollfd pfd = {fd_, POLLIN, 0};
+      if (poll(&pfd, 1, /*timeout_ms=*/50) <= 0) {
+        continue;
+      }
+      int client = accept(fd_, nullptr, nullptr);
+      if (client < 0) {
+        continue;
+      }
+      ++request_count_;
+      int one = 1;
+      setsockopt(client, SOL_SOCKET, SO_NOSIGPIPE, &one, sizeof(one));
+      char request[4096];
+      (void)recv(client, request, sizeof(request), 0);
+      std::string header = absl::StrCat(
+          "HTTP/1.1 200 OK\r\nContent-Type: application/pkix-cert\r\n"
+          "Content-Length: ",
+          body_.size(), "\r\nConnection: close\r\n\r\n");
+      (void)send(client, header.data(), header.size(), 0);
+      (void)send(client, body_.data(), body_.size(), 0);
+      close(client);
+    }
+  }
+
+  ByteVec body_;
+  int fd_ = -1;
+  int port_ = 0;
+  std::atomic<bool> stop_{false};
+  std::atomic<int> request_count_{0};
+  std::thread thread_;
+};
+
+// A server that omits its intermediate must be rejected, and trustd must not
+// fetch the intermediate from the leaf's AIA URL on behalf of the
+// (unauthenticated) peer: that would let any server make the device issue
+// HTTP requests to a URL of its choosing.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     VerifyNeverFetchesMissingIntermediateViaAia) {
+  CertOptions root_opts;
+  root_opts.common_name = "Firestore Test AIA Root CA";
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate root =
+      GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test AIA Intermediate CA";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate intermediate = GenerateCertificate(inter_opts, &root);
+
+  // Serves the missing intermediate, so a fetch would complete the chain.
+  CountingHttpServer aia_server(intermediate.cert_der);
+
+  const void* values[] = {root.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> anchors(
+      CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
+
+  // Distinct URLs per path, so a cached fetch cannot mask the second one.
+  for (bool use_async : {false, true}) {
+    SCOPED_TRACE(use_async ? "async" : "sync");
+    CertOptions leaf_opts;
+    leaf_opts.common_name = "aia.firestore.local";
+    leaf_opts.dns_sans = {"aia.firestore.local"};
+    leaf_opts.aia_ca_issuers_url = aia_server.Url(
+        use_async ? "async-intermediate.cer" : "sync-intermediate.cer");
+    GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
+
+    grpc::Status status;
+    if (use_async) {
+      dispatch_queue_t queue = MakeTestQueue("test.async.aia");
+      AsyncRecorder recorder(queue);
+      VerifyAppleTlsCertificateChainAsync(
+          TlsVerificationInput{leaf.cert_pem, "aia.firestore.local"},
+          anchors.get(), queue, recorder.AsCallback());
+      ASSERT_TRUE(recorder.WaitForCount(1));
+      status = recorder.status();
+    } else {
+      status = VerifyAppleTlsCertificateChain(
+          leaf.cert_pem, "aia.firestore.local", anchors.get());
+    }
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << status.error_message();
+  }
+
+  EXPECT_EQ(aia_server.request_count(), 0);
+}
+
+// Positive control for the test above: with network fetch explicitly allowed,
+// trustd must fetch the intermediate from the AIA URL. This proves the harness
+// can observe a fetch, so the zero-fetch assertion above cannot pass
+// vacuously.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AiaHarnessObservesFetchWhenNetworkFetchAllowed) {
+  CertOptions root_opts;
+  root_opts.common_name = "Firestore Test AIA Control Root CA";
+  root_opts.is_ca = true;
+  root_opts.not_before_offset = std::chrono::hours(-2);
+  root_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate root =
+      GenerateCertificate(root_opts, /*issuer=*/nullptr);
+
+  CertOptions inter_opts;
+  inter_opts.common_name = "Firestore Test AIA Control Intermediate CA";
+  inter_opts.is_ca = true;
+  inter_opts.not_before_offset = std::chrono::hours(-2);
+  inter_opts.not_after_offset = std::chrono::hours(48);
+  GeneratedCertificate intermediate = GenerateCertificate(inter_opts, &root);
+
+  CountingHttpServer aia_server(intermediate.cert_der);
+
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "aia-control.firestore.local";
+  leaf_opts.dns_sans = {"aia-control.firestore.local"};
+  leaf_opts.aia_ca_issuers_url = aia_server.Url("control-intermediate.cer");
+  GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
+
+  // Prove the harness itself works before attributing zero fetches to trustd:
+  // the leaf must carry the server's URL, and the server must be reachable and
+  // counting. If either fails, the harness is broken and the test fails.
+  std::string aia_url = leaf_opts.aia_ca_issuers_url;
+  ASSERT_NE(std::search(leaf.cert_der.begin(), leaf.cert_der.end(),
+                        aia_url.begin(), aia_url.end()),
+            leaf.cert_der.end())
+      << "leaf certificate does not embed the AIA URL " << aia_url;
+  ASSERT_TRUE(aia_server.ProbeFromTestProcess())
+      << "AIA server is not reachable from the test process";
+  ASSERT_EQ(aia_server.request_count(), 1);
+  const int probe_requests = aia_server.request_count();
+
+  const void* leaf_values[] = {leaf.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> certs(CFArrayCreate(kCFAllocatorDefault, leaf_values,
+                                              1, &kCFTypeArrayCallBacks));
+  const void* root_values[] = {root.sec_certificate.get()};
+  ScopedCFRef<CFArrayRef> anchors(CFArrayCreate(
+      kCFAllocatorDefault, root_values, 1, &kCFTypeArrayCallBacks));
+  ScopedCFRef<SecPolicyRef> policy(SecPolicyCreateSSL(
+      /*server=*/true, CFSTR("aia-control.firestore.local")));
+  ASSERT_TRUE(policy);
+
+  SecTrustRef raw_trust = nullptr;
+  ASSERT_EQ(
+      SecTrustCreateWithCertificates(certs.get(), policy.get(), &raw_trust),
+      errSecSuccess);
+  ScopedCFRef<SecTrustRef> trust(raw_trust);
+  ASSERT_EQ(SecTrustSetAnchorCertificates(trust.get(), anchors.get()),
+            errSecSuccess);
+  ASSERT_EQ(SecTrustSetAnchorCertificatesOnly(trust.get(), true),
+            errSecSuccess);
+  ASSERT_EQ(SecTrustSetNetworkFetchAllowed(trust.get(), true), errSecSuccess);
+
+  CFErrorRef raw_error = nullptr;
+  bool trusted = SecTrustEvaluateWithError(trust.get(), &raw_error);
+  ScopedCFRef<CFErrorRef> error(raw_error);
+
+  // The harness is proven working above, so zero fetches here means trustd
+  // itself declined to fetch. Observed: trustd on the iOS and tvOS simulators
+  // fetches, but macOS trustd does not, both on GitHub macOS runners and on a
+  // developer Mac, even with network fetch explicitly allowed. That is not a
+  // defect in the code under test, so skip rather than fail; it does mean the
+  // zero-fetch assertion above only discriminates where trustd fetches.
+  const int trustd_requests = aia_server.request_count() - probe_requests;
+  if (trustd_requests == 0) {
+    GTEST_SKIP() << "trustd did not fetch the AIA URL even with network fetch "
+                    "allowed; VerifyNeverFetchesMissingIntermediateViaAia "
+                    "cannot detect fetches in this environment. trusted="
+                 << trusted;
+  }
+  EXPECT_GE(trustd_requests, 1);
+}
+
+}  // namespace
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // defined(__APPLE__)
