@@ -254,7 +254,7 @@ import XCTest
   }
 
   /// Never answers, so that a request stays in flight until it's cancelled.
-  private final class UnansweredURLProtocol: URLProtocol, @unchecked Sendable {
+  final class UnansweredURLProtocol: URLProtocol, @unchecked Sendable {
     private static let started = AsyncStream<Void>.makeStream()
 
     /// Waits until a request starts loading.

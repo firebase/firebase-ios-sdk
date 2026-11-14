@@ -51,6 +51,42 @@ public final class FirebaseHTTPClient: Sendable {
   public func data(for request: URLRequest,
                    policy: HTTPRequestPolicy = HTTPRequestPolicy()) async throws
     -> (Data, HTTPURLResponse) {
+    let request = try prepared(request, policy: policy)
+    let backgroundTask = policy.holdsBackgroundTask
+      ? backgroundTaskApplication().map {
+        BackgroundTaskAssertion(application: $0, name: "FirebaseHTTPClient")
+      }
+      : nil
+    defer { backgroundTask?.end() }
+    return try await transport.data(for: request, policy: policy)
+  }
+
+  /// Sends `request` and returns as soon as the response headers arrive, whatever the status
+  /// code. The response body streams through the returned bytes.
+  ///
+  /// The request gets the same `User-Agent` and the same `policy` checks as in
+  /// `data(for:policy:)`. It doesn't hold a background task, because the body arrives after this
+  /// method returns.
+  ///
+  /// - Throws: A `URLError` for transport failures and for requests that `policy` doesn't allow,
+  ///   or `CancellationError` if the calling task is cancelled before the response arrives.
+  ///   Throws `URLError(.unsupportedURL)` if the client's transport isn't a
+  ///   `URLSessionTransport`.
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  public func bytes(for request: URLRequest,
+                    policy: HTTPRequestPolicy = HTTPRequestPolicy()) async throws
+    -> (URLSession.AsyncBytes, HTTPURLResponse) {
+    guard let transport = transport as? URLSessionTransport else {
+      throw URLError(.unsupportedURL)
+    }
+    return try await transport.bytes(for: prepared(request, policy: policy), policy: policy)
+  }
+
+  /// Returns `request` with the standard `User-Agent` if it has none.
+  ///
+  /// - Throws: `URLError(.appTransportSecurityRequiresSecureConnection)` if `policy` doesn't
+  ///   allow the request's scheme.
+  private func prepared(_ request: URLRequest, policy: HTTPRequestPolicy) throws -> URLRequest {
     if let url = request.url,
        !Self.allowsScheme(of: url, policy: policy,
                           appAllowsArbitraryLoads: appAllowsArbitraryLoads) {
@@ -63,13 +99,7 @@ public final class FirebaseHTTPClient: Sendable {
     if request.value(forHTTPHeaderField: "User-Agent") == nil {
       request.setValue(FirebaseUserAgent.standard, forHTTPHeaderField: "User-Agent")
     }
-    let backgroundTask = policy.holdsBackgroundTask
-      ? backgroundTaskApplication().map {
-        BackgroundTaskAssertion(application: $0, name: "FirebaseHTTPClient")
-      }
-      : nil
-    defer { backgroundTask?.end() }
-    return try await transport.data(for: request, policy: policy)
+    return request
   }
 
   /// Whether the scheme of `url` is allowed.

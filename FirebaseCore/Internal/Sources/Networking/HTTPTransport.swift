@@ -87,30 +87,49 @@ public final class URLSessionTransport: HTTPTransport {
       cancellation.cancel()
     }
   }
+
+  /// Sends `request` and returns as soon as the response headers arrive, whatever the status
+  /// code. The response body streams through the returned bytes.
+  ///
+  /// - Throws: The transport error, usually a `URLError`, or `CancellationError` if the calling
+  ///   task is cancelled before the response arrives.
+  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+  public func bytes(for request: URLRequest,
+                    policy: HTTPRequestPolicy) async throws
+    -> (URLSession.AsyncBytes, HTTPURLResponse) {
+    // `URLSession` creates this task itself, so its redirects go through a task delegate.
+    let redirects = TaskRedirects(request: request, policy: policy)
+    let bytes: URLSession.AsyncBytes
+    let response: URLResponse
+    do {
+      (bytes, response) = try await session.bytes(for: request, delegate: redirects)
+    } catch let error as URLError where error.code == .cancelled && Task.isCancelled {
+      throw CancellationError()
+    }
+    guard let response = response as? HTTPURLResponse else {
+      throw URLError(.badServerResponse)
+    }
+    return (bytes, response)
+  }
 }
 
-/// The session delegate. It applies the redirect policy of each task.
+/// The session delegate. It applies the redirect policy of each data task.
 private final class SessionTasks: NSObject, URLSessionTaskDelegate, Sendable {
-  private struct Entry {
-    /// The request that the task is currently sending.
-    var request: URLRequest
-    let policy: HTTPRequestPolicy
-  }
-
-  private let entries = UnfairLock<[Int: Entry]>([:])
+  private let redirects = UnfairLock<[Int: TaskRedirects]>([:])
 
   func register(_ task: URLSessionTask, request: URLRequest, policy: HTTPRequestPolicy) {
     let taskIdentifier = task.taskIdentifier
-    entries.withLock { $0[taskIdentifier] = Entry(request: request, policy: policy) }
+    let taskRedirects = TaskRedirects(request: request, policy: policy)
+    redirects.withLock { $0[taskIdentifier] = taskRedirects }
   }
 
   func unregister(_ taskIdentifier: Int) {
-    entries.withLock { $0[taskIdentifier] = nil }
+    redirects.withLock { $0[taskIdentifier] = nil }
   }
 
   /// The number of registered tasks.
   var count: Int {
-    entries.withLock { $0.count }
+    redirects.withLock { $0.count }
   }
 
   func urlSession(_ session: URLSession, task: URLSessionTask,
@@ -118,19 +137,49 @@ private final class SessionTasks: NSObject, URLSessionTaskDelegate, Sendable {
                   newRequest request: URLRequest,
                   completionHandler: @escaping @Sendable (URLRequest?) -> Void) {
     let taskIdentifier = task.taskIdentifier
-    let fallbackRequest = task.currentRequest ?? task.originalRequest
-    let redirect = entries.withLock { entries -> URLRequest? in
-      guard let current = entries[taskIdentifier]?.request ?? fallbackRequest else {
-        return request
-      }
-      let policy = entries[taskIdentifier]?.policy ?? HTTPRequestPolicy()
-      let redirect = RedirectPolicy.request(redirecting: current, to: request, policy: policy)
+    if let taskRedirects = redirects.withLock({ $0[taskIdentifier] }) {
+      completionHandler(taskRedirects.redirect(to: request))
+    } else if let current = task.currentRequest ?? task.originalRequest {
+      completionHandler(RedirectPolicy.request(redirecting: current, to: request,
+                                               policy: HTTPRequestPolicy()))
+    } else {
+      completionHandler(request)
+    }
+  }
+}
+
+/// Applies `RedirectPolicy` to the redirects of one task.
+///
+/// `SessionTasks` keeps one for each data task. Streaming tasks, which `URLSession` creates
+/// itself, use one as their task delegate.
+private final class TaskRedirects: NSObject, URLSessionTaskDelegate, Sendable {
+  private let policy: HTTPRequestPolicy
+
+  /// The request that the task is currently sending.
+  private let currentRequest: UnfairLock<URLRequest>
+
+  init(request: URLRequest, policy: HTTPRequestPolicy) {
+    self.policy = policy
+    currentRequest = UnfairLock(request)
+  }
+
+  /// Returns the request to send to the redirect target, or `nil` to not follow the redirect.
+  func redirect(to proposed: URLRequest) -> URLRequest? {
+    let policy = self.policy
+    return currentRequest.withLock { current -> URLRequest? in
+      let redirect = RedirectPolicy.request(redirecting: current, to: proposed, policy: policy)
       if let redirect {
-        entries[taskIdentifier]?.request = redirect
+        current = redirect
       }
       return redirect
     }
-    completionHandler(redirect)
+  }
+
+  func urlSession(_ session: URLSession, task: URLSessionTask,
+                  willPerformHTTPRedirection response: HTTPURLResponse,
+                  newRequest request: URLRequest,
+                  completionHandler: @escaping @Sendable (URLRequest?) -> Void) {
+    completionHandler(redirect(to: request))
   }
 }
 
