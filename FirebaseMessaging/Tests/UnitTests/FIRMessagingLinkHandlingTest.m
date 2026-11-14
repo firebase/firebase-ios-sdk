@@ -262,6 +262,23 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   [mockApplication stopMocking];
 }
 
+// Unlike the test above, this lets the handler reach UIApplication, so without the scheme check it
+// would raise NSInvalidArgumentException from -[NSUserActivity setWebpageURL:].
+- (void)testHandleIncomingLink_nonWebSchemeLinkNotDeliveredToAppDelegate {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingAppDelegate *fakeAppDelegate = [[FakeLinkHandlingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet set]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"myapp://open?item=1"};
+  XCTAssertNoThrow([_messaging handleIncomingLinkIfNeededFromMessage:notification]);
+  XCTAssertFalse(fakeAppDelegate.continueUserActivityWasCalled);
+
+  [mockApplication stopMocking];
+}
+
 - (void)testHandleIncomingLink_noLinkInMessageDoesNothing {
   id mockApplication = OCMClassMock([UIApplication class]);
   OCMReject([mockApplication sharedApplication]);
