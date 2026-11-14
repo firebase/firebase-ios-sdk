@@ -53,24 +53,29 @@
 
 - (void)updateRolloutsStateToPersistenceWithRollouts:(NSData *_Nonnull)rollouts
                                             reportID:(NSString *_Nonnull)reportID {
-  NSString *rolloutsPath = [[[_fileManager activePath] stringByAppendingPathComponent:reportID]
-      stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
-  if (![_fileManager fileExistsAtPath:rolloutsPath]) {
-    if (![_fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
-      FIRCLSDebugLog(@"Could not create rollouts.clsrecord file. Error was code: %d - message: %s",
-                     errno, strerror(errno));
-      return;
-    }
-  }
-
-  NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
-
   if (!_rolloutsLoggingQueue) {
     FIRCLSDebugLog(@"Rollouts logging queue is dealloccated");
     return;
   }
 
   dispatch_async(_rolloutsLoggingQueue, ^{
+    NSString *rolloutsPath =
+        [[[self.fileManager activePath] stringByAppendingPathComponent:reportID]
+            stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
+    if (![self.fileManager fileExistsAtPath:rolloutsPath]) {
+      if (![self.fileManager createFileAtPath:rolloutsPath contents:nil attributes:nil]) {
+        FIRCLSDebugLog(
+            @"Could not create rollouts.clsrecord file. Error was code: %d - message: %s", errno,
+            strerror(errno));
+        return;
+      }
+    }
+
+    NSFileHandle *rolloutsFile = [NSFileHandle fileHandleForUpdatingAtPath:rolloutsPath];
+    if (!rolloutsFile) {
+      FIRCLSDebugLog(@"Failed to open rollouts file at path: %@", rolloutsPath);
+      return;
+    }
     @try {
       [rolloutsFile seekToEndOfFile];
       NSMutableData *rolloutsWithNewLineData = [rollouts mutableCopy];
@@ -78,14 +83,14 @@
       [rolloutsFile writeData:rolloutsWithNewLineData];
       [rolloutsFile closeFile];
     } @catch (NSException *exception) {
-      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %s - message: %s",
+      FIRCLSDebugLog(@"Failed to write new rollouts. Exception name: %@ - message: %@",
                      exception.name, exception.reason);
     }
   });
 }
 
 - (void)debugLogWithMessage:(NSString *_Nonnull)message {
-  FIRCLSDebugLog(message);
+  FIRCLSDebugLog(@"%@", message);
 }
 
 @end
