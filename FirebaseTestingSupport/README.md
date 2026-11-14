@@ -51,3 +51,17 @@ xed Package.swift
 - Select (or add if not exists yet) a scheme for the test target, e.g. `FirestoreTestingSupportTests`
 
 - make required modifications and run tests as needed.
+
+## SDK-internal test infrastructure
+
+`WireCompatibility` contains `HTTPWireRecorder`, a `URLProtocol` that records
+the HTTP requests an SDK sends and answers them with scripted responses. The
+FirebaseAuth, FirebaseFunctions, and FirebaseStorage wire compatibility unit
+tests use it. It's only for this repo's own tests:
+
+- Swift Package Manager: test targets depend on the
+  `FirebaseWireCompatibilityTestingSupport` target and import it under
+  `#if SWIFT_PACKAGE`.
+- CocoaPods: there's no podspec. Test specs add
+  `FirebaseTestingSupport/WireCompatibility/Sources/*.swift` to their
+  `source_files`.

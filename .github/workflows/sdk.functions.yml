@@ -16,6 +16,8 @@ on:
     - 'FirebaseAuth/Interop/*.h'
     - 'FirebaseMessaging/Interop/*.h'
     - 'FirebaseTestingSupport/Functions/**'
+    # The wire compatibility unit tests use the shared HTTPWireRecorder.
+    - 'FirebaseTestingSupport/WireCompatibility/**'
     - 'FirebaseCombineSwift/Sources/Functions/**'
     - 'scripts/setup_quickstart.sh'
     - 'Gemfile*'
