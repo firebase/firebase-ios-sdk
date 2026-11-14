@@ -128,6 +128,10 @@ class FirebaseUserAgentTests: XCTestCase {
                   standard)
     #if os(macOS)
       XCTAssertTrue(standard.contains(" MacOSX/"), standard)
+    #elseif os(visionOS)
+      // visionOS sends the kernel name and release, without a hardware part.
+      XCTAssertTrue(standard.contains(" Darwin/"), standard)
+      XCTAssertFalse(standard.contains(" hw/"), standard)
     #elseif targetEnvironment(simulator)
       XCTAssertTrue(standard.hasSuffix(" hw/sim"), standard)
     #endif
