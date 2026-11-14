@@ -235,7 +235,7 @@ private final class RecordingTransport: HTTPTransport, @unchecked Sendable {
 }
 
 /// Grants background tasks with increasing identifiers and records which ones end.
-private final class FakeBackgroundTaskApplication: BackgroundTaskApplication,
+final class FakeBackgroundTaskApplication: BackgroundTaskApplication,
   @unchecked Sendable {
   private let lock = NSLock()
   private let grantsTasks: Bool

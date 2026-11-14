@@ -256,6 +256,84 @@ import XCTest
       }
     }
 
+    // MARK: - Streaming
+
+    /// A stream sends the call's request plus `Accept: text/event-stream`, with the standard
+    /// User-Agent.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    func testStreamRequest() async throws {
+      HTTPWireRecorder.reset(replies: [.http(
+        status: 200,
+        headers: ["Content-Type": "text/event-stream"],
+        body: Data("data: {\"message\":\"hello\"}\n\ndata: {\"result\":\"done\"}\n\n".utf8)
+      )])
+      let functions = makeFunctions(
+        auth: FIRAuthInteropFake(token: "auth-token", userID: "user-id", error: nil),
+        messaging: FIRMessagingInteropFake(),
+        appCheck: FIRAppCheckFake()
+      )
+      let callable: Callable<[String: String], String> = functions.httpsCallable("echo")
+
+      var messages: [String] = []
+      for try await message in try callable.stream(["key": "value"]) {
+        messages.append(message)
+      }
+
+      XCTAssertEqual(messages, ["hello"])
+      let request = try HTTPWireRecorder.singleRequest()
+      XCTAssertEqual(request.method, "POST")
+      XCTAssertEqual(request.url.absoluteString, functionURL)
+      XCTAssertEqual(request.header("Content-Type"), "application/json")
+      XCTAssertEqual(request.header("Accept"), "text/event-stream")
+      XCTAssertEqual(request.header("Authorization"), "Bearer auth-token")
+      XCTAssertEqual(request.header("Firebase-Instance-ID-Token"), "fakeFCMToken")
+      XCTAssertEqual(request.header("X-Firebase-AppCheck"), "fake_valid_token")
+      XCTAssertEqual(request.header("User-Agent"), FirebaseUserAgent.standard)
+      XCTAssertEqual(request.timeoutInterval, 70)
+      let body = try XCTUnwrap(JSONSerialization.jsonObject(with: request.body) as? NSDictionary)
+      XCTAssertEqual(body, ["data": ["key": "value"]])
+    }
+
+    /// Streams follow the same redirect rule as calls: after a redirect to a different origin,
+    /// credentials are only sent to the project's default endpoint or a trusted Google host.
+    @available(macOS 12.0, iOS 15.0, tvOS 15.0, *)
+    func testStreamRedirectsFollowTheCredentialRule() async throws {
+      for (target, keepsCredentials) in [
+        ("https://us-central1-my-project.cloudfunctions.net/echo", true),
+        ("https://example.com/echo", false),
+      ] {
+        let targetURL = try XCTUnwrap(URL(string: target))
+        HTTPWireRecorder.reset { request in
+          if request.url.host == "mydomain.com" {
+            return .redirect(status: 302, location: targetURL)
+          }
+          return .http(status: 200, headers: ["Content-Type": "text/event-stream"],
+                       body: Data("data: {\"result\":\"done\"}\n\n".utf8))
+        }
+        let functions = makeFunctions(
+          customDomain: "https://mydomain.com",
+          auth: FIRAuthInteropFake(token: "auth-token", userID: "user-id", error: nil),
+          messaging: FIRMessagingInteropFake(),
+          appCheck: FIRAppCheckFake()
+        )
+        let callable: Callable<[String: String], String> = functions.httpsCallable("echo")
+
+        for try await _ in try callable.stream(["key": "value"]) {}
+
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.count, 2, target)
+        XCTAssertEqual(requests.first?.header("Authorization"), "Bearer auth-token", target)
+        let replayed = try XCTUnwrap(requests.last)
+        XCTAssertEqual(replayed.url, targetURL)
+        XCTAssertEqual(replayed.method, "POST", target)
+        XCTAssertEqual(replayed.header("Accept"), "text/event-stream", target)
+        for header in ["Authorization", "Firebase-Instance-ID-Token", "X-Firebase-AppCheck"] {
+          XCTAssertEqual(replayed.header(header) != nil, keepsCredentials,
+                         "\(header) sent to \(target)")
+        }
+      }
+    }
+
     // MARK: - Helpers
 
     /// Returns a `Functions` instance whose HTTP traffic goes through `HTTPWireRecorder`.
