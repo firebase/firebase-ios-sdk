@@ -439,6 +439,18 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return nil;
   }
   NSURL *url = [NSURL URLWithString:urlString];
+  // The link is delivered as an NSUserActivity webpageURL, which raises for any scheme other than
+  // http or https.
+  NSString *scheme = url.scheme;
+  if (!scheme || ([scheme caseInsensitiveCompare:@"http"] != NSOrderedSame &&
+                  [scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)) {
+    // Log only the scheme, since the rest of the link may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeUnsupportedLinkScheme,
+                           @"Ignoring message link with unsupported scheme '%@'. Only http and "
+                           @"https links are supported.",
+                           scheme ?: @"(none)");
+    return nil;
+  }
   return url;
 }
 

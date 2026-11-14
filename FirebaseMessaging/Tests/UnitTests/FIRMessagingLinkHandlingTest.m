@@ -143,6 +143,23 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   XCTAssertTrue([url.absoluteString isEqualToString:@"https://www.google.com/"]);
 }
 
+- (void)testNonWebSchemeLinkInMessage {
+  NSMutableDictionary *notification =
+      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
+  for (NSString *link in @[ @"myapp://open?item=1", @"mailto:test@example.com", @"no-scheme" ]) {
+    notification[kFIRMessagingMessageLinkKey] = link;
+    XCTAssertNil([_messaging linkURLFromMessage:notification], @"%@", link);
+  }
+}
+
+- (void)testUppercaseWebSchemeLinkInMessage {
+  NSMutableDictionary *notification =
+      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
+  notification[kFIRMessagingMessageLinkKey] = @"HTTPS://www.google.com/";
+  NSURL *url = [_messaging linkURLFromMessage:notification];
+  XCTAssertEqualObjects(url.absoluteString, @"HTTPS://www.google.com/");
+}
+
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 - (void)testHandleIncomingLink_sceneDelegateHandlesUserActivity {
@@ -231,6 +248,33 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
 
   NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"https://www.google.com/"};
   XCTAssertNoThrow([_messaging handleIncomingLinkIfNeededFromMessage:notification]);
+
+  [mockApplication stopMocking];
+}
+
+- (void)testHandleIncomingLink_nonWebSchemeLinkDoesNotThrow {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMReject([mockApplication sharedApplication]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"myapp://open?item=1"};
+  XCTAssertNoThrow([_messaging handleIncomingLinkIfNeededFromMessage:notification]);
+
+  [mockApplication stopMocking];
+}
+
+// Unlike the test above, this lets the handler reach UIApplication, so without the scheme check it
+// would raise NSInvalidArgumentException from -[NSUserActivity setWebpageURL:].
+- (void)testHandleIncomingLink_nonWebSchemeLinkNotDeliveredToAppDelegate {
+  id mockApplication = OCMClassMock([UIApplication class]);
+  OCMStub([mockApplication sharedApplication]).andReturn(mockApplication);
+
+  FakeLinkHandlingAppDelegate *fakeAppDelegate = [[FakeLinkHandlingAppDelegate alloc] init];
+  OCMStub([mockApplication delegate]).andReturn(fakeAppDelegate);
+  OCMStub([mockApplication connectedScenes]).andReturn([NSSet set]);
+
+  NSDictionary *notification = @{kFIRMessagingMessageLinkKey : @"myapp://open?item=1"};
+  XCTAssertNoThrow([_messaging handleIncomingLinkIfNeededFromMessage:notification]);
+  XCTAssertFalse(fakeAppDelegate.continueUserActivityWasCalled);
 
   [mockApplication stopMocking];
 }
