@@ -14,12 +14,8 @@
 
 import FirebaseCore
 import FirebaseCoreExtension
+import FirebaseCoreInternal
 import Foundation
-#if COCOAPODS
-  @preconcurrency import GTMSessionFetcher
-#else
-  @preconcurrency import GTMSessionFetcherCore
-#endif
 
 protocol AuthBackendRPCIssuerProtocol: Sendable {
   /// Asynchronously send a HTTP request.
@@ -34,39 +30,43 @@ protocol AuthBackendRPCIssuerProtocol: Sendable {
 }
 
 final class AuthBackendRPCIssuer: AuthBackendRPCIssuerProtocol {
-  let fetcherService: GTMSessionFetcherService
+  /// The client that sends the requests. The shared client's session is never invalidated, so
+  /// requests can't hit the invalidated-session crash of
+  /// https://github.com/firebase/firebase-ios-sdk/issues/1261.
+  private let httpClient: FirebaseHTTPClient
 
-  init() {
-    fetcherService = GTMSessionFetcherService()
-    fetcherService.userAgent = AuthBackend.authUserAgent()
-    fetcherService.callbackQueue = kAuthGlobalWorkQueue
-
-    // Avoid reusing the session to prevent
-    // https://github.com/firebase/firebase-ios-sdk/issues/1261
-    fetcherService.reuseSession = false
+  /// Creates an issuer that sends requests with `httpClient`. Tests pass a client with a test
+  /// transport.
+  init(httpClient: FirebaseHTTPClient = .shared) {
+    self.httpClient = httpClient
   }
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String) async -> (Data?, Error?) {
     let requestConfiguration = request.requestConfiguration()
-    let request = await AuthBackend.request(
+    var urlRequest = await AuthBackend.request(
       for: request.requestURL(),
       httpMethod: body == nil ? "GET" : "POST",
       contentType: contentType,
       requestConfiguration: requestConfiguration
     )
-    let fetcher = fetcherService.fetcher(with: request)
-    if let _ = requestConfiguration.emulatorHostAndPort {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
-    }
-    fetcher.bodyData = body
-
-    return await withUnsafeContinuation { continuation in
-      fetcher.beginFetch { data, error in
-        continuation.resume(returning: (data, error))
+    urlRequest.httpBody = body
+    urlRequest.setValue(AuthBackend.authUserAgent(), forHTTPHeaderField: "User-Agent")
+    // The emulator can be reached over `http`.
+    let usesEmulator = requestConfiguration.emulatorHostAndPort != nil
+    let policy = HTTPRequestPolicy(allowsInsecureHTTP: usesEmulator,
+                                   allowsLoopbackHTTP: usesEmulator)
+    do {
+      let (data, response) = try await httpClient.data(for: urlRequest, policy: policy)
+      guard let statusError = HTTPStatusError.error(for: response, body: data) else {
+        return (data, nil)
       }
+      // `AuthBackend` decodes the server's error message from the body, and reports an error
+      // without a body as a network error.
+      return (data.isEmpty ? nil : data, statusError)
+    } catch {
+      return (nil, error)
     }
   }
 }

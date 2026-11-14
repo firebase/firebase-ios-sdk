@@ -535,9 +535,9 @@ func packageTargets() -> [Target] {
         "FirebaseAuthInternal",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
       path: "FirebaseAuth/Sources",
       exclude: [
