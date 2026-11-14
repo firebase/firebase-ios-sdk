@@ -12,26 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-import GTMSessionFetcherCore
 import XCTest
 
 class StorageDeleteTests: StorageTestHelpers {
   func testFetcherConfiguration() async {
-    let testBlock = { (fetcher: GTMSessionFetcher!,
-                       response: GTMSessionFetcherTestResponse) in
-        XCTAssertEqual(fetcher.request?.url, self.objectURL())
-        XCTAssertEqual(fetcher.request?.httpMethod, "DELETE")
-        let httpResponse = HTTPURLResponse(
-          url: (fetcher.request?.url)!,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        )
-        response(httpResponse, nil, nil)
+    let testBlock = StorageTestTransport { request in
+      XCTAssertEqual(request.url, self.objectURL())
+      XCTAssertEqual(request.httpMethod, "DELETE")
+      return try (Data(), StorageTestTransport.response(to: request, statusCode: 200))
     }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    await StorageHTTPService.shared.updateTestTransport(testBlock)
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
     do {
@@ -42,7 +35,7 @@ class StorageDeleteTests: StorageTestHelpers {
   }
 
   func testSuccessfulFetch() async {
-    await StorageFetcherService.shared.updateTestBlock(successBlock())
+    await StorageHTTPService.shared.updateTestTransport(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
     do {
@@ -55,7 +48,7 @@ class StorageDeleteTests: StorageTestHelpers {
   func testSuccessfulFetchWithEmulator() async {
     let storage = self.storage()
     storage.useEmulator(withHost: "localhost", port: 8080)
-    await StorageFetcherService.shared.updateTestBlock(successBlock())
+    await StorageHTTPService.shared.updateTestTransport(successBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -67,7 +60,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchUnauthenticated() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(unauthenticatedBlock())
+    await StorageHTTPService.shared.updateTestTransport(unauthenticatedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -79,7 +72,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchUnauthorized() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(unauthorizedBlock())
+    await StorageHTTPService.shared.updateTestTransport(unauthorizedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -91,7 +84,7 @@ class StorageDeleteTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchObjectDoesntExist() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(notFoundBlock())
+    await StorageHTTPService.shared.updateTestTransport(notFoundBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {

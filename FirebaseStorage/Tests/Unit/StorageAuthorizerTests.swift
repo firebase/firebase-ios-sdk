@@ -14,6 +14,7 @@
 
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+import FirebaseCore
 @testable import FirebaseStorage
 import Foundation
 import GTMSessionFetcherCore
@@ -119,6 +120,17 @@ private final class ThreadCheckedMutableURLRequest: NSMutableURLRequest, @unchec
     mutationLock.lock()
     activeMutations -= 1
     mutationLock.unlock()
+  }
+}
+
+/// Removes the credential headers after authorizing, so tests can check that the
+/// GTMSessionFetcher adapter copies removals as well as values.
+private final class CredentialRemovingAuthorizer: StorageTokenAuthorizer {
+  override func authorize(_ request: URLRequest) async throws -> URLRequest {
+    var request = try await super.authorize(request)
+    request.setValue(nil, forHTTPHeaderField: "Authorization")
+    request.setValue(nil, forHTTPHeaderField: "X-Firebase-AppCheck")
+    return request
   }
 }
 
@@ -472,6 +484,79 @@ class StorageAuthorizerTests: StorageTestHelpers {
       XCTAssertEqual(nsError.domain, StorageErrorDomain)
       XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
     }
+  }
+
+  // MARK: authorize(_:)
+
+  func testAuthorizeAddsTheStorageHeaders() async throws {
+    appCheck?.tokenResult = appCheckTokenSuccess!
+    let authorizer = StorageTokenAuthorizer(googleAppID: "dummyAppID", authProvider: auth,
+                                            appCheck: appCheck)
+
+    let request = try await authorizer.authorize(URLRequest(url: objectURL()))
+
+    XCTAssertEqual(request.value(forHTTPHeaderField: "x-firebase-storage-version"),
+                   "ios/\(FirebaseVersion())")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "x-firebase-gmpid"), "dummyAppID")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"),
+                   "Firebase \(StorageTestAuthToken)")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
+                   appCheckTokenSuccess?.token)
+  }
+
+  func testAuthorizeSendsTheAppCheckPlaceholderTokenWhenAppCheckFails() async throws {
+    appCheck?.tokenResult = appCheckTokenError!
+    let authorizer = StorageTokenAuthorizer(googleAppID: "dummyAppID", authProvider: nil,
+                                            appCheck: appCheck)
+
+    let request = try await authorizer.authorize(URLRequest(url: objectURL()))
+
+    XCTAssertEqual(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), "dummy token")
+    XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+  }
+
+  func testAuthorizeReportsAuthErrors() async {
+    let authError = NSError(domain: "AuthErrorDomain", code: 17020, userInfo: ["key": "value"])
+    let authorizer = StorageTokenAuthorizer(
+      googleAppID: "dummyAppID",
+      authProvider: FIRAuthInteropFake(token: nil, userID: nil, error: authError),
+      appCheck: nil
+    )
+
+    do {
+      _ = try await authorizer.authorize(URLRequest(url: objectURL()))
+      XCTFail("Expected an error")
+    } catch {
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, StorageErrorDomain)
+      XCTAssertEqual(nsError.code, StorageErrorCode.unauthenticated.rawValue)
+      XCTAssertEqual(nsError.userInfo["ResponseErrorDomain"] as? String, "AuthErrorDomain")
+      XCTAssertEqual(nsError.userInfo["ResponseErrorCode"] as? Int, 17020)
+      XCTAssertEqual(nsError.userInfo["key"] as? String, "value")
+    }
+  }
+
+  func testAuthorizeRequestRemovesHeadersThatAuthorizeRemoves() {
+    let authorizer = CredentialRemovingAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue(label: "com.google.firebase.storage.authorizer-test"),
+      authProvider: nil,
+      appCheck: nil
+    )
+    let request = NSMutableURLRequest(url: objectURL())
+    request.setValue("Firebase stale-token", forHTTPHeaderField: "Authorization")
+    request.setValue("stale-app-check-token", forHTTPHeaderField: "X-Firebase-AppCheck")
+    let completion = expectation(description: "Token authorization completes")
+
+    authorizer.authorizeRequest(request) { error in
+      XCTAssertNil(error)
+      completion.fulfill()
+    }
+    wait(for: [completion], timeout: 3)
+
+    XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+    XCTAssertNil(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"))
+    XCTAssertEqual(request.value(forHTTPHeaderField: "x-firebase-gmpid"), "dummyAppID")
   }
 
   // MARK: Helpers

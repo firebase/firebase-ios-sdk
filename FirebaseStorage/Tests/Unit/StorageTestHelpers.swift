@@ -15,10 +15,44 @@
 import Foundation
 
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import GTMSessionFetcherCore
 
 import XCTest
+
+/// Answers the requests of `StorageHTTPService` in unit tests instead of the network.
+///
+/// It gets each request after `StorageTokenAuthorizer` has added its headers, as
+/// GTMSessionFetcher's test block did.
+final class StorageTestTransport: HTTPTransport, @unchecked Sendable {
+  typealias Handler = (URLRequest) async throws -> (Data, HTTPURLResponse)
+
+  private let handler: Handler
+  private let receivedRequests = UnfairLock<[URLRequest]>([])
+
+  /// The requests that the transport got, in order.
+  var requests: [URLRequest] {
+    receivedRequests.value()
+  }
+
+  init(_ handler: @escaping Handler) {
+    self.handler = handler
+  }
+
+  func data(for request: URLRequest,
+            policy: HTTPRequestPolicy) async throws -> (Data, HTTPURLResponse) {
+    receivedRequests.withLock { $0.append(request) }
+    return try await handler(request)
+  }
+
+  /// Returns a response for `request` with `statusCode` and no headers.
+  static func response(to request: URLRequest, statusCode: Int) throws -> HTTPURLResponse {
+    let url = try XCTUnwrap(request.url)
+    return try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode,
+                                         httpVersion: "HTTP/1.1", headerFields: nil))
+  }
+}
 
 class StorageTestHelpers: XCTestCase {
   var app: FirebaseApp!
@@ -41,6 +75,8 @@ class StorageTestHelpers: XCTestCase {
     }
     addTeardownBlock {
       await StorageFetcherService.shared.updateTestBlock(nil)
+      await StorageHTTPService.shared.updateTestTransport(nil)
+      await StorageHTTPService.shared.updateInitialRetryIntervalForTesting(nil)
     }
   }
 
@@ -57,48 +93,67 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
+  func successBlock(withMetadata metadata: StorageMetadata? = nil) -> StorageTestTransport {
+    return transport(forData: data(for: metadata), url: nil, statusCode: 200)
+  }
+
+  /// For uploads, which still use GTMSessionFetcher.
   func successBlock(withMetadata metadata: StorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
-    var data: Data?
-    if let metadata {
-      data = try? JSONSerialization.data(withJSONObject: metadata.dictionaryRepresentation())
-    }
-    return block(forData: data, url: nil, statusCode: 200)
+    return block(forData: data(for: metadata), url: nil, statusCode: 200)
   }
 
-  func successBlock(withURL url: URL) -> GTMSessionFetcherTestBlock {
+  func successBlock(withURL url: URL) -> StorageTestTransport {
     let data = "{}".data(using: .utf8)
-    return block(forData: data, url: url, statusCode: 200)
+    return transport(forData: data, url: url, statusCode: 200)
   }
 
-  func unauthenticatedBlock() -> GTMSessionFetcherTestBlock {
+  func unauthenticatedBlock() -> StorageTestTransport {
     let unauthenticatedString =
       "<html><body><p>User not authenticated. Authentication via Authorization header required. " +
       "Authorization Header does not match expected format of 'Authorization: Firebase " +
       "<JWT>'.</p></body></html>"
     let data = unauthenticatedString.data(using: .utf8)
-    return block(forData: data, url: nil, statusCode: 401)
+    return transport(forData: data, url: nil, statusCode: 401)
   }
 
-  func unauthorizedBlock() -> GTMSessionFetcherTestBlock {
+  func unauthorizedBlock() -> StorageTestTransport {
     let unauthorizedString =
       "<html><body><p>User not authorized. Authentication via Authorization header required. " +
       "Authorization Header does not match expected format of 'Authorization: Firebase " +
       "<JWT>'.</p></body></html>"
     let data = unauthorizedString.data(using: .utf8)
-    return block(forData: data, url: nil, statusCode: 403)
+    return transport(forData: data, url: nil, statusCode: 403)
   }
 
-  func notFoundBlock() -> GTMSessionFetcherTestBlock {
+  func notFoundBlock() -> StorageTestTransport {
     let unauthenticatedString = "<html><body><p>Object not found.</p></body></html>"
     let data = unauthenticatedString.data(using: .utf8)
-    return block(forData: data, url: nil, statusCode: 404)
+    return transport(forData: data, url: nil, statusCode: 404)
   }
 
-  func invalidJSONBlock() -> GTMSessionFetcherTestBlock {
+  func invalidJSONBlock() -> StorageTestTransport {
     let string = "This is not a JSON object"
     let data = string.data(using: .utf8)
-    return block(forData: data, url: nil, statusCode: 200)
+    return transport(forData: data, url: nil, statusCode: 200)
+  }
+
+  private func data(for metadata: StorageMetadata?) -> Data? {
+    guard let metadata else {
+      return nil
+    }
+    return try? JSONSerialization.data(withJSONObject: metadata.dictionaryRepresentation())
+  }
+
+  private func transport(forData data: Data?, url: URL?,
+                         statusCode code: Int) -> StorageTestTransport {
+    return StorageTestTransport { request in
+      if let url {
+        XCTAssertEqual(url, request.url)
+      }
+      let response = try StorageTestTransport.response(to: request, statusCode: code)
+      return (data ?? Data(), response)
+    }
   }
 
   private func block(forData data: Data?, url: URL?,
