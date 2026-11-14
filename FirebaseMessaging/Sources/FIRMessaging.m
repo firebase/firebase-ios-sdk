@@ -444,6 +444,11 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   NSString *scheme = url.scheme;
   if (!scheme || ([scheme caseInsensitiveCompare:@"http"] != NSOrderedSame &&
                   [scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)) {
+    // Log only the scheme, since the rest of the link may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeUnsupportedLinkScheme,
+                           @"Ignoring message link with unsupported scheme '%@'. Only http and "
+                           @"https links are supported.",
+                           scheme ?: @"(none)");
     return nil;
   }
   return url;
