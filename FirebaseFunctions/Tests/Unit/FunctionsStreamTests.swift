@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 import Foundation
 import XCTest
 
@@ -24,16 +25,10 @@ import XCTest
 
     override func setUp() {
       super.setUp()
-      URLProtocol.registerClass(MockURLProtocol.self)
       MockURLProtocol.requestHandlersQueue.removeAll()
       MockURLProtocol.errorToThrowMidStream = nil
       MockURLProtocol.stopLoadingExpectation = nil
       MockURLProtocol.neverFinishes = false
-    }
-
-    override func tearDown() {
-      URLProtocol.unregisterClass(MockURLProtocol.self)
-      super.tearDown()
     }
 
     func testStream_cancellation_resourceLeak() async throws {
@@ -72,14 +67,7 @@ import XCTest
         XCTestExpectation(description: "Stream should receive first item before cancellation")
 
       // Using test-specific initialization so we don't need a real FirebaseApp
-      let functions = Functions(
-        projectID: "test-project",
-        region: "us-central1",
-        customDomain: nil,
-        auth: nil,
-        messaging: nil,
-        appCheck: nil
-      )
+      let functions = makeFunctions()
       let callable: Callable<EmptyRequest, String> = functions.httpsCallable("testStream")
 
       let consumerTask = Task {
@@ -133,14 +121,7 @@ import XCTest
       // Simulate a network drop mid-stream
       MockURLProtocol.errorToThrowMidStream = URLError(.networkConnectionLost)
 
-      let functions = Functions(
-        projectID: "test-project",
-        region: "us-central1",
-        customDomain: nil,
-        auth: nil,
-        messaging: nil,
-        appCheck: nil
-      )
+      let functions = makeFunctions()
       let callable: Callable<EmptyRequest, String> = functions.httpsCallable("testStream")
 
       do {
@@ -229,14 +210,17 @@ import XCTest
 
     // MARK: - Helpers
 
+    /// Returns a `Functions` instance whose HTTP traffic goes through `MockURLProtocol`.
     private func makeFunctions() -> Functions {
-      Functions(
+      let transport = URLSessionTransport { $0.protocolClasses = [MockURLProtocol.self] }
+      return Functions(
         projectID: "test-project",
         region: "us-central1",
         customDomain: nil,
         auth: nil,
         messaging: nil,
-        appCheck: nil
+        appCheck: nil,
+        httpClient: FirebaseHTTPClient(transport: transport)
       )
     }
 
