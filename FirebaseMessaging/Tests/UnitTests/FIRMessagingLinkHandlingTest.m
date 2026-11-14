@@ -160,6 +160,14 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   XCTAssertEqualObjects(url.absoluteString, @"HTTPS://www.google.com/");
 }
 
+- (void)testUnparseableLinkInMessage {
+  NSMutableDictionary *notification =
+      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
+  // A leading space makes +[NSURL URLWithString:] return nil on every supported OS version.
+  notification[kFIRMessagingMessageLinkKey] = @" https://www.google.com/";
+  XCTAssertNil([_messaging linkURLFromMessage:notification]);
+}
+
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_VISION
 
 - (void)testHandleIncomingLink_sceneDelegateHandlesUserActivity {

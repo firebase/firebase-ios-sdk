@@ -439,6 +439,12 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return nil;
   }
   NSURL *url = [NSURL URLWithString:urlString];
+  if (!url) {
+    // Don't log the link itself, since it may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidLinkURL,
+                           @"Ignoring message link because it is not a valid URL.");
+    return nil;
+  }
   // The link is delivered as an NSUserActivity webpageURL, which raises for any scheme other than
   // http or https.
   NSString *scheme = url.scheme;
