@@ -24,31 +24,31 @@ import XCTest
 /// the configuration of the session under test instead of registering it globally, so that it
 /// only sees that session's traffic.
 ///
-/// Identical copies of this file live in the FirebaseAuth, FirebaseFunctions, and FirebaseStorage
-/// unit test directories. Keep them in sync.
-final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
+/// SwiftPM test targets get it by depending on the `FirebaseWireCompatibilityTestingSupport`
+/// target. CocoaPods test specs compile it by listing this file in their `source_files`.
+public final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
   /// A request as observed by the URL loading system.
-  struct Request {
-    let url: URL
-    let method: String
-    let headers: [String: String]
-    let body: Data
-    let timeoutInterval: TimeInterval
+  public struct Request: Sendable {
+    public let url: URL
+    public let method: String
+    public let headers: [String: String]
+    public let body: Data
+    public let timeoutInterval: TimeInterval
 
     /// Returns the value of the header `name`, which is matched case-insensitively.
-    func header(_ name: String) -> String? {
+    public func header(_ name: String) -> String? {
       headers.first { $0.key.caseInsensitiveCompare(name) == .orderedSame }?.value
     }
 
     /// The URL's query items, keyed by name.
-    var queryItems: [String: String] {
+    public var queryItems: [String: String] {
       let items = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
       return Dictionary(items.map { ($0.name, $0.value ?? "") }) { first, _ in first }
     }
   }
 
   /// A scripted reply.
-  enum Reply {
+  public enum Reply: Sendable {
     /// An HTTP response.
     case http(status: Int, headers: [String: String] = [:], body: Data = Data())
     /// A transport failure, delivered as `URLError(code)`.
@@ -59,7 +59,8 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
     case redirect(status: Int, location: URL)
 
     /// An HTTP response with a UTF-8 JSON body. `headers` can override the JSON `Content-Type`.
-    static func json(status: Int, _ body: String, headers: [String: String] = [:]) -> Reply {
+    public static func json(status: Int, _ body: String,
+                            headers: [String: String] = [:]) -> Reply {
       .http(
         status: status,
         headers: headers.merging(["Content-Type": "application/json; charset=UTF-8"]) { own, _ in
@@ -70,7 +71,7 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
     }
   }
 
-  typealias Responder = (Request) -> Reply
+  public typealias Responder = (Request) -> Reply
 
   private static let lock = NSLock()
   private nonisolated(unsafe) static var recordedRequests: [Request] = []
@@ -78,12 +79,21 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
   private nonisolated(unsafe) static var queuedReplies: [Reply] = []
 
   /// The requests recorded since the last reset, in the order they started loading.
-  static var requests: [Request] {
+  public static var requests: [Request] {
     lock.withLock { recordedRequests }
   }
 
+  /// Returns the only request recorded since the last reset. Fails the calling test if no request
+  /// or more than one request was recorded.
+  public static func singleRequest(file: StaticString = #filePath,
+                                   line: UInt = #line) throws -> Request {
+    let recorded = requests
+    XCTAssertEqual(recorded.count, 1, "Expected exactly one request", file: file, line: line)
+    return try XCTUnwrap(recorded.first, file: file, line: line)
+  }
+
   /// Clears the recorded requests and answers later requests with `responder`.
-  static func reset(responder: Responder? = nil) {
+  public static func reset(responder: Responder? = nil) {
     lock.withLock {
       recordedRequests = []
       self.responder = responder
@@ -93,7 +103,7 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
 
   /// Clears the recorded requests and answers later requests with `replies`, in order. The last
   /// reply is repeated once the others are used up.
-  static func reset(replies: [Reply]) {
+  public static func reset(replies: [Reply]) {
     lock.withLock {
       recordedRequests = []
       responder = nil
@@ -102,21 +112,21 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
   }
 
   /// Routes the traffic of sessions created from `configuration` through the recorder.
-  static func install(in configuration: URLSessionConfiguration) {
+  public static func install(in configuration: URLSessionConfiguration) {
     configuration.protocolClasses = [HTTPWireRecorder.self] + (configuration.protocolClasses ?? [])
   }
 
   // MARK: - URLProtocol
 
-  override class func canInit(with request: URLRequest) -> Bool {
+  override public class func canInit(with request: URLRequest) -> Bool {
     true
   }
 
-  override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+  override public class func canonicalRequest(for request: URLRequest) -> URLRequest {
     request
   }
 
-  override func startLoading() {
+  override public func startLoading() {
     let recorded = Request(request)
     let (responder, queuedReply) = Self.lock.withLock { () -> (Responder?, Reply?) in
       Self.recordedRequests.append(recorded)
@@ -134,7 +144,7 @@ final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
     deliver(reply, for: recorded.url)
   }
 
-  override func stopLoading() {}
+  override public func stopLoading() {}
 
   private func deliver(_ reply: Reply, for url: URL) {
     guard let client else { return }

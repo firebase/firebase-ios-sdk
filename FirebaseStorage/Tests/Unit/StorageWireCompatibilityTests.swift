@@ -20,11 +20,15 @@ import Foundation
 #else
   import GTMSessionFetcherCore
 #endif
+#if SWIFT_PACKAGE
+  import FirebaseWireCompatibilityTestingSupport
+#endif
 import SharedTestUtilities
 import XCTest
 
-// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS.
-#if !os(watchOS)
+// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
+// lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
+#if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
 
   /// Pins the HTTP behavior of FirebaseStorage: what each operation sends, how the resumable upload
   /// protocol is spoken, which failures are retried, and the shape of the resulting errors.
@@ -63,7 +67,7 @@ import XCTest
       let metadata = try await storage.reference(withPath: objectPath).getMetadata()
 
       XCTAssertEqual(metadata.path, objectPath)
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.absoluteString, objectURL)
       XCTAssertTrue(request.body.isEmpty)
@@ -81,7 +85,7 @@ import XCTest
 
       _ = try await storage.reference(withPath: objectPath).updateMetadata(update)
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "PATCH")
       XCTAssertEqual(request.url.absoluteString, objectURL)
       XCTAssertEqual(request.header("Content-Type"), "application/json; charset=UTF-8")
@@ -100,7 +104,7 @@ import XCTest
 
       try await storage.reference(withPath: objectPath).delete()
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "DELETE")
       XCTAssertEqual(request.url.absoluteString, objectURL)
       XCTAssertEqual(request.timeoutInterval, storage.maxOperationRetryTime)
@@ -121,7 +125,7 @@ import XCTest
       XCTAssertEqual(result.pageToken, "next")
       XCTAssertEqual(result.prefixes.map(\.fullPath), ["path/to/dir"])
       XCTAssertEqual(result.items.map(\.fullPath), ["path/to/file"])
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.host, "firebasestorage.googleapis.com")
       XCTAssertEqual(request.url.path, "/v0/b/bucket/o")
@@ -140,7 +144,7 @@ import XCTest
       let downloadURL = try await storage.reference(withPath: objectPath).downloadURL()
 
       XCTAssertEqual(downloadURL.absoluteString, "\(objectURL)?alt=media&token=token1")
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.absoluteString, objectURL)
       assertAuthorizedHeaders(of: request)
@@ -158,7 +162,7 @@ import XCTest
       let data = try await storage.reference(withPath: objectPath).data(maxSize: 1024)
 
       XCTAssertEqual(data, content)
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.absoluteString, "\(objectURL)?alt=media")
       XCTAssertEqual(request.timeoutInterval, storage.maxDownloadRetryTime)
@@ -178,7 +182,7 @@ import XCTest
 
       XCTAssertEqual(writtenURL, fileURL)
       XCTAssertEqual(try Data(contentsOf: fileURL), content)
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.absoluteString, "\(objectURL)?alt=media")
       XCTAssertEqual(request.timeoutInterval, storage.maxDownloadRetryTime)
@@ -336,7 +340,7 @@ import XCTest
 
       _ = try await storage.reference(withPath: objectPath).getMetadata()
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(
         request.url.absoluteString, "http://localhost:9199/v0/b/bucket/o/path%2Fto%2Fobject"
       )
@@ -455,13 +459,6 @@ import XCTest
                      "\(name) header of \(request.method) \(request.url)", file: file, line: line)
     }
 
-    private func singleRequest(file: StaticString = #filePath,
-                               line: UInt = #line) throws -> HTTPWireRecorder.Request {
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.count, 1, "Expected exactly one request", file: file, line: line)
-      return try XCTUnwrap(requests.first, file: file, line: line)
-    }
-
     /// Returns a `Storage` instance whose HTTP traffic goes through `HTTPWireRecorder`, using fake
     /// Auth and App Check providers that supply tokens.
     private func makeStorage(emulatorPort: Int? = nil) async -> Storage {
@@ -497,4 +494,4 @@ import XCTest
     }
   }
 
-#endif // !os(watchOS)
+#endif // (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)

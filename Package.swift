@@ -581,6 +581,7 @@ func packageTargets() -> [Target] {
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
+        "FirebaseWireCompatibilityTestingSupport",
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
@@ -750,6 +751,7 @@ func packageTargets() -> [Target] {
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
+                     "FirebaseWireCompatibilityTestingSupport",
                      "SharedTestUtilities"],
       path: "FirebaseFunctions/Tests/Unit",
       cSettings: [
@@ -1181,6 +1183,7 @@ func packageTargets() -> [Target] {
     .testTarget(
       name: "FirebaseStorageUnit",
       dependencies: ["FirebaseStorage",
+                     "FirebaseWireCompatibilityTestingSupport",
                      "SharedTestUtilities"],
       path: "FirebaseStorage/Tests/Unit",
       cSettings: [
@@ -1377,6 +1380,12 @@ func packageTargets() -> [Target] {
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+    // `HTTPWireRecorder` for the SDKs' wire compatibility unit tests. It imports XCTest, so only
+    // test targets can depend on it.
+    .target(
+      name: "FirebaseWireCompatibilityTestingSupport",
+      path: "FirebaseTestingSupport/WireCompatibility/Sources"
     ),
     .testTarget(
       name: "FirebaseFirestoreTests",

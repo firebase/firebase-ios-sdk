@@ -72,7 +72,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
       :osx => osx_deployment_target,
       :tvos => tvos_deployment_target
     }
-    unit_tests.source_files = 'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}'
+    unit_tests.source_files = [
+      'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}',
+      'FirebaseTestingSupport/WireCompatibility/Sources/*.swift',
+    ]
     # app_host is needed for tests with keychain
     unit_tests.requires_app_host = true
   end

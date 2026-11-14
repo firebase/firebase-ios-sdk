@@ -23,11 +23,15 @@ import Foundation
 #else
   import GTMSessionFetcherCore
 #endif
+#if SWIFT_PACKAGE
+  import FirebaseWireCompatibilityTestingSupport
+#endif
 import SharedTestUtilities
 import XCTest
 
-// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS.
-#if !os(watchOS)
+// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
+// lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
+#if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
 
   /// Pins the HTTP behavior of callable functions: what a call sends, and how responses and
   /// failures surface to the caller.
@@ -61,7 +65,7 @@ import XCTest
 
       _ = try await functions.httpsCallable("echo").call(["key": "value"])
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "POST")
       XCTAssertEqual(request.url.absoluteString, functionURL)
       XCTAssertEqual(request.header("Content-Type"), "application/json")
@@ -79,7 +83,7 @@ import XCTest
 
       _ = try await makeFunctions().httpsCallable("echo").call()
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       let body = try XCTUnwrap(JSONSerialization.jsonObject(with: request.body) as? NSDictionary)
       XCTAssertEqual(body, ["data": NSNull()])
       for header in ["Authorization", "Firebase-Instance-ID-Token", "X-Firebase-AppCheck"] {
@@ -94,7 +98,7 @@ import XCTest
 
       _ = try await callable.call()
 
-      XCTAssertEqual(try singleRequest().timeoutInterval, 12)
+      XCTAssertEqual(try HTTPWireRecorder.singleRequest().timeoutInterval, 12)
     }
 
     // MARK: - Responses
@@ -189,7 +193,8 @@ import XCTest
       _ = try await functions.httpsCallable("echo").call()
 
       XCTAssertEqual(
-        try singleRequest().url.absoluteString, "http://localhost:5001/my-project/us-central1/echo"
+        try HTTPWireRecorder.singleRequest().url.absoluteString,
+        "http://localhost:5001/my-project/us-central1/echo"
       )
     }
 
@@ -223,13 +228,6 @@ import XCTest
 
     // MARK: - Helpers
 
-    private func singleRequest(file: StaticString = #filePath,
-                               line: UInt = #line) throws -> HTTPWireRecorder.Request {
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.count, 1, "Expected exactly one request", file: file, line: line)
-      return try XCTUnwrap(requests.first, file: file, line: line)
-    }
-
     /// Returns a `Functions` instance whose HTTP traffic goes through `HTTPWireRecorder`.
     private func makeFunctions(customDomain: String? = nil,
                                auth: AuthInterop? = nil,
@@ -253,4 +251,4 @@ import XCTest
     }
   }
 
-#endif // !os(watchOS)
+#endif // (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)

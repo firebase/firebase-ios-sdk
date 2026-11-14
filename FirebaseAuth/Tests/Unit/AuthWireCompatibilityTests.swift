@@ -22,9 +22,13 @@ import XCTest
 #else
   import GTMSessionFetcherCore
 #endif
+#if SWIFT_PACKAGE
+  import FirebaseWireCompatibilityTestingSupport
+#endif
 
-// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS.
-#if !os(watchOS)
+// Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
+// lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
+#if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
 
   /// Pins the HTTP behavior of `AuthBackendRPCIssuer`: what it sends, and the `(Data?, Error?)`
   /// contract that `AuthBackend` relies on to decode responses and errors.
@@ -59,7 +63,7 @@ import XCTest
 
       _ = await call(configuration: configuration, body: body)
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "POST")
       XCTAssertEqual(request.url.absoluteString, projectConfigURL)
       XCTAssertEqual(request.body, body)
@@ -82,7 +86,7 @@ import XCTest
 
       _ = await call(body: nil)
 
-      let request = try singleRequest()
+      let request = try HTTPWireRecorder.singleRequest()
       XCTAssertEqual(request.method, "GET")
       XCTAssertEqual(request.url.absoluteString, projectConfigURL)
       XCTAssertTrue(request.body.isEmpty)
@@ -168,7 +172,7 @@ import XCTest
 
       XCTAssertNil(error)
       XCTAssertEqual(
-        try singleRequest().url.absoluteString,
+        try HTTPWireRecorder.singleRequest().url.absoluteString,
         "http://localhost:9099/www.googleapis.com/identitytoolkit/v3/relyingparty/" +
           "getProjectConfig?key=FAKE_API_KEY"
       )
@@ -224,13 +228,6 @@ import XCTest
       )
     }
 
-    private func singleRequest(file: StaticString = #filePath,
-                               line: UInt = #line) throws -> HTTPWireRecorder.Request {
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.count, 1, "Expected exactly one request", file: file, line: line)
-      return try XCTUnwrap(requests.first, file: file, line: line)
-    }
-
     /// Returns an issuer whose HTTP traffic goes through `HTTPWireRecorder`.
     private func makeIssuer() -> AuthBackendRPCIssuer {
       // GTMSessionFetcher-specific wiring. After the migration, install the recorder in the
@@ -243,4 +240,4 @@ import XCTest
     }
   }
 
-#endif // !os(watchOS)
+#endif // (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
