@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a potential crash when a contextual (local time) message
+  payload contains fields of an unexpected type. Messages whose local start
+  or end time can't be parsed are now dropped instead of being scheduled.
+  (#16520)
+
 # 13.1.0
 - [fixed] Reduced main-thread work when setting the APNs token: the APNs
   environment check no longer queries the App Store receipt, and the keychain is
