@@ -94,23 +94,27 @@ public struct RetryBackoff: Sendable {
     return delay
   }
 
-  /// Suspends the calling task for `delay` seconds, or for the longest time that `Task.sleep`
-  /// accepts if `delay` is longer than that.
+  /// Suspends the calling task for `delay` seconds, or for `maxSleepNanoseconds` if `delay` is
+  /// longer than that.
   ///
   /// - Throws: `CancellationError` if the task is cancelled while it waits.
   public static func sleep(for delay: TimeInterval) async throws {
     try await Task.sleep(nanoseconds: nanoseconds(forSeconds: delay))
   }
 
-  /// Converts `seconds` to nanoseconds, limited to the range of `UInt64`. Negative and NaN values
+  /// The longest sleep, about 146 years. On some OS versions, `Task.sleep(nanoseconds:)` returns
+  /// right away when the duration doesn't fit in an `Int64`, so sleeps stay well below that.
+  static let maxSleepNanoseconds = UInt64(Int64.max / 2)
+
+  /// Converts `seconds` to nanoseconds, limited to `maxSleepNanoseconds`. Negative and NaN values
   /// become 0.
   static func nanoseconds(forSeconds seconds: TimeInterval) -> UInt64 {
     let nanoseconds = (seconds * 1_000_000_000).rounded()
     guard nanoseconds > 0 else {
       return 0
     }
-    guard nanoseconds < Double(UInt64.max) else {
-      return .max
+    guard nanoseconds < Double(maxSleepNanoseconds) else {
+      return maxSleepNanoseconds
     }
     return UInt64(nanoseconds)
   }

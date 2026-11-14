@@ -123,6 +123,8 @@ class StorageHTTPServiceTests: StorageTestHelpers {
     // About 31,700 years, within an even longer retry time. In nanoseconds, the wait doesn't fit
     // in a UInt64.
     let requestSent = expectation(description: "Request sent")
+    // A retry would mean the wait ended early. The request count check below reports that.
+    requestSent.assertForOverFulfill = false
     let transport = StorageTestTransport { request in
       requestSent.fulfill()
       let url = try XCTUnwrap(request.url)

@@ -114,14 +114,16 @@ class RetryBackoffTests: XCTestCase {
 
   // MARK: - Sleeping
 
-  func testNanosecondsStayInTheRangeOfUInt64() {
+  func testNanosecondsAreLimitedToTheLongestSleep() {
     XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1.5), 1_500_000_000)
     XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 0.001), 1_000_000)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1e9), 1_000_000_000_000_000_000)
     XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 0), 0)
     XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: -1), 0)
     XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: .nan), 0)
-    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1e11), .max)
-    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: .infinity), .max)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1e11), RetryBackoff.maxSleepNanoseconds)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: .infinity),
+                   RetryBackoff.maxSleepNanoseconds)
   }
 
   func testSleepWaits() async throws {
@@ -132,10 +134,16 @@ class RetryBackoffTests: XCTestCase {
     XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime - start, 0.01)
   }
 
-  func testCancellingStopsAVeryLongSleep() async {
+  func testAVeryLongSleepLastsUntilItIsCancelled() async {
+    let finished = UnfairLock(false)
     let sleep = Task {
+      defer { finished.withLock { $0 = true } }
       try await RetryBackoff.sleep(for: .infinity)
     }
+
+    // Give the sleep time to start, and check that it doesn't end by itself.
+    try? await Task.sleep(nanoseconds: 100_000_000)
+    XCTAssertFalse(finished.value(), "The sleep ended before it was cancelled")
     sleep.cancel()
 
     do {
