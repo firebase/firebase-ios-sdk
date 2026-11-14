@@ -1,3 +1,17 @@
+# Unreleased
+- [changed] `maxOperationRetryTime` is now a limit on the total time that
+  getting and updating metadata, listing, deleting, and getting download URLs
+  spend retrying: no retry starts once that time has passed since the operation
+  began. It was previously turned into a limit on the wait between retries,
+  so failures that took a long time, such as timeouts, could be retried well
+  past it. Changes to `maxOperationRetryTime` now also apply to `Storage`
+  instances that have already sent requests.
+- [changed] These operations now get fresh Auth and App Check tokens for every
+  retry, so a token that expires while an operation is retried is replaced.
+- [changed] When one of these requests redirects to a different origin,
+  credentials such as the Auth and App Check tokens are only sent to the
+  redirect target if it's a `googleapis.com` or `google.com` host.
+
 # 13.2.0
 - [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`
   now cancel the underlying download or upload and throw `StorageError.cancelled` when the

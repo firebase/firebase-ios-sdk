@@ -21,8 +21,7 @@ enum StorageGetMetadataTask {
                               completion: ((_: StorageMetadata?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
                         queue: queue,
-                        httpMethod: "GET",
-                        fetcherComment: "GetMetadataTask") { (data: Data?, error: Error?) in
+                        httpMethod: "GET") { (data: Data?, error: Error?) in
       if let error {
         completion?(nil, error)
       } else {

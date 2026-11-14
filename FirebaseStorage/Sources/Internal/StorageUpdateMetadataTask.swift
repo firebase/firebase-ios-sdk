@@ -31,8 +31,7 @@ enum StorageUpdateMetadataTask {
     StorageInternalTask(reference: reference,
                         queue: queue,
                         request: request,
-                        httpMethod: "PATCH",
-                        fetcherComment: "GetMetadataTask") { (data: Data?, error: Error?) in
+                        httpMethod: "PATCH") { (data: Data?, error: Error?) in
       if let error {
         completion?(nil, error)
       } else {
