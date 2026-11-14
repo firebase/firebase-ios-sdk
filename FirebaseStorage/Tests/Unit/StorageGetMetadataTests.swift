@@ -12,26 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-import GTMSessionFetcherCore
 import XCTest
 
 class StorageGetMetadataTests: StorageTestHelpers {
   func testFetcherConfiguration() async {
-    let testBlock = { (fetcher: GTMSessionFetcher!,
-                       response: GTMSessionFetcherTestResponse) in
-        XCTAssertEqual(fetcher.request?.url, self.objectURL())
-        XCTAssertEqual(fetcher.request?.httpMethod, "GET")
-        let httpResponse = HTTPURLResponse(
-          url: (fetcher.request?.url)!,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        )
-        response(httpResponse, nil, nil)
+    let testBlock = StorageTestTransport { request in
+      XCTAssertEqual(request.url, self.objectURL())
+      XCTAssertEqual(request.httpMethod, "GET")
+      return try (Data(), StorageTestTransport.response(to: request, statusCode: 200))
     }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    await StorageHTTPService.shared.updateTestTransport(testBlock)
     let ref = storage().reference(withPath: "object")
     do {
       let _ = try await ref.getMetadata()
@@ -41,7 +34,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
   }
 
   func testSuccessfulFetch() async {
-    await StorageFetcherService.shared.updateTestBlock(successBlock())
+    await StorageHTTPService.shared.updateTestTransport(successBlock())
     let ref = storage().reference(withPath: "object")
     do {
       let _ = try await ref.getMetadata()
@@ -57,7 +50,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
     let testBlock = successBlock(
       withURL: URL(string: "http://localhost:8080/v0/b/bucket/o/object")!
     )
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    await StorageHTTPService.shared.updateTestTransport(testBlock)
     let ref = storage.reference(withPath: "object")
     do {
       let _ = try await ref.getMetadata()
@@ -68,7 +61,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchUnauthenticated() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(unauthenticatedBlock())
+    await StorageHTTPService.shared.updateTestTransport(unauthenticatedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -80,7 +73,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchUnauthorized() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(unauthorizedBlock())
+    await StorageHTTPService.shared.updateTestTransport(unauthorizedBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -92,7 +85,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
 
   func testUnsuccessfulFetchObjectDoesntExist() async {
     let storage = storage()
-    await StorageFetcherService.shared.updateTestBlock(notFoundBlock())
+    await StorageHTTPService.shared.updateTestTransport(notFoundBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage, path: path)
     do {
@@ -103,7 +96,7 @@ class StorageGetMetadataTests: StorageTestHelpers {
   }
 
   func testUnsuccessfulFetchBadJSON() async {
-    await StorageFetcherService.shared.updateTestBlock(invalidJSONBlock())
+    await StorageHTTPService.shared.updateTestTransport(invalidJSONBlock())
     let path = objectPath()
     let ref = StorageReference(storage: storage(), path: path)
     do {

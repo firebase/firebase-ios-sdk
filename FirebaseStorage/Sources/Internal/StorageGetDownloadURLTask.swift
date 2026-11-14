@@ -21,8 +21,7 @@ enum StorageGetDownloadURLTask {
                                  completion: ((_: URL?, _: Error?) -> Void)?) {
     StorageInternalTask(reference: reference,
                         queue: queue,
-                        httpMethod: "GET",
-                        fetcherComment: "GetDownloadURLTask") { (data: Data?, error: Error?) in
+                        httpMethod: "GET") { (data: Data?, error: Error?) in
       if let error {
         completion?(nil, error)
       } else {
