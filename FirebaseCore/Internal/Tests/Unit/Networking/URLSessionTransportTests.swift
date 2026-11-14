@@ -94,6 +94,17 @@ import XCTest
       }
     }
 
+    func testFinishedTasksAreNoLongerTracked() async throws {
+      HTTPWireRecorder.reset(replies: [.json(status: 200, "{}"), .failure(.cannotFindHost)])
+      let transport = makeTransport()
+
+      _ = try await transport.data(for: postRequest(startURL), policy: HTTPRequestPolicy())
+      _ = try? await transport.data(for: postRequest(startURL), policy: HTTPRequestPolicy())
+
+      XCTAssertEqual(HTTPWireRecorder.requests.count, 2)
+      XCTAssertEqual(transport.trackedTaskCount, 0)
+    }
+
     // MARK: - Cancellation
 
     func testCancellationThrowsCancellationError() async {
@@ -114,6 +125,7 @@ import XCTest
       } catch {
         XCTAssertTrue(error is CancellationError, "\(error)")
       }
+      XCTAssertEqual(transport.trackedTaskCount, 0)
     }
 
     func testCancelledTaskDoesNotSendTheRequest() async {
@@ -228,11 +240,13 @@ import XCTest
         return .json(status: 200, #"{"result":"ok"}"#)
       }
 
-      let (responseBody, response) = try await makeTransport().data(for: postRequest(startURL),
-                                                                    policy: policy)
+      let transport = makeTransport()
+      let (responseBody, response) = try await transport.data(for: postRequest(startURL),
+                                                              policy: policy)
 
       XCTAssertEqual(response.statusCode, 200)
       XCTAssertEqual(responseBody, Data(#"{"result":"ok"}"#.utf8))
+      XCTAssertEqual(transport.trackedTaskCount, 0)
       let requests = HTTPWireRecorder.requests
       XCTAssertEqual(requests.count, 2)
       return requests

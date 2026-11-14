@@ -33,6 +33,11 @@ public final class URLSessionTransport: HTTPTransport {
 
   private let tasks: SessionTasks
 
+  /// The number of data tasks whose redirects the session delegate tracks. Internal for tests.
+  var trackedTaskCount: Int {
+    tasks.count
+  }
+
   /// Creates a transport with its own session.
   ///
   /// - Parameter configure: Adjusts the ephemeral session configuration before the session is
@@ -103,6 +108,11 @@ private final class SessionTasks: NSObject, URLSessionTaskDelegate, Sendable {
     entries.withLock { $0[taskIdentifier] = nil }
   }
 
+  /// The number of registered tasks.
+  var count: Int {
+    entries.withLock { $0.count }
+  }
+
   func urlSession(_ session: URLSession, task: URLSessionTask,
                   willPerformHTTPRedirection response: HTTPURLResponse,
                   newRequest request: URLRequest,
@@ -127,7 +137,10 @@ private final class SessionTasks: NSObject, URLSessionTaskDelegate, Sendable {
 /// Connects the cancellation of a Swift task to a `URLSessionTask` that may not exist yet.
 private final class TaskCancellation: Sendable {
   private struct State {
-    var task: URLSessionTask?
+    /// Weak, because the task's completion handler holds this object. `URLSession` keeps the
+    /// task alive until it completes.
+    weak var task: URLSessionTask?
+    var taskIdentifier: Int?
     var isCancelled = false
   }
 
@@ -137,8 +150,9 @@ private final class TaskCancellation: Sendable {
     state.withLock { $0.isCancelled }
   }
 
+  /// The identifier of the task, once it's started.
   var taskIdentifier: Int? {
-    state.withLock { $0.task?.taskIdentifier }
+    state.withLock { $0.taskIdentifier }
   }
 
   /// Resumes `task`, or cancels it if the Swift task was already cancelled. Either way, the task
@@ -146,6 +160,7 @@ private final class TaskCancellation: Sendable {
   func start(_ task: URLSessionTask) {
     let isCancelled = state.withLock { state -> Bool in
       state.task = task
+      state.taskIdentifier = task.taskIdentifier
       return state.isCancelled
     }
     if isCancelled {
