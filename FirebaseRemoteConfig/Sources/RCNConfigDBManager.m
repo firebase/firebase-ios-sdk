@@ -347,10 +347,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 #pragma mark - execute
 - (BOOL)executeQuery:(const char *)SQL {
   RCN_MUST_NOT_BE_MAIN_THREAD();
-  char *error;
+  char *error = NULL;
   if (sqlite3_exec(_database, SQL, nil, nil, &error) != SQLITE_OK) {
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000012", @"Failed to execute query with error %s.",
-                error);
+                error ? error : "unknown");
+    sqlite3_free(error);
     return NO;
   }
   return YES;
@@ -489,6 +490,53 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     BOOL success = [self insertExperimentTableWithKey:key value:serializedValue];
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
+        handler(success, nil);
+      });
+    }
+  });
+}
+
+- (void)replaceExperimentTableWithKey:(NSString *)key
+                               values:(NSArray<NSData *> *)values
+                    completionHandler:(RCNDBCompletion)handler {
+  if (!key) {
+    if (handler) {
+      dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+        handler(NO, nil);
+      });
+    }
+    return;
+  }
+  NSString *keyCopy = [key copy];
+  NSArray<NSData *> *valuesCopy = [values copy] ?: @[];
+  dispatch_async(_databaseOperationQueue, ^{
+    BOOL transactionStarted = [self executeQuery:"BEGIN IMMEDIATE TRANSACTION"];
+    BOOL success = transactionStarted;
+    if (success) {
+      const char *deleteSQL = "DELETE FROM " RCNTableNameExperiment " WHERE key = ?";
+      success = [self executeQuery:deleteSQL withParams:@[ keyCopy ]];
+    }
+
+    for (NSData *value in valuesCopy) {
+      if (!success) {
+        break;
+      }
+      if (![value isKindOfClass:[NSData class]]) {
+        success = NO;
+        break;
+      }
+      success = [self insertExperimentTableWithKey:keyCopy value:value];
+    }
+
+    if (success) {
+      success = [self executeQuery:"COMMIT TRANSACTION"];
+    }
+    if (!success && transactionStarted) {
+      [self executeQuery:"ROLLBACK TRANSACTION"];
+    }
+
+    if (handler) {
+      dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
         handler(success, nil);
       });
     }
