@@ -11,6 +11,8 @@ on:
     - 'FirebaseAuth/Interop/*.h'
     # The wire compatibility unit tests use the shared HTTPWireRecorder.
     - 'FirebaseTestingSupport/WireCompatibility/**'
+    # Requests go through FirebaseCoreInternal's HTTP client.
+    - 'FirebaseCore/Internal/Sources/Networking/**'
     - '.github/workflows/sdk.auth.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
