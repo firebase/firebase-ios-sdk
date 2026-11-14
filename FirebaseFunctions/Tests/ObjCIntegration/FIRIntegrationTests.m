@@ -20,7 +20,6 @@
 @import FirebaseFunctions;
 @import FirebaseAuthInterop;
 @import FirebaseMessagingInterop;
-@import GTMSessionFetcherCore;
 
 // Project ID used by these tests.
 static NSString *const kDefaultProjectID = @"functions-integration-test";
@@ -89,8 +88,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                                           customDomain:nil
                                                   auth:nil
                                              messaging:_messagingFake
-                                              appCheck:nil
-                                        fetcherService:[[GTMSessionFetcherService alloc] init]];
+                                              appCheck:nil];
   if (_useLocalhost) {
     [_functions useEmulatorWithHost:@"localhost" port:5005];
   }
@@ -143,8 +141,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                                  customDomain:nil
                                          auth:[[AuthTokenProvider alloc] initWithToken:@"token"]
                                     messaging:_messagingFake
-                                     appCheck:nil
-                               fetcherService:[[GTMSessionFetcherService alloc] init]];
+                                     appCheck:nil];
   if (_useLocalhost) {
     [functions useEmulatorWithHost:@"localhost" port:5005];
   }
