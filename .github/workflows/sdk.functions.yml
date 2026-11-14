@@ -18,6 +18,8 @@ on:
     - 'FirebaseTestingSupport/Functions/**'
     # The wire compatibility unit tests use the shared HTTPWireRecorder.
     - 'FirebaseTestingSupport/WireCompatibility/**'
+    # Callable and streaming requests go through FirebaseCoreInternal's HTTP client.
+    - 'FirebaseCore/Internal/Sources/Networking/**'
     - 'FirebaseCombineSwift/Sources/Functions/**'
     - 'scripts/setup_quickstart.sh'
     - 'Gemfile*'

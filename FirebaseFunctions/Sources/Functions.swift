@@ -473,25 +473,14 @@ enum FunctionsConstants {
         }
 
         let stream: URLSession.AsyncBytes
-        let rawResponse: URLResponse
+        let response: HTTPURLResponse
         do {
-          (stream, rawResponse) = try await URLSession.shared.bytes(for: urlRequest)
+          (stream, response) = try await httpClient.bytes(for: urlRequest, policy: requestPolicy)
         } catch {
           continuation.finish(throwing: FunctionsError(
             .unavailable,
             userInfo: [NSUnderlyingErrorKey: error]
           ))
-          return
-        }
-
-        // Verify the status code is an HTTP response.
-        guard let response = rawResponse as? HTTPURLResponse else {
-          continuation.finish(
-            throwing: FunctionsError(
-              .unavailable,
-              userInfo: [NSLocalizedDescriptionKey: "Response was not an HTTP response."]
-            )
-          )
           return
         }
 
