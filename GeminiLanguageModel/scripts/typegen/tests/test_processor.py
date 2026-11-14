@@ -191,8 +191,12 @@ class TestSchemaProcessor(unittest.TestCase):
         prop_data = {"type": "string", "format": "byte"}
         self.assertEqual(processor.get_primitive_type(prop_data), "Data")
 
+    def test_google_duration_format_mapping(self):
+        prop_data = {"type": "string", "format": "google-duration"}
+        self.assertEqual(processor.get_primitive_type(prop_data), "TimeSpan")
+
     def test_other_string_formats_map_to_string(self):
-        for fmt in ("google-datetime", "date-time", "google-duration", None):
+        for fmt in ("google-datetime", "date-time", "int64", None):
             with self.subTest(fmt=fmt):
                 prop_data = {"type": "string", "format": fmt}
                 self.assertEqual(
@@ -264,6 +268,32 @@ class TestSchemaProcessor(unittest.TestCase):
         )
         struct_type = next(t for t in swift_types if t.kind == "struct")
         self.assertEqual(struct_type.properties[0].swift_type, "Threshold")
+
+    def test_property_type_override_renames_nested_enum(self):
+        resolved = {
+            "VoiceActivity": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "TYPE_UNSPECIFIED",
+                            "ACTIVITY_START",
+                            "ACTIVITY_END",
+                        ],
+                    }
+                },
+            }
+        }
+        config = config_lib.GeneratorConfig(
+            property_type_overrides={"VoiceActivity.type": "ActivityType"}
+        )
+        swift_types = process(resolved, config=config)
+        enum_type = next(t for t in swift_types if t.kind == "enum")
+        self.assertEqual(enum_type.name, "ActivityType")
+        self.assertEqual(enum_type.namespace, "VoiceActivity")
+        struct_type = next(t for t in swift_types if t.kind == "struct")
+        self.assertEqual(struct_type.properties[0].swift_type, "ActivityType")
 
     def test_single_value_enum_becomes_constant_without_nested_enum(self):
         resolved = {

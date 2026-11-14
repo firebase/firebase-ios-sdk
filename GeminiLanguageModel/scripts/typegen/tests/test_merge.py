@@ -287,3 +287,97 @@ class TestMerge(unittest.TestCase):
             renamed["Tool"]["properties"]["urlContext"]["$ref"],
             "#/components/schemas/URLContext",
         )
+
+    def test_rename_schemas_and_refs_merges_colliding_schemas(self):
+        schemas = {
+            "GenerateContentResponseUsageMetadata": {
+                "type": "object",
+                "x-gl-developer-original-name": (
+                    "DeveloperGenerateContentResponseUsageMetadata"
+                ),
+                "x-gl-developer-description": "GC usage.",
+                "properties": {
+                    "candidatesTokenCount": {
+                        "type": "integer",
+                        "x-gl-developer-description": "Candidates tokens.",
+                    }
+                },
+            },
+            "UsageMetadata": {
+                "type": "object",
+                "x-gl-developer-original-name": "DeveloperUsageMetadata",
+                "x-gl-developer-description": "Bidi usage.",
+                "properties": {
+                    "responseTokenCount": {
+                        "type": "integer",
+                        "x-gl-developer-description": "Response tokens.",
+                    }
+                },
+            },
+        }
+        renamed = merge.rename_schemas_and_refs(
+            schemas, {"GenerateContentResponseUsageMetadata": "UsageMetadata"}
+        )
+        self.assertEqual(list(renamed), ["UsageMetadata"])
+        self.assertEqual(
+            set(renamed["UsageMetadata"]["properties"]),
+            {"candidatesTokenCount", "responseTokenCount"},
+        )
+
+    def test_merge_schemas_within_same_backend_preserves_provenance(self):
+        first = {
+            "type": "object",
+            "description": "Enterprise A.",
+            "x-ai-enterprise-original-name": "EnterpriseA",
+            "x-ai-enterprise-description": "Enterprise A.",
+            "properties": {
+                "a": {
+                    "type": "string",
+                    "description": "Field A.",
+                    "x-ai-enterprise-description": "Field A.",
+                }
+            },
+        }
+        second = {
+            "type": "object",
+            "description": "Enterprise B.",
+            "x-ai-enterprise-original-name": "EnterpriseB",
+            "x-ai-enterprise-description": "Enterprise B.",
+            "properties": {
+                "a": {
+                    "type": "string",
+                    "description": "Field A.",
+                    "x-ai-enterprise-description": "Field A.",
+                }
+            },
+        }
+        merged = merge.merge_schemas("Merged", first, second, divergences={})
+        self.assertNotIn("x-gl-developer-description", merged)
+        self.assertNotIn(
+            "x-gl-developer-description", merged["properties"]["a"]
+        )
+
+    def test_merge_schemas_unions_one_of(self):
+        first = {
+            "type": "object",
+            "oneOf": [
+                {"required": ["a"]},
+                {"required": ["b"]},
+            ],
+        }
+        second = {
+            "type": "object",
+            "oneOf": [
+                {"required": ["b"]},
+                {"required": ["c"]},
+            ],
+        }
+        merged = merge.merge_schemas("Msg", first, second, divergences={})
+        self.assertEqual(
+            merged["oneOf"],
+            [
+                {"required": ["a"]},
+                {"required": ["b"]},
+                {"required": ["c"]},
+            ],
+        )

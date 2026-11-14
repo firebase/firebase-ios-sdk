@@ -42,8 +42,12 @@ def get_primitive_type(prop_data: dict[str, Any]) -> str | None:
 
     fmt = prop_data.get("format")
     if t == "string":
-        # Other formats, including dates and durations, stay strings.
-        return "Data" if fmt == "byte" else "String"
+        if fmt == "byte":
+            return "Data"
+        if fmt == "google-duration":
+            return "TimeSpan"
+        # Other formats, including dates and timestamps, stay strings.
+        return "String"
     elif t == "integer":
         return "Int"
     elif t == "number":
@@ -112,21 +116,32 @@ class SchemaProcessor:
         self.swift_types: list[models.SwiftType] = []
 
     def process(
-        self, resolved_schemas: dict[str, Any], namespace: str = ""
+        self,
+        resolved_schemas: dict[str, Any],
+        namespace: str = "",
+        all_resolved_schemas: dict[str, Any] | None = None,
     ) -> list[models.SwiftType]:
         """Processes resolved schemas into a list of SwiftType instances.
 
         Args:
             resolved_schemas: Dictionary mapping schema names to definitions.
             namespace: Root Swift namespace.
+            all_resolved_schemas: Optional full dictionary of resolved schemas
+                used for cross-schema deprecation lookups when processing a
+                subset of schemas.
 
         Returns:
             List of generated SwiftType instances.
         """
         self.swift_types = []
+        lookup_schemas = (
+            all_resolved_schemas
+            if all_resolved_schemas is not None
+            else resolved_schemas
+        )
         for name in sorted(resolved_schemas.keys()):
             self._process_schema(
-                name, resolved_schemas[name], namespace, resolved_schemas
+                name, resolved_schemas[name], namespace, lookup_schemas
             )
         return self.swift_types
 
@@ -267,7 +282,12 @@ class SchemaProcessor:
                 swift_type_str = ""  # Set from const_val below.
 
             elif "enum" in prop_data:
-                enum_name = naming.to_camel_case(prop_name, lower=False)
+                full_key = (
+                    f"{actual_name}.{prop_name}" if actual_name else prop_name
+                )
+                enum_name = self.config.property_type_overrides.get(
+                    full_key, naming.to_camel_case(prop_name, lower=False)
+                )
                 enum_namespace = (
                     f"{actual_namespace}.{actual_name}"
                     if actual_namespace

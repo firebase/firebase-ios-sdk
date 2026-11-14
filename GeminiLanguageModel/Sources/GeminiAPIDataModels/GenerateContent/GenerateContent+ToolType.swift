@@ -36,6 +36,10 @@ package enum ToolType: Codable, Sendable, Equatable, Hashable {
   /// File search tool, maps to Tool.file_search.
   case fileSearch
 
+  /// Media processing tool types (e.g. video, audio, etc.), maps to invisible tools used for
+  /// multimodal understanding like GOOGLE_UNDERSTANDING_VIDEO.
+  case mediaProcessing
+
   /// Unrecognized case.
   ///
   /// - Parameter value: The raw string value of the unrecognized enum case.
@@ -52,6 +56,7 @@ extension ToolType: RawRepresentable {
     case .urlContext: "URL_CONTEXT"
     case .googleMaps: "GOOGLE_MAPS"
     case .fileSearch: "FILE_SEARCH"
+    case .mediaProcessing: "MEDIA_PROCESSING"
     case .unrecognized(let value): value
     }
   }
@@ -63,6 +68,7 @@ extension ToolType: RawRepresentable {
     case "URL_CONTEXT": self = .urlContext
     case "GOOGLE_MAPS": self = .googleMaps
     case "FILE_SEARCH": self = .fileSearch
+    case "MEDIA_PROCESSING": self = .mediaProcessing
     default: self = .unrecognized(rawValue)
     }
   }

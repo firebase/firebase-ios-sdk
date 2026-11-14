@@ -17,12 +17,16 @@
 
 import Foundation
 
-/// Deprecated: Use top-level `language_codes` instead. Indicates the language of the audio should
-/// be automatically detected.
-@available(*, deprecated)
-package struct AudioTranscriptionConfigLanguageAuto: Codable, Sendable, Equatable, Hashable,
-  Buildable
-{
-  /// Initializes a new `AudioTranscriptionConfigLanguageAuto`.
+/// Server will not be able to service client soon.
+package struct GoAway: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// The remaining time before the connection will be terminated as ABORTED. The minimal time
+  /// returned here is specified differently together with the rate limits for a given model.
+  package var timeLeft: TimeSpan?
+
+  /// Initializes a new `GoAway`.
   package init() {}
+
+  enum CodingKeys: String, CodingKey {
+    case timeLeft
+  }
 }

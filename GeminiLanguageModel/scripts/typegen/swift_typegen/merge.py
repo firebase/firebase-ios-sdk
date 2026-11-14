@@ -156,16 +156,20 @@ def _merge_provenance(
     )
     for tag, own, other in by_tag:
         name_key = config_lib.provenance_key(tag, "original-name")
+        description_key = config_lib.provenance_key(tag, "description")
         if name_key in own:
             merged[name_key] = own[name_key]
         elif name_key in other:
             merged[name_key] = other[name_key]
 
-    for tag, own, _ in by_tag:
-        description_key = config_lib.provenance_key(tag, "description")
-        merged[description_key] = own.get(description_key) or own.get(
-            "description", ""
-        )
+        if description_key in own:
+            merged[description_key] = own[description_key]
+        elif description_key in other:
+            merged[description_key] = other[description_key]
+        elif name_key in own:
+            merged[description_key] = own.get("description", "")
+        elif name_key in other:
+            merged[description_key] = other.get("description", "")
     _merge_descriptions(merged, developer, enterprise)
 
 
@@ -245,15 +249,20 @@ def strip_prefix_from_schemas(
 
 
 def rename_schemas_and_refs(
-    schemas: dict[str, Any], mappings: dict[str, str]
+    schemas: dict[str, Any],
+    mappings: dict[str, str],
+    divergences: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Applies schema renaming and updates all $ref pointers.
 
     Also derives acronym-cased names so that references update automatically.
+    If multiple schemas map to the same name, their definitions are merged.
 
     Args:
         schemas: Dictionary of schemas.
         mappings: Mapping from original schema name to replacement name.
+        divergences: Optional divergence resolutions applied when renamed
+            schemas collide.
 
     Returns:
         Dictionary of schemas with updated names and references.
@@ -293,14 +302,19 @@ def rename_schemas_and_refs(
     new_schemas: dict[str, Any] = {}
     for schema_name, schema_data in schemas.items():
         new_name = effective_mappings.get(schema_name, schema_name)
-        new_schemas[new_name] = rename_refs_in_value(schema_data)
-        if "id" in new_schemas[new_name] and isinstance(
-            new_schemas[new_name]["id"], str
-        ):
-            curr_id = new_schemas[new_name]["id"]
-            new_schemas[new_name]["id"] = effective_mappings.get(
-                curr_id, curr_id
+        renamed = rename_refs_in_value(schema_data)
+        if "id" in renamed and isinstance(renamed["id"], str):
+            curr_id = renamed["id"]
+            renamed["id"] = effective_mappings.get(curr_id, curr_id)
+        if new_name in new_schemas:
+            new_schemas[new_name] = merge_schemas(
+                new_name,
+                new_schemas[new_name],
+                renamed,
+                divergences=divergences or {},
             )
+        else:
+            new_schemas[new_name] = renamed
 
     return new_schemas
 
@@ -454,6 +468,16 @@ def merge_schemas(
 
     merged = dict(schema1)
     _merge_provenance(merged, schema1, schema2)
+
+    if isinstance(schema1.get("oneOf"), list) or isinstance(
+        schema2.get("oneOf"), list
+    ):
+        merged["oneOf"] = _ordered_union(
+            [
+                schema1.get("oneOf") or [],
+                schema2.get("oneOf") or [],
+            ]
+        )
 
     props1 = schema1.get("properties", {})
     props2 = schema2.get("properties", {})

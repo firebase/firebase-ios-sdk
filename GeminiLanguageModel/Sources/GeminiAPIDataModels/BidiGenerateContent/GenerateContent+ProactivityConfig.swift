@@ -17,23 +17,19 @@
 
 import Foundation
 
-/// Information about a single recognized word.
-package struct AudioTranscriptionWordInfo: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// End offset in time of the word relative to the start of the audio.
-  package var endOffset: String?
+/// Configures the model's proactivity. Proactivity determines how the model should respond to
+/// input. When proactivity is enabled, the model can choose to ignore irrelevant input, respond to
+/// contextual cues, and generate content even when not explicitly prompted. This is useful for more
+/// natural, human-like interactions in streaming use cases like audio and video.
+package struct ProactivityConfig: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// If enabled, the model can proactively respond to audio input, for example by ignoring out of
+  /// context speech.
+  package var proactiveAudio: Bool?
 
-  /// Start offset in time of the word relative to the start of the audio.
-  package var startOffset: String?
-
-  /// Required. Transcript of the word.
-  package var word: String?
-
-  /// Initializes a new `AudioTranscriptionWordInfo`.
+  /// Initializes a new `ProactivityConfig`.
   package init() {}
 
   enum CodingKeys: String, CodingKey {
-    case endOffset
-    case startOffset
-    case word
+    case proactiveAudio
   }
 }
