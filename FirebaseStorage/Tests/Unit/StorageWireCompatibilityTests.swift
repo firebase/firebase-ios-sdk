@@ -191,6 +191,77 @@ import XCTest
       assertAuthorizedHeaders(of: request)
     }
 
+    func testDownloadHTTPErrorUserInfo() async throws {
+      let body = "<html><body><p>Object not found.</p></body></html>"
+      let contentType = "text/html; charset=UTF-8"
+      let storage = await makeStorage()
+      let reference = storage.reference(withPath: objectPath)
+      let fileURL = try temporaryFileURL()
+      let downloads: [(name: String, run: () async throws -> Void)] = [
+        ("getData", { _ = try await reference.data(maxSize: 1024) }),
+        ("write(toFile:)", { _ = try await reference.writeAsync(toFile: fileURL) }),
+      ]
+      for (name, download) in downloads {
+        HTTPWireRecorder.reset(replies: [
+          .http(status: 404, headers: ["Content-Type": contentType], body: Data(body.utf8)),
+        ])
+        do {
+          try await download()
+          XCTFail("Expected an error from \(name)")
+        } catch {
+          let storageError = error as NSError
+          XCTAssertEqual(storageError.domain, StorageErrorDomain, name)
+          XCTAssertEqual(storageError.code, StorageErrorCode.objectNotFound.rawValue, name)
+          let userInfo = storageError.userInfo
+          XCTAssertEqual(userInfo["ResponseErrorCode"] as? Int, 404, name)
+          XCTAssertEqual(userInfo["ResponseBody"] as? String, body, name)
+          XCTAssertEqual(userInfo["data"] as? Data, Data(body.utf8), name)
+          XCTAssertEqual(userInfo["data_content_type"] as? String, contentType, name)
+        }
+        XCTAssertEqual(HTTPWireRecorder.requests.count, 1, "\(name) must not retry HTTP 404")
+      }
+      // The error body isn't written to the destination file.
+      XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
+    /// `makeStorage` shortens the backoff delay, so each retry happens right away.
+    func testDownloadRetryableFailuresAreRetried() async throws {
+      let content = Data("Hello, retry!".utf8)
+      let storage = await makeStorage()
+      let reference = storage.reference(withPath: objectPath)
+      let fileURL = try temporaryFileURL()
+      let downloads: [(name: String, run: () async throws -> Data)] = [
+        ("getData", { try await reference.data(maxSize: 1024) }),
+        ("write(toFile:)", { try await Data(contentsOf: reference.writeAsync(toFile: fileURL)) }),
+      ]
+      for (name, download) in downloads {
+        HTTPWireRecorder.reset(replies: [.http(status: 503), .http(status: 200, body: content)])
+
+        let data = try await download()
+
+        XCTAssertEqual(data, content, name)
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.count, 2, "\(name) should retry HTTP 503 once")
+        requests.forEach { assertAuthorizedHeaders(of: $0) }
+      }
+    }
+
+    func testGetDataFailsForObjectsLargerThanMaxSize() async throws {
+      let content = Data(count: 2048)
+      HTTPWireRecorder.reset(replies: [
+        .http(status: 200, headers: ["Content-Length": "\(content.count)"], body: content),
+      ])
+      let storage = await makeStorage()
+
+      do {
+        _ = try await storage.reference(withPath: objectPath).data(maxSize: 1024)
+        XCTFail("Expected an error")
+      } catch let StorageError.downloadSizeExceeded(total, maxSize) {
+        XCTAssertEqual(total, 2048)
+        XCTAssertEqual(maxSize, 1024)
+      }
+    }
+
     // MARK: - Resumable uploads
 
     func testPutDataUsesResumableUploadProtocol() async throws {
@@ -487,8 +558,8 @@ import XCTest
       )
       await StorageHTTPService.shared.updateInitialRetryIntervalForTesting(0.001)
 
-      // Uploads and downloads still use GTMSessionFetcher. When they move, route them through
-      // the recorder and shorten their retry delay the same way.
+      // Uploads still use GTMSessionFetcher. When they move, route them through the recorder and
+      // shorten their retry delay the same way.
       await StorageFetcherService.shared.updateTestBlock(nil)
       let fetcherService = await StorageFetcherService.shared.service(storage)
       fetcherService.configurationBlock = { _, configuration in

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 #if COCOAPODS
@@ -25,40 +26,28 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
   func testDownloadResumeDuringProgressDoesNotStartAnotherRequest() async throws {
     let firstCallEntered = expectation(description: "Download setup enters service")
     let serviceGate = FirstCallServiceGate(firstCallEntered: firstCallEntered)
-    let responseLatch = FetcherResponseLatch()
+    let responseLatch = AsyncLatch()
     let requestCount = FetcherRequestCounter()
     let progressCount = FetcherRequestCounter()
     let progressObserved = expectation(description: "Resume from download progress")
     let completed = expectation(description: "Download completes")
-    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
+    let transport = StorageTestTransport(reportingProgress: { request, progress in
       requestCount.increment()
-      guard let url = fetcher.request?.url else {
-        XCTFail("Fetcher request should have a URL")
-        return
-      }
-      responseLatch.install {
-        response(
-          HTTPURLResponse(url: url, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: nil),
-          Data("download".utf8),
-          nil
-        )
-      }
-      guard let receivedProgress = fetcher.receivedProgressBlock else {
-        XCTFail("Download should install its received-progress callback")
-        responseLatch.release()
-        return
-      }
-      receivedProgress(1, 1)
-    }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
-    await StorageFetcherService.shared.updateServiceWaiterForTesting {
+      progress(HTTPTransferProgress(completedBytes: 1, expectedBytes: 1))
+      await responseLatch.wait()
+      return try (
+        Data("download".utf8),
+        StorageTestTransport.response(to: request, statusCode: 200)
+      )
+    })
+    await StorageHTTPService.shared.updateTestTransport(transport)
+    await StorageHTTPService.shared.updateSetupWaiterForTesting {
       await serviceGate.waitForFirstCall()
     }
     addTeardownBlock {
       responseLatch.release()
       await serviceGate.releaseFirstCall()
-      await StorageFetcherService.shared.updateTestBlock(nil)
-      await StorageFetcherService.shared.updateServiceWaiterForTesting(nil)
+      await StorageHTTPService.shared.updateSetupWaiterForTesting(nil)
     }
     let task = rootReference().child("object").getData(maxSize: 1024) { data, error in
       XCTAssertNil(error)
@@ -70,7 +59,7 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
       // Make the transient progress phase deterministic before completion is released.
       task.stateLock.withLock { task.state = .progress }
       task.resume()
-      XCTAssertTrue(task.hasFetcherForTesting)
+      XCTAssertTrue(task.hasTransferForTesting)
       progressObserved.fulfill()
       responseLatch.release()
     }
@@ -173,33 +162,22 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
     let discardedSetup = expectation(description: "Initial download setup discarded")
     let requestCount = FetcherRequestCounter()
     let requestStarted = expectation(description: "Resumed download starts one request")
-    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
+    let transport = StorageTestTransport { request in
       if requestCount.increment() == 1 {
         requestStarted.fulfill()
       }
-      guard let responseURL = fetcher.request?.url else {
-        XCTFail("Fetcher request should have a URL")
-        return
-      }
-      response(
-        HTTPURLResponse(
-          url: responseURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        ),
+      return try (
         Data("download".utf8),
-        nil
+        StorageTestTransport.response(to: request, statusCode: 200)
       )
     }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
-    await StorageFetcherService.shared.updateServiceWaiterForTesting {
+    await StorageHTTPService.shared.updateTestTransport(transport)
+    await StorageHTTPService.shared.updateSetupWaiterForTesting {
       await serviceGate.waitForFirstCall()
     }
     addTeardownBlock {
       await serviceGate.releaseFirstCall()
-      await StorageFetcherService.shared.updateTestBlock(nil)
-      await StorageFetcherService.shared.updateServiceWaiterForTesting(nil)
+      await StorageHTTPService.shared.updateSetupWaiterForTesting(nil)
     }
 
     let task = rootReference().child("object").getData(maxSize: 1024) { _, _ in }
@@ -211,7 +189,6 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
     if pauseFirst { task.pause() }
     task.resume()
     await fulfillment(of: [requestStarted], timeout: 10)
-    XCTAssertTrue(task.hasFetcherForTesting)
 
     await serviceGate.releaseFirstCall()
     await fulfillment(of: [discardedSetup], timeout: 10)
@@ -245,28 +222,33 @@ private actor FirstCallServiceGate {
   }
 }
 
-private final class FetcherResponseLatch: @unchecked Sendable {
+/// Suspends callers of `wait()` until `release()` is called.
+private final class AsyncLatch: @unchecked Sendable {
   private let lock = NSLock()
-  private var response: (() -> Void)?
   private var isReleased = false
+  private var waiters: [CheckedContinuation<Void, Never>] = []
 
-  func install(_ response: @escaping () -> Void) {
-    let shouldRun = lock.withLock {
-      if isReleased { return true }
-      self.response = response
-      return false
+  func wait() async {
+    await withCheckedContinuation { continuation in
+      let isReleased = lock.withLock { () -> Bool in
+        if !self.isReleased {
+          waiters.append(continuation)
+        }
+        return self.isReleased
+      }
+      if isReleased {
+        continuation.resume()
+      }
     }
-    if shouldRun { response() }
   }
 
   func release() {
-    let response = lock.withLock {
+    let waiters = lock.withLock { () -> [CheckedContinuation<Void, Never>] in
       isReleased = true
-      let response = self.response
-      self.response = nil
-      return response
+      defer { self.waiters = [] }
+      return self.waiters
     }
-    response?()
+    waiters.forEach { $0.resume() }
   }
 }
 
