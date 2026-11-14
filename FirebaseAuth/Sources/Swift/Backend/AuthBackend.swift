@@ -14,12 +14,8 @@
 
 import FirebaseCore
 import FirebaseCoreExtension
+import FirebaseCoreInternal
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 
 protocol AuthBackendProtocol: Sendable {
   func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response
@@ -27,7 +23,7 @@ protocol AuthBackendProtocol: Sendable {
 
 final class AuthBackend: AuthBackendProtocol {
   static func authUserAgent() -> String {
-    return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
+    return "FirebaseAuth.iOS/\(FirebaseVersion()) \(FirebaseUserAgent.standard)"
   }
 
   private let rpcIssuer: any AuthBackendRPCIssuerProtocol

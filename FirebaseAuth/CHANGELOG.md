@@ -8,6 +8,11 @@
   of the enrollment time when the server's timestamp has no fractional
   seconds, and being in the wrong year on devices set to a non-Gregorian
   calendar, such as Buddhist or Japanese. (#17039)
+- [changed] Firebase Auth no longer depends on `GTMSessionFetcher`. Apps that
+  import `GTMSessionFetcher` directly must declare it as a dependency.
+- [changed] When an Auth request redirects to a different origin, credentials
+  such as the App Check token are only sent to the redirect target if it's a
+  `googleapis.com` or `google.com` host.
 
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
