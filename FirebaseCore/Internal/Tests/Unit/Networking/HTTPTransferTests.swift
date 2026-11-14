@@ -269,6 +269,53 @@ import XCTest
       XCTAssertEqual(transport.trackedTaskCount, 0)
     }
 
+    // MARK: - Files that the caller doesn't receive
+
+    // These tests replay orders of `URLSession` callbacks on a `TaskTransfer`, because a
+    // `URLProtocol` can't make a task end with an error after its download finished.
+
+    func testDownloadedFileIsDeletedWhenTheTaskFailsAfterTheBodyArrives() async throws {
+      let transfer = TaskTransfer(kind: .download(resumeData: nil), progress: { _ in })
+      let fileURL = try finishDownloading(transfer)
+
+      do {
+        let _: (TaskTransfer.Body, HTTPURLResponse) = try await withCheckedThrowingContinuation {
+          continuation in
+          transfer.setContinuation(continuation)
+          transfer.didComplete(response: nil, error: URLError(.networkConnectionLost))
+        }
+        XCTFail("Expected an error")
+      } catch {
+        XCTAssertEqual((error as? URLError)?.code, .networkConnectionLost)
+      }
+      XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
+    func testDownloadedFileIsDeletedWhenTheCancellationCompletesFirst() async throws {
+      let session = URLSession(configuration: .ephemeral)
+      defer { session.invalidateAndCancel() }
+      let transfer = TaskTransfer(kind: .download(resumeData: nil), progress: { _ in })
+      transfer.cancel()
+
+      do {
+        let _: (TaskTransfer.Body, HTTPURLResponse) = try await withCheckedThrowingContinuation {
+          continuation in
+          transfer.setContinuation(continuation)
+          // The transfer is already cancelled, so this asks the task for resume data instead of
+          // resuming it. The resume data completes the continuation.
+          transfer.start(session.downloadTask(with: url))
+        }
+        XCTFail("Expected cancellation")
+      } catch {
+        XCTAssertTrue(error is HTTPDownloadCancellation, "\(error)")
+      }
+      // The task can still report a finished download before its last callback.
+      let fileURL = try finishDownloading(transfer)
+      transfer.didComplete(response: nil, error: URLError(.cancelled))
+
+      XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
+    }
+
     // MARK: - FirebaseHTTPClient
 
     func testClientDownloadAddsTheUserAgentAndHoldsABackgroundTask() async throws {
@@ -376,6 +423,18 @@ import XCTest
 
     private func makeTransport() -> URLSessionTransport {
       URLSessionTransport { HTTPWireRecorder.install(in: $0) }
+    }
+
+    /// Hands `transfer` a finished download, as `URLSession` does, and returns the file that
+    /// `transfer` moved it to.
+    private func finishDownloading(_ transfer: TaskTransfer) throws -> URL {
+      let location = FileManager.default.temporaryDirectory
+        .appendingPathComponent("HTTPTransferTests-\(UUID().uuidString)")
+      try body.write(to: location)
+      transfer.didFinishDownloading(to: location)
+      let fileURL = try XCTUnwrap(transfer.downloadedFileURL)
+      XCTAssertTrue(FileManager.default.fileExists(atPath: fileURL.path))
+      return fileURL
     }
 
     /// Waits up to a second for the session delegate to drop the task's registrations. A

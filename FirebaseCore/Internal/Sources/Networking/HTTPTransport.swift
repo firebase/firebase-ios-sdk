@@ -272,7 +272,7 @@ private final class SessionTasks: NSObject, URLSessionTaskDelegate, URLSessionDa
       return
     }
     redirects.withLock { $0[taskIdentifier] = nil }
-    transfer.didComplete(task: task, error: error)
+    transfer.didComplete(response: task.response, error: error)
   }
 }
 
@@ -358,7 +358,10 @@ private final class TaskCancellation: Sendable {
 
 /// Collects the body of one data or download task, reports its progress, and completes the
 /// caller's continuation.
-private final class TaskTransfer: Sendable {
+///
+/// Internal so tests can replay orders of `URLSession` callbacks that a `URLProtocol` can't
+/// produce.
+final class TaskTransfer: Sendable {
   enum Kind {
     case data
     /// A download, and the resume data it continues from, if any.
@@ -464,39 +467,58 @@ private final class TaskTransfer: Sendable {
     }
   }
 
-  func didComplete(task: URLSessionTask, error: (any Error)?) {
+  /// The file that `didFinishDownloading(to:)` moved the download to. Internal for tests.
+  var downloadedFileURL: URL? {
+    state.withLock { $0.fileURL }
+  }
+
+  /// Completes the transfer with the task's outcome. `URLSession` calls this last for every task.
+  func didComplete(response: URLResponse?, error: (any Error)?) {
     let (isCancelled, awaitsResumeData, data, fileURL, fileError) = state.withLock {
       ($0.isCancelled, $0.awaitsResumeData, $0.data, $0.fileURL, $0.fileError)
     }
+    var result: Result<(Body, HTTPURLResponse), any Error>?
     if let error {
       if !isCancelled {
-        finish(.failure(error))
+        result = .failure(error)
       } else if !awaitsResumeData {
         // A cancelled data task, or a download that ended before it was asked for resume data.
-        switch kind {
-        case .data:
-          finish(.failure(CancellationError()))
-        case .download:
-          let resumeData = (error as? URLError)?.downloadTaskResumeData
-          finish(.failure(HTTPDownloadCancellation(resumeData: resumeData)))
-        }
+        result = .failure(cancellation(endingWith: error))
       }
       // Otherwise the cancelled download completes when its resume data arrives.
-      return
+    } else if let response = response as? HTTPURLResponse {
+      switch kind {
+      case .data:
+        result = .success((.data(data), response))
+      case .download:
+        result = fileURL.map { .success((.file($0), response)) }
+          ?? .failure(fileError ?? URLError(.cannotCreateFile))
+      }
+    } else {
+      result = .failure(URLError(.badServerResponse))
     }
-    guard let response = task.response as? HTTPURLResponse else {
-      finish(.failure(URLError(.badServerResponse)))
-      return
+    // Only a successful result hands the downloaded file to the caller. Otherwise no one can
+    // receive it, for example when the download was cancelled after its body arrived.
+    var deliversFile = false
+    if case .success((.file(_), _))? = result {
+      deliversFile = true
     }
+    if let fileURL, !deliversFile {
+      try? FileManager.default.removeItem(at: fileURL)
+    }
+    if let result {
+      finish(result)
+    }
+  }
+
+  /// Returns the error for a task that ended with `error` after the calling task was cancelled,
+  /// before a download was asked for resume data.
+  private func cancellation(endingWith error: any Error) -> any Error {
     switch kind {
     case .data:
-      finish(.success((.data(data), response)))
+      return CancellationError()
     case .download:
-      if let fileURL {
-        finish(.success((.file(fileURL), response)))
-      } else {
-        finish(.failure(fileError ?? URLError(.cannotCreateFile)))
-      }
+      return HTTPDownloadCancellation(resumeData: (error as? URLError)?.downloadTaskResumeData)
     }
   }
 
