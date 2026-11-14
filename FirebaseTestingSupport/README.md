@@ -57,7 +57,8 @@ xed Package.swift
 `WireCompatibility` contains `HTTPWireRecorder`, a `URLProtocol` that records
 the HTTP requests an SDK sends and answers them with scripted responses. The
 FirebaseAuth, FirebaseFunctions, and FirebaseStorage wire compatibility unit
-tests use it. It's only for this repo's own tests:
+tests and the FirebaseCoreInternal networking unit tests use it. It's only for
+this repo's own tests:
 
 - Swift Package Manager: test targets depend on the
   `FirebaseWireCompatibilityTestingSupport` target and import it under
