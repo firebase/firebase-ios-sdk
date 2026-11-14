@@ -14,23 +14,14 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /// Implement StorageTasks that are not directly exposed via the public API.
 @preconcurrency
 class StorageInternalTask: StorageTask, @unchecked Sendable {
-  private var fetcher: GTMSessionFetcher?
-
   @discardableResult
   init(reference: StorageReference,
        queue: DispatchQueue,
        request: URLRequest? = nil,
        httpMethod: String,
-       fetcherComment: String,
        completion: ((_: Data?, _: Error?) -> Void)?) {
     super.init(reference: reference, queue: queue)
 
@@ -40,19 +31,18 @@ class StorageInternalTask: StorageTask, @unchecked Sendable {
         self.state = .queueing
       }
       Task {
-        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
+        let storage = self.reference.storage
         var request = request ?? self.baseRequest
         request.httpMethod = httpMethod
-        request.timeoutInterval = self.reference.storage.maxOperationRetryTime
+        request.timeoutInterval = storage.maxOperationRetryTime
 
-        let fetcher = fetcherService.fetcher(with: request)
-        fetcher.comment = fetcherComment
-        self.stateLock.withLock {
-          self.fetcher = fetcher
-        }
-        let callbackQueue = reference.storage.callbackQueue
+        let callbackQueue = storage.callbackQueue
         do {
-          let data = try await fetcher.beginFetch()
+          let data = try await StorageHTTPService.shared.data(
+            for: request,
+            storage: storage,
+            maxRetryTime: storage.maxOperationRetryTime
+          )
           callbackQueue.async {
             completion?(data, nil)
           }
@@ -64,9 +54,5 @@ class StorageInternalTask: StorageTask, @unchecked Sendable {
         }
       }
     }
-  }
-
-  deinit {
-    self.fetcher?.stopFetching()
   }
 }

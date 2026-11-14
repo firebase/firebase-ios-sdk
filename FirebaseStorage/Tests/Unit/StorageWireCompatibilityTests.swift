@@ -326,9 +326,8 @@ import XCTest
         XCTAssertEqual(metadata.path, objectPath, "\(failure)")
         let requests = HTTPWireRecorder.requests
         XCTAssertEqual(requests.count, 2, "\(failure) should be retried once")
-        // Retried attempts carry credentials too. GTMSessionFetcher reuses the first attempt's
-        // headers because `StorageTokenAuthorizer.isAuthorizedRequest` treats a request that
-        // already has an `Authorization` header as authorized.
+        // Retried attempts carry credentials too. Every attempt is authorized again, so a token
+        // that expires while the request is retried gets replaced.
         requests.forEach { assertAuthorizedHeaders(of: $0) }
       }
     }
@@ -472,28 +471,32 @@ import XCTest
     /// Returns a `Storage` instance whose HTTP traffic goes through `HTTPWireRecorder`, using fake
     /// Auth and App Check providers that supply tokens.
     private func makeStorage(emulatorPort: Int? = nil) async -> Storage {
-      let storage = storage()
+      let storage = Storage(
+        app: app,
+        bucket: "bucket",
+        auth: FIRAuthInteropFake(token: authToken, userID: nil, error: nil),
+        appCheck: FIRAppCheckFake()
+      )
       if let emulatorPort {
         storage.useEmulator(withHost: "localhost", port: emulatorPort)
       }
-      // GTMSessionFetcher-specific wiring. After the migration, install the recorder in the
-      // replacement client's session configuration, inject the same token providers, and shorten
-      // the retry delay the same way.
+      // Retry after 1 ms instead of the default 1 to 2 seconds. The interval doesn't change which
+      // failures are retried.
+      await StorageHTTPService.shared.updateTestTransport(
+        URLSessionTransport { HTTPWireRecorder.install(in: $0) }
+      )
+      await StorageHTTPService.shared.updateInitialRetryIntervalForTesting(0.001)
+
+      // Uploads and downloads still use GTMSessionFetcher. When they move, route them through
+      // the recorder and shorten their retry delay the same way.
       await StorageFetcherService.shared.updateTestBlock(nil)
       let fetcherService = await StorageFetcherService.shared.service(storage)
       fetcherService.configurationBlock = { _, configuration in
         HTTPWireRecorder.install(in: configuration)
       }
-      fetcherService.authorizer = StorageTokenAuthorizer(
-        googleAppID: app.options.googleAppID,
-        callbackQueue: storage.callbackQueue,
-        authProvider: FIRAuthInteropFake(token: authToken, userID: nil, error: nil),
-        appCheck: FIRAppCheckFake()
-      )
-      // Retry after 1 ms instead of the default 1 to 2 seconds. The interval doesn't change which
-      // failures are retried. Set it on the service, which copies it to every fetcher it creates.
-      // The service shares one session between fetchers, so `configurationBlock` only runs for
-      // the first one.
+      // Set the retry delay on the service, which copies it to every fetcher it creates. The
+      // service shares one session between fetchers, so `configurationBlock` only runs for the
+      // first one.
       fetcherService.minRetryInterval = 0.001
       return storage
     }

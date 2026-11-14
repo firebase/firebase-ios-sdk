@@ -14,12 +14,6 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /// Task which provides the ability to delete an object in Firebase Storage.
 enum StorageDeleteTask {
   static func deleteTask(reference: StorageReference,
@@ -28,7 +22,6 @@ enum StorageDeleteTask {
     StorageInternalTask(reference: reference,
                         queue: queue,
                         httpMethod: "DELETE",
-                        fetcherComment: "DeleteTask",
                         completion: completion)
   }
 }

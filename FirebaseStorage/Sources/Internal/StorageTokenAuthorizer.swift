@@ -26,22 +26,30 @@ internal import FirebaseCoreExtension
 #endif
 
 class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
-  func authorizeRequest(_ request: NSMutableURLRequest?,
-                        completionHandler handler: @escaping (Error?) -> Void) {
+  /// The headers that `authorize(_:)` may add.
+  private static let authorizationHeaderFields = [
+    "x-firebase-storage-version", "x-firebase-gmpid", "Authorization", "X-Firebase-AppCheck",
+  ]
+
+  /// Returns `request` with the headers that every Storage request carries: the SDK version, the
+  /// app ID, and the Auth and App Check tokens when they're available.
+  ///
+  /// It gets the tokens again on every call, so call it before every attempt of a request.
+  ///
+  /// - Throws: A `StorageError.unauthenticated` error if getting the Auth token fails, or if the
+  ///   request would send tokens over HTTP to a host that isn't a loopback address.
+  func authorize(_ request: URLRequest) async throws -> URLRequest {
+    var request = request
     // Set version header on each request
     let versionString = "ios/\(FirebaseVersion())"
-    request?.setValue(versionString, forHTTPHeaderField: "x-firebase-storage-version")
+    request.setValue(versionString, forHTTPHeaderField: "x-firebase-storage-version")
 
     // Set GMP ID on each request
-    request?.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
+    request.setValue(googleAppID, forHTTPHeaderField: "x-firebase-gmpid")
 
-    var tokenError: NSError?
-    let fetchTokenGroup = DispatchGroup()
-    let serialAuthArgsQueue = self.serialAuthArgsQueue
-
-    let scheme = request?.url?.scheme?.lowercased()
+    let scheme = request.url?.scheme?.lowercased()
     let isHttps = scheme == "https"
-    let host = request?.url?.host?.lowercased() ?? ""
+    let host = request.url?.host?.lowercased() ?? ""
     let isLoopback = host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "[::1]"
     #if DEBUG
       let shouldAttachTokens = isHttps || isLoopback || allowInsecureTokenAttachment()
@@ -49,66 +57,119 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
       let shouldAttachTokens = isHttps || isLoopback
     #endif
 
-    if let auth {
-      fetchTokenGroup.enter()
+    // Get both tokens at the same time.
+    async let authToken = Self.authToken(from: auth)
+    async let appCheckToken = Self.appCheckToken(from: appCheck)
+
+    var tokenError: NSError?
+    switch await authToken {
+    case let .success(token?):
+      request.setValue("Firebase \(token)", forHTTPHeaderField: "Authorization")
+    case .success(nil):
+      break
+    case let .failure(error):
+      var errorDictionary = error.userInfo
+      errorDictionary["ResponseErrorDomain"] = error.domain
+      errorDictionary["ResponseErrorCode"] = error.code
+      tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
+    }
+    if let appCheckToken = await appCheckToken {
+      request.setValue(appCheckToken, forHTTPHeaderField: "X-Firebase-AppCheck")
+    }
+
+    let tokensWereAttached = request.value(forHTTPHeaderField: "Authorization") != nil ||
+      request.value(forHTTPHeaderField: "X-Firebase-AppCheck") != nil
+
+    if tokensWereAttached && !shouldAttachTokens && scheme == "http" {
+      // Strip tokens so credentials aren't transmitted over cleartext HTTP
+      request.setValue(nil, forHTTPHeaderField: "Authorization")
+      request.setValue(nil, forHTTPHeaderField: "X-Firebase-AppCheck")
+
+      FirebaseLogger.log(
+        level: .warning,
+        service: "[FirebaseStorage]",
+        code: "I-STR000002",
+        message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
+      )
+      tokenError = StorageError
+        .unauthenticated(
+          serverError: [
+            "message": "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host.",
+          ]
+        ) as NSError
+    }
+
+    if let tokenError {
+      throw tokenError
+    }
+    return request
+  }
+
+  /// Returns the signed-in user's Auth token, `nil` if there's no Auth or no signed-in user, or
+  /// the error from Auth.
+  private static func authToken(from auth: AuthInterop?) async -> Result<String?, NSError> {
+    guard let auth else {
+      return .success(nil)
+    }
+    return await withCheckedContinuation { continuation in
       auth.getToken(forcingRefresh: false) { token, error in
-        serialAuthArgsQueue.async {
-          if let error = error as? NSError {
-            var errorDictionary = error.userInfo
-            errorDictionary["ResponseErrorDomain"] = error.domain
-            errorDictionary["ResponseErrorCode"] = error.code
-            tokenError = StorageError.unauthenticated(serverError: errorDictionary) as NSError
-          } else if let token {
-            let firebaseToken = "Firebase \(token)"
-            request?.setValue(firebaseToken, forHTTPHeaderField: "Authorization")
-          }
-          fetchTokenGroup.leave()
+        if let error {
+          continuation.resume(returning: .failure(error as NSError))
+        } else {
+          continuation.resume(returning: .success(token))
         }
       }
     }
-    if let appCheck {
-      fetchTokenGroup.enter()
+  }
+
+  /// Returns the App Check token, or `nil` if there's no App Check. If getting a token fails,
+  /// App Check provides a placeholder token, which is still sent.
+  private static func appCheckToken(from appCheck: AppCheckInterop?) async -> String? {
+    guard let appCheck else {
+      return nil
+    }
+    return await withCheckedContinuation { continuation in
       appCheck.getToken(forcingRefresh: false) { tokenResult in
-        serialAuthArgsQueue.async {
-          request?.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
-
-          if let error = tokenResult.error {
-            FirebaseLogger.log(
-              level: .debug,
-              service: "[FirebaseStorage]",
-              code: "I-STR000001",
-              message: "Failed to fetch AppCheck token. Error: \(error)"
-            )
-          }
-          fetchTokenGroup.leave()
+        if let error = tokenResult.error {
+          FirebaseLogger.log(
+            level: .debug,
+            service: "[FirebaseStorage]",
+            code: "I-STR000001",
+            message: "Failed to fetch AppCheck token. Error: \(error)"
+          )
         }
+        continuation.resume(returning: tokenResult.token)
       }
     }
+  }
 
-    fetchTokenGroup.notify(queue: callbackQueue) {
-      let tokensWereAttached = request?.value(forHTTPHeaderField: "Authorization") != nil ||
-        request?.value(forHTTPHeaderField: "X-Firebase-AppCheck") != nil
+  // MARK: - GTMSessionFetcherAuthorizer
 
-      if tokensWereAttached && !shouldAttachTokens && scheme == "http" {
-        // Strip tokens so credentials aren't transmitted over cleartext HTTP
-        request?.setValue(nil, forHTTPHeaderField: "Authorization")
-        request?.setValue(nil, forHTTPHeaderField: "X-Firebase-AppCheck")
-
-        FirebaseLogger.log(
-          level: .warning,
-          service: "[FirebaseStorage]",
-          code: "I-STR000002",
-          message: "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host."
-        )
-        tokenError = StorageError
-          .unauthenticated(
-            serverError: [
-              "message": "Refusing to send Auth and AppCheck tokens over HTTP to non-loopback host.",
-            ]
-          ) as NSError
+  // Uploads and downloads still use GTMSessionFetcher, which calls this method before it sends
+  // the first attempt of a request.
+  func authorizeRequest(_ request: NSMutableURLRequest?,
+                        completionHandler handler: @escaping (Error?) -> Void) {
+    let callbackQueue = self.callbackQueue
+    guard let request else {
+      callbackQueue.async { handler(nil) }
+      return
+    }
+    let unauthorizedRequest = request as URLRequest
+    Task {
+      var authorizationError: Error?
+      do {
+        let authorizedRequest = try await authorize(unauthorizedRequest)
+        for field in Self.authorizationHeaderFields {
+          if let value = authorizedRequest.value(forHTTPHeaderField: field) {
+            request.setValue(value, forHTTPHeaderField: field)
+          }
+        }
+      } catch {
+        authorizationError = error
       }
-
-      handler(tokenError)
+      callbackQueue.async {
+        handler(authorizationError)
+      }
     }
   }
 
@@ -146,8 +207,6 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     private let allowInsecureTokenAttachment: () -> Bool
   #endif
 
-  private let serialAuthArgsQueue = DispatchQueue(label: "com.google.firebasestorage.authorizer")
-
   init(googleAppID: String,
        callbackQueue: DispatchQueue = DispatchQueue.main,
        authProvider: AuthInterop?,
@@ -160,5 +219,22 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     #if DEBUG
       self.allowInsecureTokenAttachment = allowInsecureTokenAttachment
     #endif
+  }
+
+  /// Creates an authorizer for the requests of `storage`.
+  convenience init(storage: Storage) {
+    self.init(
+      googleAppID: storage.app.options.googleAppID,
+      callbackQueue: storage.callbackQueue,
+      authProvider: storage.auth,
+      appCheck: storage.appCheck,
+      allowInsecureTokenAttachment: { [weak storage] in
+        #if DEBUG
+          return storage?.allowInsecureTokenAttachment ?? false
+        #else
+          return false
+        #endif
+      }
+    )
   }
 }

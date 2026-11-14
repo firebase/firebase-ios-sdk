@@ -279,12 +279,21 @@ internal import FirebaseCoreExtension
 
   let dispatchQueue: DispatchQueue
 
-  init(app: FirebaseApp, bucket: String) {
+  convenience init(app: FirebaseApp, bucket: String) {
+    self.init(
+      app: app,
+      bucket: bucket,
+      auth: ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container),
+      appCheck: ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
+                                                        in: app.container)
+    )
+  }
+
+  /// Creates an instance that gets tokens from `auth` and `appCheck`.
+  init(app: FirebaseApp, bucket: String, auth: AuthInterop?, appCheck: AppCheckInterop?) {
     self.app = app
-    auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self,
-                                               in: app.container)
-    appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                       in: app.container)
+    self.auth = auth
+    self.appCheck = appCheck
     storageBucket = bucket
     host = "firebasestorage.googleapis.com"
     scheme = "https"

@@ -20,7 +20,8 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-/// Manage Storage's fetcherService
+/// Manages the GTMSessionFetcherService that uploads and downloads use. Other requests use
+/// `StorageHTTPService`.
 actor StorageFetcherService {
   static let shared = StorageFetcherService()
 
@@ -44,20 +45,7 @@ actor StorageFetcherService {
       fetcherService.allowLocalhostRequest = true
       fetcherService.maxRetryInterval = storage.maxOperationRetryInterval
       fetcherService.testBlock = testBlock
-      let authorizer = StorageTokenAuthorizer(
-        googleAppID: app.options.googleAppID,
-        callbackQueue: storage.callbackQueue,
-        authProvider: storage.auth,
-        appCheck: storage.appCheck,
-        allowInsecureTokenAttachment: { [weak storage] in
-          #if DEBUG
-            return storage?.allowInsecureTokenAttachment ?? false
-          #else
-            return false
-          #endif
-        }
-      )
-      fetcherService.authorizer = authorizer
+      fetcherService.authorizer = StorageTokenAuthorizer(storage: storage)
       if storage.usesEmulator {
         fetcherService.allowLocalhostRequest = true
         fetcherService.allowedInsecureSchemes = ["http"]

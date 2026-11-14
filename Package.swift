@@ -1173,6 +1173,7 @@ func packageTargets() -> [Target] {
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
