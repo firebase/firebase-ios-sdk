@@ -54,6 +54,7 @@ Pod::Spec.new do |s|
     unit_tests.source_files = [
       'FirebaseCore/Internal/Tests/Unit/**/*.swift',
       'FirebaseCore/Internal/Tests/Common/**/*.swift',
+      'FirebaseTestingSupport/WireCompatibility/Sources/*.swift',
     ]
     unit_tests.requires_app_host = true
   end

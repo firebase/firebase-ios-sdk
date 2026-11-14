@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 #if COCOAPODS
@@ -346,6 +347,15 @@ import XCTest
       )
       // Tokens are still attached because the emulator host is a loopback address.
       assertAuthorizedHeaders(of: request)
+    }
+
+    // MARK: - User-Agent
+
+    /// The User-Agent that FirebaseCoreInternal builds for the SDKs that no longer use
+    /// GTMSessionFetcher must match GTMSessionFetcher's on every platform. Remove this test when
+    /// Storage stops depending on GTMSessionFetcher.
+    func testFirebaseUserAgentMatchesGTMSessionFetcher() {
+      XCTAssertEqual(FirebaseUserAgent.standard, standardUserAgent)
     }
 
     // MARK: - Helpers

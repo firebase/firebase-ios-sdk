@@ -352,6 +352,7 @@ func packageTargets() -> [Target] {
       name: "FirebaseCoreInternalTests",
       dependencies: [
         "FirebaseCoreInternal",
+        "FirebaseWireCompatibilityTestingSupport",
       ],
       path: "FirebaseCore/Internal/Tests"
     ),
