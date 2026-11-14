@@ -20,7 +20,6 @@
 @protocol FIRAuthInterop;
 @protocol FIRMessagingInterop;
 @class FIRHTTPSCallableResult;
-@class GTMSessionFetcherService;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -65,8 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
                      customDomain:(nullable NSString *)customDomain
                              auth:(nullable id<FIRAuthInterop>)auth
                         messaging:(nullable id<FIRMessagingInterop>)messaging
-                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck
-                   fetcherService:(GTMSessionFetcherService *)fetcherService;
+                         appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
 
 @end
 

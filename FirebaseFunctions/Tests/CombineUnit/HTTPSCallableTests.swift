@@ -18,10 +18,10 @@ import Combine
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseFunctions
 import FirebaseFunctionsCombineSwift
 import FirebaseMessagingInterop
-import GTMSessionFetcherCore
 import XCTest
 
 // hardcoded in HTTPSCallable.swift
@@ -49,7 +49,7 @@ class MockFunctions: Functions, @unchecked Sendable {
       auth: nil,
       messaging: nil,
       appCheck: nil,
-      fetcherService: GTMSessionFetcherService()
+      httpClient: .shared
     )
   }
 }

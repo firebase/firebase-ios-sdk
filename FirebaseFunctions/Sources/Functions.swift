@@ -18,14 +18,9 @@ import FirebaseCore
 import FirebaseMessagingInterop
 import FirebaseSharedSwift
 import Foundation
-#if COCOAPODS
-  @preconcurrency import GTMSessionFetcher
-#else
-  @preconcurrency import GTMSessionFetcherCore
-#endif
 
 internal import FirebaseCoreExtension
-private import FirebaseCoreInternal
+internal import FirebaseCoreInternal
 
 /// File specific constants.
 private enum Constants {
@@ -43,7 +38,7 @@ enum FunctionsConstants {
   // MARK: - Private Variables
 
   /// The network client to use for http requests.
-  private let fetcherService: GTMSessionFetcherService
+  private let httpClient: FirebaseHTTPClient
   /// The projectID to use for all function references.
   private let projectID: String
   /// A serializer to encode/decode data and return values.
@@ -339,13 +334,15 @@ enum FunctionsConstants {
     }
   }
 
-  @objc init(projectID: String,
-             region: String,
-             customDomain: String?,
-             auth: AuthInterop?,
-             messaging: MessagingInterop?,
-             appCheck: AppCheckInterop?,
-             fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  /// Creates an instance that sends requests with `httpClient`. Tests pass a client with a test
+  /// transport.
+  init(projectID: String,
+       region: String,
+       customDomain: String?,
+       auth: AuthInterop?,
+       messaging: MessagingInterop?,
+       appCheck: AppCheckInterop?,
+       httpClient: FirebaseHTTPClient) {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
@@ -353,7 +350,24 @@ enum FunctionsConstants {
     contextProvider = FunctionsContextProvider(auth: auth,
                                                messaging: messaging,
                                                appCheck: appCheck)
-    self.fetcherService = fetcherService
+    self.httpClient = httpClient
+  }
+
+  /// Creates an instance that sends requests with the shared HTTP client. The Objective-C tests
+  /// use this initializer.
+  @objc convenience init(projectID: String,
+                         region: String,
+                         customDomain: String?,
+                         auth: AuthInterop?,
+                         messaging: MessagingInterop?,
+                         appCheck: AppCheckInterop?) {
+    self.init(projectID: projectID,
+              region: region,
+              customDomain: customDomain,
+              auth: auth,
+              messaging: messaging,
+              appCheck: appCheck,
+              httpClient: .shared)
   }
 
   /// Using the component system for initialization.
@@ -399,7 +413,7 @@ enum FunctionsConstants {
                     options: HTTPSCallableOptions?,
                     timeout: TimeInterval) async throws -> sending HTTPSCallableResult {
     let context = try await contextProvider.context(options: options)
-    let fetcher = try makeFetcher(
+    let request = try makeRequest(
       url: url,
       data: data,
       options: options,
@@ -408,11 +422,28 @@ enum FunctionsConstants {
     )
 
     do {
-      let rawData = try await fetcher.beginFetch()
+      let (rawData, response) = try await httpClient.data(for: request, policy: requestPolicy)
+      if let statusError = HTTPStatusError.error(for: response, body: rawData) {
+        throw statusError
+      }
       return try callableResult(fromResponseData: rawData, endpointURL: url)
     } catch {
       throw processedError(fromResponseError: error, endpointURL: url)
     }
+  }
+
+  /// The rules for callable requests.
+  ///
+  /// The emulator can be reached over `http`. After a redirect to a different origin, credentials
+  /// are only sent to the project's default Cloud Functions host and the default trusted hosts.
+  private var requestPolicy: HTTPRequestPolicy {
+    let usesEmulator = emulatorOrigin != nil
+    return HTTPRequestPolicy(
+      allowsInsecureHTTP: usesEmulator,
+      allowsLoopbackHTTP: usesEmulator,
+      trustedRedirectHosts: HTTPRequestPolicy.defaultTrustedRedirectHosts
+        .union(["\(region)-\(projectID).cloudfunctions.net"])
+    )
   }
 
   @available(macOS 12.0, watchOS 8.0, *)
@@ -622,71 +653,66 @@ enum FunctionsConstants {
     return urlRequest
   }
 
-  private func makeFetcher(url: URL,
+  private func makeRequest(url: URL,
                            data: Any?,
                            options: HTTPSCallableOptions?,
                            timeout: TimeInterval,
-                           context: FunctionsContext) throws -> GTMSessionFetcher {
-    let request = URLRequest(
+                           context: FunctionsContext) throws -> URLRequest {
+    var request = URLRequest(
       url: url,
       cachePolicy: .useProtocolCachePolicy,
       timeoutInterval: timeout
     )
-    let fetcher = fetcherService.fetcher(with: request)
 
     let data = data ?? NSNull()
     let encoded = try serializer.encode(data)
     let body = ["data": encoded]
     let payload = try JSONSerialization.data(withJSONObject: body)
-    fetcher.bodyData = payload
+    request.httpMethod = "POST"
+    request.httpBody = payload
 
     // Set the headers.
-    fetcher.setRequestValue("application/json", forHTTPHeaderField: "Content-Type")
-    // Override normal security rules if this is a local test.
-    if emulatorOrigin != nil {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
-    }
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
     guard try shouldAttachTokens(to: url, context: context, logCode: "I-FUN000002") else {
-      return fetcher
+      return request
     }
 
     if let authToken = context.authToken {
       let value = "Bearer \(authToken)"
-      fetcher.setRequestValue(value, forHTTPHeaderField: "Authorization")
+      request.setValue(value, forHTTPHeaderField: "Authorization")
     }
 
     if let fcmToken = context.fcmToken {
-      fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
+      request.setValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
     }
 
     if options?.requireLimitedUseAppCheckTokens == true {
       if let appCheckToken = context.limitedUseAppCheckToken {
-        fetcher.setRequestValue(
+        request.setValue(
           appCheckToken,
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
     } else if let appCheckToken = context.appCheckToken {
-      fetcher.setRequestValue(
+      request.setValue(
         appCheckToken,
         forHTTPHeaderField: Constants.appCheckTokenHeader
       )
     }
 
-    return fetcher
+    return request
   }
 
   private func processedError(fromResponseError error: any Error,
                               endpointURL url: URL) -> any Error {
     let error = error as NSError
-    let localError: (any Error)? = if error.domain == kGTMSessionFetcherStatusDomain {
+    let localError: (any Error)? = if error.domain == HTTPStatusError.domain {
       FunctionsError(
         httpStatusCode: error.code,
         region: region,
         url: url,
-        body: error.userInfo["data"] as? Data,
+        body: error.userInfo[HTTPStatusError.dataKey] as? Data,
         serializer: serializer
       )
     } else if error.domain == NSURLErrorDomain, error.code == NSURLErrorTimedOut {

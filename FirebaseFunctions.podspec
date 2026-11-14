@@ -41,7 +41,6 @@ Cloud Functions for Firebase.
   s.dependency 'FirebaseAuthInterop', '~> 13.3.0'
   s.dependency 'FirebaseMessagingInterop', '~> 13.3.0'
   s.dependency 'FirebaseSharedSwift', '~> 13.3.0'
-  s.dependency 'GTMSessionFetcher/Core', '>= 4.0', '< 6.0'
 
   s.pod_target_xcconfig = {
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseFunctions'
