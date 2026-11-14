@@ -99,7 +99,7 @@ actor StorageHTTPService {
             let delay = backoff.nextDelay(suggestedDelay: retryAfter) else {
         throw Self.error(failure, after: backoff)
       }
-      try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+      try await RetryBackoff.sleep(for: delay)
     }
   }
 

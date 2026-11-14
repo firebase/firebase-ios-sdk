@@ -94,6 +94,27 @@ public struct RetryBackoff: Sendable {
     return delay
   }
 
+  /// Suspends the calling task for `delay` seconds, or for the longest time that `Task.sleep`
+  /// accepts if `delay` is longer than that.
+  ///
+  /// - Throws: `CancellationError` if the task is cancelled while it waits.
+  public static func sleep(for delay: TimeInterval) async throws {
+    try await Task.sleep(nanoseconds: nanoseconds(forSeconds: delay))
+  }
+
+  /// Converts `seconds` to nanoseconds, limited to the range of `UInt64`. Negative and NaN values
+  /// become 0.
+  static func nanoseconds(forSeconds seconds: TimeInterval) -> UInt64 {
+    let nanoseconds = (seconds * 1_000_000_000).rounded()
+    guard nanoseconds > 0 else {
+      return 0
+    }
+    guard nanoseconds < Double(UInt64.max) else {
+      return .max
+    }
+    return UInt64(nanoseconds)
+  }
+
   /// Returns the wait that the `Retry-After` header of `response` asks for, or `nil` if the
   /// response has no such header or its value isn't a number of seconds or an HTTP date.
   ///
@@ -109,13 +130,19 @@ public struct RetryBackoff: Sendable {
     if let seconds = Int(value) {
       return TimeInterval(max(seconds, 0))
     }
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    formatter.timeZone = TimeZone(identifier: "GMT")
-    formatter.dateFormat = "EEE',' dd MMM yyyy HH':'mm':'ss z"
-    guard let date = formatter.date(from: value) else {
+    guard let date = httpDateFormatter.date(from: value) else {
       return nil
     }
     return max(date.timeIntervalSince(now), 0)
   }
+
+  /// Parses HTTP dates, such as `Wed, 21 Oct 2015 07:28:00 GMT`. `DateFormatter` is thread-safe,
+  /// so one instance serves every call.
+  private static let httpDateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.timeZone = TimeZone(identifier: "GMT")
+    formatter.dateFormat = "EEE',' dd MMM yyyy HH':'mm':'ss z"
+    return formatter
+  }()
 }

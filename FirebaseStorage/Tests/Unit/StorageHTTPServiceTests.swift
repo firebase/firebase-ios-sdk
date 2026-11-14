@@ -119,6 +119,38 @@ class StorageHTTPServiceTests: StorageTestHelpers {
     XCTAssertLessThan(Date().timeIntervalSince(start), 30)
   }
 
+  func testVeryLongRetryAfterDelaysDoNotOverflow() async throws {
+    // About 31,700 years, within an even longer retry time. In nanoseconds, the wait doesn't fit
+    // in a UInt64.
+    let requestSent = expectation(description: "Request sent")
+    let transport = StorageTestTransport { request in
+      requestSent.fulfill()
+      let url = try XCTUnwrap(request.url)
+      let response = try XCTUnwrap(HTTPURLResponse(url: url, statusCode: 503,
+                                                   httpVersion: "HTTP/1.1",
+                                                   headerFields: ["Retry-After": "999999999999"]))
+      return (Data(), response)
+    }
+    await StorageHTTPService.shared.updateTestTransport(transport)
+    let storage = storage()
+    let url = objectURL()
+    let send = Task {
+      try await StorageHTTPService.shared.data(for: URLRequest(url: url), storage: storage,
+                                               maxRetryTime: 1e13)
+    }
+
+    await fulfillment(of: [requestSent], timeout: 10)
+    send.cancel()
+
+    do {
+      _ = try await send.value
+      XCTFail("Expected CancellationError")
+    } catch {
+      XCTAssertTrue(error is CancellationError, "\(error)")
+    }
+    XCTAssertEqual(transport.requests.count, 1)
+  }
+
   func testOfflineErrorsAreRetriedInAnyDomain() async throws {
     let offline = NSError(domain: "kCFErrorDomainCFNetwork",
                           code: NSURLErrorNotConnectedToInternet)

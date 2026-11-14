@@ -112,6 +112,40 @@ class RetryBackoffTests: XCTestCase {
     XCTAssertLessThan(backoff.elapsedTime, 1)
   }
 
+  // MARK: - Sleeping
+
+  func testNanosecondsStayInTheRangeOfUInt64() {
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1.5), 1_500_000_000)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 0.001), 1_000_000)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 0), 0)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: -1), 0)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: .nan), 0)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: 1e11), .max)
+    XCTAssertEqual(RetryBackoff.nanoseconds(forSeconds: .infinity), .max)
+  }
+
+  func testSleepWaits() async throws {
+    let start = ProcessInfo.processInfo.systemUptime
+
+    try await RetryBackoff.sleep(for: 0.01)
+
+    XCTAssertGreaterThanOrEqual(ProcessInfo.processInfo.systemUptime - start, 0.01)
+  }
+
+  func testCancellingStopsAVeryLongSleep() async {
+    let sleep = Task {
+      try await RetryBackoff.sleep(for: .infinity)
+    }
+    sleep.cancel()
+
+    do {
+      try await sleep.value
+      XCTFail("Expected CancellationError")
+    } catch {
+      XCTAssertTrue(error is CancellationError, "\(error)")
+    }
+  }
+
   // MARK: - Retry-After
 
   func testRetryAfterInSeconds() {
