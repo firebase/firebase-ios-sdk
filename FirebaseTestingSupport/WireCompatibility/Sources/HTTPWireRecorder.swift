@@ -127,7 +127,12 @@ public final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
   }
 
   override public func startLoading() {
-    let recorded = Request(request)
+    guard let url = request.url else {
+      XCTFail("HTTPWireRecorder received a request without a URL")
+      client?.urlProtocol(self, didFailWithError: URLError(.badURL))
+      return
+    }
+    let recorded = Request(request, url: url)
     let (responder, queuedReply) = Self.lock.withLock { () -> (Responder?, Reply?) in
       Self.recordedRequests.append(recorded)
       if Self.queuedReplies.count > 1 {
@@ -174,8 +179,8 @@ public final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
 }
 
 private extension HTTPWireRecorder.Request {
-  init(_ request: URLRequest) {
-    url = request.url!
+  init(_ request: URLRequest, url: URL) {
+    self.url = url
     method = request.httpMethod ?? "GET"
     headers = request.allHTTPHeaderFields ?? [:]
     body = Self.body(of: request)
