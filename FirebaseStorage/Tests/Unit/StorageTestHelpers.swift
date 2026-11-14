@@ -24,11 +24,14 @@ import XCTest
 /// Answers the requests of `StorageHTTPService` in unit tests instead of the network.
 ///
 /// It gets each request after `StorageTokenAuthorizer` has added its headers, as
-/// GTMSessionFetcher's test block did.
+/// GTMSessionFetcher's test block did. Downloads to a file get the response written to a
+/// temporary file.
 final class StorageTestTransport: HTTPTransport, @unchecked Sendable {
   typealias Handler = (URLRequest) async throws -> (Data, HTTPURLResponse)
+  typealias ProgressHandler = (URLRequest, @escaping @Sendable (HTTPTransferProgress) -> Void)
+  async throws -> (Data, HTTPURLResponse)
 
-  private let handler: Handler
+  private let handler: ProgressHandler
   private let receivedRequests = UnfairLock<[URLRequest]>([])
 
   /// The requests that the transport got, in order.
@@ -37,13 +40,26 @@ final class StorageTestTransport: HTTPTransport, @unchecked Sendable {
   }
 
   init(_ handler: @escaping Handler) {
+    self.handler = { request, _ in try await handler(request) }
+  }
+
+  /// Creates a transport whose handler can report download progress before it responds.
+  init(reportingProgress handler: @escaping ProgressHandler) {
     self.handler = handler
   }
 
   func data(for request: URLRequest,
             policy: HTTPRequestPolicy) async throws -> (Data, HTTPURLResponse) {
     receivedRequests.withLock { $0.append(request) }
-    return try await handler(request)
+    return try await handler(request) { _ in }
+  }
+
+  func data(for request: URLRequest,
+            policy: HTTPRequestPolicy,
+            progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse) {
+    receivedRequests.withLock { $0.append(request) }
+    return try await handler(request, progress)
   }
 
   /// Returns a response for `request` with `statusCode` and no headers.

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 #if COCOAPODS
@@ -60,7 +61,7 @@ class StorageTaskTests: StorageTestHelpers {
   }
 
   func testDownloadTaskIsReleasedAfterCancel() async throws {
-    let requestStarted = await setNeverRespondingTestBlock()
+    let requestStarted = await setNeverRespondingTransport()
     let ref = storage().reference(withPath: "object")
     let completed = expectation(description: "completed")
     weak var weakTask: StorageDownloadTask?
@@ -78,7 +79,7 @@ class StorageTaskTests: StorageTestHelpers {
   }
 
   func testDownloadTaskIsReleasedAfterSuccess() async throws {
-    await StorageFetcherService.shared.updateTestBlock(responseBlock(with: Data("Hello".utf8)))
+    await StorageHTTPService.shared.updateTestTransport(responseTransport(with: Data("Hello".utf8)))
     let ref = storage().reference(withPath: "object")
     let completed = expectation(description: "completed")
     weak var weakTask: StorageDownloadTask?
@@ -95,7 +96,7 @@ class StorageTaskTests: StorageTestHelpers {
   }
 
   func testDownloadTaskIsReleasedAfterPauseAndResume() async throws {
-    let requestStarted = await setNeverRespondingTestBlock()
+    let requestStarted = await setNeverRespondingTransport()
     let ref = storage().reference(withPath: "object")
     let completed = expectation(description: "completed")
     weak var weakTask: StorageDownloadTask?
@@ -108,7 +109,8 @@ class StorageTaskTests: StorageTestHelpers {
       weakTask = task
       await fulfillment(of: [requestStarted], timeout: 10)
       task.pause()
-      await StorageFetcherService.shared.updateTestBlock(responseBlock(with: Data("Hello".utf8)))
+      await StorageHTTPService.shared
+        .updateTestTransport(responseTransport(with: Data("Hello".utf8)))
       task.resume()
     }
     await fulfillment(of: [completed], timeout: 10)
@@ -116,7 +118,7 @@ class StorageTaskTests: StorageTestHelpers {
   }
 
   func testGetDataWithEmptyResponseReturnsEmptyData() async throws {
-    await StorageFetcherService.shared.updateTestBlock(responseBlock(with: nil))
+    await StorageHTTPService.shared.updateTestTransport(responseTransport(with: nil))
     let ref = storage().reference(withPath: "object")
     let data = try await ref.data(maxSize: 1024)
     XCTAssertEqual(data, Data())
@@ -135,14 +137,23 @@ class StorageTaskTests: StorageTestHelpers {
     return requestStarted
   }
 
-  /// Returns a test block that responds with `data` and status code 200.
-  private func responseBlock(with data: Data?) -> GTMSessionFetcherTestBlock {
-    return { fetcher, response in
-      let httpResponse = HTTPURLResponse(url: fetcher.request!.url!,
-                                         statusCode: 200,
-                                         httpVersion: "HTTP/1.1",
-                                         headerFields: nil)
-      response(httpResponse, data, nil)
+  /// Sets a transport that never responds to downloads, and returns an expectation that is
+  /// fulfilled when the request starts.
+  private func setNeverRespondingTransport() async -> XCTestExpectation {
+    let requestStarted = expectation(description: "requestStarted")
+    await StorageHTTPService.shared.updateTestTransport(StorageTestTransport { _ in
+      requestStarted.fulfill()
+      // Never respond, so that the request stays in flight until it is cancelled.
+      try await RetryBackoff.sleep(for: .infinity)
+      throw CancellationError()
+    })
+    return requestStarted
+  }
+
+  /// Returns a transport that responds with `data` and status code 200.
+  private func responseTransport(with data: Data?) -> StorageTestTransport {
+    StorageTestTransport { request in
+      try (data ?? Data(), StorageTestTransport.response(to: request, statusCode: 200))
     }
   }
 

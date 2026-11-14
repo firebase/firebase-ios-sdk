@@ -20,7 +20,7 @@ import Foundation
   import GTMSessionFetcherCore
 #endif
 
-/// Manages the GTMSessionFetcherService that uploads and downloads use. Other requests use
+/// Manages the GTMSessionFetcherService that uploads use. Other requests use
 /// `StorageHTTPService`.
 actor StorageFetcherService {
   static let shared = StorageFetcherService()

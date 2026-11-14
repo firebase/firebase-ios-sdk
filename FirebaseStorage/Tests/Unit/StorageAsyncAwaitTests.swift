@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 #if COCOAPODS
@@ -26,15 +27,17 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testDataThrowsCancelledWhenTaskIsCancelled() async throws {
     let ref = storage().reference(withPath: "object")
-    await assertCancelledDuringRequest {
+    await assertCancelledDuringDownload {
       _ = try await ref.data(maxSize: 1024)
     }
   }
 
   func testDataThrowsCancelledWhenTaskIsAlreadyCancelled() async throws {
-    await StorageFetcherService.shared.updateTestBlock { _, _ in
+    await StorageHTTPService.shared.updateTestTransport(StorageTestTransport { _ in
       // Never respond, so that only cancellation can end the download.
-    }
+      try await RetryBackoff.sleep(for: .infinity)
+      throw CancellationError()
+    })
     let ref = storage().reference(withPath: "object")
     let task = Task {
       withUnsafeCurrentTask { $0?.cancel() }
@@ -71,7 +74,7 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
   func testWriteAsyncThrowsCancelledWhenTaskIsCancelled() async throws {
     let ref = storage().reference(withPath: "object")
     let fileURL = try temporaryFileURL()
-    await assertCancelledDuringRequest {
+    await assertCancelledDuringDownload {
       _ = try await ref.writeAsync(toFile: fileURL) { _ in }
     }
   }
@@ -80,7 +83,7 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testDataReturnsDownloadedData() async throws {
     let data = try XCTUnwrap("Hello".data(using: .utf8))
-    await StorageFetcherService.shared.updateTestBlock(responseBlock(with: data))
+    await StorageHTTPService.shared.updateTestTransport(responseTransport(with: data))
     let ref = storage().reference(withPath: "object")
     let downloadedData = try await ref.data(maxSize: 1024)
     XCTAssertEqual(downloadedData, data)
@@ -113,7 +116,7 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testWriteAsyncWithProgressWritesFile() async throws {
     let data = try XCTUnwrap("Hello".data(using: .utf8))
-    await StorageFetcherService.shared.updateTestBlock(responseBlock(with: data))
+    await StorageHTTPService.shared.updateTestTransport(responseTransport(with: data))
     let ref = storage().reference(withPath: "object")
     let fileURL = try temporaryFileURL()
     var progressCount = 0
@@ -149,6 +152,35 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
                    file: file, line: line)
   }
 
+  /// Runs the download in `operation` in a new task with a transport that never responds,
+  /// cancels the task once the request has started, and checks that `operation` throws
+  /// `StorageError.cancelled` and that the request was stopped.
+  private func assertCancelledDuringDownload(file: StaticString = #filePath,
+                                             line: UInt = #line,
+                                             _ operation: @escaping () async throws -> Void)
+    async {
+    let requestStarted = expectation(description: "requestStarted")
+    let requestStopped = expectation(description: "requestStopped")
+    await StorageHTTPService.shared.updateTestTransport(StorageTestTransport { _ in
+      requestStarted.fulfill()
+      do {
+        // Never respond, so that only cancellation can end the request.
+        try await RetryBackoff.sleep(for: .infinity)
+      } catch {
+        requestStopped.fulfill()
+        throw error
+      }
+      throw CancellationError()
+    })
+    let task = Task {
+      try await operation()
+    }
+    await fulfillment(of: [requestStarted], timeout: 10)
+    task.cancel()
+    await assertThrowsCancelled(task, file: file, line: line)
+    await fulfillment(of: [requestStopped], timeout: 10)
+  }
+
   /// Checks that `task` throws `StorageError.cancelled`, failing instead of waiting forever if
   /// `task` doesn't finish.
   private func assertThrowsCancelled(_ task: Task<Void, Error>,
@@ -169,14 +201,10 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
     await fulfillment(of: [finished], timeout: 10)
   }
 
-  /// Returns a test block that responds with `data` and status code 200.
-  private func responseBlock(with data: Data) -> GTMSessionFetcherTestBlock {
-    return { fetcher, response in
-      let httpResponse = HTTPURLResponse(url: fetcher.request!.url!,
-                                         statusCode: 200,
-                                         httpVersion: "HTTP/1.1",
-                                         headerFields: nil)
-      response(httpResponse, data, nil)
+  /// Returns a transport that responds with `data` and status code 200.
+  private func responseTransport(with data: Data) -> StorageTestTransport {
+    StorageTestTransport { request in
+      try (data, StorageTestTransport.response(to: request, statusCode: 200))
     }
   }
 

@@ -11,6 +11,18 @@
 - [changed] When one of these requests redirects to a different origin,
   credentials such as the Auth and App Check tokens are only sent to the
   redirect target if it's a `googleapis.com` or `google.com` host.
+- [changed] `maxDownloadRetryTime` is now a limit on the total time that
+  downloads spend retrying, in the same way. Downloads also get fresh tokens
+  for every retry and follow the same rule for redirects.
+- [changed] Resuming a paused download to a file now gets fresh Auth and App
+  Check tokens and starts over if the server rejects the credentials that were
+  saved when the download paused, for example because they expired. Resumed
+  downloads are now also retried, from the start.
+- [changed] Pausing a download to memory now completes: the task becomes
+  paused and its `.pause` observers are called. Resuming it starts the download
+  over, as before.
+- [changed] A download to a file that fails with an HTTP error no longer
+  deletes a file that was already at the destination.
 
 # 13.2.0
 - [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`

@@ -52,13 +52,60 @@ public final class FirebaseHTTPClient: Sendable {
                    policy: HTTPRequestPolicy = HTTPRequestPolicy()) async throws
     -> (Data, HTTPURLResponse) {
     let request = try prepared(request, policy: policy)
-    let backgroundTask = policy.holdsBackgroundTask
+    return try await holdingBackgroundTask(if: policy.holdsBackgroundTask) {
+      try await transport.data(for: request, policy: policy)
+    }
+  }
+
+  /// Sends `request` like `data(for:policy:)`, and calls `progress` as the response body
+  /// arrives. `progress` is called on an arbitrary queue.
+  public func data(for request: URLRequest,
+                   policy: HTTPRequestPolicy = HTTPRequestPolicy(),
+                   progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse) {
+    let request = try prepared(request, policy: policy)
+    return try await holdingBackgroundTask(if: policy.holdsBackgroundTask) {
+      try await transport.data(for: request, policy: policy, progress: progress)
+    }
+  }
+
+  /// Downloads the response body to a new temporary file, whatever the status code, and calls
+  /// `progress` on an arbitrary queue as it arrives. The caller owns the file and must move or
+  /// delete it.
+  ///
+  /// A new request gets the same `User-Agent` and the same `policy` checks as in
+  /// `data(for:policy:)`. A resumed download sends the request saved in its resume data.
+  ///
+  /// - Throws: A `URLError` for transport failures and for requests that `policy` doesn't allow,
+  ///   or `HTTPDownloadCancellation` if the calling task is cancelled. When the download can be
+  ///   resumed, the cancellation holds resume data.
+  public func download(_ source: HTTPDownloadSource,
+                       policy: HTTPRequestPolicy = HTTPRequestPolicy(),
+                       progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (URL, HTTPURLResponse) {
+    let preparedSource: HTTPDownloadSource
+    if case let .request(request) = source {
+      preparedSource = try .request(prepared(request, policy: policy))
+    } else {
+      preparedSource = source
+    }
+    return try await holdingBackgroundTask(if: policy.holdsBackgroundTask) {
+      try await transport.download(preparedSource, policy: policy, progress: progress)
+    }
+  }
+
+  /// Runs `operation` while holding a background task, if `holdsBackgroundTask` is true and the
+  /// platform has background tasks.
+  private func holdingBackgroundTask<Result>(if holdsBackgroundTask: Bool,
+                                             _ operation: () async throws -> Result) async throws
+    -> Result {
+    let backgroundTask = holdsBackgroundTask
       ? backgroundTaskApplication().map {
         BackgroundTaskAssertion(application: $0, name: "FirebaseHTTPClient")
       }
       : nil
     defer { backgroundTask?.end() }
-    return try await transport.data(for: request, policy: policy)
+    return try await operation()
   }
 
   /// Sends `request` and returns as soon as the response headers arrive, whatever the status

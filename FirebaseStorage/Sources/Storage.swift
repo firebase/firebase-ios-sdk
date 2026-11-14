@@ -88,11 +88,7 @@ internal import FirebaseCoreExtension
 
   /// The maximum time in seconds to retry a download if a failure occurs.
   /// Defaults to 10 minutes (600 seconds).
-  @objc public var maxDownloadRetryTime: TimeInterval {
-    didSet {
-      maxDownloadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxDownloadRetryTime)
-    }
-  }
+  @objc public var maxDownloadRetryTime: TimeInterval
 
   /// The maximum time in seconds to retry operations other than upload and download if a failure
   /// occurs.
@@ -301,7 +297,6 @@ internal import FirebaseCoreExtension
     // Must be a serial queue.
     dispatchQueue = DispatchQueue(label: "com.google.firebase.storage")
     maxDownloadRetryTime = 600.0
-    maxDownloadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxDownloadRetryTime)
     maxOperationRetryTime = 120.0
     maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     maxUploadRetryTime = 600.0
@@ -319,7 +314,6 @@ internal import FirebaseCoreExtension
   var host: String
   var scheme: String
   var port: Int
-  var maxDownloadRetryInterval: TimeInterval
   var maxOperationRetryInterval: TimeInterval
   var maxUploadRetryInterval: TimeInterval
 

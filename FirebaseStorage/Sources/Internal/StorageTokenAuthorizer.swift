@@ -145,8 +145,8 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
 
   // MARK: - GTMSessionFetcherAuthorizer
 
-  // Uploads and downloads still use GTMSessionFetcher, which calls this method before it sends
-  // the first attempt of a request.
+  // Uploads still use GTMSessionFetcher, which calls this method before it sends the first
+  // attempt of a request.
   func authorizeRequest(_ request: NSMutableURLRequest?,
                         completionHandler handler: @escaping (Error?) -> Void) {
     let callbackQueue = self.callbackQueue
