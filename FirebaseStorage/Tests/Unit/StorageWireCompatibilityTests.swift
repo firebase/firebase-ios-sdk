@@ -310,7 +310,7 @@ import XCTest
 
     // MARK: - Retries
 
-    /// Each retry waits for the backoff delay, which starts at 1 to 2 seconds.
+    /// `makeStorage` shortens the backoff delay, so each retry happens right away.
     func testRetryableFailuresAreRetried() async throws {
       let retryableFailures: [HTTPWireRecorder.Reply] = [
         .http(status: 408), .http(status: 502), .http(status: 503), .http(status: 504),
@@ -467,7 +467,8 @@ import XCTest
         storage.useEmulator(withHost: "localhost", port: emulatorPort)
       }
       // GTMSessionFetcher-specific wiring. After the migration, install the recorder in the
-      // replacement client's session configuration and inject the same token providers.
+      // replacement client's session configuration, inject the same token providers, and shorten
+      // the retry delay the same way.
       await StorageFetcherService.shared.updateTestBlock(nil)
       let fetcherService = await StorageFetcherService.shared.service(storage)
       fetcherService.configurationBlock = { _, configuration in
@@ -479,6 +480,11 @@ import XCTest
         authProvider: FIRAuthInteropFake(token: authToken, userID: nil, error: nil),
         appCheck: FIRAppCheckFake()
       )
+      // Retry after 1 ms instead of the default 1 to 2 seconds. The interval doesn't change which
+      // failures are retried. Set it on the service, which copies it to every fetcher it creates.
+      // The service shares one session between fetchers, so `configurationBlock` only runs for
+      // the first one.
+      fetcherService.minRetryInterval = 0.001
       return storage
     }
 
