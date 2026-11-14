@@ -1,3 +1,15 @@
+# Unreleased
+- [changed] Cloud Functions no longer depends on `GTMSessionFetcher`. Apps that
+  import `GTMSessionFetcher` directly must declare it as a dependency.
+- [changed] When a callable function's URL redirects to a different origin,
+  credentials (the Auth, FCM, and App Check tokens) are only sent to the
+  redirect target if it's the project's default endpoint,
+  `https://<region>-<project-id>.cloudfunctions.net`, or a `googleapis.com` or
+  `google.com` host. If you use a custom domain, configure the final URL rather
+  than relying on a redirect.
+- [changed] Cancelling the task that awaits `HTTPSCallable.call()` now cancels
+  the HTTP request, and the call throws `CancellationError`.
+
 # 13.1.0
 - [fixed] Fixed callable streams failing with "Unexpected format for streamed
   response." when the server sends SSE comment lines, such as the `: ping`

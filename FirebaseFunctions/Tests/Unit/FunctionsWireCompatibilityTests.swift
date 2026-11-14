@@ -15,14 +15,10 @@
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseFunctions
 import FirebaseMessagingInterop
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -36,9 +32,8 @@ import XCTest
   /// Pins the HTTP behavior of callable functions: what a call sends, and how responses and
   /// failures surface to the caller.
   ///
-  /// The expectations describe the GTMSessionFetcher-based implementation, and they must keep
-  /// passing after GTMSessionFetcher is replaced. Only `makeFunctions`, which routes the SDK's
-  /// traffic through `HTTPWireRecorder`, should need to change. An intentional behavior change
+  /// The expectations were recorded against the GTMSessionFetcher-based implementation, and the
+  /// `FirebaseHTTPClient`-based implementation keeps meeting them. An intentional behavior change
   /// must update its expectation and explain why.
   class FunctionsWireCompatibilityTests: XCTestCase {
     private let functionURL = "https://us-central1-my-project.cloudfunctions.net/echo"
@@ -72,7 +67,8 @@ import XCTest
       XCTAssertEqual(request.header("Authorization"), "Bearer auth-token")
       XCTAssertEqual(request.header("Firebase-Instance-ID-Token"), "fakeFCMToken")
       XCTAssertEqual(request.header("X-Firebase-AppCheck"), "fake_valid_token")
-      XCTAssertEqual(request.header("User-Agent"), GTMFetcherStandardUserAgentString(nil))
+      // The Storage wire tests check that this is the User-Agent that GTMSessionFetcher sends.
+      XCTAssertEqual(request.header("User-Agent"), FirebaseUserAgent.standard)
       XCTAssertEqual(request.timeoutInterval, 70)
       let body = try XCTUnwrap(JSONSerialization.jsonObject(with: request.body) as? NSDictionary)
       XCTAssertEqual(body, ["data": ["key": "value"]])
@@ -226,6 +222,40 @@ import XCTest
       XCTAssertEqual(replayed.header("Authorization"), "Bearer auth-token")
     }
 
+    /// A custom domain can redirect to the project's default Cloud Functions endpoint, and the
+    /// redirected request keeps its credentials.
+    func testRedirectToTheProjectEndpointKeepsCredentials() async throws {
+      let replayed = try await replayedRequest(
+        afterRedirectTo: "https://us-central1-my-project.cloudfunctions.net/echo"
+      )
+
+      XCTAssertEqual(replayed.method, "POST")
+      XCTAssertEqual(replayed.header("Authorization"), "Bearer auth-token")
+      XCTAssertEqual(replayed.header("Firebase-Instance-ID-Token"), "fakeFCMToken")
+      XCTAssertEqual(replayed.header("X-Firebase-AppCheck"), "fake_valid_token")
+    }
+
+    /// After a redirect to a different origin, credentials are only sent to the project's default
+    /// Cloud Functions endpoint or a trusted Google host. Other targets still get the request,
+    /// without its credentials.
+    func testRedirectToAnotherOriginDropsCredentials() async throws {
+      for target in [
+        "https://us-central1-other-project.cloudfunctions.net/echo",
+        "https://echo-abc123-uc.a.run.app/echo",
+        "https://example.com/echo",
+      ] {
+        let replayed = try await replayedRequest(afterRedirectTo: target)
+
+        XCTAssertEqual(replayed.method, "POST", target)
+        XCTAssertEqual(replayed.header("Content-Type"), "application/json", target)
+        let body = try JSONSerialization.jsonObject(with: replayed.body) as? NSDictionary
+        XCTAssertEqual(body, ["data": ["key": "value"]], target)
+        for header in ["Authorization", "Firebase-Instance-ID-Token", "X-Firebase-AppCheck"] {
+          XCTAssertNil(replayed.header(header), "\(header) must not be sent to \(target)")
+        }
+      }
+    }
+
     // MARK: - Helpers
 
     /// Returns a `Functions` instance whose HTTP traffic goes through `HTTPWireRecorder`.
@@ -233,12 +263,7 @@ import XCTest
                                auth: AuthInterop? = nil,
                                messaging: MessagingInterop? = nil,
                                appCheck: AppCheckInterop? = nil) -> Functions {
-      // GTMSessionFetcher-specific wiring. After the migration, install the recorder in the
-      // replacement client's session configuration.
-      let fetcherService = GTMSessionFetcherService()
-      fetcherService.configurationBlock = { _, configuration in
-        HTTPWireRecorder.install(in: configuration)
-      }
+      let transport = URLSessionTransport { HTTPWireRecorder.install(in: $0) }
       return Functions(
         projectID: "my-project",
         region: "us-central1",
@@ -246,8 +271,38 @@ import XCTest
         auth: auth,
         messaging: messaging,
         appCheck: appCheck,
-        fetcherService: fetcherService
+        httpClient: FirebaseHTTPClient(transport: transport)
       )
+    }
+
+    /// Calls `echo` with all three tokens through the custom domain `https://mydomain.com`, which
+    /// redirects to `target`, and returns the request that followed the redirect.
+    private func replayedRequest(afterRedirectTo target: String) async throws
+      -> HTTPWireRecorder.Request {
+      let targetURL = try XCTUnwrap(URL(string: target))
+      HTTPWireRecorder.reset { request in
+        if request.url.host == "mydomain.com" {
+          return .redirect(status: 302, location: targetURL)
+        }
+        return .json(status: 200, #"{"data":"ok"}"#)
+      }
+      let functions = makeFunctions(
+        customDomain: "https://mydomain.com",
+        auth: FIRAuthInteropFake(token: "auth-token", userID: "user-id", error: nil),
+        messaging: FIRMessagingInteropFake(),
+        appCheck: FIRAppCheckFake()
+      )
+
+      _ = try await functions.httpsCallable("echo").call(["key": "value"])
+
+      let requests = HTTPWireRecorder.requests
+      XCTAssertEqual(requests.count, 2, target)
+      let original = try XCTUnwrap(requests.first)
+      XCTAssertEqual(original.url.absoluteString, "https://mydomain.com/echo")
+      XCTAssertEqual(original.header("Authorization"), "Bearer auth-token")
+      let replayed = try XCTUnwrap(requests.last)
+      XCTAssertEqual(replayed.url, targetURL)
+      return replayed
     }
   }
 
