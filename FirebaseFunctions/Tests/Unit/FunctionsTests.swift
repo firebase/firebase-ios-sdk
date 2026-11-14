@@ -15,12 +15,8 @@
 import Foundation
 
 import FirebaseCore
+import FirebaseCoreInternal
 @testable import FirebaseFunctions
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 
 import SharedTestUtilities
 import XCTest
@@ -28,7 +24,7 @@ import XCTest
 class FunctionsTests: XCTestCase {
   var functions: Functions?
   var functionsCustomDomain: Functions?
-  let fetcherService = GTMSessionFetcherService()
+  let transport = TestTransport()
   let appCheckFake = FIRAppCheckFake()
 
   override func setUp() {
@@ -40,12 +36,12 @@ class FunctionsTests: XCTestCase {
       auth: nil,
       messaging: nil,
       appCheck: appCheckFake,
-      fetcherService: fetcherService
+      httpClient: FirebaseHTTPClient(transport: transport)
     )
     functionsCustomDomain = Functions(projectID: "my-project", region: "my-region",
                                       customDomain: "https://mydomain.com", auth: nil,
                                       messaging: nil, appCheck: nil,
-                                      fetcherService: fetcherService)
+                                      httpClient: FirebaseHTTPClient(transport: transport))
   }
 
   override func tearDown() {
@@ -145,13 +141,12 @@ class FunctionsTests: XCTestCase {
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      let appCheckTokenHeader = fetcherToTest.request?
-        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+    transport.handler = { request in
+      let appCheckTokenHeader = request.value(forHTTPHeaderField: "X-Firebase-AppCheck")
       // Assert that header contains limited use token.
       XCTAssertEqual(appCheckTokenHeader, "limited_use_valid_token")
-      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
+      return TestTransport.ok(#"{"data":"May the force be with you!"}"#, for: request)
     }
 
     // When
@@ -183,16 +178,16 @@ class FunctionsTests: XCTestCase {
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
+    transport.handler = { request in
       // Assert that header does not contain an AppCheck token.
-      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, value in
+      request.allHTTPHeaderFields?.forEach { key, value in
         if key == "X-Firebase-AppCheck" {
           XCTAssertNotEqual(value, limitedUseDummyToken)
         }
       }
 
-      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
+      return TestTransport.ok(#"{"data":"May the force be with you!"}"#, for: request)
     }
 
     // When
@@ -221,20 +216,14 @@ class FunctionsTests: XCTestCase {
       token: "limited use token",
       error: NSError(domain: #function, code: -1)
     )
+    let expectedToken = appCheckFake.limitedUseTokenResult.token
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      // Assert that header does not contain an AppCheck token.
-      do {
-        let appCheckHeader = try XCTUnwrap(fetcherToTest.request?
-          .allHTTPHeaderFields?["X-Firebase-AppCheck"])
-        XCTAssertEqual(appCheckHeader, self.appCheckFake.limitedUseTokenResult.token)
-      } catch {
-        XCTFail("Unexpected failure: \(error)")
-      }
-
-      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+    transport.handler = { request in
+      // Assert that header contains the placeholder token.
+      XCTAssertEqual(request.allHTTPHeaderFields?["X-Firebase-AppCheck"], expectedToken)
       httpRequestExpectation.fulfill()
+      return TestTransport.ok(#"{"data":"May the force be with you!"}"#, for: request)
     }
 
     // When
@@ -273,12 +262,11 @@ class FunctionsTests: XCTestCase {
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      let appCheckTokenHeader = fetcherToTest.request?
-        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+    transport.handler = { request in
+      let appCheckTokenHeader = request.value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertEqual(appCheckTokenHeader, "shared_valid_token")
-      testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
+      throw networkError
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
@@ -305,12 +293,11 @@ class FunctionsTests: XCTestCase {
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      let appCheckTokenHeader = fetcherToTest.request?
-        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+    transport.handler = { request in
+      let appCheckTokenHeader = request.value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertNil(appCheckTokenHeader)
-      testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
+      throw networkError
     }
 
     do {
@@ -336,11 +323,10 @@ class FunctionsTests: XCTestCase {
       userInfo: nil
     )
 
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      let appCheckTokenHeader = fetcherToTest.request?
-        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+    transport.handler = { request in
+      let appCheckTokenHeader = request.value(forHTTPHeaderField: "X-Firebase-AppCheck")
       XCTAssertNil(appCheckTokenHeader)
-      testResponse(nil, nil, networkError)
+      throw networkError
     }
 
     do {
@@ -365,7 +351,7 @@ class FunctionsTests: XCTestCase {
       auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
-      fetcherService: fetcherService
+      httpClient: FirebaseHTTPClient(transport: transport)
     )
     functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
@@ -391,16 +377,16 @@ class FunctionsTests: XCTestCase {
       auth: nil,
       messaging: nil,
       appCheck: nil,
-      fetcherService: fetcherService
+      httpClient: FirebaseHTTPClient(transport: transport)
     )
     functionsInsecure.useEmulator(withHost: "10.0.0.1", port: 5005)
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
-      XCTAssertNil(fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"))
-      XCTAssertNil(fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"))
-      testResponse(nil, "{\"data\":\"success\"}".data(using: .utf8), nil)
+    transport.handler = { request in
+      XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+      XCTAssertNil(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"))
       httpRequestExpectation.fulfill()
+      return TestTransport.ok(#"{"data":"success"}"#, for: request)
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
@@ -423,23 +409,23 @@ class FunctionsTests: XCTestCase {
       auth: authFake,
       messaging: nil,
       appCheck: appCheckFake,
-      fetcherService: fetcherService
+      httpClient: FirebaseHTTPClient(transport: transport)
     )
     functionsLocal.useEmulator(withHost: "localhost", port: 5005)
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
-    fetcherService.testBlock = { fetcherToTest, testResponse in
+    transport.handler = { request in
       XCTAssertEqual(
-        fetcherToTest.request?.value(forHTTPHeaderField: "Authorization"),
+        request.value(forHTTPHeaderField: "Authorization"),
         "Bearer fake_auth_token"
       )
       XCTAssertEqual(
-        fetcherToTest.request?.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
+        request.value(forHTTPHeaderField: "X-Firebase-AppCheck"),
         "shared_valid_token"
       )
-      testResponse(nil, "{\"data\":\"success\"}".data(using: .utf8), nil)
       httpRequestExpectation.fulfill()
+      return TestTransport.ok(#"{"data":"success"}"#, for: request)
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
@@ -450,5 +436,56 @@ class FunctionsTests: XCTestCase {
       }
 
     waitForExpectations(timeout: 1.5)
+  }
+
+  func testCancellingTheCallingTaskCancelsTheRequest() async throws {
+    let requestStarted = expectation(description: "requestStarted")
+    transport.handler = { _ in
+      requestStarted.fulfill()
+      // Wait for the calling task to be cancelled.
+      try await Task.sleep(nanoseconds: 60 * NSEC_PER_SEC)
+      throw URLError(.timedOut)
+    }
+    let functions = try XCTUnwrap(self.functions)
+
+    let call = Task { _ = try await functions.httpsCallable("fake_func").call() }
+    await fulfillment(of: [requestStarted], timeout: 1.5)
+    call.cancel()
+
+    do {
+      try await call.value
+      XCTFail("Expected the call to be cancelled")
+    } catch {
+      XCTAssertTrue(error is CancellationError, "Unexpected error: \(error)")
+    }
+  }
+}
+
+/// Answers each request with `handler` instead of sending it.
+final class TestTransport: HTTPTransport, @unchecked Sendable {
+  typealias Handler = @Sendable (URLRequest) async throws -> (Data, HTTPURLResponse)
+
+  private let lock = NSLock()
+  private var _handler: Handler?
+
+  var handler: Handler? {
+    get { lock.withLock { _handler } }
+    set { lock.withLock { _handler = newValue } }
+  }
+
+  /// A 200 response with a JSON body.
+  static func ok(_ json: String, for request: URLRequest) -> (Data, HTTPURLResponse) {
+    let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: "HTTP/1.1",
+                                   headerFields: ["Content-Type": "application/json"])!
+    return (Data(json.utf8), response)
+  }
+
+  func data(for request: URLRequest,
+            policy: HTTPRequestPolicy) async throws -> (Data, HTTPURLResponse) {
+    guard let handler else {
+      XCTFail("Unexpected request to \(request.url?.absoluteString ?? "nil")")
+      throw URLError(.resourceUnavailable)
+    }
+    return try await handler(request)
   }
 }

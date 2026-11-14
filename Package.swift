@@ -740,9 +740,9 @@ func packageTargets() -> [Target] {
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
+        "FirebaseCoreInternal",
         "FirebaseMessagingInterop",
         "FirebaseSharedSwift",
-        .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
       ],
       path: "FirebaseFunctions/Sources"
     ),
