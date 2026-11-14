@@ -13,15 +13,11 @@
 // limitations under the License.
 
 import FirebaseCore
+import FirebaseCoreInternal
 import Foundation
 import XCTest
 
 @testable import FirebaseAuth
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -33,9 +29,8 @@ import XCTest
   /// Pins the HTTP behavior of `AuthBackendRPCIssuer`: what it sends, and the `(Data?, Error?)`
   /// contract that `AuthBackend` relies on to decode responses and errors.
   ///
-  /// The expectations describe the GTMSessionFetcher-based implementation, and they must keep
-  /// passing after GTMSessionFetcher is replaced. Only `makeIssuer()`, which routes the issuer's
-  /// traffic through `HTTPWireRecorder`, should need to change. An intentional behavior change
+  /// The expectations were recorded against the GTMSessionFetcher-based implementation, and the
+  /// `FirebaseHTTPClient`-based implementation keeps meeting them. An intentional behavior change
   /// must update its expectation and explain why.
   class AuthWireCompatibilityTests: XCTestCase {
     private let apiKey = "FAKE_API_KEY"
@@ -207,11 +202,46 @@ import XCTest
       XCTAssertEqual(replayed.header("User-Agent"), expectedUserAgent)
     }
 
+    /// After a redirect to a different origin, credentials such as the App Check token are only
+    /// sent to a trusted Google host. Other targets still get the request, without them.
+    func testCrossOriginRedirectSendsCredentialsOnlyToGoogleHosts() async throws {
+      for (target, keepsCredentials) in [
+        ("https://identitytoolkit.googleapis.com/v1/moved", true),
+        ("https://example.com/moved", false),
+      ] {
+        let targetURL = try XCTUnwrap(URL(string: target))
+        HTTPWireRecorder.reset { request in
+          if request.url.path.hasSuffix("/getProjectConfig") {
+            return .redirect(status: 302, location: targetURL)
+          }
+          return .json(status: 200, "{}")
+        }
+        let configuration = AuthRequestConfiguration(apiKey: apiKey, appID: appID,
+                                                     appCheck: FakeAppCheck())
+        let body = Data(#"{"returnSecureToken":true}"#.utf8)
+
+        let (_, error) = await call(configuration: configuration, body: body)
+
+        XCTAssertNil(error, target)
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.count, 2, target)
+        XCTAssertEqual(requests.first?.header("X-Firebase-AppCheck"), "fakeAppCheckToken", target)
+        let replayed = try XCTUnwrap(requests.last)
+        XCTAssertEqual(replayed.url, targetURL)
+        XCTAssertEqual(replayed.method, "POST", target)
+        XCTAssertEqual(replayed.body, body, target)
+        XCTAssertEqual(replayed.header("X-Firebase-GMPID"), appID, target)
+        XCTAssertEqual(replayed.header("X-Firebase-AppCheck") != nil, keepsCredentials,
+                       "App Check token sent to \(target)")
+      }
+    }
+
     // MARK: - Helpers
 
-    /// Auth's prefix followed by GTMSessionFetcher's standard User-Agent.
+    /// Auth's prefix followed by the standard User-Agent. The Storage wire tests check that
+    /// `FirebaseUserAgent.standard` is the User-Agent that GTMSessionFetcher sends.
     private var expectedUserAgent: String {
-      "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
+      "FirebaseAuth.iOS/\(FirebaseVersion()) \(FirebaseUserAgent.standard)"
     }
 
     private func makeConfiguration() -> AuthRequestConfiguration {
@@ -230,13 +260,8 @@ import XCTest
 
     /// Returns an issuer whose HTTP traffic goes through `HTTPWireRecorder`.
     private func makeIssuer() -> AuthBackendRPCIssuer {
-      // GTMSessionFetcher-specific wiring. After the migration, install the recorder in the
-      // replacement client's session configuration.
-      let issuer = AuthBackendRPCIssuer()
-      issuer.fetcherService.configurationBlock = { _, configuration in
-        HTTPWireRecorder.install(in: configuration)
-      }
-      return issuer
+      let transport = URLSessionTransport { HTTPWireRecorder.install(in: $0) }
+      return AuthBackendRPCIssuer(httpClient: FirebaseHTTPClient(transport: transport))
     }
   }
 
