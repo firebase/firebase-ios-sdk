@@ -26,7 +26,7 @@ internal import FirebaseCoreExtension
 #endif
 
 class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
-  /// The headers that `authorize(_:)` may add.
+  /// The headers that `authorize(_:)` adds or removes.
   private static let authorizationHeaderFields = [
     "x-firebase-storage-version", "x-firebase-gmpid", "Authorization", "X-Firebase-AppCheck",
   ]
@@ -159,10 +159,10 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
       var authorizationError: Error?
       do {
         let authorizedRequest = try await authorize(unauthorizedRequest)
+        // Copy the values exactly, so a header that `authorize(_:)` removed is removed here too.
         for field in Self.authorizationHeaderFields {
-          if let value = authorizedRequest.value(forHTTPHeaderField: field) {
-            request.setValue(value, forHTTPHeaderField: field)
-          }
+          request.setValue(authorizedRequest.value(forHTTPHeaderField: field),
+                           forHTTPHeaderField: field)
         }
       } catch {
         authorizationError = error

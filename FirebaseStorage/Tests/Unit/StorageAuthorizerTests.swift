@@ -123,6 +123,17 @@ private final class ThreadCheckedMutableURLRequest: NSMutableURLRequest, @unchec
   }
 }
 
+/// Removes the credential headers after authorizing, so tests can check that the
+/// GTMSessionFetcher adapter copies removals as well as values.
+private final class CredentialRemovingAuthorizer: StorageTokenAuthorizer {
+  override func authorize(_ request: URLRequest) async throws -> URLRequest {
+    var request = try await super.authorize(request)
+    request.setValue(nil, forHTTPHeaderField: "Authorization")
+    request.setValue(nil, forHTTPHeaderField: "X-Firebase-AppCheck")
+    return request
+  }
+}
+
 class StorageAuthorizerTests: StorageTestHelpers {
   var appCheckTokenSuccess: FIRAppCheckTokenResultFake!
   var appCheckTokenError: FIRAppCheckTokenResultFake!
@@ -523,6 +534,29 @@ class StorageAuthorizerTests: StorageTestHelpers {
       XCTAssertEqual(nsError.userInfo["ResponseErrorCode"] as? Int, 17020)
       XCTAssertEqual(nsError.userInfo["key"] as? String, "value")
     }
+  }
+
+  func testAuthorizeRequestRemovesHeadersThatAuthorizeRemoves() {
+    let authorizer = CredentialRemovingAuthorizer(
+      googleAppID: "dummyAppID",
+      callbackQueue: DispatchQueue(label: "com.google.firebase.storage.authorizer-test"),
+      authProvider: nil,
+      appCheck: nil
+    )
+    let request = NSMutableURLRequest(url: objectURL())
+    request.setValue("Firebase stale-token", forHTTPHeaderField: "Authorization")
+    request.setValue("stale-app-check-token", forHTTPHeaderField: "X-Firebase-AppCheck")
+    let completion = expectation(description: "Token authorization completes")
+
+    authorizer.authorizeRequest(request) { error in
+      XCTAssertNil(error)
+      completion.fulfill()
+    }
+    wait(for: [completion], timeout: 3)
+
+    XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"))
+    XCTAssertNil(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"))
+    XCTAssertEqual(request.value(forHTTPHeaderField: "x-firebase-gmpid"), "dummyAppID")
   }
 
   // MARK: Helpers
