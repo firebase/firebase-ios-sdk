@@ -196,7 +196,7 @@ func packageProducts() -> [Product] {
     ),
     .library(
       name: "FirebaseRemoteConfig",
-      targets: ["FirebaseRemoteConfig"]
+      targets: ["FirebaseRemoteConfig", "FirebaseRemoteConfigInternal"]
     ),
     .library(
       name: "FirebaseStorage",
