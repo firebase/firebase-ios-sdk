@@ -9,6 +9,10 @@
   than relying on a redirect.
 - [changed] Cancelling the task that awaits `HTTPSCallable.call()` now cancels
   the HTTP request, and the call throws `CancellationError`.
+- [changed] Streaming callable functions (`Callable.stream(_:)`) now use the
+  same network session as other callable requests. Streams send the standard
+  Firebase User-Agent, keep cookies in Firebase's own cookie storage rather than
+  `HTTPCookieStorage.shared`, and follow the same redirect and HTTPS rules.
 
 # 13.1.0
 - [fixed] Fixed callable streams failing with "Unexpected format for streamed
