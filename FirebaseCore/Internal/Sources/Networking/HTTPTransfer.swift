@@ -50,6 +50,15 @@ public struct HTTPDownloadCancellation: Error, Sendable {
   }
 }
 
+/// The body of an upload.
+public enum HTTPUploadBody: Sendable {
+  /// Bytes in memory.
+  case data(Data)
+
+  /// The contents of a file, which must stay in place until the upload finishes.
+  case file(URL)
+}
+
 /// The transfers that a transport without its own implementation provides. They wait for the
 /// whole response, so progress is reported once, when it arrives.
 public extension HTTPTransport {
@@ -81,6 +90,25 @@ public extension HTTPTransport {
     let fileURL = HTTPDownloadFiles.makeTemporaryFileURL()
     try data.write(to: fileURL)
     return (fileURL, response)
+  }
+
+  /// Sends `body` as the request's `httpBody`, and reports progress once the response arrives.
+  func upload(_ request: URLRequest,
+              from body: HTTPUploadBody,
+              policy: HTTPRequestPolicy,
+              progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse) {
+    var request = request
+    switch body {
+    case let .data(data):
+      request.httpBody = data
+    case let .file(fileURL):
+      request.httpBody = try Data(contentsOf: fileURL)
+    }
+    let bodyLength = Int64(request.httpBody?.count ?? 0)
+    let result = try await data(for: request, policy: policy)
+    progress(HTTPTransferProgress(completedBytes: bodyLength, expectedBytes: bodyLength))
+    return result
   }
 }
 

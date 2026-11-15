@@ -316,7 +316,165 @@ import XCTest
       XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
     }
 
+    // MARK: - Uploads
+
+    func testUploadSendsTheBodyAndReturnsTheResponse() async throws {
+      let responseBody = Data("Uploaded".utf8)
+      HTTPWireRecorder.reset(replies: [.http(status: 200, body: responseBody)])
+      let transport = makeTransport()
+      var request = URLRequest(url: url)
+      request.httpMethod = "PUT"
+
+      let (data, response) = try await transport.upload(
+        request, from: .data(body), policy: HTTPRequestPolicy(), progress: { _ in }
+      )
+
+      XCTAssertEqual(data, responseBody)
+      XCTAssertEqual(response.statusCode, 200)
+      let recorded = try HTTPWireRecorder.singleRequest()
+      XCTAssertEqual(recorded.method, "PUT")
+      XCTAssertEqual(recorded.body, body)
+      await assertNoTrackedTasks(transport)
+    }
+
+    func testUploadFromAFileSendsTheFile() async throws {
+      HTTPWireRecorder.reset(replies: [.http(status: 200)])
+      let fileURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("HTTPTransferTests-\(UUID().uuidString)")
+      try body.write(to: fileURL)
+      defer { try? FileManager.default.removeItem(at: fileURL) }
+      var request = URLRequest(url: url)
+      request.httpMethod = "PUT"
+
+      _ = try await makeTransport().upload(request, from: .file(fileURL),
+                                           policy: HTTPRequestPolicy(), progress: { _ in })
+
+      XCTAssertEqual(try HTTPWireRecorder.singleRequest().body, body)
+    }
+
+    func testUploadReturnsTheBodyOfAnHTTPError() async throws {
+      HTTPWireRecorder.reset(replies: [.http(status: 403, body: body)])
+
+      let (data, response) = try await makeTransport().upload(
+        URLRequest(url: url), from: .data(Data("x".utf8)), policy: HTTPRequestPolicy(),
+        progress: { _ in }
+      )
+
+      XCTAssertEqual(data, body)
+      XCTAssertEqual(response.statusCode, 403)
+    }
+
+    func testUploadCancellationThrowsCancellationError() async {
+      let transport = URLSessionTransport { $0.protocolClasses = [UnansweredURLProtocol.self] }
+      let url = self.url
+      let body = self.body
+      let task = Task {
+        try await transport.upload(URLRequest(url: url), from: .data(body),
+                                   policy: HTTPRequestPolicy(), progress: { _ in })
+      }
+      await UnansweredURLProtocol.waitForRequest()
+
+      task.cancel()
+
+      do {
+        _ = try await task.value
+        XCTFail("Expected cancellation")
+      } catch {
+        XCTAssertTrue(error is CancellationError, "\(error)")
+      }
+      await assertNoTrackedTasks(transport)
+    }
+
+    func testUploadRedirectsDropCredentialsForOtherOrigins() async throws {
+      let url = self.url
+      HTTPWireRecorder.reset { request in
+        if request.url == url {
+          return .redirect(status: 307, location: URL(string: "https://other.example/object")!)
+        }
+        return .http(status: 200)
+      }
+      var request = URLRequest(url: url)
+      request.httpMethod = "PUT"
+      request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
+
+      _ = try await makeTransport().upload(request, from: .data(body),
+                                           policy: HTTPRequestPolicy(), progress: { _ in })
+
+      let requests = HTTPWireRecorder.requests
+      XCTAssertEqual(requests.map(\.url.absoluteString),
+                     [url.absoluteString, "https://other.example/object"])
+      XCTAssertEqual(requests.first?.header("Authorization"), "Firebase token")
+      XCTAssertNil(requests.last?.header("Authorization"))
+    }
+
+    func testDefaultUploadSendsTheBodyAndReportsProgressOnce() async throws {
+      let transport = WholeResponseTransport(body: Data())
+      let progress = ProgressRecorder()
+
+      _ = try await transport.upload(URLRequest(url: url), from: .data(body),
+                                     policy: HTTPRequestPolicy(),
+                                     progress: { progress.record($0) })
+
+      XCTAssertEqual(transport.requests.map(\.httpBody), [body])
+      XCTAssertEqual(progress.values, [completeProgress])
+    }
+
+    func testDefaultUploadFromAFileSendsItsContents() async throws {
+      let transport = WholeResponseTransport(body: Data())
+      let fileURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("HTTPTransferTests-\(UUID().uuidString)")
+      try body.write(to: fileURL)
+      defer { try? FileManager.default.removeItem(at: fileURL) }
+
+      _ = try await transport.upload(URLRequest(url: url), from: .file(fileURL),
+                                     policy: HTTPRequestPolicy(), progress: { _ in })
+
+      XCTAssertEqual(transport.requests.map(\.httpBody), [body])
+    }
+
+    // MARK: - Background session
+
+    func testOnlyUploadsFromFilesWithoutCredentialsUseTheBackgroundSession() {
+      let fileURL = URL(fileURLWithPath: "/tmp/upload")
+      let background = HTTPRequestPolicy(usesBackgroundSession: true)
+      let request = URLRequest(url: url)
+      func usesBackgroundSession(_ request: URLRequest, _ body: HTTPUploadBody,
+                                 _ policy: HTTPRequestPolicy) -> Bool {
+        URLSessionTransport.usesBackgroundSession(for: request, body: body, policy: policy)
+      }
+
+      XCTAssertTrue(usesBackgroundSession(request, .file(fileURL), background))
+      XCTAssertFalse(usesBackgroundSession(request, .file(fileURL), HTTPRequestPolicy()))
+      XCTAssertFalse(usesBackgroundSession(request, .data(body), background))
+      for credentialHeader in ["Authorization", "x-firebase-appcheck", "X-Goog-Api-Key"] {
+        var credentialed = request
+        credentialed.setValue("secret", forHTTPHeaderField: credentialHeader)
+        XCTAssertFalse(usesBackgroundSession(credentialed, .file(fileURL), background),
+                       credentialHeader)
+      }
+    }
+
+    func testBackgroundConfigurationRequiresTLS12AndStoresNothing() {
+      let configuration = URLSessionTransport.backgroundConfiguration(identifier: "test")
+
+      XCTAssertEqual(configuration.identifier, "test")
+      XCTAssertEqual(configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+      XCTAssertNil(configuration.httpCookieStorage)
+      XCTAssertFalse(configuration.httpShouldSetCookies)
+      XCTAssertNil(configuration.urlCache)
+    }
+
     // MARK: - FirebaseHTTPClient
+
+    func testClientUploadAddsTheUserAgent() async throws {
+      HTTPWireRecorder.reset(replies: [.http(status: 200)])
+      let client = FirebaseHTTPClient(transport: makeTransport())
+
+      _ = try await client.upload(URLRequest(url: url), from: .data(body), progress: { _ in })
+
+      XCTAssertEqual(try HTTPWireRecorder.singleRequest().header("User-Agent"),
+                     FirebaseUserAgent.standard)
+    }
 
     func testClientDownloadAddsTheUserAgentAndHoldsABackgroundTask() async throws {
       HTTPWireRecorder.reset(replies: [.http(status: 200, body: body)])
@@ -466,6 +624,12 @@ import XCTest
   private final class WholeResponseTransport: HTTPTransport, @unchecked Sendable {
     private let body: Data
     private let error: (any Error)?
+    private let recordedRequests = UnfairLock<[URLRequest]>([])
+
+    /// The requests that the transport got, in order.
+    var requests: [URLRequest] {
+      recordedRequests.value()
+    }
 
     init(body: Data, error: (any Error)? = nil) {
       self.body = body
@@ -474,6 +638,7 @@ import XCTest
 
     func data(for request: URLRequest,
               policy: HTTPRequestPolicy) async throws -> (Data, HTTPURLResponse) {
+      recordedRequests.withLock { $0.append(request) }
       if let error {
         throw error
       }

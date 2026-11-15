@@ -94,6 +94,26 @@ public final class FirebaseHTTPClient: Sendable {
     }
   }
 
+  /// Sends `request` with `body`, calls `progress` on an arbitrary queue as the body is sent, and
+  /// returns the response body and the response, whatever the status code.
+  ///
+  /// The request gets the same `User-Agent` and the same `policy` checks as in
+  /// `data(for:policy:)`. Uploads from files run on a background session when `policy` asks for
+  /// one and the request has no credential headers.
+  ///
+  /// - Throws: A `URLError` for transport failures and for requests that `policy` doesn't allow,
+  ///   or `CancellationError` if the calling task is cancelled.
+  public func upload(_ request: URLRequest,
+                     from body: HTTPUploadBody,
+                     policy: HTTPRequestPolicy = HTTPRequestPolicy(),
+                     progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse) {
+    let request = try prepared(request, policy: policy)
+    return try await holdingBackgroundTask(if: policy.holdsBackgroundTask) {
+      try await transport.upload(request, from: body, policy: policy, progress: progress)
+    }
+  }
+
   /// Runs `operation` while holding a background task, if `holdsBackgroundTask` is true and the
   /// platform has background tasks.
   private func holdingBackgroundTask<Result>(if holdsBackgroundTask: Bool,
