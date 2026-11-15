@@ -243,7 +243,8 @@ class StorageTransferSoakTests: StorageIntegrationCommon {
   private static func randomData(count: Int) -> Data {
     var data = Data(count: count)
     let status = data.withUnsafeMutableBytes { buffer in
-      SecRandomCopyBytes(kSecRandomDefault, count, buffer.baseAddress!)
+      guard let baseAddress = buffer.baseAddress else { return errSecSuccess }
+      return SecRandomCopyBytes(kSecRandomDefault, count, baseAddress)
     }
     precondition(status == errSecSuccess, "SecRandomCopyBytes failed with \(status)")
     return data
