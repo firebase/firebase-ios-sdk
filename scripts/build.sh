@@ -753,6 +753,29 @@ case "$product-$platform-$method" in
       fi
     ;;
 
+  StorageSwiftEmulator-*-xcodebuild)
+    # The Swift integration tests against the Storage and Auth emulators that
+    # FirebaseStorage/Tests/Integration/Emulator/start.sh starts. They need no
+    # secrets, but GoogleService-Info.plist and Credentials.swift must exist, as
+    # sdk.storage.yml sets them up.
+    pod_gen FirebaseStorage.podspec --platforms=ios
+
+    # Add GoogleService-Info.plist to generated Test Wrapper App.
+    ruby ./scripts/update_xcode_target.rb gen/FirebaseStorage/Pods/Pods.xcodeproj \
+      AppHost-FirebaseStorage-Unit-Tests \
+      ../../../FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+
+    # xcodebuild passes TEST_RUNNER_ variables to the tests without the prefix.
+    TEST_RUNNER_FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
+    TEST_RUNNER_FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
+      RunXcodebuild \
+        -workspace 'gen/FirebaseStorage/FirebaseStorage.xcworkspace' \
+        -scheme "FirebaseStorage-Unit-integration" \
+        "${ios_flags[@]}" \
+        "${xcb_flags[@]}" \
+        test
+    ;;
+
   StorageCombine-*-xcodebuild)
     pod_gen FirebaseCombineSwift.podspec --platforms=ios
 

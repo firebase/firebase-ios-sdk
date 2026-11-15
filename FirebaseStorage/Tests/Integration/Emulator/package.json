@@ -1,0 +1,8 @@
+{
+  "name": "storage-emulator",
+  "description": "Runs the Storage and Auth emulators for the FirebaseStorage integration tests",
+  "private": true,
+  "devDependencies": {
+    "firebase-tools": "^15.26.0"
+  }
+}

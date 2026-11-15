@@ -26,16 +26,17 @@ class StorageIntegrationCommon: XCTestCase {
   static var signedIn = false
 
   /// The Storage emulator to run the tests against instead of the production backend, from the
-  /// `FIREBASE_STORAGE_EMULATOR_HOST` environment variable that `firebase emulators:exec` sets.
-  /// With `FIREBASE_AUTH_EMULATOR_HOST`, the tests sign in with the Auth emulator. xcodebuild
-  /// passes variables to the tests without their `TEST_RUNNER_` prefix:
+  /// `FIREBASE_STORAGE_EMULATOR_HOST` environment variable. With `FIREBASE_AUTH_EMULATOR_HOST`,
+  /// the tests sign in with the Auth emulator. `Emulator/start.sh` starts both emulators with the
+  /// rules that the tests need, and xcodebuild passes variables to the tests without their
+  /// `TEST_RUNNER_` prefix:
   ///
-  ///     firebase emulators:exec --only auth,storage --project demo-storage-tests \
-  ///       'TEST_RUNNER_FIREBASE_STORAGE_EMULATOR_HOST=$FIREBASE_STORAGE_EMULATOR_HOST \
-  ///        TEST_RUNNER_FIREBASE_AUTH_EMULATOR_HOST=$FIREBASE_AUTH_EMULATOR_HOST \
-  ///        xcodebuild test ...'
+  ///     TEST_RUNNER_FIREBASE_STORAGE_EMULATOR_HOST=127.0.0.1:9199 \
+  ///     TEST_RUNNER_FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099 \
+  ///     xcodebuild test ...
   ///
-  /// The emulator needs the rules in StorageIntegration.swift.
+  /// The `storage-emulator-integration-tests` job of sdk.storage.yml runs the tests this way,
+  /// with the fake configuration in `Emulator/GoogleService-Info.plist`.
   static let storageEmulator = emulator(fromVariable: "FIREBASE_STORAGE_EMULATOR_HOST")
   static let authEmulator = emulator(fromVariable: "FIREBASE_AUTH_EMULATOR_HOST")
 
