@@ -14,17 +14,13 @@
 
 import Foundation
 
+internal import FirebaseCoreInternal
+
 #if COCOAPODS
   internal import GoogleUtilities
 #else
   internal import GoogleUtilities_Environment
 #endif // COCOAPODS
-
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 
 /**
  * `StorageUploadTask` implements resumable uploads to a file in Firebase Storage.
@@ -45,7 +41,7 @@ import Foundation
    */
   @objc open func enqueue() {
     let generation = stateLock.withLock { () -> UInt64? in
-      guard state == .unknown, uploadFetcher == nil else { return nil }
+      guard state == .unknown, transfer == nil else { return nil }
       enqueueGeneration &+= 1
       return enqueueGeneration
     }
@@ -82,114 +78,10 @@ import Foundation
         return
       }
 
-      let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
-      let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
-
+      let upload = self.makeUpload()
       Task {
-        let fetcherService = await StorageFetcherService.shared.service(reference.storage)
-        guard stateLock.withLock({ generation == enqueueGeneration }) else {
-          notifySetupDiscardedForTesting()
-          return
-        }
-        var request = self.baseRequest
-        request.httpMethod = "POST"
-        request.timeoutInterval = self.reference.storage.maxUploadRetryTime
-        request.httpBody = bodyData
-        request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
-        if let count = bodyData?.count {
-          request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
-        }
-
-        var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
-        if components?.host == "www.googleapis.com",
-           let path = components?.path {
-          components?.percentEncodedPath = "/upload\(path)"
-        }
-        guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
-          fatalError("Internal error enqueueing a Storage task")
-        }
-        components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
-
-        request.url = components?.url
-
-        guard let contentType = self.uploadMetadata.contentType else {
-          fatalError("Internal error enqueueing a Storage task")
-        }
-
-        let uploadFetcher = GTMSessionUploadFetcher(
-          request: request,
-          uploadMIMEType: contentType,
-          chunkSize: self.reference.storage.uploadChunkSizeBytes,
-          fetcherService: fetcherService
-        )
-        if let uploadData {
-          uploadFetcher.uploadData = uploadData
-          uploadFetcher.comment = "Data UploadTask"
-        } else if let fileURL {
-          uploadFetcher.uploadFileURL = fileURL
-          uploadFetcher.comment = "File UploadTask"
-
-          #if targetEnvironment(simulator)
-            uploadFetcher.useBackgroundSession = false
-          #else
-            if !GULAppEnvironmentUtil.supportsBackgroundURLSessionUploads() {
-              uploadFetcher.useBackgroundSession = false
-            }
-          #endif
-        }
-        uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
-
-        uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
-                                                         totalBytesExpectedToSend: Int64) in
-            guard let self = self else { return }
-            var snapshotToFire: StorageTaskSnapshot?
-            self.stateLock.withLock {
-              guard generation == self.enqueueGeneration else { return }
-              guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
-                self.state == .running || self.state == .progress else {
-                return
-              }
-              self.state = .progress
-              self.progress.completedUnitCount = totalBytesSent
-              self.progress.totalUnitCount = totalBytesExpectedToSend
-              self.metadata = self.uploadMetadata
-              snapshotToFire = self.snapshotUnderLock()
-            }
-            if let snapshotToFire {
-              self.fire(for: .progress, snapshot: snapshotToFire)
-            }
-
-            self.stateLock.withLock {
-              guard generation == self.enqueueGeneration else { return }
-              guard self.state == .unknown || self.state == .queueing || self.state == .resuming ||
-                self.state == .running || self.state == .progress else {
-                return
-              }
-              self.state = .running
-            }
-        }
-        // Process fetches
-        var isPaused = false
-        let shouldContinue = self.stateLock.withLock { () -> Bool in
-          guard generation == self.enqueueGeneration else { return false }
-          if self.state == .cancelled || self.state == .pausing || self.state == .paused {
-            isPaused = self.state == .paused || self.state == .pausing
-            return false
-          }
-          self.uploadFetcher = uploadFetcher
-          self.state = .running
-          return true
-        }
-        if !shouldContinue {
-          notifySetupDiscardedForTesting()
-          if isPaused {
-            uploadFetcher.pauseFetching()
-          } else {
-            uploadFetcher.stopFetching()
-          }
-          return
-        }
-        self.startFetch(with: uploadFetcher, generation: generation)
+        await StorageHTTPService.shared.waitForSetup()
+        self.startTransfer(of: upload, generation: generation)
       }
     }
   }
@@ -198,20 +90,22 @@ import Foundation
    * Pauses a task currently in progress.
    */
   @objc open func pause() {
-    var fetcherToPause: GTMSessionUploadFetcher?
+    var transferToStop: Task<Void, Never>?
     var pauseSnapshot: StorageTaskSnapshot?
     stateLock.withLock {
       guard state == .unknown || state == .queueing || state == .resuming || state == .running ||
         state == .progress else {
         return
       }
+      // The upload session stays open, so a resumed upload continues from the bytes that the
+      // server has received.
       state = .paused
       metadata = uploadMetadata
-      fetcherToPause = uploadFetcher
+      transferToStop = transfer?.task
       pauseSnapshot = snapshotUnderLock()
     }
     if let pauseSnapshot {
-      fetcherToPause?.pauseFetching()
+      transferToStop?.cancel()
       fire(for: .pause, snapshot: pauseSnapshot)
     }
   }
@@ -220,7 +114,8 @@ import Foundation
    * Cancels a task.
    */
   @objc open func cancel() {
-    var fetcherToStop: GTMSessionUploadFetcher?
+    var transferToStop: Task<Void, Never>?
+    var sessionToCancel: StorageResumableUpload.Session?
     var failureSnapshot: StorageTaskSnapshot?
     stateLock.withLock {
       if state == .cancelled || state == .success || state == .failed {
@@ -229,11 +124,16 @@ import Foundation
       state = .cancelled
       metadata = uploadMetadata
       error = StorageError.cancelled as NSError
-      fetcherToStop = uploadFetcher
+      transferToStop = transfer?.task
+      sessionToCancel = uploadSession
+      uploadSession = nil
       failureSnapshot = snapshotUnderLock()
     }
     if let failureSnapshot {
-      fetcherToStop?.stopFetching()
+      transferToStop?.cancel()
+      if let sessionToCancel {
+        cancelOnServer(sessionToCancel)
+      }
       fire(for: .failure, snapshot: failureSnapshot)
       removeAllObservers()
     }
@@ -243,8 +143,6 @@ import Foundation
    * Resumes a paused task.
    */
   @objc open func resume() {
-    var fetcherToResume: GTMSessionUploadFetcher?
-    var shouldReenqueue = false
     var generation: UInt64 = 0
     var resumeSnapshot: StorageTaskSnapshot?
     let shouldResume = stateLock.withLock { () -> Bool in
@@ -253,13 +151,9 @@ import Foundation
       }
       state = .resuming
       metadata = uploadMetadata
-      if uploadFetcher == nil {
-        shouldReenqueue = true
-        enqueueGeneration &+= 1
-        generation = enqueueGeneration
-      } else {
-        fetcherToResume = uploadFetcher
-      }
+      // A new generation ignores late callbacks of the stopped transfer.
+      enqueueGeneration &+= 1
+      generation = enqueueGeneration
       resumeSnapshot = snapshotUnderLock()
       return true
     }
@@ -270,26 +164,26 @@ import Foundation
     }
 
     let shouldProceed = stateLock.withLock { () -> Bool in
-      if shouldReenqueue, generation != enqueueGeneration { return false }
+      guard generation == enqueueGeneration else { return false }
       if state == .cancelled || state == .paused || state == .pausing { return false }
       state = .running
       return true
     }
 
     if shouldProceed {
-      if shouldReenqueue {
-        enqueueImplementation(generation: generation)
-      } else {
-        fetcherToResume?.resumeFetching()
-      }
+      enqueueImplementation(generation: generation)
     }
   }
 
-  private var uploadFetcher: GTMSessionUploadFetcher?
+  /// The task that runs the upload, and the enqueue generation that started it.
+  private var transfer: (task: Task<Void, Never>, generation: UInt64)?
   private var enqueueGeneration: UInt64 = 0
-  var hasFetcherForTesting: Bool {
-    stateLock.withLock { uploadFetcher != nil }
+  var hasTransferForTesting: Bool {
+    stateLock.withLock { transfer != nil }
   }
+
+  /// The open upload session, which a resumed upload continues.
+  private var uploadSession: StorageResumableUpload.Session?
 
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
@@ -313,7 +207,14 @@ import Foundation
   }
 
   deinit {
-    self.uploadFetcher?.stopFetching()
+    self.transfer?.task.cancel()
+    // A paused upload that is released can't be resumed, so close its session.
+    if let uploadSession {
+      let storage = reference.storage
+      Task {
+        await StorageResumableUpload.cancel(uploadSession, storage: storage)
+      }
+    }
   }
 
   private func contentUploadError() -> NSError? {
@@ -336,17 +237,173 @@ import Foundation
     removeAllObservers()
   }
 
-  /// Starts `uploadFetcher` with a completion handler rather than
-  /// `try await uploadFetcher.beginFetch()`. Stopping the fetcher in `cancel()` releases the
-  /// completion handler without calling it, which would leave an awaiting task suspended forever,
-  /// retaining this task and the data being uploaded.
-  private func startFetch(with uploadFetcher: GTMSessionUploadFetcher, generation: UInt64) {
-    uploadFetcher.beginFetch { data, error in
-      if let error {
-        self.fetchDidFail(with: error, generation: generation)
-      } else {
-        self.fetchDidSucceed(with: data ?? Data(), generation: generation)
+  /// Returns the upload of the task's data or file, with the request that opens its session.
+  private func makeUpload() -> StorageResumableUpload {
+    let storage = reference.storage
+    let dataRepresentation = uploadMetadata.dictionaryRepresentation()
+    let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
+
+    var request = baseRequest
+    request.httpMethod = "POST"
+    request.timeoutInterval = storage.maxUploadRetryTime
+    request.httpBody = bodyData
+    request.setValue("application/json; charset=UTF-8", forHTTPHeaderField: "Content-Type")
+    if let count = bodyData?.count {
+      request.setValue("\(count)", forHTTPHeaderField: "Content-Length")
+    }
+
+    var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
+    if components?.host == "www.googleapis.com",
+       let path = components?.path {
+      components?.percentEncodedPath = "/upload\(path)"
+    }
+    guard let path = GCSEscapedString(uploadMetadata.path) else {
+      fatalError("Internal error enqueueing a Storage task")
+    }
+    components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
+
+    request.url = components?.url
+
+    guard let contentType = uploadMetadata.contentType else {
+      fatalError("Internal error enqueueing a Storage task")
+    }
+
+    let source: StorageResumableUpload.Source
+    let length: Int64
+    var usesBackgroundSession = false
+    if let uploadData {
+      source = .data(uploadData)
+      length = Int64(uploadData.count)
+    } else if let fileURL {
+      source = .file(fileURL)
+      let fileSize = (try? fileURL.resourceValues(forKeys: [.fileSizeKey]))?.fileSize
+      length = Int64(fileSize ?? 0)
+      // File uploads continue while the app is suspended where background sessions support
+      // uploads. Simulators don't use them.
+      #if !targetEnvironment(simulator)
+        usesBackgroundSession = GULAppEnvironmentUtil.supportsBackgroundURLSessionUploads()
+      #endif
+    } else {
+      fatalError("Internal error enqueueing a Storage task")
+    }
+
+    return StorageResumableUpload(
+      startRequest: request,
+      source: source,
+      length: length,
+      contentType: contentType,
+      chunkSize: storage.uploadChunkSizeBytes,
+      storage: storage,
+      usesBackgroundSession: usesBackgroundSession
+    )
+  }
+
+  /// Starts the transfer of `upload`, unless the task was paused, cancelled, or enqueued again
+  /// since `generation` began.
+  private func startTransfer(of upload: StorageResumableUpload, generation: UInt64) {
+    let shouldContinue = stateLock.withLock { () -> Bool in
+      guard generation == enqueueGeneration else { return false }
+      if state == .cancelled || state == .pausing || state == .paused {
+        return false
       }
+      let session = uploadSession
+      let task = Task {
+        await self.run(upload, resuming: session, generation: generation)
+      }
+      transfer = (task, generation)
+      state = .running
+      return true
+    }
+    if !shouldContinue {
+      notifySetupDiscardedForTesting()
+    }
+  }
+
+  /// Uploads the data or file, and reports the outcome.
+  private func run(_ upload: StorageResumableUpload,
+                   resuming session: StorageResumableUpload.Session?,
+                   generation: UInt64) async {
+    do {
+      let data = try await upload.run(
+        resuming: session,
+        didOpenSession: { session in
+          self.sessionDidOpen(session, generation: generation)
+        },
+        progress: { [weak self] progress in
+          self?.transferDidProgress(progress, generation: generation)
+        }
+      )
+      fetchDidSucceed(with: data, generation: generation)
+    } catch is CancellationError {
+      transferDidStop(generation: generation)
+    } catch {
+      fetchDidFail(with: error, generation: generation)
+    }
+  }
+
+  /// Keeps the session that the transfer of `generation` opened, so a resumed upload continues
+  /// it.
+  private func sessionDidOpen(_ session: StorageResumableUpload.Session, generation: UInt64) {
+    let isCurrent = stateLock.withLock { () -> Bool in
+      guard generation == enqueueGeneration, state != .cancelled else { return false }
+      uploadSession = session
+      return true
+    }
+    if !isCurrent {
+      // The task was cancelled, or resumed with a new session, while this one opened.
+      cancelOnServer(session)
+    }
+  }
+
+  /// Sends the `cancel` command for `session` without waiting for the response.
+  private func cancelOnServer(_ session: StorageResumableUpload.Session) {
+    let storage = reference.storage
+    Task {
+      await StorageResumableUpload.cancel(session, storage: storage)
+    }
+  }
+
+  private func transferDidProgress(_ transferProgress: HTTPTransferProgress, generation: UInt64) {
+    var snapshotToFire: StorageTaskSnapshot?
+    stateLock.withLock {
+      guard generation == enqueueGeneration else { return }
+      guard state == .unknown || state == .queueing || state == .resuming ||
+        state == .running || state == .progress else {
+        return
+      }
+      state = .progress
+      progress.completedUnitCount = transferProgress.completedBytes
+      progress.totalUnitCount = transferProgress.expectedBytes
+      metadata = uploadMetadata
+      snapshotToFire = snapshotUnderLock()
+    }
+    if let snapshotToFire {
+      fire(for: .progress, snapshot: snapshotToFire)
+    }
+
+    stateLock.withLock {
+      guard generation == enqueueGeneration else { return }
+      guard state == .unknown || state == .queueing || state == .resuming ||
+        state == .running || state == .progress else {
+        return
+      }
+      state = .running
+    }
+  }
+
+  /// Clears `transfer` if it's the transfer that `generation` started. Must be called with
+  /// `stateLock` held.
+  private func clearTransferUnderLock(generation: UInt64) {
+    if transfer?.generation == generation {
+      transfer = nil
+    }
+  }
+
+  /// Clears the transfer after a pause or cancellation stopped it. `pause()` and `cancel()`
+  /// already reported the change.
+  private func transferDidStop(generation: UInt64) {
+    stateLock.withLock {
+      clearTransferUnderLock(generation: generation)
     }
   }
 
@@ -356,7 +413,10 @@ import Foundation
     var failureSnapshot: StorageTaskSnapshot?
 
     stateLock.withLock {
+      clearTransferUnderLock(generation: generation)
       guard generation == enqueueGeneration else { return }
+      // The upload is finished, so there's no session to continue or cancel.
+      uploadSession = nil
       if state == .cancelled { return }
 
       state = .progress
@@ -389,10 +449,16 @@ import Foundation
   private func fetchDidFail(with error: Error, generation: UInt64) {
     var progressSnapshot: StorageTaskSnapshot?
     var failureSnapshot: StorageTaskSnapshot?
+    var sessionToCancel: StorageResumableUpload.Session?
 
     stateLock.withLock {
+      clearTransferUnderLock(generation: generation)
       guard generation == enqueueGeneration else { return }
       if state == .cancelled || state == .paused || state == .pausing { return }
+
+      // The upload can't continue, so close its session.
+      sessionToCancel = uploadSession
+      uploadSession = nil
 
       state = .progress
       progressSnapshot = snapshotUnderLock()
@@ -403,6 +469,9 @@ import Foundation
       failureSnapshot = snapshotUnderLock()
     }
 
+    if let sessionToCancel {
+      cancelOnServer(sessionToCancel)
+    }
     if let progressSnapshot {
       fire(for: .progress, snapshot: progressSnapshot)
     }

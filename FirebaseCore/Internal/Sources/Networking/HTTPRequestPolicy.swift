@@ -34,13 +34,22 @@ public struct HTTPRequestPolicy: Sendable {
   /// redirect to a different origin. Credential headers are removed for every other origin.
   public var trustedRedirectHosts: Set<String>
 
+  /// Whether an upload from a file runs on a background `URLSession`, which the system continues
+  /// while the app is suspended.
+  ///
+  /// Background sessions follow redirects without asking, so uploads with credential headers
+  /// never use one. Transports without a background session ignore this.
+  public var usesBackgroundSession: Bool
+
   public init(allowsInsecureHTTP: Bool = false,
               allowsLoopbackHTTP: Bool = false,
               holdsBackgroundTask: Bool = true,
-              trustedRedirectHosts: Set<String> = HTTPRequestPolicy.defaultTrustedRedirectHosts) {
+              trustedRedirectHosts: Set<String> = HTTPRequestPolicy.defaultTrustedRedirectHosts,
+              usesBackgroundSession: Bool = false) {
     self.allowsInsecureHTTP = allowsInsecureHTTP
     self.allowsLoopbackHTTP = allowsLoopbackHTTP
     self.holdsBackgroundTask = holdsBackgroundTask
     self.trustedRedirectHosts = trustedRedirectHosts
+    self.usesBackgroundSession = usesBackgroundSession
   }
 }

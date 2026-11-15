@@ -15,11 +15,6 @@
 import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 import XCTest
 
 class StorageTaskEnqueueTests: StorageTestHelpers {
@@ -101,35 +96,22 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
     let firstCallEntered = expectation(description: "Initial upload setup enters service")
     let serviceGate = FirstCallServiceGate(firstCallEntered: firstCallEntered)
     let discardedSetup = expectation(description: "Initial upload setup discarded")
-    let requestCount = FetcherRequestCounter()
-    let requestStarted = expectation(description: "Resumed upload starts one request")
-    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
-      if requestCount.increment() == 1 {
-        requestStarted.fulfill()
+    let uploadCount = FetcherRequestCounter()
+    let uploadStarted = expectation(description: "Resumed upload opens one upload session")
+    let transport = StorageTestTransport { request in
+      if request.value(forHTTPHeaderField: "X-Goog-Upload-Command") == "start",
+         uploadCount.increment() == 1 {
+        uploadStarted.fulfill()
       }
-      guard let responseURL = fetcher.request?.url else {
-        XCTFail("Fetcher request should have a URL")
-        return
-      }
-      response(
-        HTTPURLResponse(
-          url: responseURL,
-          statusCode: 200,
-          httpVersion: "HTTP/1.1",
-          headerFields: nil
-        ),
-        Data("{}".utf8),
-        nil
-      )
+      return try StorageTestHelpers.uploadResponse(to: request, finalBody: Data("{}".utf8))
     }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
-    await StorageFetcherService.shared.updateServiceWaiterForTesting {
+    await StorageHTTPService.shared.updateTestTransport(transport)
+    await StorageHTTPService.shared.updateSetupWaiterForTesting {
       await serviceGate.waitForFirstCall()
     }
     addTeardownBlock {
       await serviceGate.releaseFirstCall()
-      await StorageFetcherService.shared.updateTestBlock(nil)
-      await StorageFetcherService.shared.updateServiceWaiterForTesting(nil)
+      await StorageHTTPService.shared.updateSetupWaiterForTesting(nil)
     }
 
     let task = rootReference().child("object").putData(Data("upload".utf8))
@@ -140,12 +122,11 @@ class StorageTaskEnqueueTests: StorageTestHelpers {
 
     if pauseFirst { task.pause() }
     task.resume()
-    await fulfillment(of: [requestStarted], timeout: 10)
-    XCTAssertTrue(task.hasFetcherForTesting)
+    await fulfillment(of: [uploadStarted], timeout: 10)
 
     await serviceGate.releaseFirstCall()
     await fulfillment(of: [discardedSetup], timeout: 10)
-    XCTAssertEqual(requestCount.value, 1)
+    XCTAssertEqual(uploadCount.value, 1)
   }
 
   func testDownloadResumeDiscardsEarlierSetup() async throws {

@@ -80,11 +80,7 @@ internal import FirebaseCoreExtension
 
   /// The maximum time in seconds to retry an upload if a failure occurs.
   /// Defaults to 10 minutes (600 seconds).
-  @objc public var maxUploadRetryTime: TimeInterval {
-    didSet {
-      maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
-    }
-  }
+  @objc public var maxUploadRetryTime: TimeInterval
 
   /// The maximum time in seconds to retry a download if a failure occurs.
   /// Defaults to 10 minutes (600 seconds).
@@ -93,11 +89,7 @@ internal import FirebaseCoreExtension
   /// The maximum time in seconds to retry operations other than upload and download if a failure
   /// occurs.
   /// Defaults to 2 minutes (120 seconds).
-  @objc public var maxOperationRetryTime: TimeInterval {
-    didSet {
-      maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
-    }
-  }
+  @objc public var maxOperationRetryTime: TimeInterval
 
   /// Specify the maximum upload chunk size. Values less than 256K (262144) will be rounded up to
   /// 256K. Values
@@ -298,9 +290,7 @@ internal import FirebaseCoreExtension
     dispatchQueue = DispatchQueue(label: "com.google.firebase.storage")
     maxDownloadRetryTime = 600.0
     maxOperationRetryTime = 120.0
-    maxOperationRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxOperationRetryTime)
     maxUploadRetryTime = 600.0
-    maxUploadRetryInterval = Storage.computeRetryInterval(fromRetryTime: maxUploadRetryTime)
   }
 
   let auth: AuthInterop?
@@ -314,20 +304,14 @@ internal import FirebaseCoreExtension
   var host: String
   var scheme: String
   var port: Int
-  var maxOperationRetryInterval: TimeInterval
-  var maxUploadRetryInterval: TimeInterval
 
-  /// Performs a crude translation of the user provided timeouts to the retry intervals that
-  /// GTMSessionFetcher accepts. GTMSessionFetcher times out operations if the time between
-  /// individual retry attempts exceed a certain threshold, while our API contract looks at the
-  /// total
-  /// observed time of the operation (i.e. the sum of all retries).
+  /// Returns the longest wait between two retries for a retry time limit of `retryTime` seconds.
+  ///
+  /// Retries wait about 1 second at first, and then twice as long each time. The longest wait is
+  /// the first one at which the sum of the waits reaches `retryTime`.
   /// @param retryTime A timeout that caps the sum of all retry attempts
   /// @return A timeout that caps the timeout of the last retry attempt
   static func computeRetryInterval(fromRetryTime retryTime: TimeInterval) -> TimeInterval {
-    // GTMSessionFetcher's retry starts at 1 second and then doubles every time. We use this
-    // information to compute a best-effort estimate of what to translate the user provided retry
-    // time into.
     // Note that this is the same as 2 << (log2(retryTime) - 1), but deemed more readable.
     var lastInterval = 1.0
     var sumOfAllIntervals = 1.0

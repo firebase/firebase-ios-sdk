@@ -16,8 +16,9 @@ import Foundation
 
 internal import FirebaseCoreInternal
 
-/// Sends the Storage requests other than uploads: getting and updating metadata, listing,
-/// deleting, getting download URLs, and downloads.
+/// Sends the authorized Storage requests: getting and updating metadata, listing, deleting,
+/// getting download URLs, downloads, and the request that opens a resumable upload session.
+/// `StorageResumableUpload` sends the rest of an upload's requests, which carry no credentials.
 ///
 /// Every attempt of a request gets fresh tokens from `StorageTokenAuthorizer`. Failures that are
 /// likely to be temporary are retried with exponential backoff until the retry time limit has
@@ -61,9 +62,17 @@ actor StorageHTTPService {
     await setupWaiter?()
   }
 
-  private func configuration()
-    -> (client: FirebaseHTTPClient, initialRetryInterval: TimeInterval?) {
+  /// The client that sends requests, and the wait before the first retry that tests set, if any.
+  func configuration() -> (client: FirebaseHTTPClient, initialRetryInterval: TimeInterval?) {
     (client, initialRetryInterval)
+  }
+
+  /// Returns the policy for the requests of `storage`. Storage has always allowed HTTP requests
+  /// to loopback addresses, and to any host when it uses the emulator.
+  static func policy(for storage: Storage,
+                     usesBackgroundSession: Bool = false) -> HTTPRequestPolicy {
+    HTTPRequestPolicy(allowsInsecureHTTP: storage.usesEmulator, allowsLoopbackHTTP: true,
+                      usesBackgroundSession: usesBackgroundSession)
   }
 
   /// Sends `request` for `storage` and returns the response body.
@@ -94,6 +103,19 @@ actor StorageHTTPService {
       }
       try Self.checkStatus(of: response, body: body)
       return body
+    }
+  }
+
+  /// Sends `request` like `data(for:storage:maxRetryTime:progress:)`, and also returns the
+  /// response, for its headers.
+  nonisolated func dataAndResponse(for request: URLRequest, storage: Storage,
+                                   maxRetryTime: TimeInterval) async throws
+    -> (Data, HTTPURLResponse) {
+    try await send(request, storage: storage, maxRetryTime: maxRetryTime) {
+      authorizedRequest, client, policy in
+      let (body, response) = try await client.data(for: authorizedRequest, policy: policy)
+      try Self.checkStatus(of: response, body: body)
+      return (body, response)
     }
   }
 
@@ -154,10 +176,7 @@ actor StorageHTTPService {
     async throws -> Value {
     let configuration = await configuration()
     let authorizer = StorageTokenAuthorizer(storage: storage)
-    // Storage has always allowed HTTP requests to loopback addresses, and to any host when it uses
-    // the emulator.
-    let policy = HTTPRequestPolicy(allowsInsecureHTTP: storage.usesEmulator,
-                                   allowsLoopbackHTTP: true)
+    let policy = Self.policy(for: storage)
     var backoff = RetryBackoff(
       maxRetryTime: maxRetryTime,
       maxInterval: Storage.computeRetryInterval(fromRetryTime: maxRetryTime),
@@ -232,7 +251,7 @@ actor StorageHTTPService {
 
   /// Returns `error` with the number of retries and the time they took in its `userInfo`, if
   /// `backoff` allowed any retries.
-  private static func error(_ error: NSError, after backoff: RetryBackoff) -> NSError {
+  static func error(_ error: NSError, after backoff: RetryBackoff) -> NSError {
     guard backoff.retryCount > 0 else {
       return error
     }

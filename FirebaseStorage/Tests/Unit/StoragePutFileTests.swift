@@ -12,30 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 import XCTest
 
 class StoragePutFileTests: StorageTestHelpers {
-  func testPutFileWithPOSIXError40UpdatesExistingFetcherService() async throws {
-    // Initialize storage *before* setting the testBlock to verify that
-    // `StorageFetcherService.updateTestBlock` correctly updates pre-existing instances.
+  func testPutFileWithPOSIXError40() async throws {
+    // Create the Storage instance before installing the transport, so the transport applies to
+    // instances that already exist.
     let storageInstance = storage()
     let ref = storageInstance.reference(withPath: "ios/public/testPOSIX40")
 
-    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
-      let error = NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
-      response(nil, nil, error)
-    }
-    await StorageFetcherService.shared.updateTestBlock(testBlock)
-    addTeardownBlock {
-      await StorageFetcherService.shared.updateTestBlock(nil)
-    }
+    await StorageHTTPService.shared.updateTestTransport(StorageTestTransport { _ in
+      throw NSError(domain: NSPOSIXErrorDomain, code: 40, userInfo: nil)
+    })
 
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     let sanitizedTestName = #function.replacingOccurrences(of: "()", with: "")

@@ -15,11 +15,6 @@
 import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 import XCTest
 
 class StorageAsyncAwaitTests: StorageTestHelpers {
@@ -27,7 +22,7 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testDataThrowsCancelledWhenTaskIsCancelled() async throws {
     let ref = storage().reference(withPath: "object")
-    await assertCancelledDuringDownload {
+    await assertCancelledDuringRequest {
       _ = try await ref.data(maxSize: 1024)
     }
   }
@@ -74,7 +69,7 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
   func testWriteAsyncThrowsCancelledWhenTaskIsCancelled() async throws {
     let ref = storage().reference(withPath: "object")
     let fileURL = try temporaryFileURL()
-    await assertCancelledDuringDownload {
+    await assertCancelledDuringRequest {
       _ = try await ref.writeAsync(toFile: fileURL) { _ in }
     }
   }
@@ -91,7 +86,8 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testPutDataAsyncWithProgressReturnsMetadata() async throws {
     let metadata = StorageMetadata(dictionary: ["name": "object", "contentType": "text/plain"])
-    await StorageFetcherService.shared.updateTestBlock(successBlock(withMetadata: metadata))
+    await StorageHTTPService.shared
+      .updateTestTransport(uploadSuccessTransport(withMetadata: metadata))
     let ref = storage().reference(withPath: "object")
     let data = try XCTUnwrap("Hello".data(using: .utf8))
     var progressCount = 0
@@ -103,7 +99,8 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   func testPutFileAsyncWithProgressReturnsMetadata() async throws {
     let metadata = StorageMetadata(dictionary: ["name": "object", "contentType": "text/plain"])
-    await StorageFetcherService.shared.updateTestBlock(successBlock(withMetadata: metadata))
+    await StorageHTTPService.shared
+      .updateTestTransport(uploadSuccessTransport(withMetadata: metadata))
     let ref = storage().reference(withPath: "object")
     let fileURL = try temporaryFileURL()
     try XCTUnwrap("Hello".data(using: .utf8)).write(to: fileURL)
@@ -128,36 +125,12 @@ class StorageAsyncAwaitTests: StorageTestHelpers {
 
   // MARK: - Helpers
 
-  /// Runs `operation` in a new task with a test block that never responds, cancels the task once
+  /// Runs `operation` in a new task with a transport that never responds, cancels the task once
   /// the request has started, and checks that `operation` throws `StorageError.cancelled` and
   /// that the request was stopped.
   private func assertCancelledDuringRequest(file: StaticString = #filePath,
                                             line: UInt = #line,
                                             _ operation: @escaping () async throws -> Void)
-    async {
-    let requestStarted = expectation(description: "requestStarted")
-    var requestFetcher: GTMSessionFetcher?
-    await StorageFetcherService.shared.updateTestBlock { fetcher, _ in
-      // Never respond, so that only cancellation can end the request.
-      requestFetcher = fetcher
-      requestStarted.fulfill()
-    }
-    let task = Task {
-      try await operation()
-    }
-    await fulfillment(of: [requestStarted], timeout: 10)
-    task.cancel()
-    await assertThrowsCancelled(task, file: file, line: line)
-    XCTAssertEqual(requestFetcher?.isFetching, false, "The request was not stopped",
-                   file: file, line: line)
-  }
-
-  /// Runs the download in `operation` in a new task with a transport that never responds,
-  /// cancels the task once the request has started, and checks that `operation` throws
-  /// `StorageError.cancelled` and that the request was stopped.
-  private func assertCancelledDuringDownload(file: StaticString = #filePath,
-                                             line: UInt = #line,
-                                             _ operation: @escaping () async throws -> Void)
     async {
     let requestStarted = expectation(description: "requestStarted")
     let requestStopped = expectation(description: "requestStopped")

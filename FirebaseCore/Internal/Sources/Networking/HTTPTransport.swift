@@ -39,16 +39,32 @@ public protocol HTTPTransport: Sendable {
                 policy: HTTPRequestPolicy,
                 progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
     -> (URL, HTTPURLResponse)
+
+  /// Sends `request` with `body`, calls `progress` as the body is sent, and returns the response
+  /// body and the response, whatever the status code.
+  ///
+  /// - Throws: The transport error, usually a `URLError`, or `CancellationError` if the calling
+  ///   task is cancelled.
+  func upload(_ request: URLRequest,
+              from body: HTTPUploadBody,
+              policy: HTTPRequestPolicy,
+              progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse)
 }
 
 /// Sends requests on one ephemeral `URLSession` that requires TLS 1.2 or later.
 ///
-/// Redirects follow `RedirectPolicy`, using the `HTTPRequestPolicy` of each request.
+/// Redirects follow `RedirectPolicy`, using the `HTTPRequestPolicy` of each request. Uploads from
+/// files whose policy asks for it run on a second, background session instead.
 public final class URLSessionTransport: HTTPTransport {
   /// The session. Internal for tests.
   let session: URLSession
 
   private let tasks: SessionTasks
+
+  /// The background session and its delegate, created on first use. Each session needs its own
+  /// delegate, because task identifiers are only unique within a session.
+  private let backgroundSessionTasks = UnfairLock<(session: URLSession, tasks: SessionTasks)?>(nil)
 
   /// The number of registrations that the session delegate holds for tasks in flight. Internal
   /// for tests.
@@ -77,6 +93,56 @@ public final class URLSessionTransport: HTTPTransport {
     // The session keeps its delegate until it's invalidated. Requests in flight keep the
     // transport alive, so none can be using the session at this point.
     session.finishTasksAndInvalidate()
+    backgroundSessionTasks.withLock { $0?.session.finishTasksAndInvalidate() }
+  }
+
+  /// Returns the configuration of a background session. Internal for tests.
+  ///
+  /// It requires TLS 1.2 or later and, like the ephemeral session, stores no cookies or cached
+  /// responses on disk.
+  static func backgroundConfiguration(identifier: String) -> URLSessionConfiguration {
+    let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
+    configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+    configuration.httpCookieStorage = nil
+    configuration.httpShouldSetCookies = false
+    configuration.urlCache = nil
+    return configuration
+  }
+
+  /// Whether an upload of `body` with `request` runs on the background session. Internal for
+  /// tests.
+  ///
+  /// Only uploads from files whose policy asks for it do, and never with credential headers,
+  /// because background sessions follow redirects without asking the delegate.
+  static func usesBackgroundSession(for request: URLRequest, body: HTTPUploadBody,
+                                    policy: HTTPRequestPolicy) -> Bool {
+    guard policy.usesBackgroundSession, case .file = body else {
+      return false
+    }
+    let headerNames = (request.allHTTPHeaderFields ?? [:]).keys
+    return !headerNames.contains { RedirectPolicy.isCredentialHeader($0) }
+  }
+
+  /// Returns the background session and its delegate, creating them on first use. Each
+  /// transport has its own background session, with a new identifier, so tasks that a previous
+  /// launch of the app started are never delivered to it.
+  private func backgroundSession() -> (session: URLSession, tasks: SessionTasks) {
+    backgroundSessionTasks.withLock { backgroundSessionTasks in
+      if let backgroundSessionTasks {
+        return backgroundSessionTasks
+      }
+      let configuration = Self.backgroundConfiguration(
+        identifier: "com.google.firebase.URLSessionTransport.\(UUID().uuidString)"
+      )
+      let tasks = SessionTasks()
+      let delegateQueue = OperationQueue()
+      delegateQueue.name = "com.google.firebase.URLSessionTransport.background"
+      delegateQueue.maxConcurrentOperationCount = 1
+      let session = URLSession(configuration: configuration, delegate: tasks,
+                               delegateQueue: delegateQueue)
+      backgroundSessionTasks = (session, tasks)
+      return (session, tasks)
+    }
   }
 
   public func data(for request: URLRequest,
@@ -171,11 +237,48 @@ public final class URLSessionTransport: HTTPTransport {
     return (fileURL, response)
   }
 
-  /// Runs the task that `makeTask` creates, routing its delegate callbacks to `transfer`.
+  public func upload(_ request: URLRequest,
+                     from body: HTTPUploadBody,
+                     policy: HTTPRequestPolicy,
+                     progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws
+    -> (Data, HTTPURLResponse) {
+    let transfer = TaskTransfer(kind: .upload, progress: progress)
+    let route = Self.usesBackgroundSession(for: request, body: body, policy: policy)
+      ? backgroundSession() : (session: session, tasks: tasks)
+    let (responseBody, response) = try await run(transfer, on: route.session, tasks: route.tasks,
+                                                 request: request, policy: policy) { session in
+      switch body {
+      case let .data(data):
+        return session.uploadTask(with: request, from: data)
+      case let .file(fileURL):
+        return session.uploadTask(with: request, fromFile: fileURL)
+      }
+    }
+    guard case let .data(data) = responseBody else {
+      throw URLError(.badServerResponse)
+    }
+    return (data, response)
+  }
+
+  /// Runs the task that `makeTask` creates on the ephemeral session, routing its delegate
+  /// callbacks to `transfer`.
   ///
   /// - Parameter request: The request the task sends, or `nil` to take it from the task, as for
   ///   a resumed download.
   private func run(_ transfer: TaskTransfer,
+                   request: URLRequest?,
+                   policy: HTTPRequestPolicy,
+                   makeTask: (URLSession) -> URLSessionTask) async throws
+    -> (TaskTransfer.Body, HTTPURLResponse) {
+    try await run(transfer, on: session, tasks: tasks, request: request, policy: policy,
+                  makeTask: makeTask)
+  }
+
+  /// Runs the task that `makeTask` creates on `session`, routing its delegate callbacks to
+  /// `transfer` through `tasks`, the session's delegate.
+  private func run(_ transfer: TaskTransfer,
+                   on session: URLSession,
+                   tasks: SessionTasks,
                    request: URLRequest?,
                    policy: HTTPRequestPolicy,
                    makeTask: (URLSession) -> URLSessionTask) async throws
@@ -248,6 +351,12 @@ private final class SessionTasks: NSObject, URLSessionTaskDelegate, URLSessionDa
   }
 
   // Only transfers get the callbacks below. Tasks with completion handlers don't.
+
+  func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64,
+                  totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+    transfer(for: task)?.didSend(totalBytesSent: totalBytesSent,
+                                 totalBytesExpectedToSend: totalBytesExpectedToSend)
+  }
 
   func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
     transfer(for: dataTask)?.didReceive(data, task: dataTask)
@@ -356,16 +465,19 @@ private final class TaskCancellation: Sendable {
   }
 }
 
-/// Collects the body of one data or download task, reports its progress, and completes the
-/// caller's continuation.
+/// Collects the body of one data, download, or upload task, reports its progress, and completes
+/// the caller's continuation.
 ///
 /// Internal so tests can replay orders of `URLSession` callbacks that a `URLProtocol` can't
 /// produce.
 final class TaskTransfer: Sendable {
   enum Kind {
+    /// A data task. Progress is the response body received.
     case data
     /// A download, and the resume data it continues from, if any.
     case download(resumeData: Data?)
+    /// An upload task. Progress is the request body sent.
+    case upload
   }
 
   enum Body {
@@ -398,7 +510,7 @@ final class TaskTransfer: Sendable {
   /// download hands back the resume data it was given, which is still valid.
   var cancellationError: any Error {
     switch kind {
-    case .data: return CancellationError()
+    case .data, .upload: return CancellationError()
     case let .download(resumeData): return HTTPDownloadCancellation(resumeData: resumeData)
     }
   }
@@ -446,8 +558,19 @@ final class TaskTransfer: Sendable {
       state.data.append(data)
       return Int64(state.data.count)
     }
+    guard case .data = kind else {
+      return
+    }
     progress(HTTPTransferProgress(completedBytes: receivedBytes,
                                   expectedBytes: task.countOfBytesExpectedToReceive))
+  }
+
+  func didSend(totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
+    guard case .upload = kind else {
+      return
+    }
+    progress(HTTPTransferProgress(completedBytes: totalBytesSent,
+                                  expectedBytes: totalBytesExpectedToSend))
   }
 
   func didWrite(totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -488,7 +611,7 @@ final class TaskTransfer: Sendable {
       // Otherwise the cancelled download completes when its resume data arrives.
     } else if let response = response as? HTTPURLResponse {
       switch kind {
-      case .data:
+      case .data, .upload:
         result = .success((.data(data), response))
       case .download:
         result = fileURL.map { .success((.file($0), response)) }
@@ -515,7 +638,7 @@ final class TaskTransfer: Sendable {
   /// before a download was asked for resume data.
   private func cancellation(endingWith error: any Error) -> any Error {
     switch kind {
-    case .data:
+    case .data, .upload:
       return CancellationError()
     case .download:
       return HTTPDownloadCancellation(resumeData: (error as? URLError)?.downloadTaskResumeData)

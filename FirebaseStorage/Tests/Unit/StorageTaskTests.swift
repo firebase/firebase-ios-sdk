@@ -15,17 +15,12 @@
 import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 import XCTest
 
 /// Tests for `StorageUploadTask` and `StorageDownloadTask`.
 class StorageTaskTests: StorageTestHelpers {
   func testUploadTaskIsReleasedAfterCancel() async throws {
-    let requestStarted = await setNeverRespondingTestBlock()
+    let requestStarted = await setNeverRespondingTransport()
     let ref = storage().reference(withPath: "object")
     let completed = expectation(description: "completed")
     weak var weakTask: StorageUploadTask?
@@ -44,7 +39,8 @@ class StorageTaskTests: StorageTestHelpers {
 
   func testUploadTaskIsReleasedAfterSuccess() async throws {
     let metadata = StorageMetadata(dictionary: ["name": "object"])
-    await StorageFetcherService.shared.updateTestBlock(successBlock(withMetadata: metadata))
+    await StorageHTTPService.shared
+      .updateTestTransport(uploadSuccessTransport(withMetadata: metadata))
     let ref = storage().reference(withPath: "object")
     let completed = expectation(description: "completed")
     weak var weakTask: StorageUploadTask?
@@ -55,6 +51,29 @@ class StorageTaskTests: StorageTestHelpers {
         completed.fulfill()
       }
       weakTask = task
+    }
+    await fulfillment(of: [completed], timeout: 10)
+    await assertReleased { weakTask }
+  }
+
+  func testUploadTaskIsReleasedAfterPauseAndResume() async throws {
+    let requestStarted = await setNeverRespondingTransport()
+    let metadata = StorageMetadata(dictionary: ["name": "object"])
+    let ref = storage().reference(withPath: "object")
+    let completed = expectation(description: "completed")
+    weak var weakTask: StorageUploadTask?
+    do {
+      let task = ref.putData(Data("Hello".utf8)) { metadata, error in
+        XCTAssertNil(error)
+        XCTAssertEqual(metadata?.name, "object")
+        completed.fulfill()
+      }
+      weakTask = task
+      await fulfillment(of: [requestStarted], timeout: 10)
+      task.pause()
+      await StorageHTTPService.shared
+        .updateTestTransport(uploadSuccessTransport(withMetadata: metadata))
+      task.resume()
     }
     await fulfillment(of: [completed], timeout: 10)
     await assertReleased { weakTask }
@@ -126,19 +145,8 @@ class StorageTaskTests: StorageTestHelpers {
 
   // MARK: - Helpers
 
-  /// Sets a test block that never responds, and returns an expectation that is fulfilled when
+  /// Sets a transport that never responds, and returns an expectation that is fulfilled when
   /// the request starts.
-  private func setNeverRespondingTestBlock() async -> XCTestExpectation {
-    let requestStarted = expectation(description: "requestStarted")
-    await StorageFetcherService.shared.updateTestBlock { _, _ in
-      // Never respond, so that the request stays in flight until it is stopped.
-      requestStarted.fulfill()
-    }
-    return requestStarted
-  }
-
-  /// Sets a transport that never responds to downloads, and returns an expectation that is
-  /// fulfilled when the request starts.
   private func setNeverRespondingTransport() async -> XCTestExpectation {
     let requestStarted = expectation(description: "requestStarted")
     await StorageHTTPService.shared.updateTestTransport(StorageTestTransport { _ in
