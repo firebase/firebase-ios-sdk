@@ -62,6 +62,22 @@ jobs:
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
+  # The Swift integration tests against the Storage and Auth emulators. They need
+  # no secrets, so they also run for pull requests from forks.
+  storage-emulator-integration-tests:
+    uses: ./.github/workflows/_build.yml
+    with:
+      product: StorageSwiftEmulator
+      platform: all
+      method: xcodebuild
+      setup_command: |
+        cp FirebaseStorage/Tests/Integration/Emulator/GoogleService-Info.plist \
+            FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
+        sed -i '' -e 's/= KUSER_NAME$/= "unused-with-the-auth-emulator"/' \
+            -e 's/= KPASSWORD$/= "unused-with-the-auth-emulator"/' \
+            FirebaseStorage/Tests/Integration/Credentials.swift
+        FirebaseStorage/Tests/Integration/Emulator/start.sh synchronous
+
   quickstart:
     uses: ./.github/workflows/_quickstart.yml
     with:

@@ -341,7 +341,11 @@ class StorageResultTests: StorageIntegrationCommon {
 
     let task = ref.putFile(from: fileURL) { result in
       XCTAssertGreaterThanOrEqual(progressCount, 4)
-      XCTAssertLessThanOrEqual(progressCount, 6)
+      if StorageIntegrationCommon.storageEmulator == nil {
+        // The emulator's chunk granularity is smaller than production's 256 KiB, so it
+        // takes more chunks.
+        XCTAssertLessThanOrEqual(progressCount, 6)
+      }
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
@@ -519,7 +523,7 @@ class StorageResultTests: StorageIntegrationCommon {
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPrefix =
-      "https://firebasestorage.googleapis.com:443/v0/b/ios-opensource-samples" +
+      "\(StorageIntegrationCommon.downloadURLOrigin)/v0/b/ios-opensource-samples" +
       ".appspot.com/o/ios%2Fpublic%2F1mb?alt=media&token"
 
     ref.downloadURL { result in
@@ -666,7 +670,10 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertNil(actualMetadata.customMetadata)
   }
 
-  func testUpdateMetadata2() {
+  func testUpdateMetadata2() throws {
+    try skipWithStorageEmulator(
+      because: "labels metadata responses with the object's gzip Content-Encoding"
+    )
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/1mb")
 
@@ -728,9 +735,14 @@ class StorageResultTests: StorageIntegrationCommon {
     let task = ref.write(toFile: fileURL)
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
+    var paused = false
 
     task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
+      if !paused {
+        // The download finished before the pause took effect, so there was nothing to resume.
+        expectationResume.fulfill()
+      }
       expectation.fulfill()
     }
     task.observe(StorageTaskStatus.progress) { snapshot in
@@ -750,6 +762,10 @@ class StorageResultTests: StorageIntegrationCommon {
     }
     task.observe(StorageTaskStatus.pause) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
+      paused = true
+      // The resumed download continues from the data saved when it paused, which can be less
+      // than it had reported.
+      downloadedBytes = 0
       task.resume()
       expectationResume.fulfill()
     }
@@ -767,9 +783,15 @@ class StorageResultTests: StorageIntegrationCommon {
     let task = ref.write(toFile: fileURL)
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
+    var paused = false
 
     task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
+      if !paused {
+        // The download finished before the pause took effect, so there was nothing to resume.
+        // The pause runs on a background queue, so this is common.
+        expectationResume.fulfill()
+      }
       expectation.fulfill()
     }
     task.observe(StorageTaskStatus.progress) { snapshot in
@@ -791,6 +813,10 @@ class StorageResultTests: StorageIntegrationCommon {
     }
     task.observe(StorageTaskStatus.pause) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
+      paused = true
+      // The resumed download continues from the data saved when it paused, which can be less
+      // than it had reported.
+      downloadedBytes = 0
       DispatchQueue.global(qos: .background).async {
         task.resume()
       }
@@ -800,7 +826,8 @@ class StorageResultTests: StorageIntegrationCommon {
     XCTAssertEqual(resumeAtBytes, Int.max)
   }
 
-  func testPagedListFiles() {
+  func testPagedListFiles() throws {
+    try skipWithStorageEmulator(because: "doesn't count prefixes toward maxResults")
     let expectation = self.expectation(description: #function)
     let ref = storage.reference(withPath: "ios/public/list")
 
