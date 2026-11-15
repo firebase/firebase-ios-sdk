@@ -1,6 +1,9 @@
 # Unreleased
 - [fixed] Security Update: Removed untrusted eMudhra root certificate
   (`emSign Root CA - G1`) from embedded trust store.
+- [fixed] Fixed bundle loading silently truncating integer fields such as `limit`,
+  timestamp `nanos`, and `integerValue` that do not fit in their target type.
+  Such bundles are now rejected, matching how string-encoded values are handled.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)

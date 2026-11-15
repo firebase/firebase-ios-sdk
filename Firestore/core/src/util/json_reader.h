@@ -98,11 +98,18 @@ class JsonReader : public util::ReadContext {
 
   template <typename IntType>
   IntType ParseInt(const nlohmann::json& value, JsonReader& reader) {
+    IntType result = 0;
     if (value.is_number_integer()) {
-      return value.get<IntType>();
+      // `get<IntType>()` silently truncates values that do not fit in
+      // `IntType`, so range-check them the same way as string-encoded ones.
+      if (!absl::SimpleAtoi<IntType>(value.dump(), &result)) {
+        reader.Fail("Integer value is out of range: " + value.dump());
+        return 0;
+      }
+
+      return result;
     }
 
-    IntType result = 0;
     if (value.is_string()) {
       const auto& s = value.get_ref<const std::string&>();
       auto ok = absl::SimpleAtoi<IntType>(s, &result);

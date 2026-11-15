@@ -414,6 +414,20 @@ TEST_F(BundleSerializerTest, DecodesInvalidIntegerValueFails) {
   VerifyJsonStringDecodeFails(json_copy);
 }
 
+TEST_F(BundleSerializerTest, DecodesOutOfRangeIntegerValueFails) {
+  ProtoValue value;
+  value.set_integer_value(22222);
+  ProtoDocument document = TestDocument(value);
+
+  std::string json_string;
+  MessageToJsonString(document, &json_string);
+
+  // INT64_MAX + 1, encoded as a JSON number rather than a string.
+  auto json_copy =
+      ReplacedCopy(json_string, "\"22222\"", "9223372036854775808");
+  VerifyJsonStringDecodeFails(json_copy);
+}
+
 TEST_F(BundleSerializerTest, DecodesDoubleValues) {
   for (double_t v :
        {-std::numeric_limits<double>::infinity(),
@@ -561,6 +575,11 @@ TEST_F(BundleSerializerTest, DecodesInvalidTimestampValueFails) {
   // Actual test
   json_copy = ReplacedCopy(json_string, "\"1970-01-01T00:00:00Z\"",
                            R"({"seconds": "A", "nanos": 0})");
+  VerifyJsonStringDecodeFails(json_copy);
+
+  // 2^32 does not fit in the int32 nanos field and must not wrap to 0.
+  json_copy = ReplacedCopy(json_string, "\"1970-01-01T00:00:00Z\"",
+                           R"({"seconds": "0", "nanos": 4294967296})");
   VerifyJsonStringDecodeFails(json_copy);
 }
 
@@ -1113,6 +1132,23 @@ TEST_F(BundleSerializerTest, DecodeInvalidLimitQueriesFails) {
 
   {
     auto json_copy = ReplacedCopy(json_string, "\"LAST\"", "\"LLL\"");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+    EXPECT_NOT_OK(reader.status());
+  }
+
+  // Out of int32 range; these used to wrap to 1 and INT32_MIN.
+  {
+    auto json_copy =
+        ReplacedCopy(json_string, "\"limit\":4", "\"limit\":4294967297");
+    JsonReader reader;
+    bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
+    EXPECT_NOT_OK(reader.status());
+  }
+
+  {
+    auto json_copy = ReplacedCopy(json_string, "\"limit\":4",
+                                  R"("limit":{"value": 2147483648})");
     JsonReader reader;
     bundle_serializer.DecodeNamedQuery(reader, Parse(json_copy));
     EXPECT_NOT_OK(reader.status());
