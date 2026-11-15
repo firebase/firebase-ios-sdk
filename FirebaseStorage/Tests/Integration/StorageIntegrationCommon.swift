@@ -25,10 +25,53 @@ class StorageIntegrationCommon: XCTestCase {
   static var once = false
   static var signedIn = false
 
+  /// The Storage emulator to run the tests against instead of the production backend, from the
+  /// `FIREBASE_STORAGE_EMULATOR_HOST` environment variable that `firebase emulators:exec` sets.
+  /// With `FIREBASE_AUTH_EMULATOR_HOST`, the tests sign in with the Auth emulator. xcodebuild
+  /// passes variables to the tests without their `TEST_RUNNER_` prefix:
+  ///
+  ///     firebase emulators:exec --only auth,storage --project demo-storage-tests \
+  ///       'TEST_RUNNER_FIREBASE_STORAGE_EMULATOR_HOST=$FIREBASE_STORAGE_EMULATOR_HOST \
+  ///        TEST_RUNNER_FIREBASE_AUTH_EMULATOR_HOST=$FIREBASE_AUTH_EMULATOR_HOST \
+  ///        xcodebuild test ...'
+  ///
+  /// The emulator needs the rules in StorageIntegration.swift.
+  static let storageEmulator = emulator(fromVariable: "FIREBASE_STORAGE_EMULATOR_HOST")
+  static let authEmulator = emulator(fromVariable: "FIREBASE_AUTH_EMULATOR_HOST")
+
+  /// The scheme, host, and port of download URLs.
+  static var downloadURLOrigin: String {
+    guard let storageEmulator else {
+      return "https://firebasestorage.googleapis.com:443"
+    }
+    return "http://\(storageEmulator.host):\(storageEmulator.port)"
+  }
+
+  /// Returns the host and port of an emulator from a `host:port` environment variable.
+  private static func emulator(fromVariable name: String) -> (host: String, port: Int)? {
+    guard let value = ProcessInfo.processInfo.environment[name],
+          let separator = value.lastIndex(of: ":"),
+          let port = Int(value[value.index(after: separator)...]) else {
+      return nil
+    }
+    return (String(value[..<separator]), port)
+  }
+
+  /// Skips a test of production behavior that the Storage emulator doesn't have.
+  func skipWithStorageEmulator(because reason: String) throws {
+    try XCTSkipIf(StorageIntegrationCommon.storageEmulator != nil, "The Storage emulator \(reason)")
+  }
+
   override class func setUp() {
     if !StorageIntegrationCommon.configured {
       StorageIntegrationCommon.configured = true
       FirebaseApp.configure()
+      if let storageEmulator {
+        Storage.storage().useEmulator(withHost: storageEmulator.host, port: storageEmulator.port)
+      }
+      if let authEmulator {
+        Auth.auth().useEmulator(withHost: authEmulator.host, port: authEmulator.port)
+      }
     }
   }
 
@@ -87,12 +130,19 @@ class StorageIntegrationCommon: XCTestCase {
 
   private func signInAndWait() {
     let expectation = self.expectation(description: #function)
-    auth.signIn(withEmail: Credentials.kUserName,
-                password: Credentials.kPassword) { result, error in
+    let completion = { (result: AuthDataResult?, error: Error?) in
       XCTAssertNil(error)
       StorageIntegrationCommon.signedIn = true
       print("Successfully signed in")
       expectation.fulfill()
+    }
+    if StorageIntegrationCommon.authEmulator != nil {
+      // The Auth emulator has no users, and the rules only require a signed-in one.
+      auth.signInAnonymously(completion: completion)
+    } else {
+      auth.signIn(withEmail: Credentials.kUserName,
+                  password: Credentials.kPassword,
+                  completion: completion)
     }
     waitForExpectations()
   }

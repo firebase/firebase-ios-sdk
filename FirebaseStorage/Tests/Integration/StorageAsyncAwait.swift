@@ -257,8 +257,9 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     // Download URL format is
     // "https://firebasestorage.googleapis.com:443/v0/b/{bucket}/o/{path}?alt=media&token={token}"
     let downloadURLPattern =
-      "^https:\\/\\/firebasestorage.googleapis.com:443\\/v0\\/b\\/[^\\/]*\\/o\\/" +
-      "ios%2Fpublic%2F1mb2\\?alt=media&token=[a-z0-9-]*$"
+      "^" + NSRegularExpression
+        .escapedPattern(for: "\(StorageIntegrationCommon.downloadURLOrigin)/v0/b/") +
+        "[^\\/]*\\/o\\/ios%2Fpublic%2F1mb2\\?alt=media&token=[a-z0-9-]*$"
 
     let downloadURL = try await ref.downloadURL()
     let testRegex = try NSRegularExpression(pattern: downloadURLPattern)
@@ -361,6 +362,9 @@ class StorageAsyncAwait: StorageIntegrationCommon {
   }
 
   func testUpdateMetadata2() async throws {
+    try skipWithStorageEmulator(
+      because: "labels metadata responses with the object's gzip Content-Encoding"
+    )
     let ref = storage.reference(withPath: "ios/public/1mb2")
 
     let metadata = StorageMetadata()
@@ -395,6 +399,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
   }
 
   func testPagedListFiles() async throws {
+    try skipWithStorageEmulator(because: "doesn't count prefixes toward maxResults")
     let ref = storage.reference(withPath: "ios/public/list")
     let listResult = try await ref.list(maxResults: 2)
     XCTAssertEqual(listResult.items, [ref.child("a"), ref.child("b")])
