@@ -180,9 +180,12 @@
               infoEvents =
                   [strongSelf.infoSyncTree applyServerOverwriteAtPath:query.path
                                                               newData:node];
-              [strongSelf.eventRaiser raiseCallback:^{
+              // Completing the listen changes the sync tree, so it has to run
+              // on the repo queue. Run it async, since the sync tree is still
+              // setting up the listen.
+              dispatch_async([FIRDatabaseQuery sharedQueue], ^{
                 onComplete(kFWPResponseForActionStatusOk);
-              }];
+              });
           }
           return infoEvents;
         };

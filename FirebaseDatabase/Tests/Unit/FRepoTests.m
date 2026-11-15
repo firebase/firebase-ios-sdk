@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -23,7 +24,12 @@
 #import "FirebaseDatabase/Sources/Core/FRepoInfo.h"
 #import "FirebaseDatabase/Sources/Core/FRepoManager.h"
 #import "FirebaseDatabase/Sources/Core/FRepo_Private.h"
+#import "FirebaseDatabase/Sources/Core/FSyncTree.h"
 #import "FirebaseDatabase/Tests/Helpers/FTestHelpers.h"
+
+@interface FSyncTree (FRepoTests)
+- (NSArray *)applyListenCompleteAtPath:(FPath *)path;
+@end
 
 /** A connection that fails every get with the configured status and reason. */
 @interface FFailingGetConnection : FPersistentConnection
@@ -122,6 +128,42 @@
   XCTAssertTrue([description hasSuffix:@", client offline with no active listeners and no "
                                        @"matching disk cache entries"],
                 @"%@", description);
+}
+
+// Completing a .info listen changes the .info sync tree, so it has to run on the repo queue like
+// every other sync tree change. It used to run on the callback queue, racing with the repo queue.
+// https://github.com/firebase/firebase-ios-sdk/issues/17069
+- (void)testInfoListenCompletesOnRepoQueue {
+  static const void *const kRepoQueueKey = &kRepoQueueKey;
+  dispatch_queue_t repoQueue = [FIRDatabaseQuery sharedQueue];
+  dispatch_queue_set_specific(repoQueue, kRepoQueueKey, (void *)kRepoQueueKey, NULL);
+
+  XCTestExpectation *listenCompleted = [self expectationWithDescription:@"listen completed"];
+  __block BOOL completedOnRepoQueue = NO;
+  __block id infoSyncTree = nil;
+  dispatch_sync(repoQueue, ^{
+    infoSyncTree = OCMPartialMock([self.repo valueForKey:@"infoSyncTree"]);
+    OCMStub([infoSyncTree applyListenCompleteAtPath:[OCMArg any]])
+        .andDo(^(NSInvocation *invocation) {
+          completedOnRepoQueue = dispatch_get_specific(kRepoQueueKey) == kRepoQueueKey;
+          [listenCompleted fulfill];
+        })
+        .andForwardToRealObject();
+  });
+
+  // .info/connected always has a value, so listening to it completes the listen.
+  FIRDatabaseReference *ref = [[FIRDatabaseReference alloc] initWithRepo:self.repo
+                                                                    path:PATH(@".info/connected")];
+  [ref observeEventType:FIRDataEventTypeValue
+              withBlock:^(FIRDataSnapshot *snapshot){
+              }];
+  [self waitForExpectations:@[ listenCompleted ] timeout:5];
+
+  XCTAssertTrue(completedOnRepoQueue);
+  dispatch_sync(repoQueue, ^{
+    [infoSyncTree stopMocking];
+  });
+  dispatch_queue_set_specific(repoQueue, kRepoQueueKey, NULL, NULL);
 }
 
 /** Calls getData on the repo while its connection fails gets with `status` and `reason`. */
