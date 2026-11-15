@@ -352,8 +352,7 @@ import XCTest
       XCTAssertTrue(query.body.isEmpty)
       XCTAssertNil(query.header("Authorization"))
       XCTAssertNil(query.header("X-Firebase-AppCheck"))
-      XCTAssertEqual(query.header("User-Agent"), standardUserAgent)
-      XCTAssertEqual(query.header("X-GUploader-Client-Info"), clientInfo)
+      XCTAssertEqual(query.header("User-Agent"), uploadUserAgent)
       assertUploadRequest(requests[3], content: content, offset: 0, isFileUpload: false)
     }
 
@@ -423,8 +422,7 @@ import XCTest
       XCTAssertTrue(cancel.body.isEmpty)
       let expectedHeaders: [String: String?] = [
         "X-Goog-Upload-Protocol": "resumable",
-        "User-Agent": standardUserAgent,
-        "X-GUploader-Client-Info": clientInfo,
+        "User-Agent": uploadUserAgent,
         "Authorization": nil,
         "X-Firebase-AppCheck": nil,
       ]
@@ -567,16 +565,15 @@ import XCTest
 
     // MARK: - Helpers
 
-    /// The User-Agent of every request, uploads included. Uploads used to append `(GTMSUF/1)`,
-    /// which only named the networking library. `X-GUploader-Client-Info` now identifies the SDK
-    /// in the upload server's logs.
+    /// The User-Agent of the requests that aren't part of an upload.
     private var standardUserAgent: String {
       FirebaseUserAgent.standard
     }
 
-    /// The `X-GUploader-Client-Info` header of every request of an upload session.
-    private var clientInfo: String {
-      "mechanism=firebase-ios-storage; clientVersion=\(FirebaseVersion())"
+    /// The User-Agent of every request of a resumable upload. Uploads append `(GTMSUF/1)`, as
+    /// they always have, so the upload server's logs see no change.
+    private var uploadUserAgent: String {
+      "\(standardUserAgent) (GTMSUF/1)"
     }
 
     /// Returns the recorded requests once there are at least `count` of them, or after 10
@@ -661,8 +658,7 @@ import XCTest
         "X-Goog-Upload-Content-Length": "\(length)",
         "Content-Type": "application/json; charset=UTF-8",
         "Content-Length": "\(request.body.count)",
-        "User-Agent": standardUserAgent,
-        "X-GUploader-Client-Info": clientInfo,
+        "User-Agent": uploadUserAgent,
       ]
       for (name, value) in expectedHeaders {
         assertHeader(name, of: request, equals: value, file: file, line: line)
@@ -691,8 +687,7 @@ import XCTest
         "X-Goog-Upload-Offset": "\(offset)",
         "X-Goog-Upload-Content-Length": isFileUpload ? "\(content.count)" : nil,
         "Content-Length": "\(content.count - offset)",
-        "User-Agent": standardUserAgent,
-        "X-GUploader-Client-Info": clientInfo,
+        "User-Agent": uploadUserAgent,
         "Authorization": nil,
         "X-Firebase-AppCheck": nil,
         "x-firebase-gmpid": nil,

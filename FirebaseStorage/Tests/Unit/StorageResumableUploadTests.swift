@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCore
 import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
@@ -441,9 +440,8 @@ class StorageResumableUploadTests: StorageTestHelpers {
                                            line: UInt = #line) {
     XCTAssertEqual(request.value(forHTTPHeaderField: "X-Goog-Upload-Protocol"), "resumable",
                    file: file, line: line)
-    XCTAssertEqual(request.value(forHTTPHeaderField: "X-GUploader-Client-Info"),
-                   "mechanism=firebase-ios-storage; clientVersion=\(FirebaseVersion())",
-                   file: file, line: line)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "User-Agent"),
+                   "\(FirebaseUserAgent.standard) (GTMSUF/1)", file: file, line: line)
     XCTAssertNil(request.value(forHTTPHeaderField: "Authorization"), file: file, line: line)
     XCTAssertNil(request.value(forHTTPHeaderField: "X-Firebase-AppCheck"), file: file, line: line)
   }

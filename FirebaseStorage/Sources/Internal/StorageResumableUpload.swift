@@ -14,7 +14,6 @@
 
 import Foundation
 
-import FirebaseCore
 internal import FirebaseCoreInternal
 
 /// Uploads data or a file to Firebase Storage with the resumable upload protocol.
@@ -42,11 +41,10 @@ struct StorageResumableUpload {
     var granularity: Int64
   }
 
-  /// The header that identifies the SDK in the upload server's logs.
-  static let clientInfoHeader = "X-GUploader-Client-Info"
-
-  /// The value of `clientInfoHeader`. Every request of a session sends the same value.
-  static let clientInfo = "mechanism=firebase-ios-storage; clientVersion=\(FirebaseVersion())"
+  /// The User-Agent of every request of an upload session: the standard one followed by
+  /// `(GTMSUF/1)`, as Storage uploads have always sent it, so the upload server's logs see no
+  /// change.
+  static let userAgent = "\(FirebaseUserAgent.standard) (GTMSUF/1)"
 
   /// The largest chunk that is read into memory, unless the server's granularity is larger. An
   /// upload of a whole file at once is sent from the file instead.
@@ -214,7 +212,7 @@ struct StorageResumableUpload {
     request.setValue("start", forHTTPHeaderField: "X-Goog-Upload-Command")
     request.setValue(contentType, forHTTPHeaderField: "X-Goog-Upload-Content-Type")
     request.setValue("\(length)", forHTTPHeaderField: "X-Goog-Upload-Content-Length")
-    request.setValue(Self.clientInfo, forHTTPHeaderField: Self.clientInfoHeader)
+    request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
     let (body, response) = try await StorageHTTPService.shared.dataAndResponse(
       for: request, storage: storage, maxRetryTime: storage.maxUploadRetryTime
     )
@@ -313,7 +311,7 @@ struct StorageResumableUpload {
     request.timeoutInterval = timeout
     request.setValue("resumable", forHTTPHeaderField: "X-Goog-Upload-Protocol")
     request.setValue(command, forHTTPHeaderField: "X-Goog-Upload-Command")
-    request.setValue(clientInfo, forHTTPHeaderField: clientInfoHeader)
+    request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
     return request
   }
 
