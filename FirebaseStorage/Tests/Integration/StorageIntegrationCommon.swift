@@ -138,7 +138,10 @@ class StorageIntegrationCommon: XCTestCase {
       expectation.fulfill()
     }
     if StorageIntegrationCommon.authEmulator != nil {
-      // The Auth emulator has no users, and the rules only require a signed-in one.
+      // The Auth emulator has no users, and the rules only require a signed-in one. Sign out
+      // first: signing in anonymously would keep a user that an earlier emulator run signed in,
+      // whose tokens this run's emulator rejects.
+      try? auth.signOut()
       auth.signInAnonymously(completion: completion)
     } else {
       auth.signIn(withEmail: Credentials.kUserName,
