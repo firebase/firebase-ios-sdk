@@ -14,12 +14,6 @@
 
 import Foundation
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
 /**
  * A superclass to all Storage tasks, including `StorageUploadTask`
  * and `StorageDownloadTask`, to provide state transitions, event raising, and common storage

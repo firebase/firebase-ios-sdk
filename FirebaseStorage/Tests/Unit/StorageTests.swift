@@ -271,10 +271,10 @@ class StorageTests: XCTestCase {
   func testRetryTimeChange() throws {
     let app = try getApp(bucket: "")
     let storage = Storage.storage(app: app)
-    XCTAssertEqual(storage.maxOperationRetryInterval, 64)
+    XCTAssertEqual(Storage.computeRetryInterval(fromRetryTime: storage.maxOperationRetryTime), 64)
     storage.maxOperationRetryTime = 11
     XCTAssertEqual(storage.maxOperationRetryTime, 11)
-    XCTAssertEqual(storage.maxOperationRetryInterval, 8)
+    XCTAssertEqual(Storage.computeRetryInterval(fromRetryTime: storage.maxOperationRetryTime), 8)
   }
 
   func testPOSIXErrorFormatting() throws {

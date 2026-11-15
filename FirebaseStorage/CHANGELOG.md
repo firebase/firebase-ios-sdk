@@ -23,6 +23,19 @@
   over, as before.
 - [changed] A download to a file that fails with an HTTP error no longer
   deletes a file that was already at the destination.
+- [changed] Storage no longer depends on `GTMSessionFetcher`. Apps that use
+  `GTMSessionFetcher` directly must declare their own dependency on it.
+- [changed] `maxUploadRetryTime` now limits how long an upload keeps retrying
+  after a failure: no retry starts once that much time has passed since the
+  first of a series of failures. The series ends when the server confirms that
+  it received more of the upload, so uploads over unreliable connections keep
+  going while they make progress. After a failure, uploads now wait before
+  asking the server how much it received, and retry that request if it fails.
+- [changed] When an upload stops retrying, its error now describes the last
+  failure, such as its HTTP status code, and includes the number of retries.
+- [changed] The request that starts an upload follows the same rule for
+  redirects as the other requests. The requests that send the upload's bytes
+  carry no credentials.
 
 # 13.2.0
 - [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`

@@ -19,18 +19,8 @@ import FirebaseAuthInterop
 import FirebaseCore
 internal import FirebaseCoreExtension
 
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
-
-class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
-  /// The headers that `authorize(_:)` adds or removes.
-  private static let authorizationHeaderFields = [
-    "x-firebase-storage-version", "x-firebase-gmpid", "Authorization", "X-Firebase-AppCheck",
-  ]
-
+/// Adds the headers that every authorized Storage request carries.
+final class StorageTokenAuthorizer {
   /// Returns `request` with the headers that every Storage request carries: the SDK version, the
   /// app ID, and the Auth and App Check tokens when they're available.
   ///
@@ -143,63 +133,6 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
     }
   }
 
-  // MARK: - GTMSessionFetcherAuthorizer
-
-  // Uploads still use GTMSessionFetcher, which calls this method before it sends the first
-  // attempt of a request.
-  func authorizeRequest(_ request: NSMutableURLRequest?,
-                        completionHandler handler: @escaping (Error?) -> Void) {
-    let callbackQueue = self.callbackQueue
-    guard let request else {
-      callbackQueue.async { handler(nil) }
-      return
-    }
-    let unauthorizedRequest = request as URLRequest
-    Task {
-      var authorizationError: Error?
-      do {
-        let authorizedRequest = try await authorize(unauthorizedRequest)
-        // Copy the values exactly, so a header that `authorize(_:)` removed is removed here too.
-        for field in Self.authorizationHeaderFields {
-          request.setValue(authorizedRequest.value(forHTTPHeaderField: field),
-                           forHTTPHeaderField: field)
-        }
-      } catch {
-        authorizationError = error
-      }
-      callbackQueue.async {
-        handler(authorizationError)
-      }
-    }
-  }
-
-  func authorizeRequest(_ request: NSMutableURLRequest?, delegate: Any, didFinish sel: Selector) {
-    fatalError("Internal error: Should not call old authorizeRequest")
-  }
-
-  // Note that stopAuthorization, isAuthorizingRequest, and userEmail
-  // aren't relevant with the Firebase App/Auth implementation of tokens,
-  // and thus aren't implemented. Token refresh is handled transparently
-  // for us, and we don't allow the auth request to be stopped.
-  // Auth is also not required so the world doesn't stop.
-  func stopAuthorization() {}
-
-  func stopAuthorization(for request: URLRequest) {}
-
-  func isAuthorizingRequest(_ request: URLRequest) -> Bool {
-    return false
-  }
-
-  func isAuthorizedRequest(_ request: URLRequest) -> Bool {
-    guard let authHeader = request.allHTTPHeaderFields?["Authorization"] else {
-      return false
-    }
-    return authHeader.hasPrefix("Firebase")
-  }
-
-  var userEmail: String?
-
-  let callbackQueue: DispatchQueue
   private let googleAppID: String
   private let auth: AuthInterop?
   private let appCheck: AppCheckInterop?
@@ -208,12 +141,10 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   #endif
 
   init(googleAppID: String,
-       callbackQueue: DispatchQueue = DispatchQueue.main,
        authProvider: AuthInterop?,
        appCheck: AppCheckInterop?,
        allowInsecureTokenAttachment: @escaping () -> Bool = { false }) {
     self.googleAppID = googleAppID
-    self.callbackQueue = callbackQueue
     auth = authProvider
     self.appCheck = appCheck
     #if DEBUG
@@ -225,7 +156,6 @@ class StorageTokenAuthorizer: NSObject, GTMSessionFetcherAuthorizer {
   convenience init(storage: Storage) {
     self.init(
       googleAppID: storage.app.options.googleAppID,
-      callbackQueue: storage.callbackQueue,
       authProvider: storage.auth,
       appCheck: storage.appCheck,
       allowInsecureTokenAttachment: { [weak storage] in

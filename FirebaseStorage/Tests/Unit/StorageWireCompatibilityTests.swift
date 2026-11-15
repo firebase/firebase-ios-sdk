@@ -16,11 +16,6 @@ import FirebaseCore
 import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
-#if COCOAPODS
-  import GTMSessionFetcher
-#else
-  import GTMSessionFetcherCore
-#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -34,10 +29,9 @@ import XCTest
   /// Pins the HTTP behavior of FirebaseStorage: what each operation sends, how the resumable upload
   /// protocol is spoken, which failures are retried, and the shape of the resulting errors.
   ///
-  /// The expectations describe the GTMSessionFetcher-based implementation, and they must keep
-  /// passing after GTMSessionFetcher is replaced. Only `makeStorage(emulatorPort:)`, which routes
-  /// the SDK's traffic through `HTTPWireRecorder`, should need to change. An intentional behavior
-  /// change must update its expectation and explain why.
+  /// The expectations were first checked against the previous networking implementation, so they
+  /// pin the behavior that apps and the backend rely on. An intentional behavior change must
+  /// update its expectation and explain why.
   class StorageWireCompatibilityTests: StorageTestHelpers {
     private let authToken = "auth-token"
     private let objectPath = "path/to/object"
@@ -304,6 +298,158 @@ import XCTest
       }
     #endif // targetEnvironment(simulator)
 
+    func testPutDataSendsChunksOfTheServersGranularity() async throws {
+      // A chunk size of 1 rounds up to the granularity. Two full chunks would leave fewer than
+      // 2,500 bytes, so the second chunk takes the rest.
+      let content = Data((0 ..< (2 * Self.granularity + 1000)).map { UInt8($0 % 251) })
+      HTTPWireRecorder.reset { request in
+        switch request.header("X-Goog-Upload-Command") {
+        case "start":
+          return Self.startReply
+        case "upload":
+          let offset = Int(request.header("X-Goog-Upload-Offset") ?? "") ?? 0
+          return .http(status: 200, headers: [
+            "X-Goog-Upload-Status": "active",
+            "X-Goog-Upload-Size-Received": "\(offset + request.body.count)",
+          ])
+        default:
+          return .json(status: 200, Self.metadataJSON, headers: ["X-Goog-Upload-Status": "final"])
+        }
+      }
+      let storage = await makeStorage()
+      storage.uploadChunkSizeBytes = 1
+
+      let metadata = try await storage.reference(withPath: objectPath).putDataAsync(content)
+
+      XCTAssertEqual(metadata.path, objectPath)
+      let uploads = Array(HTTPWireRecorder.requests.dropFirst())
+      XCTAssertEqual(uploads.map { $0.header("X-Goog-Upload-Command") },
+                     ["upload", "upload, finalize"])
+      XCTAssertEqual(uploads.map { $0.header("X-Goog-Upload-Offset") },
+                     ["0", "\(Self.granularity)"])
+      XCTAssertEqual(uploads.map { $0.header("Content-Length") },
+                     ["\(Self.granularity)", "\(content.count - Self.granularity)"])
+      XCTAssertEqual(uploads.map(\.body),
+                     [content.prefix(Self.granularity), content.dropFirst(Self.granularity)])
+    }
+
+    /// `makeStorage` shortens the backoff delay, so each retry happens right away.
+    func testUploadRetriesAskTheServerHowMuchItReceived() async throws {
+      let content = Data("Hello, retried upload!".utf8)
+      HTTPWireRecorder.reset(responder: Self.uploadResponder(firstUploadReply: .http(status: 503)))
+      let storage = await makeStorage()
+
+      let metadata = try await storage.reference(withPath: objectPath).putDataAsync(content)
+
+      XCTAssertEqual(metadata.path, objectPath)
+      let requests = HTTPWireRecorder.requests
+      XCTAssertEqual(requests.map { $0.header("X-Goog-Upload-Command") },
+                     ["start", "upload, finalize", "query", "upload, finalize"])
+      let query = try XCTUnwrap(requests.dropFirst(2).first)
+      XCTAssertEqual(query.method, "PUT")
+      XCTAssertEqual(query.url.absoluteString, Self.uploadSessionURL)
+      XCTAssertEqual(query.header("X-Goog-Upload-Protocol"), "resumable")
+      XCTAssertTrue(query.body.isEmpty)
+      XCTAssertNil(query.header("Authorization"))
+      XCTAssertNil(query.header("X-Firebase-AppCheck"))
+      XCTAssertEqual(query.header("User-Agent"), standardUserAgent)
+      XCTAssertEqual(query.header("X-GUploader-Client-Info"), clientInfo)
+      assertUploadRequest(requests[3], content: content, offset: 0, isFileUpload: false)
+    }
+
+    func testUploadsAreResentWhenTheServerRejectsTheOffset() async throws {
+      // In the resumable upload protocol, a 4xx response with an active upload status means the
+      // server expected a different offset.
+      let content = Data("Hello, offset!".utf8)
+      HTTPWireRecorder.reset(responder: Self.uploadResponder(
+        firstUploadReply: .http(status: 400, headers: ["X-Goog-Upload-Status": "active"])
+      ))
+      let storage = await makeStorage()
+
+      let metadata = try await storage.reference(withPath: objectPath).putDataAsync(content)
+
+      XCTAssertEqual(metadata.path, objectPath)
+      XCTAssertEqual(HTTPWireRecorder.requests.map { $0.header("X-Goog-Upload-Command") },
+                     ["start", "upload, finalize", "query", "upload, finalize"])
+    }
+
+    func testUploadsFinishWhenTheQueryReportsTheUploadIsFinal() async throws {
+      let content = Data("Hello, final query!".utf8)
+      HTTPWireRecorder.reset(responder: Self.uploadResponder(
+        firstUploadReply: .http(status: 503),
+        queryReply: .json(
+          status: 200,
+          Self.metadataJSON,
+          headers: ["X-Goog-Upload-Status": "final"]
+        )
+      ))
+      let storage = await makeStorage()
+
+      let metadata = try await storage.reference(withPath: objectPath).putDataAsync(content)
+
+      XCTAssertEqual(metadata.path, objectPath)
+      XCTAssertEqual(HTTPWireRecorder.requests.map { $0.header("X-Goog-Upload-Command") },
+                     ["start", "upload, finalize", "query"])
+    }
+
+    func testUploadHTTPErrorUserInfo() async throws {
+      let body = #"{"error":{"code":403,"message":"Permission denied."}}"#
+      HTTPWireRecorder.reset(responder: Self.uploadResponder(
+        firstUploadReply: .json(status: 403, body)
+      ))
+      let storage = await makeStorage()
+
+      do {
+        _ = try await storage.reference(withPath: objectPath).putDataAsync(Data("Hi".utf8))
+        XCTFail("Expected an error")
+      } catch {
+        let storageError = error as NSError
+        XCTAssertEqual(storageError.domain, StorageErrorDomain)
+        XCTAssertEqual(storageError.code, StorageErrorCode.unauthorized.rawValue)
+        let userInfo = storageError.userInfo
+        XCTAssertEqual(userInfo["ResponseErrorDomain"] as? String, "com.google.HTTPStatus")
+        XCTAssertEqual(userInfo["ResponseErrorCode"] as? Int, 403)
+        XCTAssertEqual(userInfo["data"] as? Data, Data(body.utf8))
+        XCTAssertEqual(userInfo["data_content_type"] as? String,
+                       "application/json; charset=UTF-8")
+      }
+      // HTTP 403 isn't retried, and the upload session is cancelled.
+      let requests = await recordedRequests(count: 3)
+      XCTAssertEqual(requests.map { $0.header("X-Goog-Upload-Command") },
+                     ["start", "upload, finalize", "cancel"])
+      let cancel = try XCTUnwrap(requests.last)
+      XCTAssertEqual(cancel.method, "PUT")
+      XCTAssertEqual(cancel.url.absoluteString, Self.uploadSessionURL)
+      XCTAssertTrue(cancel.body.isEmpty)
+      let expectedHeaders: [String: String?] = [
+        "X-Goog-Upload-Protocol": "resumable",
+        "User-Agent": standardUserAgent,
+        "X-GUploader-Client-Info": clientInfo,
+        "Authorization": nil,
+        "X-Firebase-AppCheck": nil,
+      ]
+      for (name, value) in expectedHeaders {
+        assertHeader(name, of: cancel, equals: value)
+      }
+    }
+
+    func testUploadsFailWhenTheStartResponseHasNoUploadURL() async throws {
+      HTTPWireRecorder.reset(replies: [
+        .http(status: 200, headers: ["X-Goog-Upload-Status": "active"]),
+      ])
+      let storage = await makeStorage()
+
+      do {
+        _ = try await storage.reference(withPath: objectPath).putDataAsync(Data("Hi".utf8))
+        XCTFail("Expected an error")
+      } catch {
+        let userInfo = (error as NSError).userInfo
+        XCTAssertEqual(userInfo["ResponseErrorDomain"] as? String, "com.google.HTTPStatus")
+        XCTAssertEqual(userInfo["ResponseErrorCode"] as? Int, 501)
+      }
+      XCTAssertEqual(HTTPWireRecorder.requests.count, 1)
+    }
+
     // MARK: - Errors
 
     func testHTTPErrorUserInfo() async throws {
@@ -419,27 +565,32 @@ import XCTest
       assertAuthorizedHeaders(of: request)
     }
 
-    // MARK: - User-Agent
-
-    /// The User-Agent that FirebaseCoreInternal builds for the SDKs that no longer use
-    /// GTMSessionFetcher must match GTMSessionFetcher's on every platform. Remove this test when
-    /// Storage stops depending on GTMSessionFetcher.
-    func testFirebaseUserAgentMatchesGTMSessionFetcher() {
-      XCTAssertEqual(FirebaseUserAgent.standard, standardUserAgent)
-    }
-
     // MARK: - Helpers
 
-    /// The User-Agent that GTMSessionFetcher sends by default.
+    /// The User-Agent of every request, uploads included. Uploads used to append `(GTMSUF/1)`,
+    /// which only named the networking library. `X-GUploader-Client-Info` now identifies the SDK
+    /// in the upload server's logs.
     private var standardUserAgent: String {
-      GTMFetcherStandardUserAgentString(nil)
+      FirebaseUserAgent.standard
     }
 
-    /// The User-Agent of resumable upload requests. GTMSessionUploadFetcher appends `(GTMSUF/1)`
-    /// to identify itself in upload server logs. Its replacement won't send that suffix, so this
-    /// expectation changes when uploads move off GTMSessionFetcher.
-    private var uploadUserAgent: String {
-      "\(standardUserAgent) (GTMSUF/1)"
+    /// The `X-GUploader-Client-Info` header of every request of an upload session.
+    private var clientInfo: String {
+      "mechanism=firebase-ios-storage; clientVersion=\(FirebaseVersion())"
+    }
+
+    /// Returns the recorded requests once there are at least `count` of them, or after 10
+    /// seconds. Requests that the SDK sends without waiting for them, such as `cancel`, can
+    /// arrive after the operation finishes.
+    private func recordedRequests(count: Int) async -> [HTTPWireRecorder.Request] {
+      for _ in 0 ..< 1000 {
+        let requests = HTTPWireRecorder.requests
+        if requests.count >= count {
+          return requests
+        }
+        try? await Task.sleep(nanoseconds: 10_000_000)
+      }
+      return HTTPWireRecorder.requests
     }
 
     /// Answers the `start` request with an upload session URL and the upload request with the
@@ -447,17 +598,51 @@ import XCTest
     private static func resumableUploadResponder(_ request: HTTPWireRecorder.Request)
       -> HTTPWireRecorder.Reply {
       if request.header("X-Goog-Upload-Command") == "start" {
-        return .http(status: 200, headers: [
-          "X-Goog-Upload-Status": "active",
-          "X-Goog-Upload-URL": uploadSessionURL,
-          "X-Goog-Upload-Chunk-Granularity": "262144",
-        ])
+        return startReply
       }
       return .json(status: 200, metadataJSON, headers: ["X-Goog-Upload-Status": "final"])
     }
 
-    private static let uploadSessionURL =
-      "https://firebasestorage.googleapis.com/upload/storage-session?upload_id=session-id"
+    /// Returns a responder that answers the first upload request with `firstUploadReply`, queries
+    /// with `queryReply`, and later upload requests with the final object metadata.
+    private static func uploadResponder(firstUploadReply: HTTPWireRecorder.Reply,
+                                        queryReply: HTTPWireRecorder.Reply = .http(
+                                          status: 200,
+                                          headers: [
+                                            "X-Goog-Upload-Status": "active",
+                                            "X-Goog-Upload-Size-Received": "0",
+                                          ]
+                                        )) -> HTTPWireRecorder.Responder {
+      let uploadCount = UnfairLock(0)
+      return { request in
+        switch request.header("X-Goog-Upload-Command") {
+        case "start":
+          return startReply
+        case "query":
+          return queryReply
+        case "cancel":
+          return .http(status: 200, headers: ["X-Goog-Upload-Status": "cancelled"])
+        default:
+          let count = uploadCount.withLock { count -> Int in
+            count += 1
+            return count
+          }
+          return count == 1
+            ? firstUploadReply
+            : .json(status: 200, metadataJSON, headers: ["X-Goog-Upload-Status": "final"])
+        }
+      }
+    }
+
+    /// The server's chunk granularity, 256 KiB.
+    private static let granularity = 262_144
+
+    /// The reply to a `start` request: an open upload session.
+    private static let startReply = HTTPWireRecorder.Reply.http(status: 200, headers: [
+      "X-Goog-Upload-Status": "active",
+      "X-Goog-Upload-URL": uploadSessionURL,
+      "X-Goog-Upload-Chunk-Granularity": "\(granularity)",
+    ])
 
     /// Asserts the request that opens a resumable upload session.
     private func assertStartRequest(_ request: HTTPWireRecorder.Request, contentType: String,
@@ -476,7 +661,8 @@ import XCTest
         "X-Goog-Upload-Content-Length": "\(length)",
         "Content-Type": "application/json; charset=UTF-8",
         "Content-Length": "\(request.body.count)",
-        "User-Agent": uploadUserAgent,
+        "User-Agent": standardUserAgent,
+        "X-GUploader-Client-Info": clientInfo,
       ]
       for (name, value) in expectedHeaders {
         assertHeader(name, of: request, equals: value, file: file, line: line)
@@ -490,8 +676,8 @@ import XCTest
     /// Asserts a request that uploads bytes to an open upload session. These requests carry no
     /// Firebase credentials: the session URL itself authorizes the upload.
     ///
-    /// GTMSessionFetcher sends `X-Goog-Upload-Content-Length` with upload requests only when the
-    /// upload comes from a file. For in-memory data, only the `start` request has that header.
+    /// Upload requests send `X-Goog-Upload-Content-Length` only when the upload comes from a file.
+    /// For in-memory data, only the `start` request has that header.
     private func assertUploadRequest(_ request: HTTPWireRecorder.Request, content: Data,
                                      offset: Int, isFileUpload: Bool,
                                      file: StaticString = #filePath, line: UInt = #line) {
@@ -505,7 +691,8 @@ import XCTest
         "X-Goog-Upload-Offset": "\(offset)",
         "X-Goog-Upload-Content-Length": isFileUpload ? "\(content.count)" : nil,
         "Content-Length": "\(content.count - offset)",
-        "User-Agent": uploadUserAgent,
+        "User-Agent": standardUserAgent,
+        "X-GUploader-Client-Info": clientInfo,
         "Authorization": nil,
         "X-Firebase-AppCheck": nil,
         "x-firebase-gmpid": nil,
@@ -557,18 +744,6 @@ import XCTest
         URLSessionTransport { HTTPWireRecorder.install(in: $0) }
       )
       await StorageHTTPService.shared.updateInitialRetryIntervalForTesting(0.001)
-
-      // Uploads still use GTMSessionFetcher. When they move, route them through the recorder and
-      // shorten their retry delay the same way.
-      await StorageFetcherService.shared.updateTestBlock(nil)
-      let fetcherService = await StorageFetcherService.shared.service(storage)
-      fetcherService.configurationBlock = { _, configuration in
-        HTTPWireRecorder.install(in: configuration)
-      }
-      // Set the retry delay on the service, which copies it to every fetcher it creates. The
-      // service shares one session between fetchers, so `configurationBlock` only runs for the
-      // first one.
-      fetcherService.minRetryInterval = 0.001
       return storage
     }
 

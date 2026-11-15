@@ -17,15 +17,14 @@ import Foundation
 import FirebaseCore
 import FirebaseCoreInternal
 @testable import FirebaseStorage
-import GTMSessionFetcherCore
 
 import XCTest
 
 /// Answers the requests of `StorageHTTPService` in unit tests instead of the network.
 ///
-/// It gets each request after `StorageTokenAuthorizer` has added its headers, as
-/// GTMSessionFetcher's test block did. Downloads to a file get the response written to a
-/// temporary file.
+/// It gets each request after `StorageTokenAuthorizer` has added its headers. Downloads to a file
+/// get the response written to a temporary file. Uploads get their body in the request's
+/// `httpBody`.
 final class StorageTestTransport: HTTPTransport, @unchecked Sendable {
   typealias Handler = (URLRequest) async throws -> (Data, HTTPURLResponse)
   typealias ProgressHandler = (URLRequest, @escaping @Sendable (HTTPTransferProgress) -> Void)
@@ -62,11 +61,12 @@ final class StorageTestTransport: HTTPTransport, @unchecked Sendable {
     return try await handler(request, progress)
   }
 
-  /// Returns a response for `request` with `statusCode` and no headers.
-  static func response(to request: URLRequest, statusCode: Int) throws -> HTTPURLResponse {
+  /// Returns a response for `request` with `statusCode` and `headers`.
+  static func response(to request: URLRequest, statusCode: Int,
+                       headers: [String: String]? = nil) throws -> HTTPURLResponse {
     let url = try XCTUnwrap(request.url)
     return try XCTUnwrap(HTTPURLResponse(url: url, statusCode: statusCode,
-                                         httpVersion: "HTTP/1.1", headerFields: nil))
+                                         httpVersion: "HTTP/1.1", headerFields: headers))
   }
 }
 
@@ -90,7 +90,6 @@ class StorageTestHelpers: XCTestCase {
       app = FirebaseApp.app(name: appName)
     }
     addTeardownBlock {
-      await StorageFetcherService.shared.updateTestBlock(nil)
       await StorageHTTPService.shared.updateTestTransport(nil)
       await StorageHTTPService.shared.updateInitialRetryIntervalForTesting(nil)
     }
@@ -113,10 +112,34 @@ class StorageTestHelpers: XCTestCase {
     return transport(forData: data(for: metadata), url: nil, statusCode: 200)
   }
 
-  /// For uploads, which still use GTMSessionFetcher.
-  func successBlock(withMetadata metadata: StorageMetadata? = nil)
-    -> GTMSessionFetcherTestBlock {
-    return block(forData: data(for: metadata), url: nil, statusCode: 200)
+  /// The URL of the upload session that `uploadSuccessTransport(withMetadata:)` opens.
+  static let uploadSessionURL =
+    "https://firebasestorage.googleapis.com/upload/storage-session?upload_id=session-id"
+
+  /// Returns a transport that completes uploads. It answers the `start` request with an upload
+  /// session, and the requests that upload bytes with `metadata`.
+  func uploadSuccessTransport(withMetadata metadata: StorageMetadata? = nil)
+    -> StorageTestTransport {
+    let body = data(for: metadata) ?? Data()
+    return StorageTestTransport { request in
+      try StorageTestHelpers.uploadResponse(to: request, finalBody: body)
+    }
+  }
+
+  /// Returns the response of a server that opens an upload session for the `start` request,
+  /// and finishes the upload with `finalBody` for any other request.
+  static func uploadResponse(to request: URLRequest,
+                             finalBody: Data) throws -> (Data, HTTPURLResponse) {
+    if request.value(forHTTPHeaderField: "X-Goog-Upload-Command") == "start" {
+      return try (Data(), StorageTestTransport.response(to: request, statusCode: 200, headers: [
+        "X-Goog-Upload-Status": "active",
+        "X-Goog-Upload-URL": uploadSessionURL,
+        "X-Goog-Upload-Chunk-Granularity": "262144",
+      ]))
+    }
+    return try (finalBody, StorageTestTransport.response(
+      to: request, statusCode: 200, headers: ["X-Goog-Upload-Status": "final"]
+    ))
   }
 
   func successBlock(withURL url: URL) -> StorageTestTransport {
@@ -170,32 +193,6 @@ class StorageTestHelpers: XCTestCase {
       let response = try StorageTestTransport.response(to: request, statusCode: code)
       return (data ?? Data(), response)
     }
-  }
-
-  private func block(forData data: Data?, url: URL?,
-                     statusCode code: Int) -> GTMSessionFetcherTestBlock {
-    let block = { (fetcher: GTMSessionFetcher, response: GTMSessionFetcherTestResponse) in
-      let fetcherURL = fetcher.request?.url!
-      if let url {
-        XCTAssertEqual(url, fetcherURL)
-      }
-      let httpResponse = HTTPURLResponse(
-        url: fetcherURL!,
-        statusCode: code,
-        httpVersion: "HTTP/1.1",
-        headerFields: nil
-      )
-      var error: NSError?
-      if code >= 400 {
-        var userInfo: [String: Any]?
-        if let data {
-          userInfo = ["data": data]
-        }
-        error = NSError(domain: "com.google.HTTPStatus", code: code, userInfo: userInfo)
-      }
-      response(httpResponse, data, error)
-    }
-    return block
   }
 
   private let objectString = "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/object"
