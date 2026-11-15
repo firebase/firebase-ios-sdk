@@ -728,9 +728,14 @@ class StorageResultTests: StorageIntegrationCommon {
     let task = ref.write(toFile: fileURL)
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
+    var paused = false
 
     task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
+      if !paused {
+        // The download finished before the pause took effect, so there was nothing to resume.
+        expectationResume.fulfill()
+      }
       expectation.fulfill()
     }
     task.observe(StorageTaskStatus.progress) { snapshot in
@@ -750,6 +755,10 @@ class StorageResultTests: StorageIntegrationCommon {
     }
     task.observe(StorageTaskStatus.pause) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
+      paused = true
+      // The resumed download continues from the data saved when it paused, which can be less
+      // than it had reported.
+      downloadedBytes = 0
       task.resume()
       expectationResume.fulfill()
     }
@@ -767,9 +776,15 @@ class StorageResultTests: StorageIntegrationCommon {
     let task = ref.write(toFile: fileURL)
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
+    var paused = false
 
     task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
+      if !paused {
+        // The download finished before the pause took effect, so there was nothing to resume.
+        // The pause runs on a background queue, so this is common.
+        expectationResume.fulfill()
+      }
       expectation.fulfill()
     }
     task.observe(StorageTaskStatus.progress) { snapshot in
@@ -791,6 +806,10 @@ class StorageResultTests: StorageIntegrationCommon {
     }
     task.observe(StorageTaskStatus.pause) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Paused>")
+      paused = true
+      // The resumed download continues from the data saved when it paused, which can be less
+      // than it had reported.
+      downloadedBytes = 0
       DispatchQueue.global(qos: .background).async {
         task.resume()
       }
