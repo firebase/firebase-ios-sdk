@@ -1,5 +1,6 @@
 # Unreleased
-
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
 - [changed] On Apple platforms, Firestore now verifies gRPC TLS server
   certificates using `Security.framework` (`SecTrust`) instead of an embedded
   root certificate bundle, enabling automatic OS root store, enterprise MDM,
