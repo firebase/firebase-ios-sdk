@@ -474,6 +474,10 @@
   NSString *s = [secret sharedSecretKey];
   s = [secret generateQRCodeURLWithAccountName:@"name" issuer:@"issuer"];
   [secret openInOTPAppWithQRCodeURL:@"qr"];
+  __unused NSString *algorithm = [secret hashingAlgorithm];
+  __unused NSInteger length = [secret codeLength];
+  __unused NSInteger interval = [secret codeIntervalSeconds];
+  __unused NSDate *deadline = [secret enrollmentCompletionDeadline];
 }
 
 - (void)FIRTOTPMultiFactorGenerator_h:(FIRMultiFactorSession *)session

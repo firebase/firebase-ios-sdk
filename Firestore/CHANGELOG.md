@@ -11,6 +11,8 @@
   written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
   internationalized host names must be Punycode-encoded, and port 0 is
   rejected.
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
