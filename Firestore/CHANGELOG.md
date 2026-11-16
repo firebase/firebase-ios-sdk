@@ -1,6 +1,4 @@
 # Unreleased
-- [fixed] Security Update: Removed untrusted eMudhra root certificate
-  (`emSign Root CA - G1`) from embedded trust store.
 - [changed] On Apple platforms, Firestore now verifies gRPC TLS server
   certificates using `Security.framework` (`SecTrust`) instead of an embedded
   root certificate bundle, enabling automatic OS root store, enterprise MDM,
@@ -26,6 +24,8 @@
   from all platforms, reducing binary size.
 - [fixed] Fixed MSVC build errors when building Firestore with CMake on
   Windows.
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
