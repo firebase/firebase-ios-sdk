@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
+
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
 - [feature] Added support for window functions in Pipelines, with the `addWindowFields`
