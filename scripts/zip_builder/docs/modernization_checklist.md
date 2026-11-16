@@ -37,6 +37,7 @@ the tool's code. Each item says what to change, why, the impact, and what must c
 | 21 | Drop the `MinimumOSVersion` workaround | `layout.infoPlist` | No (with 20) | Config |
 | 22 | Keep SwiftPM's header folder tree | Tool (`Headers/` layout) | Rarely | Tool |
 | 23 | No CocoaPods text in METADATA.md | `Packaging/Metadata.swift` | No | Tool |
+| 24 | Framework-named NOTICES | `zip.notices.titles`, `licenses`, `layout` | No | Config |
 
 ---
 
@@ -81,6 +82,12 @@ the tool's code. Each item says what to change, why, the impact, and what must c
 - **Change:** remove `FirebaseAnalyticsCore` and `FirebaseAnalyticsIdentitySupport` from `products.exclude`.
 - **Why:** SwiftPM users can already choose Analytics without the IDFA support; zip users can't.
 - **Impact:** two more folders. This is additive, but check that the `products.base` layout still makes sense (see 19). Keep excluding the `*Combine-Community` products, which aren't official.
+
+### 24. Framework-named NOTICES
+- **Change:** in `zip.notices`, remove `titles`, `layout` and the parity-only `licenses` entries (FirebaseAnalytics, GoogleAppMeasurement, GoogleAppMeasurementIdentitySupport, GoogleAdsOnDeviceConversion, absl and GoogleUtilities), and delete `CoreOnly/licenses/GoogleAppMeasurement.txt` and `abseil.txt`. Keep the entries for licenses a package truly lacks: BoringSSL for `openssl_grpc`, gRPC's full text for `grpc` and `grpcpp`, and `Firestore/LICENSE` for the `FirebaseFirestoreInternal` binary.
+- **Why:** they reproduce the CocoaPods-generated `CoreOnly/NOTICES` byte for byte for the initial release: pod names as titles, the legacy license variants, and CocoaPods' layout. Without them, the notices list what the zip actually ships, with the license files the packages actually carry.
+- **Impact:** NOTICES titles become framework names (`FBLPromises`, `absl`, `grpc`, …, and no `Firebase` title); the GoogleAppMeasurement and abseil variants fold into the Apache entry; GoogleUtilities lists IsAppEncrypted's MIT text separately; entries become the trimmed layout. Only the text of the `NOTICES` file changes.
+- **With it:** regenerate `CoreOnly/licenses/NOTICES` (`./scripts/zip_builder.sh notices --version "$VERSION" --output CoreOnly/licenses/NOTICES`) and review the diff.
 
 ---
 
@@ -215,13 +222,14 @@ Once Firebase's config no longer uses them, these features exist only for parity
 - `products.base`, `withoutFolder` and `extraFrameworks`;
 - `layout.infoPlist` and `layout.privacyBundle` renaming (if SwiftPM names become the default);
 - `build.defineSwiftPackage` and `swiftConditions`;
-- the UIKit import in generated umbrellas (18).
+- the UIKit import in generated umbrellas (18);
+- `zip.notices.titles` and `layout` (24).
 
 ## Suggested order
 
 ```mermaid
 flowchart LR
-  A["Minor releases: 1–8, 21 (if validated)"] --> B["Additive: 9, 10"]
+  A["Minor releases: 1–8, 24, and 21 if validated"] --> B["Additive: 9, 10"]
   B --> C["Major release: 11 + 12 together"]
   C --> D["Same or next major: 13–19"]
   D --> E["20 dynamic by default, then 21, 22"]
@@ -244,8 +252,10 @@ The new zip builder's `NOTICES` comes from the package graph: the daily
 [`infra.zip_builder_notices.yml`](/.github/workflows/infra.zip_builder_notices.yml) runs
 `zip-builder notices` (with `zip.notices` in [`zip_builder.jsonc`](/zip_builder.jsonc)) to update
 [`CoreOnly/licenses/NOTICES`](/CoreOnly/licenses/NOTICES), and opens a PR when it changes; the
-licenses packages lack are next to it in [`CoreOnly/licenses/`](/CoreOnly/licenses). The legacy zip
-copies a different checked-in file that a daily CocoaPods job regenerates:
+licenses packages lack, and the legacy variants item 24 removes, are next to it in
+[`CoreOnly/licenses/`](/CoreOnly/licenses). For now it matches `CoreOnly/NOTICES` byte for byte
+(item 24). The legacy zip copies a different checked-in file that a daily CocoaPods job
+regenerates:
 
 | Tooling | What it does | Remove |
 |---|---|---|

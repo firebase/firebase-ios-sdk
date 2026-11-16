@@ -123,6 +123,13 @@ struct Config: Codable, Equatable, Sendable {
     /// Framework or binary name to package-root-relative license files, added to those planning
     /// found: for packages without a license file, or whose license file lacks the full text.
     @Default<Empty<[String: [Path]]>> var extraLicenses: [String: [Path]]
+    /// Framework or binary name to package-root-relative license files that replace those
+    /// planning found; `extraLicenses` still adds to them.
+    @Default<Empty<[String: [Path]]>> var licenses: [String: [Path]]
+    /// Framework or binary name to the titles it's listed under instead of its own name. Items
+    /// with the same title are listed once under it.
+    @Default<Empty<[String: [String]]>> var titles: [String: [String]]
+    @Default<DefaultNoticesLayout> var layout: NoticesLayout
   }
 
   /// Repo-relative files copied into the zip root (`"."`) or a folder.
@@ -242,6 +249,16 @@ struct Config: Codable, Equatable, Sendable {
 enum Linkage: String, Codable, CaseIterable, Sendable {
   case `static` // `frameworks.dynamic` and `.dynamic` products are still dynamic
   case dynamic // every framework built from source, except those in `frameworks.static`
+}
+
+/// How the notices file groups and renders license texts: `zip.notices.layout`.
+enum NoticesLayout: String, Codable, CaseIterable, Sendable {
+  /// Texts that differ only in leading and trailing whitespace share an entry, rendered trimmed
+  /// after a blank line.
+  case trimmed
+  /// Only identical texts share an entry, rendered as is right after the titles: the layout of
+  /// CocoaPods' acknowledgements as the legacy notices generator wrote them.
+  case verbatim
 }
 
 /// A short, key-path based description of a decoding error.

@@ -184,7 +184,10 @@ directories, then diff them. On pull requests, [CI does this](#CI) and comments 
 `CoreOnly/licenses/NOTICES` (`zip.notices.atBuildTime` is `false`), which the daily
 `infra.zip_builder_notices` workflow keeps current. To update it by hand, for example after
 adding a dependency, write it again; it plans, but builds nothing. `diff` on two
-releases shows any change to it line by line.
+releases shows any change to it line by line. For now, `zip.notices` reproduces the
+CocoaPods-generated `CoreOnly/NOTICES` byte for byte (`cmp CoreOnly/NOTICES
+CoreOnly/licenses/NOTICES`); item 24 of the
+[modernization checklist](docs/modernization_checklist.md) drops that.
 
 ```bash
 VERSION="$(sed -nE 's/^let firebaseVersion = "([^"]+)".*/\1/p' Package.swift)"

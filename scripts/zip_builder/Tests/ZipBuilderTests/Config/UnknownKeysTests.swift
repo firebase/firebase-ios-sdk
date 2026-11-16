@@ -60,7 +60,8 @@ struct UnknownKeysTests {
     "zip": {
       "files": [{ "to": ".", "files": [] }, { "to": ".", "files": [], "from": "x" }],
       "externalArtifacts": [{ "to": ".", "url": "https://example.com/a.zip", "strip": true }],
-      "notices": { "extraLicense": {}, "extraLicenses": { "AnyName": [] } }
+      "notices": { "extraLicense": {}, "extraLicenses": { "AnyName": [] },
+                   "titles": { "AnyName": [] }, "licenses": { "AnyName": [] } }
     }
     """)
     #expect(warnings == [
@@ -105,7 +106,8 @@ struct UnknownKeysTests {
     "layout": { "privacyBundle": {}, "resourceBundles": {}, "infoPlist": {} },
     "zip": { "files": [], "externalArtifacts": [{ "to": ".", "url": "u", "subpath": "p",
                                                   "stripSignatures": true }],
-             "notices": { "file": "NOTICES", "atBuildTime": true, "extraLicenses": {} } },
+             "notices": { "file": "NOTICES", "atBuildTime": true, "extraLicenses": {},
+                          "licenses": {}, "titles": {}, "layout": "trimmed" } },
     "verify": { "skipImports": [] }
     }
     """)

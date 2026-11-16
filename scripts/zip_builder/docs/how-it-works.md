@@ -506,18 +506,27 @@ macOS-style slices use `Versions/A/Resources` and `Contents/`. (`Building/Layout
 3. Writes `METADATA.md`: each folder's frameworks, the base folder first and the others marked
    `(~> <base>)`, then every framework's and binary's version.
 4. With `zip.notices` and its `atBuildTime` (the default), writes the notices file (`NOTICES` by
-   default) at the root, from the [licenses](#licenses) of every framework and binary in a
-   folder, plus `zip.notices.extraLicenses`. License texts are compared with leading and
-   trailing whitespace trimmed, since copies of one license often differ only in a leading blank
-   line (Firebase's `LICENSE` and the binary packages' Apache text); inner whitespace counts.
-   Items with the same text share one entry, titled by their names, sorted, one per line, and
-   entries are ordered by their titles; each is the titles, a blank line, the trimmed text, and
-   two newlines, and the file is trimmed to end with one newline. That reads like the notices
-   file the CocoaPods-era zip shipped, though titles are now framework names rather than pod
-   names. A missing `extraLicenses` path, or a file of that name already in the distribution (a
-   `zip.files` entry), fails packaging. While planning, `customize` warns about shipped items
-   without a license and `extraLicenses` names that don't ship, so `plan` shows them, whatever
-   `atBuildTime` says. (`Packaging/Notices.swift`, `notices`, `renderNotices`)
+   default) at the root, from the license files of every framework and binary in a folder: its
+   `zip.notices.licenses` entry if it has one, else the [licenses](#licenses) planning found,
+   plus its `zip.notices.extraLicenses`. Each item is listed under its `zip.notices.titles`, else
+   its own name; items that share a title are listed once under it. Titles with the same license
+   text share one entry, titled by them, sorted, one per line, and entries are ordered by their
+   titles. `zip.notices.layout` decides what counts as the same text and how an entry looks:
+   - `trimmed` (the default) compares texts with leading and trailing whitespace trimmed, since
+     copies of one license often differ only in a leading blank line (Firebase's `LICENSE` and
+     the binary packages' Apache text); inner whitespace counts. Each entry is the titles, a
+     blank line, the trimmed text, and two newlines.
+   - `verbatim` groups only identical texts, and each entry is the titles, a newline, the text
+     as is (a leading blank line included), and two newlines. That's how the CocoaPods-era
+     generator wrote CocoaPods' acknowledgements, so with pod names as `titles` and the same
+     license files the file matches the legacy one byte for byte.
+
+   Either way the file is trimmed to end with one newline. A missing `licenses` or
+   `extraLicenses` path, or a file of that name already in the distribution (a `zip.files`
+   entry), fails packaging. While planning, `customize` warns about shipped items without a
+   license or without titles, and `licenses`, `extraLicenses` and `titles` names that don't
+   ship, so `plan` shows them, whatever `atBuildTime` says. (`Packaging/Notices.swift`,
+   `notices`, `listingUnderTitles`, `renderNotices`)
 5. With `--sign`, signs every unsigned `.xcframework`. Vendors' signed binaries keep their
    signature, since re-signing would replace it in a real release.
 6. Zips with `ditto --norsrc --noextattr --noacl`. Extended attributes are per machine
