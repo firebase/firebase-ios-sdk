@@ -288,6 +288,25 @@ jobs:
           firestore_remote_test \
           firestore_util_test
 
+    # ctest shows test output only on failure, so run the production TLS smoke
+    # test on its own to log its results and to fail if it was skipped.
+    - name: Production TLS smoke test
+      run: |
+        exe=$(find build -name firestore_remote_test.exe -print -quit)
+        if [[ -z "$exe" ]]; then
+          echo "::error::firestore_remote_test.exe not found"
+          exit 1
+        fi
+        "$exe" --gtest_filter='GrpcTlsProdSmokeTest.*' | tee smoke.log
+        if grep -q '\[  SKIPPED \]' smoke.log; then
+          echo "::error::GrpcTlsProdSmokeTest was skipped"
+          exit 1
+        fi
+        if ! grep -q '\[       OK \] GrpcTlsProdSmokeTest\.' smoke.log; then
+          echo "::error::GrpcTlsProdSmokeTest did not run"
+          exit 1
+        fi
+
     - name: Test
       run: |
         ctest --test-dir build --output-on-failure \
