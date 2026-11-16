@@ -1,3 +1,14 @@
+# Unreleased
+- [fixed] `TOTPSecret` (`FIRTOTPSecret`) now has the `hashingAlgorithm`,
+  `codeLength`, `codeIntervalSeconds`, and `enrollmentCompletionDeadline`
+  properties that the Android and JavaScript SDKs provide. Apps can use them
+  to show the settings for entering the secret into an authenticator app by
+  hand, and a countdown to the enrollment deadline. (#17032)
+- [fixed] Fixed `MultiFactorInfo.enrollmentDate` being the current time instead
+  of the enrollment time when the server's timestamp has no fractional
+  seconds, and being in the wrong year on devices set to a non-Gregorian
+  calendar, such as Buddhist or Japanese. (#17039)
+
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
   and the objects they captured, stayed in memory for as long as the `Auth`
