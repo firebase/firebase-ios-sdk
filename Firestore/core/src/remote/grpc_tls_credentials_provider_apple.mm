@@ -26,7 +26,9 @@
 #include <string>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
+#include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
@@ -71,143 +73,57 @@ bool ContainsNonAscii(absl::string_view s) {
   return false;
 }
 
+// Parses `pem_chain` into an array of `SecCertificateRef`s, failing closed on
+// any malformed input (see `SplitPemCertificates()`). On success, returns a +1
+// reference; on failure, returns nullptr and stores the reason in
+// `*out_status`.
 CFArrayRef CreateCertificateChainFromPem(absl::string_view pem_chain,
                                          grpc::Status* out_status) {
-  if (pem_chain.empty()) {
+  std::vector<std::string> der_certificates;
+  std::string error;
+  if (!SplitPemCertificates(pem_chain, &der_certificates, &error)) {
     SetStatus(out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                           "No PEM certificates found in peer chain"));
+              grpc::Status(grpc::StatusCode::UNAUTHENTICATED, error));
     return nullptr;
   }
 
-  @autoreleasepool {
-    NSString* pem = [[NSString alloc] initWithBytes:pem_chain.data()
-                                             length:pem_chain.size()
-                                           encoding:NSUTF8StringEncoding];
-    if (pem == nil || pem.length == 0) {
-      SetStatus(out_status, grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                                         "Invalid UTF-8 in PEM peer chain"));
-      return nullptr;
-    }
-
-    CFMutableArrayRef certs =
-        CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
-    if (certs == nullptr) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Failed to allocate CFArray for peer chain"));
-      return nullptr;
-    }
-
-    bool ok = false;
-    util::Defer cleanup_certs([&] {
-      if (!ok) {
-        util::SafeCFRelease(certs);
-      }
-    });
-
-    NSString* const kBeginMarker = @"-----BEGIN CERTIFICATE-----";
-    NSString* const kEndMarker = @"-----END CERTIFICATE-----";
-    // Under RFC 7468 (Textual Encodings of PKIX Artifacts), PEM formatting is
-    // strictly 7-bit ASCII consisting of spaces, horizontal tabs, carriage
-    // returns, and newlines. Using explicit ASCII whitespace characters rather
-    // than `+[NSCharacterSet whitespaceAndNewlineCharacterSet]` prevents
-    // non-ASCII Unicode whitespace (such as U+00A0 non-breaking space or
-    // U+3000 ideographic space) from being permissively stripped from base64
-    // payloads.
-    NSCharacterSet* ws =
-        [NSCharacterSet characterSetWithCharactersInString:@" \t\r\n"];
-
-    NSScanner* scanner = [NSScanner scannerWithString:pem];
-    scanner.charactersToBeSkipped = nil;
-
-    while (!scanner.isAtEnd) {
-      [scanner scanCharactersFromSet:ws intoString:NULL];
-      if (scanner.isAtEnd) {
-        break;
-      }
-
-      if ([scanner scanString:kEndMarker intoString:NULL]) {
-        SetStatus(
-            out_status,
-            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                         "Stray PEM END CERTIFICATE marker in peer chain"));
-        return nullptr;
-      }
-
-      if (![scanner scanString:kBeginMarker intoString:NULL]) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Unexpected non-whitespace text outside PEM CERTIFICATE "
-                      "block in peer chain"));
-        return nullptr;
-      }
-
-      NSString* raw_base64 = @"";
-      [scanner scanUpToString:kEndMarker intoString:&raw_base64];
-
-      if ([raw_base64 rangeOfString:kBeginMarker].location != NSNotFound) {
-        SetStatus(out_status,
-                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                               "Nested or unclosed PEM CERTIFICATE block"));
-        return nullptr;
-      }
-
-      if (![scanner scanString:kEndMarker intoString:NULL]) {
-        SetStatus(out_status,
-                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                               "Unclosed PEM CERTIFICATE block in peer chain"));
-        return nullptr;
-      }
-
-      NSString* clean_base64 =
-          [[raw_base64 componentsSeparatedByCharactersInSet:ws]
-              componentsJoinedByString:@""];
-
-      if (clean_base64.length == 0) {
-        SetStatus(
-            out_status,
-            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                         "Invalid base64 payload in PEM CERTIFICATE block"));
-        return nullptr;
-      }
-
-      NSData* der_data =
-          [[NSData alloc] initWithBase64EncodedString:clean_base64 options:0];
-      if (der_data == nil || der_data.length == 0) {
-        SetStatus(
-            out_status,
-            grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                         "Invalid base64 payload in PEM CERTIFICATE block"));
-        return nullptr;
-      }
-
-      SecCertificateRef cert = SecCertificateCreateWithData(
-          kCFAllocatorDefault, (__bridge CFDataRef)der_data);
-      if (cert == nullptr) {
-        SetStatus(out_status,
-                  grpc::Status(
-                      grpc::StatusCode::UNAUTHENTICATED,
-                      "Failed to parse DER X.509 certificate in peer chain"));
-        return nullptr;
-      }
-
-      CFArrayAppendValue(certs, cert);
-      CFRelease(cert);
-    }
-
-    if (CFArrayGetCount(certs) == 0) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "No PEM certificates found in peer chain"));
-      return nullptr;
-    }
-
-    ok = true;
-    SetStatus(out_status, grpc::Status::OK);
-    return certs;
+  CFMutableArrayRef certs =
+      CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
+  if (certs == nullptr) {
+    SetStatus(out_status,
+              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                           "Failed to allocate CFArray for peer chain"));
+    return nullptr;
   }
+  bool ok = false;
+  util::Defer cleanup_certs([&] {
+    if (!ok) {
+      util::SafeCFRelease(certs);
+    }
+  });
+
+  for (const std::string& der : der_certificates) {
+    CFDataRef data = CFDataCreate(kCFAllocatorDefault,
+                                  reinterpret_cast<const UInt8*>(der.data()),
+                                  static_cast<CFIndex>(der.size()));
+    SecCertificateRef cert = data == nullptr ? nullptr
+                                             : SecCertificateCreateWithData(
+                                                   kCFAllocatorDefault, data);
+    util::SafeCFRelease(data);
+    if (cert == nullptr) {
+      SetStatus(
+          out_status,
+          grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                       "Failed to parse DER X.509 certificate in peer chain"));
+      return nullptr;
+    }
+    CFArrayAppendValue(certs, cert);
+    CFRelease(cert);
+  }
+
+  ok = true;
+  SetStatus(out_status, grpc::Status::OK);
+  return certs;
 }
 
 // Owns a +1 CoreFoundation reference. Captured by value in blocks (which
