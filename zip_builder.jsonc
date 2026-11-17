@@ -161,6 +161,8 @@
         "files": [
           // The legacy zip's README; it moves here when ReleaseTooling is retired.
           "ReleaseTooling/Template/README.md",
+          // Generated from zip.notices below; see its comment.
+          "CoreOnly/licenses/NOTICES",
           "CoreOnly/Sources/Firebase.h",
           "CoreOnly/Sources/module.modulemap"
         ]
@@ -174,14 +176,47 @@
       }
     ],
     "notices": {
-      // Licenses missing from the packages: BoringSSL ships inside openssl_grpc with no license
-      // file, and grpc-binary's LICENSE lacks gRPC's full third-party text.
-      "extraLicenses": {
+      // Generated separately and checked in: the daily infra.zip_builder_notices workflow runs
+      // `zip-builder notices --output CoreOnly/licenses/NOTICES` and opens a PR when it changes,
+      // and zip.files above copies it. These settings apply to that command.
+      "atBuildTime": false,
+      // TODO: titles, licenses and layout reproduce the legacy CocoaPods-generated
+      // CoreOnly/NOTICES byte for byte for the initial release: pod names as titles, the legacy
+      // license variants, and CocoaPods' layout. Remove them later to ship framework-named,
+      // trimmed notices; see scripts/zip_builder/docs/modernization_checklist.md (item 24).
+      //
+      // The pod names the legacy file lists, instead of framework names. Firebase is the
+      // umbrella pod, whose license is the root LICENSE.
+      "titles": {
+        "FirebaseCore": ["Firebase", "FirebaseCore"],
+        "FBLPromises": ["PromisesObjC"],
+        "GoogleAppMeasurementIdentitySupport": ["GoogleAppMeasurement"],
+        "absl": ["abseil"],
+        "grpc": ["gRPC-Core"],
+        "grpcpp": ["gRPC-C++"],
+        "leveldb": ["leveldb-library"],
+        "openssl_grpc": ["BoringSSL-GRPC"]
+      },
+      // Exactly these license files, instead of those found in the packages. Kept after the
+      // TODO above: BoringSSL ships inside openssl_grpc with no license file, grpc-binary's
+      // LICENSE lacks gRPC's full third-party text, and the FirebaseFirestoreInternal binary is
+      // in the root package, so it would only get the root LICENSE. Parity only: the legacy
+      // Apache text without the APPENDIX for the Analytics binaries, abseil's https variant, and
+      // GoogleUtilities without IsAppEncrypted's own LICENSE.
+      "licenses": {
         "openssl_grpc": ["CoreOnly/licenses/BoringSSL.txt"],
         "grpc": ["CoreOnly/licenses/gRPC.txt"],
         "grpcpp": ["CoreOnly/licenses/gRPC.txt"],
-        "FirebaseFirestoreInternal": ["Firestore/LICENSE"]
-      }
+        "FirebaseFirestoreInternal": ["Firestore/LICENSE"],
+        "FirebaseAnalytics": ["CoreOnly/licenses/GoogleAppMeasurement.txt"],
+        "GoogleAdsOnDeviceConversion": ["CoreOnly/licenses/GoogleAppMeasurement.txt"],
+        "GoogleAppMeasurement": ["CoreOnly/licenses/GoogleAppMeasurement.txt"],
+        "GoogleAppMeasurementIdentitySupport": ["CoreOnly/licenses/GoogleAppMeasurement.txt"],
+        "absl": ["CoreOnly/licenses/abseil.txt"],
+        "GoogleUtilities": [".build/checkouts/GoogleUtilities/LICENSE"]
+      },
+      // CocoaPods' layout: entries group by exact license text, which is rendered as is.
+      "layout": "verbatim"
     }
   },
 
