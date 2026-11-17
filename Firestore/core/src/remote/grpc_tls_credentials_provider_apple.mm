@@ -53,10 +53,10 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
 }
 
 // Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or an
-// empty string if `target_name` is malformed. Uses the parser shared with the
-// Linux and Windows verifiers, which strips ports, brackets, and IPv6 zone IDs
-// and returns IPv6 literals in canonical form; IPv4-mapped addresses are
-// written in hex (`::ffff:7f00:1`), the only form SecPolicy matches.
+// empty string if `target_name` is malformed. Uses the platform-neutral parser
+// in `grpc_tls_target_host.h`, which strips brackets and IPv6 zone IDs and
+// returns IPv6 literals in canonical form; IPv4-mapped addresses are written in
+// hex (`::ffff:7f00:1`), the only form SecPolicy matches.
 std::string ExtractTlsHostName(absl::string_view target_name) {
   absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
   return host.has_value() ? host->host : std::string();
@@ -308,8 +308,22 @@ SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
     // Never let trustd fetch missing intermediates (AIA caIssuers URLs) or
     // other resources over the network on behalf of the unauthenticated peer:
     // a server could otherwise make the device request any URL it chooses.
-    // Incomplete chains fail closed instead, as they do on Linux and Windows.
-    // This also turns off online revocation checks, which are not requested.
+    // Incomplete chains fail closed instead.
+    //
+    // Revocation: this verifier relies on trustd's locally stored revocation
+    // data rather than per-handshake OCSP or CRL queries. `SecPolicyCreateSSL`
+    // alone requests no live revocation checking (that would take
+    // `SecPolicyCreateRevocation`), and with network fetches disabled none
+    // could happen anyway. Disabling fetches does not disable Apple's `Valid`
+    // revocation database, which trustd syncs in the background and consults
+    // offline, nor OS, MDM, or OTA trust-store updates. Live checks are avoided
+    // because they add latency to every connection (and can stall it behind an
+    // unreachable responder), reveal to the CA which hosts the device connects
+    // to, and, being necessarily soft-fail in a client library, offer little
+    // protection against an attacker who can block the responder. The cost is
+    // a window between a CA revoking a certificate and the device's next
+    // `Valid` update; that window is no wider than with the previous embedded
+    // root bundle, which only changed when apps shipped a new SDK.
     OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(trust, false);
     if (fetch_status != errSecSuccess) {
       SetStatus(out_status,
