@@ -12,7 +12,7 @@ on:
     # The wire compatibility unit tests use the shared HTTPWireRecorder.
     - 'FirebaseTestingSupport/WireCompatibility/**'
     # Requests go through FirebaseCoreInternal's HTTP client.
-    - 'FirebaseCore/Internal/Sources/Networking/**'
+    - 'FirebaseCore/Internal/Networking/**'
     - '.github/workflows/sdk.storage.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'

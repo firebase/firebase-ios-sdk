@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCoreInternal
+import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(FirebaseNetworkingInternal)
+  @_spi(FirebaseNetworking) @testable import FirebaseNetworkingInternal
+#else
+  @_spi(FirebaseNetworking) @testable import FirebaseCoreInternal
+#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -20,7 +28,9 @@ import XCTest
 
 // Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
 // lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
-#if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
+// `bytes(for:policy:)` uses `URLSession.AsyncBytes`, which FoundationNetworking doesn't have, so
+// these tests only run on Apple platforms.
+#if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS) && canImport(Darwin)
 
   /// Tests `URLSessionTransport.bytes(for:policy:)` and `FirebaseHTTPClient.bytes(for:policy:)`.
   @available(iOS 15.0, macOS 12.0, tvOS 15.0, *)

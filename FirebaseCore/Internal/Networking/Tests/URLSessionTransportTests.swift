@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCoreInternal
+import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(FirebaseNetworkingInternal)
+  @_spi(FirebaseNetworking) @testable import FirebaseNetworkingInternal
+#else
+  @_spi(FirebaseNetworking) @testable import FirebaseCoreInternal
+#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -20,6 +28,10 @@ import XCTest
 
 // Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
 // lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
+// `linuxURLProtocolLimitations`: on Linux, FoundationNetworking can't serve redirects from a
+// `URLProtocol` (it calls `fatalError`), crashes when a `URLProtocol` answers a download task,
+// doesn't pass upload bodies to a `URLProtocol`, and reports no expected length. The tests that
+// need those run on Apple platforms only.
 #if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
 
   class URLSessionTransportTests: XCTestCase {
@@ -41,7 +53,9 @@ import XCTest
     func testSessionIsEphemeralAndRequiresTLS12() {
       let configuration = URLSessionTransport().session.configuration
 
-      XCTAssertEqual(configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+      #if canImport(Darwin)
+        XCTAssertEqual(configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+      #endif
       XCTAssertNotNil(configuration.httpCookieStorage)
       XCTAssertFalse(configuration.httpCookieStorage === HTTPCookieStorage.shared)
       XCTAssertFalse(configuration.urlCredentialStorage === URLCredentialStorage.shared)
@@ -51,7 +65,9 @@ import XCTest
       let transport = URLSessionTransport { $0.timeoutIntervalForResource = 42 }
 
       XCTAssertEqual(transport.session.configuration.timeoutIntervalForResource, 42)
-      XCTAssertEqual(transport.session.configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+      #if canImport(Darwin)
+        XCTAssertEqual(transport.session.configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+      #endif
     }
 
     // MARK: - Responses
@@ -148,69 +164,89 @@ import XCTest
 
     // MARK: - Redirects
 
-    func testSameOriginRedirectReplaysTheRequestWithCredentials() async throws {
-      let requests = try await followRedirect(to: "https://example.com/moved")
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testSameOriginRedirectReplaysTheRequestWithCredentials() async throws {
+        let requests = try await followRedirect(to: "https://example.com/moved")
 
-      let replayed = try XCTUnwrap(requests.last)
-      XCTAssertEqual(replayed.url.absoluteString, "https://example.com/moved")
-      XCTAssertEqual(replayed.method, "POST")
-      XCTAssertEqual(replayed.body, body)
-      XCTAssertEqual(replayed.header("Authorization"), "Bearer token")
-      XCTAssertEqual(replayed.header("X-Firebase-AppCheck"), "app-check-token")
-      XCTAssertEqual(replayed.header("Content-Type"), "application/json")
-    }
-
-    func testCrossOriginRedirectRemovesCredentials() async throws {
-      let requests = try await followRedirect(to: "https://other.example/moved")
-
-      let replayed = try XCTUnwrap(requests.last)
-      XCTAssertEqual(replayed.url.absoluteString, "https://other.example/moved")
-      XCTAssertEqual(replayed.method, "POST")
-      XCTAssertEqual(replayed.body, body)
-      XCTAssertNil(replayed.header("Authorization"))
-      XCTAssertNil(replayed.header("X-Firebase-AppCheck"))
-      XCTAssertEqual(replayed.header("Content-Type"), "application/json")
-    }
-
-    func testRedirectToTrustedHostKeepsCredentials() async throws {
-      let requests = try await followRedirect(
-        to: "https://other.example/moved",
-        policy: HTTPRequestPolicy(trustedRedirectHosts: ["other.example"])
-      )
-
-      XCTAssertEqual(requests.last?.header("Authorization"), "Bearer token")
-    }
-
-    func testRedirectNeverDowngradesHTTPS() async throws {
-      let requests = try await followRedirect(to: "http://example.com/moved")
-
-      XCTAssertEqual(requests.last?.url.absoluteString, "https://example.com/moved")
-    }
-
-    func testChainedRedirectsKeepTheRemovedCredentialsRemoved() async throws {
-      let start = startURL.absoluteString
-      HTTPWireRecorder.reset { request in
-        switch request.url.absoluteString {
-        case start:
-          return .redirect(status: 307, location: URL(string: "https://other.example/hop")!)
-        case "https://other.example/hop":
-          return .redirect(status: 307, location: URL(string: "https://example.com/end")!)
-        default:
-          return .json(status: 200, "{}")
-        }
+        let replayed = try XCTUnwrap(requests.last)
+        XCTAssertEqual(replayed.url.absoluteString, "https://example.com/moved")
+        XCTAssertEqual(replayed.method, "POST")
+        XCTAssertEqual(replayed.body, body)
+        XCTAssertEqual(replayed.header("Authorization"), "Bearer token")
+        XCTAssertEqual(replayed.header("X-Firebase-AppCheck"), "app-check-token")
+        XCTAssertEqual(replayed.header("Content-Type"), "application/json")
       }
+    #endif
 
-      _ = try await makeTransport().data(for: postRequest(startURL), policy: HTTPRequestPolicy())
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testCrossOriginRedirectRemovesCredentials() async throws {
+        let requests = try await followRedirect(to: "https://other.example/moved")
 
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.map(\.url.absoluteString), [
-        "https://example.com/start", "https://other.example/hop", "https://example.com/end",
-      ])
-      XCTAssertNil(requests[1].header("Authorization"))
-      XCTAssertNil(requests[2].header("Authorization"),
-                   "Credentials removed for one hop stay removed")
-      XCTAssertEqual(requests[2].body, body)
-    }
+        let replayed = try XCTUnwrap(requests.last)
+        XCTAssertEqual(replayed.url.absoluteString, "https://other.example/moved")
+        XCTAssertEqual(replayed.method, "POST")
+        XCTAssertEqual(replayed.body, body)
+        XCTAssertNil(replayed.header("Authorization"))
+        XCTAssertNil(replayed.header("X-Firebase-AppCheck"))
+        XCTAssertEqual(replayed.header("Content-Type"), "application/json")
+      }
+    #endif
+
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testRedirectToTrustedHostKeepsCredentials() async throws {
+        let requests = try await followRedirect(
+          to: "https://other.example/moved",
+          policy: HTTPRequestPolicy(trustedRedirectHosts: ["other.example"])
+        )
+
+        XCTAssertEqual(requests.last?.header("Authorization"), "Bearer token")
+      }
+    #endif
+
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testRedirectNeverDowngradesHTTPS() async throws {
+        let requests = try await followRedirect(to: "http://example.com/moved")
+
+        XCTAssertEqual(requests.last?.url.absoluteString, "https://example.com/moved")
+      }
+    #endif
+
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testChainedRedirectsKeepTheRemovedCredentialsRemoved() async throws {
+        let start = startURL.absoluteString
+        HTTPWireRecorder.reset { request in
+          switch request.url.absoluteString {
+          case start:
+            return .redirect(status: 307, location: URL(string: "https://other.example/hop")!)
+          case "https://other.example/hop":
+            return .redirect(status: 307, location: URL(string: "https://example.com/end")!)
+          default:
+            return .json(status: 200, "{}")
+          }
+        }
+
+        _ = try await makeTransport().data(for: postRequest(startURL), policy: HTTPRequestPolicy())
+
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.map(\.url.absoluteString), [
+          "https://example.com/start", "https://other.example/hop", "https://example.com/end",
+        ])
+        XCTAssertNil(requests[1].header("Authorization"))
+        XCTAssertNil(requests[2].header("Authorization"),
+                     "Credentials removed for one hop stay removed")
+        XCTAssertEqual(requests[2].body, body)
+      }
+    #endif
 
     // MARK: - Helpers
 
@@ -254,7 +290,7 @@ import XCTest
   }
 
   /// Never answers, so that a request stays in flight until it's cancelled.
-  final class UnansweredURLProtocol: URLProtocol, @unchecked Sendable {
+  final class UnansweredURLProtocol: URLProtocol {
     private static let started = AsyncStream<Void>.makeStream()
 
     /// Waits until a request starts loading.

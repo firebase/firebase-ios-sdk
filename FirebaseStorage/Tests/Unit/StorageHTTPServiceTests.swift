@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import FirebaseAuthInterop
-import FirebaseCoreInternal
+@_spi(FirebaseNetworking) import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 import XCTest

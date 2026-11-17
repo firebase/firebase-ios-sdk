@@ -31,7 +31,7 @@ let invalidBackgroundTaskIdentifier = 0
 /// Holds a background task until `end()` is called or the system expires the task.
 final class BackgroundTaskAssertion: Sendable {
   private let application: any BackgroundTaskApplication
-  private let identifier = UnfairLock(invalidBackgroundTaskIdentifier)
+  private let identifier = LockedValue(invalidBackgroundTaskIdentifier)
 
   init(application: any BackgroundTaskApplication, name: String) {
     self.application = application

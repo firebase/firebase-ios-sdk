@@ -22,7 +22,7 @@ import Foundation
 ///
 /// It's the same string that `GTMFetcherStandardUserAgentString(nil)` from GTMSessionFetcher
 /// returns, so the User-Agent doesn't change when an SDK stops using GTMSessionFetcher.
-public enum FirebaseUserAgent {
+@_spi(FirebaseNetworking) public enum FirebaseUserAgent {
   /// `<app>/<version> <system>`, for example `com.example.app/1.2 iPhone/18.3 hw/iPhone17_1`.
   ///
   /// - On iOS, tvOS, watchOS, and Mac Catalyst, the system part is
@@ -150,34 +150,36 @@ public enum FirebaseUserAgent {
     #endif
   }
 
-  /// Reads `model` and `systemVersion` from `UIDevice.current` or `WKInterfaceDevice.current()`.
-  ///
-  /// The values are read through the Objective-C runtime. Those classes are main-actor isolated
-  /// in Swift, but the User-Agent is computed on whatever thread first needs it.
-  private static func currentDevice(className: String) -> (model: String,
-                                                           systemVersion: String) {
-    if let deviceClass = NSClassFromString(className),
-       let device = object(from: deviceClass as AnyObject, getter: "currentDevice"),
-       let model = object(from: device, getter: "model") as? String,
-       let systemVersion = object(from: device, getter: "systemVersion") as? String {
-      return (model, systemVersion)
+  #if canImport(ObjectiveC)
+    /// Reads `model` and `systemVersion` from `UIDevice.current` or `WKInterfaceDevice.current()`.
+    ///
+    /// The values are read through the Objective-C runtime. Those classes are main-actor isolated
+    /// in Swift, but the User-Agent is computed on whatever thread first needs it.
+    private static func currentDevice(className: String) -> (model: String,
+                                                             systemVersion: String) {
+      if let deviceClass = NSClassFromString(className),
+         let device = object(from: deviceClass as AnyObject, getter: "currentDevice"),
+         let model = object(from: device, getter: "model") as? String,
+         let systemVersion = object(from: device, getter: "systemVersion") as? String {
+        return (model, systemVersion)
+      }
+      // Apps always load UIKit or WatchKit, so this is only a fallback for unusual processes.
+      let version = ProcessInfo.processInfo.operatingSystemVersion
+      let systemVersion = version.patchVersion == 0
+        ? "\(version.majorVersion).\(version.minorVersion)"
+        : "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
+      return ("unknown", systemVersion)
     }
-    // Apps always load UIKit or WatchKit, so this is only a fallback for unusual processes.
-    let version = ProcessInfo.processInfo.operatingSystemVersion
-    let systemVersion = version.patchVersion == 0
-      ? "\(version.majorVersion).\(version.minorVersion)"
-      : "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-    return ("unknown", systemVersion)
-  }
 
-  /// Calls the getter named `getter` on `target` if `target` responds to it.
-  private static func object(from target: AnyObject, getter: String) -> AnyObject? {
-    let selector = NSSelectorFromString(getter)
-    guard target.responds(to: selector) else {
-      return nil
+    /// Calls the getter named `getter` on `target` if `target` responds to it.
+    private static func object(from target: AnyObject, getter: String) -> AnyObject? {
+      let selector = NSSelectorFromString(getter)
+      guard target.responds(to: selector) else {
+        return nil
+      }
+      return target.perform(selector)?.takeUnretainedValue()
     }
-    return target.perform(selector)?.takeUnretainedValue()
-  }
+  #endif
 
   /// The kernel name, kernel release, and machine name from `uname`.
   private static func systemInfo() -> (name: String, release: String, machine: String)? {

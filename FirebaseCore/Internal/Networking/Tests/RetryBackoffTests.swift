@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCoreInternal
+import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(FirebaseNetworkingInternal)
+  @_spi(FirebaseNetworking) @testable import FirebaseNetworkingInternal
+#else
+  @_spi(FirebaseNetworking) @testable import FirebaseCoreInternal
+#endif
 import XCTest
 
 class RetryBackoffTests: XCTestCase {
@@ -135,7 +143,7 @@ class RetryBackoffTests: XCTestCase {
   }
 
   func testAVeryLongSleepLastsUntilItIsCancelled() async {
-    let finished = UnfairLock(false)
+    let finished = LockedValue(false)
     let sleep = Task {
       defer { finished.withLock { $0 = true } }
       try await RetryBackoff.sleep(for: .infinity)
@@ -224,7 +232,7 @@ class RetryBackoffTests: XCTestCase {
 
 /// A clock that only moves when the test advances it.
 private final class FakeUptime: Sendable {
-  private let time = UnfairLock<TimeInterval>(1000)
+  private let time = LockedValue<TimeInterval>(1000)
 
   var now: TimeInterval {
     time.value()

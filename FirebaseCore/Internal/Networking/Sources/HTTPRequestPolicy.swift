@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// The rules that `FirebaseHTTPClient` applies to a request.
-public struct HTTPRequestPolicy: Sendable {
+@_spi(FirebaseNetworking) public struct HTTPRequestPolicy: Sendable {
   /// The hosts that keep receiving credentials after a redirect unless a policy says otherwise:
   /// `googleapis.com`, `google.com`, and their subdomains.
   public static let defaultTrustedRedirectHosts: Set<String> = ["googleapis.com", "google.com"]

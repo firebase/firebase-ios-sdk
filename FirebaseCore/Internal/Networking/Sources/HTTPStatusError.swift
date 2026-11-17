@@ -13,13 +13,16 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Creates the errors that Firebase SDKs report for HTTP responses with a status code of 300 or
 /// more.
 ///
 /// The domain, code, and `userInfo` keys are the ones that Firebase SDKs have always used for
 /// unsuccessful HTTP responses, so apps that inspect these errors keep working.
-public enum HTTPStatusError {
+@_spi(FirebaseNetworking) public enum HTTPStatusError {
   /// The error domain.
   public static let domain = "com.google.HTTPStatus"
 

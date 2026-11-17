@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCoreInternal
+import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(FirebaseNetworkingInternal)
+  @_spi(FirebaseNetworking) @testable import FirebaseNetworkingInternal
+#else
+  @_spi(FirebaseNetworking) @testable import FirebaseCoreInternal
+#endif
 import XCTest
 
 /// The expected strings match what `GTMFetcherStandardUserAgentString(nil)` returns on each

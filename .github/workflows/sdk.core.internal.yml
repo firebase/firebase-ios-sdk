@@ -11,6 +11,9 @@ on:
     - 'FirebaseCore/Internal/**'
     # The networking unit tests use the shared HTTPWireRecorder.
     - 'FirebaseTestingSupport/WireCompatibility/**'
+    # The manifest-host-parity job checks Package.swift on macOS and Linux.
+    - 'Package.swift'
+    - 'scripts/check_manifest_host_parity.py'
     - '.github/workflows/sdk.core.internal.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
@@ -26,6 +29,54 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseCoreInternalTests
+
+  spm-networking:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: FirebaseNetworkingInternalTests
+
+  # Builds and tests the networking code on Linux, which is supported for development, not for
+  # shipping. It uses the standalone package in FirebaseCore/Internal/Networking, because SwiftPM
+  # links all of a package's test targets into one executable on Linux, and most of Firebase's test
+  # targets don't build there.
+  networking-linux:
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    runs-on: ubuntu-24.04
+    container: swift:6.4.2@sha256:119ff7d833ea622851b459513333bb4bda5ebb32b7acd05dd05077d5b0383129
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Run FirebaseNetworkingInternal tests
+      working-directory: FirebaseCore/Internal/Networking
+      run: swift test
+    # Loading the manifest doesn't resolve dependencies, so this is quick.
+    - name: Dump Package.swift on Linux
+      run: swift package dump-package > manifest-linux.json
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: manifest-linux
+        path: manifest-linux.json
+
+  # Tools such as Dependabot resolve Apple apps' dependencies on Linux, so Package.swift must
+  # declare the same products, dependencies, and traits on every host (#16574).
+  manifest-host-parity:
+    needs: networking-linux
+    runs-on: macos-26
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Dump Package.swift on macOS
+      run: swift package dump-package > manifest-macos.json
+    - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+      with:
+        name: manifest-linux
+    - name: Compare the manifests
+      run: python3 scripts/check_manifest_host_parity.py manifest-macos.json manifest-linux.json
 
   catalyst:
     strategy:
