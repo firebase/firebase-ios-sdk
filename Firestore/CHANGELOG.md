@@ -7,10 +7,9 @@
   Certificates are evaluated asynchronously so verification never blocks gRPC
   threads, and missing intermediate certificates are never fetched over the
   network on behalf of the server.
-- [changed] On all platforms, a custom `host` that is an IP address must be
+- [changed] On Apple platforms, a custom `host` that is an IP address must be
   written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
-  internationalized host names must be Punycode-encoded, and port 0 is
-  rejected.
+  and internationalized host names must be Punycode-encoded.
 - [fixed] Security Update: Removed untrusted eMudhra root certificate
   (`emSign Root CA - G1`) from embedded trust store.
 
