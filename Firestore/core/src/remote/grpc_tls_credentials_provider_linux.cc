@@ -158,10 +158,13 @@ std::string SpkiDer(X509* cert) {
   return result;
 }
 
+// Returns the certificate's subject for error messages. The subject is
+// peer-controlled, so it is C-escaped (like the target name) to keep quotes,
+// control characters and terminal escape sequences out of statuses and logs.
 std::string SubjectName(X509* cert) {
   char buf[256];
   X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
-  return buf;
+  return absl::CHexEscape(buf);
 }
 
 // Parses exactly `size` bytes of DER as a certificate. Returns null if the

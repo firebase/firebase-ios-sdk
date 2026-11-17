@@ -596,6 +596,27 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
+TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
+     EscapesPeerSubjectInErrorMessages) {
+  // The subject is peer-controlled: it must not be able to inject quotes,
+  // newlines or terminal escape sequences into statuses and logs.
+  TestCertificate root = MakeRoot("verify-escape");
+  TestCertOptions leaf_opts;
+  leaf_opts.common_name = "evil' injected\n\x1b[2J";
+  leaf_opts.dns_sans = {"other.firestore.test"};
+  TestCertificate leaf = IssueTestCertificate(leaf_opts, &root);
+  LinuxTrustStore store = StoreWithAnchor(root);
+  grpc::Status status =
+      VerifyLinuxPeerCertificateChain(leaf.cert_pem(), kHost, store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  const std::string& message = status.error_message();
+  EXPECT_NE(message.find("evil\\' injected"), std::string::npos) << message;
+  for (char c : message) {
+    EXPECT_TRUE(c >= 0x20 && c < 0x7f)
+        << "unescaped byte " << static_cast<int>(c) << " in: " << message;
+  }
+}
+
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, ChecksHostNameOnLeafOnly) {
   // The intermediate (second) certificate never satisfies the hostname check.
   TestPki pki = CreateTestPki("verify-leaf", {"other.firestore.test"});
