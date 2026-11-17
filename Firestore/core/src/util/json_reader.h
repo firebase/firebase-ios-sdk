@@ -17,7 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_JSON_READER_H_
 #define FIRESTORE_CORE_SRC_UTIL_JSON_READER_H_
 
+#include <cstdint>
+#include <limits>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "Firestore/core/src/util/read_context.h"
@@ -98,18 +101,34 @@ class JsonReader : public util::ReadContext {
 
   template <typename IntType>
   IntType ParseInt(const nlohmann::json& value, JsonReader& reader) {
-    IntType result = 0;
-    if (value.is_number_integer()) {
-      // `get<IntType>()` silently truncates values that do not fit in
-      // `IntType`, so range-check them the same way as string-encoded ones.
-      if (!absl::SimpleAtoi<IntType>(value.dump(), &result)) {
+    // `get<IntType>()` silently truncates values that do not fit in
+    // `IntType`, so range-check them the same way as string-encoded ones.
+    using Limits = std::numeric_limits<IntType>;
+    if (value.is_number_unsigned()) {
+      const uint64_t v = value.get<uint64_t>();
+      if (v > static_cast<uint64_t>(Limits::max())) {
         reader.Fail("Integer value is out of range: " + value.dump());
         return 0;
       }
-
-      return result;
+      return static_cast<IntType>(v);
     }
 
+    if (value.is_number_integer()) {
+      const int64_t v = value.get<int64_t>();
+      const bool in_range =
+          std::is_signed<IntType>::value
+              ? v >= static_cast<int64_t>(Limits::min()) &&
+                    v <= static_cast<int64_t>(Limits::max())
+              : v >= 0 && static_cast<uint64_t>(v) <=
+                              static_cast<uint64_t>(Limits::max());
+      if (!in_range) {
+        reader.Fail("Integer value is out of range: " + value.dump());
+        return 0;
+      }
+      return static_cast<IntType>(v);
+    }
+
+    IntType result = 0;
     if (value.is_string()) {
       const auto& s = value.get_ref<const std::string&>();
       auto ok = absl::SimpleAtoi<IntType>(s, &result);
