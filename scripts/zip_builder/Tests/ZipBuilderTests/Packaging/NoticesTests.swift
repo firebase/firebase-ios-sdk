@@ -46,11 +46,11 @@ struct NoticesTests {
   @Test func rendersOneEntryPerLicenseTextInTheLegacyLayout() {
     let text = renderNotices([
       "Zeta": ["\nApache\n"],
-      // Leading and trailing whitespace doesn't make another license.
+      // Leading blank lines and trailing whitespace don't make another license.
       "Alpha": ["Apache"],
       "Beta": ["MIT\n"],
       // Two license files: listed under both texts.
-      "Gamma": ["MIT\n", "\n  Apache\n\n"],
+      "Gamma": ["MIT\n", "\n \nApache\n\n"],
     ])
     #expect(text == """
     Alpha
@@ -78,7 +78,8 @@ struct NoticesTests {
   }
 
   @Test func trimsTheFileAndEndsWithOneNewline() {
-    #expect(renderNotices(["A": ["\n\n  text  \n\n\n"]]) == "A\n\ntext\n")
+    // Blank lines around the text go; the first line's indentation stays.
+    #expect(renderNotices(["A": ["\n\n  text  \n\n\n"]]) == "A\n\n  text\n")
     // Inner whitespace is kept: it's part of the text.
     #expect(renderNotices(["A": ["one\n\n  two"], "B": ["one\ntwo"]])
       == "A\n\none\n\n  two\n\nB\n\none\ntwo\n")
@@ -171,6 +172,21 @@ struct NoticesTests {
     let texts = ["A": ["\nApache\n"], "B": ["Apache"]]
     #expect(renderNotices(texts) == renderNotices(texts, layout: .trimmed))
     #expect(renderNotices(texts) == "A\nB\n\nApache\n")
+  }
+
+  /// License files often center their first line; trimming drops only the blank lines around a
+  /// text, so that indentation survives (and copies still group).
+  @Test func theTrimmedLayoutKeepsTheFirstLinesIndentation() {
+    let texts = ["A": ["\n  \n      Apache License\n  Version 2.0\n\n"],
+                 "B": ["      Apache License\n  Version 2.0"]]
+    #expect(renderNotices(texts) == "A\nB\n\n      Apache License\n  Version 2.0\n")
+  }
+
+  @Test func trimmingBlankLinesKeepsIndentationAndInnerBlankLines() {
+    #expect(trimmingBlankLines("\n\n   Title\n\n Body  \n \n") == "   Title\n\n Body")
+    #expect(trimmingBlankLines("No blank lines") == "No blank lines")
+    #expect(trimmingBlankLines(" \n\t\n") == "")
+    #expect(trimmingBlankLines("") == "")
   }
 
   @Test func theVerbatimLayoutGroupsByExactTextAndKeepsIt() {

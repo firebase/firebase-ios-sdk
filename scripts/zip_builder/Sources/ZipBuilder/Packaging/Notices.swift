@@ -83,7 +83,7 @@ private func noticeEntries(_ licenseTexts: [String: [String]],
     // Copies of one license often differ only in a leading blank line or a trailing newline,
     // which `trimmed` ignores. A title with two copies of one text is listed once.
     let keys = switch layout {
-    case .trimmed: texts.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+    case .trimmed: texts.map(trimmingBlankLines)
     case .verbatim: texts
     }
     for text in Set(keys) {
@@ -97,11 +97,21 @@ private func noticeEntries(_ licenseTexts: [String: [String]],
     .sorted { ($0.titles, $0.text) < ($1.titles, $1.text) }
 }
 
+/// `text` without its leading blank lines and trailing whitespace. The first line keeps its
+/// indentation: license files often center their title (`   Apache License`).
+func trimmingBlankLines(_ text: String) -> String {
+  let lines = text.split(separator: "\n", omittingEmptySubsequences: false)
+  let firstWithText = lines.firstIndex { !$0.allSatisfy(\.isWhitespace) } ?? lines.endIndex
+  let kept = lines[firstWithText...].joined(separator: "\n")
+  guard let lastWithText = kept.lastIndex(where: { !$0.isWhitespace }) else { return "" }
+  return String(kept[...lastWithText])
+}
+
 private func render(_ entries: [NoticeEntry], _ layout: NoticesLayout) -> String {
   // A verbatim text keeps its own leading blank line, if it has one.
   let separator = layout == .trimmed ? "\n\n" : "\n"
   let body = entries.map { "\($0.titles)\(separator)\($0.text)\n\n" }.joined()
-  return body.trimmingCharacters(in: .whitespacesAndNewlines) + "\n"
+  return trimmingBlankLines(body) + "\n"
 }
 
 /// Fails when a path of the config key `key` (name to package-root-relative paths) doesn't

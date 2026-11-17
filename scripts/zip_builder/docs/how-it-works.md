@@ -512,9 +512,10 @@ macOS-style slices use `Versions/A/Resources` and `Contents/`. (`Building/Layout
    its own name; items that share a title are listed once under it. Titles with the same license
    text share one entry, titled by them, sorted, one per line, and entries are ordered by their
    titles. `zip.notices.layout` decides what counts as the same text and how an entry looks:
-   - `trimmed` (the default) compares texts with leading and trailing whitespace trimmed, since
-     copies of one license often differ only in a leading blank line (Firebase's `LICENSE` and
-     the binary packages' Apache text); inner whitespace counts. Each entry is the titles, a
+   - `trimmed` (the default) compares texts without their leading blank lines and trailing
+     whitespace, since copies of one license often differ only in a leading blank line
+     (Firebase's `LICENSE` and the binary packages' Apache text). Other whitespace counts, and
+     the first line keeps its indentation (`   Apache License`). Each entry is the titles, a
      blank line, the trimmed text, and two newlines.
    - `verbatim` groups only identical texts, and each entry is the titles, a newline, the text
      as is (a leading blank line included), and two newlines. That's how the CocoaPods-era

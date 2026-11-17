@@ -322,8 +322,9 @@ What else goes in the zip, next to the frameworks.
     under, instead of its own name. With several, it's listed under each of them; items that
     share a title are listed once under it, with all their license texts.
   - **`layout`** (`"trimmed"` or `"verbatim"`, default `"trimmed"`): how entries are grouped
-    and rendered. `trimmed` compares license texts with leading and trailing whitespace
-    trimmed, and renders each entry as the titles, a blank line and the trimmed text.
+    and rendered. `trimmed` compares license texts without their leading blank lines and
+    trailing whitespace (the first line keeps its indentation), and renders each entry as the
+    titles, a blank line and the trimmed text.
     `verbatim` groups only identical texts, and renders each entry as the titles, a newline and
     the text as is, its leading blank line included: the layout of the CocoaPods-era generator
     (`.github/actions/notices_generation/app.rb`). Either way, entries are ordered by their
