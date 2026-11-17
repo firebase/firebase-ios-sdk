@@ -632,126 +632,201 @@ ThreeTierPki BuildThreeTierPki(const CertOptions& leaf_options,
 
 // Ephemeral localhost gRPC TLS server backed by `grpc::AsyncGenericService`
 // (compatible across both CMake gRPC 1.69.0 and CocoaPods/SPM gRPC 1.83.1+).
+//
+// Teardown is bounded. On the iOS simulator (gRPC 1.83.2, CFSocket
+// EventEngine listener), `grpc::Server::Shutdown()` has been observed to
+// never return after the server completed TLS handshakes for connections that
+// the client rejected: the main thread sat in `Server::ShutdownInternal` ->
+// `CompletionQueue::AsyncNext` -> `poll` while a libdispatch worker thread was
+// blocked on a lock owned by it, hanging the whole test process until the CI
+// job timed out. The server is test-only scaffolding, so instead of blocking
+// on it, the destructor shuts the server down on a detached thread and, if
+// that does not finish within `kLoopbackServerShutdownTimeout`, deliberately
+// leaks it with a warning. Client-side results, which are what the tests assert
+// on, are unaffected.
+constexpr std::chrono::seconds kLoopbackServerShutdownTimeout(15);
+
 class TlsLoopbackServer {
  public:
   TlsLoopbackServer(const std::string& server_private_key_pem,
-                    const std::string& server_cert_chain_pem) {
-    grpc::SslServerCredentialsOptions ssl_options;
-    ssl_options.pem_key_cert_pairs.push_back(
-        {server_private_key_pem, server_cert_chain_pem});
-
-    grpc::ServerBuilder builder;
-    builder.AddListeningPort("127.0.0.1:0",
-                             grpc::SslServerCredentials(ssl_options), &port_);
-    builder.RegisterAsyncGenericService(&generic_service_);
-    cq_ = builder.AddCompletionQueue();
-    server_ = builder.BuildAndStart();
-
-    if (server_ != nullptr && port_ > 0) {
-      server_thread_ = std::thread([this] { ServeLoop(); });
-    }
+                    const std::string& server_cert_chain_pem)
+      : impl_(std::make_shared<Impl>(server_private_key_pem,
+                                     server_cert_chain_pem)) {
   }
 
   ~TlsLoopbackServer() {
-    if (server_ != nullptr) {
-      server_->Shutdown(std::chrono::system_clock::now());
-    }
-    {
-      std::lock_guard<std::mutex> lock(mu_);
-      shutting_down_ = true;
-      if (cq_ != nullptr) {
-        cq_->Shutdown();
-      }
-    }
-    if (server_thread_.joinable()) {
-      server_thread_.join();
-    }
+    ShutdownBounded(std::move(impl_));
   }
 
   TlsLoopbackServer(const TlsLoopbackServer&) = delete;
   TlsLoopbackServer& operator=(const TlsLoopbackServer&) = delete;
 
   bool started() const {
-    return server_ != nullptr && port_ > 0;
+    return impl_->started();
   }
 
   int port() const {
-    return port_;
+    return impl_->port();
   }
 
   std::string target() const {
-    return absl::StrCat("127.0.0.1:", port_);
+    return absl::StrCat("127.0.0.1:", impl_->port());
   }
 
  private:
-  enum class Step { kRequest, kRead, kWriteAndFinish };
+  class Impl {
+   public:
+    Impl(const std::string& server_private_key_pem,
+         const std::string& server_cert_chain_pem) {
+      grpc::SslServerCredentialsOptions ssl_options;
+      ssl_options.pem_key_cert_pairs.push_back(
+          {server_private_key_pem, server_cert_chain_pem});
 
-  struct CallState {
-    grpc::GenericServerContext ctx;
-    grpc::GenericServerAsyncReaderWriter stream{&ctx};
-    grpc::ByteBuffer request;
-    Step step = Step::kRequest;
+      grpc::ServerBuilder builder;
+      builder.AddListeningPort("127.0.0.1:0",
+                               grpc::SslServerCredentials(ssl_options), &port_);
+      builder.RegisterAsyncGenericService(&generic_service_);
+      cq_ = builder.AddCompletionQueue();
+      server_ = builder.BuildAndStart();
+
+      if (server_ != nullptr && port_ > 0) {
+        server_thread_ = std::thread([this] { ServeLoop(); });
+      }
+    }
+
+    // May block indefinitely inside gRPC; see the class comment.
+    void Shutdown() {
+      if (server_ != nullptr) {
+        // A short grace period, after which gRPC cancels all calls.
+        server_->Shutdown(std::chrono::system_clock::now() +
+                          std::chrono::seconds(1));
+      }
+      {
+        std::lock_guard<std::mutex> lock(mu_);
+        shutting_down_ = true;
+        if (cq_ != nullptr) {
+          cq_->Shutdown();
+        }
+      }
+      if (server_thread_.joinable()) {
+        server_thread_.join();
+      }
+    }
+
+    bool started() const {
+      return server_ != nullptr && port_ > 0;
+    }
+
+    int port() const {
+      return port_;
+    }
+
+   private:
+    enum class Step { kRequest, kRead, kWriteAndFinish };
+
+    struct CallState {
+      grpc::GenericServerContext ctx;
+      grpc::GenericServerAsyncReaderWriter stream{&ctx};
+      grpc::ByteBuffer request;
+      Step step = Step::kRequest;
+    };
+
+    void SpawnCall() {
+      std::lock_guard<std::mutex> lock(mu_);
+      if (shutting_down_) {
+        return;
+      }
+      auto* state = new CallState();
+      generic_service_.RequestCall(&state->ctx, &state->stream, cq_.get(),
+                                   cq_.get(), state);
+    }
+
+    void ServeLoop() {
+      SpawnCall();
+
+      void* tag = nullptr;
+      bool ok = false;
+      while (cq_->Next(&tag, &ok)) {
+        auto* state = static_cast<CallState*>(tag);
+        if (!ok) {
+          delete state;
+          continue;
+        }
+
+        switch (state->step) {
+          case Step::kRequest: {
+            SpawnCall();
+            std::lock_guard<std::mutex> lock(mu_);
+            if (shutting_down_) {
+              delete state;
+              break;
+            }
+            state->step = Step::kRead;
+            state->stream.Read(&state->request, state);
+            break;
+          }
+          case Step::kRead: {
+            std::lock_guard<std::mutex> lock(mu_);
+            if (shutting_down_) {
+              delete state;
+              break;
+            }
+            state->step = Step::kWriteAndFinish;
+            state->stream.WriteAndFinish(state->request, grpc::WriteOptions{},
+                                         grpc::Status::OK, state);
+            break;
+          }
+          case Step::kWriteAndFinish:
+            delete state;
+            break;
+        }
+      }
+    }
+
+    int port_ = 0;
+    grpc::AsyncGenericService generic_service_;
+    std::unique_ptr<grpc::ServerCompletionQueue> cq_;
+    std::unique_ptr<grpc::Server> server_;
+    std::mutex mu_;
+    bool shutting_down_ = false;
+    std::thread server_thread_;
   };
 
-  void SpawnCall() {
-    std::lock_guard<std::mutex> lock(mu_);
-    if (shutting_down_) {
-      return;
-    }
-    auto* state = new CallState();
-    generic_service_.RequestCall(&state->ctx, &state->stream, cq_.get(),
-                                 cq_.get(), state);
-  }
+  // Shuts `impl` down on a detached thread that owns it, waiting at most
+  // `kLoopbackServerShutdownTimeout`. On timeout the thread (and `impl`) are
+  // leaked.
+  static void ShutdownBounded(std::shared_ptr<Impl> impl) {
+    struct Completion {
+      std::mutex mu;
+      std::condition_variable cv;
+      bool done = false;
+    };
+    auto completion = std::make_shared<Completion>();
+    int port = impl->port();
 
-  void ServeLoop() {
-    SpawnCall();
-
-    void* tag = nullptr;
-    bool ok = false;
-    while (cq_->Next(&tag, &ok)) {
-      auto* state = static_cast<CallState*>(tag);
-      if (!ok) {
-        delete state;
-        continue;
+    std::thread([impl = std::move(impl), completion]() mutable {
+      impl->Shutdown();
+      impl.reset();
+      {
+        std::lock_guard<std::mutex> lock(completion->mu);
+        completion->done = true;
       }
+      completion->cv.notify_all();
+    }).detach();
 
-      switch (state->step) {
-        case Step::kRequest: {
-          SpawnCall();
-          std::lock_guard<std::mutex> lock(mu_);
-          if (shutting_down_) {
-            delete state;
-            break;
-          }
-          state->step = Step::kRead;
-          state->stream.Read(&state->request, state);
-          break;
-        }
-        case Step::kRead: {
-          std::lock_guard<std::mutex> lock(mu_);
-          if (shutting_down_) {
-            delete state;
-            break;
-          }
-          state->step = Step::kWriteAndFinish;
-          state->stream.WriteAndFinish(state->request, grpc::WriteOptions{},
-                                       grpc::Status::OK, state);
-          break;
-        }
-        case Step::kWriteAndFinish:
-          delete state;
-          break;
-      }
+    std::unique_lock<std::mutex> lock(completion->mu);
+    if (!completion->cv.wait_for(lock, kLoopbackServerShutdownTimeout,
+                                 [&] { return completion->done; })) {
+      std::fprintf(stderr,
+                   "WARNING: TlsLoopbackServer on port %d did not shut down "
+                   "within %d s (known gRPC server shutdown hang on Apple); "
+                   "leaking it so the test process can continue.\n",
+                   port,
+                   static_cast<int>(kLoopbackServerShutdownTimeout.count()));
     }
   }
 
-  int port_ = 0;
-  grpc::AsyncGenericService generic_service_;
-  std::unique_ptr<grpc::ServerCompletionQueue> cq_;
-  std::unique_ptr<grpc::Server> server_;
-  std::mutex mu_;
-  bool shutting_down_ = false;
-  std::thread server_thread_;
+  std::shared_ptr<Impl> impl_;
 };
 
 std::string ReadByteBuffer(const grpc::ByteBuffer& buffer) {
