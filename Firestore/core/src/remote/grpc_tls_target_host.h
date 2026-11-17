@@ -32,30 +32,33 @@ struct TlsTargetHost {
 
   /**
    * The bare host: a DNS name, a dotted-quad IPv4 address, or an IPv6 address
-   * without brackets or zone ID. IPv6 addresses are in canonical RFC 5952 text
-   * form, except that embedded IPv4 (such as IPv4-mapped) addresses are also
-   * written in hex (`::ffff:7f00:1`), the form every platform verifier accepts.
-   * This form is internal to the certificate verifiers; it is not what users
-   * should write as a host (gRPC's per-call check expects `inet_ntop` text,
-   * see `CreateDefaultTlsCredentials()`).
+   * without zone ID. IPv6 addresses are in the system's `inet_ntop` text form
+   * (RFC 5952), except that an embedded IPv4 suffix (such as in IPv4-mapped
+   * addresses) is written in hex (`::ffff:7f00:1`), because Apple's
+   * `SecPolicyCreateSSL` only matches IPv4-mapped addresses written that way.
+   * Currently only the Apple certificate verifier consumes this form; it is
+   * not what users should write as a host (gRPC's per-call check expects
+   * `inet_ntop` text, see `CreateDefaultTlsCredentials()`).
    */
   std::string host;
   Kind kind = Kind::kDns;
 };
 
 /**
- * Extracts the host to verify against a server certificate from the
- * `target_name` that gRPC passes to certificate verifiers.
+ * Validates and normalizes the host to verify against a server certificate
+ * from the `target_name` that gRPC passes to certificate verifiers.
  *
- * Accepts `host`, `host:port`, `[ipv6]`, `[ipv6]:port`, and a bare `ipv6`
- * literal. Strips the port, the brackets, and any IPv6 `%zone` suffix (zone
- * IDs are never part of certificate identities).
+ * gRPC has already removed any port and IPv6 brackets (its TLS security
+ * connector keeps only the host from `SplitHostPort()`), so this accepts only
+ * a bare host: a DNS name, a dotted-quad IPv4 literal, or an IPv6 literal with
+ * an optional `%zone` suffix, which is stripped (zone IDs are never part of
+ * certificate identities).
  *
- * Returns `nullopt` for anything else: an empty host; control, whitespace,
- * non-ASCII, or URL-reserved characters; an empty, non-numeric, or out-of-range
- * port (valid ports are 1-65535); malformed brackets; malformed IPv4 literals
- * (including leading zeros, which some parsers read as octal); and malformed
- * IPv6 literals or zone IDs.
+ * Returns `nullopt` for anything else, including: an empty host; control,
+ * whitespace, non-ASCII, or URL-reserved characters; ports and brackets;
+ * IPv4 literals that do not round-trip through `inet_pton`/`inet_ntop`
+ * unchanged (such as leading zeros, which some parsers read as octal); and
+ * IPv6 literals or zone IDs that are malformed.
  */
 absl::optional<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
 
