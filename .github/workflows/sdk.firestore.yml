@@ -410,8 +410,12 @@ jobs:
           timeout_minutes: 60
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
+      # Fail a hung test after 5 minutes (XCTest attaches a spindump to the
+      # xcresult) instead of hanging until the job timeout.
       - name: Test
-        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: |
+          scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest \
+            -test-timeouts-enabled YES -maximum-test-execution-time-allowance 300
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ failure() }}
         with:
