@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import FirebaseCore
-import FirebaseCoreInternal
+@_spi(FirebaseNetworking) import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 #if SWIFT_PACKAGE

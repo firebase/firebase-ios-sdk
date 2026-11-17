@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Builds the request that follows an HTTP redirect.
 enum RedirectPolicy {

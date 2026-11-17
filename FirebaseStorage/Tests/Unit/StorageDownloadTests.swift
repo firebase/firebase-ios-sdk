@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseCoreInternal
+@_spi(FirebaseNetworking) import FirebaseCoreInternal
 @testable import FirebaseStorage
 import Foundation
 import SharedTestUtilities

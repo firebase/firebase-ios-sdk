@@ -343,6 +343,7 @@ func packageTargets() -> [Target] {
     .target(
       name: "FirebaseCoreInternal",
       dependencies: [
+        "FirebaseNetworkingInternal",
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseCore/Internal/Sources",
@@ -355,6 +356,21 @@ func packageTargets() -> [Target] {
         "FirebaseWireCompatibilityTestingSupport",
       ],
       path: "FirebaseCore/Internal/Tests"
+    ),
+    // The HTTP client that Firebase SDKs share. It has no dependencies so that it also builds on
+    // Linux, for development. `FirebaseCoreInternal` re-exports it. CocoaPods compiles these
+    // sources into `FirebaseCoreInternal` instead (see FirebaseCoreInternal.podspec).
+    .target(
+      name: "FirebaseNetworkingInternal",
+      path: "FirebaseCore/Internal/Networking/Sources"
+    ),
+    .testTarget(
+      name: "FirebaseNetworkingInternalTests",
+      dependencies: [
+        "FirebaseNetworkingInternal",
+        "FirebaseWireCompatibilityTestingSupport",
+      ],
+      path: "FirebaseCore/Internal/Networking/Tests"
     ),
 
     .target(

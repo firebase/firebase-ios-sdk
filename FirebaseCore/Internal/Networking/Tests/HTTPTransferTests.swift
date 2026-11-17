@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-@testable import FirebaseCoreInternal
+import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
+#if canImport(FirebaseNetworkingInternal)
+  @_spi(FirebaseNetworking) @testable import FirebaseNetworkingInternal
+#else
+  @_spi(FirebaseNetworking) @testable import FirebaseCoreInternal
+#endif
 #if SWIFT_PACKAGE
   import FirebaseWireCompatibilityTestingSupport
 #endif
@@ -20,6 +28,10 @@ import XCTest
 
 // Custom `URLProtocol` classes can't intercept `URLSession` traffic on watchOS. `HTTPWireRecorder`
 // lives in FirebaseTestingSupport, which only the SwiftPM and CocoaPods builds include.
+// `linuxURLProtocolLimitations`: on Linux, FoundationNetworking can't serve redirects from a
+// `URLProtocol` (it calls `fatalError`), crashes when a `URLProtocol` answers a download task,
+// doesn't pass upload bodies to a `URLProtocol`, and reports no expected length. The tests that
+// need those run on Apple platforms only.
 #if (COCOAPODS || SWIFT_PACKAGE) && !os(watchOS)
 
   /// Tests data transfers with progress and downloads, in `URLSessionTransport`,
@@ -40,20 +52,24 @@ import XCTest
 
     // MARK: - Data with progress
 
-    func testDataReportsProgressAndReturnsTheBody() async throws {
-      HTTPWireRecorder.reset(replies: [.http(status: 200, headers: lengthHeader, body: body)])
-      let transport = makeTransport()
-      let progress = ProgressRecorder()
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testDataReportsProgressAndReturnsTheBody() async throws {
+        HTTPWireRecorder.reset(replies: [.http(status: 200, headers: lengthHeader, body: body)])
+        let transport = makeTransport()
+        let progress = ProgressRecorder()
 
-      let (data, response) = try await transport.data(
-        for: URLRequest(url: url), policy: HTTPRequestPolicy(), progress: { progress.record($0) }
-      )
+        let (data, response) = try await transport.data(
+          for: URLRequest(url: url), policy: HTTPRequestPolicy(), progress: { progress.record($0) }
+        )
 
-      XCTAssertEqual(data, body)
-      XCTAssertEqual(response.statusCode, 200)
-      XCTAssertEqual(progress.values.last, completeProgress)
-      XCTAssertEqual(transport.trackedTaskCount, 0)
-    }
+        XCTAssertEqual(data, body)
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(progress.values.last, completeProgress)
+        XCTAssertEqual(transport.trackedTaskCount, 0)
+      }
+    #endif
 
     func testDataReturnsTheBodyOfAnHTTPError() async throws {
       HTTPWireRecorder.reset(replies: [.http(status: 404, body: body)])
@@ -101,34 +117,42 @@ import XCTest
 
     // MARK: - Downloads
 
-    func testDownloadWritesTheBodyToATemporaryFile() async throws {
-      HTTPWireRecorder.reset(replies: [.http(status: 200, headers: lengthHeader, body: body)])
-      let transport = makeTransport()
-      let progress = ProgressRecorder()
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testDownloadWritesTheBodyToATemporaryFile() async throws {
+        HTTPWireRecorder.reset(replies: [.http(status: 200, headers: lengthHeader, body: body)])
+        let transport = makeTransport()
+        let progress = ProgressRecorder()
 
-      let (fileURL, response) = try await transport.download(
-        .request(URLRequest(url: url)), policy: HTTPRequestPolicy(),
-        progress: { progress.record($0) }
-      )
-      defer { try? FileManager.default.removeItem(at: fileURL) }
+        let (fileURL, response) = try await transport.download(
+          .request(URLRequest(url: url)), policy: HTTPRequestPolicy(),
+          progress: { progress.record($0) }
+        )
+        defer { try? FileManager.default.removeItem(at: fileURL) }
 
-      XCTAssertEqual(try Data(contentsOf: fileURL), body)
-      XCTAssertEqual(response.statusCode, 200)
-      XCTAssertEqual(progress.values.last, completeProgress)
-      XCTAssertEqual(transport.trackedTaskCount, 0)
-    }
+        XCTAssertEqual(try Data(contentsOf: fileURL), body)
+        XCTAssertEqual(response.statusCode, 200)
+        XCTAssertEqual(progress.values.last, completeProgress)
+        XCTAssertEqual(transport.trackedTaskCount, 0)
+      }
+    #endif
 
-    func testDownloadWritesTheBodyOfAnHTTPErrorToTheFile() async throws {
-      HTTPWireRecorder.reset(replies: [.http(status: 404, body: body)])
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testDownloadWritesTheBodyOfAnHTTPErrorToTheFile() async throws {
+        HTTPWireRecorder.reset(replies: [.http(status: 404, body: body)])
 
-      let (fileURL, response) = try await makeTransport().download(
-        .request(URLRequest(url: url)), policy: HTTPRequestPolicy(), progress: { _ in }
-      )
-      defer { try? FileManager.default.removeItem(at: fileURL) }
+        let (fileURL, response) = try await makeTransport().download(
+          .request(URLRequest(url: url)), policy: HTTPRequestPolicy(), progress: { _ in }
+        )
+        defer { try? FileManager.default.removeItem(at: fileURL) }
 
-      XCTAssertEqual(try Data(contentsOf: fileURL), body)
-      XCTAssertEqual(response.statusCode, 404)
-    }
+        XCTAssertEqual(try Data(contentsOf: fileURL), body)
+        XCTAssertEqual(response.statusCode, 404)
+      }
+    #endif
 
     func testDownloadThrowsTransportErrors() async {
       HTTPWireRecorder.reset(replies: [.failure(.cannotFindHost)])
@@ -181,75 +205,87 @@ import XCTest
       XCTAssertTrue(HTTPWireRecorder.requests.isEmpty)
     }
 
-    func testDownloadRedirectsFollowTheRedirectPolicy() async throws {
-      let url = self.url
-      let body = self.body
-      HTTPWireRecorder.reset { request in
-        if request.url == url {
-          return .redirect(status: 302, location: URL(string: "https://other.example/object")!)
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testDownloadRedirectsFollowTheRedirectPolicy() async throws {
+        let url = self.url
+        let body = self.body
+        HTTPWireRecorder.reset { request in
+          if request.url == url {
+            return .redirect(status: 302, location: URL(string: "https://other.example/object")!)
+          }
+          return .http(status: 200, body: body)
         }
-        return .http(status: 200, body: body)
+        var request = URLRequest(url: url)
+        request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
+        request.setValue("app-check-token", forHTTPHeaderField: "X-Firebase-AppCheck")
+
+        let (fileURL, _) = try await makeTransport().download(
+          .request(request), policy: HTTPRequestPolicy(), progress: { _ in }
+        )
+        try? FileManager.default.removeItem(at: fileURL)
+
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.map(\.url.absoluteString),
+                       [url.absoluteString, "https://other.example/object"])
+        XCTAssertEqual(requests.first?.header("Authorization"), "Firebase token")
+        XCTAssertNil(requests.last?.header("Authorization"))
+        XCTAssertNil(requests.last?.header("X-Firebase-AppCheck"))
       }
-      var request = URLRequest(url: url)
-      request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
-      request.setValue("app-check-token", forHTTPHeaderField: "X-Firebase-AppCheck")
-
-      let (fileURL, _) = try await makeTransport().download(
-        .request(request), policy: HTTPRequestPolicy(), progress: { _ in }
-      )
-      try? FileManager.default.removeItem(at: fileURL)
-
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.map(\.url.absoluteString),
-                     [url.absoluteString, "https://other.example/object"])
-      XCTAssertEqual(requests.first?.header("Authorization"), "Firebase token")
-      XCTAssertNil(requests.last?.header("Authorization"))
-      XCTAssertNil(requests.last?.header("X-Firebase-AppCheck"))
-    }
+    #endif
 
     // MARK: - Resuming downloads
 
-    func testCancelledDownloadResumesFromWhereItStopped() async throws {
-      let transport = URLSessionTransport { $0.protocolClasses = [PartialContentURLProtocol.self] }
-      var request = URLRequest(url: url)
-      request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
-      let firstPartLength = Int64(PartialContentURLProtocol.firstPartLength)
-      let firstPartWritten = expectation(description: "The first part of the body was written")
-      firstPartWritten.assertForOverFulfill = false
-      let download = Task {
-        try await transport.download(.request(request), policy: HTTPRequestPolicy()) { progress in
-          if progress.completedBytes == firstPartLength {
-            firstPartWritten.fulfill()
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testCancelledDownloadResumesFromWhereItStopped() async throws {
+        let transport = URLSessionTransport { $0.protocolClasses = [PartialContentURLProtocol.self]
+        }
+        var request = URLRequest(url: url)
+        request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
+        let firstPartLength = Int64(PartialContentURLProtocol.firstPartLength)
+        let firstPartWritten = expectation(description: "The first part of the body was written")
+        firstPartWritten.assertForOverFulfill = false
+        let download = Task {
+          try await transport.download(.request(request), policy: HTTPRequestPolicy()) { progress in
+            if progress.completedBytes == firstPartLength {
+              firstPartWritten.fulfill()
+            }
           }
         }
+        await fulfillment(of: [firstPartWritten], timeout: 10)
+
+        download.cancel()
+
+        let resumeData: Data
+        do {
+          _ = try await download.value
+          XCTFail("Expected cancellation")
+          return
+        } catch let cancellation as HTTPDownloadCancellation {
+          resumeData = try XCTUnwrap(cancellation.resumeData)
+        }
+        let progress = ProgressRecorder()
+        let (fileURL, response) = try await transport.download(
+          .resumeData(resumeData), policy: HTTPRequestPolicy(), progress: { progress.record($0) }
+        )
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+
+        XCTAssertEqual(response.statusCode, 206)
+        XCTAssertEqual(try Data(contentsOf: fileURL), PartialContentURLProtocol.body)
+        XCTAssertEqual(progress.values.last?.completedBytes,
+                       Int64(PartialContentURLProtocol.body.count))
+        let resumedRequest = try XCTUnwrap(PartialContentURLProtocol.requests.last)
+        XCTAssertEqual(
+          resumedRequest.value(forHTTPHeaderField: "Range"),
+          "bytes=\(firstPartLength)-"
+        )
+        XCTAssertEqual(resumedRequest.value(forHTTPHeaderField: "Authorization"), "Firebase token")
+        await assertNoTrackedTasks(transport)
       }
-      await fulfillment(of: [firstPartWritten], timeout: 10)
-
-      download.cancel()
-
-      let resumeData: Data
-      do {
-        _ = try await download.value
-        XCTFail("Expected cancellation")
-        return
-      } catch let cancellation as HTTPDownloadCancellation {
-        resumeData = try XCTUnwrap(cancellation.resumeData)
-      }
-      let progress = ProgressRecorder()
-      let (fileURL, response) = try await transport.download(
-        .resumeData(resumeData), policy: HTTPRequestPolicy(), progress: { progress.record($0) }
-      )
-      defer { try? FileManager.default.removeItem(at: fileURL) }
-
-      XCTAssertEqual(response.statusCode, 206)
-      XCTAssertEqual(try Data(contentsOf: fileURL), PartialContentURLProtocol.body)
-      XCTAssertEqual(progress.values.last?.completedBytes,
-                     Int64(PartialContentURLProtocol.body.count))
-      let resumedRequest = try XCTUnwrap(PartialContentURLProtocol.requests.last)
-      XCTAssertEqual(resumedRequest.value(forHTTPHeaderField: "Range"), "bytes=\(firstPartLength)-")
-      XCTAssertEqual(resumedRequest.value(forHTTPHeaderField: "Authorization"), "Firebase token")
-      await assertNoTrackedTasks(transport)
-    }
+    #endif
 
     func testDownloadCancelledBeforeItStartsHandsBackItsResumeData() async {
       let transport = makeTransport()
@@ -318,39 +354,47 @@ import XCTest
 
     // MARK: - Uploads
 
-    func testUploadSendsTheBodyAndReturnsTheResponse() async throws {
-      let responseBody = Data("Uploaded".utf8)
-      HTTPWireRecorder.reset(replies: [.http(status: 200, body: responseBody)])
-      let transport = makeTransport()
-      var request = URLRequest(url: url)
-      request.httpMethod = "PUT"
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testUploadSendsTheBodyAndReturnsTheResponse() async throws {
+        let responseBody = Data("Uploaded".utf8)
+        HTTPWireRecorder.reset(replies: [.http(status: 200, body: responseBody)])
+        let transport = makeTransport()
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
 
-      let (data, response) = try await transport.upload(
-        request, from: .data(body), policy: HTTPRequestPolicy(), progress: { _ in }
-      )
+        let (data, response) = try await transport.upload(
+          request, from: .data(body), policy: HTTPRequestPolicy(), progress: { _ in }
+        )
 
-      XCTAssertEqual(data, responseBody)
-      XCTAssertEqual(response.statusCode, 200)
-      let recorded = try HTTPWireRecorder.singleRequest()
-      XCTAssertEqual(recorded.method, "PUT")
-      XCTAssertEqual(recorded.body, body)
-      await assertNoTrackedTasks(transport)
-    }
+        XCTAssertEqual(data, responseBody)
+        XCTAssertEqual(response.statusCode, 200)
+        let recorded = try HTTPWireRecorder.singleRequest()
+        XCTAssertEqual(recorded.method, "PUT")
+        XCTAssertEqual(recorded.body, body)
+        await assertNoTrackedTasks(transport)
+      }
+    #endif
 
-    func testUploadFromAFileSendsTheFile() async throws {
-      HTTPWireRecorder.reset(replies: [.http(status: 200)])
-      let fileURL = FileManager.default.temporaryDirectory
-        .appendingPathComponent("HTTPTransferTests-\(UUID().uuidString)")
-      try body.write(to: fileURL)
-      defer { try? FileManager.default.removeItem(at: fileURL) }
-      var request = URLRequest(url: url)
-      request.httpMethod = "PUT"
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testUploadFromAFileSendsTheFile() async throws {
+        HTTPWireRecorder.reset(replies: [.http(status: 200)])
+        let fileURL = FileManager.default.temporaryDirectory
+          .appendingPathComponent("HTTPTransferTests-\(UUID().uuidString)")
+        try body.write(to: fileURL)
+        defer { try? FileManager.default.removeItem(at: fileURL) }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
 
-      _ = try await makeTransport().upload(request, from: .file(fileURL),
-                                           policy: HTTPRequestPolicy(), progress: { _ in })
+        _ = try await makeTransport().upload(request, from: .file(fileURL),
+                                             policy: HTTPRequestPolicy(), progress: { _ in })
 
-      XCTAssertEqual(try HTTPWireRecorder.singleRequest().body, body)
-    }
+        XCTAssertEqual(try HTTPWireRecorder.singleRequest().body, body)
+      }
+    #endif
 
     func testUploadReturnsTheBodyOfAnHTTPError() async throws {
       HTTPWireRecorder.reset(replies: [.http(status: 403, body: body)])
@@ -385,27 +429,31 @@ import XCTest
       await assertNoTrackedTasks(transport)
     }
 
-    func testUploadRedirectsDropCredentialsForOtherOrigins() async throws {
-      let url = self.url
-      HTTPWireRecorder.reset { request in
-        if request.url == url {
-          return .redirect(status: 307, location: URL(string: "https://other.example/object")!)
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testUploadRedirectsDropCredentialsForOtherOrigins() async throws {
+        let url = self.url
+        HTTPWireRecorder.reset { request in
+          if request.url == url {
+            return .redirect(status: 307, location: URL(string: "https://other.example/object")!)
+          }
+          return .http(status: 200)
         }
-        return .http(status: 200)
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
+
+        _ = try await makeTransport().upload(request, from: .data(body),
+                                             policy: HTTPRequestPolicy(), progress: { _ in })
+
+        let requests = HTTPWireRecorder.requests
+        XCTAssertEqual(requests.map(\.url.absoluteString),
+                       [url.absoluteString, "https://other.example/object"])
+        XCTAssertEqual(requests.first?.header("Authorization"), "Firebase token")
+        XCTAssertNil(requests.last?.header("Authorization"))
       }
-      var request = URLRequest(url: url)
-      request.httpMethod = "PUT"
-      request.setValue("Firebase token", forHTTPHeaderField: "Authorization")
-
-      _ = try await makeTransport().upload(request, from: .data(body),
-                                           policy: HTTPRequestPolicy(), progress: { _ in })
-
-      let requests = HTTPWireRecorder.requests
-      XCTAssertEqual(requests.map(\.url.absoluteString),
-                     [url.absoluteString, "https://other.example/object"])
-      XCTAssertEqual(requests.first?.header("Authorization"), "Firebase token")
-      XCTAssertNil(requests.last?.header("Authorization"))
-    }
+    #endif
 
     func testDefaultUploadSendsTheBodyAndReportsProgressOnce() async throws {
       let transport = WholeResponseTransport(body: Data())
@@ -434,35 +482,51 @@ import XCTest
 
     // MARK: - Background session
 
-    func testOnlyUploadsFromFilesWithoutCredentialsUseTheBackgroundSession() {
-      let fileURL = URL(fileURLWithPath: "/tmp/upload")
-      let background = HTTPRequestPolicy(usesBackgroundSession: true)
-      let request = URLRequest(url: url)
-      func usesBackgroundSession(_ request: URLRequest, _ body: HTTPUploadBody,
-                                 _ policy: HTTPRequestPolicy) -> Bool {
-        URLSessionTransport.usesBackgroundSession(for: request, body: body, policy: policy)
+    // Background sessions only exist on Apple platforms.
+    #if canImport(Darwin)
+      func testOnlyUploadsFromFilesWithoutCredentialsUseTheBackgroundSession() {
+        let fileURL = URL(fileURLWithPath: "/tmp/upload")
+        let background = HTTPRequestPolicy(usesBackgroundSession: true)
+        let request = URLRequest(url: url)
+        func usesBackgroundSession(_ request: URLRequest, _ body: HTTPUploadBody,
+                                   _ policy: HTTPRequestPolicy) -> Bool {
+          URLSessionTransport.usesBackgroundSession(for: request, body: body, policy: policy)
+        }
+
+        XCTAssertTrue(usesBackgroundSession(request, .file(fileURL), background))
+        XCTAssertFalse(usesBackgroundSession(request, .file(fileURL), HTTPRequestPolicy()))
+        XCTAssertFalse(usesBackgroundSession(request, .data(body), background))
+        for credentialHeader in ["Authorization", "x-firebase-appcheck", "X-Goog-Api-Key"] {
+          var credentialed = request
+          credentialed.setValue("secret", forHTTPHeaderField: credentialHeader)
+          XCTAssertFalse(usesBackgroundSession(credentialed, .file(fileURL), background),
+                         credentialHeader)
+        }
       }
 
-      XCTAssertTrue(usesBackgroundSession(request, .file(fileURL), background))
-      XCTAssertFalse(usesBackgroundSession(request, .file(fileURL), HTTPRequestPolicy()))
-      XCTAssertFalse(usesBackgroundSession(request, .data(body), background))
-      for credentialHeader in ["Authorization", "x-firebase-appcheck", "X-Goog-Api-Key"] {
-        var credentialed = request
-        credentialed.setValue("secret", forHTTPHeaderField: credentialHeader)
-        XCTAssertFalse(usesBackgroundSession(credentialed, .file(fileURL), background),
-                       credentialHeader)
+      func testBackgroundConfigurationRequiresTLS12AndStoresNothing() {
+        let configuration = URLSessionTransport.backgroundConfiguration(identifier: "test")
+
+        XCTAssertEqual(configuration.identifier, "test")
+        XCTAssertEqual(configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
+        XCTAssertNil(configuration.httpCookieStorage)
+        XCTAssertFalse(configuration.httpShouldSetCookies)
+        XCTAssertNil(configuration.urlCache)
       }
-    }
 
-    func testBackgroundConfigurationRequiresTLS12AndStoresNothing() {
-      let configuration = URLSessionTransport.backgroundConfiguration(identifier: "test")
+    #else
+      func testNoUploadsUseABackgroundSession() {
+        let fileURL = URL(fileURLWithPath: "/tmp/upload")
+        let request = URLRequest(url: url)
 
-      XCTAssertEqual(configuration.identifier, "test")
-      XCTAssertEqual(configuration.tlsMinimumSupportedProtocolVersion, .TLSv12)
-      XCTAssertNil(configuration.httpCookieStorage)
-      XCTAssertFalse(configuration.httpShouldSetCookies)
-      XCTAssertNil(configuration.urlCache)
-    }
+        let usesBackgroundSession = URLSessionTransport.usesBackgroundSession(
+          for: request, body: .file(fileURL), policy: HTTPRequestPolicy(usesBackgroundSession: true)
+        )
+
+        XCTAssertFalse(usesBackgroundSession,
+                       "FoundationNetworking on Linux has no background sessions")
+      }
+    #endif
 
     // MARK: - FirebaseHTTPClient
 
@@ -476,22 +540,26 @@ import XCTest
                      FirebaseUserAgent.standard)
     }
 
-    func testClientDownloadAddsTheUserAgentAndHoldsABackgroundTask() async throws {
-      HTTPWireRecorder.reset(replies: [.http(status: 200, body: body)])
-      let application = FakeBackgroundTaskApplication()
-      let client = FirebaseHTTPClient(transport: makeTransport(),
-                                      backgroundTaskApplication: { application },
-                                      appAllowsArbitraryLoads: false)
+    // Apple platforms only: FoundationNetworking's URLProtocol support can't run this test on
+    // Linux (see `linuxURLProtocolLimitations`).
+    #if canImport(Darwin)
+      func testClientDownloadAddsTheUserAgentAndHoldsABackgroundTask() async throws {
+        HTTPWireRecorder.reset(replies: [.http(status: 200, body: body)])
+        let application = FakeBackgroundTaskApplication()
+        let client = FirebaseHTTPClient(transport: makeTransport(),
+                                        backgroundTaskApplication: { application },
+                                        appAllowsArbitraryLoads: false)
 
-      let (fileURL, _) = try await client.download(.request(URLRequest(url: url)),
-                                                   progress: { _ in })
-      try? FileManager.default.removeItem(at: fileURL)
+        let (fileURL, _) = try await client.download(.request(URLRequest(url: url)),
+                                                     progress: { _ in })
+        try? FileManager.default.removeItem(at: fileURL)
 
-      XCTAssertEqual(try HTTPWireRecorder.singleRequest().header("User-Agent"),
-                     FirebaseUserAgent.standard)
-      XCTAssertEqual(application.begunIdentifiers, [1])
-      XCTAssertEqual(application.endedIdentifiers, [1])
-    }
+        XCTAssertEqual(try HTTPWireRecorder.singleRequest().header("User-Agent"),
+                       FirebaseUserAgent.standard)
+        XCTAssertEqual(application.begunIdentifiers, [1])
+        XCTAssertEqual(application.endedIdentifiers, [1])
+      }
+    #endif
 
     func testClientDataWithProgressAddsTheUserAgent() async throws {
       HTTPWireRecorder.reset(replies: [.http(status: 200, body: body)])
@@ -609,7 +677,7 @@ import XCTest
 
   /// Records the progress values it receives.
   private final class ProgressRecorder: Sendable {
-    private let recorded = UnfairLock<[HTTPTransferProgress]>([])
+    private let recorded = LockedValue<[HTTPTransferProgress]>([])
 
     var values: [HTTPTransferProgress] {
       recorded.value()
@@ -624,7 +692,7 @@ import XCTest
   private final class WholeResponseTransport: HTTPTransport, @unchecked Sendable {
     private let body: Data
     private let error: (any Error)?
-    private let recordedRequests = UnfairLock<[URLRequest]>([])
+    private let recordedRequests = LockedValue<[URLRequest]>([])
 
     /// The requests that the transport got, in order.
     var requests: [URLRequest] {
@@ -653,11 +721,11 @@ import XCTest
   /// Answers a request with the first part of `body` and then stalls, so that the download stays
   /// in flight until it's cancelled. Answers a request for a range, as a resumed download sends,
   /// with the rest of `body`.
-  private final class PartialContentURLProtocol: URLProtocol, @unchecked Sendable {
+  private final class PartialContentURLProtocol: URLProtocol {
     static let body = Data((0 ..< 50000).map { UInt8($0 % 251) })
     static let firstPartLength = 20000
     private static let etag = "\"version-1\""
-    private static let receivedRequests = UnfairLock<[URLRequest]>([])
+    private static let receivedRequests = LockedValue<[URLRequest]>([])
 
     /// The requests that started loading, in order.
     static var requests: [URLRequest] {

@@ -15,7 +15,7 @@
 import Foundation
 
 import FirebaseCore
-import FirebaseCoreInternal
+@_spi(FirebaseNetworking) import FirebaseCoreInternal
 @testable import FirebaseStorage
 
 import XCTest

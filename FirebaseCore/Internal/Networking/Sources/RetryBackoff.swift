@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Computes how long to wait between the attempts of an operation that keeps failing, within a
 /// limit on the operation's total time.
@@ -21,7 +24,7 @@ import Foundation
 /// default. Each later retry waits twice as long as the one before, up to `maxInterval`. No retry
 /// starts later than `maxRetryTime` after the backoff was created, so create the backoff when the
 /// operation starts.
-public struct RetryBackoff: Sendable {
+@_spi(FirebaseNetworking) public struct RetryBackoff: Sendable {
   /// The time, in seconds, after the backoff was created when the last retry may start.
   public let maxRetryTime: TimeInterval
 

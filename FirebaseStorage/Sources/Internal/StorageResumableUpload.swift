@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseCoreInternal
+@_spi(FirebaseNetworking) internal import FirebaseCoreInternal
 
 /// Uploads data or a file to Firebase Storage with the resumable upload protocol.
 ///

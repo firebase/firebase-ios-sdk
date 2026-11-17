@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Sends the requests of a `FirebaseHTTPClient`. Tests can provide their own implementation.
-public protocol HTTPTransport: Sendable {
+@_spi(FirebaseNetworking) public protocol HTTPTransport: Sendable {
   /// Sends `request` and returns the response body and the response, whatever the status code.
   ///
   /// - Throws: The transport error, usually a `URLError`, or `CancellationError` if the calling
@@ -56,7 +59,7 @@ public protocol HTTPTransport: Sendable {
 ///
 /// Redirects follow `RedirectPolicy`, using the `HTTPRequestPolicy` of each request. Uploads from
 /// files whose policy asks for it run on a second, background session instead.
-public final class URLSessionTransport: HTTPTransport {
+@_spi(FirebaseNetworking) public final class URLSessionTransport: HTTPTransport {
   /// The session. Internal for tests.
   let session: URLSession
 
@@ -64,7 +67,7 @@ public final class URLSessionTransport: HTTPTransport {
 
   /// The background session and its delegate, created on first use. Each session needs its own
   /// delegate, because task identifiers are only unique within a session.
-  private let backgroundSessionTasks = UnfairLock<(session: URLSession, tasks: SessionTasks)?>(nil)
+  private let backgroundSessionTasks = LockedValue<(session: URLSession, tasks: SessionTasks)?>(nil)
 
   /// The number of registrations that the session delegate holds for tasks in flight. Internal
   /// for tests.
@@ -78,7 +81,10 @@ public final class URLSessionTransport: HTTPTransport {
   ///   created. Tests use it to install a `URLProtocol`.
   public init(configure: (URLSessionConfiguration) -> Void = { _ in }) {
     let configuration = URLSessionConfiguration.ephemeral
-    configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+    #if canImport(Darwin)
+      // FoundationNetworking on Linux has no such setting; libcurl's defaults apply there.
+      configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+    #endif
     configure(configuration)
     let tasks = SessionTasks()
     let delegateQueue = OperationQueue()
@@ -96,18 +102,20 @@ public final class URLSessionTransport: HTTPTransport {
     backgroundSessionTasks.withLock { $0?.session.finishTasksAndInvalidate() }
   }
 
-  /// Returns the configuration of a background session. Internal for tests.
-  ///
-  /// It requires TLS 1.2 or later and, like the ephemeral session, stores no cookies or cached
-  /// responses on disk.
-  static func backgroundConfiguration(identifier: String) -> URLSessionConfiguration {
-    let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
-    configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
-    configuration.httpCookieStorage = nil
-    configuration.httpShouldSetCookies = false
-    configuration.urlCache = nil
-    return configuration
-  }
+  #if canImport(Darwin)
+    /// Returns the configuration of a background session. Internal for tests.
+    ///
+    /// It requires TLS 1.2 or later and, like the ephemeral session, stores no cookies or cached
+    /// responses on disk.
+    static func backgroundConfiguration(identifier: String) -> URLSessionConfiguration {
+      let configuration = URLSessionConfiguration.background(withIdentifier: identifier)
+      configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+      configuration.httpCookieStorage = nil
+      configuration.httpShouldSetCookies = false
+      configuration.urlCache = nil
+      return configuration
+    }
+  #endif
 
   /// Whether an upload of `body` with `request` runs on the background session. Internal for
   /// tests.
@@ -116,33 +124,42 @@ public final class URLSessionTransport: HTTPTransport {
   /// because background sessions follow redirects without asking the delegate.
   static func usesBackgroundSession(for request: URLRequest, body: HTTPUploadBody,
                                     policy: HTTPRequestPolicy) -> Bool {
-    guard policy.usesBackgroundSession, case .file = body else {
+    #if canImport(Darwin)
+      guard policy.usesBackgroundSession, case .file = body else {
+        return false
+      }
+      let headerNames = (request.allHTTPHeaderFields ?? [:]).keys
+      return !headerNames.contains { RedirectPolicy.isCredentialHeader($0) }
+    #else
+      // FoundationNetworking on Linux has no background sessions.
       return false
-    }
-    let headerNames = (request.allHTTPHeaderFields ?? [:]).keys
-    return !headerNames.contains { RedirectPolicy.isCredentialHeader($0) }
+    #endif
   }
 
   /// Returns the background session and its delegate, creating them on first use. Each
   /// transport has its own background session, with a new identifier, so tasks that a previous
   /// launch of the app started are never delivered to it.
   private func backgroundSession() -> (session: URLSession, tasks: SessionTasks) {
-    backgroundSessionTasks.withLock { backgroundSessionTasks in
-      if let backgroundSessionTasks {
-        return backgroundSessionTasks
+    #if canImport(Darwin)
+      backgroundSessionTasks.withLock { backgroundSessionTasks in
+        if let backgroundSessionTasks {
+          return backgroundSessionTasks
+        }
+        let configuration = Self.backgroundConfiguration(
+          identifier: "com.google.firebase.URLSessionTransport.\(UUID().uuidString)"
+        )
+        let tasks = SessionTasks()
+        let delegateQueue = OperationQueue()
+        delegateQueue.name = "com.google.firebase.URLSessionTransport.background"
+        delegateQueue.maxConcurrentOperationCount = 1
+        let session = URLSession(configuration: configuration, delegate: tasks,
+                                 delegateQueue: delegateQueue)
+        backgroundSessionTasks = (session, tasks)
+        return (session, tasks)
       }
-      let configuration = Self.backgroundConfiguration(
-        identifier: "com.google.firebase.URLSessionTransport.\(UUID().uuidString)"
-      )
-      let tasks = SessionTasks()
-      let delegateQueue = OperationQueue()
-      delegateQueue.name = "com.google.firebase.URLSessionTransport.background"
-      delegateQueue.maxConcurrentOperationCount = 1
-      let session = URLSession(configuration: configuration, delegate: tasks,
-                               delegateQueue: delegateQueue)
-      backgroundSessionTasks = (session, tasks)
+    #else
       return (session, tasks)
-    }
+    #endif
   }
 
   public func data(for request: URLRequest,
@@ -172,29 +189,31 @@ public final class URLSessionTransport: HTTPTransport {
     }
   }
 
-  /// Sends `request` and returns as soon as the response headers arrive, whatever the status
-  /// code. The response body streams through the returned bytes.
-  ///
-  /// - Throws: The transport error, usually a `URLError`, or `CancellationError` if the calling
-  ///   task is cancelled before the response arrives.
-  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
-  public func bytes(for request: URLRequest,
-                    policy: HTTPRequestPolicy) async throws
-    -> (URLSession.AsyncBytes, HTTPURLResponse) {
-    // `URLSession` creates this task itself, so its redirects go through a task delegate.
-    let redirects = TaskRedirects(request: request, policy: policy)
-    let bytes: URLSession.AsyncBytes
-    let response: URLResponse
-    do {
-      (bytes, response) = try await session.bytes(for: request, delegate: redirects)
-    } catch let error as URLError where error.code == .cancelled && Task.isCancelled {
-      throw CancellationError()
+  #if canImport(Darwin)
+    /// Sends `request` and returns as soon as the response headers arrive, whatever the status
+    /// code. The response body streams through the returned bytes.
+    ///
+    /// - Throws: The transport error, usually a `URLError`, or `CancellationError` if the calling
+    ///   task is cancelled before the response arrives.
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    public func bytes(for request: URLRequest,
+                      policy: HTTPRequestPolicy) async throws
+      -> (URLSession.AsyncBytes, HTTPURLResponse) {
+      // `URLSession` creates this task itself, so its redirects go through a task delegate.
+      let redirects = TaskRedirects(request: request, policy: policy)
+      let bytes: URLSession.AsyncBytes
+      let response: URLResponse
+      do {
+        (bytes, response) = try await session.bytes(for: request, delegate: redirects)
+      } catch let error as URLError where error.code == .cancelled && Task.isCancelled {
+        throw CancellationError()
+      }
+      guard let response = response as? HTTPURLResponse else {
+        throw URLError(.badServerResponse)
+      }
+      return (bytes, response)
     }
-    guard let response = response as? HTTPURLResponse else {
-      throw URLError(.badServerResponse)
-    }
-    return (bytes, response)
-  }
+  #endif
 
   public func data(for request: URLRequest,
                    policy: HTTPRequestPolicy,
@@ -306,8 +325,8 @@ public final class URLSessionTransport: HTTPTransport {
 /// and results of transfers to their `TaskTransfer`.
 private final class SessionTasks: NSObject, URLSessionTaskDelegate, URLSessionDataDelegate,
   URLSessionDownloadDelegate, Sendable {
-  private let redirects = UnfairLock<[Int: TaskRedirects]>([:])
-  private let transfers = UnfairLock<[Int: TaskTransfer]>([:])
+  private let redirects = LockedValue<[Int: TaskRedirects]>([:])
+  private let transfers = LockedValue<[Int: TaskTransfer]>([:])
 
   func register(_ task: URLSessionTask, request: URLRequest, policy: HTTPRequestPolicy) {
     let taskIdentifier = task.taskIdentifier
@@ -393,11 +412,11 @@ private final class TaskRedirects: NSObject, URLSessionTaskDelegate, Sendable {
   private let policy: HTTPRequestPolicy
 
   /// The request that the task is currently sending.
-  private let currentRequest: UnfairLock<URLRequest>
+  private let currentRequest: LockedValue<URLRequest>
 
   init(request: URLRequest, policy: HTTPRequestPolicy) {
     self.policy = policy
-    currentRequest = UnfairLock(request)
+    currentRequest = LockedValue(request)
   }
 
   /// Returns the request to send to the redirect target, or `nil` to not follow the redirect.
@@ -430,7 +449,7 @@ private final class TaskCancellation: Sendable {
     var isCancelled = false
   }
 
-  private let state = UnfairLock(State())
+  private let state = LockedValue(State())
 
   var isCancelled: Bool {
     state.withLock { $0.isCancelled }
@@ -499,7 +518,7 @@ final class TaskTransfer: Sendable {
 
   let kind: Kind
   private let progress: @Sendable (HTTPTransferProgress) -> Void
-  private let state = UnfairLock(State())
+  private let state = LockedValue(State())
 
   init(kind: Kind, progress: @escaping @Sendable (HTTPTransferProgress) -> Void) {
     self.kind = kind
@@ -641,7 +660,11 @@ final class TaskTransfer: Sendable {
     case .data, .upload:
       return CancellationError()
     case .download:
-      return HTTPDownloadCancellation(resumeData: (error as? URLError)?.downloadTaskResumeData)
+      #if canImport(Darwin)
+        return HTTPDownloadCancellation(resumeData: (error as? URLError)?.downloadTaskResumeData)
+      #else
+        return HTTPDownloadCancellation(resumeData: nil)
+      #endif
     }
   }
 

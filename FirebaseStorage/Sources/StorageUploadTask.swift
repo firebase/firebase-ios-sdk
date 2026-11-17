@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseCoreInternal
+@_spi(FirebaseNetworking) internal import FirebaseCoreInternal
 
 #if COCOAPODS
   internal import GoogleUtilities

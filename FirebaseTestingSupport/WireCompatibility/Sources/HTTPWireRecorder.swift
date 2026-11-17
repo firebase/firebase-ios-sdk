@@ -13,6 +13,9 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 import XCTest
 
 /// A `URLProtocol` that records each request reaching the URL loading system and answers it with a
@@ -26,7 +29,7 @@ import XCTest
 ///
 /// SwiftPM test targets get it by depending on the `FirebaseWireCompatibilityTestingSupport`
 /// target. CocoaPods test specs compile it by listing this file in their `source_files`.
-public final class HTTPWireRecorder: URLProtocol, @unchecked Sendable {
+public final class HTTPWireRecorder: URLProtocol {
   /// A request as observed by the URL loading system.
   public struct Request: Sendable {
     public let url: URL

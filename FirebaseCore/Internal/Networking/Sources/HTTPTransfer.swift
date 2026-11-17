@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// How much of a response body has arrived.
-public struct HTTPTransferProgress: Sendable, Equatable {
+@_spi(FirebaseNetworking) public struct HTTPTransferProgress: Sendable, Equatable {
   /// The number of body bytes received so far.
   public var completedBytes: Int64
 
@@ -30,7 +33,7 @@ public struct HTTPTransferProgress: Sendable, Equatable {
 }
 
 /// Where a download starts.
-public enum HTTPDownloadSource: Sendable {
+@_spi(FirebaseNetworking) public enum HTTPDownloadSource: Sendable {
   /// A new download of the response to a request.
   case request(URLRequest)
 
@@ -40,7 +43,7 @@ public enum HTTPDownloadSource: Sendable {
 }
 
 /// The error that a download throws when the calling task is cancelled.
-public struct HTTPDownloadCancellation: Error, Sendable {
+@_spi(FirebaseNetworking) public struct HTTPDownloadCancellation: Error, Sendable {
   /// Data for resuming the download from where it stopped, or `nil` if it can't be resumed, for
   /// example because the server doesn't support it.
   public let resumeData: Data?
@@ -51,7 +54,7 @@ public struct HTTPDownloadCancellation: Error, Sendable {
 }
 
 /// The body of an upload.
-public enum HTTPUploadBody: Sendable {
+@_spi(FirebaseNetworking) public enum HTTPUploadBody: Sendable {
   /// Bytes in memory.
   case data(Data)
 
@@ -61,7 +64,7 @@ public enum HTTPUploadBody: Sendable {
 
 /// The transfers that a transport without its own implementation provides. They wait for the
 /// whole response, so progress is reported once, when it arrives.
-public extension HTTPTransport {
+@_spi(FirebaseNetworking) public extension HTTPTransport {
   func data(for request: URLRequest,
             policy: HTTPRequestPolicy,
             progress: @escaping @Sendable (HTTPTransferProgress) -> Void) async throws

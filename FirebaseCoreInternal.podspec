@@ -29,7 +29,9 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = watchos_deployment_target
 
   s.source_files = [
-    'FirebaseCore/Internal/Sources/**/*.swift'
+    'FirebaseCore/Internal/Sources/**/*.swift',
+    # Swift Package Manager builds these as the separate FirebaseNetworkingInternal module.
+    'FirebaseCore/Internal/Networking/Sources/**/*.swift',
   ]
 
   s.resource_bundles = {
@@ -54,6 +56,7 @@ Pod::Spec.new do |s|
     unit_tests.source_files = [
       'FirebaseCore/Internal/Tests/Unit/**/*.swift',
       'FirebaseCore/Internal/Tests/Common/**/*.swift',
+      'FirebaseCore/Internal/Networking/Tests/**/*.swift',
       'FirebaseTestingSupport/WireCompatibility/Sources/*.swift',
     ]
     unit_tests.requires_app_host = true

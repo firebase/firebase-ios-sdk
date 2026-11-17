@@ -13,9 +13,12 @@
 // limitations under the License.
 
 import Foundation
+#if canImport(FoundationNetworking)
+  import FoundationNetworking
+#endif
 
 /// Sends HTTP requests for Firebase SDKs.
-public final class FirebaseHTTPClient: Sendable {
+@_spi(FirebaseNetworking) public final class FirebaseHTTPClient: Sendable {
   /// The client that Firebase SDKs share. It sends every request on one ephemeral `URLSession`
   /// that requires TLS 1.2 or later and is never invalidated.
   public static let shared = FirebaseHTTPClient(transport: URLSessionTransport())
@@ -128,26 +131,28 @@ public final class FirebaseHTTPClient: Sendable {
     return try await operation()
   }
 
-  /// Sends `request` and returns as soon as the response headers arrive, whatever the status
-  /// code. The response body streams through the returned bytes.
-  ///
-  /// The request gets the same `User-Agent` and the same `policy` checks as in
-  /// `data(for:policy:)`. It doesn't hold a background task, because the body arrives after this
-  /// method returns.
-  ///
-  /// - Throws: A `URLError` for transport failures and for requests that `policy` doesn't allow,
-  ///   or `CancellationError` if the calling task is cancelled before the response arrives.
-  ///   Throws `URLError(.unsupportedURL)` if the client's transport isn't a
-  ///   `URLSessionTransport`.
-  @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
-  public func bytes(for request: URLRequest,
-                    policy: HTTPRequestPolicy = HTTPRequestPolicy()) async throws
-    -> (URLSession.AsyncBytes, HTTPURLResponse) {
-    guard let transport = transport as? URLSessionTransport else {
-      throw URLError(.unsupportedURL)
+  #if canImport(Darwin)
+    /// Sends `request` and returns as soon as the response headers arrive, whatever the status
+    /// code. The response body streams through the returned bytes.
+    ///
+    /// The request gets the same `User-Agent` and the same `policy` checks as in
+    /// `data(for:policy:)`. It doesn't hold a background task, because the body arrives after this
+    /// method returns.
+    ///
+    /// - Throws: A `URLError` for transport failures and for requests that `policy` doesn't allow,
+    ///   or `CancellationError` if the calling task is cancelled before the response arrives.
+    ///   Throws `URLError(.unsupportedURL)` if the client's transport isn't a
+    ///   `URLSessionTransport`.
+    @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
+    public func bytes(for request: URLRequest,
+                      policy: HTTPRequestPolicy = HTTPRequestPolicy()) async throws
+      -> (URLSession.AsyncBytes, HTTPURLResponse) {
+      guard let transport = transport as? URLSessionTransport else {
+        throw URLError(.unsupportedURL)
+      }
+      return try await transport.bytes(for: prepared(request, policy: policy), policy: policy)
     }
-    return try await transport.bytes(for: prepared(request, policy: policy), policy: policy)
-  }
+  #endif
 
   /// Returns `request` with the standard `User-Agent` if it has none.
   ///
@@ -157,10 +162,12 @@ public final class FirebaseHTTPClient: Sendable {
     if let url = request.url,
        !Self.allowsScheme(of: url, policy: policy,
                           appAllowsArbitraryLoads: appAllowsArbitraryLoads) {
-      throw URLError(.appTransportSecurityRequiresSecureConnection, userInfo: [
-        NSURLErrorFailingURLErrorKey: url,
-        NSURLErrorFailingURLStringErrorKey: url.absoluteString,
-      ])
+      var userInfo: [String: Any] = [NSURLErrorFailingURLErrorKey: url]
+      #if canImport(Darwin)
+        // Deprecated in FoundationNetworking, so only set on Apple platforms.
+        userInfo[NSURLErrorFailingURLStringErrorKey] = url.absoluteString
+      #endif
+      throw URLError(.appTransportSecurityRequiresSecureConnection, userInfo: userInfo)
     }
     var request = request
     if request.value(forHTTPHeaderField: "User-Agent") == nil {
@@ -199,13 +206,20 @@ public final class FirebaseHTTPClient: Sendable {
 
 enum AppTransportSecurity {
   /// Whether the app's Info.plist sets `NSAllowsArbitraryLoads`.
+  ///
+  /// Linux has no App Transport Security, so it's treated as an app that allows arbitrary loads,
+  /// and the request policy alone decides which schemes are allowed.
   static let allowsArbitraryLoads: Bool = {
-    let settings = Bundle.main.object(forInfoDictionaryKey: "NSAppTransportSecurity")
-      as? [String: Any]
-    switch settings?["NSAllowsArbitraryLoads"] {
-    case let value as NSNumber: return value.boolValue
-    case let value as NSString: return value.boolValue
-    default: return false
-    }
+    #if !canImport(Darwin)
+      return true
+    #else
+      let settings = Bundle.main.object(forInfoDictionaryKey: "NSAppTransportSecurity")
+        as? [String: Any]
+      switch settings?["NSAllowsArbitraryLoads"] {
+      case let value as NSNumber: return value.boolValue
+      case let value as NSString: return value.boolValue
+      default: return false
+      }
+    #endif
   }()
 }

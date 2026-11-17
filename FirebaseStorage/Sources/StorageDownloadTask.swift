@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseCoreInternal
+@_spi(FirebaseNetworking) internal import FirebaseCoreInternal
 
 /**
  * `StorageDownloadTask` implements resumable downloads from an object in Firebase Storage.

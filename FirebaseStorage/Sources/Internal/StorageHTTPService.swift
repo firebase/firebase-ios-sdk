@@ -14,7 +14,7 @@
 
 import Foundation
 
-internal import FirebaseCoreInternal
+@_spi(FirebaseNetworking) internal import FirebaseCoreInternal
 
 /// Sends the authorized Storage requests: getting and updating metadata, listing, deleting,
 /// getting download URLs, downloads, and the request that opens a resumable upload session.
