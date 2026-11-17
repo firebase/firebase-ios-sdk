@@ -186,8 +186,8 @@ grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
                                            const TlsTargetHost& target) {
   std::string expected;
   if (!IpAddressToBytes(target, &expected)) {
-    return Unauthenticated(
-        absl::StrCat("Invalid IP address TLS target: '", target.host, "'"));
+    return Unauthenticated(absl::StrCat("Invalid IP address TLS target: '",
+                                        absl::CHexEscape(target.host), "'"));
   }
 
   PCERT_EXTENSION extension =
@@ -221,7 +221,8 @@ grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
     }
   }
   return Unauthenticated(absl::StrCat(
-      "Windows TLS certificate verification failed for '", target.host,
+      "Windows TLS certificate verification failed for '",
+      absl::CHexEscape(target.host),
       "': the certificate has no matching IP address subjectAltName"));
 }
 
@@ -437,9 +438,10 @@ grpc::Status VerifyWindowsTlsCertificateChain(
         "CertVerifyCertificateChainPolicy failed with error ", GetLastError()));
   }
   if (policy_status.dwError != ERROR_SUCCESS) {
-    return Unauthenticated(absl::StrCat(
-        "Windows TLS certificate verification failed for '", target->host,
-        "': ", DescribeChainPolicyError(policy_status.dwError)));
+    return Unauthenticated(
+        absl::StrCat("Windows TLS certificate verification failed for '",
+                     absl::CHexEscape(target->host),
+                     "': ", DescribeChainPolicyError(policy_status.dwError)));
   }
   if (is_ip_target) {
     return VerifyIpAddressSubjectAltName(leaf.get(), *target);
