@@ -100,6 +100,13 @@ enum DefaultNoticesFile: DefaultValue {
   }
 }
 
+/// Trimmed: copies of one license that differ only in surrounding whitespace share an entry.
+enum DefaultNoticesLayout: DefaultValue {
+  static var defaultValue: NoticesLayout {
+    .trimmed
+  }
+}
+
 /// Static, like the CocoaPods-era zip; dynamic is opt-in.
 enum DefaultLinkage: DefaultValue {
   static var defaultValue: Linkage {

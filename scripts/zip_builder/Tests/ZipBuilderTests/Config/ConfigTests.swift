@@ -68,7 +68,17 @@ struct ConfigTests {
     { "release": { "name": "Mini", "bundleIdPrefix": "com.example" }, "zip": { "notices": {} } }
     """).zip.notices)
     #expect(notices.file == "NOTICES")
+    #expect(notices.atBuildTime) // makeZip writes it unless told not to
     #expect(notices.extraLicenses.isEmpty)
+    #expect(notices.licenses.isEmpty)
+    #expect(notices.titles.isEmpty)
+    #expect(notices.layout == .trimmed) // today's layout unless told otherwise
+
+    let separate = try #require(load("""
+    { "release": { "name": "Mini", "bundleIdPrefix": "com.example" },
+      "zip": { "notices": { "atBuildTime": false } } }
+    """).zip.notices)
+    #expect(!separate.atBuildTime)
   }
 
   @Test func allowsJSON5Comments() throws {
@@ -117,6 +127,22 @@ struct ConfigTests {
       try load(#"{ \#(release), "build": { "linkage": "shared" } }"#)
     }
     #expect(error?.description.contains("build.linkage") == true)
+  }
+
+  @Test func decodesTheNoticesKeys() throws {
+    let release = #""release": { "name": "Mini", "bundleIdPrefix": "com.example" }"#
+    let notices = try #require(load(
+      #"{ \#(release), "zip": { "notices": { "titles": { "A": ["Alpha", "A"] }, "#
+        + #""licenses": { "B": ["b.txt"] }, "layout": "verbatim" } } }"#
+    ).zip.notices)
+    #expect(notices.titles == ["A": ["Alpha", "A"]])
+    #expect(notices.licenses == ["B": ["b.txt"]])
+    #expect(notices.layout == .verbatim)
+    #expect(NoticesLayout.allCases.map(\.rawValue) == ["trimmed", "verbatim"])
+    let error = #expect(throws: ZipBuilderError.self) {
+      try load(#"{ \#(release), "zip": { "notices": { "layout": "legacy" } } }"#)
+    }
+    #expect(error?.description.contains("zip.notices.layout") == true)
   }
 
   @Test func decodesTheStaticFrameworks() throws {
@@ -283,13 +309,28 @@ struct ConfigTests {
     #expect(config.layout.privacyBundle["GTMSessionFetcher"] == "GTMSessionFetcher_Core_Privacy")
     #expect(config.layout.infoPlist == ["MinimumOSVersion": "100.0"])
     #expect(config.zip.files.map(\.to) == [".", "FirebaseCrashlytics"])
-    // The notices are generated, so the checked-in copy isn't shipped.
+    // The notices are generated separately (`notices`), checked in, and copied like any file.
     #expect(!config.zip.files.flatMap(\.files).contains("CoreOnly/NOTICES"))
+    #expect(config.zip.files[0].files.contains("CoreOnly/licenses/NOTICES"))
+    #expect(config.zip.notices?.atBuildTime == false)
     #expect(config.zip.notices?.file == "NOTICES")
-    #expect(config.zip.notices?.extraLicenses.keys.sorted()
-      == ["FirebaseFirestoreInternal", "grpc", "grpcpp", "openssl_grpc"])
-    let extraLicenses = config.zip.notices?.extraLicenses.values.flatMap { $0 } ?? []
-    for path in extraLicenses {
+    // Reproduces the legacy CocoaPods notices: pod names, the legacy license texts, its layout.
+    let notices = try #require(config.zip.notices)
+    #expect(notices.extraLicenses.isEmpty)
+    #expect(notices.layout == .verbatim)
+    #expect(notices.titles["FirebaseCore"] == ["Firebase", "FirebaseCore"])
+    #expect(notices.titles["GoogleAppMeasurementIdentitySupport"] == ["GoogleAppMeasurement"])
+    #expect(notices.licenses["openssl_grpc"] == ["CoreOnly/licenses/BoringSSL.txt"])
+    #expect(notices.licenses["FirebaseFirestoreInternal"] == ["Firestore/LICENSE"])
+    // Packaging fails on a missing file, so check every path the zip copies, the checked-in
+    // notices included. Package checkouts only exist once the repo's package is resolved, which
+    // the notices command does but these tests don't.
+    let resolved = FileManager.default
+      .fileExists(atPath: repoRoot.appendingPathComponent(".build/checkouts").path)
+    let licenses = notices.licenses.values.flatMap { $0 } + notices.extraLicenses.values
+      .flatMap { $0 }
+    for path in licenses + config.zip.files.flatMap(\.files)
+      where resolved || !path.hasPrefix(".build/") {
       #expect(FileManager.default.fileExists(atPath: repoRoot.appendingPathComponent(path).path),
               "\(path)")
     }

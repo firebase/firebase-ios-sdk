@@ -18,9 +18,13 @@ import Foundation
 import Testing
 @testable import ZipBuilder
 
-/// `zip.notices` with `extraLicenses`.
-private func notices(_ extraLicenses: [String: [Path]] = [:]) -> Config.Notices {
-  Config.Notices(extraLicenses: Default(wrappedValue: extraLicenses))
+/// `zip.notices` with these keys.
+private func notices(_ extraLicenses: [String: [Path]] = [:], licenses: [String: [Path]] = [:],
+                     titles: [String: [String]] = [:],
+                     layout: NoticesLayout = .trimmed) -> Config.Notices {
+  Config.Notices(extraLicenses: Default(wrappedValue: extraLicenses),
+                 licenses: Default(wrappedValue: licenses),
+                 titles: Default(wrappedValue: titles), layout: Default(wrappedValue: layout))
 }
 
 /// SyntheticPackage's plan with licenses: A and B share `LICENSE`, `Bin` has its own, C has
@@ -42,11 +46,11 @@ struct NoticesTests {
   @Test func rendersOneEntryPerLicenseTextInTheLegacyLayout() {
     let text = renderNotices([
       "Zeta": ["\nApache\n"],
-      // Leading and trailing whitespace doesn't make another license.
+      // Leading blank lines and trailing whitespace don't make another license.
       "Alpha": ["Apache"],
       "Beta": ["MIT\n"],
       // Two license files: listed under both texts.
-      "Gamma": ["MIT\n", "\n  Apache\n\n"],
+      "Gamma": ["MIT\n", "\n \nApache\n\n"],
     ])
     #expect(text == """
     Alpha
@@ -74,7 +78,8 @@ struct NoticesTests {
   }
 
   @Test func trimsTheFileAndEndsWithOneNewline() {
-    #expect(renderNotices(["A": ["\n\n  text  \n\n\n"]]) == "A\n\ntext\n")
+    // Blank lines around the text go; the first line's indentation stays.
+    #expect(renderNotices(["A": ["\n\n  text  \n\n\n"]]) == "A\n\n  text\n")
     // Inner whitespace is kept: it's part of the text.
     #expect(renderNotices(["A": ["one\n\n  two"], "B": ["one\ntwo"]])
       == "A\n\none\n\n  two\n\nB\n\none\ntwo\n")
@@ -84,15 +89,15 @@ struct NoticesTests {
   }
 
   @Test func onlyShippedItemsGetLicensesWithTheirExtras() {
-    let licenses = shippedLicenses(licensedPlan(), extraLicenses: [
+    let licenses = shippedLicenses(licensedPlan(), notices([
       "A": ["LICENSE", "extra/A.txt"], // the duplicate is dropped
       "C": ["extra/C.txt"], // C isn't in a folder
-    ])
+    ]))
     #expect(licenses == ["A": ["LICENSE", "extra/A.txt"], "B": ["LICENSE"],
                          "Bin": ["Bin/LICENSE"]])
     var plan = licensedPlan()
     plan.binaries[0].licenses = nil
-    #expect(shippedLicenses(plan, extraLicenses: [:])["Bin"] == [])
+    #expect(shippedLicenses(plan, notices())["Bin"] == [])
   }
 
   @Test func readsEachLicenseFile() throws {
@@ -100,9 +105,10 @@ struct NoticesTests {
     try package.write("LICENSE", "\nApache\n")
     try package.write("Bin/LICENSE", "Vendor\n")
     try package.write("extra/A.txt", "Extra\n")
-    let text = try ZipBuilder.notices(licensedPlan(), notices(["A": ["extra/A.txt"]]),
-                                      packageRoot: package.root.path)
-    #expect(text == "A\n\nExtra\n\nA\nB\n\nApache\n\nBin\n\nVendor\n")
+    let notices = try ZipBuilder.notices(licensedPlan(), notices(["A": ["extra/A.txt"]]),
+                                         packageRoot: package.root.path)
+    #expect(notices.text == "A\n\nExtra\n\nA\nB\n\nApache\n\nBin\n\nVendor\n")
+    #expect(notices.entryCount == 3)
   }
 
   @Test func aMissingLicenseFileFails() throws {
@@ -151,6 +157,140 @@ struct NoticesTests {
     // Every fixture framework has a license; the test target never ships.
     #expect(with.warnings == [
       "zip.notices.extraLicenses: SwiftLibTests isn't a shipped framework or binary; skipped.",
+    ])
+    // Generating the file separately (`notices`) still checks the licenses while planning.
+    let separate = try await collectingWarnings {
+      try await MiniPackage.customizedPlan(#""zip": { "notices": { "atBuildTime": false, "#
+        + #""extraLicenses": { "Nope": ["LICENSE"] } } }"#)
+    }
+    #expect(separate.warnings == [
+      "zip.notices.extraLicenses: Nope isn't a shipped framework or binary; skipped.",
+    ])
+  }
+
+  @Test func theDefaultLayoutIsTrimmed() {
+    let texts = ["A": ["\nApache\n"], "B": ["Apache"]]
+    #expect(renderNotices(texts) == renderNotices(texts, layout: .trimmed))
+    #expect(renderNotices(texts) == "A\nB\n\nApache\n")
+  }
+
+  /// License files often center their first line; trimming drops only the blank lines around a
+  /// text, so that indentation survives (and copies still group).
+  @Test func theTrimmedLayoutKeepsTheFirstLinesIndentation() {
+    let texts = ["A": ["\n  \n      Apache License\n  Version 2.0\n\n"],
+                 "B": ["      Apache License\n  Version 2.0"]]
+    #expect(renderNotices(texts) == "A\nB\n\n      Apache License\n  Version 2.0\n")
+  }
+
+  @Test func trimmingBlankLinesKeepsIndentationAndInnerBlankLines() {
+    #expect(trimmingBlankLines("\n\n   Title\n\n Body  \n \n") == "   Title\n\n Body")
+    #expect(trimmingBlankLines("No blank lines") == "No blank lines")
+    #expect(trimmingBlankLines(" \n\t\n") == "")
+    #expect(trimmingBlankLines("") == "")
+  }
+
+  @Test func theVerbatimLayoutGroupsByExactTextAndKeepsIt() {
+    let text = renderNotices([
+      // A leading blank line or an extra trailing newline makes another text.
+      "Zeta": ["\nApache\n"],
+      "Alpha": ["\nApache\n"],
+      "Beta": ["Apache\n\n"],
+      // Two copies of one text: listed once.
+      "Gamma": ["MIT\n", "MIT\n"],
+    ], layout: .verbatim)
+    // Titles, a newline, the text as is, two newlines; the file is trimmed, plus one newline.
+    #expect(text == "Alpha\nZeta\n\nApache\n\n\nBeta\nApache\n\n\n\nGamma\nMIT\n")
+    #expect(renderNotices(["A": ["  one\n"]], layout: .verbatim) == "A\n  one\n")
+    #expect(renderNotices([:], layout: .verbatim) == "\n")
+  }
+
+  @Test func theVerbatimLayoutMatchesTheLegacyGenerator() {
+    // The legacy generator: `title + "\n" + license + "\n\n"` per entry, then `strip` and
+    // one trailing newline. Entries follow their first title.
+    let legacy = "B\n\nApache\n\n\nC\nD\nMIT\n"
+    #expect(renderNotices(["D": ["MIT"], "B": ["\nApache\n"], "C": ["MIT"]], layout: .verbatim)
+      == legacy)
+  }
+
+  @Test func titlesRenameSplitAndMergeItems() {
+    let listed = listingUnderTitles(
+      ["Core": ["Apache"], "Promises": ["Apache"], "Measurement": ["Vendor"],
+       "MeasurementSupport": ["Vendor", "Extra"], "Other": ["MIT"]],
+      ["Core": ["Umbrella", "Core"], "Promises": ["PromisesObjC"],
+       "MeasurementSupport": ["Measurement"]]
+    )
+    #expect(listed.mapValues { $0.sorted() } == [
+      "Umbrella": ["Apache"], "Core": ["Apache"], "PromisesObjC": ["Apache"],
+      "Measurement": ["Extra", "Vendor", "Vendor"], "Other": ["MIT"],
+    ])
+    // Merged items are listed once under their shared title.
+    #expect(renderNotices(listed) == """
+    Core
+    PromisesObjC
+    Umbrella
+
+    Apache
+
+    Measurement
+
+    Extra
+
+    Measurement
+
+    Vendor
+
+    Other
+
+    MIT
+
+    """)
+  }
+
+  @Test func licensesReplaceTheFoundOnesAndExtrasStillAdd() {
+    let licenses = shippedLicenses(licensedPlan(), notices(
+      ["A": ["extra/A.txt"], "B": ["extra/B.txt"]],
+      licenses: ["A": ["own/A.txt"], "Bin": ["own/Bin.txt", "own/Bin.txt"], "C": ["own/C.txt"]]
+    ))
+    #expect(licenses == ["A": ["own/A.txt", "extra/A.txt"], "B": ["LICENSE", "extra/B.txt"],
+                         "Bin": ["own/Bin.txt"]])
+    // It covers an item planning found no license for.
+    var plan = licensedPlan()
+    plan.binaries[0].licenses = nil
+    #expect(shippedLicenses(plan, notices(licenses: ["Bin": ["own/Bin.txt"]]))["Bin"]
+      == ["own/Bin.txt"])
+  }
+
+  @Test func appliesLicensesTitlesAndLayoutFromTheConfig() throws {
+    let package = try SyntheticPackage()
+    try package.write("LICENSE", "\nApache\n")
+    try package.write("Bin/LICENSE", "Vendor\n")
+    try package.write("own/Bin.txt", "\nApache\n")
+    let config = notices(licenses: ["Bin": ["own/Bin.txt"]],
+                         titles: ["A": ["Umbrella", "A"], "Bin": ["Binary"]],
+                         layout: .verbatim)
+    let result = try ZipBuilder.notices(licensedPlan(), config, packageRoot: package.root.path)
+    #expect(result.text == "A\nB\nBinary\nUmbrella\n\nApache\n")
+    #expect(result.entryCount == 1)
+    // A missing `licenses` path fails, even for something this plan doesn't ship.
+    let error = #expect(throws: ZipBuilderError.self) {
+      try ZipBuilder.notices(licensedPlan(), notices(licenses: ["C": ["no.txt"]]),
+                             packageRoot: package.root.path)
+    }
+    #expect(error?.description.contains("zip.notices.licenses: no.txt (for C)") == true)
+  }
+
+  @Test func warnsAboutUnshippedLicensesAndTitlesAndItemsWithoutTitles() async {
+    var plan = licensedPlan()
+    plan.frameworks[0].licenses = nil // B
+    let (_, warnings) = await collectingWarnings {
+      warnAboutMissingLicenses(plan, notices(licenses: ["B": ["b.txt"], "C": ["c.txt"]],
+                                             titles: ["A": [], "Nope": ["N"]]))
+    }
+    // B's `licenses` entry gives it a license; A is listed under no title.
+    #expect(warnings == [
+      "zip.notices.licenses: C isn't a shipped framework or binary; skipped.",
+      "zip.notices.titles: Nope isn't a shipped framework or binary; skipped.",
+      "zip.notices.titles: A has no titles, so the notices leave it out.",
     ])
   }
 }
