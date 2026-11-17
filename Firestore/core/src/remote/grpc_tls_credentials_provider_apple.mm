@@ -54,9 +54,10 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
 
 // Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or an
 // empty string if `target_name` is malformed. Uses the platform-neutral parser
-// in `grpc_tls_target_host.h`, which strips brackets and IPv6 zone IDs and
-// returns IPv6 literals in canonical form; IPv4-mapped addresses are written in
-// hex (`::ffff:7f00:1`), the only form SecPolicy matches.
+// in `grpc_tls_target_host.h`, which strips IPv6 zone IDs and returns IPv6
+// literals in canonical form; IPv4-mapped addresses are written in hex
+// (`::ffff:7f00:1`), the only form SecPolicy matches. gRPC has already removed
+// any port and brackets from `target_name`.
 std::string ExtractTlsHostName(absl::string_view target_name) {
   absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
   return host.has_value() ? host->host : std::string();
