@@ -231,8 +231,7 @@ SharedCFRef<T> RetainCFRef(T ref) {
 
 /**
  * Creates a `SecTrustRef` for `pem_chain` with the SSL server policy for the
- * host in `target_name`, restricted to `anchor_certs` when non-null. This is
- * the setup shared by the synchronous and asynchronous evaluation paths.
+ * host in `target_name`, restricted to `anchor_certs` when non-null.
  *
  * On success, returns a +1 reference and stores the host name in `*out_host`.
  * On failure, returns nullptr and stores the reason in `*out_status`.
@@ -365,8 +364,8 @@ SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
 }
 
 /**
- * Maps the result of `SecTrustEvaluateWithError` or
- * `SecTrustEvaluateAsyncWithError` to a gRPC status. `error` is borrowed.
+ * Maps the result of `SecTrustEvaluateAsyncWithError` to a gRPC status. `error`
+ * is borrowed.
  */
 grpc::Status TrustResultToStatus(bool trusted,
                                  CFErrorRef error,
@@ -426,26 +425,6 @@ AsyncTlsVerifier::Scheduler MakeAppleCancellationScheduler() {
 }
 
 }  // namespace
-
-grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
-                                            absl::string_view target_name,
-                                            CFArrayRef anchor_certs) {
-  @autoreleasepool {
-    std::string host;
-    grpc::Status status;
-    SecTrustRef trust = CreateAppleSecTrust(pem_chain, target_name,
-                                            anchor_certs, &host, &status);
-    util::Defer release_trust([&] { util::SafeCFRelease(trust); });
-    if (trust == nullptr) {
-      return status;
-    }
-
-    CFErrorRef cf_error = nullptr;
-    bool trusted = SecTrustEvaluateWithError(trust, &cf_error);
-    util::Defer release_error([&] { util::SafeCFRelease(cf_error); });
-    return TrustResultToStatus(trusted, cf_error, host);
-  }
-}
 
 void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
                                          CFArrayRef anchor_certs,
