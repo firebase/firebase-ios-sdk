@@ -1836,6 +1836,9 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
       ),
       .target(
         name: "GeminiTestUtilities",
+        dependencies: [
+          "GeminiAPIClient",
+        ],
         path: "GeminiLanguageModel/Tests/GeminiTestUtilities",
         exclude: ["README.md"],
         swiftSettings: swiftSettings,
