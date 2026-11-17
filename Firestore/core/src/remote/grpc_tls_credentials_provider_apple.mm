@@ -24,13 +24,11 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
-#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
@@ -73,215 +71,154 @@ bool ContainsNonAscii(absl::string_view s) {
   return false;
 }
 
+// This file is compiled with ARC. CoreFoundation objects that this code owns
+// are handed to ARC with `CFBridgingRelease` and held in `id` / `NSArray*`
+// variables, which blocks and lambdas retain automatically. Borrowed references
+// (the caller's `anchor_certs`, and the `CFErrorRef` that Security.framework
+// passes to the evaluation result block) are only ever bridged with `__bridge`.
+
 // Parses `pem_chain` into an array of `SecCertificateRef`s, failing closed on
-// any malformed input (see `SplitPemCertificates()`). On success, returns a +1
-// reference; on failure, returns nullptr and stores the reason in
-// `*out_status`.
-CFArrayRef CreateCertificateChainFromPem(absl::string_view pem_chain,
-                                         grpc::Status* out_status) {
+// any malformed input (see `SplitPemCertificates()`). On failure, returns nil
+// and stores the reason in `*out_status`.
+NSArray* CreateCertificateChainFromPem(absl::string_view pem_chain,
+                                       grpc::Status* out_status) {
   std::vector<std::string> der_certificates;
   std::string error;
   if (!SplitPemCertificates(pem_chain, &der_certificates, &error)) {
     SetStatus(out_status,
               grpc::Status(grpc::StatusCode::UNAUTHENTICATED, error));
-    return nullptr;
+    return nil;
   }
 
-  CFMutableArrayRef certs =
-      CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks);
-  if (certs == nullptr) {
-    SetStatus(out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                           "Failed to allocate CFArray for peer chain"));
-    return nullptr;
-  }
-  bool ok = false;
-  util::Defer cleanup_certs([&] {
-    if (!ok) {
-      util::SafeCFRelease(certs);
-    }
-  });
-
+  NSMutableArray* certs =
+      [NSMutableArray arrayWithCapacity:der_certificates.size()];
   for (const std::string& der : der_certificates) {
-    CFDataRef data = CFDataCreate(kCFAllocatorDefault,
-                                  reinterpret_cast<const UInt8*>(der.data()),
-                                  static_cast<CFIndex>(der.size()));
-    SecCertificateRef cert = data == nullptr ? nullptr
-                                             : SecCertificateCreateWithData(
-                                                   kCFAllocatorDefault, data);
-    util::SafeCFRelease(data);
-    if (cert == nullptr) {
+    NSData* data = [NSData dataWithBytes:der.data() length:der.size()];
+    id cert = CFBridgingRelease(SecCertificateCreateWithData(
+        kCFAllocatorDefault, (__bridge CFDataRef)data));
+    if (cert == nil) {
       SetStatus(
           out_status,
           grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                        "Failed to parse DER X.509 certificate in peer chain"));
-      return nullptr;
+      return nil;
     }
-    CFArrayAppendValue(certs, cert);
-    CFRelease(cert);
+    [certs addObject:cert];
   }
 
-  ok = true;
   SetStatus(out_status, grpc::Status::OK);
   return certs;
 }
 
-// Owns a +1 CoreFoundation reference. Captured by value in blocks (which
-// copy-construct C++ captures) so that CF objects live exactly as long as the
-// blocks that use them, whether or not those blocks ever run.
-template <typename T>
-using SharedCFRef = std::shared_ptr<typename std::remove_pointer<T>::type>;
-
-template <typename T>
-SharedCFRef<T> AdoptCFRef(T ref) {
-  return SharedCFRef<T>(ref, [](T r) { util::SafeCFRelease(r); });
-}
-
-template <typename T>
-SharedCFRef<T> RetainCFRef(T ref) {
-  if (ref != nullptr) {
-    CFRetain(ref);
-  }
-  return AdoptCFRef(ref);
+grpc::Status OSStatusError(const char* function, OSStatus status) {
+  return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                      absl::StrCat(function, " failed with OSStatus ", status));
 }
 
 /**
  * Creates a `SecTrustRef` for `pem_chain` with the SSL server policy for the
- * host in `target_name`, restricted to `anchor_certs` when non-null.
+ * host in `target_name`, restricted to `anchors` when non-nil.
  *
- * On success, returns a +1 reference and stores the host name in `*out_host`.
- * On failure, returns nullptr and stores the reason in `*out_status`.
+ * On success, returns the trust object and stores the host name in
+ * `*out_host`. On failure, returns nil and stores the reason in `*out_status`.
  */
-SecTrustRef CreateAppleSecTrust(absl::string_view pem_chain,
-                                absl::string_view target_name,
-                                CFArrayRef anchor_certs,
-                                std::string* out_host,
-                                grpc::Status* out_status) {
-  @autoreleasepool {
-    std::string host = ExtractTlsHostName(target_name);
-    if (host.empty()) {
-      SetStatus(
-          out_status,
-          grpc::Status(
-              grpc::StatusCode::UNAUTHENTICATED,
-              ContainsNonAscii(target_name)
-                  ? absl::StrCat("TLS target host name must be ASCII; encode "
-                                 "internationalized names as Punycode "
-                                 "(A-labels): '",
-                                 absl::CHexEscape(target_name), "'")
-                  : absl::StrCat("Invalid or empty TLS target host name: '",
-                                 absl::CHexEscape(target_name), "'")));
-      return nullptr;
-    }
-
-    grpc::Status parse_status;
-    CFArrayRef certs = CreateCertificateChainFromPem(pem_chain, &parse_status);
-    util::Defer release_certs([&] { util::SafeCFRelease(certs); });
-    if (certs == nullptr) {
-      SetStatus(out_status, parse_status);
-      return nullptr;
-    }
-
-    CFStringRef cf_host = util::MakeCFString(host);
-    util::Defer release_host([&] { util::SafeCFRelease(cf_host); });
-    if (cf_host == nullptr) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Failed to convert TLS target host name to "
-                             "CFString"));
-      return nullptr;
-    }
-
-    SecPolicyRef policy = SecPolicyCreateSSL(/*server=*/true, cf_host);
-    util::Defer release_policy([&] { util::SafeCFRelease(policy); });
-    if (policy == nullptr) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             "Failed to create Apple SSL SecPolicy"));
-      return nullptr;
-    }
-
-    SecTrustRef trust = nullptr;
-    OSStatus trust_status =
-        SecTrustCreateWithCertificates(certs, policy, &trust);
-    bool ok = false;
-    util::Defer release_trust([&] {
-      if (!ok) {
-        util::SafeCFRelease(trust);
-      }
-    });
-    if (trust_status != errSecSuccess || trust == nullptr) {
-      SetStatus(
-          out_status,
-          grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                       absl::StrCat("SecTrustCreateWithCertificates failed "
-                                    "with OSStatus ",
-                                    trust_status)));
-      return nullptr;
-    }
-
-    // Never let trustd fetch missing intermediates (AIA caIssuers URLs) or
-    // other resources over the network on behalf of the unauthenticated peer:
-    // a server could otherwise make the device request any URL it chooses.
-    // Incomplete chains fail closed instead.
-    //
-    // Revocation: this verifier relies on trustd's locally stored revocation
-    // data rather than per-handshake OCSP or CRL queries. `SecPolicyCreateSSL`
-    // alone requests no live revocation checking (that would take
-    // `SecPolicyCreateRevocation`), and with network fetches disabled none
-    // could happen anyway. Disabling fetches does not disable Apple's `Valid`
-    // revocation database, which trustd syncs in the background and consults
-    // offline, nor OS, MDM, or OTA trust-store updates. Live checks are avoided
-    // because they add latency to every connection (and can stall it behind an
-    // unreachable responder), reveal to the CA which hosts the device connects
-    // to, and, being necessarily soft-fail in a client library, offer little
-    // protection against an attacker who can block the responder. The cost is
-    // a window between a CA revoking a certificate and the device's next
-    // `Valid` update; that window is no wider than with the previous embedded
-    // root bundle, which only changed when apps shipped a new SDK.
-    OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(trust, false);
-    if (fetch_status != errSecSuccess) {
-      SetStatus(out_status,
-                grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                             absl::StrCat("SecTrustSetNetworkFetchAllowed "
-                                          "failed with OSStatus ",
-                                          fetch_status)));
-      return nullptr;
-    }
-
-    if (anchor_certs != nullptr) {
-      OSStatus anchor_status =
-          SecTrustSetAnchorCertificates(trust, anchor_certs);
-      if (anchor_status != errSecSuccess) {
-        SetStatus(out_status,
-                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                               absl::StrCat("SecTrustSetAnchorCertificates "
-                                            "failed with OSStatus ",
-                                            anchor_status)));
-        return nullptr;
-      }
-      OSStatus anchor_only_status =
-          SecTrustSetAnchorCertificatesOnly(trust, true);
-      if (anchor_only_status != errSecSuccess) {
-        SetStatus(out_status,
-                  grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                               absl::StrCat("SecTrustSetAnchorCertificatesOnly "
-                                            "failed with OSStatus ",
-                                            anchor_only_status)));
-        return nullptr;
-      }
-    }
-
-    ok = true;
-    *out_host = std::move(host);
-    SetStatus(out_status, grpc::Status::OK);
-    return trust;
+id CreateAppleSecTrust(absl::string_view pem_chain,
+                       absl::string_view target_name,
+                       NSArray* anchors,
+                       std::string* out_host,
+                       grpc::Status* out_status) {
+  std::string host = ExtractTlsHostName(target_name);
+  if (host.empty()) {
+    SetStatus(
+        out_status,
+        grpc::Status(
+            grpc::StatusCode::UNAUTHENTICATED,
+            ContainsNonAscii(target_name)
+                ? absl::StrCat("TLS target host name must be ASCII; encode "
+                               "internationalized names as Punycode "
+                               "(A-labels): '",
+                               absl::CHexEscape(target_name), "'")
+                : absl::StrCat("Invalid or empty TLS target host name: '",
+                               absl::CHexEscape(target_name), "'")));
+    return nil;
   }
+
+  NSArray* certs = CreateCertificateChainFromPem(pem_chain, out_status);
+  if (certs == nil) {
+    return nil;
+  }
+
+  NSString* ns_host = util::MakeNSString(host);
+  id policy = CFBridgingRelease(
+      SecPolicyCreateSSL(/*server=*/true, (__bridge CFStringRef)ns_host));
+  if (policy == nil) {
+    SetStatus(out_status, grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                                       "Failed to create Apple SSL SecPolicy"));
+    return nil;
+  }
+
+  SecTrustRef raw_trust = nullptr;
+  OSStatus trust_status = SecTrustCreateWithCertificates(
+      (__bridge CFArrayRef)certs, (__bridge SecPolicyRef)policy, &raw_trust);
+  id trust = CFBridgingRelease(raw_trust);
+  if (trust_status != errSecSuccess || trust == nil) {
+    SetStatus(out_status,
+              OSStatusError("SecTrustCreateWithCertificates", trust_status));
+    return nil;
+  }
+  SecTrustRef sec_trust = (__bridge SecTrustRef)trust;
+
+  // Never let trustd fetch missing intermediates (AIA caIssuers URLs) or
+  // other resources over the network on behalf of the unauthenticated peer:
+  // a server could otherwise make the device request any URL it chooses.
+  // Incomplete chains fail closed instead.
+  //
+  // Revocation: this verifier relies on trustd's locally stored revocation
+  // data rather than per-handshake OCSP or CRL queries. `SecPolicyCreateSSL`
+  // alone requests no live revocation checking (that would take
+  // `SecPolicyCreateRevocation`), and with network fetches disabled none
+  // could happen anyway. Disabling fetches does not disable Apple's `Valid`
+  // revocation database, which trustd syncs in the background and consults
+  // offline, nor OS, MDM, or OTA trust-store updates. Live checks are avoided
+  // because they add latency to every connection (and can stall it behind an
+  // unreachable responder), reveal to the CA which hosts the device connects
+  // to, and, being necessarily soft-fail in a client library, offer little
+  // protection against an attacker who can block the responder. The cost is
+  // a window between a CA revoking a certificate and the device's next
+  // `Valid` update; that window is no wider than with the previous embedded
+  // root bundle, which only changed when apps shipped a new SDK.
+  OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(sec_trust, false);
+  if (fetch_status != errSecSuccess) {
+    SetStatus(out_status,
+              OSStatusError("SecTrustSetNetworkFetchAllowed", fetch_status));
+    return nil;
+  }
+
+  if (anchors != nil) {
+    OSStatus anchor_status =
+        SecTrustSetAnchorCertificates(sec_trust, (__bridge CFArrayRef)anchors);
+    if (anchor_status != errSecSuccess) {
+      SetStatus(out_status,
+                OSStatusError("SecTrustSetAnchorCertificates", anchor_status));
+      return nil;
+    }
+    OSStatus anchor_only_status =
+        SecTrustSetAnchorCertificatesOnly(sec_trust, true);
+    if (anchor_only_status != errSecSuccess) {
+      SetStatus(out_status, OSStatusError("SecTrustSetAnchorCertificatesOnly",
+                                          anchor_only_status));
+      return nil;
+    }
+  }
+
+  *out_host = std::move(host);
+  SetStatus(out_status, grpc::Status::OK);
+  return trust;
 }
 
 /**
  * Maps the result of `SecTrustEvaluateAsyncWithError` to a gRPC status. `error`
- * is borrowed.
+ * is borrowed (owned by Security.framework).
  */
 grpc::Status TrustResultToStatus(bool trusted,
                                  CFErrorRef error,
@@ -292,9 +229,8 @@ grpc::Status TrustResultToStatus(bool trusted,
 
   std::string error_detail = "unknown SecTrust evaluation error";
   if (error != nullptr) {
-    CFStringRef desc = CFErrorCopyDescription(error);
-    util::Defer release_desc([&] { util::SafeCFRelease(desc); });
-    if (desc != nullptr) {
+    NSString* desc = CFBridgingRelease(CFErrorCopyDescription(error));
+    if (desc != nil) {
       // The description quotes certificate subject names chosen by the peer,
       // so escape it, like the target name above, to prevent log injection.
       error_detail = absl::CHexEscape(util::MakeString(desc));
@@ -315,16 +251,14 @@ AsyncTlsVerifier::Evaluator MakeAppleSecTrustEvaluator(CFArrayRef anchor_certs,
                               DISPATCH_QUEUE_SERIAL);
   }
   // Snapshot the caller's anchors so later mutation of a mutable array cannot
-  // affect this verifier.
-  SharedCFRef<CFArrayRef> anchors =
-      AdoptCFRef(anchor_certs == nullptr
-                     ? nullptr
-                     : CFArrayCreateCopy(kCFAllocatorDefault, anchor_certs));
-  // Under ARC the lambda holds a strong reference to `queue`, so the queue
-  // lives as long as the verifier (and any copies of the evaluator).
+  // affect this verifier. The lambda holds strong references to `anchors` and
+  // `queue`, so both live as long as the verifier (and any evaluator copies).
+  NSArray* anchors =
+      anchor_certs == nullptr ? nil : [(__bridge NSArray*)anchor_certs copy];
   return [anchors, queue](TlsVerificationInput input,
                           TlsVerificationCallback completion) {
-    VerifyAppleTlsCertificateChainAsync(std::move(input), anchors.get(), queue,
+    VerifyAppleTlsCertificateChainAsync(std::move(input),
+                                        (__bridge CFArrayRef)anchors, queue,
                                         std::move(completion));
   };
 }
@@ -358,35 +292,34 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
   };
   auto state =
       std::make_shared<State>(State{std::move(input), std::move(completion)});
-  SharedCFRef<CFArrayRef> anchors = RetainCFRef(anchor_certs);
+  // Borrowed from the caller; the block below retains it.
+  NSArray* anchors = (__bridge NSArray*)anchor_certs;
 
   dispatch_async(queue, ^{
     @autoreleasepool {
       std::string host;
       grpc::Status status;
-      SharedCFRef<SecTrustRef> trust = AdoptCFRef(
+      id trust =
           CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
-                              anchors.get(), &host, &status));
-      if (trust == nullptr) {
+                              anchors, &host, &status);
+      if (trust == nil) {
         state->completion(status);
         return;
       }
 
       // `SecTrustEvaluateAsyncWithError` must be called from `queue`, the
       // queue it delivers the result on; this block is running on it. The
-      // result block keeps `trust` alive until it has run (or, if evaluation
+      // result block retains `trust` until it has run (or, if evaluation
       // fails to start, until it is discarded).
       OSStatus start_status = SecTrustEvaluateAsyncWithError(
-          trust.get(), queue, ^(SecTrustRef, bool trusted, CFErrorRef error) {
+          (__bridge SecTrustRef)trust, queue,
+          ^(SecTrustRef, bool trusted, CFErrorRef error) {
             (void)trust;
-            // `error` is owned by Security.framework; do not release it.
             state->completion(TrustResultToStatus(trusted, error, host));
           });
       if (start_status != errSecSuccess) {
-        state->completion(grpc::Status(
-            grpc::StatusCode::UNAUTHENTICATED,
-            absl::StrCat("SecTrustEvaluateAsyncWithError failed with OSStatus ",
-                         start_status)));
+        state->completion(
+            OSStatusError("SecTrustEvaluateAsyncWithError", start_status));
       }
     }
   });
