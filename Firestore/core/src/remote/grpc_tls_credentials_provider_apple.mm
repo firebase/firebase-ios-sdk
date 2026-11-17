@@ -366,7 +366,9 @@ grpc::Status TrustResultToStatus(bool trusted,
     CFStringRef desc = CFErrorCopyDescription(error);
     util::Defer release_desc([&] { util::SafeCFRelease(desc); });
     if (desc != nullptr) {
-      error_detail = util::MakeString(desc);
+      // The description quotes certificate subject names chosen by the peer,
+      // so escape it, like the target name above, to prevent log injection.
+      error_detail = absl::CHexEscape(util::MakeString(desc));
     }
   }
 
