@@ -410,42 +410,14 @@ jobs:
           timeout_minutes: 60
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
-      # TEMP(revert before merge): diagnostics for the intermittent simulator
-      # integration-test hang. Time out a hung test after 5 minutes (XCTest
-      # attaches a spindump to the xcresult) and trace gRPC handshakes in the
-      # test host (xcodebuild forwards TEST_RUNNER_* with the prefix removed).
       - name: Test
-        env:
-          TEST_RUNNER_GRPC_TRACE: handshaker,tsi
-          TEST_RUNNER_GRPC_VERBOSITY: debug
-        run: |
-          scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest \
-            -test-timeouts-enabled YES -maximum-test-execution-time-allowance 300
+        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ failure() }}
         with:
           name: xcresults-${{ matrix.target }}-${{ matrix.scheme }}
           path: xcresults/*
           if-no-files-found: error
-      # TEMP(revert before merge): -retry-tests-on-failure can let the job pass
-      # after a timed-out test is retried, so upload the result bundle whenever a
-      # test hit the time allowance, even if the job passed.
-      - name: Detect test timeouts (TEMP)
-        id: detect-timeouts
-        if: ${{ always() }}
-        run: |
-          if grep -qi "execution time allowance" xcodebuild-test-without-building.log 2>/dev/null; then
-            grep -i "execution time allowance" xcodebuild-test-without-building.log | head -20
-            echo "timed_out=true" >> "$GITHUB_OUTPUT"
-          fi
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
-        if: ${{ always() && steps.detect-timeouts.outputs.timed_out == 'true' }}
-        with:
-          name: hang-diagnostics-${{ matrix.target }}-${{ matrix.scheme }}
-          path: |
-            Firestore/Example/DerivedData/Logs/Test/*.xcresult
-            xcodebuild-test-without-building.log
-          if-no-files-found: warn
 
   xcodetest_nightly:
     needs: [check, build_xcodetest]
