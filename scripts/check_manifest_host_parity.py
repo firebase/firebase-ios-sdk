@@ -16,10 +16,11 @@
 
 """Checks that Package.swift declares the same package on macOS and Linux.
 
-Tools such as Dependabot resolve Apple apps' dependencies on Linux, so a product, dependency, or
-default trait that only exists on one host breaks them (see
-https://github.com/firebase/firebase-ios-sdk/issues/16574). Targets may differ, because some only
-build with SDKs that Linux doesn't have, as long as they don't add package dependencies.
+Tools such as Dependabot resolve Apple apps' dependencies on Linux, so a
+product, dependency, or default trait that only exists on one host breaks them
+(see https://github.com/firebase/firebase-ios-sdk/issues/16574). Targets may
+differ, because some only build with SDKs that Linux doesn't have, as long as
+they don't add package dependencies.
 
 Usage: check_manifest_host_parity.py <macos-dump.json> <linux-dump.json>
 Each file is the output of `swift package dump-package`.
@@ -40,8 +41,10 @@ def summarize(path):
   for dependency in dump["dependencies"]:
     for kind, values in dependency.items():
       details = values[0]
-      dependencies[details.get("identity", json.dumps(details, sort_keys=True))] = json.dumps(
-          {"kind": kind, "requirement": details.get("requirement")}, sort_keys=True)
+      identity = details.get("identity", json.dumps(details, sort_keys=True))
+      dependencies[identity] = json.dumps(
+          {"kind": kind, "requirement": details.get("requirement")},
+          sort_keys=True)
   traits = {
       trait["name"]: sorted(trait.get("enabledTraits", []))
       for trait in dump.get("traits", [])
@@ -62,15 +65,18 @@ def main():
       elif name not in macos[section]:
         problems.append(f"{section}: '{name}' is only declared on Linux")
       elif macos[section][name] != linux[section][name]:
-        problems.append(f"{section}: '{name}' differs: macOS {macos[section][name]}, "
-                        f"Linux {linux[section][name]}")
+        problems.append(
+            f"{section}: '{name}' differs: macOS {macos[section][name]}, "
+            f"Linux {linux[section][name]}")
   if problems:
     print("Package.swift declares a different package on macOS and Linux:")
     for problem in problems:
       print(f"  {problem}")
     return 1
-  print(f"Package.swift matches on macOS and Linux: {len(macos['products'])} products, "
-        f"{len(macos['dependencies'])} dependencies, {len(macos['traits'])} traits.")
+  print(f"Package.swift matches on macOS and Linux: "
+        f"{len(macos['products'])} products, "
+        f"{len(macos['dependencies'])} dependencies, "
+        f"{len(macos['traits'])} traits.")
   return 0
 
 
