@@ -52,6 +52,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeInstallationIdDisabled = 2028,
   kFIRMessagingMessageCodeDebug = 2029,
   kFIRMessagingMessageCodeInstallationIdRotation = 2030,
+  kFIRMessagingMessageCodeUnsupportedLinkScheme = 2031,
+  kFIRMessagingMessageCodeInvalidLinkURL = 2032,
 
   // DO NOT USE 4000, 4004 - 4013
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004000
