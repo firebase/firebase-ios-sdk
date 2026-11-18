@@ -260,6 +260,14 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
         value: .string(String(httpResponse.statusCode))
       )
     }
+
+    if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"),
+       !contentType.isEmpty {
+      span.setAttribute(
+        key: "\(SemanticConventions.Http.responseHeader.rawValue).content-type",
+        value: AttributeValue([contentType])
+      )
+    }
   }
 
   static func annotateNetworkError(_ error: Error, statusCode: Int, span: Span) {
@@ -278,10 +286,27 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
   func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
     lock.lock()
-    defer { lock.unlock() }
-
     if let span = activeSpans.last {
       builder.setParent(span)
+    }
+    lock.unlock()
+
+    if let host = req.url?.host, !host.isEmpty {
+      builder.setAttribute(key: SemanticConventions.Url.domain.rawValue, value: .string(host))
+    }
+
+    if let accept = req.value(forHTTPHeaderField: "Accept"), !accept.isEmpty {
+      builder.setAttribute(
+        key: "\(SemanticConventions.Http.requestHeader.rawValue).accept",
+        value: AttributeValue([accept])
+      )
+    }
+
+    if let contentType = req.value(forHTTPHeaderField: "Content-Type"), !contentType.isEmpty {
+      builder.setAttribute(
+        key: "\(SemanticConventions.Http.requestHeader.rawValue).content-type",
+        value: AttributeValue([contentType])
+      )
     }
   }
 

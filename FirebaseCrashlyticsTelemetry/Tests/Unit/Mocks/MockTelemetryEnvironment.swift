@@ -21,4 +21,12 @@ struct MockTelemetryEnvironment: TelemetryEnvironmentInfo {
   var appVersion: String? = "2.1.0"
   var appBuildId: String? = "42"
   var sdkVersion: String = "13.0.0"
+  var osName: String? = "ios"
+  var osVersion: String? = "18.2"
+  var deviceManufacturer: String? = "Apple"
+  var deviceModelIdentifier: String? = "iPhone16,2"
+  var deviceArch: String? = "arm64"
+  var deviceCores: Int = 6
+  var deviceRamBytes: Int = 8_589_934_592
+  var isSimulator: Bool = true
 }

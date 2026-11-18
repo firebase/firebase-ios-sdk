@@ -1454,6 +1454,7 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
         "FirebaseCrashlytics",
         "FirebaseInstallations",
         "FirebaseSessions",
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
         .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),
         .product(name: "StdoutExporter", package: "opentelemetry-swift-core"),

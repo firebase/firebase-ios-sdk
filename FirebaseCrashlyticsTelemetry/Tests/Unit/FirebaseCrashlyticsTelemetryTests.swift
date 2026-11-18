@@ -89,6 +89,38 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
       Self.telemetry.resource.attributes[SemanticConventions.App.buildId.rawValue],
       .string("42")
     )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Os.name.rawValue],
+      .string("ios")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Os.version.rawValue],
+      .string("18.2")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.manufacturer.rawValue],
+      .string("Apple")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.modelIdentifier.rawValue],
+      .string("iPhone16,2")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsArch],
+      .string("arm64")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsCores],
+      .int(6)
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsRam],
+      .int(8_589_934_592)
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsSimulator],
+      .bool(true)
+    )
 
     XCTAssertEqual(Self.telemetry.scopeInfo.name, "FirebaseCrashlyticsTelemetry")
     XCTAssertEqual(Self.telemetry.scopeInfo.version, "13.0.0")
@@ -256,6 +288,39 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     XCTAssertNil(readableNonHttpSpan.getAttributes()[SemanticConventions.Error.type.rawValue])
   }
 
+  func test_annotateNetworkResponse_setsResponseContentTypeHeaderWhenPresent() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com/api"))
+    let responseWithHeader = try XCTUnwrap(
+      HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: nil,
+        headerFields: ["content-type": "application/json; charset=utf-8"]
+      )
+    )
+    let span = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(responseWithHeader, span: span)
+    span.end()
+
+    let readableSpan = try XCTUnwrap(span as? ReadableSpan)
+    let responseContentTypeKey =
+      "\(SemanticConventions.Http.responseHeader.rawValue).content-type"
+    XCTAssertEqual(
+      readableSpan.getAttributes()[responseContentTypeKey],
+      AttributeValue(["application/json; charset=utf-8"])
+    )
+
+    let responseWithoutHeader = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 204, httpVersion: nil, headerFields: nil)
+    )
+    let emptySpan = Self.telemetry.tracer.spanBuilder(spanName: "DELETE").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(responseWithoutHeader, span: emptySpan)
+    emptySpan.end()
+
+    let readableEmptySpan = try XCTUnwrap(emptySpan as? ReadableSpan)
+    XCTAssertNil(readableEmptySpan.getAttributes()[responseContentTypeKey])
+  }
+
   func test_annotateNetworkError_usesStatusCodeWhenAvailableOrErrorDomainAndCode() throws {
     let timeoutError = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
 
@@ -310,6 +375,43 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
 
     let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
     XCTAssertNil(readableSpan.toSpanData().parentSpanId)
+  }
+
+  func test_customizeNetworkSpan_setsUrlDomainAndOptionalRequestHeaders() throws {
+    var request = try URLRequest(url: XCTUnwrap(URL(string: "https://api.example.com/v1/items")))
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let builder = Self.telemetry.tracer.spanBuilder(spanName: "POST")
+    Self.telemetry.customizeNetworkSpan(req: request, builder: builder)
+
+    let networkSpan = builder.startSpan()
+    defer { networkSpan.end() }
+
+    let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
+    let attrs = readableSpan.getAttributes()
+    XCTAssertEqual(attrs[SemanticConventions.Url.domain.rawValue], .string("api.example.com"))
+    XCTAssertEqual(
+      attrs["\(SemanticConventions.Http.requestHeader.rawValue).accept"],
+      AttributeValue(["application/json"])
+    )
+    XCTAssertEqual(
+      attrs["\(SemanticConventions.Http.requestHeader.rawValue).content-type"],
+      AttributeValue(["application/json"])
+    )
+
+    let plainRequest = try URLRequest(url: XCTUnwrap(URL(string: "https://api.example.com/ping")))
+    let plainBuilder = Self.telemetry.tracer.spanBuilder(spanName: "GET")
+    Self.telemetry.customizeNetworkSpan(req: plainRequest, builder: plainBuilder)
+
+    let plainSpan = plainBuilder.startSpan()
+    defer { plainSpan.end() }
+
+    let readablePlainSpan = try XCTUnwrap(plainSpan as? ReadableSpan)
+    let plainAttrs = readablePlainSpan.getAttributes()
+    XCTAssertEqual(plainAttrs[SemanticConventions.Url.domain.rawValue], .string("api.example.com"))
+    XCTAssertNil(plainAttrs["\(SemanticConventions.Http.requestHeader.rawValue).accept"])
+    XCTAssertNil(plainAttrs["\(SemanticConventions.Http.requestHeader.rawValue).content-type"])
   }
 
   func test_componentsToRegister_whenSessionsProviderMissing_returnsNil() throws {
