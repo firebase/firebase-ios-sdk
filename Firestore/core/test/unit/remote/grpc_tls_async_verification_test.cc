@@ -668,7 +668,7 @@ TEST(AsyncTlsVerifierTest, CancelOfUnknownRequestSchedulesNothing) {
   EXPECT_EQ(scheduler.size(), 0u);
 }
 
-TEST(AsyncTlsVerifierTest, CompletionAfterVerifierIsDestroyedIsDelivered) {
+TEST(AsyncTlsVerifierTest, CompletionAfterVerifierIsDestroyedIsNoOp) {
   ParkingEvaluator evaluator;
   FakeRequest request;
   CallbackRecorder recorder;
@@ -679,16 +679,36 @@ TEST(AsyncTlsVerifierTest, CompletionAfterVerifierIsDestroyedIsDelivered) {
   ASSERT_FALSE(
       verifier->Verify(request.get(), recorder.AsCallback(), &sync_status));
   verifier.reset();
-  EXPECT_EQ(recorder.count(), 0);
 
+  // gRPC's callback refers to the verifier, so pending callbacks are dropped.
   // The completion holds the tracker, not the destroyed verifier.
   ASSERT_EQ(evaluator.size(), 1u);
   RunOnOtherThread([&] { evaluator.completion(0)(Unauthenticated()); });
-  EXPECT_EQ(recorder.count(), 1);
-  ExpectStatusEq(Unauthenticated(), recorder.last_status());
+  EXPECT_EQ(recorder.count(), 0);
+}
 
-  RunOnOtherThread([&] { evaluator.completion(0)(grpc::Status::OK); });
-  EXPECT_EQ(recorder.count(), 1);
+TEST(TlsAsyncVerificationTrackerTest, AbandonDropsCallbacksWithoutInvoking) {
+  TlsAsyncVerificationTracker tracker;
+  FakeRequest request;
+  CallbackRecorder recorder;
+  auto alive = std::make_shared<int>(0);
+  std::weak_ptr<int> watcher = alive;
+
+  auto id =
+      tracker.Start(request.get(), [&recorder, alive](grpc::Status status) {
+        recorder.Record(std::move(status));
+      });
+  alive.reset();
+  grpc::Status sync_status;
+  ASSERT_FALSE(tracker.FinishStart(id, &sync_status));
+
+  tracker.Abandon();
+  EXPECT_TRUE(watcher.expired());
+  EXPECT_EQ(tracker.pending_count(), 0u);
+
+  tracker.Complete(id, grpc::Status::OK);
+  EXPECT_FALSE(tracker.Cancel(request.get()));
+  EXPECT_EQ(recorder.count(), 0);
 }
 
 // gRPC may call Cancel() with a pointer to a request that has already been

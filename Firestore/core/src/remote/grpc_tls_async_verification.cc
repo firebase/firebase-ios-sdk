@@ -138,6 +138,17 @@ std::function<void()> TlsAsyncVerificationTracker::Cancel(
   };
 }
 
+void TlsAsyncVerificationTracker::Abandon() {
+  // Destroyed after the lock is released, in case a callback's destructor
+  // re-enters the tracker.
+  std::unordered_map<Id, Entry> abandoned;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    abandoned.swap(entries_);
+    ids_by_request_.clear();
+  }
+}
+
 size_t TlsAsyncVerificationTracker::pending_count() const {
   std::lock_guard<std::mutex> lock(mutex_);
   size_t count = 0;
@@ -157,6 +168,13 @@ AsyncTlsVerifier::AsyncTlsVerifier(Evaluator evaluator, Scheduler scheduler)
       tracker_(std::make_shared<TlsAsyncVerificationTracker>()) {
   HARD_ASSERT(evaluator_ != nullptr, "AsyncTlsVerifier requires an evaluator");
   HARD_ASSERT(scheduler_ != nullptr, "AsyncTlsVerifier requires a scheduler");
+}
+
+AsyncTlsVerifier::~AsyncTlsVerifier() {
+  // gRPC's callbacks refer to this verifier, so they must not run after it is
+  // destroyed. gRPC keeps the verifier alive while verifications are pending,
+  // so normally there is nothing to drop.
+  tracker_->Abandon();
 }
 
 bool AsyncTlsVerifier::Verify(
