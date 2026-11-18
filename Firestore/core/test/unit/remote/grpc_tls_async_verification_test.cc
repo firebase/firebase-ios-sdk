@@ -540,11 +540,14 @@ TEST(AsyncTlsVerifierTest, EvaluatorSeesCopiedInputAfterRequestIsFreed) {
 }
 
 TEST(AsyncTlsVerifierTest, InlineCompletionIsReturnedSynchronously) {
+  ManualScheduler scheduler;
+  TlsVerificationCallback saved_completion;
   AsyncTlsVerifier verifier(
-      [](TlsVerificationInput, TlsVerificationCallback completion) {
+      [&](TlsVerificationInput, TlsVerificationCallback completion) {
+        saved_completion = completion;
         completion(Unauthenticated("inline"));
       },
-      NewThreadScheduler());
+      scheduler.AsScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -553,7 +556,13 @@ TEST(AsyncTlsVerifierTest, InlineCompletionIsReturnedSynchronously) {
       verifier.Verify(request.get(), recorder.AsCallback(), &sync_status));
   ExpectStatusEq(Unauthenticated("inline"), sync_status);
   EXPECT_EQ(recorder.count(), 0);
-  EXPECT_EQ(verifier.tracker()->pending_count(), 0u);
+
+  // The verification is fully resolved: neither a cancellation nor a late
+  // completion reaches the callback.
+  verifier.Cancel(request.get());
+  EXPECT_EQ(scheduler.size(), 0u);
+  saved_completion(grpc::Status::OK);
+  EXPECT_EQ(recorder.count(), 0);
 }
 
 TEST(AsyncTlsVerifierTest, NullRequestFailsSynchronously) {
@@ -939,7 +948,15 @@ TEST(AsyncTlsVerifierStressTest, EveryVerificationResolvesExactlyOnce) {
   for (int i = 0; i < kTotal; ++i) {
     EXPECT_EQ(resolutions[i]->load(), 1) << "request " << i;
   }
-  EXPECT_EQ(verifier.tracker()->pending_count(), 0u);
+  // Every verification is resolved, so cancelling any of them now schedules
+  // nothing.
+  for (int i = 0; i < kTotal; ++i) {
+    verifier.Cancel(requests[i]->get());
+  }
+  {
+    std::lock_guard<std::mutex> lock(queue_mutex);
+    EXPECT_TRUE(queue.empty());
+  }
   // The interleavings above must actually have exercised the asynchronous
   // completion and cancellation paths.
   EXPECT_GT(async_resolutions.load(), 0);

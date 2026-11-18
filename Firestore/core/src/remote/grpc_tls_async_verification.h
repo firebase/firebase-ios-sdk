@@ -147,7 +147,10 @@ class TlsAsyncVerificationTracker {
    */
   void Abandon();
 
-  /** Returns the number of verifications that are not yet resolved. */
+  /**
+   * Returns the number of verifications that are not yet resolved. For tests
+   * only.
+   */
   size_t pending_count() const;
 
  private:
@@ -242,11 +245,6 @@ class AsyncTlsVerifier
 
   void Cancel(
       grpc::experimental::TlsCustomVerificationCheckRequest* request) override;
-
-  /** Exposed for tests. */
-  const std::shared_ptr<TlsAsyncVerificationTracker>& tracker() const {
-    return tracker_;
-  }
 
  private:
   Evaluator evaluator_;
