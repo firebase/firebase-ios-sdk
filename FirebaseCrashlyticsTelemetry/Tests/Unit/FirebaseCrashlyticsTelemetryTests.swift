@@ -31,7 +31,12 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef", gcmSenderID: "1234567890")
     options.projectID = "test-project"
     mockSessions = MockSessionsProvider(initialSessionId: "initial-session-id")
-    telemetry = FirebaseCrashlyticsTelemetry(options: options, sessions: mockSessions)
+    telemetry = FirebaseCrashlyticsTelemetry(
+      options: options,
+      sessions: mockSessions,
+      installations: MockInstallationsProvider(installationId: "mock-fid-123"),
+      environment: MockTelemetryEnvironment()
+    )
   }
 
   override class func tearDown() {
@@ -56,6 +61,52 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     XCTAssertEqual(
       AttributeStore.commonSpanAttributes()[SemanticConventions.Session.id.rawValue],
       .string("initial-session-id")
+    )
+  }
+
+  func test_init_populatesResourceAndInstrumentationScope() {
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Service.name.rawValue],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Gcp.crashlyticsFirebaseAppId],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Gcp.crashlyticsProjectId],
+      .string("test-project")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Service.namespace.rawValue],
+      .string("com.example.testapp")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Service.version.rawValue],
+      .string("2.1.0")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.App.buildId.rawValue],
+      .string("42")
+    )
+
+    XCTAssertEqual(Self.telemetry.scopeInfo.name, "FirebaseCrashlyticsTelemetry")
+    XCTAssertEqual(Self.telemetry.scopeInfo.version, "13.0.0")
+    XCTAssertEqual(
+      Self.telemetry.scopeInfo.attributes?[SemanticConventions.Gcp.crashlyticsClientArtifact],
+      .string("FirebaseCrashlyticsTelemetry")
+    )
+    XCTAssertEqual(
+      Self.telemetry.scopeInfo.attributes?[SemanticConventions.Gcp.crashlyticsClientRepo],
+      .string("firebase/firebase-ios-sdk")
+    )
+    XCTAssertEqual(
+      Self.telemetry.scopeInfo.attributes?[SemanticConventions.Gcp.clientService.rawValue],
+      .string("firebasetelemetry")
+    )
+    XCTAssertEqual(
+      Self.telemetry.scopeInfo.attributes?[SemanticConventions.Gcp.crashlyticsClientVersion],
+      .string("v13.0.0")
     )
   }
 
