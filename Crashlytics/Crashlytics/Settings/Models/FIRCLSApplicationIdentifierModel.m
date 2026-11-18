@@ -133,6 +133,9 @@
   // continue generating a less-correct value for now. One day, we should incorporate a hash of the
   // Info.plist and icon data.
 
+  // The result is sent to the settings backend as the build instance ID, so changing the hash
+  // algorithm would change the value the backend sees. SHA-1 is acceptable here because the input
+  // is public build metadata and the hash is not used as a security control.
   _buildInstanceID = FIRCLSHashNSData([string dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
