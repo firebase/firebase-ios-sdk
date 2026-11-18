@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fixed a potential crash when a contextual (local time) message
+  payload contains fields of an unexpected type. Messages whose local start
+  or end time can't be parsed are now dropped instead of being scheduled.
+  (#16520)
 - [fixed] Fixed a crash when a message's link (`gcm.app_link`) is not an `http`
   or `https` URL. `NSUserActivity.webpageURL` only accepts web URLs, so such
   links are now ignored and a warning is logged. (#17061)
