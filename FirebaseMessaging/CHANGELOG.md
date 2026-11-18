@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed a crash when a message's link (`gcm.app_link`) is not an `http`
+  or `https` URL. `NSUserActivity.webpageURL` only accepts web URLs, so such
+  links are now ignored and a warning is logged. (#17061)
+
 # 13.1.0
 - [fixed] Reduced main-thread work when setting the APNs token: the APNs
   environment check no longer queries the App Store receipt, and the keychain is
