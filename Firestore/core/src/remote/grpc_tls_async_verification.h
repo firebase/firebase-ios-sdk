@@ -49,7 +49,10 @@ struct TlsVerificationInput {
   /** The PEM-encoded peer chain, leaf first. */
   std::string pem_chain;
 
-  /** The channel's target name (`host`, `host:port`, or `[ipv6]:port`). */
+  /**
+   * The bare host the channel connects to. gRPC strips the port and any IPv6
+   * brackets before calling the verifier.
+   */
   std::string target_name;
 };
 
@@ -138,6 +141,12 @@ class TlsAsyncVerificationTracker {
    */
   [[nodiscard]] std::function<void()> Cancel(const Request* request);
 
+  /**
+   * Drops every pending verification without invoking its callback. Later
+   * calls to `Complete()` and `Cancel()` for them are no-ops.
+   */
+  void Abandon();
+
   /** Returns the number of verifications that are not yet resolved. */
   size_t pending_count() const;
 
@@ -200,9 +209,10 @@ class TlsAsyncVerificationTracker {
  *     before `Verify()` returns.
  * (e) Completions after the verification is resolved (late, duplicate, or
  *     after a cancel) are ignored.
- * (f) Completions may arrive after the verifier is destroyed; they hold the
- *     tracker, not the verifier. gRPC keeps the verifier alive while
- *     verifications are pending, so destroying it does not resolve them.
+ * (f) Completions after the verifier is destroyed are safe no-ops: they hold
+ *     the tracker, not the verifier. Pending callbacks are dropped, because
+ *     gRPC's callback refers to the verifier. gRPC keeps the verifier alive
+ *     while verifications are pending, so nothing is waiting on them.
  */
 class AsyncTlsVerifier
     : public grpc::experimental::ExternalCertificateVerifier {
@@ -221,6 +231,7 @@ class AsyncTlsVerifier
    * cancellations with `scheduler`. Both are required.
    */
   AsyncTlsVerifier(Evaluator evaluator, Scheduler scheduler);
+  ~AsyncTlsVerifier() override;
 
   AsyncTlsVerifier(const AsyncTlsVerifier&) = delete;
   AsyncTlsVerifier& operator=(const AsyncTlsVerifier&) = delete;
