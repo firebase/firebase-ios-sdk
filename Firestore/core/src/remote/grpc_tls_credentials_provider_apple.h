@@ -42,6 +42,10 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+// The declarations below are test-facing: production code only calls
+// `CreateDefaultTlsCredentials()` (grpc_tls_credentials_provider.h). The
+// custom-anchor branch in the verifier is the one intentional test seam.
+
 /**
  * Creates gRPC `TlsCredentials` backed by Apple's `Security.framework`
  * certificate verifier (`AppleSecTrustCertificateVerifier`), which evaluates
