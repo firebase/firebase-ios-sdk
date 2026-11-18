@@ -21,6 +21,10 @@
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 
+#include <arpa/inet.h>  // NOLINT(build/include)
+#include <netinet/in.h>
+
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
@@ -53,14 +57,30 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
 }
 
 // Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or an
-// empty string if `target_name` is malformed. Uses the platform-neutral parser
-// in `grpc_tls_target_host.h`, which strips IPv6 zone IDs and returns IPv6
-// literals in canonical form; IPv4-mapped addresses are written in hex
-// (`::ffff:7f00:1`), the only form SecPolicy matches. gRPC has already removed
-// any port and brackets from `target_name`.
+// empty string if `target_name` is malformed (see `ParseTlsTargetHost()`).
+//
+// `SecPolicyCreateSSL` only matches an IPv6 address with an embedded IPv4
+// suffix (such as the IPv4-mapped `::ffff:127.0.0.1`, which is how `inet_ntop`
+// writes it) against a certificate's IP SAN when the address is written all
+// in hex (`::ffff:7f00:1`), so such addresses are rewritten here.
 std::string ExtractTlsHostName(absl::string_view target_name) {
   absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
-  return host.has_value() ? host->host : std::string();
+  if (!host.has_value()) {
+    return std::string();
+  }
+  if (host->kind == TlsTargetHost::Kind::kIpv6 &&
+      host->host.find('.') != std::string::npos) {
+    in6_addr addr = {};
+    if (inet_pton(AF_INET6, host->host.c_str(), &addr) != 1) {
+      return std::string();
+    }
+    const uint8_t* b = addr.s6_addr;
+    size_t last_colon = host->host.rfind(':');
+    host->host = absl::StrCat(host->host.substr(0, last_colon + 1),
+                              absl::Hex((b[12] << 8) | b[13]), ":",
+                              absl::Hex((b[14] << 8) | b[15]));
+  }
+  return host->host;
 }
 
 bool ContainsNonAscii(absl::string_view s) {

@@ -32,13 +32,8 @@ struct TlsTargetHost {
 
   /**
    * The bare host: a DNS name, a dotted-quad IPv4 address, or an IPv6 address
-   * without zone ID. IPv6 addresses are in the system's `inet_ntop` text form
-   * (RFC 5952), except that an embedded IPv4 suffix (such as in IPv4-mapped
-   * addresses) is written in hex (`::ffff:7f00:1`), because Apple's
-   * `SecPolicyCreateSSL` only matches IPv4-mapped addresses written that way.
-   * Currently only the Apple certificate verifier consumes this form; it is
-   * not what users should write as a host (gRPC's per-call check expects
-   * `inet_ntop` text, see `CreateDefaultTlsCredentials()`).
+   * exactly as the system's `inet_ntop` writes it (RFC 5952; some platforms
+   * write IPv4-mapped addresses in dotted form, such as `::ffff:127.0.0.1`).
    */
   std::string host;
   Kind kind = Kind::kDns;
@@ -50,15 +45,18 @@ struct TlsTargetHost {
  *
  * gRPC has already removed any port and IPv6 brackets (its TLS security
  * connector keeps only the host from `SplitHostPort()`), so this accepts only
- * a bare host: a DNS name, a dotted-quad IPv4 literal, or an IPv6 literal with
- * an optional `%zone` suffix, which is stripped (zone IDs are never part of
- * certificate identities).
+ * a bare host. IPv6 literals are canonicalized with `inet_pton`/`inet_ntop`;
+ * IPv4 literals must round-trip through them unchanged; anything else that
+ * contains no `:` and is not made only of digits and dots is returned as a DNS
+ * name, unchanged, for the platform verifier to match against the
+ * certificate.
  *
- * Returns `nullopt` for anything else, including: an empty host; control,
- * whitespace, non-ASCII, or URL-reserved characters; ports and brackets;
- * IPv4 literals that do not round-trip through `inet_pton`/`inet_ntop`
- * unchanged (such as leading zeros, which some parsers read as octal); and
- * IPv6 literals or zone IDs that are malformed.
+ * Returns `nullopt` for: an empty host; an embedded NUL; any `%` (IPv6 zone
+ * IDs are not accepted); non-ASCII characters (internationalized names must be
+ * Punycode-encoded); a `:` outside a valid IPv6 literal (so ports and
+ * bracketed IPv6 literals); and digit-and-dot strings that are not canonical
+ * IPv4 literals (such as leading zeros, which some parsers read as octal, or
+ * `127.1`).
  */
 absl::optional<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
 

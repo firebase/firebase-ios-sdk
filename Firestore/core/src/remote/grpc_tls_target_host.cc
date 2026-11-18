@@ -25,12 +25,10 @@
 #endif  // defined(_WIN32)
 
 #include <cstddef>
-#include <cstdint>
 #include <string>
 #include <utility>
 
 #include "absl/strings/ascii.h"
-#include "absl/strings/str_cat.h"
 
 namespace firebase {
 namespace firestore {
@@ -55,84 +53,57 @@ std::string NtoP(int family, const void* addr) {
 }
 #endif  // defined(_WIN32)
 
-bool IsDnsChar(char c) {
-  return absl::ascii_isalnum(static_cast<unsigned char>(c)) || c == '-' ||
-         c == '.' || c == '_';
-}
-
-bool IsZoneIdChar(char c) {
-  return absl::ascii_isalnum(static_cast<unsigned char>(c)) || c == '-' ||
-         c == '.' || c == '_' || c == '~' || c == '%';
-}
-
-bool IsIpv6Char(char c) {
-  return absl::ascii_isxdigit(static_cast<unsigned char>(c)) || c == ':' ||
-         c == '.';
-}
-
-template <typename Pred>
-bool AllOf(absl::string_view s, Pred pred) {
+bool IsAllDigitsAndDots(absl::string_view s) {
   for (char c : s) {
-    if (!pred(c)) return false;
+    if (!absl::ascii_isdigit(static_cast<unsigned char>(c)) && c != '.') {
+      return false;
+    }
   }
   return true;
 }
 
-// Validates an IPv6 literal with an optional `%zone` suffix and returns the
-// address, without the zone, as `inet_ntop` writes it, but with any embedded
-// IPv4 suffix rewritten in hex (`::ffff:127.0.0.1` -> `::ffff:7f00:1`).
-absl::optional<TlsTargetHost> ParseIpv6(absl::string_view s) {
-  size_t percent = s.find('%');
-  if (percent != absl::string_view::npos) {
-    absl::string_view zone = s.substr(percent + 1);
-    if (zone.empty() || !AllOf(zone, IsZoneIdChar)) return absl::nullopt;
-    s = s.substr(0, percent);
+bool ContainsNonAscii(absl::string_view s) {
+  for (char c : s) {
+    if (static_cast<unsigned char>(c) >= 0x80) return true;
   }
-  // Also guarantees there is no embedded NUL to truncate the C string.
-  if (!AllOf(s, IsIpv6Char)) return absl::nullopt;
-
-  in6_addr addr = {};
-  if (!PtoN(AF_INET6, std::string(s), &addr)) return absl::nullopt;
-  std::string text = NtoP(AF_INET6, &addr);
-  if (text.empty()) return absl::nullopt;
-
-  size_t last_colon = text.rfind(':');
-  if (text.find('.', last_colon) != std::string::npos) {
-    const auto* b = reinterpret_cast<const uint8_t*>(&addr);
-    text.erase(last_colon + 1);
-    absl::StrAppend(&text, absl::Hex((b[12] << 8) | b[13]), ":",
-                    absl::Hex((b[14] << 8) | b[15]));
-  }
-  return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kIpv6};
-}
-
-absl::optional<TlsTargetHost> ParseDnsOrIpv4(absl::string_view host) {
-  if (host.empty() || !AllOf(host, IsDnsChar)) return absl::nullopt;
-  bool numeric = AllOf(host, [](char c) {
-    return absl::ascii_isdigit(static_cast<unsigned char>(c)) || c == '.';
-  });
-  if (!numeric) {
-    return TlsTargetHost{std::string(host), TlsTargetHost::Kind::kDns};
-  }
-  // Never treat something that looks like an address as a DNS name. The
-  // round trip rejects forms that some parsers accept but read differently,
-  // such as leading zeros (octal) or fewer than four parts.
-  std::string text(host);
-  in_addr addr = {};
-  if (!PtoN(AF_INET, text, &addr) || NtoP(AF_INET, &addr) != text) {
-    return absl::nullopt;
-  }
-  return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kIpv4};
+  return false;
 }
 
 }  // namespace
 
 absl::optional<TlsTargetHost> ParseTlsTargetHost(
     absl::string_view target_name) {
-  if (target_name.find(':') != absl::string_view::npos) {
-    return ParseIpv6(target_name);
+  // An embedded NUL would truncate the C string handed to inet_pton, zone IDs
+  // are never part of a certificate identity, and internationalized names
+  // must arrive Punycode-encoded.
+  if (target_name.empty() ||
+      target_name.find('\0') != absl::string_view::npos ||
+      target_name.find('%') != absl::string_view::npos ||
+      ContainsNonAscii(target_name)) {
+    return absl::nullopt;
   }
-  return ParseDnsOrIpv4(target_name);
+  std::string text(target_name);
+
+  in6_addr addr6 = {};
+  if (PtoN(AF_INET6, text, &addr6)) {
+    std::string canonical = NtoP(AF_INET6, &addr6);
+    if (canonical.empty()) return absl::nullopt;
+    return TlsTargetHost{std::move(canonical), TlsTargetHost::Kind::kIpv6};
+  }
+  // gRPC strips ports and brackets before calling verifiers, and DNS names
+  // never contain ':', so anything else with a colon is malformed.
+  if (text.find(':') != std::string::npos) return absl::nullopt;
+
+  // The round trip rejects forms that some parsers accept but read
+  // differently, such as leading zeros (octal) or fewer than four parts.
+  in_addr addr4 = {};
+  if (PtoN(AF_INET, text, &addr4) && NtoP(AF_INET, &addr4) == text) {
+    return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kIpv4};
+  }
+  // Never treat something that looks like an IPv4 address as a DNS name.
+  if (IsAllDigitsAndDots(text)) return absl::nullopt;
+
+  return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kDns};
 }
 
 }  // namespace remote
