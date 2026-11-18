@@ -184,10 +184,17 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   // because they add latency to every connection (and can stall it behind an
   // unreachable responder), reveal to the CA which hosts the device connects
   // to, and, being necessarily soft-fail in a client library, offer little
-  // protection against an attacker who can block the responder. The cost is
-  // a window between a CA revoking a certificate and the device's next
-  // `Valid` update; that window is no wider than with the previous embedded
-  // root bundle, which only changed when apps shipped a new SDK.
+  // protection against an attacker who can block the responder. A second,
+  // network-enabled evaluation after an offline one would be exactly such a
+  // live check, with the same costs.
+  //
+  // This is an accepted trade-off of delegating trust to the OS: a device
+  // whose `Valid` data is stale (for example, freshly restored, or unable to
+  // reach Apple) may accept a chain that Apple has since revoked. That can
+  // include chains the previous embedded root bundle rejected, where a root
+  // was removed from the bundle but Apple still trusts it and blocks only
+  // specific intermediates. In the common case, though, the OS's revocation
+  // updates arrive far sooner than an app ships a new SDK with a new bundle.
   OSStatus fetch_status = SecTrustSetNetworkFetchAllowed(sec_trust, false);
   if (fetch_status != errSecSuccess) {
     SetStatus(out_status,
