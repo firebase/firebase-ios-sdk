@@ -3,6 +3,9 @@
   payload contains fields of an unexpected type. Messages whose local start
   or end time can't be parsed are now dropped instead of being scheduled.
   (#16520)
+- [fixed] Fixed a crash when a message's link (`gcm.app_link`) is not an `http`
+  or `https` URL. `NSUserActivity.webpageURL` only accepts web URLs, so such
+  links are now ignored and a warning is logged. (#17061)
 
 # 13.1.0
 - [fixed] Reduced main-thread work when setting the APNs token: the APNs

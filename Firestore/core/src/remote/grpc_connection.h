@@ -19,7 +19,6 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 #include "Firestore/core/src/core/database_info.h"
@@ -30,7 +29,6 @@
 #include "Firestore/core/src/remote/grpc_stream_observer.h"
 #include "Firestore/core/src/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/remote/grpc_unary_call.h"
-#include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/string_view.h"
 #include "grpcpp/channel.h"
@@ -99,14 +97,6 @@ class GrpcConnection {
    * streams or calls.
    */
   static void UseInsecureChannel(const std::string& host);
-
-  /**
-   * For tests only: use a custom root certificate file and the given SSL
-   * target name for all connections. Call before creating any streams or calls.
-   */
-  static void UseTestCertificate(const std::string& host,
-                                 const util::Path& certificate_path,
-                                 const std::string& target_name);
 
  private:
   std::unique_ptr<grpc::ClientContext> CreateContext(

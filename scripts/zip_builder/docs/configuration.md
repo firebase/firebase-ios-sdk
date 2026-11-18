@@ -52,7 +52,7 @@ become frameworks (combined by `frameworks.aggregate` and `frameworks.merge`, th
 | Folder names, after `products.rename` | `products.withoutFolder`, `products.base.product`, keys of `products.platforms` and `products.extraFrameworks`, `zip.files[].to`, `zip.externalArtifacts[].to` |
 | Target names | `products.add[].targets`, `frameworks.merge`, keys of `frameworks.rename` |
 | Package names | `frameworks.aggregate` |
-| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks`, keys of `zip.notices.extraLicenses` |
+| Framework or binary names, after merging and renaming | `frameworks.publicHeaders`, `frameworks.platforms`, `frameworks.dynamic`, `frameworks.static`, `build.swiftVersion`, `layout.privacyBundle`, `layout.resourceBundles`, values of `products.extraFrameworks`, `products.base.frameworks`, keys of `zip.notices.extraLicenses`, `zip.notices.licenses` and `zip.notices.titles` |
 | Module names in the finished zip | `verify.skipImports` |
 | Paths and folders in the finished distribution | keys of `carthage.files`, `carthage.umbrellaFramework.folder` (`carthage.rebuild` is a product name) |
 | Header file name patterns | `frameworks.privateHeaders`, `frameworks.hiddenHeaders` |
@@ -60,7 +60,8 @@ become frameworks (combined by `frameworks.aggregate` and `frameworks.merge`, th
 **Who reads what.** Planning and `customize` read every group except `verify` and `carthage`.
 Packaging reads `release`, `zip` and `products.base`; `verify` reads `products.base` and
 `verify`; `carthage` reads `carthage`, and plans with the rest. The build stage reads no config:
-everything it needs is already in the plan.
+everything it needs is already in the plan. The `notices` command plans (unless given `--plan`),
+then reads `zip.notices`.
 
 ## release
 
@@ -290,6 +291,7 @@ What else goes in the zip, next to the frameworks.
   is warned about and skipped. Files are copied by file name, without their directories, so two
   files with the same name can't go in one folder. A missing file fails packaging. Firebase: the
   zip root gets the legacy zip's `README.md`, `Firebase.h` and `module.modulemap`, and the
+  checked-in license notices (`CoreOnly/licenses/NOTICES`; see `notices` below); the
   `FirebaseCrashlytics` folder gets the `run` and `upload-symbols` scripts.
 - **`externalArtifacts`** (list of `{ "to", "url", "subpath", "stripSignatures" }`, default `[]`).
   Prebuilt zips downloaded and unpacked into folder `to` (`"."` is the zip root; a missing folder
@@ -298,24 +300,60 @@ What else goes in the zip, next to the frameworks.
   archive: a plain directory contributes its entries, and a file or bundle (such as an
   `.xcframework`) is placed as is. `stripSignatures` (default `false`) removes every
   `_CodeSignature` directory, so `--sign` signs the result with the rest. Firebase has none.
-- **`notices`** (`{ "file", "extraLicenses" }`, default none). Writes a third-party license
-  notices file at the zip root, generated from the license files of every framework and binary
-  the zip ships (see [Licenses](how-it-works.md#licenses)): one entry per license text, ignoring
-  leading and trailing whitespace, titled by the names of everything under it. Without this key
-  there's no such file. Keys:
-  - **`file`** (string, default `"NOTICES"`): its file name.
+- **`notices`** (`{ "file", "atBuildTime", "licenses", "extraLicenses", "titles", "layout" }`,
+  default none). A third-party license notices file at the zip root, generated from the license
+  files of every framework and binary the zip ships (see [Licenses](how-it-works.md#licenses)):
+  one entry per license text, titled by the names of everything under it. Without this key
+  there's no such file, and the `notices` command fails. Keys:
+  - **`file`** (string, default `"NOTICES"`): its file name in the zip.
+  - **`atBuildTime`** (bool, default `true`): whether packaging writes the file. With `false`,
+    packaging doesn't, and the release generates it separately with the
+    [`notices` command](../README.md#commands) (`zip-builder notices --output <path>`), checks
+    it in, and ships it with `zip.files` like any other file. The other keys still apply to that
+    command, and planning still warns about missing licenses.
+  - **`licenses`** (framework or binary name → package-root-relative paths, default `{}`):
+    exactly these license files for that item, instead of those planning found: for a license
+    file that's wrong for it (a binary in a package whose root license isn't its own), or that
+    should be a different variant of the text.
   - **`extraLicenses`** (framework or binary name → package-root-relative paths, default `{}`):
-    license files added to those planning found, for a package without a license file, or whose
-    license file lacks the full text. Names are the ones in the zip, after merging and renaming.
+    license files added to those planning found (or to its `licenses`), for a package without a
+    license file, or whose license file lacks the full text.
+  - **`titles`** (framework or binary name → titles, default `{}`): the titles an item is listed
+    under, instead of its own name. With several, it's listed under each of them; items that
+    share a title are listed once under it, with all their license texts.
+  - **`layout`** (`"trimmed"` or `"verbatim"`, default `"trimmed"`): how entries are grouped
+    and rendered. `trimmed` compares license texts without their leading blank lines and
+    trailing whitespace (the first line keeps its indentation), and renders each entry as the
+    titles, a blank line and the trimmed text.
+    `verbatim` groups only identical texts, and renders each entry as the titles, a newline and
+    the text as is, its leading blank line included: the layout of the CocoaPods-era generator
+    (`.github/actions/notices_generation/app.rb`). Either way, entries are ordered by their
+    titles, separated by a blank line, and the file is trimmed to end with one newline.
 
-  **Gotchas:** a shipped framework or binary with no license file and no `extraLicenses` entry
-  is warned about while planning, and the file leaves it out. An `extraLicenses` name the zip
-  doesn't ship is warned about and skipped; a path that doesn't exist fails packaging, even for
-  a skipped name. A `zip.files` entry with the same name fails packaging rather than being
-  replaced. `externalArtifacts` aren't in the plan, so they get no notice. Firebase: on, with the
-  BoringSSL text for `openssl_grpc` (its package has no license for it), gRPC's full text for
-  `grpc` and `grpcpp`, and `Firestore/LICENSE` for the `FirebaseFirestoreInternal` binary, which
-  is in the root package and so only gets the root `LICENSE`.
+  Names in `licenses`, `extraLicenses` and `titles` are the ones in the zip, after merging and
+  renaming.
+
+  **Gotchas:** a shipped framework or binary with no license file and no `licenses` or
+  `extraLicenses` entry is warned about while planning, and the file leaves it out; so is one
+  whose `titles` entry is empty. A `licenses`, `extraLicenses` or `titles` name the zip doesn't
+  ship is warned about and skipped; a `licenses` or `extraLicenses` path that doesn't exist
+  fails packaging (and the `notices` command), even for a skipped name. A path into a package
+  checkout (`.build/checkouts/<package>/LICENSE`) only exists once the package is resolved,
+  which planning does. When packaging writes the file, a `zip.files` entry with the same name
+  fails packaging rather than being replaced; with `atBuildTime: false`, that entry is how the
+  file ships. `externalArtifacts` aren't in the plan, so they get no notice. A checked-in file
+  is only as current as its last generation, so regenerate it when the shipped frameworks or
+  their licenses change.
+
+  Firebase: `atBuildTime: false`. Its daily `infra.zip_builder_notices` workflow runs
+  `zip-builder notices --output CoreOnly/licenses/NOTICES` and opens a pull request when the
+  file changes, and `zip.files` copies it to the zip root. `licenses` gives `openssl_grpc` the
+  BoringSSL text (its package has no license for it), `grpc` and `grpcpp` gRPC's full text, and
+  the `FirebaseFirestoreInternal` binary `Firestore/LICENSE` (it's in the root package, so it
+  would only get the root `LICENSE`). For the initial release, `titles` (pod names),
+  `layout: "verbatim"` and the rest of `licenses` (the legacy texts in `CoreOnly/licenses/`)
+  reproduce the CocoaPods-generated `CoreOnly/NOTICES` byte for byte; item 24 of
+  [the modernization checklist](modernization_checklist.md) removes them.
 
 ## verify
 
@@ -451,6 +489,21 @@ Objective-C, use the module name as it appears in the zip.
 
 ```jsonc
 "verify": { "skipImports": ["leveldb"] }
+```
+
+**Check in the license notices instead of generating them in every build.** Generate the file
+with `notices` (rerun it when the shipped frameworks or their licenses change), and ship it like
+any other file; the name it gets in the zip is its file name.
+
+```bash
+./scripts/zip_builder.sh notices --version "$VERSION" --output CoreOnly/licenses/NOTICES
+```
+
+```jsonc
+"zip": {
+  "files": [{ "to": ".", "files": ["CoreOnly/licenses/NOTICES"] }],
+  "notices": { "atBuildTime": false }
+}
 ```
 
 **Ship products without their dependencies.** Each folder then holds only what its product's own
