@@ -2590,6 +2590,67 @@ class AuthTests: RPCBaseTests {
     XCTAssertNil(auth.currentUser)
   }
 
+  /** @fn testTokenRefreshFailureSignsOutOnWorkQueue
+      @brief Tests that a token refresh that fails with an error that signs out the user does so on
+          `kAuthGlobalWorkQueue`, like `signOut()`, so that it can't race with other reads and
+          writes of the current user. See #17085.
+   */
+  func testTokenRefreshFailureSignsOutOnWorkQueue() throws {
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let backend = try XCTUnwrap(authBackend)
+    rpcIssuer.secureTokenErrorString = "USER_DISABLED"
+
+    // Hold the work queue.
+    let workQueueHeld = DispatchSemaphore(value: 0)
+    let releaseWorkQueue = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workQueueHeld.signal()
+      releaseWorkQueue.wait()
+    }
+    workQueueHeld.wait()
+
+    // The refresh signs out before it throws, so it can't finish while the work queue is held.
+    let refreshFinished = DispatchSemaphore(value: 0)
+    Task {
+      do {
+        _ = try await user.internalGetTokenAsync(forceRefresh: true, backend: backend)
+        XCTFail("The token refresh should fail")
+      } catch {
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
+      }
+      refreshFinished.signal()
+    }
+    let finishedWhileHeld = refreshFinished.wait(timeout: .now() + 0.5) == .success
+    releaseWorkQueue.signal()
+    XCTAssertFalse(finishedWhileHeld, "The user was signed out off the work queue")
+    if !finishedWhileHeld {
+      XCTAssertEqual(refreshFinished.wait(timeout: .now() + 5), .success)
+    }
+    XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testConcurrentForcedSignOutsAndSignOut
+      @brief Tests that forced sign-outs on several threads, while another thread calls
+          `signOut()`, sign out the user. Run with Thread Sanitizer to check that they don't race on
+          the current user. See #17085.
+   */
+  func testConcurrentForcedSignOutsAndSignOut() throws {
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(self.auth)
+    let userID = try XCTUnwrap(auth.currentUser?.uid)
+
+    DispatchQueue.concurrentPerform(iterations: 3) { index in
+      if index == 0 {
+        try? auth.signOut()
+      } else {
+        try? auth.signOutByForce(withUserID: userID)
+      }
+    }
+
+    XCTAssertNil(auth.currentUser)
+  }
+
   /** @fn testAutomaticTokenRefreshRetry
       @brief Tests that a retry is attempted for a automatic token refresh task (which is not due to
           invalid tokens). The initial attempt to refresh the access token fails, but the second
