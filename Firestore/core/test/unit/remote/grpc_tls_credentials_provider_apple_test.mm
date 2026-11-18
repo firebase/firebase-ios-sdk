@@ -943,14 +943,54 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
   for (const auto& target :
-       {"::1", "2001:db8::1", "::ffff:7f00:1", "fe80::1%en0",
-        // IPv4-mapped literal in dotted form.
+       {"::1", "2001:db8::1", "fe80::1", "::ffff:7f00:1",
+        // IPv4-mapped literal in dotted form, which is also how inet_ntop
+        // writes it; ExtractTlsHostName rewrites it in hex for SecPolicy.
         "::ffff:127.0.0.1"}) {
     grpc::Status status =
         VerifyAndWait(pki.ServerChainPem(), target, anchors.get());
     EXPECT_TRUE(status.ok())
         << "target: " << target << " error: " << status.error_message();
   }
+}
+
+// Documents the Apple behavior that ExtractTlsHostName works around:
+// SecPolicyCreateSSL matches an IPv4-mapped IP SAN only when the host is
+// written all in hex. If the dotted form ever starts matching, the hex rewrite
+// in ExtractTlsHostName can be removed.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     SecPolicyMatchesIpv4MappedHostOnlyInHexForm) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "mapped.firestore.local";
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  auto evaluate = [&](CFStringRef host) {
+    const void* chain[] = {pki.leaf.sec_certificate.get(),
+                           pki.intermediate.sec_certificate.get()};
+    ScopedCFRef<CFArrayRef> certs(
+        CFArrayCreate(kCFAllocatorDefault, chain, 2, &kCFTypeArrayCallBacks));
+    ScopedCFRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, host));
+    SecTrustRef raw_trust = nullptr;
+    EXPECT_EQ(
+        SecTrustCreateWithCertificates(certs.get(), policy.get(), &raw_trust),
+        errSecSuccess);
+    ScopedCFRef<SecTrustRef> trust(raw_trust);
+    SecTrustSetNetworkFetchAllowed(trust.get(), false);
+    SecTrustSetAnchorCertificates(trust.get(), anchors.get());
+    SecTrustSetAnchorCertificatesOnly(trust.get(), true);
+    CFErrorRef raw_error = nullptr;
+    bool trusted = SecTrustEvaluateWithError(trust.get(), &raw_error);
+    ScopedCFRef<CFErrorRef> error(raw_error);
+    return trusted;
+  };
+
+  EXPECT_TRUE(evaluate(CFSTR("::ffff:7f00:1")));
+  EXPECT_FALSE(evaluate(CFSTR("::ffff:127.0.0.1")))
+      << "SecPolicy now matches the dotted IPv4-mapped form; the hex rewrite "
+         "in ExtractTlsHostName is no longer needed.";
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
@@ -975,7 +1015,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
       "dns:///firestore.googleapis.com", "dns://8.8.8.8",
       "dns:", "ipv4:", "ipv6:", "foo:bar:baz", "[example.com]:443", "[::1",
       "[]", "[::1]:", "[::1]:notaport", "[fe80::1%]:443", "fe80::1%",
-      "[::1]junk",
+      "[::1]junk", "fe80::1%en0",
       // gRPC strips ports and brackets before calling the verifier, so a
       // target name that still has them is malformed.
       "firestore.googleapis.com:443", "127.0.0.1:50051", "[::1]", "[::1]:443",
@@ -1187,8 +1227,10 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
   EXPECT_TRUE(VerifyAndWait(pki.ServerChainPem(), "::1", anchors.get()).ok());
-  EXPECT_TRUE(
-      VerifyAndWait(pki.ServerChainPem(), "::1%en0", anchors.get()).ok());
+  // Zone IDs are not accepted.
+  EXPECT_EQ(VerifyAndWait(pki.ServerChainPem(), "::1%en0", anchors.get())
+                .error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsExpiredLeafCertificate) {
