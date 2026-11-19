@@ -103,17 +103,18 @@ bool ContainsNonAscii(absl::string_view s) {
 // and stores the reason in `*out_status`.
 NSArray* CreateCertificateChainFromPem(absl::string_view pem_chain,
                                        grpc::Status* out_status) {
-  std::vector<std::string> der_certificates;
-  std::string error;
-  if (!SplitPemCertificates(pem_chain, &der_certificates, &error)) {
+  util::StatusOr<std::vector<std::string>> der_certificates =
+      SplitPemCertificates(pem_chain);
+  if (!der_certificates.ok()) {
     SetStatus(out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED, error));
+              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                           der_certificates.status().error_message()));
     return nil;
   }
 
   NSMutableArray* certs =
-      [NSMutableArray arrayWithCapacity:der_certificates.size()];
-  for (const std::string& der : der_certificates) {
+      [NSMutableArray arrayWithCapacity:der_certificates.ValueOrDie().size()];
+  for (const std::string& der : der_certificates.ValueOrDie()) {
     NSData* data = [NSData dataWithBytes:der.data() length:der.size()];
     id cert = CFBridgingRelease(SecCertificateCreateWithData(
         kCFAllocatorDefault, (__bridge CFDataRef)data));

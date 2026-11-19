@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -30,14 +31,13 @@ namespace remote {
  * Splits a PEM-encoded certificate chain, as gRPC passes it to certificate
  * verifiers, into DER-encoded certificates, in order.
  *
- * Fails closed: returns false, and stores the reason in `*error` if it is
- * non-null, unless `pem` consists of one or more `CERTIFICATE` blocks separated
- * only by ASCII whitespace, each with a non-empty, valid base64 payload. Stray,
- * nested, or unclosed markers and any other text are rejected.
+ * Fails closed: returns an `InvalidArgument` status describing the problem
+ * unless `pem` consists of one or more `CERTIFICATE` blocks separated only by
+ * ASCII whitespace, each with a non-empty, valid base64 payload. Stray, nested,
+ * or unclosed markers and any other text are rejected.
  */
-bool SplitPemCertificates(absl::string_view pem,
-                          std::vector<std::string>* der_certificates,
-                          std::string* error = nullptr);
+util::StatusOr<std::vector<std::string>> SplitPemCertificates(
+    absl::string_view pem);
 
 }  // namespace remote
 }  // namespace firestore
