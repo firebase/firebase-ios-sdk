@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/grpc_connection.h"
 
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
@@ -29,7 +30,28 @@
 #include "Firestore/core/test/unit/remote/grpc_stream_tester.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 #include "absl/memory/memory.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+namespace grpc {
+namespace testing {
+
+class ClientContextTestPeer {
+ public:
+  explicit ClientContextTestPeer(const ClientContext* ctx) : ctx_{ctx} {
+  }
+
+  const std::multimap<std::string, std::string>& GetSendInitialMetadata()
+      const {
+    return ctx_->send_initial_metadata_;
+  }
+
+ private:
+  const ClientContext* const ctx_;
+};
+
+}  // namespace testing
+}  // namespace grpc
 
 namespace firebase {
 namespace firestore {
@@ -229,6 +251,47 @@ TEST_F(GrpcConnectionTest, ShutdownFastFinishesActiveCalls) {
   EXPECT_NO_THROW(foo.reset());
   EXPECT_NO_THROW(bar.reset());
   EXPECT_NO_THROW(baz.reset());
+}
+
+TEST_F(GrpcConnectionTest, SetsTransactionHeaderOnStreamAndCalls) {
+  using ::grpc::testing::ClientContextTestPeer;
+  using ::testing::Contains;
+  using ::testing::Pair;
+
+  ConnectivityObserver observer;
+  std::unique_ptr<GrpcStream> stream = tester.CreateStream(&observer);
+  EXPECT_THAT(ClientContextTestPeer(stream->context()).GetSendInitialMetadata(),
+              Contains(Pair("x-goog-is-transaction", "false")));
+
+  std::unique_ptr<GrpcUnaryCall> non_tx_unary =
+      tester.grpc_connection()->CreateUnaryCall("", AuthToken{"", User{}}, "",
+                                                grpc::ByteBuffer{});
+  EXPECT_THAT(
+      ClientContextTestPeer(non_tx_unary->context()).GetSendInitialMetadata(),
+      Contains(Pair("x-goog-is-transaction", "false")));
+
+  std::unique_ptr<GrpcUnaryCall> tx_unary =
+      tester.grpc_connection()->CreateUnaryCall("", AuthToken{"", User{}}, "",
+                                                grpc::ByteBuffer{},
+                                                /*is_transaction=*/true);
+  EXPECT_THAT(
+      ClientContextTestPeer(tx_unary->context()).GetSendInitialMetadata(),
+      Contains(Pair("x-goog-is-transaction", "true")));
+
+  std::unique_ptr<GrpcStreamingReader> non_tx_reader =
+      tester.grpc_connection()->CreateStreamingReader("", AuthToken{"", User{}},
+                                                      "", grpc::ByteBuffer{});
+  EXPECT_THAT(
+      ClientContextTestPeer(non_tx_reader->context()).GetSendInitialMetadata(),
+      Contains(Pair("x-goog-is-transaction", "false")));
+
+  std::unique_ptr<GrpcStreamingReader> tx_reader =
+      tester.grpc_connection()->CreateStreamingReader("", AuthToken{"", User{}},
+                                                      "", grpc::ByteBuffer{},
+                                                      /*is_transaction=*/true);
+  EXPECT_THAT(
+      ClientContextTestPeer(tx_reader->context()).GetSendInitialMetadata(),
+      Contains(Pair("x-goog-is-transaction", "true")));
 }
 
 }  // namespace remote

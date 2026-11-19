@@ -60,6 +60,7 @@ const char* const kAuthorizationHeader = "authorization";
 const char* const kXGoogApiClientHeader = "x-goog-api-client";
 const char* const kGoogleCloudResourcePrefix = "google-cloud-resource-prefix";
 const char* const kXGoogRequestParams = "x-goog-request-params";
+const char* const kXGoogIsTransaction = "x-goog-is-transaction";
 
 std::string MakeString(absl::string_view view) {
   return view.data() ? std::string{view.data(), view.size()} : std::string{};
@@ -184,7 +185,9 @@ void GrpcConnection::Shutdown() {
 }
 
 std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
-    const AuthToken& auth_token, const std::string& app_check_token) const {
+    const AuthToken& auth_token,
+    const std::string& app_check_token,
+    bool is_transaction) const {
   auto context = absl::make_unique<grpc::ClientContext>();
 
   absl::string_view auth = auth_token.user().is_authenticated()
@@ -212,6 +215,7 @@ std::unique_ptr<grpc::ClientContext> GrpcConnection::CreateContext(
   context->AddMetadata(kXGoogRequestParams,
                        StringFormat("projects/%s/databases/%s",
                                     db_id.project_id(), db_id.database_id()));
+  context->AddMetadata(kXGoogIsTransaction, is_transaction ? "true" : "false");
   return context;
 }
 
@@ -262,7 +266,8 @@ std::unique_ptr<GrpcStream> GrpcConnection::CreateStream(
     GrpcStreamObserver* observer) {
   EnsureActiveStub();
 
-  auto context = CreateContext(auth_token, app_check_token);
+  auto context =
+      CreateContext(auth_token, app_check_token, /*is_transaction=*/false);
   auto call =
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStream>(std::move(context), std::move(call),
@@ -273,10 +278,11 @@ std::unique_ptr<GrpcUnaryCall> GrpcConnection::CreateUnaryCall(
     absl::string_view rpc_name,
     const AuthToken& auth_token,
     const std::string& app_check_token,
-    const grpc::ByteBuffer& message) {
+    const grpc::ByteBuffer& message,
+    bool is_transaction) {
   EnsureActiveStub();
 
-  auto context = CreateContext(auth_token, app_check_token);
+  auto context = CreateContext(auth_token, app_check_token, is_transaction);
   auto call = grpc_stub_->PrepareUnaryCall(context.get(), MakeString(rpc_name),
                                            message, grpc_queue_);
   return absl::make_unique<GrpcUnaryCall>(std::move(context), std::move(call),
@@ -287,10 +293,11 @@ std::unique_ptr<GrpcStreamingReader> GrpcConnection::CreateStreamingReader(
     absl::string_view rpc_name,
     const AuthToken& auth_token,
     const std::string& app_check_token,
-    const grpc::ByteBuffer& message) {
+    const grpc::ByteBuffer& message,
+    bool is_transaction) {
   EnsureActiveStub();
 
-  auto context = CreateContext(auth_token, app_check_token);
+  auto context = CreateContext(auth_token, app_check_token, is_transaction);
   auto call =
       grpc_stub_->PrepareCall(context.get(), MakeString(rpc_name), grpc_queue_);
   return absl::make_unique<GrpcStreamingReader>(
