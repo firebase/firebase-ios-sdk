@@ -30,6 +30,7 @@
 #include <iterator>
 #include <utility>
 
+#include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
@@ -364,46 +365,29 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
 }
 
 // Strictly parses a peer certificate chain: every PEM block must be a
-// well-formed `CERTIFICATE`. Unlike `ParseCertificates`, which skips malformed
-// entries in system files, any malformed or unexpected block fails the whole
+// well-formed `CERTIFICATE` separated only by ASCII whitespace (via
+// `SplitPemCertificates`). Unlike `ParseCertificates`, which skips malformed
+// entries in system files, any malformed block or stray text fails the whole
 // chain, so that a skipped leaf or intermediate can never weaken the hostname
 // or blocklist checks.
 bool ParsePeerChain(absl::string_view pem_chain, std::vector<UniqueX509>* out) {
   out->clear();
-  ERR_clear_error();
-  UniqueBio bio(
-      BIO_new_mem_buf(pem_chain.data(), static_cast<int>(pem_chain.size())));
-  if (bio == nullptr) return false;
+  std::vector<std::string> der_certs;
+  if (!SplitPemCertificates(pem_chain, &der_certs)) return false;
 
-  bool ok = true;
-  while (ok) {
-    char* name = nullptr;
-    char* header = nullptr;
-    uint8_t* body = nullptr;
-    long len = 0;  // NOLINT(runtime/int)
-    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
-      // Running out of input is the only acceptable way to stop.
-      uint32_t error = static_cast<uint32_t>(ERR_peek_last_error());
-      ok = ERR_GET_LIB(error) == ERR_LIB_PEM &&
-           ERR_GET_REASON(error) == PEM_R_NO_START_LINE;
-      break;
-    }
+  out->reserve(der_certs.size());
+  for (const std::string& der : der_certs) {
     size_t consumed = 0;
-    UniqueX509 cert;
-    if (std::strcmp(name, "CERTIFICATE") == 0) {
-      cert = ParseCertDer(body, static_cast<size_t>(len), &consumed);
+    UniqueX509 cert = ParseCertDer(reinterpret_cast<const uint8_t*>(der.data()),
+                                   der.size(), &consumed);
+    if (cert == nullptr || consumed != der.size()) {
+      ERR_clear_error();
+      out->clear();
+      return false;
     }
-    if (cert == nullptr || consumed != static_cast<size_t>(len)) {
-      ok = false;
-    } else {
-      out->push_back(std::move(cert));
-    }
-    OPENSSL_free(name);
-    OPENSSL_free(header);
-    OPENSSL_free(body);
+    out->push_back(std::move(cert));
   }
-  ERR_clear_error();
-  return ok && !out->empty();
+  return true;
 }
 
 // ---------------------------------------------------------------------------

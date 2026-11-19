@@ -741,6 +741,10 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsMalformedChains) {
   TestPki pki = CreateTestPki("verify-malformed", {kHost});
   LinuxTrustStore store = StoreWithAnchor(pki.root);
+  EXPECT_EQ(VerifyLinuxPeerCertificateChain(absl::string_view{}, kHost, store)
+                .error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_EQ(ERR_peek_error(), 0u);
   for (const std::string& chain :
        {std::string(), std::string("garbage"),
         std::string("-----BEGIN CERTIFICATE-----\nAAAA\n"
@@ -748,6 +752,7 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsMalformedChains) {
     grpc::Status status = VerifyLinuxPeerCertificateChain(chain, kHost, store);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << "chain: " << chain;
+    EXPECT_EQ(ERR_peek_error(), 0u);
   }
 }
 
@@ -770,11 +775,16 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
 
   const std::string bad_der =
       "-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n";
+  const std::string bad_header =
+      "-----BEGIN CERTIFICATE\nAAAA\n-----END CERTIFICATE-----\n";
   const std::vector<std::string> chains = {
       pki.leaf.cert_pem() + CorruptBase64(pki.intermediate.cert_pem()),
       CorruptBase64(pki.intermediate.cert_pem()) + pki.ServerChainPem(),
       pki.leaf.cert_pem() + bad_der,
       bad_der + pki.ServerChainPem(),
+      bad_header + pki.ServerChainPem(),
+      "garbage\n" + pki.ServerChainPem(),
+      pki.ServerChainPem() + "garbage",
       pki.ServerChainPem() + PublicKeyPem(pki.intermediate),
       TrustedCertificatePem(pki.leaf, AuxTrust::kTrustServerAuth) +
           pki.intermediate.cert_pem(),
@@ -784,6 +794,7 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
         VerifyLinuxPeerCertificateChain(chains[i], kHost, store);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << "chain " << i;
+    EXPECT_EQ(ERR_peek_error(), 0u) << "chain " << i;
   }
 }
 
