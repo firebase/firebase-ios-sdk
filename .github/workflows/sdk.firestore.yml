@@ -301,6 +301,7 @@ jobs:
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
 
     env:
       USE_LATEST_CMAKE: false

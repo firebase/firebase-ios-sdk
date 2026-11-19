@@ -22,12 +22,14 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <algorithm>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+#include <set>
 #include <utility>
 
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
@@ -326,15 +328,31 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
                                            bool allow_der) {
   std::vector<ParsedEntry> entries;
   UniqueBio bio(BIO_new_mem_buf(data.data(), static_cast<int>(data.size())));
-  if (bio == nullptr) return entries;
+  if (bio == nullptr) {
+    ERR_clear_error();
+    return entries;
+  }
 
+  ERR_clear_error();
   bool saw_pem = false;
   while (true) {
     char* name = nullptr;
     char* header = nullptr;
     uint8_t* body = nullptr;
     long len = 0;  // NOLINT(runtime/int)
-    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) break;
+    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
+      auto err = ERR_peek_last_error();
+      if (ERR_GET_LIB(err) == ERR_LIB_PEM &&
+          ERR_GET_REASON(err) != PEM_R_NO_START_LINE) {
+        // `BIO_gets` already consumed at least the `-----BEGIN` line, so
+        // continuing is guaranteed to make forward progress.
+        saw_pem = true;
+        LOG_WARN("Ignoring malformed PEM block in %s", path);
+        ERR_clear_error();
+        continue;
+      }
+      break;
+    }
     saw_pem = true;
     std::string block_name = name;
     absl::string_view block(reinterpret_cast<const char*>(body),
@@ -346,6 +364,9 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
         block_name == "TRUSTED CERTIFICATE") {
       size_t consumed = 0;
       UniqueX509 cert = ParseCertDer(body, static_cast<size_t>(len), &consumed);
+      if (cert == nullptr) {
+        ERR_clear_error();
+      }
       AuxTrust aux;
       bool trusted_block = block_name == "TRUSTED CERTIFICATE";
       if (cert == nullptr ||
@@ -422,7 +443,7 @@ bool IsDirectory(const std::string& path) {
 // not a regular file (e.g. a directory or FIFO), exceeds `kMaxFileSize`, or
 // cannot be read.
 absl::optional<std::string> ReadRegularFile(const std::string& path) {
-  int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+  int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOCTTY);
   if (fd < 0) return absl::nullopt;
 
   struct stat st;
@@ -528,8 +549,13 @@ class TrustStoreBuilder {
 
   // Adds the explicitly distrusted entries in `path` to the blocklist.
   void LoadTrustBundleFile(const std::string& path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) return;
+    std::pair<dev_t, ino_t> file_id(st.st_dev, st.st_ino);
+    if (seen_trust_bundles_.count(file_id) > 0) return;
     absl::optional<std::string> data = ReadRegularFile(path);
     if (!data) return;
+    seen_trust_bundles_.insert(file_id);
     for (ParsedEntry& entry :
          ParseCertificates(*data, path, /*allow_der=*/false)) {
       if (entry.cert != nullptr &&
@@ -588,6 +614,7 @@ class TrustStoreBuilder {
     long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
     if (len > 0) store_.anchors_pem.assign(data, static_cast<size_t>(len));
     store_.anchor_source = absl::StrJoin(sources_, ", ");
+    ERR_clear_error();
     return std::move(store_);
   }
 
@@ -595,6 +622,7 @@ class TrustStoreBuilder {
   LinuxTrustStore store_;
   std::vector<UniqueX509> candidates_;
   std::vector<std::string> sources_;
+  std::set<std::pair<dev_t, ino_t>> seen_trust_bundles_;
 };
 
 // ---------------------------------------------------------------------------
@@ -639,10 +667,13 @@ class LinuxBlocklistCertificateVerifier final
           "TLS custom verification check request must not be null");
       return true;
     }
-    grpc::string_ref chain = request->peer_cert_full_chain();
-    if (chain.empty()) chain = request->peer_cert();
     *sync_status = VerifyLinuxPeerCertificateChain(
-        ToStringView(chain), ToStringView(request->target_name()), *store_);
+        ToStringView(request->peer_cert_full_chain()),
+        ToStringView(request->target_name()), *store_);
+    if (!sync_status->ok() && store_->has_anchors()) {
+      LOG_WARN("TLS peer certificate verification failed: %s",
+               sync_status->error_message());
+    }
     return true;
   }
 
@@ -735,10 +766,19 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
 
   for (const UniqueX509& entry : chain) {
     X509* cert = entry.get();
-    if (store.IsBlocked(CertDer(cert), SpkiDer(cert))) {
+    std::string cert_der = CertDer(cert);
+    std::string spki_der = SpkiDer(cert);
+    if (cert_der.empty() || spki_der.empty()) {
+      ERR_clear_error();
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          "Failed to encode TLS peer certificate");
+    }
+    if (store.IsBlocked(cert_der, spki_der)) {
+      std::string subject = SubjectName(cert);
+      ERR_clear_error();
       return grpc::Status(
           grpc::StatusCode::UNAUTHENTICATED,
-          absl::StrCat("TLS peer certificate '", SubjectName(cert),
+          absl::StrCat("TLS peer certificate '", subject,
                        "' is distrusted by the system CA blocklist"));
     }
   }
@@ -748,6 +788,13 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
   X509* leaf = chain.front().get();
   int match = 0;
   if (host->kind == TlsTargetHost::Kind::kDns) {
+    // OpenSSL's `X509_check_host` treats a leading '.' as a suffix match for
+    // any subdomain; BoringSSL and RFC 9525 do not.
+    if (!host->host.empty() && host->host.front() == '.') {
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          absl::StrCat("Invalid TLS target host name: '",
+                                       absl::CHexEscape(target_name), "'"));
+    }
     match = X509_check_host(leaf, host->host.data(), host->host.size(),
                             X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS |
                                 X509_CHECK_FLAG_NEVER_CHECK_SUBJECT,
