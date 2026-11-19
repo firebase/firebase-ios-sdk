@@ -307,7 +307,7 @@ elseif(NOT WIN32)
   # itself. `OpenSSL::Crypto` is either the system OpenSSL or an alias of the
   # BoringSSL `crypto` target built with gRPC (see the top-level CMakeLists.txt).
   target_link_libraries(
-    firestore_core PUBLIC
+    firestore_core PRIVATE
     OpenSSL::Crypto
   )
 endif()

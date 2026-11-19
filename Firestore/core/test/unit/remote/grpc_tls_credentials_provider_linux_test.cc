@@ -904,7 +904,9 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsUntrustedRoot) {
   TlsLoopbackServer server(pki.leaf.private_key_pem(), pki.ServerChainPem());
   ASSERT_TRUE(server.started());
   ASSERT_TRUE(Echo(server, Credentials({&pki.root})).ok());
-  EXPECT_FALSE(Echo(server, Credentials({&other})).ok());
+  grpc::Status status = Echo(server, Credentials({&other}));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
@@ -915,8 +917,10 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
   TlsLoopbackServer server(pki.leaf.private_key_pem(), pki.ServerChainPem());
   ASSERT_TRUE(server.started());
   ASSERT_TRUE(Echo(server, Credentials({&pki.root})).ok());
-  EXPECT_FALSE(
-      Echo(server, Credentials({&pki.root}, {&pki.intermediate})).ok());
+  grpc::Status status =
+      Echo(server, Credentials({&pki.root}, {&pki.intermediate}));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsWrongHostName) {
@@ -928,7 +932,9 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsWrongHostName) {
   ASSERT_TRUE(server.started());
   auto creds = Credentials({&pki.root});
   ASSERT_TRUE(Echo(server, creds, kHost).ok());
-  EXPECT_FALSE(Echo(server, creds, "wrong.firestore.test").ok());
+  grpc::Status status = Echo(server, creds, "wrong.firestore.test");
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsExpiredLeaf) {
@@ -941,7 +947,28 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsExpiredLeaf) {
   ASSERT_TRUE(server.started());
   auto creds = Credentials({&pki.root});
   ASSERT_TRUE(Echo(valid_server, creds).ok());
-  EXPECT_FALSE(Echo(server, creds).ok());
+  grpc::Status status = Echo(server, creds);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
+       RejectsMissingIntermediate) {
+  // Unlike Apple SecTrust and Windows CryptoAPI, OpenSSL / BoringSSL never
+  // performs AIA chasing, so a server that omits its intermediate CA must fail
+  // chain building cleanly.
+  TestPki pki = CreateTestPki("loop-missing-interm", {kHost});
+  TlsLoopbackServer full_server(pki.leaf.private_key_pem(),
+                                pki.ServerChainPem());
+  ASSERT_TRUE(full_server.started());
+  TlsLoopbackServer leaf_only_server(pki.leaf.private_key_pem(),
+                                     pki.leaf.cert_pem());
+  ASSERT_TRUE(leaf_only_server.started());
+  auto creds = Credentials({&pki.root});
+  ASSERT_TRUE(Echo(full_server, creds).ok());
+  grpc::Status status = Echo(leaf_only_server, creds);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, FailsWithoutAnchors) {
