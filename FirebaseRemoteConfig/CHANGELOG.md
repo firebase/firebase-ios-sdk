@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Fixed an issue where Remote Config returns empty data after device
-  restore if the app was opened once before upgrading to SDK ≥ 12.6.0 (#15764).
+  restore if the app was opened with an SDK version older than 12.6.0 before
+  upgrading. (#15764)
 
 # 13.2.0
 - [fixed] Fixed a crash when copying a `RemoteConfigValue` (`FIRRemoteConfigValue`).

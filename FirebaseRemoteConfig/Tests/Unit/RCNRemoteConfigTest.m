@@ -413,6 +413,33 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"], @"etag1");
 }
 
+// #15764: an in-session NO_CHANGE/EMPTY_CONFIG leaves an empty (non-nil) namespace entry,
+// so if-none-match must still be sent.
+- (void)testIfNoneMatchHeaderSentAfterNoChangeOrEmptyConfig {
+  RCNConfigFetcherCompletion noop = ^(NSData *data, NSURLResponse *response, NSError *error) {
+  };
+  for (NSString *state in @[ @"NO_CHANGE", @"EMPTY_CONFIG" ]) {
+    RCNConfigContent *content = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+    RCNConfigFetch *fetch = [[RCNConfigFetch alloc] initWithContent:content
+                                                          DBManager:_DBManager
+                                                           settings:_settings
+                                                          analytics:nil
+                                                         experiment:_experimentMock
+                                                              queue:_queue
+                                                          namespace:_fullyQualifiedNamespace
+                                                            options:[self secondAppOptions]];
+    _settings.lastETag = @"etag1";
+    [content updateConfigContentWithResponse:@{@"state" : state}
+                                forNamespace:_fullyQualifiedNamespace];
+
+    NSURLSessionDataTask *task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                                                      fetchTypeHeader:@"Base/1"
+                                                    completionHandler:noop];
+    XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"],
+                          @"etag1", @"state: %@", state);
+  }
+}
+
 // #15764: after a restore, activate already ran on the empty DB (applyTime > etagUpdateTime).
 // An UPDATE with the SAME etag must still be activated.
 - (void)testUpdateWithSameETagIsActivatedAfterRestore {
