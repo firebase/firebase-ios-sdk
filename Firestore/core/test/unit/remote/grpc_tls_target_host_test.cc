@@ -48,61 +48,42 @@ void ExpectHost(absl::string_view target, absl::string_view host, Kind kind) {
 TEST(GrpcTlsTargetHostTest, DnsNames) {
   ExpectHost("firestore.googleapis.com", "firestore.googleapis.com",
              Kind::kDns);
-  ExpectHost("firestore.googleapis.com:443", "firestore.googleapis.com",
-             Kind::kDns);
   ExpectHost("localhost", "localhost", Kind::kDns);
-  ExpectHost("localhost:8080", "localhost", Kind::kDns);
-  ExpectHost("Mixed-Case.Example_host.test:1", "Mixed-Case.Example_host.test",
+  ExpectHost("Mixed-Case.Example_host.test", "Mixed-Case.Example_host.test",
              Kind::kDns);
-  ExpectHost("a:65535", "a", Kind::kDns);
+  ExpectHost("a", "a", Kind::kDns);
+  // Names are not validated beyond the checks below; the platform verifier
+  // matches them against the certificate, which fails closed.
+  ExpectHost("1.2.3.example", "1.2.3.example", Kind::kDns);
 }
 
 TEST(GrpcTlsTargetHostTest, Ipv4Literals) {
   ExpectHost("127.0.0.1", "127.0.0.1", Kind::kIpv4);
-  ExpectHost("127.0.0.1:50051", "127.0.0.1", Kind::kIpv4);
   ExpectHost("0.0.0.0", "0.0.0.0", Kind::kIpv4);
-  ExpectHost("255.255.255.255:1", "255.255.255.255", Kind::kIpv4);
+  ExpectHost("255.255.255.255", "255.255.255.255", Kind::kIpv4);
 }
 
 TEST(GrpcTlsTargetHostTest, Ipv6Literals) {
   ExpectHost("::1", "::1", Kind::kIpv6);
-  ExpectHost("[::1]", "::1", Kind::kIpv6);
-  ExpectHost("[::1]:443", "::1", Kind::kIpv6);
   ExpectHost("2001:db8::1", "2001:db8::1", Kind::kIpv6);
-  ExpectHost("[2001:db8::1]:8443", "2001:db8::1", Kind::kIpv6);
-  ExpectHost("[::ffff:7f00:1]:443", "::ffff:7f00:1", Kind::kIpv6);
   ExpectHost("1::", "1::", Kind::kIpv6);
   ExpectHost("::", "::", Kind::kIpv6);
   ExpectHost("1:2:3:4:5:6:7:8", "1:2:3:4:5:6:7:8", Kind::kIpv6);
 }
 
 // IPv6 hosts are returned in one canonical text form (RFC 5952: lowercase,
-// no leading zeros, longest run of two or more zero groups compressed), so
-// every platform verifier sees the same host. Embedded IPv4 notation is
-// rewritten in hex, because Apple's SecPolicyCreateSSL only matches
-// IPv4-mapped addresses written that way.
+// no leading zeros, longest run of two or more zero groups compressed).
 TEST(GrpcTlsTargetHostTest, Ipv6LiteralsAreCanonicalized) {
-  ExpectHost("[2001:0db8:0000:0000:0000:0000:0000:0001]", "2001:db8::1",
+  ExpectHost("2001:0db8:0000:0000:0000:0000:0000:0001", "2001:db8::1",
              Kind::kIpv6);
   ExpectHost("2001:DB8::1", "2001:db8::1", Kind::kIpv6);
-  ExpectHost("[0:0:0:0:0:0:0:1]:443", "::1", Kind::kIpv6);
+  ExpectHost("0:0:0:0:0:0:0:1", "::1", Kind::kIpv6);
   ExpectHost("0:0:0:0:0:0:0:0", "::", Kind::kIpv6);
   ExpectHost("1:0:0:0:0:0:0:0", "1::", Kind::kIpv6);
   ExpectHost("2001:db8:0:1:1:1:1:1", "2001:db8:0:1:1:1:1:1", Kind::kIpv6);
   ExpectHost("2001:0:0:1:0:0:0:1", "2001:0:0:1::1", Kind::kIpv6);
   ExpectHost("2001:db8:0:0:1:0:0:1", "2001:db8::1:0:0:1", Kind::kIpv6);
-  ExpectHost("[fe80::0001%en0]:443", "fe80::1", Kind::kIpv6);
-  // IPv4-mapped and other embedded-IPv4 forms (security review S9).
-  ExpectHost("[::ffff:127.0.0.1]:443", "::ffff:7f00:1", Kind::kIpv6);
-  ExpectHost("::ffff:127.0.0.1", "::ffff:7f00:1", Kind::kIpv6);
-  ExpectHost("[::FFFF:7F00:0001]", "::ffff:7f00:1", Kind::kIpv6);
-  ExpectHost("1:2:3:4:5:6:1.2.3.4", "1:2:3:4:5:6:102:304", Kind::kIpv6);
-}
-
-TEST(GrpcTlsTargetHostTest, Ipv6ZoneIdsAreStripped) {
-  ExpectHost("fe80::1%en0", "fe80::1", Kind::kIpv6);
-  ExpectHost("[fe80::1%en0]:443", "fe80::1", Kind::kIpv6);
-  ExpectHost("[fe80::1%25eth0]", "fe80::1", Kind::kIpv6);
+  ExpectHost("fe80::0001", "fe80::1", Kind::kIpv6);
 }
 
 #if !defined(_WIN32)
@@ -124,8 +105,7 @@ TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
                       absl::StrFormat("%04X", groups[i]));
     }
 
-    absl::optional<TlsTargetHost> parsed =
-        ParseTlsTargetHost(absl::StrCat("[", spelled, "]:443"));
+    absl::optional<TlsTargetHost> parsed = ParseTlsTargetHost(spelled);
     ASSERT_TRUE(parsed.has_value()) << spelled;
     ASSERT_EQ(parsed->kind, TlsTargetHost::Kind::kIpv6);
 
@@ -143,13 +123,10 @@ TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
     ASSERT_TRUE(reparsed.has_value());
     EXPECT_EQ(reparsed->host, parsed->host);
 
-    // Identical to inet_ntop's RFC 5952 output, except where inet_ntop uses
-    // embedded IPv4 notation (which we deliberately write in hex).
+    // Identical to inet_ntop's output.
     char text[INET6_ADDRSTRLEN];
     ASSERT_NE(inet_ntop(AF_INET6, &expected, text, sizeof(text)), nullptr);
-    if (std::string(text).find('.') == std::string::npos) {
-      EXPECT_EQ(parsed->host, text) << spelled;
-    }
+    EXPECT_EQ(parsed->host, text) << spelled;
   }
 }
 #endif  // !defined(_WIN32)
@@ -157,59 +134,43 @@ TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
 TEST(GrpcTlsTargetHostTest, RejectsMalformedTargets) {
   const std::vector<std::string> malformed = {
       "",
+      // gRPC strips ports and brackets before calling the verifiers, so
+      // they are rejected here.
       ":443",
+      "host:443",
       "host:",
-      "host:notaport",
-      "host:65536",
-      "host:123456",
-      "host:-1",
-      "host:+1",
-      // Port 0 is not a connectable port (security review S13/S21).
-      "host:0",
-      "host:00000",
-      "[::1]:0",
-      "127.0.0.1:0",
+      "127.0.0.1:443",
+      "[::1]",
+      "[::1]:443",
+      "[fe80::1%en0]",
       "https://firestore.googleapis.com",
       "dns:///firestore.googleapis.com",
       "unix:/tmp/grpc.sock",
-      "user@host",
-      "host/path",
-      "host?query",
-      "host#fragment",
-      "a,b",
-      "*.example.com",
       "foo:bar:baz",
-      "firestore.googleapis.com\n",
-      " firestore.googleapis.com",
-      "fire store",
-      "fire\tstore",
       std::string("firestore.googleapis.com\0evil", 29),
       "f\xc3\xbcr.example",
       "[example.com]:443",
-      "[127.0.0.1]",
       "[::1",
       "::1]",
-      "[]",
       "[]:443",
       "[::1]:",
       "[::1]:notaport",
       "[::1]junk",
       "[[::1]]",
-      "[fe80::1%]:443",
+      // Zone IDs are not accepted; any '%' is rejected.
       "fe80::1%",
-      // Zone IDs are restricted to unreserved characters (S14).
-      "[::1%!!!]:443",
-      "fe80::1%!!!",
-      "fe80::1%en 0",
+      "fe80::1%en0",
+      "fe80::1%25eth0",
+      "host%41",
+      // An embedded NUL would truncate the C string given to inet_pton.
+      std::string("::1\0", 4),
+      std::string("127.0.0.1\0", 10),
       // Octal-looking or short-form IPv4 (S15).
       "0177.0.0.1",
-      "0177.0.0.1:443",
       "127.1",
       // Non-ASCII (IDN) hosts must be Punycode-encoded (S16).
       "b\xc3\xbc"
       "cher.example",
-      "b\xc3\xbc"
-      "cher.example:443",
       // Cases carried over from the Apple-only parser's tests.
       "https://firestore.googleapis.com:443",
       "dns://8.8.8.8",

@@ -736,7 +736,8 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
     return grpc::Status(
         grpc::StatusCode::UNAUTHENTICATED,
         absl::StrCat("TLS peer certificate '", SubjectName(leaf),
-                     "' does not match host '", host->host, "'"));
+                     "' does not match host '", absl::CHexEscape(host->host),
+                     "'"));
   }
   return grpc::Status::OK;
 }

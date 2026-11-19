@@ -880,9 +880,39 @@ grpc::Status PerformUnaryEcho(
   return status;
 }
 
+// Verifies `pem_chain` for `target_name` through the production asynchronous
+// path (`VerifyAppleTlsCertificateChainAsync`) and waits for the result.
+grpc::Status VerifyAndWait(absl::string_view pem_chain,
+                           absl::string_view target_name,
+                           CFArrayRef anchor_certs = nullptr) {
+  struct Result {
+    std::mutex mutex;
+    std::condition_variable cv;
+    bool done = false;
+    grpc::Status status;
+  };
+  auto result = std::make_shared<Result>();
+  dispatch_queue_t queue =
+      dispatch_queue_create("test.verify_and_wait", DISPATCH_QUEUE_SERIAL);
+  VerifyAppleTlsCertificateChainAsync(
+      TlsVerificationInput{std::string(pem_chain), std::string(target_name)},
+      anchor_certs, queue, [result](grpc::Status status) {
+        std::lock_guard<std::mutex> lock(result->mutex);
+        result->status = std::move(status);
+        result->done = true;
+        result->cv.notify_all();
+      });
+  std::unique_lock<std::mutex> lock(result->mutex);
+  if (!result->cv.wait_for(lock, std::chrono::seconds(30),
+                           [&] { return result->done; })) {
+    return grpc::Status(grpc::StatusCode::DEADLINE_EXCEEDED,
+                        "Timed out waiting for TLS verification");
+  }
+  return result->status;
+}
+
 // ===========================================================================
-// 1. ExtractTlsHostName Unit Tests (tested through
-// VerifyAppleTlsCertificateChain)
+// 1. ExtractTlsHostName Unit Tests (tested through VerifyAndWait)
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
@@ -893,11 +923,9 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameDnsAndIpv4) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  for (const auto& target :
-       {"firestore.googleapis.com", "firestore.googleapis.com:443", "127.0.0.1",
-        "127.0.0.1:50051"}) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                                         target, anchors.get());
+  for (const auto& target : {"firestore.googleapis.com", "127.0.0.1"}) {
+    grpc::Status status =
+        VerifyAndWait(pki.ServerChainPem(), target, anchors.get());
     EXPECT_TRUE(status.ok())
         << "target: " << target << " error: " << status.error_message();
   }
@@ -915,16 +943,54 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameIpv6) {
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
   for (const auto& target :
-       {"[::1]:443", "[2001:db8::1]", "[2001:db8::1]:8443",
-        "[::ffff:7f00:1]:443", "[fe80::1%en0]:443", "fe80::1%en0", "::1",
-        "2001:db8::1",
-        // IPv4-mapped literals in dotted form.
-        "[::ffff:127.0.0.1]:443", "[::ffff:127.0.0.1]", "::ffff:127.0.0.1"}) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                                         target, anchors.get());
+       {"::1", "2001:db8::1", "fe80::1", "::ffff:7f00:1",
+        // IPv4-mapped literal in dotted form, which is also how inet_ntop
+        // writes it; ExtractTlsHostName rewrites it in hex for SecPolicy.
+        "::ffff:127.0.0.1"}) {
+    grpc::Status status =
+        VerifyAndWait(pki.ServerChainPem(), target, anchors.get());
     EXPECT_TRUE(status.ok())
         << "target: " << target << " error: " << status.error_message();
   }
+}
+
+// Documents the Apple behavior that ExtractTlsHostName works around:
+// SecPolicyCreateSSL matches an IPv4-mapped IP SAN only when the host is
+// written all in hex. If the dotted form ever starts matching, the hex rewrite
+// in ExtractTlsHostName can be removed.
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     SecPolicyMatchesIpv4MappedHostOnlyInHexForm) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "mapped.firestore.local";
+  leaf_opts.ipv6_sans = {
+      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0xff, 127, 0, 0, 1}};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+
+  auto evaluate = [&](CFStringRef host) {
+    const void* chain[] = {pki.leaf.sec_certificate.get(),
+                           pki.intermediate.sec_certificate.get()};
+    ScopedCFRef<CFArrayRef> certs(
+        CFArrayCreate(kCFAllocatorDefault, chain, 2, &kCFTypeArrayCallBacks));
+    ScopedCFRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, host));
+    SecTrustRef raw_trust = nullptr;
+    EXPECT_EQ(
+        SecTrustCreateWithCertificates(certs.get(), policy.get(), &raw_trust),
+        errSecSuccess);
+    ScopedCFRef<SecTrustRef> trust(raw_trust);
+    SecTrustSetNetworkFetchAllowed(trust.get(), false);
+    SecTrustSetAnchorCertificates(trust.get(), anchors.get());
+    SecTrustSetAnchorCertificatesOnly(trust.get(), true);
+    CFErrorRef raw_error = nullptr;
+    bool trusted = SecTrustEvaluateWithError(trust.get(), &raw_error);
+    ScopedCFRef<CFErrorRef> error(raw_error);
+    return trusted;
+  };
+
+  EXPECT_TRUE(evaluate(CFSTR("::ffff:7f00:1")));
+  EXPECT_FALSE(evaluate(CFSTR("::ffff:127.0.0.1")))
+      << "SecPolicy now matches the dotted IPv4-mapped form; the hex rewrite "
+         "in ExtractTlsHostName is no longer needed.";
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
@@ -942,33 +1008,22 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
       "firestore.googleapis.com\0evil",
       sizeof("firestore.googleapis.com\0evil") - 1);
   const std::vector<std::string> malformed_targets = {
-      "",
-      ":443",
-      "firestore.googleapis.com:",
-      "firestore.googleapis.com:notaport",
+      "", ":443",
+      "firestore.googleapis.com:", "firestore.googleapis.com:notaport",
       "https://firestore.googleapis.com",
-      "https://firestore.googleapis.com:443",
-      "unix:/tmp/grpc.sock",
-      "dns:///firestore.googleapis.com",
-      "dns://8.8.8.8",
-      "dns:",
-      "ipv4:",
-      "ipv6:",
-      "foo:bar:baz",
-      "[example.com]:443",
-      "[::1",
-      "[]",
-      "[::1]:",
-      "[::1]:notaport",
-      "[fe80::1%]:443",
-      "fe80::1%",
-      "[::1]junk",
-      "firestore.googleapis.com\n",
-      embedded_nul_target};
+      "https://firestore.googleapis.com:443", "unix:/tmp/grpc.sock",
+      "dns:///firestore.googleapis.com", "dns://8.8.8.8",
+      "dns:", "ipv4:", "ipv6:", "foo:bar:baz", "[example.com]:443", "[::1",
+      "[]", "[::1]:", "[::1]:notaport", "[fe80::1%]:443", "fe80::1%",
+      "[::1]junk", "fe80::1%en0",
+      // gRPC strips ports and brackets before calling the verifier, so a
+      // target name that still has them is malformed.
+      "firestore.googleapis.com:443", "127.0.0.1:50051", "[::1]", "[::1]:443",
+      "firestore.googleapis.com\n", embedded_nul_target};
 
   for (const auto& target : malformed_targets) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                                         target, anchors.get());
+    grpc::Status status =
+        VerifyAndWait(pki.ServerChainPem(), target, anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << "target: " << target;
   }
@@ -976,7 +1031,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest, ExtractTlsHostNameEmptyAndMalformed) {
 
 // ===========================================================================
 // 2. ParsePemCertificateChain Unit Tests (tested through
-// VerifyAppleTlsCertificateChain)
+// VerifyAndWait)
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -990,8 +1045,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> anchor(
       CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      cert.cert_pem, "single.firestore.local", anchor.get());
+  grpc::Status status =
+      VerifyAndWait(cert.cert_pem, "single.firestore.local", anchor.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
@@ -1005,14 +1060,14 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   std::string leaf_first_chain = absl::StrCat(
       pki.leaf.cert_pem, pki.intermediate.cert_pem, pki.root.cert_pem);
-  grpc::Status ok_status = VerifyAppleTlsCertificateChain(
-      leaf_first_chain, "leaf.firestore.local", anchors.get());
+  grpc::Status ok_status =
+      VerifyAndWait(leaf_first_chain, "leaf.firestore.local", anchors.get());
   EXPECT_TRUE(ok_status.ok()) << ok_status.error_message();
 
   std::string reversed_chain = absl::StrCat(
       pki.intermediate.cert_pem, pki.leaf.cert_pem, pki.root.cert_pem);
-  grpc::Status bad_status = VerifyAppleTlsCertificateChain(
-      reversed_chain, "leaf.firestore.local", anchors.get());
+  grpc::Status bad_status =
+      VerifyAndWait(reversed_chain, "leaf.firestore.local", anchors.get());
   EXPECT_EQ(bad_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1034,8 +1089,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   std::string whitespace_padded_pem = absl::StrCat(
       "  \t\r\n\r\n", crlf_leaf, "   \t  \r\n\n", crlf_inter, "\r\n  \t \r\n");
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      whitespace_padded_pem, "crlf.firestore.local", anchors.get());
+  grpc::Status status = VerifyAndWait(whitespace_padded_pem,
+                                      "crlf.firestore.local", anchors.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
@@ -1049,8 +1104,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 
   for (const auto& bad_input :
        {"", "   \t\r\n  \n ", "not a PEM block at all"}) {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        bad_input, "test.firestore.local", anchors.get());
+    grpc::Status status =
+        VerifyAndWait(bad_input, "test.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 }
@@ -1063,24 +1118,23 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  EXPECT_TRUE(VerifyAppleTlsCertificateChain(
-                  pki.ServerChainPem(), "valid.firestore.local", anchors.get())
+  EXPECT_TRUE(VerifyAndWait(pki.ServerChainPem(), "valid.firestore.local",
+                            anchors.get())
                   .ok());
 
   // Unclosed BEGIN CERTIFICATE block.
   {
-    grpc::Status status =
-        VerifyAppleTlsCertificateChain("-----BEGIN CERTIFICATE-----\nMIIB\n",
-                                       "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait("-----BEGIN CERTIFICATE-----\nMIIB\n",
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 
   // Malformed base64 inside PEM block.
   {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        "-----BEGIN CERTIFICATE-----\n***not-valid-base64***\n"
-        "-----END CERTIFICATE-----\n",
-        "valid.firestore.local", anchors.get());
+    grpc::Status status =
+        VerifyAndWait("-----BEGIN CERTIFICATE-----\n***not-valid-base64***\n"
+                      "-----END CERTIFICATE-----\n",
+                      "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 
@@ -1089,8 +1143,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
       "CERTIFICATE", ByteVec{'n', 'o', 't', '-', 'x', '5', '0', '9', '-', 'd',
                              'e', 'r', '-', 'b', 'y', 't', 'e', 's'});
   {
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        garbage_pem, "valid.firestore.local", anchors.get());
+    grpc::Status status =
+        VerifyAndWait(garbage_pem, "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 
@@ -1100,42 +1154,42 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
     std::string valid_then_corrupt = absl::StrCat(
         pki.ServerChainPem(), "-----BEGIN CERTIFICATE-----\n@@@corrupt@@@\n"
                               "-----END CERTIFICATE-----\n");
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        valid_then_corrupt, "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait(valid_then_corrupt,
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
   {
     std::string valid_then_garbage_der =
         absl::StrCat(pki.ServerChainPem(), garbage_pem);
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        valid_then_garbage_der, "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait(valid_then_garbage_der,
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
   {
     std::string valid_then_unclosed =
         absl::StrCat(pki.ServerChainPem(), "-----BEGIN CERTIFICATE-----\nMIIB");
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        valid_then_unclosed, "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait(valid_then_unclosed,
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
   {
     std::string valid_then_truncated_header =
         absl::StrCat(pki.ServerChainPem(), "-----BEGIN CERTIFICAT\nMIIB\n");
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        valid_then_truncated_header, "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait(valid_then_truncated_header,
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
   {
     std::string valid_then_trailing_junk =
         absl::StrCat(pki.ServerChainPem(), "unexpected trailing metadata\n");
-    grpc::Status status = VerifyAppleTlsCertificateChain(
-        valid_then_trailing_junk, "valid.firestore.local", anchors.get());
+    grpc::Status status = VerifyAndWait(valid_then_trailing_junk,
+                                        "valid.firestore.local", anchors.get());
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   }
 }
 
 // ===========================================================================
-// 3. VerifyAppleTlsCertificateChain Direct SecTrust Unit Tests
+// 3. Direct SecTrust Verification Unit Tests
 // ===========================================================================
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
@@ -1146,8 +1200,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(),
+                                      "test.firestore.local", anchors.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
@@ -1159,8 +1213,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      pki.ServerChainPem(), "127.0.0.1:443", anchors.get());
+  grpc::Status status =
+      VerifyAndWait(pki.ServerChainPem(), "127.0.0.1", anchors.get());
   EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
@@ -1172,15 +1226,11 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "[::1]:443",
-                                             anchors.get())
-                  .ok());
-  EXPECT_TRUE(
-      VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "::1", anchors.get())
-          .ok());
-  EXPECT_TRUE(VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                             "[::1%en0]:443", anchors.get())
-                  .ok());
+  EXPECT_TRUE(VerifyAndWait(pki.ServerChainPem(), "::1", anchors.get()).ok());
+  // Zone IDs are not accepted.
+  EXPECT_EQ(VerifyAndWait(pki.ServerChainPem(), "::1%en0", anchors.get())
+                .error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsExpiredLeafCertificate) {
@@ -1192,8 +1242,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsExpiredLeafCertificate) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(),
+                                      "test.firestore.local", anchors.get());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1207,8 +1257,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      pki.ServerChainPem(), "test.firestore.local:443", anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(),
+                                      "test.firestore.local", anchors.get());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1219,8 +1269,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsWrongTargetHostName) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(
-      pki.ServerChainPem(), "wrong.firestore.local", anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(),
+                                      "wrong.firestore.local", anchors.get());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1233,15 +1283,15 @@ TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsUntrustedRoot) {
   ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
 
   // Chain signed by Root B evaluated against custom anchor Root A.
-  grpc::Status custom_anchor_status = VerifyAppleTlsCertificateChain(
-      pki_b.ServerChainPem(), "test.firestore.local:443", root_a_anchors.get());
+  grpc::Status custom_anchor_status = VerifyAndWait(
+      pki_b.ServerChainPem(), "test.firestore.local", root_a_anchors.get());
   EXPECT_EQ(custom_anchor_status.error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
 
   // Ephemeral chain signed by Root B evaluated against default Apple OS trust.
-  grpc::Status os_trust_status = VerifyAppleTlsCertificateChain(
-      pki_b.ServerChainPem(), "test.firestore.local:443",
-      /*anchor_certs=*/nullptr);
+  grpc::Status os_trust_status =
+      VerifyAndWait(pki_b.ServerChainPem(), "test.firestore.local",
+                    /*anchor_certs=*/nullptr);
   EXPECT_EQ(os_trust_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1256,14 +1306,14 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> root_b_anchors = pki_b.RootAnchorArray();
 
   // Leaf signed by Intermediate B (omitted from PEM chain) against Root A.
-  grpc::Status wrong_anchor_status = VerifyAppleTlsCertificateChain(
-      pki_b.leaf.cert_pem, "test.firestore.local:443", root_a_anchors.get());
+  grpc::Status wrong_anchor_status = VerifyAndWait(
+      pki_b.leaf.cert_pem, "test.firestore.local", root_a_anchors.get());
   EXPECT_EQ(wrong_anchor_status.error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
 
   // Leaf signed by Intermediate B (omitted from PEM chain) against Root B.
-  grpc::Status missing_inter_status = VerifyAppleTlsCertificateChain(
-      pki_b.leaf.cert_pem, "test.firestore.local:443", root_b_anchors.get());
+  grpc::Status missing_inter_status = VerifyAndWait(
+      pki_b.leaf.cert_pem, "test.firestore.local", root_b_anchors.get());
   EXPECT_EQ(missing_inter_status.error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
 }
@@ -1276,10 +1326,10 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status = VerifyAppleTlsCertificateChain(pki.ServerChainPem(),
-                                                       "b\xc3\xbc"
-                                                       "cher.example:443",
-                                                       anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(),
+                                      "b\xc3\xbc"
+                                      "cher.example",
+                                      anchors.get());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_NE(status.error_message().find("Punycode"), std::string::npos)
       << status.error_message();
@@ -1292,8 +1342,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest, VerifyRejectsEmptyTargetName) {
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
 
-  grpc::Status status =
-      VerifyAppleTlsCertificateChain(pki.ServerChainPem(), "", anchors.get());
+  grpc::Status status = VerifyAndWait(pki.ServerChainPem(), "", anchors.get());
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
@@ -1593,7 +1642,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   AsyncRecorder recorder(queue);
 
   VerifyAppleTlsCertificateChainAsync(
-      TlsVerificationInput{pki.ServerChainPem(), "test.firestore.local:443"},
+      TlsVerificationInput{pki.ServerChainPem(), "test.firestore.local"},
       anchors.get(), queue, recorder.AsCallback());
 
   ASSERT_TRUE(recorder.WaitForCount(1));
@@ -1603,8 +1652,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   EXPECT_EQ(recorder.count(), 1);
 }
 
-TEST(GrpcTlsCredentialsProviderAppleTest,
-     VerifyAsyncRejectsUntrustedRootLikeSyncPath) {
+TEST(GrpcTlsCredentialsProviderAppleTest, VerifyAsyncRejectsUntrustedRoot) {
   CertOptions leaf_opts;
   leaf_opts.common_name = "test.firestore.local";
   leaf_opts.dns_sans = {"test.firestore.local"};
@@ -1615,14 +1663,11 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   AsyncRecorder recorder(queue);
 
   VerifyAppleTlsCertificateChainAsync(
-      TlsVerificationInput{pki_b.ServerChainPem(), "test.firestore.local:443"},
+      TlsVerificationInput{pki_b.ServerChainPem(), "test.firestore.local"},
       root_a_anchors.get(), queue, recorder.AsCallback());
 
   ASSERT_TRUE(recorder.WaitForCount(1));
-  grpc::Status sync_status = VerifyAppleTlsCertificateChain(
-      pki_b.ServerChainPem(), "test.firestore.local:443", root_a_anchors.get());
   EXPECT_EQ(recorder.status().error_code(), grpc::StatusCode::UNAUTHENTICATED);
-  EXPECT_EQ(recorder.status().error_code(), sync_status.error_code());
   EXPECT_NE(recorder.status().error_message().find(
                 "Apple SecTrust TLS certificate verification failed for "
                 "'test.firestore.local'"),
@@ -1632,7 +1677,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
-     VerifyAsyncReportsSetupFailuresOnQueueLikeSyncPath) {
+     VerifyAsyncReportsSetupFailuresOnQueue) {
   CertOptions leaf_opts;
   leaf_opts.common_name = "test.firestore.local";
   leaf_opts.dns_sans = {"test.firestore.local"};
@@ -1655,11 +1700,8 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
         TlsVerificationInput{c.pem_chain, c.target_name}, anchors.get(), queue,
         recorder.AsCallback());
     ASSERT_TRUE(recorder.WaitForCount(1));
-    grpc::Status sync_status = VerifyAppleTlsCertificateChain(
-        c.pem_chain, c.target_name, anchors.get());
     EXPECT_EQ(recorder.status().error_code(),
               grpc::StatusCode::UNAUTHENTICATED);
-    EXPECT_EQ(recorder.status().error_message(), sync_status.error_message());
     EXPECT_TRUE(recorder.all_on_expected_queue());
     DrainQueue(queue);
     EXPECT_EQ(recorder.count(), 1);
@@ -1675,8 +1717,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
   dispatch_queue_t queue = MakeTestQueue("test.verifier.async");
   AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
-  FakeVerificationRequest request(pki.ServerChainPem(),
-                                  "test.firestore.local:443");
+  FakeVerificationRequest request(pki.ServerChainPem(), "test.firestore.local");
   AsyncRecorder recorder(queue);
 
   QueueBlocker blocker(queue);
@@ -1702,8 +1743,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   dispatch_queue_t queue = MakeTestQueue("test.verifier.cancel");
   auto verifier =
       std::make_unique<AppleSecTrustCertificateVerifier>(anchors.get(), queue);
-  FakeVerificationRequest request(pki.ServerChainPem(),
-                                  "test.firestore.local:443");
+  FakeVerificationRequest request(pki.ServerChainPem(), "test.firestore.local");
   AsyncRecorder recorder;
 
   QueueBlocker blocker(queue);
@@ -1775,14 +1815,13 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> r3_anchors = anchors_of(r3);
 
   // Synchronous path.
-  grpc::Status via_r1 = VerifyAppleTlsCertificateChain(
-      chain, "cross.firestore.local", r1_anchors.get());
+  grpc::Status via_r1 =
+      VerifyAndWait(chain, "cross.firestore.local", r1_anchors.get());
   EXPECT_TRUE(via_r1.ok()) << via_r1.error_message();
-  grpc::Status via_r2 = VerifyAppleTlsCertificateChain(
-      chain, "cross.firestore.local", r2_anchors.get());
+  grpc::Status via_r2 =
+      VerifyAndWait(chain, "cross.firestore.local", r2_anchors.get());
   EXPECT_TRUE(via_r2.ok()) << via_r2.error_message();
-  EXPECT_EQ(VerifyAppleTlsCertificateChain(chain, "cross.firestore.local",
-                                           r3_anchors.get())
+  EXPECT_EQ(VerifyAndWait(chain, "cross.firestore.local", r3_anchors.get())
                 .error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
 
@@ -1987,32 +2026,16 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ScopedCFRef<CFArrayRef> anchors(
       CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
 
-  // Distinct URLs per path, so a cached fetch cannot mask the second one.
-  for (bool use_async : {false, true}) {
-    SCOPED_TRACE(use_async ? "async" : "sync");
-    CertOptions leaf_opts;
-    leaf_opts.common_name = "aia.firestore.local";
-    leaf_opts.dns_sans = {"aia.firestore.local"};
-    leaf_opts.aia_ca_issuers_url = aia_server.Url(
-        use_async ? "async-intermediate.cer" : "sync-intermediate.cer");
-    GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "aia.firestore.local";
+  leaf_opts.dns_sans = {"aia.firestore.local"};
+  leaf_opts.aia_ca_issuers_url = aia_server.Url("intermediate.cer");
+  GeneratedCertificate leaf = GenerateCertificate(leaf_opts, &intermediate);
 
-    grpc::Status status;
-    if (use_async) {
-      dispatch_queue_t queue = MakeTestQueue("test.async.aia");
-      AsyncRecorder recorder(queue);
-      VerifyAppleTlsCertificateChainAsync(
-          TlsVerificationInput{leaf.cert_pem, "aia.firestore.local"},
-          anchors.get(), queue, recorder.AsCallback());
-      ASSERT_TRUE(recorder.WaitForCount(1));
-      status = recorder.status();
-    } else {
-      status = VerifyAppleTlsCertificateChain(
-          leaf.cert_pem, "aia.firestore.local", anchors.get());
-    }
-    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
-        << status.error_message();
-  }
+  grpc::Status status =
+      VerifyAndWait(leaf.cert_pem, "aia.firestore.local", anchors.get());
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+      << status.error_message();
 
   EXPECT_EQ(aia_server.request_count(), 0);
 }
