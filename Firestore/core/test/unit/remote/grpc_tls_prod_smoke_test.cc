@@ -394,7 +394,9 @@ TEST(GrpcTlsProdSmokeTest, ReportsTrustSource) {
 #else
   LinuxTrustStore store = LoadLinuxTrustStore();
   Log("Trust source: " + store.anchor_source + " (" +
-      std::to_string(store.anchor_count) + " anchors)");
+      std::to_string(store.anchor_count) + " anchors, " +
+      std::to_string(store.blocked_cert_sha256.size()) + " blocked certs, " +
+      std::to_string(store.blocked_spki_sha256.size()) + " blocked keys)");
   EXPECT_TRUE(store.has_anchors());
   EXPECT_FALSE(store.anchor_source.empty());
 #endif
