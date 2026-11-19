@@ -28,6 +28,8 @@
 #include <string>
 #include <utility>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/util/status.h"
 #include "absl/strings/ascii.h"
 
 namespace firebase {
@@ -53,6 +55,10 @@ std::string NtoP(int family, const void* addr) {
 }
 #endif  // defined(_WIN32)
 
+util::Status Invalid(const char* reason) {
+  return util::Status(Error::kErrorInvalidArgument, reason);
+}
+
 bool IsAllDigitsAndDots(absl::string_view s) {
   for (char c : s) {
     if (!absl::ascii_isdigit(static_cast<unsigned char>(c)) && c != '.') {
@@ -71,28 +77,41 @@ bool ContainsNonAscii(absl::string_view s) {
 
 }  // namespace
 
-absl::optional<TlsTargetHost> ParseTlsTargetHost(
+util::StatusOr<TlsTargetHost> ParseTlsTargetHost(
     absl::string_view target_name) {
-  // An embedded NUL would truncate the C string handed to inet_pton, zone IDs
-  // are never part of a certificate identity, and internationalized names
-  // must arrive Punycode-encoded.
-  if (target_name.empty() ||
-      target_name.find('\0') != absl::string_view::npos ||
-      target_name.find('%') != absl::string_view::npos ||
-      ContainsNonAscii(target_name)) {
-    return absl::nullopt;
+  if (target_name.empty()) {
+    return Invalid("Empty TLS target host name");
+  }
+  // An embedded NUL would truncate the C string handed to inet_pton.
+  if (target_name.find('\0') != absl::string_view::npos) {
+    return Invalid("TLS target host name contains a NUL character");
+  }
+  // Zone IDs are never part of a certificate identity.
+  if (target_name.find('%') != absl::string_view::npos) {
+    return Invalid("TLS target host name must not contain an IPv6 zone ID");
+  }
+  if (ContainsNonAscii(target_name)) {
+    return Invalid(
+        "TLS target host name must be ASCII; encode internationalized names "
+        "as Punycode (A-labels)");
   }
   std::string text(target_name);
 
   in6_addr addr6 = {};
   if (PtoN(AF_INET6, text, &addr6)) {
     std::string canonical = NtoP(AF_INET6, &addr6);
-    if (canonical.empty()) return absl::nullopt;
+    if (canonical.empty()) {
+      return Invalid("Invalid IPv6 address in TLS target host name");
+    }
     return TlsTargetHost{std::move(canonical), TlsTargetHost::Kind::kIpv6};
   }
   // gRPC strips ports and brackets before calling verifiers, and DNS names
   // never contain ':', so anything else with a colon is malformed.
-  if (text.find(':') != std::string::npos) return absl::nullopt;
+  if (text.find(':') != std::string::npos) {
+    return Invalid(
+        "TLS target host name is neither a valid IPv6 address nor a host name "
+        "(it contains ':')");
+  }
 
   // The round trip rejects forms that some parsers accept but read
   // differently, such as leading zeros (octal) or fewer than four parts.
@@ -101,7 +120,10 @@ absl::optional<TlsTargetHost> ParseTlsTargetHost(
     return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kIpv4};
   }
   // Never treat something that looks like an IPv4 address as a DNS name.
-  if (IsAllDigitsAndDots(text)) return absl::nullopt;
+  if (IsAllDigitsAndDots(text)) {
+    return Invalid(
+        "TLS target host name is not a canonical dotted-quad IPv4 address");
+  }
 
   return TlsTargetHost{std::move(text), TlsTargetHost::Kind::kDns};
 }
