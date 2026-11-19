@@ -340,18 +340,21 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
     char* header = nullptr;
     uint8_t* body = nullptr;
     long len = 0;  // NOLINT(runtime/int)
+    size_t before = BIO_ctrl_pending(bio.get());
     if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
       auto err = ERR_peek_last_error();
-      if (ERR_GET_LIB(err) == ERR_LIB_PEM &&
-          ERR_GET_REASON(err) != PEM_R_NO_START_LINE) {
-        // `BIO_gets` already consumed at least the `-----BEGIN` line, so
-        // continuing is guaranteed to make forward progress.
-        saw_pem = true;
-        LOG_WARN("Ignoring malformed PEM block in %s", path);
-        ERR_clear_error();
-        continue;
-      }
-      break;
+      bool no_start_line = ERR_GET_LIB(err) == ERR_LIB_PEM &&
+                           ERR_GET_REASON(err) == PEM_R_NO_START_LINE;
+      ERR_clear_error();
+      if (no_start_line) break;  // Clean end of input.
+      saw_pem = true;
+      LOG_WARN("Ignoring malformed PEM block in %s", path);
+      // Both OpenSSL and BoringSSL return 0 with an empty error queue on
+      // empty-body PEM blocks after advancing `bio`, whereas an allocation
+      // failure can fail before consuming any input; check `BIO_ctrl_pending`
+      // directly so continuing always makes forward progress.
+      if (BIO_ctrl_pending(bio.get()) >= before) break;
+      continue;
     }
     saw_pem = true;
     std::string block_name = name;
@@ -386,8 +389,6 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
     }
     OPENSSL_free(body);
   }
-  // Reaching the end of the input leaves a PEM_R_NO_START_LINE error behind.
-  ERR_clear_error();
 
   if (!saw_pem && allow_der && !data.empty()) {
     size_t consumed = 0;

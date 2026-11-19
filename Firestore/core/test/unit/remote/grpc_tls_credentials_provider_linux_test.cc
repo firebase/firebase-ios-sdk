@@ -488,43 +488,59 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   TestCertificate rejected_trust = MakeRoot("m1-rejected-trust");
   TestCertificate rejected_dir = MakeRoot("m1-rejected-dir");
 
+  const std::string empty_cert =
+      "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n";
+  const std::string empty_trusted =
+      "-----BEGIN TRUSTED CERTIFICATE-----\n"
+      "-----END TRUSTED CERTIFICATE-----\n";
+  const std::string empty_crl =
+      "-----BEGIN X509 CRL-----\n-----END X509 CRL-----\n";
   const std::string corrupt_cert_der =
       "-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n";
   const std::string corrupt_trusted_der =
       "-----BEGIN TRUSTED CERTIFICATE-----\nAAAA\n"
       "-----END TRUSTED CERTIFICATE-----\n";
 
-  // Corrupt base64 and corrupt DER mid-file must not truncate later valid
-  // anchors or `TRUSTED CERTIFICATE` distrust entries, and a trailing unclosed
+  // Corrupt base64, corrupt DER, and empty-body PEM blocks (both certificate
+  // and non-certificate headers, which return 0 from `PEM_read_bio` with an
+  // empty error queue) mid-file must not truncate later valid anchors or
+  // `TRUSTED CERTIFICATE` distrust entries, and a trailing unclosed
   // `-----BEGIN` block must terminate cleanly with an empty error queue.
   Path bundle = File(
       "bundle.pem",
       absl::StrCat(
           anchor_a.cert_pem(), CorruptBase64(MakeRoot("m1-bad1").cert_pem()),
-          anchor_b.cert_pem(), corrupt_cert_der,
+          empty_cert, empty_crl, anchor_b.cert_pem(), corrupt_cert_der,
+          empty_cert, empty_crl,
           TrustedCertificatePem(anchor_c, AuxTrust::kTrustServerAuth),
           CorruptBase64(TrustedCertificatePem(MakeRoot("m1-bad2"),
                                               AuxTrust::kRejectServerAuth)),
-          corrupt_trusted_der,
+          corrupt_trusted_der, empty_cert, empty_trusted, empty_crl,
+          "-----BEGIN CERTIFICATE-----\n", MakeRoot("m1-swallowed").cert_pem(),
           TrustedCertificatePem(rejected_bundle, AuxTrust::kRejectServerAuth),
           "-----BEGIN CERTIFICATE-----\nunclosed"));
 
   Path trust_bundle = File(
       "ca-bundle.trust.crt",
       absl::StrCat(
+          empty_cert, empty_crl,
+          TrustedCertificatePem(MakeRoot("m1-ignored-trust"),
+                                AuxTrust::kTrustServerAuth),
           CorruptBase64(TrustedCertificatePem(MakeRoot("m1-bad3"),
                                               AuxTrust::kTrustServerAuth)),
-          corrupt_trusted_der,
+          corrupt_trusted_der, empty_cert, empty_trusted, empty_crl,
           TrustedCertificatePem(rejected_trust, AuxTrust::kRejectServerAuth),
           "-----BEGIN TRUSTED CERTIFICATE-----\n"));
 
   Path blocklist = Dir("blocklist");
-  WriteFile(blocklist.AppendUtf8("mixed.pem"),
-            absl::StrCat(CorruptBase64(MakeRoot("m1-bad4").cert_pem()),
-                         corrupt_cert_der, rejected_dir.cert_pem(),
-                         "-----BEGIN CERTIFICATE-----\n"));
+  WriteFile(
+      blocklist.AppendUtf8("mixed.pem"),
+      absl::StrCat(CorruptBase64(MakeRoot("m1-bad4").cert_pem()),
+                   corrupt_cert_der, empty_cert, empty_crl,
+                   rejected_dir.cert_pem(), "-----BEGIN CERTIFICATE-----\n"));
   WriteFile(blocklist.AppendUtf8("unclosed_only.pem"),
             "-----BEGIN CERTIFICATE-----\n");
+  WriteFile(blocklist.AppendUtf8("empty_only.pem"), empty_cert);
 
   IsolatedConfig iso;
   iso.config().bundle_files = std::vector<std::string>{bundle.ToUtf8String()};
