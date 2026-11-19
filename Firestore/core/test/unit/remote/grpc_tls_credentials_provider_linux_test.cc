@@ -38,7 +38,10 @@
 #include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
+#include "openssl/asn1.h"
 #include "openssl/bio.h"
+#include "openssl/err.h"
+#include "openssl/evp.h"
 #include "openssl/obj_mac.h"
 #include "openssl/objects.h"
 #include "openssl/pem.h"
@@ -624,6 +627,64 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
   EXPECT_NE(status.error_message().find("a\\'b\\x1b.firestore.test"),
             std::string::npos)
       << status.error_message();
+}
+
+std::string CertPemWithSubject(const TestCertificate& base,
+                               const TestCertificate& signer,
+                               X509_NAME* name) {
+  std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(base.x509()),
+                                                   X509_free);
+  EXPECT_EQ(X509_set_subject_name(copy.get(), name), 1);
+  // Re-signing invalidates the cached tbsCertificate DER encoding.
+  EXPECT_GT(X509_sign(copy.get(), signer.key(), EVP_sha256()), 0);
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  EXPECT_EQ(PEM_write_bio_X509(bio.get(), copy.get()), 1);
+  char* data = nullptr;
+  long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+  return std::string(data, static_cast<size_t>(len));
+}
+
+TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
+     HandlesEmptyAndUnreadablePeerSubjects) {
+  TestCertificate root = MakeRoot("verify-subject-edge");
+  TestCertOptions leaf_opts;
+  leaf_opts.common_name = "placeholder";
+  leaf_opts.dns_sans = {"other.firestore.test"};
+  TestCertificate leaf = IssueTestCertificate(leaf_opts, &root);
+  LinuxTrustStore store = StoreWithAnchor(root);
+
+  // Empty Subject DN (RFC 5280 section 4.1.2.6 SAN-only leaf).
+  std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)> empty_name(
+      X509_NAME_new(), X509_NAME_free);
+  grpc::Status status = VerifyLinuxPeerCertificateChain(
+      CertPemWithSubject(leaf, root, empty_name.get()), kHost, store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("''"), std::string::npos)
+      << status.error_message();
+  EXPECT_EQ(ERR_peek_error(), 0u);
+
+  // Valid 2-byte UTF-8 RDN (~300 KiB DER < X509_NAME_MAX, >1.1 MiB formatted >
+  // NAME_ONELINE_MAX, so X509_NAME_oneline returns nullptr without writing to
+  // its output buffer).
+  std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)> huge_name(
+      X509_NAME_new(), X509_NAME_free);
+  std::string huge_cn;
+  huge_cn.reserve(300 * 1024);
+  for (int i = 0; i < 150 * 1024; ++i) {
+    huge_cn.append("\xc2\x80", 2);
+  }
+  ASSERT_EQ(X509_NAME_add_entry_by_NID(
+                huge_name.get(), NID_commonName, V_ASN1_UTF8STRING,
+                reinterpret_cast<const unsigned char*>(huge_cn.data()),
+                static_cast<int>(huge_cn.size()), -1, 0),
+            1);
+  status = VerifyLinuxPeerCertificateChain(
+      CertPemWithSubject(leaf, root, huge_name.get()), kHost, store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("<unreadable subject>"),
+            std::string::npos)
+      << status.error_message();
+  EXPECT_EQ(ERR_peek_error(), 0u);
 }
 
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, ChecksHostNameOnLeafOnly) {
