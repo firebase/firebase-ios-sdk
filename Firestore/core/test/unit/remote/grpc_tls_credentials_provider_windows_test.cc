@@ -415,27 +415,23 @@ class GrpcTlsCredentialsProviderWindowsTest : public ::testing::Test {
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, AcceptsValidChain) {
   WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
-  EXPECT_TRUE(
-      VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost, trust)
-          .ok());
-  grpc::Status with_port = VerifyWindowsTlsCertificateChain(
-      pki_.ServerChainPem(), std::string(kHost) + ":443", trust);
-  EXPECT_TRUE(with_port.ok()) << with_port.error_message();
+  grpc::Status status =
+      VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), kHost, trust);
+  EXPECT_TRUE(status.ok()) << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, MatchesIpAddressTargets) {
   WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
 
   // The leaf has an iPAddress subjectAltName of 127.0.0.1 only.
-  for (const char* target : {"127.0.0.1", "127.0.0.1:443"}) {
-    grpc::Status status =
+  grpc::Status status = VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(),
+                                                         "127.0.0.1", trust);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  for (const char* target : {"10.0.0.1", "::1"}) {
+    grpc::Status mismatch =
         VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), target, trust);
-    EXPECT_TRUE(status.ok()) << target << ": " << status.error_message();
-  }
-  for (const char* target : {"10.0.0.1", "10.0.0.1:443", "[::1]:443"}) {
-    grpc::Status status =
-        VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), target, trust);
-    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED) << target;
+    EXPECT_EQ(mismatch.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << target;
   }
 }
 
@@ -556,13 +552,20 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
         << bad_chain;
   }
 
-  for (const char* bad_target : {"", "[::1", "host:notaport", "a b"}) {
+  // gRPC passes a bare host (no port or brackets) as the target name.
+  for (const char* bad_target :
+       {"", "[::1]", "[::1", "host:443", "fe80::1%1"}) {
     grpc::Status status =
         VerifyWindowsTlsCertificateChain(chain, bad_target, trust);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << bad_target;
     EXPECT_THAT(status.error_message(), HasSubstr("target host name"));
   }
+
+  // Parsed as a DNS name, so it is rejected by CryptoAPI's name check.
+  grpc::Status dns_status =
+      VerifyWindowsTlsCertificateChain(chain, "a b", trust);
+  EXPECT_EQ(dns_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackHandshakeSucceeds) {

@@ -73,12 +73,14 @@ struct WindowsTrustConfig {
 
 /**
  * Verifies a PEM-encoded X.509 peer certificate chain (leaf first) for the
- * host in `target_name` using Windows CryptoAPI.
+ * host `target_name` using Windows CryptoAPI. `target_name` is a bare host
+ * name or IP address, as gRPC passes it to verifiers (without the port or
+ * brackets).
  *
  * The leaf is checked with `CertGetCertificateChain`, using the remaining
  * certificates as untrusted intermediates, and then with
  * `CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL)` for a server
- * named by the host in `target_name` (`host`, `host:port`, or `[ipv6]:port`).
+ * named `target_name`.
  * This covers path building, expiry, the server-auth EKU, explicit distrust,
  * and DNS hostname matching. For an IP address target, the leaf must instead
  * have a matching `iPAddress` subjectAltName. Returns `UNAUTHENTICATED` with a
