@@ -42,25 +42,9 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-/**
- * Synchronously evaluates a PEM-encoded X.509 peer certificate chain for
- * `target_name` using Apple's `Security.framework` (`SecPolicyCreateSSL` +
- * `SecTrustEvaluateWithError`).
- *
- * This blocks on IPC to `trustd` and must not be called on gRPC threads. The
- * production verifier uses `VerifyAppleTlsCertificateChainAsync()`; this
- * function is kept for tests and produces the same results.
- *
- * If `anchor_certs` (an array of `SecCertificateRef`s) is non-null, trust
- * evaluation is restricted exclusively to those anchor certificates via
- * `SecTrustSetAnchorCertificates` and `SecTrustSetAnchorCertificatesOnly(true)`
- * (intended for deterministic unit and loopback tests). When `anchor_certs` is
- * null, standard Apple OS, MDM, and `com.apple.trustd.valid` OTA trust settings
- * apply.
- */
-grpc::Status VerifyAppleTlsCertificateChain(absl::string_view pem_chain,
-                                            absl::string_view target_name,
-                                            CFArrayRef anchor_certs = nullptr);
+// The declarations below are test-facing: production code only calls
+// `CreateDefaultTlsCredentials()` (grpc_tls_credentials_provider.h). The
+// custom-anchor branch in the verifier is the one intentional test seam.
 
 /**
  * Creates gRPC `TlsCredentials` backed by Apple's `Security.framework`
@@ -75,9 +59,15 @@ std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
 #if defined(__OBJC__)
 
 /**
- * Asynchronously evaluates `input.pem_chain` for `input.target_name`, with the
- * same policy, anchors, and error mapping as
- * `VerifyAppleTlsCertificateChain()`.
+ * Asynchronously evaluates the PEM-encoded X.509 peer certificate chain
+ * `input.pem_chain` for `input.target_name` using Apple's `Security.framework`
+ * (`SecPolicyCreateSSL` + `SecTrustEvaluateAsyncWithError`).
+ *
+ * If `anchor_certs` (an array of `SecCertificateRef`s) is non-null, trust
+ * evaluation is restricted exclusively to those anchor certificates via
+ * `SecTrustSetAnchorCertificates` and `SecTrustSetAnchorCertificatesOnly(true)`
+ * (for deterministic tests). When `anchor_certs` is null, standard Apple OS,
+ * MDM, and `com.apple.trustd.valid` OTA trust settings apply.
  *
  * Returns immediately. The evaluation is dispatched to `queue`, and from there
  * started with `SecTrustEvaluateAsyncWithError`, which Apple requires to be
