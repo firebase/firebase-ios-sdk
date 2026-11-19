@@ -14,6 +14,8 @@
   when caching settings. (#16728)
 - [fixed] Fixed the app executable's minimum OS and SDK versions being recorded as `0.0.0` in
   report metadata for apps targeting iOS 12, macOS 10.14, tvOS 12, watchOS 5, or later. (#16810)
+- [fixed] Fixed an issue where Firebase Sessions truncated session start event
+  timestamps to whole seconds. (#16796)
 
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`
