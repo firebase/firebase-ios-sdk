@@ -320,6 +320,9 @@
 
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
   XCTAssertEqual([self.uploadReportArray count], 0);
+
+  // Fetching settings is data collection, so it must wait for consent.
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 0);
 }
 
 - (void)testExistingReportOnStart {
@@ -373,6 +376,10 @@
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 1);
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"process"], @(YES));
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
+
+  // Enabling data collection should fetch settings once, off the main thread.
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 1);
+  XCTAssertFalse(self.reportManager.beginSettingsCalledOnMainThread);
 }
 
 - (void)testExistingReportOnStartWithDataCollectionDisabledAndSend {
@@ -401,6 +408,10 @@
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 1);
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"process"], @(YES));
   XCTAssertEqualObjects(self.prepareAndSubmitReportArray[0][@"urgent"], @(NO));
+
+  // Sending unsent reports should fetch settings once, off the main thread.
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 1);
+  XCTAssertFalse(self.reportManager.beginSettingsCalledOnMainThread);
 
   // Calling processReports again should not call the callback.
   // Technically, the behavior is unspecified.
@@ -431,6 +442,9 @@
 
   // Should not call report manager for that report.
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
+
+  // Deleting unsent reports should not fetch settings.
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 0);
 }
 
 - (void)testExistingUrgentReportOnStart {
@@ -628,6 +642,13 @@
 
   NSString *json = FIRCLSFIRAEventDictionaryToJSON(eventAsDict);
   XCTAssertEqualObjects(json, nil);
+}
+
+- (void)testBeginSettingsRunsOffMainThreadWhenDataCollectionEnabled {
+  XCTAssertTrue([NSThread isMainThread]);
+  [self startReportManager];
+  XCTAssertEqual(self.reportManager.beginSettingsCallCount, 1);
+  XCTAssertFalse(self.reportManager.beginSettingsCalledOnMainThread);
 }
 
 @end
