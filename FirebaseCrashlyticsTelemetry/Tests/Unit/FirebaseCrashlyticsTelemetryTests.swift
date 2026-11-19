@@ -76,54 +76,45 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     )
   }
 
-  func test_filterNetworkRequests_excludesTelemetryEndpointsAndAllowsOtherURLs() throws {
-    let firebaseTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://firebasetelemetry.googleapis.com/v1/projects/test/traces")
+  func test_filterNetworkRequests_excludesTelemetryHostsAndAllowsOtherURLs() throws {
+    let excludedURLs = [
+      "https://firebasetelemetry.googleapis.com/v1/projects/test/traces",
+      "https://FIREBASETELEMETRY.googleapis.com/v1/projects/test/traces",
+      "https://firebasetelemetry.googleapis.com./v1/projects/test/traces",
+      "https://clienttelemetry.googleapis.com/v1/projects/test/traces",
+      "https://CLIENTTELEMETRY.googleapis.com/v1/projects/test/traces",
+      "https://clienttelemetry.us-east5.rep.googleapis.com/v1/projects/test/traces",
+      "https://firebasetelemetry.us-east5.rep.googleapis.com/v1/projects/test/traces",
+      "https://staging-firebasetelemetry.sandbox.googleapis.com/v1/projects/test/traces",
+      "https://dev-clienttelemetry.sandbox.googleapis.com/v1/projects/test/traces",
+    ]
+    for urlString in excludedURLs {
+      let request = try URLRequest(url: XCTUnwrap(URL(string: urlString)))
+      XCTAssertFalse(
+        FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: request),
+        "Expected \(urlString) to be excluded from instrumentation"
       )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: firebaseTelemetryRequest)
-    )
+    }
 
-    let uppercaseTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://FIREBASETELEMETRY.googleapis.com/v1/projects/test/traces")
+    let allowedURLs = [
+      "http://localhost:8080/api/data",
+      "https://example.com/api/resource",
+      "https://example.com/docs/firebasetelemetry",
+      "https://example.com/api?source=clienttelemetry",
+      "https://firebasetelemetry.example.com/v1/traces",
+      "https://firestore.googleapis.com/v1/projects/test/databases",
+    ]
+    for urlString in allowedURLs {
+      let request = try URLRequest(url: XCTUnwrap(URL(string: urlString)))
+      XCTAssertTrue(
+        FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: request),
+        "Expected \(urlString) to be instrumented"
       )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: uppercaseTelemetryRequest)
-    )
+    }
 
-    let clientTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://clienttelemetry.googleapis.com/v1/projects/test/traces")
-      )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: clientTelemetryRequest)
-    )
-
-    let uppercaseClientTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://CLIENTTELEMETRY.googleapis.com/v1/projects/test/traces")
-      )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(
-        urlRequest: uppercaseClientTelemetryRequest
-      )
-    )
-
-    let localhostRequest = try URLRequest(
-      url: XCTUnwrap(URL(string: "http://localhost:8080/api/data"))
-    )
-    XCTAssertTrue(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: localhostRequest))
-
-    let externalRequest = try URLRequest(
-      url: XCTUnwrap(URL(string: "https://example.com/api/resource"))
-    )
-    XCTAssertTrue(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: externalRequest))
+    var nilURLRequest = try URLRequest(url: XCTUnwrap(URL(string: "https://example.com")))
+    nilURLRequest.url = nil
+    XCTAssertFalse(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: nilURLRequest))
   }
 
   func test_networkSpanName_usesHttpMethodOrFallsBackToHTTP() throws {

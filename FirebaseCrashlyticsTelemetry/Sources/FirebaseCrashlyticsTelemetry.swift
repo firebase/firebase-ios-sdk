@@ -220,9 +220,22 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   }
 
   static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    guard let urlString = urlRequest.url?.absoluteString else { return false }
-    return urlString.range(of: "firebasetelemetry", options: .caseInsensitive) == nil &&
-      urlString.range(of: "clienttelemetry", options: .caseInsensitive) == nil
+    guard let url = urlRequest.url else { return false }
+    guard let rawHost = url.host else { return true }
+
+    let lowercasedHost = rawHost.lowercased()
+    let host = lowercasedHost.hasSuffix(".") ? String(lowercasedHost.dropLast()) : lowercasedHost
+
+    guard host.hasSuffix(".googleapis.com"),
+          let serviceLabel = host.split(separator: ".").first else {
+      return true
+    }
+
+    let telemetryServices = ["firebasetelemetry", "clienttelemetry"]
+    let isTelemetryHost = telemetryServices.contains { service in
+      serviceLabel == service || serviceLabel.hasSuffix("-\(service)")
+    }
+    return !isTelemetryHost
   }
 
   static func networkSpanName(urlRequest: URLRequest) -> String {
