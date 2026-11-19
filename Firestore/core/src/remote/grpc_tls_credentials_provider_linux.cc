@@ -19,15 +19,15 @@
 #if !defined(__APPLE__) && !defined(_WIN32)
 
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
-#include <iterator>
 #include <utility>
 
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
@@ -93,6 +93,10 @@ const char* const kDefaultBlocklistDirs[] = {
     "/etc/pki/ca-trust/source/blocklist",
     "/usr/share/pki/ca-trust-source/blacklist",
     "/usr/share/pki/ca-trust-source/blocklist",
+    "/etc/pki/trust/blacklist",  // openSUSE, SLES
+    "/etc/pki/trust/blocklist",
+    "/usr/share/pki/trust/blacklist",
+    "/usr/share/pki/trust/blocklist",
 };
 
 // p11-kit "openssl-bundle" extracts: `TRUSTED CERTIFICATE` entries carrying
@@ -399,21 +403,46 @@ bool IsDirectory(const std::string& path) {
   return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-// Reads a regular file (following symlinks). Returns nullopt if it does not
-// exist, is not a regular file, is too large, or cannot be read.
+// Reads a regular file (following symlinks) via a single descriptor, capping
+// the bytes read at `kMaxFileSize`. Returns nullopt if it does not exist, is
+// not a regular file (e.g. a directory or FIFO), exceeds `kMaxFileSize`, or
+// cannot be read.
 absl::optional<std::string> ReadRegularFile(const std::string& path) {
+  int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+  if (fd < 0) return absl::nullopt;
+
   struct stat st;
-  if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) {
+  if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) {
+    close(fd);
     return absl::nullopt;
   }
   if (st.st_size > kMaxFileSize) {
+    close(fd);
     LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
     return absl::nullopt;
   }
-  std::ifstream in(path, std::ios::binary);
-  if (!in) return absl::nullopt;
-  return std::string(std::istreambuf_iterator<char>(in),
-                     std::istreambuf_iterator<char>());
+
+  std::string out;
+  if (st.st_size > 0) out.reserve(static_cast<size_t>(st.st_size));
+  char buf[8192];
+  while (true) {
+    ssize_t n = read(fd, buf, sizeof(buf));
+    if (n == 0) break;
+    if (n < 0) {
+      if (errno == EINTR) continue;
+      close(fd);
+      return absl::nullopt;
+    }
+    if (out.size() + static_cast<size_t>(n) >
+        static_cast<size_t>(kMaxFileSize)) {
+      close(fd);
+      LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
+      return absl::nullopt;
+    }
+    out.append(buf, static_cast<size_t>(n));
+  }
+  close(fd);
+  return out;
 }
 
 // Returns the paths of the regular files (following symlinks) in `dir`, sorted

@@ -393,6 +393,31 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   EXPECT_TRUE(HasAnchor(store, b));
 }
 
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       SkipsNonRegularAndOversizedFilesWithoutBlocking) {
+  TestCertificate good = MakeRoot("good-after-bad-files");
+  Path good_file = File("good.pem", good.cert_pem());
+
+  // A FIFO with no writer would block `open()` without `O_NONBLOCK`.
+  Path fifo = dir_.AppendUtf8("pipe.pem");
+  ASSERT_EQ(mkfifo(fifo.ToUtf8String().c_str(), 0600), 0);
+
+  // A file exceeding `kMaxFileSize` (16 MiB) is rejected without reading it.
+  Path oversized = File("oversized.pem", "");
+  ASSERT_EQ(truncate(oversized.ToUtf8String().c_str(), 17 * 1024 * 1024), 0);
+
+  IsolatedConfig iso;
+  iso.SetEnv("SSL_CERT_FILE", fifo.ToUtf8String());
+  iso.config().bundle_files = std::vector<std::string>{
+      fifo.ToUtf8String(), oversized.ToUtf8String(), good_file.ToUtf8String()};
+
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  EXPECT_EQ(store.anchor_count, 1u);
+  EXPECT_TRUE(HasAnchor(store, good));
+
+  unlink(fifo.ToUtf8String().c_str());
+}
+
 TEST_F(GrpcTlsCredentialsProviderLinuxTest, NoAnchorsFound) {
   IsolatedConfig iso;
   iso.config().bundle_files =
