@@ -97,6 +97,7 @@ grpc::Status TlsVerificationCancelledStatus();
  *
  * Thread-safe. Held through `std::shared_ptr` so that evaluator completions
  * remain safe after the owning verifier is destroyed.
+
  */
 class TlsAsyncVerificationTracker {
  public:
@@ -110,8 +111,8 @@ class TlsAsyncVerificationTracker {
       delete;
 
   /**
-   * Registers a new verification for `request` and returns its id. `request`
-   * is never dereferenced.
+   * Registers a new verification for `request`, which must not be null, and
+   * returns its id. `request` is never dereferenced.
    */
   Id Start(const Request* request, TlsVerificationCallback callback);
 
