@@ -38,6 +38,7 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/credentials/auth_token.h"
@@ -408,7 +409,11 @@ TEST(GrpcTlsProdSmokeTest, LinuxWithoutSystemAnchorsDoesNotFallBackToBundle) {
   SKIP_UNLESS_PROD_SMOKE_ENABLED();
 
   LinuxTrustConfig config;
-  config.ca_path = "/nonexistent/firestore-tls-prod-smoke/no-roots.pem";
+  config.get_env = [](const char*) { return absl::nullopt; };
+  config.bundle_files = std::vector<std::string>{};
+  config.cert_dirs = std::vector<std::string>{};
+  config.blocklist_dirs = std::vector<std::string>{};
+  config.trust_bundle_files = std::vector<std::string>{};
   ASSERT_FALSE(LoadLinuxTrustStore(config).has_anchors());
 
   // As above: show the endpoint is reachable with the system trust store.

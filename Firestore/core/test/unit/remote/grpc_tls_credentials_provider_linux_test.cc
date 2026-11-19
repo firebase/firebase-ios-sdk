@@ -211,55 +211,6 @@ class GrpcTlsCredentialsProviderLinuxTest : public ::testing::Test {
 // 1. Anchor resolution order
 // ===========================================================================
 
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathWinsOverEverything) {
-  TestCertificate a = MakeRoot("explicit-a");
-  TestCertificate b = MakeRoot("explicit-b");
-  TestCertificate c = MakeRoot("explicit-c");
-  Path file_a = File("a.pem", a.cert_pem());
-  Path file_b = File("b.pem", b.cert_pem());
-  Path file_c = File("c.pem", c.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = file_a.ToUtf8String();
-  iso.SetEnv("SSL_CERT_FILE", file_b.ToUtf8String());
-  iso.config().bundle_files = std::vector<std::string>{file_c.ToUtf8String()};
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_EQ(store.anchor_count, 1u);
-  EXPECT_TRUE(HasAnchor(store, a));
-  EXPECT_FALSE(HasAnchor(store, b));
-  EXPECT_FALSE(HasAnchor(store, c));
-  EXPECT_NE(store.anchor_source.find(file_a.ToUtf8String()), std::string::npos);
-}
-
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathDoesNotFallBack) {
-  TestCertificate c = MakeRoot("explicit-nofallback");
-  Path file_c = File("c.pem", c.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = dir_.AppendUtf8("missing.pem").ToUtf8String();
-  iso.config().bundle_files = std::vector<std::string>{file_c.ToUtf8String()};
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_FALSE(store.has_anchors());
-}
-
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathMayBeADirectory) {
-  TestCertificate a = MakeRoot("explicit-dir-a");
-  TestCertificate b = MakeRoot("explicit-dir-b");
-  Path dir = Dir("explicit");
-  WriteFile(dir.AppendUtf8("a.pem"), a.cert_pem());
-  WriteFile(dir.AppendUtf8("b.crt"), b.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = dir.ToUtf8String();
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_EQ(store.anchor_count, 2u);
-  EXPECT_TRUE(HasAnchor(store, a));
-  EXPECT_TRUE(HasAnchor(store, b));
-}
-
 TEST_F(GrpcTlsCredentialsProviderLinuxTest, EnvironmentVariablePrecedence) {
   TestCertificate grpc_file = MakeRoot("env-grpc-file");
   TestCertificate ssl_file = MakeRoot("env-ssl-file");
@@ -469,7 +420,7 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
                    plain.cert_pem()));
 
   IsolatedConfig iso;
-  iso.config().ca_path = bundle.ToUtf8String();
+  iso.config().bundle_files = std::vector<std::string>{bundle.ToUtf8String()};
   LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
 
   EXPECT_EQ(store.anchor_count, 2u);
@@ -848,11 +799,9 @@ class GrpcTlsCredentialsProviderLinuxLoopbackTest
     IsolatedConfig iso;
     std::string anchors_pem = PemChain(anchors);
     if (!anchors_pem.empty()) {
-      iso.config().ca_path =
+      iso.config().bundle_files = std::vector<std::string>{
           File(absl::StrCat("anchors", ++files_, ".pem"), anchors_pem)
-              .ToUtf8String();
-    } else {
-      iso.config().ca_path = dir_.AppendUtf8("missing.pem").ToUtf8String();
+              .ToUtf8String()};
     }
     Path blacklist = Dir(absl::StrCat("blacklist", ++files_));
     for (size_t i = 0; i < blocked.size(); ++i) {

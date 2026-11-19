@@ -117,6 +117,12 @@ std::vector<std::string> ToVector(const char* const (&paths)[N]) {
 
 // ---------------------------------------------------------------------------
 // OpenSSL / BoringSSL helpers
+//
+// These helpers live here rather than in a cross-platform utility because only
+// the Linux / POSIX build links `OpenSSL::Crypto` into `firestore_core`. Apple
+// (`Security.framework`) and Windows (`CryptoAPI`) delegate X.509 parsing,
+// chain building, distrust, and hostname checks to native OS frameworks
+// without taking a direct OpenSSL / BoringSSL dependency.
 // ---------------------------------------------------------------------------
 
 struct X509Deleter {
@@ -188,6 +194,14 @@ UniqueX509 ParseCertDer(const uint8_t* data, size_t size, size_t* consumed) {
 
 // ---------------------------------------------------------------------------
 // TRUSTED CERTIFICATE auxiliary trust settings
+//
+// `-----BEGIN TRUSTED CERTIFICATE-----` (`X509_CERT_AUX`) is an OpenSSL- and
+// `p11-kit`-specific on-disk trust-store PEM format used in Linux system
+// bundles (such as `ca-bundle.trust.crt` or a custom `SSL_CERT_FILE`) to attach
+// EKU trust and distrust OIDs after a certificate's DER payload. It never
+// appears on the wire in TLS handshakes (`SSL_get_peer_cert_chain` only emits
+// plain X.509 `CERTIFICATE` blocks) nor in Apple Keychain or Windows CryptoAPI
+// stores, so only the Linux trust-store loader parses it.
 // ---------------------------------------------------------------------------
 
 // The DER contents of the OBJECT IDENTIFIERs we look for.
@@ -660,13 +674,6 @@ LinuxTrustStore LoadLinuxTrustStore(const LinuxTrustConfig& config) {
   for (const std::string& file :
        config.trust_bundle_files.value_or(ToVector(kDefaultTrustBundleFiles))) {
     builder.LoadTrustBundleFile(file);
-  }
-
-  if (!config.ca_path.empty()) {
-    if (builder.LoadAnchors(config.ca_path) == 0) {
-      LOG_WARN("No CA certificates found in %s", config.ca_path);
-    }
-    return std::move(builder).Finish();
   }
 
   std::function<absl::optional<std::string>(const char*)> get_env =

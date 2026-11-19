@@ -43,20 +43,17 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+// The declarations below are test-facing: production code only calls
+// `CreateDefaultTlsCredentials()` (grpc_tls_credentials_provider.h).
+
 /**
  * Where to look for trust anchors and distrust (blocklist) entries.
  *
- * The defaults read the system CA store. Every field other than `ca_path`
- * exists so tests can point the loader at temporary files.
+ * A default-constructed `LinuxTrustConfig` reads the host's system CA store and
+ * `SSL_CERT_*` / `GRPC_*` environment variables. Every field exists so tests
+ * can isolate the loader from the host and point it at temporary files.
  */
 struct LinuxTrustConfig {
-  /**
-   * If non-empty, the only anchor source consulted: a PEM bundle file or a
-   * directory of PEM files. Environment variables and distro defaults are then
-   * ignored.
-   */
-  std::string ca_path;
-
   /**
    * Looks up an environment variable. Defaults to `secure_getenv` semantics
    * (variables are ignored in set-uid / set-gid processes).
@@ -118,13 +115,12 @@ struct LinuxTrustStore {
  * Anchors come from the first source below that yields at least one usable
  * certificate:
  *
- *  1. `config.ca_path`, if set (and then nothing else is consulted);
- *  2. the file named by `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH`, then
- * `SSL_CERT_FILE`;
- *  3. the colon-separated directories in `GRPC_SYSTEM_SSL_ROOTS_DIR`, then
+ *  1. the file named by `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH`, then
+ *     `SSL_CERT_FILE`;
+ *  2. the colon-separated directories in `GRPC_SYSTEM_SSL_ROOTS_DIR`, then
  *     `SSL_CERT_DIR`;
- *  4. the first distro CA bundle file that exists;
- *  5. all of the distro CA directories.
+ *  3. the first distro CA bundle file that exists;
+ *  4. all of the distro CA directories.
  *
  * An environment variable that is set but yields no certificates (missing or
  * empty file, say) is logged and skipped, falling through to the next source,
@@ -135,6 +131,21 @@ struct LinuxTrustStore {
  * trusted only for other purposes are dropped, and the rest are re-emitted as
  * plain `CERTIFICATE` blocks. Blocklisted certificates (by certificate or
  * SubjectPublicKeyInfo digest) are never anchors.
+ *
+ * Distrust / revocation model:
+ *
+ *  - No live OCSP or CRL network fetches are performed during handshakes
+ *    (consistent with the Apple and Windows providers: live revocation fetches
+ *    add latency, availability, and privacy hazards without stopping an active
+ *    network attacker who blocks them).
+ *  - Emergency CA distrust is driven by OS package updates (`ca-certificates` /
+ *    `p11-kit`). Distros that ship `p11-kit` blocklist directories or OpenSSL
+ *    `TRUSTED CERTIFICATE` bundles (Fedora, RHEL, CentOS, Arch, openSUSE/SLES)
+ *    can distrust an individual intermediate CA while keeping its parent root
+ *    trusted. Distros whose `ca-certificates` package only maintains a flat
+ *    root bundle (Debian, Ubuntu, Alpine) reflect full root removals out of
+ *    the box; intermediate-only blocklisting on those distros requires
+ *    populating one of the `blocklist_dirs` paths.
  */
 LinuxTrustStore LoadLinuxTrustStore(const LinuxTrustConfig& config = {});
 
@@ -163,6 +174,12 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
  * Creates gRPC `TlsCredentials` that validate server chains against the system
  * CA store described by `config`, and reject blocklisted certificates and
  * hostname mismatches.
+ *
+ * System trust anchors and blocklists are snapshotted when
+ * `CreateLinuxTlsCredentials()` constructs the channel credentials (matching
+ * OpenSSL `SSL_CTX` and Go `crypto/x509` behavior). Picking up later on-disk CA
+ * package updates in a long-lived process requires creating a new gRPC channel
+ * or restarting the process.
  *
  * If no trust anchors are found, the error is logged and the returned
  * credentials fail every TLS handshake (RPCs fail with `UNAVAILABLE`) instead
