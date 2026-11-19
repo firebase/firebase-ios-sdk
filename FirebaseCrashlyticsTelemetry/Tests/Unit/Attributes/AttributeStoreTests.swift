@@ -69,6 +69,75 @@ final class AttributeStoreTests: XCTestCase {
     )
   }
 
+  func test_commonSpanAttributes_onUnnamedBackgroundThread_omitsThreadNameAndSetsThreadId() {
+    let mainAttributes = AttributeStore.commonSpanAttributes()
+    let expectation = expectation(description: "Unnamed background thread evaluated attributes")
+    let capturedAttributes = LockBox<[String: AttributeValue]>([:])
+
+    let workerThread = Thread {
+      capturedAttributes.set(AttributeStore.commonSpanAttributes())
+      expectation.fulfill()
+    }
+    workerThread.start()
+
+    wait(for: [expectation], timeout: 2.0)
+
+    let workerAttributes = capturedAttributes.get()
+    XCTAssertNil(workerAttributes[SemanticConventions.Thread.name.rawValue])
+    if case let .int(threadId) = workerAttributes[SemanticConventions.Thread.id.rawValue] {
+      XCTAssertGreaterThan(threadId, 0)
+    } else {
+      XCTFail("Expected thread.id to be an integer attribute")
+    }
+    XCTAssertNotEqual(
+      workerAttributes[SemanticConventions.Thread.id.rawValue],
+      mainAttributes[SemanticConventions.Thread.id.rawValue]
+    )
+  }
+
+  func test_commonSpanAttributes_onPthreadNamedBackgroundThread_fallsBackToPthreadGetName() {
+    let mainAttributes = AttributeStore.commonSpanAttributes()
+    let expectation = expectation(
+      description: "pthread-named background thread evaluated attributes"
+    )
+    let capturedAttributes = LockBox<[String: AttributeValue]>([:])
+    let capturedNSThreadName = LockBox<String?>(nil)
+    let setNameResult = LockBox<Int32>(-1)
+
+    let workerThread = Thread {
+      // Populate NSThread's name with an empty string before setting the pthread name directly
+      // so Thread.current.name stays empty and exercises the pthread_getname_np fallback path.
+      Thread.current.name = ""
+      setNameResult.set(pthread_setname_np("crashlytics-pthread"))
+      capturedNSThreadName.set(Thread.current.name)
+      capturedAttributes.set(AttributeStore.commonSpanAttributes())
+      expectation.fulfill()
+    }
+    workerThread.start()
+
+    wait(for: [expectation], timeout: 2.0)
+
+    XCTAssertEqual(setNameResult.get(), 0)
+    XCTAssertTrue(
+      capturedNSThreadName.get()?.isEmpty ?? true,
+      "Expected Thread.current.name to remain empty so pthread_getname_np fallback is exercised"
+    )
+    let workerAttributes = capturedAttributes.get()
+    XCTAssertEqual(
+      workerAttributes[SemanticConventions.Thread.name.rawValue],
+      .string("crashlytics-pthread")
+    )
+    if case let .int(threadId) = workerAttributes[SemanticConventions.Thread.id.rawValue] {
+      XCTAssertGreaterThan(threadId, 0)
+    } else {
+      XCTFail("Expected thread.id to be an integer attribute")
+    }
+    XCTAssertNotEqual(
+      workerAttributes[SemanticConventions.Thread.id.rawValue],
+      mainAttributes[SemanticConventions.Thread.id.rawValue]
+    )
+  }
+
   func test_commonLogAttributes_containsScreenNameAndOmitsSessionIdAndThreadAttributes() {
     let attributes = AttributeStore.commonLogAttributes()
 
