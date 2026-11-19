@@ -24,7 +24,7 @@ final class AttributeStoreTests: XCTestCase {
     super.tearDown()
   }
 
-  func test_commonSpanAttributes_containsScreenNameAndAppVersionAndOmitsSessionIdWhenNil() {
+  func test_commonSpanAttributes_containsScreenNameAppVersionThreadInfoAndOmitsSessionIdWhenNil() {
     let attributes = AttributeStore.commonSpanAttributes()
 
     XCTAssertEqual(
@@ -36,9 +36,40 @@ final class AttributeStoreTests: XCTestCase {
       .string("1.0")
     )
     XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
+    if case let .int(threadId) = attributes[SemanticConventions.Thread.id.rawValue] {
+      XCTAssertGreaterThan(threadId, 0)
+    } else {
+      XCTFail("Expected thread.id to be an integer attribute")
+    }
+    XCTAssertEqual(attributes[SemanticConventions.Thread.name.rawValue], .string("main"))
   }
 
-  func test_commonLogAttributes_containsScreenNameAndOmitsSessionIdWhenNil() {
+  func test_commonSpanAttributes_onNamedBackgroundThread_capturesBackgroundThreadInfo() {
+    let mainAttributes = AttributeStore.commonSpanAttributes()
+    let expectation = expectation(description: "Background thread evaluated attributes")
+    let capturedAttributes = LockBox<[String: AttributeValue]>([:])
+
+    let workerThread = Thread {
+      capturedAttributes.set(AttributeStore.commonSpanAttributes())
+      expectation.fulfill()
+    }
+    workerThread.name = "crashlytics-worker"
+    workerThread.start()
+
+    wait(for: [expectation], timeout: 2.0)
+
+    let workerAttributes = capturedAttributes.get()
+    XCTAssertEqual(
+      workerAttributes[SemanticConventions.Thread.name.rawValue],
+      .string("crashlytics-worker")
+    )
+    XCTAssertNotEqual(
+      workerAttributes[SemanticConventions.Thread.id.rawValue],
+      mainAttributes[SemanticConventions.Thread.id.rawValue]
+    )
+  }
+
+  func test_commonLogAttributes_containsScreenNameAndOmitsSessionIdAndThreadAttributes() {
     let attributes = AttributeStore.commonLogAttributes()
 
     XCTAssertEqual(
@@ -46,6 +77,8 @@ final class AttributeStoreTests: XCTestCase {
       .string(CrashlyticsScreen.unknown.name)
     )
     XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Thread.id.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Thread.name.rawValue])
   }
 
   func test_setScreenName_updatesCommonSpanAndLogAttributes() {
@@ -72,5 +105,26 @@ final class AttributeStoreTests: XCTestCase {
       AttributeStore.commonLogAttributes()[SemanticConventions.Session.id.rawValue],
       .string("test-session-123")
     )
+  }
+}
+
+private final class LockBox<Value>: @unchecked Sendable {
+  private let lock = NSLock()
+  private var value: Value
+
+  init(_ value: Value) {
+    self.value = value
+  }
+
+  func set(_ newValue: Value) {
+    lock.lock()
+    defer { lock.unlock() }
+    value = newValue
+  }
+
+  func get() -> Value {
+    lock.lock()
+    defer { lock.unlock() }
+    return value
   }
 }
