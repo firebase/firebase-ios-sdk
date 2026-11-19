@@ -17,11 +17,13 @@
 
 import Foundation
 
-/// Configuration for speech recognition (transcription).
+/// The audio transcription configuration.
 package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// Deprecated: Use `custom_vocabulary` instead. A list of phrases to bias the speech recognition
-  /// model towards.
-  @available(*, deprecated)
+  /// Deprecated: Use `custom_vocabulary` instead. A list of phrases used for speech adaptation,
+  /// which biases the speech recognition model to improve recognition of these specific terms.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   package var adaptationPhrases: [String]?
 
   /// A list of custom vocabulary phrases to bias the speech recognition model toward recognizing
@@ -33,7 +35,9 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
 
   /// Deprecated: Use top-level `language_codes` instead. The model will detect the language
   /// automatically.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   package var languageAuto: AudioTranscriptionConfigLanguageAuto?
 
   /// BCP-47 language codes providing hints about the languages present in the audio. If omitted or
@@ -42,7 +46,9 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
 
   /// Deprecated: Use top-level `language_codes` instead. Specifies one or more languages in the
   /// audio.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   package var languageHints: AudioTranscriptionConfigLanguageHints?
 
   /// Configures transcription mode. Supported values: `VERBATIM`, `SMART`. If unspecified, defaults
@@ -51,6 +57,13 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
   /// automatic formatting (paragraphs, bullet points, numbered lists), and minor user edits (inline
   /// self-corrections). Timestamps and diarization are incompatible with mode `SMART`.
   package var mode: Mode?
+
+  /// The source text to be edited or rewritten via voice instructions. When provided in `SMART`
+  /// mode, the model evaluates the audio input against this text and emits the complete replacement
+  /// text in the candidate response rather than appending to it.
+  ///
+  /// > Important: This property is not supported in the Gemini Developer API.
+  package var sourceText: String?
 
   /// Configures word-level timestamp generation.
   package var wordTimestamp: Bool?
@@ -66,6 +79,7 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
     case languageCodes
     case languageHints
     case mode
+    case sourceText
     case wordTimestamp
   }
 }

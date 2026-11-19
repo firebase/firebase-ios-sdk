@@ -20,34 +20,57 @@ import Foundation
 /// Harm categories for safety settings and ratings.
 package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
   /// **PaLM** - Negative or harmful comments targeting identity and/or protected attribute.
+  /// DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case derogatory
 
-  /// **PaLM** - Content that is rude, disrespectful, or profane.
+  /// **PaLM** - Content that is rude, disrespectful, or profane. DEPRECATED: PaLM-only category,
+  /// not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case toxicity
 
   /// **PaLM** - Describes scenarios depicting violence against an individual or group, or general
-  /// descriptions of gore.
+  /// descriptions of gore. DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case violence
 
-  /// **PaLM** - Contains references to sexual acts or other lewd content.
+  /// **PaLM** - Contains references to sexual acts or other lewd content. DEPRECATED: PaLM-only
+  /// category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case sexual
 
-  /// **PaLM** - Promotes unchecked medical advice.
+  /// **PaLM** - Promotes unchecked medical advice. DEPRECATED: PaLM-only category, not supported by
+  /// Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case medical
 
   /// **PaLM** - Dangerous content that promotes, facilitates, or encourages harmful acts.
+  /// DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case dangerous
 
   /// **Gemini** - Harassment content.
@@ -64,7 +87,9 @@ package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
 
   /// **Gemini** - Content that may be used to harm civic integrity. DEPRECATED: use
   /// enable_enhanced_civic_answers instead.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case civicIntegrity
 
   /// **Gemini** - Prompts attempting to bypass or subvert the model's safety guidelines (jailbreak

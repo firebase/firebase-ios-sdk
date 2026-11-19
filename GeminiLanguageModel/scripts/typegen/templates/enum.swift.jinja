@@ -24,7 +24,9 @@ extension {{ namespace }} {
 {{ description | docc(2) }}
   {% endif %}
   {% if is_deprecated %}
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   {% endif %}
   {{ access_level }} enum {{ name }}: Codable, Sendable, Equatable, Hashable {
     {% for case in cases %}
@@ -35,7 +37,9 @@ extension {{ namespace }} {
 {{ case.description | docc(4) }}
     {% endif %}
     {% if case.is_deprecated %}
-    @available(*, deprecated)
+    #if hasAttribute(diagnose)
+      @available(*, deprecated)
+    #endif
     {% endif %}
     case {{ case.swift_name }}
     {% endfor %}
@@ -67,8 +71,10 @@ extension {{ full_name }}: RawRepresentable {
 
   {% if has_deprecated_cases %}
   {#
-    Constructing deprecated cases would otherwise emit deprecation warnings.
-    TODO: Remove the `hasAttribute` check when the minimum supported version is Swift 6.4.
+    Constructing deprecated cases would otherwise emit deprecation warnings. The deprecation
+    markers themselves are only emitted when `@diagnose` is available to suppress them (see the
+    `@available` guards above), so compilers without it see no deprecations at all.
+    TODO: Remove the `hasAttribute` checks when the minimum supported version is Swift 6.4.
   #}
   #if hasAttribute(diagnose)
     @diagnose(DeprecatedDeclaration, as: ignored)

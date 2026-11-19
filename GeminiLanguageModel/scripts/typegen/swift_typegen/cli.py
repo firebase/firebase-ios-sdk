@@ -27,6 +27,24 @@ TYPEGEN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Package root: scripts/typegen -> ../../ (GeminiLanguageModel)
 PACKAGE_ROOT = os.path.dirname(os.path.dirname(TYPEGEN_DIR))
 
+DEFAULT_ROOT_GROUPS: dict[str, tuple[str, ...]] = {
+    "GenerateContent": (
+        "GenerateContentRequest",
+        "GenerateContentResponse",
+        "TemplateGenerateContentRequest",
+        "CountTokensRequest",
+        "CountTokensResponse",
+    ),
+    "BidiGenerateContent": (
+        "BidiGenerateContentClientMessage",
+        "BidiGenerateContentServerMessage",
+    ),
+}
+
+DEFAULT_ROOTS: tuple[str, ...] = tuple(
+    root for group in DEFAULT_ROOT_GROUPS.values() for root in group
+)
+
 
 def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
     """Parses command-line arguments into PipelineOptions.
@@ -58,20 +76,13 @@ def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
             PACKAGE_ROOT,
             "Sources",
             "GeminiAPIDataModels",
-            "GenerateContent",
         ),
         help="Target output directory for the Swift source files.",
     )
     parser.add_argument(
         "--roots",
         nargs="+",
-        default=[
-            "GenerateContentRequest",
-            "GenerateContentResponse",
-            "TemplateGenerateContentRequest",
-            "CountTokensRequest",
-            "CountTokensResponse",
-        ],
+        default=None,
         help="Root schema names to resolve transitively.",
     )
     parser.add_argument(
@@ -126,12 +137,14 @@ def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
         help="Print detailed generation progress.",
     )
     args = parser.parse_args(argv)
+    roots = DEFAULT_ROOTS if args.roots is None else tuple(args.roots)
+    root_groups = DEFAULT_ROOT_GROUPS if args.roots is None else None
 
     return pipeline.PipelineOptions(
         openapi_spec=args.openapi_spec,
         templates_dir=args.templates_dir,
         output_dir=args.output_dir,
-        roots=tuple(args.roots),
+        roots=roots,
         access_level=args.access_level,
         strip_prefixes=(
             None if args.strip_prefix is None else tuple(args.strip_prefix)
@@ -141,6 +154,7 @@ def parse_args(argv: list[str] | None = None) -> pipeline.PipelineOptions:
         overrides_file=args.overrides_file,
         doc_wrap_width=args.doc_wrap_width,
         verbose=args.verbose,
+        root_groups=root_groups,
     )
 
 

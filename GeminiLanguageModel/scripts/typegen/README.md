@@ -2,7 +2,8 @@
 
 This directory contains the OpenAPI 3.1.0 upgrade and Swift code generation
 pipeline used to generate the data models in
-`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent`.
+`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent` and
+`GeminiLanguageModel/Sources/GeminiAPIDataModels/BidiGenerateContent`.
 
 ---
 
@@ -16,7 +17,7 @@ graph TD
     F -->|Parsed by| C("generate_types.py")
     E -->|Configures| C
     D["Jinja2 Swift Templates"] -->|Rendered by| C
-    C -->|Generates Swift Models| G["Sources/GeminiAPIDataModels/GenerateContent"]
+    C -->|Generates Swift Models| G["Sources/GeminiAPIDataModels/{GenerateContent,BidiGenerateContent}"]
 ```
 
 ## Setup
@@ -61,7 +62,8 @@ and generated `-openapi.yaml` files are gitignored).
 
 Use [generate_types.py](generate_types.py) to parse the upgraded OpenAPI 3.1.0
 specification and write Swift types directly into
-`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent`:
+`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent` and
+`GeminiLanguageModel/Sources/GeminiAPIDataModels/BidiGenerateContent`:
 
 ```bash
 python generate_types.py
@@ -73,8 +75,8 @@ python generate_types.py
 | :--- | :--- | :--- |
 | `--openapi-spec` | `discovery_documents/firebasevertexai-openapi.yaml` | Upgraded spec YAML path. |
 | `--overrides-file` | `discovery_documents/firebasevertexai-overrides.yaml` | YAML overrides file path. |
-| `--output-dir` | `../../Sources/GeminiAPIDataModels/GenerateContent` | Output directory. |
-| `--roots` | `["GenerateContentRequest", ...]` | Roots to resolve. |
+| `--output-dir` | `../../Sources/GeminiAPIDataModels` | Output directory. |
+| `--roots` | `["GenerateContentRequest", ..., "BidiGenerateContentServerMessage"]` | Roots to resolve. |
 | `--access-level` | `package` | Swift access control: `public`, `package`, or `internal`. |
 | `--strip-prefix` | all `generatorConfig.backends` | Backend prefixes to strip and merge (pass with no values to disable). |
 | `--namespace` | `""` | Swift root namespace. |

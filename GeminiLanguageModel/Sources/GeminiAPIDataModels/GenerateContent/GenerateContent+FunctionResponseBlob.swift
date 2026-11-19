@@ -27,8 +27,6 @@ package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable, Bui
   /// is only returned in PromptMessage for prompt management. It is currently used in the Gemini
   /// GenerateContent calls only when server side tools (code_execution, google_search, and
   /// url_context) are enabled.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var displayName: String?
 
   /// Required. The IANA standard MIME type of the source data.

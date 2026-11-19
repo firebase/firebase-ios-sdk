@@ -285,6 +285,73 @@ class TestRunPipeline(unittest.TestCase):
         )
         mock_format.assert_called_once_with(written, verbose=False)
 
+    def test_run_with_root_groups_partitions_subdirectories(self, mock_format):
+        write_yaml(
+            self.spec,
+            {
+                "components": {
+                    "schemas": {
+                        f"{DEVELOPER.prefix}Root": {
+                            "type": "object",
+                            "properties": {
+                                "shared": {
+                                    "$ref": (
+                                        "#/components/schemas/"
+                                        f"{DEVELOPER.prefix}Shared"
+                                    )
+                                }
+                            },
+                        },
+                        f"{DEVELOPER.prefix}BidiRoot": {
+                            "type": "object",
+                            "properties": {
+                                "shared": {
+                                    "$ref": (
+                                        "#/components/schemas/"
+                                        f"{DEVELOPER.prefix}Shared"
+                                    )
+                                },
+                                "only": {
+                                    "$ref": (
+                                        "#/components/schemas/"
+                                        f"{DEVELOPER.prefix}BidiOnly"
+                                    )
+                                },
+                            },
+                        },
+                        f"{DEVELOPER.prefix}Shared": {
+                            "type": "object",
+                            "properties": {"id": {"type": "string"}},
+                        },
+                        f"{DEVELOPER.prefix}BidiOnly": {
+                            "type": "object",
+                            "properties": {"flag": {"type": "boolean"}},
+                        },
+                    }
+                }
+            },
+        )
+        options = dataclasses.replace(
+            self.options,
+            roots=("Root", "BidiRoot"),
+            root_groups={
+                "GenerateContent": ("Root",),
+                "BidiGenerateContent": ("BidiRoot",),
+            },
+        )
+        with contextlib.redirect_stdout(io.StringIO()):
+            pipeline.run(options)
+
+        gc_dir = os.path.join(self.out, "GenerateContent")
+        bidi_dir = os.path.join(self.out, "BidiGenerateContent")
+        self.assertEqual(
+            set(os.listdir(gc_dir)), {"Root.swift", "Shared.swift"}
+        )
+        self.assertEqual(
+            set(os.listdir(bidi_dir)), {"BidiRoot.swift", "BidiOnly.swift"}
+        )
+        self.assertEqual(mock_format.call_count, 2)
+
 
 def copy_with_property(schema, name, prop):
     """Returns a deep copy of schema with an extra property added."""
