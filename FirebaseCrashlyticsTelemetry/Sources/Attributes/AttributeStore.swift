@@ -12,15 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+internal import FirebaseCore
 private import FirebaseCoreInternal
 import Foundation
 import OpenTelemetryApi
 
 /// Provides common OpenTelemetry attributes to be attached across telemetry signals.
 enum AttributeStore {
-  // TODO: Add resource attributes.
-  // TODO: Add instrumentation scope attributes.
-
   private static let screenName = UnfairLock<String>(CrashlyticsScreen.unknown.name)
   private static let sessionId = UnfairLock<String?>(nil)
 
@@ -32,6 +30,48 @@ enum AttributeStore {
   /// Updates the currently active session ID.
   static func setSessionId(_ id: String?) {
     sessionId.withLock { $0 = id }
+  }
+
+  /// Returns the resource attributes identifying the Firebase app and host environment.
+  static func resourceAttributes(options: FirebaseOptions,
+                                 environment: any TelemetryEnvironmentInfo = TelemetryEnvironment())
+    -> [String: AttributeValue] {
+    var attributes: [String: AttributeValue] = [
+      SemanticConventions.Service.name.rawValue: .string(options.googleAppID),
+      SemanticConventions.Gcp.crashlyticsFirebaseAppId: .string(options.googleAppID),
+    ]
+
+    if let projectID = options.projectID, !projectID.isEmpty {
+      attributes[SemanticConventions.Gcp.crashlyticsProjectId] = .string(projectID)
+    }
+
+    if let bundleIdentifier = environment.bundleIdentifier, !bundleIdentifier.isEmpty {
+      attributes[SemanticConventions.Service.namespace.rawValue] = .string(bundleIdentifier)
+    }
+
+    if let appVersion = environment.appVersion, !appVersion.isEmpty {
+      attributes[SemanticConventions.Service.version.rawValue] = .string(appVersion)
+    }
+
+    if let appBuildId = environment.appBuildId, !appBuildId.isEmpty {
+      attributes[SemanticConventions.App.buildId.rawValue] = .string(appBuildId)
+    }
+
+    return attributes
+  }
+
+  /// Returns instrumentation scope attributes identifying the Crashlytics Telemetry client SDK.
+  static func instrumentationScopeAttributes(
+    environment: any TelemetryEnvironmentInfo = TelemetryEnvironment()
+  ) -> [String: AttributeValue] {
+    return [
+      SemanticConventions.Gcp.crashlyticsClientArtifact: .string(
+        FirebaseCrashlyticsTelemetry.scopeName
+      ),
+      SemanticConventions.Gcp.crashlyticsClientRepo: .string("firebase/firebase-ios-sdk"),
+      SemanticConventions.Gcp.clientService.rawValue: .string("firebasetelemetry"),
+      SemanticConventions.Gcp.crashlyticsClientVersion: .string("v\(environment.sdkVersion)"),
+    ]
   }
 
   /// Returns the common attributes that should be attached to all telemetry signals.
@@ -49,11 +89,7 @@ enum AttributeStore {
 
   /// Returns the common attributes that should be attached to all spans.
   static func commonSpanAttributes() -> [String: AttributeValue] {
-    var attributes = commonAttributes()
-    // TODO: Remove this attribute. Currently added as a work around to a limitation in the
-    // backend server.
-    attributes["gcp.firebase.app_version"] = .string("1.0")
-    return attributes
+    return commonAttributes()
   }
 
   /// Returns the common attributes that should be attached to all log records.
