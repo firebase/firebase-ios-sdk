@@ -435,8 +435,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     NSURLSessionDataTask *task = [fetch URLSessionDataTaskWithContent:[NSData data]
                                                       fetchTypeHeader:@"Base/1"
                                                     completionHandler:noop];
-    XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"],
-                          @"etag1", @"state: %@", state);
+    XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"], @"etag1",
+                          @"state: %@", state);
   }
 }
 
