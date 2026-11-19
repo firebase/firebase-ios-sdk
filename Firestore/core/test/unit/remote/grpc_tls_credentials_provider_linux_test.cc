@@ -558,10 +558,11 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, AcceptsMatchingHostNames) {
   TestPki pki = CreateTestPki("verify-ok", {kHost, "*.wild.firestore.test"},
                               {"127.0.0.1", "::1"});
   LinuxTrustStore store = StoreWithAnchor(pki.root);
+  // gRPC strips the port and IPv6 brackets before calling the verifier, so
+  // targets are bare hosts.
   for (const char* target :
-       {"loopback.firestore.test", "loopback.firestore.test:443",
-        "LOOPBACK.firestore.test", "a.wild.firestore.test", "127.0.0.1",
-        "127.0.0.1:50051", "::1", "[::1]", "[::1]:443"}) {
+       {"loopback.firestore.test", "LOOPBACK.firestore.test",
+        "a.wild.firestore.test", "127.0.0.1", "::1"}) {
     grpc::Status status =
         VerifyLinuxPeerCertificateChain(pki.ServerChainPem(), target, store);
     EXPECT_TRUE(status.ok())
@@ -615,6 +616,14 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
     EXPECT_TRUE(c >= 0x20 && c < 0x7f)
         << "unescaped byte " << static_cast<int>(c) << " in: " << message;
   }
+
+  // The target host is escaped the same way.
+  status = VerifyLinuxPeerCertificateChain(leaf.cert_pem(),
+                                           "a'b\x1b.firestore.test", store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("a\\'b\\x1b.firestore.test"),
+            std::string::npos)
+      << status.error_message();
 }
 
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, ChecksHostNameOnLeafOnly) {

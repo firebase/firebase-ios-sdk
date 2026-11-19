@@ -143,8 +143,10 @@ LinuxTrustStore LoadLinuxTrustStore(const LinuxTrustConfig& config = {});
  * against `store.anchors_pem`:
  *
  *  - rejects the chain if any certificate in it is blocklisted;
- *  - verifies that the leaf (the first certificate) matches `target_name`
- *    (`host`, `host:port`, `[ipv6]:port`, ...) via its subjectAltNames.
+ *  - verifies that the leaf (the first certificate) matches `target_name` via
+ *    its subjectAltNames. `target_name` is a bare host (a DNS name or an IP
+ *    literal, as parsed by `ParseTlsTargetHost`): gRPC strips the port and
+ *    IPv6 brackets before calling certificate verifiers.
  *
  * gRPC's default hostname verifier is replaced by any custom certificate
  * verifier, so this hostname check is the only one performed during the
