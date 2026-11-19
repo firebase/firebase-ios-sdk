@@ -76,7 +76,7 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     )
   }
 
-  func test_filterNetworkRequests_excludesFirebaseTelemetryAndAllowsOtherURLs() throws {
+  func test_filterNetworkRequests_excludesTelemetryEndpointsAndAllowsOtherURLs() throws {
     let firebaseTelemetryRequest = try URLRequest(
       url: XCTUnwrap(
         URL(string: "https://firebasetelemetry.googleapis.com/v1/projects/test/traces")
@@ -95,6 +95,26 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
       FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: uppercaseTelemetryRequest)
     )
 
+    let clientTelemetryRequest = try URLRequest(
+      url: XCTUnwrap(
+        URL(string: "https://clienttelemetry.googleapis.com/v1/projects/test/traces")
+      )
+    )
+    XCTAssertFalse(
+      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: clientTelemetryRequest)
+    )
+
+    let uppercaseClientTelemetryRequest = try URLRequest(
+      url: XCTUnwrap(
+        URL(string: "https://CLIENTTELEMETRY.googleapis.com/v1/projects/test/traces")
+      )
+    )
+    XCTAssertFalse(
+      FirebaseCrashlyticsTelemetry.filterNetworkRequests(
+        urlRequest: uppercaseClientTelemetryRequest
+      )
+    )
+
     let localhostRequest = try URLRequest(
       url: XCTUnwrap(URL(string: "http://localhost:8080/api/data"))
     )
@@ -106,11 +126,120 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     XCTAssertTrue(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: externalRequest))
   }
 
+  func test_networkSpanName_usesHttpMethodOrFallsBackToHTTP() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com/api/v1/items/123"))
+
+    let defaultGetRequest = URLRequest(url: url)
+    XCTAssertEqual(
+      FirebaseCrashlyticsTelemetry.networkSpanName(urlRequest: defaultGetRequest),
+      "GET"
+    )
+
+    var postRequest = URLRequest(url: url)
+    postRequest.httpMethod = "POST"
+    XCTAssertEqual(FirebaseCrashlyticsTelemetry.networkSpanName(urlRequest: postRequest), "POST")
+
+    var emptyMethodRequest = URLRequest(url: url)
+    emptyMethodRequest.httpMethod = ""
+    XCTAssertEqual(
+      FirebaseCrashlyticsTelemetry.networkSpanName(urlRequest: emptyMethodRequest),
+      "HTTP"
+    )
+  }
+
+  func test_annotateNetworkResponse_setsErrorTypeOnlyForErrorStatusCodes() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com/api"))
+
+    let okResponse = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)
+    )
+    let okSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(okResponse, span: okSpan)
+    okSpan.end()
+    let readableOkSpan = try XCTUnwrap(okSpan as? ReadableSpan)
+    XCTAssertNil(readableOkSpan.getAttributes()[SemanticConventions.Error.type.rawValue])
+
+    let redirectResponse = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 302, httpVersion: nil, headerFields: nil)
+    )
+    let redirectSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(redirectResponse, span: redirectSpan)
+    redirectSpan.end()
+    let readableRedirectSpan = try XCTUnwrap(redirectSpan as? ReadableSpan)
+    XCTAssertNil(readableRedirectSpan.getAttributes()[SemanticConventions.Error.type.rawValue])
+
+    let notFoundResponse = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 404, httpVersion: nil, headerFields: nil)
+    )
+    let notFoundSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(notFoundResponse, span: notFoundSpan)
+    notFoundSpan.end()
+    let readableNotFoundSpan = try XCTUnwrap(notFoundSpan as? ReadableSpan)
+    XCTAssertEqual(
+      readableNotFoundSpan.getAttributes()[SemanticConventions.Error.type.rawValue],
+      .string("404")
+    )
+
+    let serverErrorResponse = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 500, httpVersion: nil, headerFields: nil)
+    )
+    let serverErrorSpan = Self.telemetry.tracer.spanBuilder(spanName: "POST").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(serverErrorResponse, span: serverErrorSpan)
+    serverErrorSpan.end()
+    let readableServerErrorSpan = try XCTUnwrap(serverErrorSpan as? ReadableSpan)
+    XCTAssertEqual(
+      readableServerErrorSpan.getAttributes()[SemanticConventions.Error.type.rawValue],
+      .string("500")
+    )
+
+    let nonHttpResponse = URLResponse(
+      url: url,
+      mimeType: nil,
+      expectedContentLength: 0,
+      textEncodingName: nil
+    )
+    let nonHttpSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkResponse(nonHttpResponse, span: nonHttpSpan)
+    nonHttpSpan.end()
+    let readableNonHttpSpan = try XCTUnwrap(nonHttpSpan as? ReadableSpan)
+    XCTAssertNil(readableNonHttpSpan.getAttributes()[SemanticConventions.Error.type.rawValue])
+  }
+
+  func test_annotateNetworkError_usesStatusCodeWhenAvailableOrErrorDomainAndCode() throws {
+    let timeoutError = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
+
+    let transportSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkError(
+      timeoutError,
+      statusCode: 0,
+      span: transportSpan
+    )
+    transportSpan.end()
+    let readableTransportSpan = try XCTUnwrap(transportSpan as? ReadableSpan)
+    XCTAssertEqual(
+      readableTransportSpan.getAttributes()[SemanticConventions.Error.type.rawValue],
+      .string("\(NSURLErrorDomain):\(NSURLErrorTimedOut)")
+    )
+
+    let httpErrorSpan = Self.telemetry.tracer.spanBuilder(spanName: "GET").startSpan()
+    FirebaseCrashlyticsTelemetry.annotateNetworkError(
+      timeoutError,
+      statusCode: 503,
+      span: httpErrorSpan
+    )
+    httpErrorSpan.end()
+    let readableHttpErrorSpan = try XCTUnwrap(httpErrorSpan as? ReadableSpan)
+    XCTAssertEqual(
+      readableHttpErrorSpan.getAttributes()[SemanticConventions.Error.type.rawValue],
+      .string("503")
+    )
+  }
+
   func test_customizeNetworkSpan_whenActiveSpanExists_setsParentSpan() throws {
     XCTAssertEqual(Self.telemetry.startSpan(), 1)
 
     let request = try URLRequest(url: XCTUnwrap(URL(string: "https://example.com/api")))
-    let builder = Self.telemetry.tracer.spanBuilder(spanName: "HTTP GET")
+    let builder = Self.telemetry.tracer.spanBuilder(spanName: "GET")
     Self.telemetry.customizeNetworkSpan(req: request, builder: builder)
 
     let networkSpan = builder.startSpan()
@@ -122,7 +251,7 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
 
   func test_customizeNetworkSpan_whenNoActiveSpan_doesNotSetParentSpan() throws {
     let request = try URLRequest(url: XCTUnwrap(URL(string: "https://example.com/api")))
-    let builder = Self.telemetry.tracer.spanBuilder(spanName: "HTTP GET")
+    let builder = Self.telemetry.tracer.spanBuilder(spanName: "GET")
     Self.telemetry.customizeNetworkSpan(req: request, builder: builder)
 
     let networkSpan = builder.startSpan()
