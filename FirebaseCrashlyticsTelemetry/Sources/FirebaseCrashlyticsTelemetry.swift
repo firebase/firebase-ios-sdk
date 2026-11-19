@@ -199,8 +199,15 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     let instrumentation = URLSessionInstrumentation(
       configuration: URLSessionInstrumentationConfiguration(
         shouldInstrument: Self.filterNetworkRequests,
+        nameSpan: Self.networkSpanName,
         spanCustomization: { [weak self] req, builder in
           self?.customizeNetworkSpan(req: req, builder: builder)
+        },
+        receivedResponse: { response, _, span in
+          Self.annotateNetworkResponse(response, span: span)
+        },
+        receivedError: { error, _, statusCode, span in
+          Self.annotateNetworkError(error, statusCode: statusCode, span: span)
         },
         tracer: tracer,
         semanticConvention: .stable
@@ -213,8 +220,53 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   }
 
   static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    guard let urlString = urlRequest.url?.absoluteString else { return false }
-    return urlString.range(of: "firebasetelemetry", options: .caseInsensitive) == nil
+    guard let url = urlRequest.url else { return false }
+    guard let rawHost = url.host else { return true }
+
+    let lowercasedHost = rawHost.lowercased()
+    let host = lowercasedHost.hasSuffix(".") ? String(lowercasedHost.dropLast()) : lowercasedHost
+
+    guard host.hasSuffix(".googleapis.com"),
+          let serviceLabel = host.split(separator: ".").first else {
+      return true
+    }
+
+    let telemetryServices = ["firebasetelemetry", "clienttelemetry"]
+    let isTelemetryHost = telemetryServices.contains { service in
+      serviceLabel == service || serviceLabel.hasSuffix("-\(service)")
+    }
+    return !isTelemetryHost
+  }
+
+  static func networkSpanName(urlRequest: URLRequest) -> String {
+    guard let method = urlRequest.httpMethod, !method.isEmpty else {
+      return "HTTP"
+    }
+    return method
+  }
+
+  static func annotateNetworkResponse(_ response: URLResponse, span: Span) {
+    guard let httpResponse = response as? HTTPURLResponse else { return }
+    if httpResponse.statusCode >= 400 {
+      span.setAttribute(
+        key: SemanticConventions.Error.type.rawValue,
+        value: .string(String(httpResponse.statusCode))
+      )
+    }
+  }
+
+  static func annotateNetworkError(_ error: Error, statusCode: Int, span: Span) {
+    let errorType: String
+    if statusCode >= 400 {
+      errorType = String(statusCode)
+    } else {
+      let nsError = error as NSError
+      errorType = "\(nsError.domain):\(nsError.code)"
+    }
+    span.setAttribute(
+      key: SemanticConventions.Error.type.rawValue,
+      value: .string(errorType)
+    )
   }
 
   func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
