@@ -258,7 +258,7 @@ if [[ "$CHECK_DIFF" == true ]]; then
 fi
 
 # Restyle and commit any changes
-"${style_cmd[@]}"
+time "${style_cmd[@]}"
 if ! git diff --quiet; then
   maybe_commit "style.sh generated changes"
 fi
