@@ -27,6 +27,7 @@
 #import <dispatch/dispatch.h>
 #endif  // defined(__OBJC__)
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -55,6 +56,12 @@ namespace remote {
  */
 std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
     CFArrayRef anchor_certs = nullptr);
+
+/**
+ * Returns how many trust evaluations have been started with
+ * `SecTrustEvaluateAsyncWithError` in this process. For tests only.
+ */
+uint64_t AppleSecTrustEvaluationCountForTesting();
 
 #if defined(__OBJC__)
 
