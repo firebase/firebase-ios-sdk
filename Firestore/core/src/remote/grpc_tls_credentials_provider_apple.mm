@@ -384,11 +384,14 @@ AsyncTlsVerifier::Evaluator MakeAppleSecTrustEvaluator(CFArrayRef anchor_certs,
           CoalescingKey(anchors_id, host.ValueOrDie(), state->input.pem_chain),
           [input = state->input, anchors,
            queue](TlsVerificationCoalescer::Done done) {
-            TlsVerificationCoalescer::TimePoint cache_until =
-                CacheUntil(input.pem_chain);
+            std::string pem_chain = input.pem_chain;
             VerifyAppleTlsCertificateChainAsync(
                 input, (__bridge CFArrayRef)anchors, queue,
-                [done, cache_until](grpc::Status status) {
+                [done, pem_chain](grpc::Status status) {
+                  // Only a chain that SecTrust has accepted is parsed here.
+                  TlsVerificationCoalescer::TimePoint cache_until =
+                      status.ok() ? CacheUntil(pem_chain)
+                                  : TlsVerificationCoalescer::TimePoint::min();
                   done(std::move(status), cache_until);
                 });
           },
