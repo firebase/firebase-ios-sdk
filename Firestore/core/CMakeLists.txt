@@ -218,7 +218,7 @@ firebase_ios_glob(
   src/remote/*.cc
   src/remote/*.h
   EXCLUDE ${nanopb_sources}
-  src/remote/grpc_tls_verification_cache_apple.*
+  src/remote/grpc_tls_verification_coalescer_apple.*
 )
 
 if(APPLE)
@@ -229,7 +229,7 @@ if(APPLE)
     src/remote/connectivity_monitor_apple.mm
     src/remote/firebase_metadata_provider_apple.mm
     src/remote/grpc_tls_credentials_provider_apple.*
-    src/remote/grpc_tls_verification_cache_apple.*
+    src/remote/grpc_tls_verification_coalescer_apple.*
     EXCLUDE
     src/remote/grpc_root_certificate_finder_generated.cc
     src/remote/grpc_root_certificates_generated.cc
