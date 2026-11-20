@@ -49,6 +49,7 @@ grpc::Status TlsVerificationCancelledStatus() {
 
 TlsAsyncVerificationTracker::Id TlsAsyncVerificationTracker::Start(
     const Request* request, TlsVerificationCallback callback) {
+  HARD_ASSERT(request != nullptr, "TLS verification request must not be null");
   std::lock_guard<std::mutex> lock(mutex_);
   Id id = next_id_++;
   Entry& entry = entries_[id];
@@ -79,12 +80,10 @@ bool TlsAsyncVerificationTracker::FinishStart(Id id,
   }
 
   entry.starting = false;
-  if (entry.request != nullptr) {
-    // Registered only now. gRPC never cancels a request while verifying it,
-    // so a `Cancel()` that arrives while `Verify()` is still on the stack can
-    // only carry a stale pointer from another handshake, and must not match.
-    ids_by_request_[entry.request] = id;
-  }
+  // Registered only now. gRPC never cancels a request while verifying it, so a
+  // `Cancel()` that arrives while `Verify()` is still on the stack can only
+  // carry a stale pointer from another handshake, and must not match.
+  ids_by_request_[entry.request] = id;
   return false;
 }
 

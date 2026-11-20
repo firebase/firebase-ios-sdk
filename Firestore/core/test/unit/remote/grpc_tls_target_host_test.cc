@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_format.h"
 #include "gtest/gtest.h"
@@ -39,10 +40,11 @@ namespace {
 using Kind = TlsTargetHost::Kind;
 
 void ExpectHost(absl::string_view target, absl::string_view host, Kind kind) {
-  absl::optional<TlsTargetHost> parsed = ParseTlsTargetHost(target);
-  ASSERT_TRUE(parsed.has_value()) << "target: " << target;
-  EXPECT_EQ(parsed->host, host) << "target: " << target;
-  EXPECT_EQ(parsed->kind, kind) << "target: " << target;
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target);
+  ASSERT_TRUE(parsed.ok()) << "target: " << target
+                           << " error: " << parsed.status().error_message();
+  EXPECT_EQ(parsed.ValueOrDie().host, host) << "target: " << target;
+  EXPECT_EQ(parsed.ValueOrDie().kind, kind) << "target: " << target;
 }
 
 TEST(GrpcTlsTargetHostTest, DnsNames) {
@@ -105,8 +107,9 @@ TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
                       absl::StrFormat("%04X", groups[i]));
     }
 
-    absl::optional<TlsTargetHost> parsed = ParseTlsTargetHost(spelled);
-    ASSERT_TRUE(parsed.has_value()) << spelled;
+    util::StatusOr<TlsTargetHost> parsed_or = ParseTlsTargetHost(spelled);
+    ASSERT_TRUE(parsed_or.ok()) << spelled;
+    const TlsTargetHost* parsed = &parsed_or.ValueOrDie();
     ASSERT_EQ(parsed->kind, TlsTargetHost::Kind::kIpv6);
 
     // Same address as the system parser sees it.
@@ -119,9 +122,9 @@ TEST(GrpcTlsTargetHostTest, Ipv6CanonicalFormMatchesSystemConversions) {
         << spelled << " -> " << parsed->host;
 
     // Idempotent.
-    absl::optional<TlsTargetHost> reparsed = ParseTlsTargetHost(parsed->host);
-    ASSERT_TRUE(reparsed.has_value());
-    EXPECT_EQ(reparsed->host, parsed->host);
+    util::StatusOr<TlsTargetHost> reparsed = ParseTlsTargetHost(parsed->host);
+    ASSERT_TRUE(reparsed.ok());
+    EXPECT_EQ(reparsed.ValueOrDie().host, parsed->host);
 
     // Identical to inet_ntop's output.
     char text[INET6_ADDRSTRLEN];
@@ -197,11 +200,36 @@ TEST(GrpcTlsTargetHostTest, RejectsMalformedTargets) {
       "::1.2.3.4:5",
   };
   for (const std::string& target : malformed) {
-    absl::optional<TlsTargetHost> parsed = ParseTlsTargetHost(target);
-    EXPECT_FALSE(parsed.has_value())
+    util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target);
+    EXPECT_FALSE(parsed.ok())
         << "target: '" << target << "' parsed as '"
-        << parsed.value_or(TlsTargetHost{}).host << "'";
+        << (parsed.ok() ? parsed.ValueOrDie().host : "") << "'";
+    if (!parsed.ok()) {
+      EXPECT_EQ(parsed.status().code(), Error::kErrorInvalidArgument);
+    }
   }
+}
+
+void ExpectRejected(absl::string_view target, absl::string_view reason) {
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target);
+  ASSERT_FALSE(parsed.ok()) << "target: " << target;
+  EXPECT_NE(parsed.status().error_message().find(std::string(reason)),
+            std::string::npos)
+      << "target: " << target << " error: " << parsed.status().error_message();
+}
+
+TEST(GrpcTlsTargetHostTest, ReportsRejectionReasons) {
+  ExpectRejected("", "Empty");
+  ExpectRejected(std::string("a\0b", 3), "NUL");
+  ExpectRejected("fe80::1%en0", "zone ID");
+  ExpectRejected(
+      "b\xc3\xbc"
+      "cher.example",
+      "Punycode");
+  ExpectRejected("host:443", "contains ':'");
+  ExpectRejected("1:2:3", "contains ':'");
+  ExpectRejected("0177.0.0.1", "dotted-quad IPv4");
+  ExpectRejected("127.1", "dotted-quad IPv4");
 }
 
 }  // namespace

@@ -31,14 +31,16 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
-#include "absl/types/optional.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/tls_certificate_verifier.h"
@@ -56,40 +58,33 @@ void SetStatus(grpc::Status* out_status, const grpc::Status& status) {
   }
 }
 
-// Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or an
-// empty string if `target_name` is malformed (see `ParseTlsTargetHost()`).
+// Returns the host to pass to `SecPolicyCreateSSL` for `target_name`, or why
+// `target_name` is malformed (see `ParseTlsTargetHost()`).
 //
 // `SecPolicyCreateSSL` only matches an IPv6 address with an embedded IPv4
 // suffix (such as the IPv4-mapped `::ffff:127.0.0.1`, which is how `inet_ntop`
 // writes it) against a certificate's IP SAN when the address is written all
 // in hex (`::ffff:7f00:1`), so such addresses are rewritten here.
-std::string ExtractTlsHostName(absl::string_view target_name) {
-  absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
-  if (!host.has_value()) {
-    return std::string();
+util::StatusOr<std::string> ExtractTlsHostName(absl::string_view target_name) {
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target_name);
+  if (!parsed.ok()) {
+    return parsed.status();
   }
-  if (host->kind == TlsTargetHost::Kind::kIpv6 &&
-      host->host.find('.') != std::string::npos) {
+  TlsTargetHost host = parsed.ValueOrDie();
+  if (host.kind == TlsTargetHost::Kind::kIpv6 &&
+      host.host.find('.') != std::string::npos) {
     in6_addr addr = {};
-    if (inet_pton(AF_INET6, host->host.c_str(), &addr) != 1) {
-      return std::string();
+    if (inet_pton(AF_INET6, host.host.c_str(), &addr) != 1) {
+      return util::Status(Error::kErrorInvalidArgument,
+                          "Invalid IPv6 address in TLS target host name");
     }
     const uint8_t* b = addr.s6_addr;
-    size_t last_colon = host->host.rfind(':');
-    host->host = absl::StrCat(host->host.substr(0, last_colon + 1),
-                              absl::Hex((b[12] << 8) | b[13]), ":",
-                              absl::Hex((b[14] << 8) | b[15]));
+    size_t last_colon = host.host.rfind(':');
+    host.host = absl::StrCat(host.host.substr(0, last_colon + 1),
+                             absl::Hex((b[12] << 8) | b[13]), ":",
+                             absl::Hex((b[14] << 8) | b[15]));
   }
-  return host->host;
-}
-
-bool ContainsNonAscii(absl::string_view s) {
-  for (char c : s) {
-    if (static_cast<unsigned char>(c) >= 0x80) {
-      return true;
-    }
-  }
-  return false;
+  return host.host;
 }
 
 // This file is compiled with ARC. CoreFoundation objects that this code owns
@@ -103,17 +98,18 @@ bool ContainsNonAscii(absl::string_view s) {
 // and stores the reason in `*out_status`.
 NSArray* CreateCertificateChainFromPem(absl::string_view pem_chain,
                                        grpc::Status* out_status) {
-  std::vector<std::string> der_certificates;
-  std::string error;
-  if (!SplitPemCertificates(pem_chain, &der_certificates, &error)) {
+  util::StatusOr<std::vector<std::string>> der_certificates =
+      SplitPemCertificates(pem_chain);
+  if (!der_certificates.ok()) {
     SetStatus(out_status,
-              grpc::Status(grpc::StatusCode::UNAUTHENTICATED, error));
+              grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                           der_certificates.status().error_message()));
     return nil;
   }
 
   NSMutableArray* certs =
-      [NSMutableArray arrayWithCapacity:der_certificates.size()];
-  for (const std::string& der : der_certificates) {
+      [NSMutableArray arrayWithCapacity:der_certificates.ValueOrDie().size()];
+  for (const std::string& der : der_certificates.ValueOrDie()) {
     NSData* data = [NSData dataWithBytes:der.data() length:der.size()];
     id cert = CFBridgingRelease(SecCertificateCreateWithData(
         kCFAllocatorDefault, (__bridge CFDataRef)data));
@@ -148,21 +144,16 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
                        NSArray* anchors,
                        std::string* out_host,
                        grpc::Status* out_status) {
-  std::string host = ExtractTlsHostName(target_name);
-  if (host.empty()) {
+  util::StatusOr<std::string> parsed_host = ExtractTlsHostName(target_name);
+  if (!parsed_host.ok()) {
     SetStatus(
         out_status,
-        grpc::Status(
-            grpc::StatusCode::UNAUTHENTICATED,
-            ContainsNonAscii(target_name)
-                ? absl::StrCat("TLS target host name must be ASCII; encode "
-                               "internationalized names as Punycode "
-                               "(A-labels): '",
-                               absl::CHexEscape(target_name), "'")
-                : absl::StrCat("Invalid or empty TLS target host name: '",
-                               absl::CHexEscape(target_name), "'")));
+        grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                     absl::StrCat(parsed_host.status().error_message(), ": '",
+                                  absl::CHexEscape(target_name), "'")));
     return nil;
   }
+  std::string host = parsed_host.ValueOrDie();
 
   NSArray* certs = CreateCertificateChainFromPem(pem_chain, out_status);
   if (certs == nil) {

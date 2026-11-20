@@ -97,6 +97,16 @@ grpc::Status TlsVerificationCancelledStatus();
  *
  * Thread-safe. Held through `std::shared_ptr` so that evaluator completions
  * remain safe after the owning verifier is destroyed.
+ *
+ * TODO(markduckworth): Consider requiring every `Evaluator` to invoke its
+ * completion asynchronously, never on the thread that called it. `Verify()`
+ * could then always return `false` and let the callback deliver the result
+ * (gRPC tolerates a callback from another thread before `Verify()` returns),
+ * removing `FinishStart()` and the inline-completion state here. The cost is
+ * an easily-missed precondition: an evaluator that completes inline would
+ * invoke gRPC's callback while gRPC holds its handshake lock, deadlocking the
+ * handshake. The Apple evaluator already completes asynchronously, including
+ * on setup failures, which it reports from its dispatch queue.
  */
 class TlsAsyncVerificationTracker {
  public:
@@ -110,8 +120,8 @@ class TlsAsyncVerificationTracker {
       delete;
 
   /**
-   * Registers a new verification for `request` and returns its id. `request`
-   * is never dereferenced.
+   * Registers a new verification for `request`, which must not be null, and
+   * returns its id. `request` is never dereferenced.
    */
   Id Start(const Request* request, TlsVerificationCallback callback);
 
