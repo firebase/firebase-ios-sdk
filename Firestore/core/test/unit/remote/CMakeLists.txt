@@ -36,11 +36,11 @@ target_link_libraries(
 
 firebase_ios_glob(
   sources *.cc *.h
-  EXCLUDE ${remote_testing_sources}
+  EXCLUDE ${remote_testing_sources} *_apple_test.cc
 )
 
 if(APPLE)
-  firebase_ios_glob(sources APPEND *.mm)
+  firebase_ios_glob(sources APPEND *.mm *_apple_test.cc)
 endif()
 
 firebase_ios_add_test(firestore_remote_test ${sources})

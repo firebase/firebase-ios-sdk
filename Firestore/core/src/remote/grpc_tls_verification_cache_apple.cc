@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/remote/grpc_tls_verification_cache.h"
+#include "Firestore/core/src/remote/grpc_tls_verification_cache_apple.h"
 
 namespace firebase {
 namespace firestore {

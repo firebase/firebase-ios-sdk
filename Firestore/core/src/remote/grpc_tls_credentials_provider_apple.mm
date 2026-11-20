@@ -37,7 +37,7 @@
 #include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
-#include "Firestore/core/src/remote/grpc_tls_verification_cache.h"
+#include "Firestore/core/src/remote/grpc_tls_verification_cache_apple.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/no_destructor.h"

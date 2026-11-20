@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_H_
-#define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_H_
+#ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_APPLE_H_
+#define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_APPLE_H_
 
 #include <chrono>
 #include <cstdint>
@@ -40,6 +40,12 @@ namespace remote {
 /**
  * Coalesces concurrent TLS chain evaluations with the same key and caches
  * successful results for a short time.
+ *
+ * Used by the Apple verifier to mitigate trustd stalls: when trustd is slow,
+ * gRPC abandons handshakes after about 20 seconds and retries them, and
+ * without coalescing each retry would queue another evaluation behind the
+ * stalled ones. The logic itself is plain C++ and is built only for Apple
+ * platforms.
  *
  * - If a successful result for `key` is cached and has not expired,
  *   `Evaluate()` invokes `waiter` with OK before returning and does not call
@@ -130,4 +136,4 @@ class TlsVerificationCoalescer {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_H_
+#endif  // FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_APPLE_H_
