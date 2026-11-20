@@ -18,7 +18,6 @@
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_H_
 
 #include <chrono>
-#include <cstddef>
 #include <functional>
 #include <list>
 #include <mutex>
