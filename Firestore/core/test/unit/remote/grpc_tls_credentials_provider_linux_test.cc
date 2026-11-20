@@ -749,13 +749,41 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
         << "unescaped byte " << static_cast<int>(c) << " in: " << message;
   }
 
-  // The target host is escaped the same way.
+  // The target host is escaped the same way, both on a leaf SAN mismatch and
+  // when `ParseTlsTargetHost` rejects a malformed target.
   status = VerifyLinuxPeerCertificateChain(leaf.cert_pem(),
                                            "a'b\x1b.firestore.test", store);
   ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_NE(status.error_message().find("a\\'b\\x1b.firestore.test"),
             std::string::npos)
       << status.error_message();
+
+  struct MalformedTargetCase {
+    std::string target;
+    const char* expected_reason;
+    const char* expected_escaped;
+  };
+  const std::vector<MalformedTargetCase> malformed_targets = {
+      {"", "Empty TLS target host name", ": ''"},
+      {"f\xc3\xbcr.example", "Punycode", ": 'f\\xc3\\xbcr.example'"},
+      {"bad'host\x1b:443", "contains ':'", ": 'bad\\'host\\x1b:443'"},
+  };
+  for (const MalformedTargetCase& tc : malformed_targets) {
+    status = VerifyLinuxPeerCertificateChain(leaf.cert_pem(), tc.target, store);
+    ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << tc.target;
+    EXPECT_NE(status.error_message().find(tc.expected_reason),
+              std::string::npos)
+        << status.error_message();
+    EXPECT_NE(status.error_message().find(tc.expected_escaped),
+              std::string::npos)
+        << status.error_message();
+    for (char c : status.error_message()) {
+      EXPECT_TRUE(c >= 0x20 && c < 0x7f)
+          << "unescaped byte " << static_cast<int>(c)
+          << " in: " << status.error_message();
+    }
+  }
 }
 
 std::string CertPemWithSubject(const TestCertificate& base,
@@ -872,17 +900,38 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsMalformedChains) {
   TestPki pki = CreateTestPki("verify-malformed", {kHost});
   LinuxTrustStore store = StoreWithAnchor(pki.root);
-  EXPECT_EQ(VerifyLinuxPeerCertificateChain(absl::string_view{}, kHost, store)
-                .error_code(),
-            grpc::StatusCode::UNAUTHENTICATED);
+  grpc::Status empty_view_status =
+      VerifyLinuxPeerCertificateChain(absl::string_view{}, kHost, store);
+  EXPECT_EQ(empty_view_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(empty_view_status.error_message().find(
+                "No PEM certificates found in peer chain"),
+            std::string::npos)
+      << empty_view_status.error_message();
   EXPECT_EQ(ERR_peek_error(), 0u);
-  for (const std::string& chain :
-       {std::string(), std::string("garbage"),
-        std::string("-----BEGIN CERTIFICATE-----\nAAAA\n"
-                    "-----END CERTIFICATE-----\n")}) {
-    grpc::Status status = VerifyLinuxPeerCertificateChain(chain, kHost, store);
+
+  struct MalformedChainCase {
+    std::string chain;
+    const char* expected_reason;
+  };
+  const std::vector<MalformedChainCase> cases = {
+      {"", "No PEM certificates found in peer chain"},
+      {"garbage",
+       "Unexpected text outside PEM CERTIFICATE block in peer chain"},
+      {"-----BEGIN CERTIFICATE-----\nTUlJQg==\n",
+       "Unclosed PEM CERTIFICATE block in peer chain"},
+      {"-----BEGIN CERTIFICATE-----\n!!!!\n-----END CERTIFICATE-----\n",
+       "Invalid base64 payload in PEM CERTIFICATE block"},
+      {"-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n",
+       "Failed to parse DER X.509 certificate in peer chain"},
+  };
+  for (const MalformedChainCase& tc : cases) {
+    grpc::Status status =
+        VerifyLinuxPeerCertificateChain(tc.chain, kHost, store);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
-        << "chain: " << chain;
+        << "chain: " << tc.chain;
+    EXPECT_NE(status.error_message().find(tc.expected_reason),
+              std::string::npos)
+        << "chain: " << tc.chain << " error: " << status.error_message();
     EXPECT_EQ(ERR_peek_error(), 0u);
   }
 }

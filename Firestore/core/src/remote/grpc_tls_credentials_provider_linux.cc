@@ -36,10 +36,13 @@
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
+#include "absl/types/optional.h"
 #include "openssl/bio.h"
 #include "openssl/err.h"
 #include "openssl/pem.h"
@@ -410,24 +413,31 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
 // entries in system files, any malformed block or stray text fails the whole
 // chain, so that a skipped leaf or intermediate can never weaken the hostname
 // or blocklist checks.
-bool ParsePeerChain(absl::string_view pem_chain, std::vector<UniqueX509>* out) {
+grpc::Status ParsePeerChain(absl::string_view pem_chain,
+                            std::vector<UniqueX509>* out) {
   out->clear();
-  std::vector<std::string> der_certs;
-  if (!SplitPemCertificates(pem_chain, &der_certs)) return false;
+  util::StatusOr<std::vector<std::string>> der_certs =
+      SplitPemCertificates(pem_chain);
+  if (!der_certs.ok()) {
+    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                        der_certs.status().error_message());
+  }
 
-  out->reserve(der_certs.size());
-  for (const std::string& der : der_certs) {
+  out->reserve(der_certs.ValueOrDie().size());
+  for (const std::string& der : der_certs.ValueOrDie()) {
     size_t consumed = 0;
     UniqueX509 cert = ParseCertDer(reinterpret_cast<const uint8_t*>(der.data()),
                                    der.size(), &consumed);
     if (cert == nullptr || consumed != der.size()) {
       ERR_clear_error();
       out->clear();
-      return false;
+      return grpc::Status(
+          grpc::StatusCode::UNAUTHENTICATED,
+          "Failed to parse DER X.509 certificate in peer chain");
     }
     out->push_back(std::move(cert));
   }
-  return true;
+  return grpc::Status::OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -752,17 +762,18 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
     return grpc::Status(grpc::StatusCode::UNAVAILABLE, kNoAnchorsMessage);
   }
 
-  absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
-  if (!host) {
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target_name);
+  if (!parsed.ok()) {
     return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                        absl::StrCat("Invalid TLS target host name: '",
+                        absl::StrCat(parsed.status().error_message(), ": '",
                                      absl::CHexEscape(target_name), "'"));
   }
+  const TlsTargetHost& host = parsed.ValueOrDie();
 
   std::vector<UniqueX509> chain;
-  if (!ParsePeerChain(pem_chain, &chain)) {
-    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                        "Missing or malformed TLS peer certificate chain");
+  grpc::Status chain_status = ParsePeerChain(pem_chain, &chain);
+  if (!chain_status.ok()) {
+    return chain_status;
   }
 
   for (const UniqueX509& entry : chain) {
@@ -788,27 +799,27 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
   // to the subject common name, and wildcards only as a whole leftmost label.
   X509* leaf = chain.front().get();
   int match = 0;
-  if (host->kind == TlsTargetHost::Kind::kDns) {
+  if (host.kind == TlsTargetHost::Kind::kDns) {
     // OpenSSL's `X509_check_host` treats a leading '.' as a suffix match for
     // any subdomain; BoringSSL and RFC 9525 do not.
-    if (!host->host.empty() && host->host.front() == '.') {
+    if (!host.host.empty() && host.host.front() == '.') {
       return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
                           absl::StrCat("Invalid TLS target host name: '",
                                        absl::CHexEscape(target_name), "'"));
     }
-    match = X509_check_host(leaf, host->host.data(), host->host.size(),
+    match = X509_check_host(leaf, host.host.data(), host.host.size(),
                             X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS |
                                 X509_CHECK_FLAG_NEVER_CHECK_SUBJECT,
                             nullptr);
   } else {
-    match = X509_check_ip_asc(leaf, host->host.c_str(), 0);
+    match = X509_check_ip_asc(leaf, host.host.c_str(), 0);
   }
   ERR_clear_error();
   if (match != 1) {
     return grpc::Status(
         grpc::StatusCode::UNAUTHENTICATED,
         absl::StrCat("TLS peer certificate '", SubjectName(leaf),
-                     "' does not match host '", absl::CHexEscape(host->host),
+                     "' does not match host '", absl::CHexEscape(host.host),
                      "'"));
   }
   return grpc::Status::OK;
