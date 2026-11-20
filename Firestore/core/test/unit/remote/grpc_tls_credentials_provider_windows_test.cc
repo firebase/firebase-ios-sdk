@@ -562,6 +562,16 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
     EXPECT_THAT(status.error_message(), HasSubstr("target host name"));
   }
 
+  // The parser's reason is included in the status.
+  grpc::Status zone_status =
+      VerifyWindowsTlsCertificateChain(chain, "fe80::1%1", trust);
+  EXPECT_EQ(zone_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(zone_status.error_message(), HasSubstr("zone ID"));
+  grpc::Status idn_status =
+      VerifyWindowsTlsCertificateChain(chain, "m\xC3\xBCnchen.test", trust);
+  EXPECT_EQ(idn_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(idn_status.error_message(), HasSubstr("Punycode"));
+
   // Parsed as a DNS name, so it is rejected by CryptoAPI's name check.
   grpc::Status dns_status =
       VerifyWindowsTlsCertificateChain(chain, "a b", trust);

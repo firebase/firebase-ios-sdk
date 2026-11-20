@@ -31,6 +31,7 @@
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
@@ -340,13 +341,16 @@ grpc::Status VerifyWindowsTlsCertificateChain(
     absl::string_view pem_chain,
     absl::string_view target_name,
     const WindowsTrustConfig& config) {
-  absl::optional<TlsTargetHost> target = ParseTlsTargetHost(target_name);
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target_name);
+  if (!parsed.ok()) {
+    return Unauthenticated(absl::StrCat(parsed.status().error_message(), ": '",
+                                        absl::CHexEscape(target_name), "'"));
+  }
+  const TlsTargetHost& target = parsed.ValueOrDie();
   std::wstring server_name;
-  if (!target.has_value() || target->host.empty() ||
-      !Utf8ToWide(target->host, &server_name)) {
-    return Unauthenticated(
-        absl::StrCat("Invalid or empty TLS target host name: '",
-                     absl::CHexEscape(target_name), "'"));
+  if (!Utf8ToWide(target.host, &server_name)) {
+    return Unauthenticated(absl::StrCat("Invalid TLS target host name: '",
+                                        absl::CHexEscape(target_name), "'"));
   }
 
   std::vector<std::string> ders;
@@ -418,7 +422,7 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   // targets against `iPAddress` subjectAltNames isn't consistent across
   // Windows versions, so for IP targets the policy skips the name check
   // (null server name) and `VerifyIpAddressSubjectAltName()` does it.
-  const bool is_ip_target = target->kind != TlsTargetHost::Kind::kDns;
+  const bool is_ip_target = target.kind != TlsTargetHost::Kind::kDns;
   SSL_EXTRA_CERT_CHAIN_POLICY_PARA ssl_para = {};
   ssl_para.cbSize = sizeof(ssl_para);
   ssl_para.dwAuthType = AUTHTYPE_SERVER;
@@ -440,11 +444,11 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   if (policy_status.dwError != ERROR_SUCCESS) {
     return Unauthenticated(
         absl::StrCat("Windows TLS certificate verification failed for '",
-                     absl::CHexEscape(target->host),
+                     absl::CHexEscape(target.host),
                      "': ", DescribeChainPolicyError(policy_status.dwError)));
   }
   if (is_ip_target) {
-    return VerifyIpAddressSubjectAltName(leaf.get(), *target);
+    return VerifyIpAddressSubjectAltName(leaf.get(), target);
   }
   return grpc::Status::OK;
 }
