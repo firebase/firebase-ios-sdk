@@ -48,10 +48,12 @@ namespace remote {
  *
  * - If an evaluation for `key` started less than `max_pending_age` ago is in
  *   flight, `Evaluate()` attaches `waiter` to it and does not call `start`.
- * - Otherwise it calls `start` (once, without any lock held) to begin a new
- *   evaluation. When that evaluation calls the `Done` it was given, every
- *   waiter attached to it is invoked exactly once with the status, without any
- *   lock held. Later calls to that `Done` are ignored.
+ * - Otherwise it calls `start` (once, without any lock held, synchronously
+ *   before `Evaluate()` returns; `start` is never stored, so it may capture
+ *   references to the caller's locals) to begin a new evaluation. When that
+ * evaluation calls the `Done` it was given, every waiter attached to it is
+ * invoked exactly once with the status, without any lock held. Later calls to
+ * that `Done` are ignored.
  * - An in-flight evaluation older than `max_pending_age` is presumed lost. The
  *   next `Evaluate()` for its key starts a new evaluation and moves to it the
  *   lost evaluation's waiters that joined less than `max_pending_age` ago
