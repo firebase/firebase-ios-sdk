@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_VERIFICATION_CACHE_H_
 
 #include <chrono>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <mutex>
@@ -27,8 +28,6 @@
 #include <vector>
 
 #include "Firestore/core/src/util/warnings.h"
-#include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/support/status.h"
@@ -39,27 +38,22 @@ namespace firestore {
 namespace remote {
 
 /**
- * Returns the `notAfter` time of the DER-encoded X.509 certificate `der`, or
- * `nullopt` if it cannot be parsed. Only the RFC 5280 forms are accepted:
- * `UTCTime` (`YYMMDDHHMMSSZ`) and `GeneralizedTime` (`YYYYMMDDHHMMSSZ`).
- */
-absl::optional<std::chrono::system_clock::time_point> ParseCertificateNotAfter(
-    absl::string_view der);
-
-/**
  * Coalesces concurrent TLS chain evaluations with the same key and caches
  * successful results for a short time.
  *
  * - If a successful result for `key` is cached and has not expired,
  *   `Evaluate()` invokes `waiter` with OK before returning and does not call
  *   `start`.
- * - Otherwise, if an evaluation for `key` is already in flight, `waiter` is
- *   attached to it and `start` is not called.
+ * - Otherwise, if an evaluation for `key` started less than
+ *   `max_pending_age` ago is still in flight, `waiter` is attached to it and
+ *   `start` is not called. An older evaluation is presumed lost: a new one is
+ *   started, and the old one, should it ever finish, resolves only its own
+ *   waiters.
  * - Otherwise `start` is called (once, without any lock held) to begin a new
- *   evaluation. When it calls the `Done` it was given, every attached waiter
- *   is invoked exactly once with the status, without any lock held. An OK
- *   status is cached until the earlier of `now + ttl` and `cache_until`;
- *   failures are never cached.
+ *   evaluation. When it calls the `Done` it was given, every waiter attached
+ *   to that evaluation is invoked exactly once with the status, without any
+ *   lock held. Later calls to that `Done` are ignored. An OK status is cached
+ *   for `ttl`, but never past `cache_until`; failures are never cached.
  *
  * The cache holds at most `capacity` entries and evicts the least recently
  * used. Cancellation is not handled here: callers that need it (such as
@@ -71,17 +65,27 @@ absl::optional<std::chrono::system_clock::time_point> ParseCertificateNotAfter(
  */
 class TlsVerificationCoalescer {
  public:
-  using TimePoint = std::chrono::system_clock::time_point;
-  using Clock = std::function<TimePoint()>;
+  using SystemTime = std::chrono::system_clock::time_point;
+  using SteadyTime = std::chrono::steady_clock::time_point;
   using Waiter = std::function<void(grpc::Status)>;
-  /** Reports an evaluation's result and how long a success may be cached. */
-  using Done = std::function<void(grpc::Status status, TimePoint cache_until)>;
+  /**
+   * Reports an evaluation's result, and the wall-clock time after which a
+   * success must no longer be served from the cache (such as the leaf
+   * certificate's notAfter; `SystemTime::max()` if unknown).
+   */
+  using Done = std::function<void(grpc::Status status, SystemTime cache_until)>;
   using Start = std::function<void(Done done)>;
 
-  /** `clock` defaults to `std::chrono::system_clock::now`. */
+  /** Clocks, replaceable in tests. */
+  struct Clocks {
+    std::function<SteadyTime()> steady;
+    std::function<SystemTime()> system;
+  };
+
   TlsVerificationCoalescer(std::chrono::seconds ttl,
+                           std::chrono::seconds max_pending_age,
                            size_t capacity,
-                           Clock clock = nullptr);
+                           Clocks clocks = {});
 
   TlsVerificationCoalescer(const TlsVerificationCoalescer&) = delete;
   TlsVerificationCoalescer& operator=(const TlsVerificationCoalescer&) = delete;
@@ -92,21 +96,30 @@ class TlsVerificationCoalescer {
   size_t cache_size() const;
 
  private:
+  struct Group {
+    std::string key;
+    SteadyTime started;
+    std::vector<Waiter> waiters;
+  };
+
   struct CacheEntry {
-    TimePoint expiry;
+    SteadyTime expiry;
     std::list<std::string>::iterator lru_position;
   };
 
-  void Finish(const std::string& key,
-              grpc::Status status,
-              TimePoint cache_until);
+  void Finish(uint64_t generation, grpc::Status status, SystemTime cache_until);
 
   const std::chrono::seconds ttl_;
+  const std::chrono::seconds max_pending_age_;
   const size_t capacity_;
-  const Clock clock_;
+  const Clocks clocks_;
 
   mutable std::mutex mutex_;
-  std::unordered_map<std::string, std::vector<Waiter>> pending_;
+  uint64_t next_generation_ = 1;
+  // Every evaluation in flight, by generation.
+  std::unordered_map<uint64_t, Group> groups_;
+  // The generation new waiters for a key may join.
+  std::unordered_map<std::string, uint64_t> joinable_;
   std::unordered_map<std::string, CacheEntry> cache_;
   // Most recently used at the front.
   std::list<std::string> lru_;
