@@ -8,6 +8,10 @@
   of the enrollment time when the server's timestamp has no fractional
   seconds, and being in the wrong year on devices set to a non-Gregorian
   calendar, such as Buddhist or Japanese. (#17039)
+- [fixed] Fixed a data race that could crash an app when Auth signs out the
+  user after a token refresh fails, for example because the account was
+  disabled, while the app calls `signOut()` or another refresh fails at the
+  same time. (#17085)
 
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
