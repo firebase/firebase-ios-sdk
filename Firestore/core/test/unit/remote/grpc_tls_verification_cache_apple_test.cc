@@ -32,6 +32,7 @@ namespace {
 using SystemTime = TlsVerificationCoalescer::SystemTime;
 using SteadyTime = TlsVerificationCoalescer::SteadyTime;
 using std::chrono::hours;
+using std::chrono::milliseconds;
 using std::chrono::minutes;
 using std::chrono::seconds;
 
@@ -252,32 +253,171 @@ TEST(TlsVerificationCoalescerTest, StalePendingEvaluationIsNotJoined) {
   FakeClock clock;
   auto coalescer = MakeCoalescer(&clock);
   FakeStarts starts;
-  Results old_waiter, joined, fresh;
+  Results old_waiter, recent_waiter, fresh;
 
   coalescer->Evaluate("key", starts.AsStart(), old_waiter.AsWaiter());
-  clock.Advance(seconds(59));
-  coalescer->Evaluate("key", starts.AsStart(), joined.AsWaiter());
+  clock.Advance(seconds(55));
+  coalescer->Evaluate("key", starts.AsStart(), recent_waiter.AsWaiter());
   EXPECT_EQ(starts.dones.size(), 1u);
 
-  // The first evaluation is presumed lost after 60 s: a new one starts.
-  clock.Advance(seconds(1));
+  // The first evaluation is presumed lost after 60 s: `old_waiter` (age 60 s)
+  // times out with UNAVAILABLE, `recent_waiter` (age 5 s) migrates to the
+  // replacement generation, and a new evaluation starts.
+  clock.Advance(seconds(5));
   coalescer->Evaluate("key", starts.AsStart(), fresh.AsWaiter());
   ASSERT_EQ(starts.dones.size(), 2u);
+  ASSERT_EQ(old_waiter.statuses.size(), 1u);
+  EXPECT_EQ(old_waiter.statuses[0].error_code(), grpc::StatusCode::UNAVAILABLE);
+  EXPECT_NE(old_waiter.statuses[0].error_message().find("timed out"),
+            std::string::npos);
+  EXPECT_TRUE(recent_waiter.statuses.empty());
+  EXPECT_TRUE(fresh.statuses.empty());
 
-  // The lost evaluation's waiters were dropped; the new generation resolves
-  // only its own.
+  // The replacement generation resolves both the migrated waiter and the new
+  // one, without invoking `old_waiter` a second time.
   starts.dones[1](grpc::Status::OK, SystemTime::max());
-  EXPECT_TRUE(old_waiter.statuses.empty());
-  EXPECT_TRUE(joined.statuses.empty());
+  EXPECT_EQ(old_waiter.statuses.size(), 1u);
+  ASSERT_EQ(recent_waiter.statuses.size(), 1u);
+  EXPECT_TRUE(recent_waiter.statuses[0].ok());
   ASSERT_EQ(fresh.statuses.size(), 1u);
+  EXPECT_TRUE(fresh.statuses[0].ok());
 
   // A late completion of the lost evaluation is ignored.
   starts.dones[0](Untrusted(), SystemTime::max());
-  EXPECT_TRUE(old_waiter.statuses.empty());
-  EXPECT_TRUE(joined.statuses.empty());
+  EXPECT_EQ(old_waiter.statuses.size(), 1u);
+  EXPECT_EQ(recent_waiter.statuses.size(), 1u);
   EXPECT_EQ(fresh.statuses.size(), 1u);
   // The late failure does not evict the fresh success.
   EXPECT_EQ(coalescer->cache_size(), 1u);
+}
+
+TEST(TlsVerificationCoalescerTest,
+     MigratedWaiterExpiresOnSecondStaleRolloverWithoutLock) {
+  FakeClock clock;
+  auto coalescer_ptr = MakeCoalescer(&clock);
+  TlsVerificationCoalescer& coalescer = *coalescer_ptr;
+  FakeStarts starts;
+  Results w0, w55, w60, w115, w120, retried_from_timeout;
+
+  // t = 0 s: starts generation 1.
+  coalescer.Evaluate("key", starts.AsStart(), [&](grpc::Status status) {
+    w0.statuses.push_back(status);
+    // Re-entering `Evaluate` from an expired waiter callback would deadlock if
+    // expired waiters ran under `mutex_`; instead it joins generation 2.
+    coalescer.Evaluate("key", starts.AsStart(),
+                       retried_from_timeout.AsWaiter());
+  });
+  // t = 55 s: joins generation 1.
+  clock.Advance(seconds(55));
+  coalescer.Evaluate("key", starts.AsStart(), w55.AsWaiter());
+  ASSERT_EQ(starts.dones.size(), 1u);
+
+  // t = 60 s: rollover 1 -> `w0` (age 60 s) expires (and its retry joins
+  // generation 2), while `w55` (age 5 s) migrates keeping `joined = 55 s`.
+  clock.Advance(seconds(5));
+  coalescer.Evaluate("key", starts.AsStart(), w60.AsWaiter());
+  ASSERT_EQ(starts.dones.size(), 2u);
+  ASSERT_EQ(w0.statuses.size(), 1u);
+  EXPECT_EQ(w0.statuses[0].error_code(), grpc::StatusCode::UNAVAILABLE);
+  EXPECT_TRUE(w55.statuses.empty());
+  EXPECT_TRUE(w60.statuses.empty());
+  EXPECT_TRUE(retried_from_timeout.statuses.empty());
+
+  // t = 115 s: `w115` joins generation 2 (`115 - 60 = 55 s < 60 s`).
+  clock.Advance(seconds(55));
+  coalescer.Evaluate("key", starts.AsStart(), w115.AsWaiter());
+  ASSERT_EQ(starts.dones.size(), 2u);
+
+  // t = 120 s: generation 2 also stalls past 60 s -> rollover 2 starts
+  // generation 3. `w55` (age 65 s >= 60 s), `w60` (age 60 s), and
+  // `retried_from_timeout` (age 60 s) all expire rather than migrating forever;
+  // `w115` (age 5 s) migrates to generation 3.
+  clock.Advance(seconds(5));
+  coalescer.Evaluate("key", starts.AsStart(), w120.AsWaiter());
+  ASSERT_EQ(starts.dones.size(), 3u);
+  ASSERT_EQ(w55.statuses.size(), 1u);
+  EXPECT_EQ(w55.statuses[0].error_code(), grpc::StatusCode::UNAVAILABLE);
+  ASSERT_EQ(w60.statuses.size(), 1u);
+  EXPECT_EQ(w60.statuses[0].error_code(), grpc::StatusCode::UNAVAILABLE);
+  ASSERT_EQ(retried_from_timeout.statuses.size(), 1u);
+  EXPECT_EQ(retried_from_timeout.statuses[0].error_code(),
+            grpc::StatusCode::UNAVAILABLE);
+  EXPECT_TRUE(w115.statuses.empty());
+  EXPECT_TRUE(w120.statuses.empty());
+
+  starts.dones[2](grpc::Status::OK, SystemTime::max());
+  ASSERT_EQ(w115.statuses.size(), 1u);
+  EXPECT_TRUE(w115.statuses[0].ok());
+  ASSERT_EQ(w120.statuses.size(), 1u);
+  EXPECT_TRUE(w120.statuses[0].ok());
+
+  // Late completions from both stalled generations are ignored.
+  starts.dones[0](grpc::Status::OK, SystemTime::max());
+  starts.dones[1](Untrusted(), SystemTime::max());
+  EXPECT_EQ(w0.statuses.size(), 1u);
+  EXPECT_EQ(w55.statuses.size(), 1u);
+  EXPECT_EQ(w60.statuses.size(), 1u);
+  EXPECT_EQ(retried_from_timeout.statuses.size(), 1u);
+  EXPECT_EQ(w115.statuses.size(), 1u);
+  EXPECT_EQ(w120.statuses.size(), 1u);
+}
+
+TEST(TlsVerificationCoalescerTest,
+     MaxCacheUntilWithPreEpochSystemClockDoesNotOverflow) {
+  FakeClock clock;
+  // Pre-1970 wall clock (negative ticks relative to epoch).
+  clock.now = SystemTime() - hours(24);
+  auto coalescer = MakeCoalescer(&clock);
+  FakeStarts starts;
+  Results results;
+
+  coalescer->Evaluate("key", starts.AsStart(), results.AsWaiter());
+  starts.dones[0](grpc::Status::OK, SystemTime::max());
+  EXPECT_EQ(coalescer->cache_size(), 1u);
+  ASSERT_EQ(results.statuses.size(), 1u);
+  EXPECT_TRUE(results.statuses[0].ok());
+
+  clock.Advance(minutes(4));
+  coalescer->Evaluate("key", starts.AsStart(), results.AsWaiter());
+  EXPECT_EQ(starts.dones.size(), 1u);
+  ASSERT_EQ(results.statuses.size(), 2u);
+  EXPECT_TRUE(results.statuses[1].ok());
+
+  clock.Advance(minutes(1));
+  coalescer->Evaluate("key", starts.AsStart(), results.AsWaiter());
+  EXPECT_EQ(starts.dones.size(), 2u);
+}
+
+TEST(TlsVerificationCoalescerTest,
+     SubSecondRemainingLifetimeOrZeroTtlDoesNotEvictLiveCacheEntry) {
+  FakeClock clock;
+  auto coalescer = MakeCoalescer(&clock, /*capacity=*/1);
+  FakeStarts starts;
+  Results results;
+
+  coalescer->Evaluate("live", starts.AsStart(), results.AsWaiter());
+  starts.dones[0](grpc::Status::OK, SystemTime::max());
+  EXPECT_EQ(coalescer->cache_size(), 1u);
+
+  // Remaining validity < 1 s truncates to 0 s: must neither insert a dead
+  // cache entry nor evict `"live"` at capacity 1.
+  coalescer->Evaluate("subsecond", starts.AsStart(), results.AsWaiter());
+  starts.dones[1](grpc::Status::OK, clock.now + milliseconds(500));
+  EXPECT_EQ(coalescer->cache_size(), 1u);
+
+  coalescer->Evaluate("live", starts.AsStart(), results.AsWaiter());
+  EXPECT_EQ(starts.dones.size(), 2u);  // Still cached.
+  coalescer->Evaluate("subsecond", starts.AsStart(), results.AsWaiter());
+  EXPECT_EQ(starts.dones.size(), 3u);  // Not cached.
+
+  // A zero-TTL coalescer still coalesces in-flight calls and never caches.
+  TlsVerificationCoalescer zero_ttl(seconds(0), seconds(60), /*capacity=*/1,
+                                    clock.AsClocks());
+  FakeStarts zero_starts;
+  Results zero_results;
+  zero_ttl.Evaluate("k", zero_starts.AsStart(), zero_results.AsWaiter());
+  zero_starts.dones[0](grpc::Status::OK, SystemTime::max());
+  EXPECT_EQ(zero_ttl.cache_size(), 0u);
 }
 
 }  // namespace

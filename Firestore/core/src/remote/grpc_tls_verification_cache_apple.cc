@@ -38,8 +38,7 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
                                         const Start& start,
                                         Waiter waiter) {
   uint64_t generation = 0;
-  // Destroyed after the lock is released.
-  std::vector<Waiter> stale_waiters;
+  std::vector<Waiter> expired_waiters;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     SteadyTime now = clocks_.steady();
@@ -57,23 +56,32 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
     }
 
     if (cached == cache_.end()) {
+      std::vector<PendingWaiter> migrated_waiters;
       auto joinable = joinable_.find(key);
       if (joinable != joinable_.end()) {
         Group& group = groups_.at(joinable->second);
         if (now - group.started < max_pending_age_) {
-          group.waiters.push_back(std::move(waiter));
+          group.waiters.push_back(PendingWaiter{now, std::move(waiter)});
           return;
         }
         // Presumed lost: forget it, and let a new generation take over the
-        // key. Its waiters are dropped without being invoked (outside the
-        // lock); its `Done`, should it ever run, is then ignored.
-        stale_waiters = std::move(group.waiters);
+        // key. Waiters younger than `max_pending_age_` move to the new
+        // generation with their original join times (so each migrates at most
+        // once); older waiters time out outside the lock. The lost
+        // generation's `Done`, should it ever run, is ignored.
+        for (PendingWaiter& pending : group.waiters) {
+          if (now - pending.joined < max_pending_age_) {
+            migrated_waiters.push_back(std::move(pending));
+          } else {
+            expired_waiters.push_back(std::move(pending.callback));
+          }
+        }
         groups_.erase(joinable->second);
         joinable_.erase(joinable);
       }
       generation = next_generation_++;
-      groups_[generation] = Group{key, now, {}};
-      groups_[generation].waiters.push_back(std::move(waiter));
+      migrated_waiters.push_back(PendingWaiter{now, std::move(waiter)});
+      groups_[generation] = Group{key, now, std::move(migrated_waiters)};
       joinable_[key] = generation;
     }
   }
@@ -81,6 +89,14 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
   if (generation == 0) {
     waiter(grpc::Status::OK);  // Cache hit.
     return;
+  }
+  if (!expired_waiters.empty()) {
+    const grpc::Status timeout(grpc::StatusCode::UNAVAILABLE,
+                               "TLS certificate verification timed out");
+    for (Waiter& expired : expired_waiters) {
+      expired(timeout);
+    }
+    expired_waiters.clear();
   }
   start([this, generation](grpc::Status status, SystemTime cache_until) {
     Finish(generation, std::move(status), cache_until);
@@ -90,11 +106,11 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
 void TlsVerificationCoalescer::Finish(uint64_t generation,
                                       grpc::Status status,
                                       SystemTime cache_until) {
-  std::vector<Waiter> waiters;
+  std::vector<PendingWaiter> waiters;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = groups_.find(generation);
-    if (it == groups_.end()) return;  // Duplicate completion.
+    if (it == groups_.end()) return;  // Duplicate or superseded completion.
     std::string key = std::move(it->second.key);
     waiters = std::move(it->second.waiters);
     groups_.erase(it);
@@ -106,27 +122,33 @@ void TlsVerificationCoalescer::Finish(uint64_t generation,
     // `cache_until` is wall-clock time; the TTL and expiry use the steady
     // clock, so that adjusting the wall clock cannot extend an entry.
     SystemTime system_now = clocks_.system();
-    if (status.ok() && capacity_ > 0 && system_now < cache_until) {
-      auto lifetime = std::chrono::duration_cast<std::chrono::seconds>(
-          cache_until - system_now);
-      if (lifetime > ttl_) lifetime = ttl_;
-      SteadyTime expiry = clocks_.steady() + lifetime;
-
-      auto existing = cache_.find(key);
-      if (existing != cache_.end()) {
-        lru_.erase(existing->second.lru_position);
-        cache_.erase(existing);
+    if (status.ok() && capacity_ > 0 && ttl_ > std::chrono::seconds::zero() &&
+        system_now < cache_until) {
+      std::chrono::seconds lifetime = ttl_;
+      if (system_now > SystemTime::max() - ttl_ ||
+          cache_until < system_now + ttl_) {
+        lifetime = std::chrono::duration_cast<std::chrono::seconds>(
+            cache_until - system_now);
       }
-      lru_.push_front(key);
-      cache_[key] = CacheEntry{expiry, lru_.begin()};
-      while (cache_.size() > capacity_) {
-        cache_.erase(lru_.back());
-        lru_.pop_back();
+      if (lifetime > std::chrono::seconds::zero()) {
+        SteadyTime expiry = clocks_.steady() + lifetime;
+
+        auto existing = cache_.find(key);
+        if (existing != cache_.end()) {
+          lru_.erase(existing->second.lru_position);
+          cache_.erase(existing);
+        }
+        lru_.push_front(key);
+        cache_[key] = CacheEntry{expiry, lru_.begin()};
+        while (cache_.size() > capacity_) {
+          cache_.erase(lru_.back());
+          lru_.pop_back();
+        }
       }
     }
   }
-  for (Waiter& waiter : waiters) {
-    waiter(status);
+  for (PendingWaiter& waiter : waiters) {
+    waiter.callback(status);
   }
 }
 
