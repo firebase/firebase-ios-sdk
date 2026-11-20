@@ -148,7 +148,9 @@ absl::optional<std::chrono::system_clock::time_point> ParseCertificateNotAfter(
 TlsVerificationCoalescer::TlsVerificationCoalescer(std::chrono::seconds ttl,
                                                    size_t capacity,
                                                    Clock clock)
-    : ttl_(ttl), capacity_(capacity), clock_(std::move(clock)) {
+    : ttl_(ttl), capacity_(capacity), clock_(clock ? std::move(clock) : [] {
+        return std::chrono::system_clock::now();
+      }) {
 }
 
 void TlsVerificationCoalescer::Evaluate(const std::string& key,

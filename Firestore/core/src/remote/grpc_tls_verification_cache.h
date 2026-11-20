@@ -78,9 +78,10 @@ class TlsVerificationCoalescer {
   using Done = std::function<void(grpc::Status status, TimePoint cache_until)>;
   using Start = std::function<void(Done done)>;
 
+  /** `clock` defaults to `std::chrono::system_clock::now`. */
   TlsVerificationCoalescer(std::chrono::seconds ttl,
                            size_t capacity,
-                           Clock clock = &std::chrono::system_clock::now);
+                           Clock clock = nullptr);
 
   TlsVerificationCoalescer(const TlsVerificationCoalescer&) = delete;
   TlsVerificationCoalescer& operator=(const TlsVerificationCoalescer&) = delete;
