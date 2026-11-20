@@ -1884,7 +1884,7 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
 }
 
 // ===========================================================================
-// 5b. Coalescing and Caching of Verifier Evaluations
+// 5b. Coalescing of Verifier Evaluations
 // ===========================================================================
 
 // Starts one verification on `verifier`. Like gRPC, treats a synchronous
@@ -1971,45 +1971,50 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   EXPECT_EQ(cancelled_recorder.count(), 1);
 }
 
-TEST(GrpcTlsCredentialsProviderAppleTest, AppleVerifierCachesSuccess) {
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierEvaluatesAgainAfterCompletion) {
   CertOptions leaf_opts;
-  leaf_opts.common_name = "cache.firestore.local";
-  leaf_opts.dns_sans = {"cache.firestore.local"};
+  leaf_opts.common_name = "reevaluate.firestore.local";
+  leaf_opts.dns_sans = {"reevaluate.firestore.local"};
   ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
   ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
-  dispatch_queue_t queue = MakeTestQueue("test.verifier.cache");
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.reevaluate");
   AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
 
   FakeVerificationRequest request(pki.ServerChainPem(),
-                                  "cache.firestore.local");
+                                  "reevaluate.firestore.local");
   AsyncRecorder first;
   StartVerify(&verifier, &request, &first);
   ASSERT_TRUE(first.WaitForCount(1));
   ASSERT_TRUE(first.status().ok()) << first.status().error_message();
 
   uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
-  FakeVerificationRequest again(pki.ServerChainPem(), "cache.firestore.local");
+  // Results are never reused: a verification that starts after the previous
+  // one completed evaluates the chain again.
+  FakeVerificationRequest again(pki.ServerChainPem(),
+                                "reevaluate.firestore.local");
   AsyncRecorder second;
   StartVerify(&verifier, &again, &second);
   ASSERT_TRUE(second.WaitForCount(1));
-  EXPECT_TRUE(second.status().ok());
-  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting(), evaluations_before);
+  EXPECT_TRUE(second.status().ok()) << second.status().error_message();
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting() - evaluations_before, 1u);
 }
 
-TEST(GrpcTlsCredentialsProviderAppleTest, AppleVerifierNeverCachesFailure) {
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierEvaluatesFailuresAgainAfterCompletion) {
   CertOptions leaf_opts;
-  leaf_opts.common_name = "cache-fail.firestore.local";
-  leaf_opts.dns_sans = {"cache-fail.firestore.local"};
+  leaf_opts.common_name = "reevaluate-fail.firestore.local";
+  leaf_opts.dns_sans = {"reevaluate-fail.firestore.local"};
   ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
   ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
   ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
-  dispatch_queue_t queue = MakeTestQueue("test.verifier.cache_fail");
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.reevaluate_fail");
   AppleSecTrustCertificateVerifier verifier(root_a_anchors.get(), queue);
 
   uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
   for (int i = 0; i < 2; ++i) {
     FakeVerificationRequest request(pki_b.ServerChainPem(),
-                                    "cache-fail.firestore.local");
+                                    "reevaluate-fail.firestore.local");
     AsyncRecorder recorder;
     StartVerify(&verifier, &request, &recorder);
     ASSERT_TRUE(recorder.WaitForCount(1));
@@ -2020,77 +2025,39 @@ TEST(GrpcTlsCredentialsProviderAppleTest, AppleVerifierNeverCachesFailure) {
 }
 
 TEST(GrpcTlsCredentialsProviderAppleTest,
-     AppleVerifierCacheDoesNotMixAnchorSets) {
+     AppleVerifierDoesNotShareEvaluationsAcrossAnchorSets) {
   CertOptions leaf_opts;
-  leaf_opts.common_name = "cache-anchors.firestore.local";
-  leaf_opts.dns_sans = {"cache-anchors.firestore.local"};
+  leaf_opts.common_name = "coalesce-anchors.firestore.local";
+  leaf_opts.dns_sans = {"coalesce-anchors.firestore.local"};
   ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
   ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
   ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
   ScopedCFRef<CFArrayRef> root_b_anchors = pki_b.RootAnchorArray();
 
-  // Verifier A trusts root A, so chain A verifies and is cached for A.
-  AppleSecTrustCertificateVerifier verifier_a(
-      root_a_anchors.get(), MakeTestQueue("test.verifier.cache_a"));
+  // Verifier A trusts root A and verifier B trusts only root B. Both verify
+  // chain A at the same time on one blocked queue, so B's verification starts
+  // while A's evaluation is in flight; it must evaluate separately (and be
+  // rejected) rather than join A's evaluation.
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.coalesce_anchors");
+  AppleSecTrustCertificateVerifier verifier_a(root_a_anchors.get(), queue);
+  AppleSecTrustCertificateVerifier verifier_b(root_b_anchors.get(), queue);
   FakeVerificationRequest request_a(pki_a.ServerChainPem(),
-                                    "cache-anchors.firestore.local");
-  AsyncRecorder recorder_a;
-  StartVerify(&verifier_a, &request_a, &recorder_a);
-  ASSERT_TRUE(recorder_a.WaitForCount(1));
-  ASSERT_TRUE(recorder_a.status().ok());
-
-  // Verifier B trusts only root B: the same chain must be evaluated again, and
-  // rejected, rather than served from A's cache entry.
-  AppleSecTrustCertificateVerifier verifier_b(
-      root_b_anchors.get(), MakeTestQueue("test.verifier.cache_b"));
+                                    "coalesce-anchors.firestore.local");
   FakeVerificationRequest request_b(pki_a.ServerChainPem(),
-                                    "cache-anchors.firestore.local");
-  AsyncRecorder recorder_b;
-  StartVerify(&verifier_b, &request_b, &recorder_b);
+                                    "coalesce-anchors.firestore.local");
+  AsyncRecorder recorder_a, recorder_b;
+  uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
+  {
+    QueueBlocker blocker(queue);
+    StartVerify(&verifier_a, &request_a, &recorder_a);
+    StartVerify(&verifier_b, &request_b, &recorder_b);
+  }
+  ASSERT_TRUE(recorder_a.WaitForCount(1));
   ASSERT_TRUE(recorder_b.WaitForCount(1));
+  EXPECT_TRUE(recorder_a.status().ok()) << recorder_a.status().error_message();
   EXPECT_EQ(recorder_b.status().error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
-}
-
-TEST(GrpcTlsCredentialsProviderAppleTest,
-     LeafNotAfterReflectsCertificateValidityAndClampsFarFuture) {
-  using SystemTime = std::chrono::system_clock::time_point;
-
-  EXPECT_EQ(AppleLeafNotAfterForTesting(nullptr), SystemTime::min());
-
-  CertOptions short_lived_opts;
-  short_lived_opts.common_name = "not-after.firestore.local";
-  short_lived_opts.dns_sans = {"not-after.firestore.local"};
-  short_lived_opts.not_after_offset = std::chrono::hours(2);
-  auto before = std::chrono::system_clock::now();
-  GeneratedCertificate short_lived =
-      GenerateCertificate(short_lived_opts, /*issuer=*/nullptr);
-  auto after = std::chrono::system_clock::now();
-
-  SystemTime leaf_not_after =
-      AppleLeafNotAfterForTesting(short_lived.sec_certificate.get());
-  if (@available(iOS 18.0, tvOS 18.0, macOS 15.0, watchOS 11.0,
-                 visionOS 2.0, *)) {
-    // X.509 UTCTime has whole-second resolution, so allow a 30 s window around
-    // `[before + 2 h, after + 2 h]`.
-    EXPECT_GE(leaf_not_after, before + short_lived_opts.not_after_offset -
-                                  std::chrono::seconds(30));
-    EXPECT_LE(leaf_not_after, after + short_lived_opts.not_after_offset +
-                                  std::chrono::seconds(30));
-  } else {
-    EXPECT_EQ(leaf_not_after, SystemTime::max());
-  }
-
-  if (sizeof(std::time_t) >= 8) {
-    CertOptions far_future_opts;
-    far_future_opts.common_name = "far-future.firestore.local";
-    far_future_opts.dns_sans = {"far-future.firestore.local"};
-    far_future_opts.not_after_offset = std::chrono::hours(24 * 365 * 200);
-    GeneratedCertificate far_future =
-        GenerateCertificate(far_future_opts, /*issuer=*/nullptr);
-    EXPECT_EQ(AppleLeafNotAfterForTesting(far_future.sec_certificate.get()),
-              SystemTime::max());
-  }
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting() - evaluations_before, 2u);
 }
 
 // ===========================================================================

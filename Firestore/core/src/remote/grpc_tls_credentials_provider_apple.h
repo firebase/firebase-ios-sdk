@@ -22,13 +22,11 @@
 #if defined(__APPLE__)
 
 #import <CoreFoundation/CoreFoundation.h>
-#import <Security/Security.h>
 
 #if defined(__OBJC__)
 #import <dispatch/dispatch.h>
 #endif  // defined(__OBJC__)
 
-#include <chrono>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -65,15 +63,6 @@ std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
  */
 uint64_t AppleSecTrustEvaluationCountForTesting();
 
-/**
- * Returns the wall-clock `notAfter` time extracted from `leaf` for bounding
- * verification cache entries (`system_clock::time_point::max()` where
- * unavailable or clamped, `system_clock::time_point::min()` if `leaf` is null
- * or non-positive). For tests only.
- */
-std::chrono::system_clock::time_point AppleLeafNotAfterForTesting(
-    SecCertificateRef leaf);
-
 #if defined(__OBJC__)
 
 /**
@@ -104,12 +93,13 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
  *
  * Verifications are dispatched onto `queue` (or a private serial queue created
  * and owned by the verifier when `queue` is null; tests inject a queue to
- * control when evaluations run). Identical concurrent verifications coalesce
- * onto one `SecTrust` evaluation and positive results are cached for a bounded
- * TTL via a process-wide `TlsVerificationCoalescer` (so a verification that
- * joins an already in-flight evaluation completes on the initiating verifier's
- * queue); failures are never cached. Cancellations are delivered on a global
- * dispatch queue, never inside `Cancel()` and never behind a busy `queue`.
+ * control when evaluations run). Identical concurrent verifications, across
+ * every verifier in the process, share one `SecTrust` evaluation via a
+ * `TlsVerificationCoalescer` (so a verification that joins an evaluation in
+ * flight completes on the initiating verifier's queue). Results, successful or
+ * not, are never reused once that evaluation completes. Cancellations are
+ * delivered on a global dispatch queue, never inside `Cancel()` and never
+ * behind a busy `queue`.
  */
 class AppleSecTrustCertificateVerifier final : public AsyncTlsVerifier {
  public:

@@ -20,11 +20,9 @@
 #include <chrono>
 #include <cstdint>
 #include <functional>
-#include <list>
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/util/warnings.h"
@@ -38,34 +36,30 @@ namespace firestore {
 namespace remote {
 
 /**
- * Coalesces concurrent TLS chain evaluations with the same key and caches
- * successful results for a short time.
+ * Coalesces concurrent TLS chain evaluations with the same key, so that they
+ * share one evaluation.
  *
  * Used by the Apple verifier to mitigate trustd stalls: when trustd is slow,
  * gRPC abandons handshakes after about 20 seconds and retries them, and
  * without coalescing each retry would queue another evaluation behind the
  * stalled ones. The logic itself is plain C++ and is built only for Apple
- * platforms.
+ * platforms. Results are not cached: once an evaluation completes, the next
+ * request for its key starts a new one.
  *
- * - If a successful result for `key` is cached and has not expired,
- *   `Evaluate()` invokes `waiter` with OK before returning and does not call
- *   `start`.
- * - Otherwise, if an evaluation for `key` started less than
- *   `max_pending_age` ago is still in flight, `waiter` is attached to it and
- *   `start` is not called. An older evaluation is presumed lost: it is
- *   forgotten, any waiters on it that joined less than `max_pending_age` ago
- *   are moved to a new evaluation (keeping their original join times), any
- *   older waiters are completed with `UNAVAILABLE` (without any lock held),
- *   and the new evaluation is started. The lost evaluation's `Done`, should
- *   it ever run, is ignored.
- * - Otherwise `start` is called (once, without any lock held) to begin a new
- *   evaluation. When it calls the `Done` it was given, every waiter attached
- *   to that evaluation is invoked exactly once with the status, without any
- *   lock held. Later calls to that `Done` are ignored. An OK status is cached
- *   for `ttl`, but never past `cache_until`; failures are never cached.
+ * - If an evaluation for `key` started less than `max_pending_age` ago is in
+ *   flight, `Evaluate()` attaches `waiter` to it and does not call `start`.
+ * - Otherwise it calls `start` (once, without any lock held) to begin a new
+ *   evaluation. When that evaluation calls the `Done` it was given, every
+ *   waiter attached to it is invoked exactly once with the status, without any
+ *   lock held. Later calls to that `Done` are ignored.
+ * - An in-flight evaluation older than `max_pending_age` is presumed lost. The
+ *   next `Evaluate()` for its key starts a new evaluation and moves to it the
+ *   lost evaluation's waiters that joined less than `max_pending_age` ago
+ *   (each waiter moves at most once, since its join time is kept); older
+ *   waiters are invoked with `UNAVAILABLE`. The lost evaluation's `Done`,
+ *   should it ever run, is ignored.
  *
- * The cache holds at most `capacity` entries and evicts the least recently
- * used. Cancellation is not handled here: callers that need it (such as
+ * Cancellation is not handled here: callers that need it (such as
  * `AsyncTlsVerifier`, whose tracker ignores completions for cancelled
  * verifications) simply ignore their waiter's later invocation. A shared
  * evaluation therefore always runs to completion for the remaining waiters.
@@ -74,35 +68,23 @@ namespace remote {
  */
 class TlsVerificationCoalescer {
  public:
-  using SystemTime = std::chrono::system_clock::time_point;
   using SteadyTime = std::chrono::steady_clock::time_point;
   using Waiter = std::function<void(grpc::Status)>;
-  /**
-   * Reports an evaluation's result, and the wall-clock time after which a
-   * success must no longer be served from the cache (such as the leaf
-   * certificate's notAfter; `SystemTime::max()` if unknown).
-   */
-  using Done = std::function<void(grpc::Status status, SystemTime cache_until)>;
+  using Done = std::function<void(grpc::Status)>;
   using Start = std::function<void(Done done)>;
+  using Clock = std::function<SteadyTime()>;
 
-  /** Clocks, replaceable in tests. */
-  struct Clocks {
-    std::function<SteadyTime()> steady;
-    std::function<SystemTime()> system;
-  };
-
-  TlsVerificationCoalescer(std::chrono::seconds ttl,
-                           std::chrono::seconds max_pending_age,
-                           size_t capacity,
-                           Clocks clocks = {});
+  /** `clock` defaults to `std::chrono::steady_clock::now`. */
+  explicit TlsVerificationCoalescer(std::chrono::seconds max_pending_age,
+                                    Clock clock = nullptr);
 
   TlsVerificationCoalescer(const TlsVerificationCoalescer&) = delete;
   TlsVerificationCoalescer& operator=(const TlsVerificationCoalescer&) = delete;
 
   void Evaluate(const std::string& key, const Start& start, Waiter waiter);
 
-  /** For tests only. */
-  size_t cache_size() const;
+  /** Returns the number of evaluations in flight. For tests only. */
+  size_t pending_count() const;
 
  private:
   struct PendingWaiter {
@@ -116,17 +98,10 @@ class TlsVerificationCoalescer {
     std::vector<PendingWaiter> waiters;
   };
 
-  struct CacheEntry {
-    SteadyTime expiry;
-    std::list<std::string>::iterator lru_position;
-  };
+  void Finish(uint64_t generation, grpc::Status status);
 
-  void Finish(uint64_t generation, grpc::Status status, SystemTime cache_until);
-
-  const std::chrono::seconds ttl_;
   const std::chrono::seconds max_pending_age_;
-  const size_t capacity_;
-  const Clocks clocks_;
+  const Clock clock_;
 
   mutable std::mutex mutex_;
   uint64_t next_generation_ = 1;
@@ -134,9 +109,6 @@ class TlsVerificationCoalescer {
   std::unordered_map<uint64_t, Group> groups_;
   // The generation new waiters for a key may join.
   std::unordered_map<std::string, uint64_t> joinable_;
-  std::unordered_map<std::string, CacheEntry> cache_;
-  // Most recently used at the front.
-  std::list<std::string> lru_;
 };
 
 }  // namespace remote
