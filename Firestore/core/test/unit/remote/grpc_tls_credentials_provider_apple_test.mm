@@ -48,7 +48,6 @@
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 #include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
-#include "Firestore/core/src/remote/grpc_tls_verification_cache.h"
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -2051,25 +2050,6 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
   ASSERT_TRUE(recorder_b.WaitForCount(1));
   EXPECT_EQ(recorder_b.status().error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
-}
-
-TEST(GrpcTlsCredentialsProviderAppleTest,
-     ParseCertificateNotAfterReadsGeneratedLeaf) {
-  CertOptions leaf_opts;
-  leaf_opts.common_name = "not-after.firestore.local";
-  leaf_opts.dns_sans = {"not-after.firestore.local"};
-  leaf_opts.not_after_offset = std::chrono::hours(7);
-  auto expected = std::chrono::system_clock::now() + std::chrono::hours(7);
-  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
-
-  absl::optional<std::chrono::system_clock::time_point> not_after =
-      ParseCertificateNotAfter(absl::string_view(
-          reinterpret_cast<const char*>(pki.leaf.cert_der.data()),
-          pki.leaf.cert_der.size()));
-  ASSERT_TRUE(not_after.has_value());
-  auto difference =
-      *not_after > expected ? *not_after - expected : expected - *not_after;
-  EXPECT_LT(difference, std::chrono::minutes(2));
 }
 
 // ===========================================================================

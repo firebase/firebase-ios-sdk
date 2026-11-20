@@ -250,6 +250,9 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   return trust;
 }
 
+// Counts evaluations started with `SecTrustEvaluateAsyncWithError`.
+std::atomic<uint64_t> sec_trust_evaluation_count{0};
+
 // gRPC cancels a handshake that has not finished within about 20 seconds, so
 // evaluations this slow are worth a warning: they come from trustd stalling.
 constexpr std::chrono::seconds kSlowEvaluationThreshold(5);
@@ -300,13 +303,95 @@ grpc::Status TrustResultToStatus(bool trusted,
                    host, "': ", error_detail));
 }
 
+// Returns the notAfter of the leaf certificate of an evaluated `trust`, or
+// `SystemTime::max()` where the OS provides no public API for it (before
+// iOS 18, tvOS 18, and macOS 15). In that case the cache TTL alone bounds how
+// long a success is reused, which is safe because SecTrust has just checked
+// the leaf's validity period.
+TlsVerificationCoalescer::SystemTime LeafNotAfter(SecTrustRef trust) {
+  if (@available(iOS 18.0, tvOS 18.0, macOS 15.0, watchOS 11.0,
+                 visionOS 2.0, *)) {
+    NSArray* chain = CFBridgingRelease(SecTrustCopyCertificateChain(trust));
+    if (chain.count > 0) {
+      id date = CFBridgingRelease(SecCertificateCopyNotValidAfterDate(
+          (__bridge SecCertificateRef)chain[0]));
+      if (date != nil) {
+        auto since_epoch = std::chrono::duration<double>(
+            [(NSDate*)date timeIntervalSince1970]);
+        return TlsVerificationCoalescer::SystemTime(
+            std::chrono::duration_cast<
+                TlsVerificationCoalescer::SystemTime::duration>(since_epoch));
+      }
+    }
+  }
+  return TlsVerificationCoalescer::SystemTime::max();
+}
+
+// Evaluates like `VerifyAppleTlsCertificateChainAsync()`, and also reports,
+// for a trusted chain, the leaf's notAfter where the OS can provide it
+// (`SystemTime::max()` otherwise; `SystemTime::min()` for a failure).
+void EvaluateAppleChainAsync(TlsVerificationInput input,
+                             NSArray* anchors,
+                             dispatch_queue_t queue,
+                             TlsVerificationCoalescer::Done completion) {
+  HARD_ASSERT(queue != nullptr, "TLS verification queue must not be null");
+  HARD_ASSERT(completion != nullptr,
+              "TLS verification completion must not be null");
+
+  // Blocks copy C++ captures, so move the inputs into shared state once rather
+  // than copying the PEM chain into every block.
+  struct State {
+    TlsVerificationInput input;
+    TlsVerificationCoalescer::Done completion;
+  };
+  auto state =
+      std::make_shared<State>(State{std::move(input), std::move(completion)});
+  dispatch_async(queue, ^{
+    @autoreleasepool {
+      std::string host;
+      grpc::Status status;
+      id trust =
+          CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
+                              anchors, &host, &status);
+      if (trust == nil) {
+        state->completion(status, TlsVerificationCoalescer::SystemTime::min());
+        return;
+      }
+
+      // `SecTrustEvaluateAsyncWithError` must be called from `queue`, the
+      // queue it delivers the result on; this block is running on it. The
+      // result block retains `trust` until it has run (or, if evaluation
+      // fails to start, until it is discarded).
+      ++sec_trust_evaluation_count;
+      auto start_time = std::chrono::steady_clock::now();
+      OSStatus start_status = SecTrustEvaluateAsyncWithError(
+          (__bridge SecTrustRef)trust, queue,
+          ^(SecTrustRef, bool trusted, CFErrorRef error) {
+            (void)trust;
+            LogEvaluationLatency(host,
+                                 std::chrono::steady_clock::now() - start_time);
+            state->completion(
+                TrustResultToStatus(trusted, error, host),
+                trusted ? LeafNotAfter((__bridge SecTrustRef)trust)
+                        : TlsVerificationCoalescer::SystemTime::min());
+          });
+      if (start_status != errSecSuccess) {
+        state->completion(
+            OSStatusError("SecTrustEvaluateAsyncWithError", start_status),
+            TlsVerificationCoalescer::SystemTime::min());
+      }
+    }
+  });
+}
+
 // Successful evaluations are cached for at most this long (and never past the
 // leaf certificate's notAfter). See the revocation comment in
 // `CreateAppleSecTrust()` for the trade-off.
 constexpr std::chrono::seconds kResultCacheTtl(300);
 constexpr size_t kResultCacheCapacity = 64;
-
-std::atomic<uint64_t> sec_trust_evaluation_count{0};
+// An evaluation that has not finished after this long is presumed lost, and is
+// no longer joined by new handshakes.
+constexpr std::chrono::seconds kMaxPendingEvaluationAge(60);
 
 // Shared by every Apple verifier in the process, so that concurrent
 // handshakes for the same chain (including gRPC's retries of a handshake it
@@ -314,7 +399,7 @@ std::atomic<uint64_t> sec_trust_evaluation_count{0};
 // each queueing another, and reconnects within the TTL skip trustd entirely.
 TlsVerificationCoalescer& SharedCoalescer() {
   static util::NoDestructor<TlsVerificationCoalescer> coalescer(
-      kResultCacheTtl, kResultCacheCapacity);
+      kResultCacheTtl, kMaxPendingEvaluationAge, kResultCacheCapacity);
   return *coalescer;
 }
 
@@ -331,21 +416,6 @@ std::string CoalescingKey(uint64_t anchors_id,
                           const std::string& pem_chain) {
   // Length-prefixed, so that no host and chain pair can collide with another.
   return absl::StrCat(anchors_id, ":", host.size(), ":", host, pem_chain);
-}
-
-// How long a successful result for `pem_chain` may be cached: until the leaf's
-// notAfter, or not at all if it cannot be determined.
-TlsVerificationCoalescer::TimePoint CacheUntil(absl::string_view pem_chain) {
-  util::StatusOr<std::vector<std::string>> der =
-      SplitPemCertificates(pem_chain);
-  if (der.ok()) {
-    absl::optional<TlsVerificationCoalescer::TimePoint> not_after =
-        ParseCertificateNotAfter(der.ValueOrDie().front());
-    if (not_after.has_value()) {
-      return *not_after;
-    }
-  }
-  return TlsVerificationCoalescer::TimePoint::min();
 }
 
 AsyncTlsVerifier::Evaluator MakeAppleSecTrustEvaluator(CFArrayRef anchor_certs,
@@ -384,16 +454,7 @@ AsyncTlsVerifier::Evaluator MakeAppleSecTrustEvaluator(CFArrayRef anchor_certs,
           CoalescingKey(anchors_id, host.ValueOrDie(), state->input.pem_chain),
           [input = state->input, anchors,
            queue](TlsVerificationCoalescer::Done done) {
-            std::string pem_chain = input.pem_chain;
-            VerifyAppleTlsCertificateChainAsync(
-                input, (__bridge CFArrayRef)anchors, queue,
-                [done, pem_chain](grpc::Status status) {
-                  // Only a chain that SecTrust has accepted is parsed here.
-                  TlsVerificationCoalescer::TimePoint cache_until =
-                      status.ok() ? CacheUntil(pem_chain)
-                                  : TlsVerificationCoalescer::TimePoint::min();
-                  done(std::move(status), cache_until);
-                });
+            EvaluateAppleChainAsync(input, anchors, queue, std::move(done));
           },
           std::move(state->completion));
     });
@@ -417,53 +478,13 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
                                          CFArrayRef anchor_certs,
                                          dispatch_queue_t queue,
                                          TlsVerificationCallback completion) {
-  HARD_ASSERT(queue != nullptr, "TLS verification queue must not be null");
   HARD_ASSERT(completion != nullptr,
               "TLS verification completion must not be null");
-
-  // Blocks copy C++ captures, so move the inputs into shared state once rather
-  // than copying the PEM chain into every block.
-  struct State {
-    TlsVerificationInput input;
-    TlsVerificationCallback completion;
-  };
-  auto state =
-      std::make_shared<State>(State{std::move(input), std::move(completion)});
-  // Borrowed from the caller; the block below retains it.
-  NSArray* anchors = (__bridge NSArray*)anchor_certs;
-
-  dispatch_async(queue, ^{
-    @autoreleasepool {
-      std::string host;
-      grpc::Status status;
-      id trust =
-          CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
-                              anchors, &host, &status);
-      if (trust == nil) {
-        state->completion(status);
-        return;
-      }
-
-      // `SecTrustEvaluateAsyncWithError` must be called from `queue`, the
-      // queue it delivers the result on; this block is running on it. The
-      // result block retains `trust` until it has run (or, if evaluation
-      // fails to start, until it is discarded).
-      ++sec_trust_evaluation_count;
-      auto start_time = std::chrono::steady_clock::now();
-      OSStatus start_status = SecTrustEvaluateAsyncWithError(
-          (__bridge SecTrustRef)trust, queue,
-          ^(SecTrustRef, bool trusted, CFErrorRef error) {
-            (void)trust;
-            LogEvaluationLatency(host,
-                                 std::chrono::steady_clock::now() - start_time);
-            state->completion(TrustResultToStatus(trusted, error, host));
-          });
-      if (start_status != errSecSuccess) {
-        state->completion(
-            OSStatusError("SecTrustEvaluateAsyncWithError", start_status));
-      }
-    }
-  });
+  EvaluateAppleChainAsync(
+      std::move(input), (__bridge NSArray*)anchor_certs, queue,
+      [completion](grpc::Status status, TlsVerificationCoalescer::SystemTime) {
+        completion(std::move(status));
+      });
 }
 
 AppleSecTrustCertificateVerifier::AppleSecTrustCertificateVerifier(
