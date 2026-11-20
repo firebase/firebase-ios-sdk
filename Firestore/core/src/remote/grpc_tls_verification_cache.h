@@ -46,9 +46,10 @@ namespace remote {
  *   `start`.
  * - Otherwise, if an evaluation for `key` started less than
  *   `max_pending_age` ago is still in flight, `waiter` is attached to it and
- *   `start` is not called. An older evaluation is presumed lost: a new one is
- *   started, and the old one, should it ever finish, resolves only its own
- *   waiters.
+ *   `start` is not called. An older evaluation is presumed lost: it is
+ *   forgotten, its waiters are dropped without being invoked (callers such as
+ *   gRPC time out and retry on their own), and a new evaluation is started.
+ *   The lost evaluation's `Done`, should it ever run, is ignored.
  * - Otherwise `start` is called (once, without any lock held) to begin a new
  *   evaluation. When it calls the `Done` it was given, every waiter attached
  *   to that evaluation is invoked exactly once with the status, without any

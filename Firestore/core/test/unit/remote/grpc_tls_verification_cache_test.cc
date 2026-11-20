@@ -264,17 +264,17 @@ TEST(TlsVerificationCoalescerTest, StalePendingEvaluationIsNotJoined) {
   coalescer->Evaluate("key", starts.AsStart(), fresh.AsWaiter());
   ASSERT_EQ(starts.dones.size(), 2u);
 
-  // Each generation resolves only its own waiters.
+  // The lost evaluation's waiters were dropped; the new generation resolves
+  // only its own.
   starts.dones[1](grpc::Status::OK, SystemTime::max());
   EXPECT_TRUE(old_waiter.statuses.empty());
   EXPECT_TRUE(joined.statuses.empty());
   ASSERT_EQ(fresh.statuses.size(), 1u);
 
+  // A late completion of the lost evaluation is ignored.
   starts.dones[0](Untrusted(), SystemTime::max());
-  ASSERT_EQ(old_waiter.statuses.size(), 1u);
-  ASSERT_EQ(joined.statuses.size(), 1u);
-  EXPECT_EQ(old_waiter.statuses[0].error_code(),
-            grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_TRUE(old_waiter.statuses.empty());
+  EXPECT_TRUE(joined.statuses.empty());
   EXPECT_EQ(fresh.statuses.size(), 1u);
   // The late failure does not evict the fresh success.
   EXPECT_EQ(coalescer->cache_size(), 1u);

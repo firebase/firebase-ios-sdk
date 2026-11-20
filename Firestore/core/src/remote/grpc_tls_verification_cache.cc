@@ -38,6 +38,8 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
                                         const Start& start,
                                         Waiter waiter) {
   uint64_t generation = 0;
+  // Destroyed after the lock is released.
+  std::vector<Waiter> stale_waiters;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     SteadyTime now = clocks_.steady();
@@ -62,7 +64,11 @@ void TlsVerificationCoalescer::Evaluate(const std::string& key,
           group.waiters.push_back(std::move(waiter));
           return;
         }
-        // Presumed lost; a new generation takes over the key.
+        // Presumed lost: forget it, and let a new generation take over the
+        // key. Its waiters are dropped without being invoked (outside the
+        // lock); its `Done`, should it ever run, is then ignored.
+        stale_waiters = std::move(group.waiters);
+        groups_.erase(joinable->second);
         joinable_.erase(joinable);
       }
       generation = next_generation_++;
