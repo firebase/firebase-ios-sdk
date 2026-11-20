@@ -19,6 +19,8 @@
 #include <cmath>
 #include <limits>
 
+#include "Firestore/core/src/util/bits.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
@@ -785,7 +787,7 @@ void QuadrupleBuilder::multBuffBy10(std::array<uint64_t, N>& buffer) {
 // added to the result's exponent, or 0 otherwise
 template <std::size_t N>
 int32_t QuadrupleBuilder::normalizeMant(std::array<uint64_t, N>& mantissa) {
-  int32_t expCorr = 31 - __builtin_clzll(mantissa[0]);
+  int32_t expCorr = 31 - (63 - Bits::Log2FloorNonZero64(mantissa[0]));
   if (expCorr != 0) {
     divBuffByPower2(mantissa, expCorr);
   }
