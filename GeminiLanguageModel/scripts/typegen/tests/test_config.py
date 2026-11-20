@@ -138,4 +138,7 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(
             [b.tag for b in config.backends], ["gl-developer", "ai-enterprise"]
         )
-        self.assertIn("ResponseFormatConfig.swift", config.preserved_files)
+        self.assertIn(
+            "GenerateContent+ResponseFormatConfig.swift",
+            config.preserved_files,
+        )
