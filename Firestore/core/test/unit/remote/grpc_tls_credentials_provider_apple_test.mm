@@ -2052,6 +2052,47 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
             grpc::StatusCode::UNAUTHENTICATED);
 }
 
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     LeafNotAfterReflectsCertificateValidityAndClampsFarFuture) {
+  using SystemTime = std::chrono::system_clock::time_point;
+
+  EXPECT_EQ(AppleLeafNotAfterForTesting(nullptr), SystemTime::min());
+
+  CertOptions short_lived_opts;
+  short_lived_opts.common_name = "not-after.firestore.local";
+  short_lived_opts.dns_sans = {"not-after.firestore.local"};
+  short_lived_opts.not_after_offset = std::chrono::hours(2);
+  auto before = std::chrono::system_clock::now();
+  GeneratedCertificate short_lived =
+      GenerateCertificate(short_lived_opts, /*issuer=*/nullptr);
+  auto after = std::chrono::system_clock::now();
+
+  SystemTime leaf_not_after =
+      AppleLeafNotAfterForTesting(short_lived.sec_certificate.get());
+  if (@available(iOS 18.0, tvOS 18.0, macOS 15.0, watchOS 11.0,
+                 visionOS 2.0, *)) {
+    // X.509 UTCTime has whole-second resolution, so allow a 30 s window around
+    // `[before + 2 h, after + 2 h]`.
+    EXPECT_GE(leaf_not_after, before + short_lived_opts.not_after_offset -
+                                  std::chrono::seconds(30));
+    EXPECT_LE(leaf_not_after, after + short_lived_opts.not_after_offset +
+                                  std::chrono::seconds(30));
+  } else {
+    EXPECT_EQ(leaf_not_after, SystemTime::max());
+  }
+
+  if (sizeof(std::time_t) >= 8) {
+    CertOptions far_future_opts;
+    far_future_opts.common_name = "far-future.firestore.local";
+    far_future_opts.dns_sans = {"far-future.firestore.local"};
+    far_future_opts.not_after_offset = std::chrono::hours(24 * 365 * 200);
+    GeneratedCertificate far_future =
+        GenerateCertificate(far_future_opts, /*issuer=*/nullptr);
+    EXPECT_EQ(AppleLeafNotAfterForTesting(far_future.sec_certificate.get()),
+              SystemTime::max());
+  }
+}
+
 // ===========================================================================
 // 6. Network Fetch Hardening
 // ===========================================================================
