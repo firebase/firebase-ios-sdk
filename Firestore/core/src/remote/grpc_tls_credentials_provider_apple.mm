@@ -24,6 +24,7 @@
 #include <arpa/inet.h>  // NOLINT(build/include)
 #include <netinet/in.h>
 
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -35,6 +36,7 @@
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -235,6 +237,29 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   return trust;
 }
 
+// gRPC cancels a handshake that has not finished within about 20 seconds, so
+// evaluations this slow are worth a warning: they come from trustd stalling.
+constexpr std::chrono::seconds kSlowEvaluationThreshold(5);
+
+// Logs how long one `SecTrustEvaluateAsyncWithError` call took: at debug
+// level normally, as a warning when it is slow. Logs the host, never the
+// certificate chain.
+void LogEvaluationLatency(const std::string& host,
+                          std::chrono::steady_clock::duration elapsed) {
+  long long ms =  // NOLINT(runtime/int)
+      std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+  std::string escaped_host = absl::CHexEscape(host);
+  if (elapsed >= kSlowEvaluationThreshold) {
+    LOG_WARN(
+        "Apple SecTrust TLS certificate evaluation for '%s' took %s ms; gRPC "
+        "abandons TLS handshakes that take longer than about 20 seconds",
+        escaped_host, ms);
+  } else {
+    LOG_DEBUG("Apple SecTrust TLS certificate evaluation for '%s' took %s ms",
+              escaped_host, ms);
+  }
+}
+
 /**
  * Maps the result of `SecTrustEvaluateAsyncWithError` to a gRPC status. `error`
  * is borrowed (owned by Security.framework).
@@ -330,10 +355,13 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
       // queue it delivers the result on; this block is running on it. The
       // result block retains `trust` until it has run (or, if evaluation
       // fails to start, until it is discarded).
+      auto start_time = std::chrono::steady_clock::now();
       OSStatus start_status = SecTrustEvaluateAsyncWithError(
           (__bridge SecTrustRef)trust, queue,
           ^(SecTrustRef, bool trusted, CFErrorRef error) {
             (void)trust;
+            LogEvaluationLatency(host,
+                                 std::chrono::steady_clock::now() - start_time);
             state->completion(TrustResultToStatus(trusted, error, host));
           });
       if (start_status != errSecSuccess) {
