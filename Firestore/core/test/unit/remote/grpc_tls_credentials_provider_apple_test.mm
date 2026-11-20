@@ -48,6 +48,7 @@
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 #include "Firestore/core/src/remote/grpc_tls_credentials_provider.h"
+#include "Firestore/core/src/remote/grpc_tls_verification_cache.h"
 #include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -1881,6 +1882,194 @@ TEST(GrpcTlsCredentialsProviderAppleTest,
                        /*wait_for_ready=*/true);
   EXPECT_TRUE(status.ok()) << status.error_message();
   EXPECT_EQ(echoed, "unblocked");
+}
+
+// ===========================================================================
+// 5b. Coalescing and Caching of Verifier Evaluations
+// ===========================================================================
+
+// Starts one verification on `verifier`. Like gRPC, treats a synchronous
+// result as if the callback had been invoked with it, so `recorder` sees
+// exactly one result either way.
+void StartVerify(AppleSecTrustCertificateVerifier* verifier,
+                 FakeVerificationRequest* request,
+                 AsyncRecorder* recorder) {
+  grpc::Status sync_status;
+  TlsVerificationCallback callback = recorder->AsCallback();
+  if (verifier->Verify(request->get(), callback, &sync_status)) {
+    callback(sync_status);
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierCoalescesConcurrentIdenticalVerifications) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "coalesce.firestore.local";
+  leaf_opts.dns_sans = {"coalesce.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.coalesce");
+  AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
+
+  constexpr int kCount = 5;
+  std::vector<std::unique_ptr<FakeVerificationRequest>> requests;
+  std::vector<std::unique_ptr<AsyncRecorder>> recorders;
+  uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
+  {
+    QueueBlocker blocker(queue);
+    for (int i = 0; i < kCount; ++i) {
+      requests.push_back(std::make_unique<FakeVerificationRequest>(
+          pki.ServerChainPem(), "coalesce.firestore.local"));
+      recorders.push_back(std::make_unique<AsyncRecorder>());
+      StartVerify(&verifier, requests.back().get(), recorders.back().get());
+    }
+  }
+  for (const auto& recorder : recorders) {
+    ASSERT_TRUE(recorder->WaitForCount(1));
+    EXPECT_TRUE(recorder->status().ok()) << recorder->status().error_message();
+  }
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting() - evaluations_before, 1u);
+  DrainQueue(queue);
+  for (const auto& recorder : recorders) {
+    EXPECT_EQ(recorder->count(), 1);
+  }
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierCancellingOneCoalescedVerificationLeavesOthers) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "coalesce-cancel.firestore.local";
+  leaf_opts.dns_sans = {"coalesce-cancel.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.coalesce_cancel");
+  AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
+
+  FakeVerificationRequest first(pki.ServerChainPem(),
+                                "coalesce-cancel.firestore.local");
+  FakeVerificationRequest cancelled(pki.ServerChainPem(),
+                                    "coalesce-cancel.firestore.local");
+  FakeVerificationRequest last(pki.ServerChainPem(),
+                               "coalesce-cancel.firestore.local");
+  AsyncRecorder first_recorder, cancelled_recorder, last_recorder;
+  uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
+  {
+    QueueBlocker blocker(queue);
+    StartVerify(&verifier, &first, &first_recorder);
+    StartVerify(&verifier, &cancelled, &cancelled_recorder);
+    StartVerify(&verifier, &last, &last_recorder);
+    verifier.Cancel(cancelled.get());
+    ASSERT_TRUE(cancelled_recorder.WaitForCount(1));
+    EXPECT_EQ(cancelled_recorder.status().error_code(),
+              grpc::StatusCode::CANCELLED);
+  }
+  ASSERT_TRUE(first_recorder.WaitForCount(1));
+  ASSERT_TRUE(last_recorder.WaitForCount(1));
+  EXPECT_TRUE(first_recorder.status().ok());
+  EXPECT_TRUE(last_recorder.status().ok());
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting() - evaluations_before, 1u);
+  DrainQueue(queue);
+  EXPECT_EQ(cancelled_recorder.count(), 1);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, AppleVerifierCachesSuccess) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "cache.firestore.local";
+  leaf_opts.dns_sans = {"cache.firestore.local"};
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+  ScopedCFRef<CFArrayRef> anchors = pki.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.cache");
+  AppleSecTrustCertificateVerifier verifier(anchors.get(), queue);
+
+  FakeVerificationRequest request(pki.ServerChainPem(),
+                                  "cache.firestore.local");
+  AsyncRecorder first;
+  StartVerify(&verifier, &request, &first);
+  ASSERT_TRUE(first.WaitForCount(1));
+  ASSERT_TRUE(first.status().ok()) << first.status().error_message();
+
+  uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
+  FakeVerificationRequest again(pki.ServerChainPem(), "cache.firestore.local");
+  AsyncRecorder second;
+  StartVerify(&verifier, &again, &second);
+  ASSERT_TRUE(second.WaitForCount(1));
+  EXPECT_TRUE(second.status().ok());
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting(), evaluations_before);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest, AppleVerifierNeverCachesFailure) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "cache-fail.firestore.local";
+  leaf_opts.dns_sans = {"cache-fail.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+  dispatch_queue_t queue = MakeTestQueue("test.verifier.cache_fail");
+  AppleSecTrustCertificateVerifier verifier(root_a_anchors.get(), queue);
+
+  uint64_t evaluations_before = AppleSecTrustEvaluationCountForTesting();
+  for (int i = 0; i < 2; ++i) {
+    FakeVerificationRequest request(pki_b.ServerChainPem(),
+                                    "cache-fail.firestore.local");
+    AsyncRecorder recorder;
+    StartVerify(&verifier, &request, &recorder);
+    ASSERT_TRUE(recorder.WaitForCount(1));
+    EXPECT_EQ(recorder.status().error_code(),
+              grpc::StatusCode::UNAUTHENTICATED);
+  }
+  EXPECT_EQ(AppleSecTrustEvaluationCountForTesting() - evaluations_before, 2u);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     AppleVerifierCacheDoesNotMixAnchorSets) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "cache-anchors.firestore.local";
+  leaf_opts.dns_sans = {"cache-anchors.firestore.local"};
+  ThreeTierPki pki_a = BuildThreeTierPki(leaf_opts, "RootA");
+  ThreeTierPki pki_b = BuildThreeTierPki(leaf_opts, "RootB");
+  ScopedCFRef<CFArrayRef> root_a_anchors = pki_a.RootAnchorArray();
+  ScopedCFRef<CFArrayRef> root_b_anchors = pki_b.RootAnchorArray();
+
+  // Verifier A trusts root A, so chain A verifies and is cached for A.
+  AppleSecTrustCertificateVerifier verifier_a(
+      root_a_anchors.get(), MakeTestQueue("test.verifier.cache_a"));
+  FakeVerificationRequest request_a(pki_a.ServerChainPem(),
+                                    "cache-anchors.firestore.local");
+  AsyncRecorder recorder_a;
+  StartVerify(&verifier_a, &request_a, &recorder_a);
+  ASSERT_TRUE(recorder_a.WaitForCount(1));
+  ASSERT_TRUE(recorder_a.status().ok());
+
+  // Verifier B trusts only root B: the same chain must be evaluated again, and
+  // rejected, rather than served from A's cache entry.
+  AppleSecTrustCertificateVerifier verifier_b(
+      root_b_anchors.get(), MakeTestQueue("test.verifier.cache_b"));
+  FakeVerificationRequest request_b(pki_a.ServerChainPem(),
+                                    "cache-anchors.firestore.local");
+  AsyncRecorder recorder_b;
+  StartVerify(&verifier_b, &request_b, &recorder_b);
+  ASSERT_TRUE(recorder_b.WaitForCount(1));
+  EXPECT_EQ(recorder_b.status().error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderAppleTest,
+     ParseCertificateNotAfterReadsGeneratedLeaf) {
+  CertOptions leaf_opts;
+  leaf_opts.common_name = "not-after.firestore.local";
+  leaf_opts.dns_sans = {"not-after.firestore.local"};
+  leaf_opts.not_after_offset = std::chrono::hours(7);
+  auto expected = std::chrono::system_clock::now() + std::chrono::hours(7);
+  ThreeTierPki pki = BuildThreeTierPki(leaf_opts);
+
+  absl::optional<std::chrono::system_clock::time_point> not_after =
+      ParseCertificateNotAfter(absl::string_view(
+          reinterpret_cast<const char*>(pki.leaf.cert_der.data()),
+          pki.leaf.cert_der.size()));
+  ASSERT_TRUE(not_after.has_value());
+  auto difference =
+      *not_after > expected ? *not_after - expected : expected - *not_after;
+  EXPECT_LT(difference, std::chrono::minutes(2));
 }
 
 // ===========================================================================
