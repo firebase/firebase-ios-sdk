@@ -18,6 +18,7 @@
 
 #if defined(__APPLE__)
 
+#import <CommonCrypto/CommonDigest.h>
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
 
@@ -214,9 +215,12 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   // updates arrive far sooner than an app ships a new SDK with a new bundle.
   //
   // On top of that, the Apple verifier caches successful results for up to
-  // five minutes (never past the leaf's notAfter; failures are never cached),
-  // so a revocation that trustd learns of can take that long to apply to a
-  // chain that was just verified. This is no different in kind from Linux,
+  // five minutes (failures are never cached), so a revocation that trustd
+  // learns of can take that long to apply to a chain that was just verified.
+  // Where the OS exposes the leaf's notAfter (iOS 18, tvOS 18, macOS 15),
+  // entries never outlive it; elsewhere, the worst case is accepting a chain
+  // up to five minutes past its notAfter after it last validated, comparable
+  // to the revocation window above. This is no different in kind from Linux,
   // where the trust store and distrust list are loaded once and kept for the
   // gRPC client's lifetime. In return, reconnects skip trustd, and handshakes
   // that gRPC retries while trustd is slow share one evaluation (see
@@ -414,8 +418,14 @@ uint64_t NewAnchorsId() {
 std::string CoalescingKey(uint64_t anchors_id,
                           const std::string& host,
                           const std::string& pem_chain) {
-  // Length-prefixed, so that no host and chain pair can collide with another.
-  return absl::StrCat(anchors_id, ":", host.size(), ":", host, pem_chain);
+  // Keyed on the chain's SHA-256 rather than the chain itself, to keep the
+  // cache small. The host is length-prefixed, so that no host and digest pair
+  // can collide with another.
+  unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+  CC_SHA256(pem_chain.data(), static_cast<CC_LONG>(pem_chain.size()), digest);
+  return absl::StrCat(
+      anchors_id, ":", host.size(), ":", host,
+      absl::string_view(reinterpret_cast<const char*>(digest), sizeof(digest)));
 }
 
 AsyncTlsVerifier::Evaluator MakeAppleSecTrustEvaluator(CFArrayRef anchor_certs,
