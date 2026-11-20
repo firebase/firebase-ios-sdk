@@ -19,24 +19,30 @@
 #if !defined(__APPLE__) && !defined(_WIN32)
 
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <algorithm>
+#include <cerrno>
 #include <cstdint>
 #include <cstring>
-#include <fstream>
-#include <iterator>
+#include <set>
 #include <utility>
 
+#include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
+#include "absl/types/optional.h"
 #include "openssl/bio.h"
 #include "openssl/err.h"
 #include "openssl/pem.h"
@@ -92,6 +98,10 @@ const char* const kDefaultBlocklistDirs[] = {
     "/etc/pki/ca-trust/source/blocklist",
     "/usr/share/pki/ca-trust-source/blacklist",
     "/usr/share/pki/ca-trust-source/blocklist",
+    "/etc/pki/trust/blacklist",  // openSUSE, SLES
+    "/etc/pki/trust/blocklist",
+    "/usr/share/pki/trust/blacklist",
+    "/usr/share/pki/trust/blocklist",
 };
 
 // p11-kit "openssl-bundle" extracts: `TRUSTED CERTIFICATE` entries carrying
@@ -112,6 +122,12 @@ std::vector<std::string> ToVector(const char* const (&paths)[N]) {
 
 // ---------------------------------------------------------------------------
 // OpenSSL / BoringSSL helpers
+//
+// These helpers live here rather than in a cross-platform utility because only
+// the Linux / POSIX build links `OpenSSL::Crypto` into `firestore_core`. Apple
+// (`Security.framework`) and Windows (`CryptoAPI`) delegate X.509 parsing,
+// chain building, distrust, and hostname checks to native OS frameworks
+// without taking a direct OpenSSL / BoringSSL dependency.
 // ---------------------------------------------------------------------------
 
 struct X509Deleter {
@@ -162,8 +178,12 @@ std::string SpkiDer(X509* cert) {
 // peer-controlled, so it is C-escaped (like the target name) to keep quotes,
 // control characters and terminal escape sequences out of statuses and logs.
 std::string SubjectName(X509* cert) {
-  char buf[256];
-  X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf));
+  char buf[256] = {};
+  if (X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf)) ==
+      nullptr) {
+    ERR_clear_error();
+    return "<unreadable subject>";
+  }
   return absl::CHexEscape(buf);
 }
 
@@ -179,6 +199,14 @@ UniqueX509 ParseCertDer(const uint8_t* data, size_t size, size_t* consumed) {
 
 // ---------------------------------------------------------------------------
 // TRUSTED CERTIFICATE auxiliary trust settings
+//
+// `-----BEGIN TRUSTED CERTIFICATE-----` (`X509_CERT_AUX`) is an OpenSSL- and
+// `p11-kit`-specific on-disk trust-store PEM format used in Linux system
+// bundles (such as `ca-bundle.trust.crt` or a custom `SSL_CERT_FILE`) to attach
+// EKU trust and distrust OIDs after a certificate's DER payload. It never
+// appears on the wire in TLS handshakes (`SSL_get_peer_cert_chain` only emits
+// plain X.509 `CERTIFICATE` blocks) nor in Apple Keychain or Windows CryptoAPI
+// stores, so only the Linux trust-store loader parses it.
 // ---------------------------------------------------------------------------
 
 // The DER contents of the OBJECT IDENTIFIERs we look for.
@@ -303,15 +331,34 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
                                            bool allow_der) {
   std::vector<ParsedEntry> entries;
   UniqueBio bio(BIO_new_mem_buf(data.data(), static_cast<int>(data.size())));
-  if (bio == nullptr) return entries;
+  if (bio == nullptr) {
+    ERR_clear_error();
+    return entries;
+  }
 
+  ERR_clear_error();
   bool saw_pem = false;
   while (true) {
     char* name = nullptr;
     char* header = nullptr;
     uint8_t* body = nullptr;
     long len = 0;  // NOLINT(runtime/int)
-    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) break;
+    size_t before = BIO_ctrl_pending(bio.get());
+    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
+      auto err = ERR_peek_last_error();
+      bool no_start_line = ERR_GET_LIB(err) == ERR_LIB_PEM &&
+                           ERR_GET_REASON(err) == PEM_R_NO_START_LINE;
+      ERR_clear_error();
+      if (no_start_line) break;  // Clean end of input.
+      saw_pem = true;
+      LOG_WARN("Ignoring malformed PEM block in %s", path);
+      // Both OpenSSL and BoringSSL return 0 with an empty error queue on
+      // empty-body PEM blocks after advancing `bio`, whereas an allocation
+      // failure can fail before consuming any input; check `BIO_ctrl_pending`
+      // directly so continuing always makes forward progress.
+      if (BIO_ctrl_pending(bio.get()) >= before) break;
+      continue;
+    }
     saw_pem = true;
     std::string block_name = name;
     absl::string_view block(reinterpret_cast<const char*>(body),
@@ -323,6 +370,9 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
         block_name == "TRUSTED CERTIFICATE") {
       size_t consumed = 0;
       UniqueX509 cert = ParseCertDer(body, static_cast<size_t>(len), &consumed);
+      if (cert == nullptr) {
+        ERR_clear_error();
+      }
       AuxTrust aux;
       bool trusted_block = block_name == "TRUSTED CERTIFICATE";
       if (cert == nullptr ||
@@ -342,8 +392,6 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
     }
     OPENSSL_free(body);
   }
-  // Reaching the end of the input leaves a PEM_R_NO_START_LINE error behind.
-  ERR_clear_error();
 
   if (!saw_pem && allow_der && !data.empty()) {
     size_t consumed = 0;
@@ -360,46 +408,36 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
 }
 
 // Strictly parses a peer certificate chain: every PEM block must be a
-// well-formed `CERTIFICATE`. Unlike `ParseCertificates`, which skips malformed
-// entries in system files, any malformed or unexpected block fails the whole
+// well-formed `CERTIFICATE` separated only by ASCII whitespace (via
+// `SplitPemCertificates`). Unlike `ParseCertificates`, which skips malformed
+// entries in system files, any malformed block or stray text fails the whole
 // chain, so that a skipped leaf or intermediate can never weaken the hostname
 // or blocklist checks.
-bool ParsePeerChain(absl::string_view pem_chain, std::vector<UniqueX509>* out) {
+grpc::Status ParsePeerChain(absl::string_view pem_chain,
+                            std::vector<UniqueX509>* out) {
   out->clear();
-  ERR_clear_error();
-  UniqueBio bio(
-      BIO_new_mem_buf(pem_chain.data(), static_cast<int>(pem_chain.size())));
-  if (bio == nullptr) return false;
-
-  bool ok = true;
-  while (ok) {
-    char* name = nullptr;
-    char* header = nullptr;
-    uint8_t* body = nullptr;
-    long len = 0;  // NOLINT(runtime/int)
-    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
-      // Running out of input is the only acceptable way to stop.
-      uint32_t error = static_cast<uint32_t>(ERR_peek_last_error());
-      ok = ERR_GET_LIB(error) == ERR_LIB_PEM &&
-           ERR_GET_REASON(error) == PEM_R_NO_START_LINE;
-      break;
-    }
-    size_t consumed = 0;
-    UniqueX509 cert;
-    if (std::strcmp(name, "CERTIFICATE") == 0) {
-      cert = ParseCertDer(body, static_cast<size_t>(len), &consumed);
-    }
-    if (cert == nullptr || consumed != static_cast<size_t>(len)) {
-      ok = false;
-    } else {
-      out->push_back(std::move(cert));
-    }
-    OPENSSL_free(name);
-    OPENSSL_free(header);
-    OPENSSL_free(body);
+  util::StatusOr<std::vector<std::string>> der_certs =
+      SplitPemCertificates(pem_chain);
+  if (!der_certs.ok()) {
+    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                        der_certs.status().error_message());
   }
-  ERR_clear_error();
-  return ok && !out->empty();
+
+  out->reserve(der_certs.ValueOrDie().size());
+  for (const std::string& der : der_certs.ValueOrDie()) {
+    size_t consumed = 0;
+    UniqueX509 cert = ParseCertDer(reinterpret_cast<const uint8_t*>(der.data()),
+                                   der.size(), &consumed);
+    if (cert == nullptr || consumed != der.size()) {
+      ERR_clear_error();
+      out->clear();
+      return grpc::Status(
+          grpc::StatusCode::UNAUTHENTICATED,
+          "Failed to parse DER X.509 certificate in peer chain");
+    }
+    out->push_back(std::move(cert));
+  }
+  return grpc::Status::OK;
 }
 
 // ---------------------------------------------------------------------------
@@ -411,21 +449,46 @@ bool IsDirectory(const std::string& path) {
   return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
 }
 
-// Reads a regular file (following symlinks). Returns nullopt if it does not
-// exist, is not a regular file, is too large, or cannot be read.
+// Reads a regular file (following symlinks) via a single descriptor, capping
+// the bytes read at `kMaxFileSize`. Returns nullopt if it does not exist, is
+// not a regular file (e.g. a directory or FIFO), exceeds `kMaxFileSize`, or
+// cannot be read.
 absl::optional<std::string> ReadRegularFile(const std::string& path) {
+  int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOCTTY);
+  if (fd < 0) return absl::nullopt;
+
   struct stat st;
-  if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) {
+  if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) {
+    close(fd);
     return absl::nullopt;
   }
   if (st.st_size > kMaxFileSize) {
+    close(fd);
     LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
     return absl::nullopt;
   }
-  std::ifstream in(path, std::ios::binary);
-  if (!in) return absl::nullopt;
-  return std::string(std::istreambuf_iterator<char>(in),
-                     std::istreambuf_iterator<char>());
+
+  std::string out;
+  if (st.st_size > 0) out.reserve(static_cast<size_t>(st.st_size));
+  char buf[8192];
+  while (true) {
+    ssize_t n = read(fd, buf, sizeof(buf));
+    if (n == 0) break;
+    if (n < 0) {
+      if (errno == EINTR) continue;
+      close(fd);
+      return absl::nullopt;
+    }
+    if (out.size() + static_cast<size_t>(n) >
+        static_cast<size_t>(kMaxFileSize)) {
+      close(fd);
+      LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
+      return absl::nullopt;
+    }
+    out.append(buf, static_cast<size_t>(n));
+  }
+  close(fd);
+  return out;
 }
 
 // Returns the paths of the regular files (following symlinks) in `dir`, sorted
@@ -497,8 +560,13 @@ class TrustStoreBuilder {
 
   // Adds the explicitly distrusted entries in `path` to the blocklist.
   void LoadTrustBundleFile(const std::string& path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) return;
+    std::pair<dev_t, ino_t> file_id(st.st_dev, st.st_ino);
+    if (seen_trust_bundles_.count(file_id) > 0) return;
     absl::optional<std::string> data = ReadRegularFile(path);
     if (!data) return;
+    seen_trust_bundles_.insert(file_id);
     for (ParsedEntry& entry :
          ParseCertificates(*data, path, /*allow_der=*/false)) {
       if (entry.cert != nullptr &&
@@ -557,6 +625,7 @@ class TrustStoreBuilder {
     long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
     if (len > 0) store_.anchors_pem.assign(data, static_cast<size_t>(len));
     store_.anchor_source = absl::StrJoin(sources_, ", ");
+    ERR_clear_error();
     return std::move(store_);
   }
 
@@ -564,6 +633,7 @@ class TrustStoreBuilder {
   LinuxTrustStore store_;
   std::vector<UniqueX509> candidates_;
   std::vector<std::string> sources_;
+  std::set<std::pair<dev_t, ino_t>> seen_trust_bundles_;
 };
 
 // ---------------------------------------------------------------------------
@@ -608,10 +678,13 @@ class LinuxBlocklistCertificateVerifier final
           "TLS custom verification check request must not be null");
       return true;
     }
-    grpc::string_ref chain = request->peer_cert_full_chain();
-    if (chain.empty()) chain = request->peer_cert();
     *sync_status = VerifyLinuxPeerCertificateChain(
-        ToStringView(chain), ToStringView(request->target_name()), *store_);
+        ToStringView(request->peer_cert_full_chain()),
+        ToStringView(request->target_name()), *store_);
+    if (!sync_status->ok() && store_->has_anchors()) {
+      LOG_WARN("TLS peer certificate verification failed: %s",
+               sync_status->error_message());
+    }
     return true;
   }
 
@@ -643,13 +716,6 @@ LinuxTrustStore LoadLinuxTrustStore(const LinuxTrustConfig& config) {
   for (const std::string& file :
        config.trust_bundle_files.value_or(ToVector(kDefaultTrustBundleFiles))) {
     builder.LoadTrustBundleFile(file);
-  }
-
-  if (!config.ca_path.empty()) {
-    if (builder.LoadAnchors(config.ca_path) == 0) {
-      LOG_WARN("No CA certificates found in %s", config.ca_path);
-    }
-    return std::move(builder).Finish();
   }
 
   std::function<absl::optional<std::string>(const char*)> get_env =
@@ -696,25 +762,35 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
     return grpc::Status(grpc::StatusCode::UNAVAILABLE, kNoAnchorsMessage);
   }
 
-  absl::optional<TlsTargetHost> host = ParseTlsTargetHost(target_name);
-  if (!host) {
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target_name);
+  if (!parsed.ok()) {
     return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                        absl::StrCat("Invalid TLS target host name: '",
+                        absl::StrCat(parsed.status().error_message(), ": '",
                                      absl::CHexEscape(target_name), "'"));
   }
+  const TlsTargetHost& host = parsed.ValueOrDie();
 
   std::vector<UniqueX509> chain;
-  if (!ParsePeerChain(pem_chain, &chain)) {
-    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
-                        "Missing or malformed TLS peer certificate chain");
+  grpc::Status chain_status = ParsePeerChain(pem_chain, &chain);
+  if (!chain_status.ok()) {
+    return chain_status;
   }
 
   for (const UniqueX509& entry : chain) {
     X509* cert = entry.get();
-    if (store.IsBlocked(CertDer(cert), SpkiDer(cert))) {
+    std::string cert_der = CertDer(cert);
+    std::string spki_der = SpkiDer(cert);
+    if (cert_der.empty() || spki_der.empty()) {
+      ERR_clear_error();
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          "Failed to encode TLS peer certificate");
+    }
+    if (store.IsBlocked(cert_der, spki_der)) {
+      std::string subject = SubjectName(cert);
+      ERR_clear_error();
       return grpc::Status(
           grpc::StatusCode::UNAUTHENTICATED,
-          absl::StrCat("TLS peer certificate '", SubjectName(cert),
+          absl::StrCat("TLS peer certificate '", subject,
                        "' is distrusted by the system CA blocklist"));
     }
   }
@@ -723,20 +799,27 @@ grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
   // to the subject common name, and wildcards only as a whole leftmost label.
   X509* leaf = chain.front().get();
   int match = 0;
-  if (host->kind == TlsTargetHost::Kind::kDns) {
-    match = X509_check_host(leaf, host->host.data(), host->host.size(),
+  if (host.kind == TlsTargetHost::Kind::kDns) {
+    // OpenSSL's `X509_check_host` treats a leading '.' as a suffix match for
+    // any subdomain; BoringSSL and RFC 9525 do not.
+    if (!host.host.empty() && host.host.front() == '.') {
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          absl::StrCat("Invalid TLS target host name: '",
+                                       absl::CHexEscape(target_name), "'"));
+    }
+    match = X509_check_host(leaf, host.host.data(), host.host.size(),
                             X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS |
                                 X509_CHECK_FLAG_NEVER_CHECK_SUBJECT,
                             nullptr);
   } else {
-    match = X509_check_ip_asc(leaf, host->host.c_str(), 0);
+    match = X509_check_ip_asc(leaf, host.host.c_str(), 0);
   }
   ERR_clear_error();
   if (match != 1) {
     return grpc::Status(
         grpc::StatusCode::UNAUTHENTICATED,
         absl::StrCat("TLS peer certificate '", SubjectName(leaf),
-                     "' does not match host '", absl::CHexEscape(host->host),
+                     "' does not match host '", absl::CHexEscape(host.host),
                      "'"));
   }
   return grpc::Status::OK;

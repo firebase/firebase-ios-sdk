@@ -18,6 +18,8 @@
 
 #include <utility>
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
+#include "Firestore/core/src/util/status.h"
 #include "absl/strings/ascii.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/strip.h"
@@ -30,19 +32,15 @@ namespace {
 constexpr absl::string_view kBeginMarker = "-----BEGIN CERTIFICATE-----";
 constexpr absl::string_view kEndMarker = "-----END CERTIFICATE-----";
 
-bool Fail(std::string* error, absl::string_view reason) {
-  if (error != nullptr) {
-    *error = std::string(reason);
-  }
-  return false;
+util::Status Invalid(const char* reason) {
+  return util::Status(Error::kErrorInvalidArgument, reason);
 }
 
 }  // namespace
 
-bool SplitPemCertificates(absl::string_view pem,
-                          std::vector<std::string>* der_certificates,
-                          std::string* error) {
-  der_certificates->clear();
+util::StatusOr<std::vector<std::string>> SplitPemCertificates(
+    absl::string_view pem) {
+  std::vector<std::string> der_certificates;
   while (true) {
     // RFC 7468 allows only ASCII whitespace between blocks;
     // `StripLeadingAsciiWhitespace` does not strip non-ASCII (Unicode) spaces.
@@ -51,27 +49,26 @@ bool SplitPemCertificates(absl::string_view pem,
       break;
     }
     if (!absl::ConsumePrefix(&pem, kBeginMarker)) {
-      return Fail(error,
-                  "Unexpected text outside PEM CERTIFICATE block in peer "
-                  "chain");
+      return Invalid(
+          "Unexpected text outside PEM CERTIFICATE block in peer chain");
     }
     size_t end = pem.find(kEndMarker);
     if (end == absl::string_view::npos) {
-      return Fail(error, "Unclosed PEM CERTIFICATE block in peer chain");
+      return Invalid("Unclosed PEM CERTIFICATE block in peer chain");
     }
     // `Base64Unescape` skips ASCII whitespace but rejects everything else
     // outside the base64 alphabet, including the `-` of a nested marker.
     std::string der;
     if (!absl::Base64Unescape(pem.substr(0, end), &der) || der.empty()) {
-      return Fail(error, "Invalid base64 payload in PEM CERTIFICATE block");
+      return Invalid("Invalid base64 payload in PEM CERTIFICATE block");
     }
-    der_certificates->push_back(std::move(der));
+    der_certificates.push_back(std::move(der));
     pem.remove_prefix(end + kEndMarker.size());
   }
-  if (der_certificates->empty()) {
-    return Fail(error, "No PEM certificates found in peer chain");
+  if (der_certificates.empty()) {
+    return Invalid("No PEM certificates found in peer chain");
   }
-  return true;
+  return der_certificates;
 }
 
 }  // namespace remote

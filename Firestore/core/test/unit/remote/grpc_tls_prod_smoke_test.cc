@@ -48,6 +48,7 @@
 #include <string>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/credentials/auth_token.h"
@@ -469,7 +470,9 @@ TEST(GrpcTlsProdSmokeTest, ReportsTrustSource) {
 #else
   LinuxTrustStore store = LoadLinuxTrustStore();
   Log("Trust source: " + store.anchor_source + " (" +
-      std::to_string(store.anchor_count) + " anchors)");
+      std::to_string(store.anchor_count) + " anchors, " +
+      std::to_string(store.blocked_cert_sha256.size()) + " blocked certs, " +
+      std::to_string(store.blocked_spki_sha256.size()) + " blocked keys)");
   EXPECT_TRUE(store.has_anchors());
   EXPECT_FALSE(store.anchor_source.empty());
 #endif
@@ -484,7 +487,11 @@ TEST(GrpcTlsProdSmokeTest, LinuxWithoutSystemAnchorsDoesNotFallBackToBundle) {
   SKIP_UNLESS_PROD_SMOKE_ENABLED();
 
   LinuxTrustConfig config;
-  config.ca_path = "/nonexistent/firestore-tls-prod-smoke/no-roots.pem";
+  config.get_env = [](const char*) { return absl::nullopt; };
+  config.bundle_files = std::vector<std::string>{};
+  config.cert_dirs = std::vector<std::string>{};
+  config.blocklist_dirs = std::vector<std::string>{};
+  config.trust_bundle_files = std::vector<std::string>{};
   ASSERT_FALSE(LoadLinuxTrustStore(config).has_anchors());
 
   // As above: show the endpoint is reachable with the system trust store.

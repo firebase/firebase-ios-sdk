@@ -19,8 +19,8 @@
 
 #include <string>
 
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -51,14 +51,14 @@ struct TlsTargetHost {
  * name, unchanged, for the platform verifier to match against the
  * certificate.
  *
- * Returns `nullopt` for: an empty host; an embedded NUL; any `%` (IPv6 zone
- * IDs are not accepted); non-ASCII characters (internationalized names must be
- * Punycode-encoded); a `:` outside a valid IPv6 literal (so ports and
- * bracketed IPv6 literals); and digit-and-dot strings that are not canonical
- * IPv4 literals (such as leading zeros, which some parsers read as octal, or
- * `127.1`).
+ * Returns an `InvalidArgument` status describing the reason for: an empty host;
+ * an embedded NUL; any `%` (IPv6 zone IDs are not accepted); non-ASCII
+ * characters (internationalized names must be Punycode-encoded); a `:` outside
+ * a valid IPv6 literal (so ports and bracketed IPv6 literals); and
+ * digit-and-dot strings that are not canonical IPv4 literals (such as leading
+ * zeros, which some parsers read as octal, or `127.1`).
  */
-absl::optional<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
+util::StatusOr<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
 
 }  // namespace remote
 }  // namespace firestore

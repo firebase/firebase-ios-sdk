@@ -329,6 +329,7 @@ jobs:
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
       USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -382,6 +383,7 @@ jobs:
       SANITIZERS: ${{ matrix.sanitizer }}
       ASAN_OPTIONS: detect_leaks=0
       USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -412,6 +414,128 @@ jobs:
       run: |
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+  cmake-linux-boringssl:
+    needs: [changes, check]
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    env:
+      USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
+
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Prepare ccache
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: boringssl-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          boringssl-firestore-ccache-${{ runner.os }}-
+
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      with:
+        python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+      with:
+        cmake-version: '3.31.2'
+
+    - name: Setup build
+      run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    # The default Ubuntu CMake jobs pick up system OpenSSL 3 (`libssl-dev`).
+    # Disable OpenSSL package discovery here so `grpc_tls_credentials_provider_linux`
+    # is compiled and tested against the bundled BoringSSL target as well.
+    - name: Configure and build (bundled BoringSSL)
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        cmake -S . -B build -G Ninja \
+          -Wdeprecated \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DFIREBASE_IOS_BUILD_TESTS=ON \
+          -DCMAKE_DISABLE_FIND_PACKAGE_OpenSSL=TRUE
+        cmake --build build --target firestore_remote_test
+
+    - name: Verify linked against bundled BoringSSL
+      run: |
+        set -euo pipefail
+        exe=build/Firestore/core/test/unit/remote/firestore_remote_test
+        ldd "$exe"
+        if ldd "$exe" | grep -E 'lib(ssl|crypto)\.so'; then
+          echo "::error::$exe dynamically linked system OpenSSL instead of bundled BoringSSL"
+          exit 1
+        fi
+
+    - name: Test on Ubuntu 24.04 (BoringSSL + production TLS smoke)
+      run: |
+        set -euo pipefail
+        exe=build/Firestore/core/test/unit/remote/firestore_remote_test
+        scripts/third_party/travis/retry.sh \
+          ctest --test-dir build --output-on-failure -R '^firestore_remote_test$'
+        scripts/third_party/travis/retry.sh \
+          "$exe" --gtest_filter='GrpcTlsProdSmokeTest.*' | tee smoke-ubuntu.log
+        if grep -q '\[  SKIPPED \]' smoke-ubuntu.log; then
+          echo "::error::GrpcTlsProdSmokeTest was skipped on Ubuntu"
+          exit 1
+        fi
+        if ! grep -q '\[       OK \] GrpcTlsProdSmokeTest\.' smoke-ubuntu.log; then
+          echo "::error::GrpcTlsProdSmokeTest did not run on Ubuntu"
+          exit 1
+        fi
+
+    # Because the BoringSSL test binary statically links BoringSSL, run the
+    # compiled executable inside non-Debian distro containers (pulled from
+    # first-party registries to avoid Docker Hub rate limits) to exercise
+    # p11-kit trust bundles, `TRUSTED CERTIFICATE` transcoding, and SUSE CA
+    # store layouts against firestore.googleapis.com without rebuilding.
+    - name: Test across Fedora and openSUSE CA stores
+      run: |
+        set -euo pipefail
+        exe="$PWD/build/Firestore/core/test/unit/remote/firestore_remote_test"
+        fedora_img="quay.io/fedora/fedora:42@sha256:e78cd1a688cd079c23864f289a89a49a3f4ad66d817864e325e1d058310ee95c"
+        opensuse_img="registry.opensuse.org/opensuse/leap:16.0@sha256:9c88da273b41600dfd12790849dfb198ddefed3a109eaf42ada944afb4282a9d"
+
+        scripts/third_party/travis/retry.sh docker pull "$fedora_img"
+        scripts/third_party/travis/retry.sh docker pull "$opensuse_img"
+
+        run_distro_smoke() {
+          local label="$1"
+          local image="$2"
+          shift 2
+          local log="smoke-${label}.log"
+          echo "=== ${label} (${image}) ==="
+          scripts/third_party/travis/retry.sh \
+            docker run --rm \
+              -e FIRESTORE_TLS_PROD_SMOKE=1 \
+              "$@" \
+              -v "${exe}:/tmp/firestore_remote_test:ro" \
+              "$image" \
+              /tmp/firestore_remote_test --gtest_filter='*Linux*:GrpcTlsProdSmokeTest.*' \
+            | tee "$log"
+          if grep -q '\[  SKIPPED \]' "$log"; then
+            echo "::error::GrpcTlsProdSmokeTest was skipped in ${label}"
+            exit 1
+          fi
+          if ! grep -q '\[       OK \] GrpcTlsProdSmokeTest\.' "$log"; then
+            echo "::error::GrpcTlsProdSmokeTest did not run in ${label}"
+            exit 1
+          fi
+        }
+
+        run_distro_smoke fedora-default "$fedora_img"
+        run_distro_smoke fedora-trust-bundle "$fedora_img" \
+          -e SSL_CERT_FILE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+        run_distro_smoke opensuse-leap "$opensuse_img"
 
   build_xcodetest:
     needs: check
@@ -935,6 +1059,7 @@ jobs:
     if: always()
     needs:
       - cmake
+      - cmake-linux-boringssl
       # - xcodetest_emulator
       - spm-source
       - spm-binary

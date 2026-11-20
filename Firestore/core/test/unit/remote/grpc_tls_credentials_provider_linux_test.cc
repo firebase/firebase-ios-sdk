@@ -38,7 +38,10 @@
 #include "absl/strings/str_cat.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
+#include "openssl/asn1.h"
 #include "openssl/bio.h"
+#include "openssl/err.h"
+#include "openssl/evp.h"
 #include "openssl/obj_mac.h"
 #include "openssl/objects.h"
 #include "openssl/pem.h"
@@ -121,6 +124,21 @@ TestCertificate MakeRoot(const std::string& name) {
   opts.common_name = absl::StrCat("Firestore Linux Test Root ", name);
   opts.is_ca = true;
   return IssueTestCertificate(opts, /*issuer=*/nullptr);
+}
+
+// Corrupts the base64 body of a PEM block without touching its markers.
+std::string CorruptBase64(std::string pem) {
+  size_t body = pem.find('\n') + 1;
+  pem[body + 10] = '!';
+  return pem;
+}
+
+// Pushes a real ASN.1 error onto OpenSSL/BoringSSL's thread-local error queue.
+void DirtyErrorQueue() {
+  const uint8_t bad_der[] = {0x00};
+  const uint8_t* p = bad_der;
+  X509_free(d2i_X509(nullptr, &p, 1));
+  ASSERT_NE(ERR_peek_error(), 0u);
 }
 
 // Whether `store.anchors_pem` contains `cert`.
@@ -207,55 +225,6 @@ class GrpcTlsCredentialsProviderLinuxTest : public ::testing::Test {
 // ===========================================================================
 // 1. Anchor resolution order
 // ===========================================================================
-
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathWinsOverEverything) {
-  TestCertificate a = MakeRoot("explicit-a");
-  TestCertificate b = MakeRoot("explicit-b");
-  TestCertificate c = MakeRoot("explicit-c");
-  Path file_a = File("a.pem", a.cert_pem());
-  Path file_b = File("b.pem", b.cert_pem());
-  Path file_c = File("c.pem", c.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = file_a.ToUtf8String();
-  iso.SetEnv("SSL_CERT_FILE", file_b.ToUtf8String());
-  iso.config().bundle_files = std::vector<std::string>{file_c.ToUtf8String()};
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_EQ(store.anchor_count, 1u);
-  EXPECT_TRUE(HasAnchor(store, a));
-  EXPECT_FALSE(HasAnchor(store, b));
-  EXPECT_FALSE(HasAnchor(store, c));
-  EXPECT_NE(store.anchor_source.find(file_a.ToUtf8String()), std::string::npos);
-}
-
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathDoesNotFallBack) {
-  TestCertificate c = MakeRoot("explicit-nofallback");
-  Path file_c = File("c.pem", c.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = dir_.AppendUtf8("missing.pem").ToUtf8String();
-  iso.config().bundle_files = std::vector<std::string>{file_c.ToUtf8String()};
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_FALSE(store.has_anchors());
-}
-
-TEST_F(GrpcTlsCredentialsProviderLinuxTest, ExplicitCaPathMayBeADirectory) {
-  TestCertificate a = MakeRoot("explicit-dir-a");
-  TestCertificate b = MakeRoot("explicit-dir-b");
-  Path dir = Dir("explicit");
-  WriteFile(dir.AppendUtf8("a.pem"), a.cert_pem());
-  WriteFile(dir.AppendUtf8("b.crt"), b.cert_pem());
-
-  IsolatedConfig iso;
-  iso.config().ca_path = dir.ToUtf8String();
-
-  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
-  EXPECT_EQ(store.anchor_count, 2u);
-  EXPECT_TRUE(HasAnchor(store, a));
-  EXPECT_TRUE(HasAnchor(store, b));
-}
 
 TEST_F(GrpcTlsCredentialsProviderLinuxTest, EnvironmentVariablePrecedence) {
   TestCertificate grpc_file = MakeRoot("env-grpc-file");
@@ -390,6 +359,31 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   EXPECT_TRUE(HasAnchor(store, b));
 }
 
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       SkipsNonRegularAndOversizedFilesWithoutBlocking) {
+  TestCertificate good = MakeRoot("good-after-bad-files");
+  Path good_file = File("good.pem", good.cert_pem());
+
+  // A FIFO with no writer would block `open()` without `O_NONBLOCK`.
+  Path fifo = dir_.AppendUtf8("pipe.pem");
+  ASSERT_EQ(mkfifo(fifo.ToUtf8String().c_str(), 0600), 0);
+
+  // A file exceeding `kMaxFileSize` (16 MiB) is rejected without reading it.
+  Path oversized = File("oversized.pem", "");
+  ASSERT_EQ(truncate(oversized.ToUtf8String().c_str(), 17 * 1024 * 1024), 0);
+
+  IsolatedConfig iso;
+  iso.SetEnv("SSL_CERT_FILE", fifo.ToUtf8String());
+  iso.config().bundle_files = std::vector<std::string>{
+      fifo.ToUtf8String(), oversized.ToUtf8String(), good_file.ToUtf8String()};
+
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  EXPECT_EQ(store.anchor_count, 1u);
+  EXPECT_TRUE(HasAnchor(store, good));
+
+  unlink(fifo.ToUtf8String().c_str());
+}
+
 TEST_F(GrpcTlsCredentialsProviderLinuxTest, NoAnchorsFound) {
   IsolatedConfig iso;
   iso.config().bundle_files =
@@ -441,7 +435,7 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
                    plain.cert_pem()));
 
   IsolatedConfig iso;
-  iso.config().ca_path = bundle.ToUtf8String();
+  iso.config().bundle_files = std::vector<std::string>{bundle.ToUtf8String()};
   LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
 
   EXPECT_EQ(store.anchor_count, 2u);
@@ -483,6 +477,144 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   EXPECT_FALSE(HasAnchor(store, rejected));  // Removed by the blocklist.
   EXPECT_TRUE(IsBlocked(store, rejected));
   EXPECT_FALSE(IsBlocked(store, trusted));
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       SkipsMalformedPemBlocksBeforeAnchorsAndDistrustEntries) {
+  TestCertificate anchor_a = MakeRoot("m1-anchor-a");
+  TestCertificate anchor_b = MakeRoot("m1-anchor-b");
+  TestCertificate anchor_c = MakeRoot("m1-anchor-c");
+  TestCertificate rejected_bundle = MakeRoot("m1-rejected-bundle");
+  TestCertificate rejected_trust = MakeRoot("m1-rejected-trust");
+  TestCertificate rejected_dir = MakeRoot("m1-rejected-dir");
+
+  const std::string empty_cert =
+      "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----\n";
+  const std::string empty_trusted =
+      "-----BEGIN TRUSTED CERTIFICATE-----\n"
+      "-----END TRUSTED CERTIFICATE-----\n";
+  const std::string empty_crl =
+      "-----BEGIN X509 CRL-----\n-----END X509 CRL-----\n";
+  const std::string corrupt_cert_der =
+      "-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n";
+  const std::string corrupt_trusted_der =
+      "-----BEGIN TRUSTED CERTIFICATE-----\nAAAA\n"
+      "-----END TRUSTED CERTIFICATE-----\n";
+
+  // Corrupt base64, corrupt DER, and empty-body PEM blocks (both certificate
+  // and non-certificate headers, which return 0 from `PEM_read_bio` with an
+  // empty error queue) mid-file must not truncate later valid anchors or
+  // `TRUSTED CERTIFICATE` distrust entries, and a trailing unclosed
+  // `-----BEGIN` block must terminate cleanly with an empty error queue.
+  Path bundle = File(
+      "bundle.pem",
+      absl::StrCat(
+          anchor_a.cert_pem(), CorruptBase64(MakeRoot("m1-bad1").cert_pem()),
+          empty_cert, empty_crl, anchor_b.cert_pem(), corrupt_cert_der,
+          empty_cert, empty_crl,
+          TrustedCertificatePem(anchor_c, AuxTrust::kTrustServerAuth),
+          CorruptBase64(TrustedCertificatePem(MakeRoot("m1-bad2"),
+                                              AuxTrust::kRejectServerAuth)),
+          corrupt_trusted_der, empty_cert, empty_trusted, empty_crl,
+          "-----BEGIN CERTIFICATE-----\n", MakeRoot("m1-swallowed").cert_pem(),
+          TrustedCertificatePem(rejected_bundle, AuxTrust::kRejectServerAuth),
+          "-----BEGIN CERTIFICATE-----\nunclosed"));
+
+  Path trust_bundle = File(
+      "ca-bundle.trust.crt",
+      absl::StrCat(
+          empty_cert, empty_crl,
+          TrustedCertificatePem(MakeRoot("m1-ignored-trust"),
+                                AuxTrust::kTrustServerAuth),
+          CorruptBase64(TrustedCertificatePem(MakeRoot("m1-bad3"),
+                                              AuxTrust::kTrustServerAuth)),
+          corrupt_trusted_der, empty_cert, empty_trusted, empty_crl,
+          TrustedCertificatePem(rejected_trust, AuxTrust::kRejectServerAuth),
+          "-----BEGIN TRUSTED CERTIFICATE-----\n"));
+
+  Path blocklist = Dir("blocklist");
+  WriteFile(
+      blocklist.AppendUtf8("mixed.pem"),
+      absl::StrCat(CorruptBase64(MakeRoot("m1-bad4").cert_pem()),
+                   corrupt_cert_der, empty_cert, empty_crl,
+                   rejected_dir.cert_pem(), "-----BEGIN CERTIFICATE-----\n"));
+  WriteFile(blocklist.AppendUtf8("unclosed_only.pem"),
+            "-----BEGIN CERTIFICATE-----\n");
+  WriteFile(blocklist.AppendUtf8("empty_only.pem"), empty_cert);
+
+  IsolatedConfig iso;
+  iso.config().bundle_files = std::vector<std::string>{bundle.ToUtf8String()};
+  iso.config().trust_bundle_files =
+      std::vector<std::string>{trust_bundle.ToUtf8String()};
+  iso.config().blocklist_dirs =
+      std::vector<std::string>{blocklist.ToUtf8String()};
+
+  DirtyErrorQueue();
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  EXPECT_EQ(ERR_peek_error(), 0u);
+
+  EXPECT_EQ(store.anchor_count, 3u);
+  EXPECT_TRUE(HasAnchor(store, anchor_a));
+  EXPECT_TRUE(HasAnchor(store, anchor_b));
+  EXPECT_TRUE(HasAnchor(store, anchor_c));
+  EXPECT_FALSE(HasAnchor(store, rejected_bundle));
+  EXPECT_TRUE(IsBlocked(store, rejected_bundle));
+  EXPECT_TRUE(IsBlocked(store, rejected_trust));
+  EXPECT_TRUE(IsBlocked(store, rejected_dir));
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       TrustBundleFilesAreDeduplicatedAcrossSymlinks) {
+  // Fedora/RHEL ship `/etc/pki/tls/certs/ca-bundle.trust.crt` as a symlink to
+  // `/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt`. Include a
+  // malformed block so `ParseCertificates` emits a path-stamped warning each
+  // time the underlying file is actually parsed.
+  TestCertificate anchor = MakeRoot("dedup-anchor");
+  TestCertificate rejected_a = MakeRoot("dedup-rejected-a");
+  TestCertificate rejected_b = MakeRoot("dedup-rejected-b");
+  Path anchors =
+      File("anchors.pem", absl::StrCat(anchor.cert_pem(), rejected_a.cert_pem(),
+                                       rejected_b.cert_pem()));
+  Path extracted =
+      File("ca-bundle.trust.crt",
+           absl::StrCat(
+               "-----BEGIN TRUSTED CERTIFICATE-----\nAAAA\n"
+               "-----END TRUSTED CERTIFICATE-----\n",
+               TrustedCertificatePem(rejected_a, AuxTrust::kRejectServerAuth)));
+  Path abs_link = dir_.AppendUtf8("ca-bundle.trust.abs.crt");
+  ASSERT_EQ(symlink(extracted.ToUtf8String().c_str(),
+                    abs_link.ToUtf8String().c_str()),
+            0);
+  Path rel_link = dir_.AppendUtf8("ca-bundle.trust.rel.crt");
+  ASSERT_EQ(symlink("ca-bundle.trust.crt", rel_link.ToUtf8String().c_str()), 0);
+  Path dangling = dir_.AppendUtf8("ca-bundle.trust.dangling.crt");
+  ASSERT_EQ(symlink("/nonexistent/ca-bundle.trust.crt",
+                    dangling.ToUtf8String().c_str()),
+            0);
+  Path second_bundle =
+      File("other.trust.crt",
+           TrustedCertificatePem(rejected_b, AuxTrust::kRejectServerAuth));
+
+  IsolatedConfig iso;
+  iso.config().bundle_files = std::vector<std::string>{anchors.ToUtf8String()};
+  iso.config().trust_bundle_files = std::vector<std::string>{
+      dangling.ToUtf8String(), extracted.ToUtf8String(),
+      abs_link.ToUtf8String(), rel_link.ToUtf8String(),
+      second_bundle.ToUtf8String()};
+
+  testing::internal::CaptureStdout();
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  std::string logs = testing::internal::GetCapturedStdout();
+
+  EXPECT_EQ(store.anchor_count, 1u);
+  EXPECT_TRUE(HasAnchor(store, anchor));
+  EXPECT_TRUE(IsBlocked(store, rejected_a));
+  EXPECT_TRUE(IsBlocked(store, rejected_b));
+  EXPECT_NE(logs.find(extracted.ToUtf8String()), std::string::npos) << logs;
+  EXPECT_EQ(logs.find(abs_link.ToUtf8String()), std::string::npos) << logs;
+  EXPECT_EQ(logs.find(rel_link.ToUtf8String()), std::string::npos) << logs;
+
+  unlink(dangling.ToUtf8String().c_str());
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxTest,
@@ -617,13 +749,99 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
         << "unescaped byte " << static_cast<int>(c) << " in: " << message;
   }
 
-  // The target host is escaped the same way.
+  // The target host is escaped the same way, both on a leaf SAN mismatch and
+  // when `ParseTlsTargetHost` rejects a malformed target.
   status = VerifyLinuxPeerCertificateChain(leaf.cert_pem(),
                                            "a'b\x1b.firestore.test", store);
   ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_NE(status.error_message().find("a\\'b\\x1b.firestore.test"),
             std::string::npos)
       << status.error_message();
+
+  struct MalformedTargetCase {
+    std::string target;
+    const char* expected_reason;
+    const char* expected_escaped;
+  };
+  const std::vector<MalformedTargetCase> malformed_targets = {
+      {"", "Empty TLS target host name", ": ''"},
+      {"f\xc3\xbcr.example", "Punycode", ": 'f\\xc3\\xbcr.example'"},
+      {"bad'host\x1b:443", "contains ':'", ": 'bad\\'host\\x1b:443'"},
+  };
+  for (const MalformedTargetCase& tc : malformed_targets) {
+    status = VerifyLinuxPeerCertificateChain(leaf.cert_pem(), tc.target, store);
+    ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << tc.target;
+    EXPECT_NE(status.error_message().find(tc.expected_reason),
+              std::string::npos)
+        << status.error_message();
+    EXPECT_NE(status.error_message().find(tc.expected_escaped),
+              std::string::npos)
+        << status.error_message();
+    for (char c : status.error_message()) {
+      EXPECT_TRUE(c >= 0x20 && c < 0x7f)
+          << "unescaped byte " << static_cast<int>(c)
+          << " in: " << status.error_message();
+    }
+  }
+}
+
+std::string CertPemWithSubject(const TestCertificate& base,
+                               const TestCertificate& signer,
+                               X509_NAME* name) {
+  std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(base.x509()),
+                                                   X509_free);
+  EXPECT_EQ(X509_set_subject_name(copy.get(), name), 1);
+  // Re-signing invalidates the cached tbsCertificate DER encoding.
+  EXPECT_GT(X509_sign(copy.get(), signer.key(), EVP_sha256()), 0);
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  EXPECT_EQ(PEM_write_bio_X509(bio.get(), copy.get()), 1);
+  char* data = nullptr;
+  long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+  return std::string(data, static_cast<size_t>(len));
+}
+
+TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
+     HandlesEmptyAndUnreadablePeerSubjects) {
+  TestCertificate root = MakeRoot("verify-subject-edge");
+  TestCertOptions leaf_opts;
+  leaf_opts.common_name = "placeholder";
+  leaf_opts.dns_sans = {"other.firestore.test"};
+  TestCertificate leaf = IssueTestCertificate(leaf_opts, &root);
+  LinuxTrustStore store = StoreWithAnchor(root);
+
+  // Empty Subject DN (RFC 5280 section 4.1.2.6 SAN-only leaf).
+  std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)> empty_name(
+      X509_NAME_new(), X509_NAME_free);
+  grpc::Status status = VerifyLinuxPeerCertificateChain(
+      CertPemWithSubject(leaf, root, empty_name.get()), kHost, store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("''"), std::string::npos)
+      << status.error_message();
+  EXPECT_EQ(ERR_peek_error(), 0u);
+
+  // Valid 2-byte UTF-8 RDN (~300 KiB DER < X509_NAME_MAX, >1.1 MiB formatted >
+  // NAME_ONELINE_MAX, so X509_NAME_oneline returns nullptr without writing to
+  // its output buffer).
+  std::unique_ptr<X509_NAME, decltype(&X509_NAME_free)> huge_name(
+      X509_NAME_new(), X509_NAME_free);
+  std::string huge_cn;
+  huge_cn.reserve(300 * 1024);
+  for (int i = 0; i < 150 * 1024; ++i) {
+    huge_cn.append("\xc2\x80", 2);
+  }
+  ASSERT_EQ(X509_NAME_add_entry_by_NID(
+                huge_name.get(), NID_commonName, V_ASN1_UTF8STRING,
+                reinterpret_cast<const unsigned char*>(huge_cn.data()),
+                static_cast<int>(huge_cn.size()), -1, 0),
+            1);
+  status = VerifyLinuxPeerCertificateChain(
+      CertPemWithSubject(leaf, root, huge_name.get()), kHost, store);
+  ASSERT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(status.error_message().find("<unreadable subject>"),
+            std::string::npos)
+      << status.error_message();
+  EXPECT_EQ(ERR_peek_error(), 0u);
 }
 
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, ChecksHostNameOnLeafOnly) {
@@ -662,8 +880,10 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   ASSERT_TRUE(store.has_anchors());
   for (const std::string& chain :
        {pki.ServerChainPem(), PemChain({&pki.leaf, &pki.cross_intermediate})}) {
+    DirtyErrorQueue();
     grpc::Status status = VerifyLinuxPeerCertificateChain(chain, kHost, store);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(ERR_peek_error(), 0u);
   }
 
   // Blocklisting the leaf itself also rejects.
@@ -680,21 +900,40 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsMalformedChains) {
   TestPki pki = CreateTestPki("verify-malformed", {kHost});
   LinuxTrustStore store = StoreWithAnchor(pki.root);
-  for (const std::string& chain :
-       {std::string(), std::string("garbage"),
-        std::string("-----BEGIN CERTIFICATE-----\nAAAA\n"
-                    "-----END CERTIFICATE-----\n")}) {
-    grpc::Status status = VerifyLinuxPeerCertificateChain(chain, kHost, store);
-    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
-        << "chain: " << chain;
-  }
-}
+  grpc::Status empty_view_status =
+      VerifyLinuxPeerCertificateChain(absl::string_view{}, kHost, store);
+  EXPECT_EQ(empty_view_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_NE(empty_view_status.error_message().find(
+                "No PEM certificates found in peer chain"),
+            std::string::npos)
+      << empty_view_status.error_message();
+  EXPECT_EQ(ERR_peek_error(), 0u);
 
-// Corrupts the base64 body of a PEM block without touching its markers.
-std::string CorruptBase64(std::string pem) {
-  size_t body = pem.find('\n') + 1;
-  pem[body + 10] = '!';
-  return pem;
+  struct MalformedChainCase {
+    std::string chain;
+    const char* expected_reason;
+  };
+  const std::vector<MalformedChainCase> cases = {
+      {"", "No PEM certificates found in peer chain"},
+      {"garbage",
+       "Unexpected text outside PEM CERTIFICATE block in peer chain"},
+      {"-----BEGIN CERTIFICATE-----\nTUlJQg==\n",
+       "Unclosed PEM CERTIFICATE block in peer chain"},
+      {"-----BEGIN CERTIFICATE-----\n!!!!\n-----END CERTIFICATE-----\n",
+       "Invalid base64 payload in PEM CERTIFICATE block"},
+      {"-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n",
+       "Failed to parse DER X.509 certificate in peer chain"},
+  };
+  for (const MalformedChainCase& tc : cases) {
+    grpc::Status status =
+        VerifyLinuxPeerCertificateChain(tc.chain, kHost, store);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << "chain: " << tc.chain;
+    EXPECT_NE(status.error_message().find(tc.expected_reason),
+              std::string::npos)
+        << "chain: " << tc.chain << " error: " << status.error_message();
+    EXPECT_EQ(ERR_peek_error(), 0u);
+  }
 }
 
 TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
@@ -709,11 +948,16 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
 
   const std::string bad_der =
       "-----BEGIN CERTIFICATE-----\nAAAA\n-----END CERTIFICATE-----\n";
+  const std::string bad_header =
+      "-----BEGIN CERTIFICATE\nAAAA\n-----END CERTIFICATE-----\n";
   const std::vector<std::string> chains = {
       pki.leaf.cert_pem() + CorruptBase64(pki.intermediate.cert_pem()),
       CorruptBase64(pki.intermediate.cert_pem()) + pki.ServerChainPem(),
       pki.leaf.cert_pem() + bad_der,
       bad_der + pki.ServerChainPem(),
+      bad_header + pki.ServerChainPem(),
+      "garbage\n" + pki.ServerChainPem(),
+      pki.ServerChainPem() + "garbage",
       pki.ServerChainPem() + PublicKeyPem(pki.intermediate),
       TrustedCertificatePem(pki.leaf, AuxTrust::kTrustServerAuth) +
           pki.intermediate.cert_pem(),
@@ -723,6 +967,7 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest,
         VerifyLinuxPeerCertificateChain(chains[i], kHost, store);
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << "chain " << i;
+    EXPECT_EQ(ERR_peek_error(), 0u) << "chain " << i;
   }
 }
 
@@ -735,6 +980,22 @@ TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsTrailingDotHostName) {
                                             "loopback.firestore.test.", store)
                 .error_code(),
             grpc::StatusCode::UNAUTHENTICATED);
+}
+
+TEST(GrpcTlsCredentialsProviderLinuxVerifyTest, RejectsLeadingDotHostNames) {
+  // OpenSSL's X509_check_host treats a leading '.' as matching any subdomain,
+  // whereas BoringSSL and RFC 9525 reject it. Both builds must fail closed.
+  TestPki pki =
+      CreateTestPki("verify-leading-dot", {kHost, "*.wild.firestore.test"});
+  LinuxTrustStore store = StoreWithAnchor(pki.root);
+  for (const char* target : {".firestore.test", ".loopback.firestore.test", ".",
+                             "..", ".test", ".wild.firestore.test"}) {
+    grpc::Status status =
+        VerifyLinuxPeerCertificateChain(pki.ServerChainPem(), target, store);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << "target: " << target;
+    EXPECT_EQ(ERR_peek_error(), 0u) << "target: " << target;
+  }
 }
 
 // ===========================================================================
@@ -751,11 +1012,9 @@ class GrpcTlsCredentialsProviderLinuxLoopbackTest
     IsolatedConfig iso;
     std::string anchors_pem = PemChain(anchors);
     if (!anchors_pem.empty()) {
-      iso.config().ca_path =
+      iso.config().bundle_files = std::vector<std::string>{
           File(absl::StrCat("anchors", ++files_, ".pem"), anchors_pem)
-              .ToUtf8String();
-    } else {
-      iso.config().ca_path = dir_.AppendUtf8("missing.pem").ToUtf8String();
+              .ToUtf8String()};
     }
     Path blacklist = Dir(absl::StrCat("blacklist", ++files_));
     for (size_t i = 0; i < blocked.size(); ++i) {
@@ -807,7 +1066,9 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsUntrustedRoot) {
   TlsLoopbackServer server(pki.leaf.private_key_pem(), pki.ServerChainPem());
   ASSERT_TRUE(server.started());
   ASSERT_TRUE(Echo(server, Credentials({&pki.root})).ok());
-  EXPECT_FALSE(Echo(server, Credentials({&other})).ok());
+  grpc::Status status = Echo(server, Credentials({&other}));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
@@ -818,8 +1079,10 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
   TlsLoopbackServer server(pki.leaf.private_key_pem(), pki.ServerChainPem());
   ASSERT_TRUE(server.started());
   ASSERT_TRUE(Echo(server, Credentials({&pki.root})).ok());
-  EXPECT_FALSE(
-      Echo(server, Credentials({&pki.root}, {&pki.intermediate})).ok());
+  grpc::Status status =
+      Echo(server, Credentials({&pki.root}, {&pki.intermediate}));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsWrongHostName) {
@@ -831,7 +1094,9 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsWrongHostName) {
   ASSERT_TRUE(server.started());
   auto creds = Credentials({&pki.root});
   ASSERT_TRUE(Echo(server, creds, kHost).ok());
-  EXPECT_FALSE(Echo(server, creds, "wrong.firestore.test").ok());
+  grpc::Status status = Echo(server, creds, "wrong.firestore.test");
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsExpiredLeaf) {
@@ -844,7 +1109,28 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsExpiredLeaf) {
   ASSERT_TRUE(server.started());
   auto creds = Credentials({&pki.root});
   ASSERT_TRUE(Echo(valid_server, creds).ok());
-  EXPECT_FALSE(Echo(server, creds).ok());
+  grpc::Status status = Echo(server, creds);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
+       RejectsMissingIntermediate) {
+  // Unlike Apple SecTrust and Windows CryptoAPI, OpenSSL / BoringSSL never
+  // performs AIA chasing, so a server that omits its intermediate CA must fail
+  // chain building cleanly.
+  TestPki pki = CreateTestPki("loop-missing-interm", {kHost});
+  TlsLoopbackServer full_server(pki.leaf.private_key_pem(),
+                                pki.ServerChainPem());
+  ASSERT_TRUE(full_server.started());
+  TlsLoopbackServer leaf_only_server(pki.leaf.private_key_pem(),
+                                     pki.leaf.cert_pem());
+  ASSERT_TRUE(leaf_only_server.started());
+  auto creds = Credentials({&pki.root});
+  ASSERT_TRUE(Echo(full_server, creds).ok());
+  grpc::Status status = Echo(leaf_only_server, creds);
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, FailsWithoutAnchors) {
