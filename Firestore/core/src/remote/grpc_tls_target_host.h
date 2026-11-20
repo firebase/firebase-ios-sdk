@@ -19,8 +19,8 @@
 
 #include <string>
 
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
-#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -32,32 +32,33 @@ struct TlsTargetHost {
 
   /**
    * The bare host: a DNS name, a dotted-quad IPv4 address, or an IPv6 address
-   * without brackets or zone ID. IPv6 addresses are in canonical RFC 5952 text
-   * form, except that embedded IPv4 (such as IPv4-mapped) addresses are also
-   * written in hex (`::ffff:7f00:1`), the form every platform verifier accepts.
-   * This form is internal to the certificate verifiers; it is not what users
-   * should write as a host (gRPC's per-call check expects `inet_ntop` text,
-   * see `CreateDefaultTlsCredentials()`).
+   * exactly as the system's `inet_ntop` writes it (RFC 5952; some platforms
+   * write IPv4-mapped addresses in dotted form, such as `::ffff:127.0.0.1`).
    */
   std::string host;
   Kind kind = Kind::kDns;
 };
 
 /**
- * Extracts the host to verify against a server certificate from the
- * `target_name` that gRPC passes to certificate verifiers.
+ * Validates and normalizes the host to verify against a server certificate
+ * from the `target_name` that gRPC passes to certificate verifiers.
  *
- * Accepts `host`, `host:port`, `[ipv6]`, `[ipv6]:port`, and a bare `ipv6`
- * literal. Strips the port, the brackets, and any IPv6 `%zone` suffix (zone
- * IDs are never part of certificate identities).
+ * gRPC has already removed any port and IPv6 brackets (its TLS security
+ * connector keeps only the host from `SplitHostPort()`), so this accepts only
+ * a bare host. IPv6 literals are canonicalized with `inet_pton`/`inet_ntop`;
+ * IPv4 literals must round-trip through them unchanged; anything else that
+ * contains no `:` and is not made only of digits and dots is returned as a DNS
+ * name, unchanged, for the platform verifier to match against the
+ * certificate.
  *
- * Returns `nullopt` for anything else: an empty host; control, whitespace,
- * non-ASCII, or URL-reserved characters; an empty, non-numeric, or out-of-range
- * port (valid ports are 1-65535); malformed brackets; malformed IPv4 literals
- * (including leading zeros, which some parsers read as octal); and malformed
- * IPv6 literals or zone IDs.
+ * Returns an `InvalidArgument` status describing the reason for: an empty host;
+ * an embedded NUL; any `%` (IPv6 zone IDs are not accepted); non-ASCII
+ * characters (internationalized names must be Punycode-encoded); a `:` outside
+ * a valid IPv6 literal (so ports and bracketed IPv6 literals); and
+ * digit-and-dot strings that are not canonical IPv4 literals (such as leading
+ * zeros, which some parsers read as octal, or `127.1`).
  */
-absl::optional<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
+util::StatusOr<TlsTargetHost> ParseTlsTargetHost(absl::string_view target_name);
 
 }  // namespace remote
 }  // namespace firestore

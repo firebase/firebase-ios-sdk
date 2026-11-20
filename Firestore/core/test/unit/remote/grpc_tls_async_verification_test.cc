@@ -19,6 +19,7 @@
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <cstring>
 #include <deque>
 #include <memory>
@@ -175,6 +176,12 @@ class ManualScheduler {
   mutable std::mutex mutex_;
   std::vector<std::function<void()>> tasks_;
 };
+
+// A scheduler that runs each task on a new detached thread.
+AsyncTlsVerifier::Scheduler NewThreadScheduler() {
+  return
+      [](std::function<void()> task) { std::thread(std::move(task)).detach(); };
+}
 
 // An evaluator that parks every completion so the test decides when (and on
 // which thread) evaluations finish.
@@ -370,8 +377,10 @@ TEST(TlsAsyncVerificationTrackerTest, CompleteThenCancelIsNoOp) {
   EXPECT_TRUE(recorder.last_status().ok());
 }
 
-TEST(TlsAsyncVerificationTrackerTest,
-     CancelBeforeFinishStartIsReportedSynchronously) {
+// gRPC never cancels a request while verifying it, so a cancel that arrives
+// before `FinishStart()` can only be a stale pointer from another handshake
+// whose request had the same address. It must not resolve this verification.
+TEST(TlsAsyncVerificationTrackerTest, CancelBeforeFinishStartDoesNotMatch) {
   TlsAsyncVerificationTracker tracker;
   FakeRequest request;
   CallbackRecorder recorder;
@@ -380,9 +389,12 @@ TEST(TlsAsyncVerificationTrackerTest,
   EXPECT_FALSE(tracker.Cancel(request.get()));
 
   grpc::Status sync_status;
-  EXPECT_TRUE(tracker.FinishStart(id, &sync_status));
-  ExpectCancelled(sync_status);
-  EXPECT_EQ(recorder.count(), 0);
+  EXPECT_FALSE(tracker.FinishStart(id, &sync_status));
+  EXPECT_EQ(tracker.pending_count(), 1u);
+
+  tracker.Complete(id, Unauthenticated());
+  EXPECT_EQ(recorder.count(), 1);
+  ExpectStatusEq(Unauthenticated(), recorder.last_status());
 }
 
 TEST(TlsAsyncVerificationTrackerTest, CancelOfUnknownRequestIsNoOp) {
@@ -463,31 +475,6 @@ TEST(TlsAsyncVerificationTrackerTest, CallbackMayReenterTracker) {
   EXPECT_EQ(other_recorder.count(), 1);
 }
 
-TEST(TlsAsyncVerificationTrackerTest, CancelAllResolvesEveryPendingRequest) {
-  TlsAsyncVerificationTracker tracker;
-  FakeRequest a;
-  FakeRequest b;
-  CallbackRecorder recorder_a;
-  CallbackRecorder recorder_b;
-  grpc::Status sync_status;
-
-  auto id_a = tracker.Start(a.get(), recorder_a.AsCallback());
-  ASSERT_FALSE(tracker.FinishStart(id_a, &sync_status));
-  auto id_b = tracker.Start(b.get(), recorder_b.AsCallback());
-  ASSERT_FALSE(tracker.FinishStart(id_b, &sync_status));
-
-  tracker.CancelAll();
-
-  EXPECT_EQ(recorder_a.count(), 1);
-  EXPECT_EQ(recorder_b.count(), 1);
-  ExpectCancelled(recorder_a.last_status());
-  ExpectCancelled(recorder_b.last_status());
-  EXPECT_EQ(tracker.pending_count(), 0u);
-
-  tracker.Complete(id_a, grpc::Status::OK);
-  EXPECT_EQ(recorder_a.count(), 1);
-}
-
 TEST(TlsAsyncVerificationTrackerTest, CancelledStatusIsNotOk) {
   grpc::Status status = TlsVerificationCancelledStatus();
   EXPECT_FALSE(status.ok());
@@ -501,7 +488,7 @@ TEST(TlsAsyncVerificationTrackerTest, CancelledStatusIsNotOk) {
 TEST(AsyncTlsVerifierTest,
      VerifyReturnsFalseAndCallbackRunsWithEvaluatorStatus) {
   ParkingEvaluator evaluator;
-  AsyncTlsVerifier verifier(evaluator.AsEvaluator());
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -520,7 +507,7 @@ TEST(AsyncTlsVerifierTest,
 
 TEST(AsyncTlsVerifierTest, VerifySucceedsAsynchronously) {
   ParkingEvaluator evaluator;
-  AsyncTlsVerifier verifier(evaluator.AsEvaluator());
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -536,7 +523,7 @@ TEST(AsyncTlsVerifierTest, VerifySucceedsAsynchronously) {
 
 TEST(AsyncTlsVerifierTest, EvaluatorSeesCopiedInputAfterRequestIsFreed) {
   ParkingEvaluator evaluator;
-  AsyncTlsVerifier verifier(evaluator.AsEvaluator());
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request("full-chain-pem", "example.com:443", "leaf-pem");
   CallbackRecorder recorder;
 
@@ -553,10 +540,14 @@ TEST(AsyncTlsVerifierTest, EvaluatorSeesCopiedInputAfterRequestIsFreed) {
 }
 
 TEST(AsyncTlsVerifierTest, InlineCompletionIsReturnedSynchronously) {
+  ManualScheduler scheduler;
+  TlsVerificationCallback saved_completion;
   AsyncTlsVerifier verifier(
-      [](TlsVerificationInput, TlsVerificationCallback completion) {
+      [&](TlsVerificationInput, TlsVerificationCallback completion) {
+        saved_completion = completion;
         completion(Unauthenticated("inline"));
-      });
+      },
+      scheduler.AsScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -565,13 +556,20 @@ TEST(AsyncTlsVerifierTest, InlineCompletionIsReturnedSynchronously) {
       verifier.Verify(request.get(), recorder.AsCallback(), &sync_status));
   ExpectStatusEq(Unauthenticated("inline"), sync_status);
   EXPECT_EQ(recorder.count(), 0);
-  EXPECT_EQ(verifier.tracker()->pending_count(), 0u);
+
+  // The verification is fully resolved: neither a cancellation nor a late
+  // completion reaches the callback.
+  verifier.Cancel(request.get());
+  EXPECT_EQ(scheduler.size(), 0u);
+  saved_completion(grpc::Status::OK);
+  EXPECT_EQ(recorder.count(), 0);
 }
 
 TEST(AsyncTlsVerifierTest, NullRequestFailsSynchronously) {
   int evaluations = 0;
   AsyncTlsVerifier verifier(
-      [&](TlsVerificationInput, TlsVerificationCallback) { ++evaluations; });
+      [&](TlsVerificationInput, TlsVerificationCallback) { ++evaluations; },
+      NewThreadScheduler());
   CallbackRecorder recorder;
 
   grpc::Status sync_status;
@@ -611,7 +609,7 @@ TEST(AsyncTlsVerifierTest, CancelInFlightDeliversCancelledStatusOnce) {
 
 TEST(AsyncTlsVerifierTest, CompleteThenCancelIsNoOp) {
   ParkingEvaluator evaluator;
-  AsyncTlsVerifier verifier(evaluator.AsEvaluator());
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -626,9 +624,9 @@ TEST(AsyncTlsVerifierTest, CompleteThenCancelIsNoOp) {
   EXPECT_TRUE(recorder.last_status().ok());
 }
 
-TEST(AsyncTlsVerifierTest, DefaultSchedulerDeliversCancelOnAnotherThread) {
+TEST(AsyncTlsVerifierTest, CancelIsDeliveredOutsideTheHandshakeLock) {
   ParkingEvaluator evaluator;
-  AsyncTlsVerifier verifier(evaluator.AsEvaluator());
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
   // Stands in for gRPC's handshake lock, which is held across Cancel() and
@@ -679,26 +677,75 @@ TEST(AsyncTlsVerifierTest, CancelOfUnknownRequestSchedulesNothing) {
   EXPECT_EQ(scheduler.size(), 0u);
 }
 
-TEST(AsyncTlsVerifierTest, DestroyingVerifierMidFlightIsSafe) {
+TEST(AsyncTlsVerifierTest, CompletionAfterVerifierIsDestroyedIsNoOp) {
   ParkingEvaluator evaluator;
   FakeRequest request;
   CallbackRecorder recorder;
 
-  auto verifier = std::make_unique<AsyncTlsVerifier>(evaluator.AsEvaluator());
+  auto verifier = std::make_unique<AsyncTlsVerifier>(evaluator.AsEvaluator(),
+                                                     NewThreadScheduler());
   grpc::Status sync_status;
   ASSERT_FALSE(
       verifier->Verify(request.get(), recorder.AsCallback(), &sync_status));
   verifier.reset();
 
-  // Pending callbacks are resolved rather than dropped, so the handshake that
-  // owns them can finish.
-  EXPECT_EQ(recorder.count(), 1);
-  ExpectCancelled(recorder.last_status());
-
-  // A completion that arrives after destruction must not touch freed memory.
+  // gRPC's callback refers to the verifier, so pending callbacks are dropped.
+  // The completion holds the tracker, not the destroyed verifier.
   ASSERT_EQ(evaluator.size(), 1u);
-  RunOnOtherThread([&] { evaluator.completion(0)(grpc::Status::OK); });
+  RunOnOtherThread([&] { evaluator.completion(0)(Unauthenticated()); });
+  EXPECT_EQ(recorder.count(), 0);
+}
+
+TEST(TlsAsyncVerificationTrackerTest, AbandonDropsCallbacksWithoutInvoking) {
+  TlsAsyncVerificationTracker tracker;
+  FakeRequest request;
+  CallbackRecorder recorder;
+  auto alive = std::make_shared<int>(0);
+  std::weak_ptr<int> watcher = alive;
+
+  auto id =
+      tracker.Start(request.get(), [&recorder, alive](grpc::Status status) {
+        recorder.Record(std::move(status));
+      });
+  alive.reset();
+  grpc::Status sync_status;
+  ASSERT_FALSE(tracker.FinishStart(id, &sync_status));
+
+  tracker.Abandon();
+  EXPECT_TRUE(watcher.expired());
+  EXPECT_EQ(tracker.pending_count(), 0u);
+
+  tracker.Complete(id, grpc::Status::OK);
+  EXPECT_FALSE(tracker.Cancel(request.get()));
+  EXPECT_EQ(recorder.count(), 0);
+}
+
+// gRPC may call Cancel() with a pointer to a request that has already been
+// verified and freed. The pointer must only be used as a lookup key.
+TEST(AsyncTlsVerifierTest, CancelWithStalePointerIsNoOp) {
+  ParkingEvaluator evaluator;
+  ManualScheduler scheduler;
+  AsyncTlsVerifier verifier(evaluator.AsEvaluator(), scheduler.AsScheduler());
+  CallbackRecorder recorder;
+
+  auto request = std::make_unique<FakeRequest>();
+  TlsCustomVerificationCheckRequest* stale = request->get();
+  grpc::Status sync_status;
+  ASSERT_FALSE(verifier.Verify(stale, recorder.AsCallback(), &sync_status));
+  ASSERT_EQ(evaluator.size(), 1u);
+  evaluator.completion(0)(grpc::Status::OK);
+  ASSERT_EQ(recorder.count(), 1);
+  // gRPC frees the request once the callback has run.
+  request.reset();
+
+  verifier.Cancel(stale);
+  // An address that was never a request would crash if dereferenced.
+  verifier.Cancel(reinterpret_cast<TlsCustomVerificationCheckRequest*>(
+      static_cast<uintptr_t>(0x10)));
+
+  EXPECT_EQ(scheduler.size(), 0u);
   EXPECT_EQ(recorder.count(), 1);
+  EXPECT_TRUE(recorder.last_status().ok());
 }
 
 // Drives `AsyncTlsVerifier` through gRPC's own C/C++ verifier plumbing
@@ -718,7 +765,7 @@ TEST_F(AsyncTlsVerifierThroughGrpcTest, AsyncCompletionReachesGrpcCallback) {
   ParkingEvaluator evaluator;
   std::shared_ptr<CertificateVerifier> verifier =
       ExternalCertificateVerifier::Create<AsyncTlsVerifier>(
-          evaluator.AsEvaluator());
+          evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -738,7 +785,7 @@ TEST_F(AsyncTlsVerifierThroughGrpcTest, CancelReachesGrpcCallbackOnce) {
   ParkingEvaluator evaluator;
   std::shared_ptr<CertificateVerifier> verifier =
       ExternalCertificateVerifier::Create<AsyncTlsVerifier>(
-          evaluator.AsEvaluator());
+          evaluator.AsEvaluator(), NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -764,7 +811,8 @@ TEST_F(AsyncTlsVerifierThroughGrpcTest, InlineCompletionIsSynchronous) {
       ExternalCertificateVerifier::Create<AsyncTlsVerifier>(
           [](TlsVerificationInput, TlsVerificationCallback completion) {
             completion(Unauthenticated("inline"));
-          });
+          },
+          NewThreadScheduler());
   FakeRequest request;
   CallbackRecorder recorder;
 
@@ -900,7 +948,15 @@ TEST(AsyncTlsVerifierStressTest, EveryVerificationResolvesExactlyOnce) {
   for (int i = 0; i < kTotal; ++i) {
     EXPECT_EQ(resolutions[i]->load(), 1) << "request " << i;
   }
-  EXPECT_EQ(verifier.tracker()->pending_count(), 0u);
+  // Every verification is resolved, so cancelling any of them now schedules
+  // nothing.
+  for (int i = 0; i < kTotal; ++i) {
+    verifier.Cancel(requests[i]->get());
+  }
+  {
+    std::lock_guard<std::mutex> lock(queue_mutex);
+    EXPECT_TRUE(queue.empty());
+  }
   // The interleavings above must actually have exercised the asynchronous
   // completion and cancellation paths.
   EXPECT_GT(async_resolutions.load(), 0);
