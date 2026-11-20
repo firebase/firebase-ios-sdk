@@ -144,12 +144,14 @@ grpc::Status OSStatusError(const char* function, OSStatus status) {
  * host in `target_name`, restricted to `anchors` when non-nil.
  *
  * On success, returns the trust object and stores the host name in
- * `*out_host`. On failure, returns nil and stores the reason in `*out_status`.
+ * `*out_host` and the leaf certificate in `*out_leaf`. On failure, returns nil
+ * and stores the reason in `*out_status`.
  */
 id CreateAppleSecTrust(absl::string_view pem_chain,
                        absl::string_view target_name,
                        NSArray* anchors,
                        std::string* out_host,
+                       id* out_leaf,
                        grpc::Status* out_status) {
   util::StatusOr<std::string> parsed_host = ExtractTlsHostName(target_name);
   if (!parsed_host.ok()) {
@@ -250,6 +252,7 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   }
 
   *out_host = std::move(host);
+  *out_leaf = certs[0];
   SetStatus(out_status, grpc::Status::OK);
   return trust;
 }
@@ -307,25 +310,22 @@ grpc::Status TrustResultToStatus(bool trusted,
                    host, "': ", error_detail));
 }
 
-// Returns the notAfter of the leaf certificate of an evaluated `trust`, or
-// `SystemTime::max()` where the OS provides no public API for it (before
-// iOS 18, tvOS 18, and macOS 15). In that case the cache TTL alone bounds how
-// long a success is reused, which is safe because SecTrust has just checked
-// the leaf's validity period.
-TlsVerificationCoalescer::SystemTime LeafNotAfter(SecTrustRef trust) {
+// Returns the notAfter of `leaf`, or `SystemTime::max()` where the OS provides
+// no public API for it (before iOS 18, tvOS 18, and macOS 15). In that case
+// the cache TTL alone bounds how long a success is reused, which is safe
+// because SecTrust has just checked the leaf's validity period. Reads the
+// certificate directly rather than through the trust object, which could
+// trigger a synchronous re-evaluation by trustd.
+TlsVerificationCoalescer::SystemTime LeafNotAfter(SecCertificateRef leaf) {
   if (@available(iOS 18.0, tvOS 18.0, macOS 15.0, watchOS 11.0,
                  visionOS 2.0, *)) {
-    NSArray* chain = CFBridgingRelease(SecTrustCopyCertificateChain(trust));
-    if (chain.count > 0) {
-      id date = CFBridgingRelease(SecCertificateCopyNotValidAfterDate(
-          (__bridge SecCertificateRef)chain[0]));
-      if (date != nil) {
-        auto since_epoch = std::chrono::duration<double>(
-            [(NSDate*)date timeIntervalSince1970]);
-        return TlsVerificationCoalescer::SystemTime(
-            std::chrono::duration_cast<
-                TlsVerificationCoalescer::SystemTime::duration>(since_epoch));
-      }
+    id date = CFBridgingRelease(SecCertificateCopyNotValidAfterDate(leaf));
+    if (date != nil) {
+      auto since_epoch =
+          std::chrono::duration<double>([(NSDate*)date timeIntervalSince1970]);
+      return TlsVerificationCoalescer::SystemTime(
+          std::chrono::duration_cast<
+              TlsVerificationCoalescer::SystemTime::duration>(since_epoch));
     }
   }
   return TlsVerificationCoalescer::SystemTime::max();
@@ -353,10 +353,11 @@ void EvaluateAppleChainAsync(TlsVerificationInput input,
   dispatch_async(queue, ^{
     @autoreleasepool {
       std::string host;
+      id leaf = nil;
       grpc::Status status;
       id trust =
           CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
-                              anchors, &host, &status);
+                              anchors, &host, &leaf, &status);
       if (trust == nil) {
         state->completion(status, TlsVerificationCoalescer::SystemTime::min());
         return;
@@ -376,7 +377,7 @@ void EvaluateAppleChainAsync(TlsVerificationInput input,
                                  std::chrono::steady_clock::now() - start_time);
             state->completion(
                 TrustResultToStatus(trusted, error, host),
-                trusted ? LeafNotAfter((__bridge SecTrustRef)trust)
+                trusted ? LeafNotAfter((__bridge SecCertificateRef)leaf)
                         : TlsVerificationCoalescer::SystemTime::min());
           });
       if (start_status != errSecSuccess) {
