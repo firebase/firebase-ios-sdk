@@ -36,6 +36,20 @@ public class _ObjC_HeartbeatController: NSObject {
     heartbeatController.log(agent)
   }
 
+  /// Asynchronously logs a new heartbeat, if needed, using a lazily provided agent.
+  ///
+  /// The `agentProvider` block is called on a background queue, and only if a new heartbeat
+  /// needs to be recorded. Use this API instead of `log(_:)` when building the agent is
+  /// expensive, so the work is skipped when it isn't needed and doesn't block the calling thread.
+  ///
+  /// - Note: This API is thread-safe.
+  /// - Parameter agentProvider: A block that returns the string agent (i.e. Firebase User Agent)
+  /// to associate the logged heartbeat with.
+  @objc(logWithAgentProvider:)
+  public func log(agentProvider: @escaping @Sendable () -> String) {
+    heartbeatController.log(agentProvider: agentProvider)
+  }
+
   /// Synchronously flushes heartbeats from storage into a heartbeats payload.
   ///
   /// - Note: This API is thread-safe.
