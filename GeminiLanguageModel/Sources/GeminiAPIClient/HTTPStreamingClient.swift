@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Synchronization
-
 #if canImport(Darwin)
   package import Foundation
 #else
@@ -169,7 +167,7 @@ package struct HTTPAsyncLineSequence: AsyncSequence, Sendable {
 
 @available(macOS 15.0, iOS 18.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
 private final class SessionDelegate: NSObject, URLSessionDataDelegate, Sendable {
-  private let taskDelegates = Mutex<[Int: TaskDelegate]>([:])
+  private let taskDelegates = LockedValue<[Int: TaskDelegate]>([:])
 
   func addTaskDelegate(_ delegate: TaskDelegate, for taskIdentifier: Int) {
     taskDelegates.withLock { $0[taskIdentifier] = delegate }
@@ -224,7 +222,7 @@ private final class TaskDelegate: NSObject, URLSessionDataDelegate, Sendable {
     case completed(Result<HTTPURLResponse, any Error>)
   }
 
-  private let responseState = Mutex<ResponseState>(.pending)
+  private let responseState = LockedValue<ResponseState>(.pending)
   private let dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation
 
   init(dataContinuation: AsyncThrowingStream<Data, any Error>.Continuation) {

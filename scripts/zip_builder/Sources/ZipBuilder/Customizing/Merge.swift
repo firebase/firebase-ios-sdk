@@ -135,8 +135,8 @@ extension Plan {
 }
 
 extension Framework {
-  /// Adds a companion's sources, headers, resources, settings and dependencies. `platforms`
-  /// limits its sources and dependencies, so it isn't compiled or linked anywhere else.
+  /// Adds a companion's sources, headers, resources, settings, dependencies and licenses.
+  /// `platforms` limits its sources and dependencies, so it isn't compiled or linked anywhere else.
   /// The parent keeps its own custom module map; a companion's is dropped, like its umbrella.
   mutating func absorb(_ companion: Framework, onlyOn platforms: Set<Platform>?) {
     sources += companion.sources.map {
@@ -156,6 +156,9 @@ extension Framework {
     dependencies = mergingDuplicates(dependencies + companion.dependencies.map {
       Dependency(name: $0.name, platforms: intersection($0.platforms, platforms))
     })
+    // The shipped framework holds the companion's code, so its license applies too.
+    let allLicenses = Set((licenses ?? []) + (companion.licenses ?? []))
+    licenses = allLicenses.isEmpty ? nil : allLicenses.sorted()
     sources.sort { $0.path < $1.path }
     headers.sort { $0.path < $1.path }
     resources.sort { $0.path < $1.path }

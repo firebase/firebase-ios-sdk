@@ -22,7 +22,7 @@
 
 import PackageDescription
 
-let firebaseVersion = "13.2.0"
+let firebaseVersion = "13.3.0"
 
 /// The name of the "Firestore" package trait.
 let firestoreTraitName = "Firestore"
@@ -1586,6 +1586,9 @@ func firestoreTargets() -> [Target] {
 
           // Exclude alternate implementations for other platforms
           "core/src/remote/connectivity_monitor_noop.cc",
+          "core/src/remote/grpc_root_certificate_finder_generated.cc",
+          "core/src/remote/grpc_root_certificates_generated.cc",
+          "core/src/remote/grpc_tls_credentials_provider_embedded.cc",
           "core/src/util/filesystem_win.cc",
           "core/src/util/log_stdio.cc",
           "core/src/util/secure_random_openssl.cc",
@@ -1614,6 +1617,7 @@ func firestoreTargets() -> [Target] {
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .visionOS])),
           .linkedFramework("Network"),
+          .linkedFramework("Security"),
           .linkedLibrary("c++"),
         ]
       ),
@@ -1664,8 +1668,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/13.2.0/pre_rc0/FirebaseFirestoreInternal.zip",
-        checksum: "17f395f923188a3b565836fb80e7acfec20e1077099a80f74884035ca08d53d6"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/13.2.0/rc0/FirebaseFirestoreInternal.zip",
+        checksum: "b4ef49a93104f47c8865aa29e095baea73f288a0c4295eb9d52b6a885c269cb6"
       )
     }
   }()
@@ -1710,6 +1714,7 @@ func firestoreTargets() -> [Target] {
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
         .linkedFramework("Network"),
+        .linkedFramework("Security"),
         .linkedLibrary("c++"),
       ]
     ),

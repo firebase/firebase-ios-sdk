@@ -24,6 +24,7 @@ struct DiffReport: Codable, Equatable, Sendable {
   var releaseVersion: ReleaseVersionChange? // a version bump shared by the changed frameworks
   var folders = Changes()
   var files = Changes() // loose files: `NOTICES` at the root, `FirebaseCrashlytics/run` in a folder
+  var changedFiles: [ChangedFile] = [] // loose files both sides have, with different contents
   var frameworks = Changes() // `Folder/Framework`, for frameworks only one side has
   var moved: [Move] = []
   var changed: [FrameworkDiff] = []
@@ -34,7 +35,8 @@ struct DiffReport: Codable, Equatable, Sendable {
 
   /// Whether anything other than the release version changed.
   var hasLayoutOrFrameworkChanges: Bool {
-    !(folders.isEmpty && files.isEmpty && frameworks.isEmpty && moved.isEmpty && changed.isEmpty)
+    !(folders.isEmpty && files.isEmpty && changedFiles.isEmpty && frameworks.isEmpty
+      && moved.isEmpty && changed.isEmpty)
   }
 }
 
@@ -146,6 +148,8 @@ func diffDistributions(_ baseline: Distribution, _ candidate: Distribution,
       : FrameworkDiff(name: new.name, folder: new.folder, differences: differences)
   }
   collapseReleaseVersion(in: &report)
+  report.changedFiles = try await changedLooseFiles(baseline, candidate,
+                                                    releaseVersion: report.releaseVersion)
   return report
 }
 
@@ -185,7 +189,8 @@ private func copiesToCompare(_ old: [XCFramework],
   return (oldCopy, newCopy)
 }
 
-private func looseFiles(_ distribution: Distribution) -> [String] {
+/// The distribution's loose files, as paths under its root: `NOTICES`, `FirebaseCrashlytics/run`.
+func looseFiles(_ distribution: Distribution) -> [String] {
   distribution.files + distribution.folders.flatMap { folder in
     folder.files.map { folder.name + "/" + $0 }
   }

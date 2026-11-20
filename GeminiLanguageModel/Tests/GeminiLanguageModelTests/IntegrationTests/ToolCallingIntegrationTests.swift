@@ -21,6 +21,7 @@
   #endif
   import GeminiAPIClient
   import GeminiTestUtilities
+  import Synchronization
   import Testing
 
   @testable import GeminiLanguageModel
@@ -273,6 +274,73 @@
       }
       #expect(hasToolOutput)
       #expect(response.usage.totalTokenCount > 0)
+    }
+
+    /// A weather tool that counts how many times the model calls it.
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    @available(tvOS, unavailable)
+    struct CountingWeatherTool: FoundationModelsTool {
+      /// A call counter that all copies of the tool share.
+      final class CallCounter: Sendable {
+        /// The number of calls so far.
+        let count = Mutex(0)
+      }
+
+      let name = "getWeather"
+      let description = "Get the current weather for a city."
+
+      /// The counter of calls to the tool, shared by all copies of the tool.
+      private let counter = CallCounter()
+
+      /// The number of times the model has called the tool.
+      var callCount: Int { counter.count.withLock { $0 } }
+
+      @Generable
+      @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+      @available(tvOS, unavailable)
+      struct Arguments {
+        @Guide(description: "The city name to look up weather for")
+        var city: String
+      }
+
+      func call(arguments: Arguments) async throws -> String {
+        counter.count.withLock { $0 += 1 }
+        return "The current weather in \(arguments.city) is 22°C and sunny."
+      }
+    }
+
+    @Test(.requireIntegrationTestingBackend, arguments: IntegrationTestingBackend.availableBackends)
+    @available(macOS 27.0, iOS 27.0, watchOS 27.0, visionOS 27.0, *)
+    func sessionRespondRequiredToolCallingStopsAtToolCallingTurnLimit(
+      backend: IntegrationTestingBackend
+    ) async throws {
+      let maximumTurns = GeminiLanguageModel.Executor.maximumToolCallingTurns
+      let model = try await backend.makeModel()
+      let tool = CountingWeatherTool()
+      let session = LanguageModelSession(model: model, tools: [tool])
+      // Keeps the tool calls in the transcript if Gemini calls a tool after the limit.
+      session.transcriptErrorHandlingPolicy = .preserveTranscript
+
+      // With `required`, the model calls a tool in every response until the limit is reached.
+      do {
+        let response = try await session.respond(
+          to: "What is the weather in Paris right now?",
+          options: GenerationOptions(toolCallingMode: .required)
+        )
+        #expect(!response.content.isEmpty)
+      } catch GeminiLanguageModel.Error.invalidResponse(let invalidResponse) {
+        // Gemini sometimes calls a tool after being told not to, which ends the turn with this
+        // error instead of a response.
+        #expect(invalidResponse.debugDescription.contains("tool-calling turns per prompt"))
+      }
+
+      let toolCallingTurnCount = session.transcript.filter { entry in
+        guard case .toolCalls(let toolCalls) = entry else { return false }
+        return !toolCalls.isEmpty
+      }.count
+      #expect(toolCallingTurnCount == maximumTurns)
+      // A tool-calling turn can call the tool more than once.
+      #expect(tool.callCount >= maximumTurns)
     }
   }
 #endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

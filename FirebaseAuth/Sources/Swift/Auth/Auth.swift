@@ -1882,11 +1882,20 @@ extension Auth: AuthInterop {
     return serviceName
   }
 
+  /// Signs out the user with the given ID if they're still the current user.
+  ///
+  /// Unlike `signOut()`, this signs out even if removing the stored user from the keychain fails,
+  /// and then throws that error. Like `signOut()`, it runs synchronously on
+  /// `kAuthGlobalWorkQueue`, so it doesn't race with `signOut()`, `currentUser`, or other work on
+  /// that queue. Don't call it on that queue.
+  /// - Parameter userID: The ID of the user to sign out.
   func signOutByForce(withUserID userID: String) throws {
-    guard _currentUser?.uid == userID else {
-      return
+    try kAuthGlobalWorkQueue.sync {
+      guard self._currentUser?.uid == userID else {
+        return
+      }
+      try self.updateCurrentUser(nil, byForce: true, savingToDisk: true)
     }
-    try updateCurrentUser(nil, byForce: true, savingToDisk: true)
   }
 
   // MARK: Private methods

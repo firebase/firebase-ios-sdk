@@ -58,9 +58,9 @@ private struct Fingerprints {
   }
 
   /// Covers the project settings, the framework's model fields (except `layout`, applied after
-  /// caching), its files' contents, the headers under its outside search paths, its
-  /// destinations, the Xcode version, its binaries' contents, and its framework dependencies'
-  /// fingerprints.
+  /// caching, and `licenses`, which only `NOTICES` reads), its files' contents, the headers under
+  /// its outside search paths, its destinations, the Xcode version, its binaries' contents, and
+  /// its framework dependencies' fingerprints.
   mutating func of(_ framework: Framework) throws -> String {
     if let known = byName[framework.name] {
       return known
@@ -68,6 +68,8 @@ private struct Fingerprints {
     byName[framework.name] = "" // a cycle hashes the empty string instead of recursing forever
     var withoutLayout = framework
     withoutLayout.layout = Layout()
+    // `nil` isn't encoded, so the text stays as it was before plans had licenses.
+    withoutLayout.licenses = nil
     var lines = try ["format \(fingerprintFormat)", "xcode \(xcodeVersion)",
                      "settings \(stableJSON(plan.settings))",
                      "framework \(stableJSON(withoutLayout))",
@@ -81,7 +83,8 @@ private struct Fingerprints {
       try lines.append("search path \(path) \(headersHash(path))")
     }
     for dependency in framework.dependencies {
-      if let binary = plan.binaries.first(where: { $0.name == dependency.name }) {
+      if var binary = plan.binaries.first(where: { $0.name == dependency.name }) {
+        binary.licenses = nil // as for the framework itself
         try lines.append("binary \(binary.name) \(stableJSON(binary)) \(binaryHash(of: binary))")
       } else if let other = plan.frameworks.first(where: { $0.name == dependency.name }) {
         try lines.append("dependency \(other.name) \(of(other))")

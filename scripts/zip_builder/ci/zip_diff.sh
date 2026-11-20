@@ -50,8 +50,7 @@ TEMP="${RUNNER_TEMP:?}"
 CACHE="${TEMP}/zip-builder-cache"
 OUTPUT="${GITHUB_OUTPUT:-/dev/stdout}"
 
-# Each tool directory holds a `zip-builder`, the `hash` of the sources it was built from, and,
-# when it must build with a config other than the checkout's, a `zip_builder.jsonc`.
+# Each tool directory holds a `zip-builder` and the `hash` of the sources it was built from.
 CANDIDATE_TOOL="${TEMP}/candidate-tool"
 BASELINE_TOOL="${TEMP}/baseline-tool"
 
@@ -69,28 +68,14 @@ build_tool() { # <commit> <tool directory>
   tool_hash "$1" > "$2/hash"
 }
 
-# Until the new zip builder is on main, main has the old one at the same path (another CLI and
-# config). The candidate's tool and config then build the baseline too.
-# TODO: delete once main has the new zip builder, with the config handling in `build_zip`.
-main_has_new_tool() {
-  git cat-file -e "${BASE_SHA}:scripts/zip_builder/Sources/ZipBuilder/Commands/ZipBuilderCommand.swift" 2>/dev/null
-}
-
-use_candidate_tool_for_baseline() {
-  rm -rf "$BASELINE_TOOL"
-  cp -R "$CANDIDATE_TOOL" "$BASELINE_TOOL"
-  git show "${CANDIDATE_SHA}:zip_builder.jsonc" > "${BASELINE_TOOL}/zip_builder.jsonc"
-}
-
 build_tools() {
   build_tool "$CANDIDATE_SHA" "$CANDIDATE_TOOL"
   if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
     # main's tool builds the baseline, so a pull request that changes the tool shows its effect.
-    if ! main_has_new_tool; then
-      use_candidate_tool_for_baseline
-    elif ! build_tool "$BASE_SHA" "$BASELINE_TOOL"; then
+    if ! build_tool "$BASE_SHA" "$BASELINE_TOOL"; then
       echo "::warning::main's zip builder doesn't build; the candidate's builds the baseline too."
-      use_candidate_tool_for_baseline
+      rm -rf "$BASELINE_TOOL"
+      cp -R "$CANDIDATE_TOOL" "$BASELINE_TOOL"
     fi
   fi
   git checkout --force --quiet "$CANDIDATE_SHA"
@@ -101,17 +86,11 @@ release_version() { # <commit>
 }
 
 build_zip() { # <commit> <tool directory> <work directory> [flags]
-  local tool="$2"
-  local config=()
-  if [[ -f "${tool}/zip_builder.jsonc" ]]; then
-    config=(--config "${tool}/zip_builder.jsonc")
-  fi
   git checkout --force --quiet "$1"
-  # Keep the flags to the stable core: main's tool builds the baseline. (The `+` form expands an
-  # empty array under `set -u` in macOS's bash 3.2.) Each zip gets its own commit's version;
-  # `diff` reports a bump once, as the release version change.
-  "${tool}/zip-builder" release --package-path . ${config[@]+"${config[@]}"} --work-dir "$3" \
-    --cache-dir "${CACHE}/$(cat "${tool}/hash")" --version "$(release_version "$1")" "${@:4}"
+  # Keep the flags to the stable core: main's tool builds the baseline. Each zip gets its own
+  # commit's version and config; `diff` reports a version bump once, as the release version change.
+  "$2/zip-builder" release --package-path . --work-dir "$3" \
+    --cache-dir "${CACHE}/$(cat "$2/hash")" --version "$(release_version "$1")" "${@:4}"
 }
 
 build_baseline() {
