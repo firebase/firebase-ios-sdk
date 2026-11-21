@@ -226,8 +226,9 @@ Quadruple::operator double() const {
     }
     default:
       int32_t unbiased_exp = static_cast<int32_t>(exponent_ - kExponentBias);
-      return ldexp(static_cast<double>((1ULL << 52) | (mantissa_hi_ >> 12)),
-                   -52 + unbiased_exp) *
+      return std::ldexp(
+                 static_cast<double>((1ULL << 52) | (mantissa_hi_ >> 12)),
+                 -52 + unbiased_exp) *
              (negative_ ? -1 : 1);
   }
 }

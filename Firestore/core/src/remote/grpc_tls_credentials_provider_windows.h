@@ -21,14 +21,6 @@
 
 #if defined(_WIN32)
 
-// <winsock2.h> must precede <windows.h>, which otherwise pulls in the
-// conflicting <winsock.h> unless WIN32_LEAN_AND_MEAN is defined.
-#include <winsock2.h>  // NOLINT(build/include_order)
-
-#include <windows.h>  // NOLINT(build/include_order)
-
-#include <wincrypt.h>  // NOLINT(build/include_order)
-
 #include <functional>
 #include <memory>
 
@@ -43,6 +35,9 @@ SUPPRESS_END()
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+// The declarations below are test-facing: production code only calls
+// `CreateDefaultTlsCredentials()` (grpc_tls_credentials_provider.h).
 
 /**
  * Options for the Windows CryptoAPI certificate verifier.
@@ -80,11 +75,11 @@ struct WindowsTrustConfig {
  * The leaf is checked with `CertGetCertificateChain`, using the remaining
  * certificates as untrusted intermediates, and then with
  * `CertVerifyCertificateChainPolicy(CERT_CHAIN_POLICY_SSL)` for a server
- * named `target_name`.
- * This covers path building, expiry, the server-auth EKU, explicit distrust,
- * and DNS hostname matching. For an IP address target, the leaf must instead
- * have a matching `iPAddress` subjectAltName. Returns `UNAUTHENTICATED` with a
- * description on any failure.
+ * named `target_name`. This covers path building, expiry, the server-auth EKU,
+ * explicit distrust, and DNS hostname matching. Both DNS and IP address
+ * targets require a matching `subjectAltName` on the leaf (`dNSName` or
+ * `iPAddress`, respectively; the `Subject` common name is never consulted).
+ * Returns `UNAUTHENTICATED` with a description on any failure.
  *
  * Missing intermediates are never fetched from the URLs in the peer's
  * certificates (AIA), so the peer must send its full chain.

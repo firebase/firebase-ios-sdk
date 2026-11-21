@@ -18,19 +18,37 @@
 
 #if defined(_WIN32)
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+// <winsock2.h> must precede <windows.h>, which otherwise pulls in the
+// conflicting <winsock.h> if WIN32_LEAN_AND_MEAN was not set earlier.
+#include <winsock2.h>  // NOLINT(build/include_order)
 #include <ws2tcpip.h>  // NOLINT(build/include_order)
+
+#include <windows.h>  // NOLINT(build/include_order)
+
+#include <wincrypt.h>  // NOLINT(build/include_order)
 
 #include <cstdint>
 #include <cstring>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <thread>
 #include <utility>
 #include <vector>
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
+#include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
@@ -82,69 +100,22 @@ struct CertChainDeleter {
 using CertChainPtr =
     std::unique_ptr<const CERT_CHAIN_CONTEXT, CertChainDeleter>;
 
-/**
- * Splits a PEM bundle into DER-encoded certificates. Text outside of
- * `CERTIFICATE` blocks must be whitespace.
- */
-grpc::Status DecodePemCertificates(absl::string_view pem,
-                                   std::vector<std::string>* out) {
-  static constexpr absl::string_view kBegin = "-----BEGIN CERTIFICATE-----";
-  static constexpr absl::string_view kEnd = "-----END CERTIFICATE-----";
-  static constexpr absl::string_view kWhitespace = " \t\r\n";
-
-  size_t pos = 0;
-  while (true) {
-    pos = pem.find_first_not_of(kWhitespace, pos);
-    if (pos == absl::string_view::npos) {
-      break;
-    }
-    if (pem.substr(pos, kBegin.size()) != kBegin) {
-      return Unauthenticated(
-          "Unexpected text outside PEM CERTIFICATE block in peer chain");
-    }
-    size_t body_start = pos + kBegin.size();
-    size_t body_end = pem.find(kEnd, body_start);
-    if (body_end == absl::string_view::npos) {
-      return Unauthenticated("Unclosed PEM CERTIFICATE block in peer chain");
-    }
-    absl::string_view body = pem.substr(body_start, body_end - body_start);
-    if (body.find("-----") != absl::string_view::npos) {
-      return Unauthenticated("Nested or malformed PEM block in peer chain");
-    }
-
-    // `CRYPT_STRING_BASE64` ignores the line breaks and other whitespace that
-    // PEM bodies contain.
-    DWORD der_size = 0;
-    if (body.empty() ||
-        !CryptStringToBinaryA(body.data(), static_cast<DWORD>(body.size()),
-                              CRYPT_STRING_BASE64, nullptr, &der_size, nullptr,
-                              nullptr) ||
-        der_size == 0) {
-      return Unauthenticated("Invalid base64 payload in PEM CERTIFICATE block");
-    }
-    std::string der(der_size, '\0');
-    if (!CryptStringToBinaryA(
-            body.data(), static_cast<DWORD>(body.size()), CRYPT_STRING_BASE64,
-            reinterpret_cast<BYTE*>(&der[0]), &der_size, nullptr, nullptr)) {
-      return Unauthenticated("Invalid base64 payload in PEM CERTIFICATE block");
-    }
-    der.resize(der_size);
-    out->push_back(std::move(der));
-
-    pos = body_end + kEnd.size();
+struct CertAltNameInfoDeleter {
+  void operator()(CERT_ALT_NAME_INFO* info) const {
+    LocalFree(info);
   }
-
-  if (out->empty()) {
-    return Unauthenticated("No PEM certificates found in peer chain");
-  }
-  return grpc::Status::OK;
-}
+};
+using CertAltNameInfoPtr =
+    std::unique_ptr<CERT_ALT_NAME_INFO, CertAltNameInfoDeleter>;
 
 /** Converts UTF-8 to UTF-16. Returns false if `utf8` is not valid UTF-8. */
 bool Utf8ToWide(absl::string_view utf8, std::wstring* out) {
   if (utf8.empty()) {
     out->clear();
     return true;
+  }
+  if (utf8.size() > static_cast<size_t>((std::numeric_limits<int>::max)())) {
+    return false;
   }
   int size = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, utf8.data(),
                                  static_cast<int>(utf8.size()), nullptr, 0);
@@ -179,8 +150,63 @@ bool IpAddressToBytes(const TlsTargetHost& target, std::string* out) {
 }
 
 /**
+ * Decodes `leaf`'s `subjectAltName` (`szOID_SUBJECT_ALT_NAME2`) extension.
+ * Sets `*out` to null and returns OK if the certificate has no
+ * `subjectAltName` extension.
+ */
+grpc::Status DecodeSubjectAltName(PCCERT_CONTEXT leaf,
+                                  CertAltNameInfoPtr* out) {
+  out->reset();
+  PCERT_EXTENSION extension =
+      CertFindExtension(szOID_SUBJECT_ALT_NAME2, leaf->pCertInfo->cExtension,
+                        leaf->pCertInfo->rgExtension);
+  if (extension == nullptr) {
+    return grpc::Status::OK;
+  }
+  CERT_ALT_NAME_INFO* raw_names = nullptr;
+  DWORD names_size = 0;
+  if (!CryptDecodeObjectEx(kCertEncoding, X509_ALTERNATE_NAME,
+                           extension->Value.pbData, extension->Value.cbData,
+                           CRYPT_DECODE_ALLOC_FLAG,
+                           /*pDecodePara=*/nullptr, &raw_names, &names_size)) {
+    return Unauthenticated(absl::StrCat(
+        "Failed to decode the leaf certificate's subjectAltName: error ",
+        GetLastError()));
+  }
+  out->reset(raw_names);
+  return grpc::Status::OK;
+}
+
+/**
+ * Checks that `leaf` carries at least one `dNSName` `subjectAltName` entry,
+ * preventing `CERT_CHAIN_POLICY_SSL` from succeeding via a legacy `Subject`
+ * common name fallback (RFC 9525).
+ */
+grpc::Status VerifyHasDnsSubjectAltName(PCCERT_CONTEXT leaf,
+                                        const TlsTargetHost& target) {
+  CertAltNameInfoPtr names;
+  grpc::Status decode_status = DecodeSubjectAltName(leaf, &names);
+  if (!decode_status.ok()) {
+    return decode_status;
+  }
+  if (names != nullptr) {
+    for (DWORD i = 0; i < names->cAltEntry; ++i) {
+      const CERT_ALT_NAME_ENTRY& entry = names->rgAltEntry[i];
+      if (entry.dwAltNameChoice == CERT_ALT_NAME_DNS_NAME &&
+          entry.pwszDNSName != nullptr && entry.pwszDNSName[0] != L'\0') {
+        return grpc::Status::OK;
+      }
+    }
+  }
+  return Unauthenticated(absl::StrCat(
+      "Windows TLS certificate verification failed for '",
+      absl::CHexEscape(target.host),
+      "': CERT_E_CN_NO_MATCH: the certificate has no DNS subjectAltName"));
+}
+
+/**
  * Checks that `leaf` has an `iPAddress` subjectAltName equal to the IP address
- * in `target`. As RFC 6125 and browsers require, the subject common name is
+ * in `target`. As RFC 9525 and browsers require, the subject common name is
  * never consulted.
  */
 grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
@@ -191,34 +217,21 @@ grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
                                         absl::CHexEscape(target.host), "'"));
   }
 
-  PCERT_EXTENSION extension =
-      CertFindExtension(szOID_SUBJECT_ALT_NAME2, leaf->pCertInfo->cExtension,
-                        leaf->pCertInfo->rgExtension);
-  if (extension != nullptr) {
-    CERT_ALT_NAME_INFO* names = nullptr;
-    DWORD names_size = 0;
-    if (!CryptDecodeObjectEx(kCertEncoding, X509_ALTERNATE_NAME,
-                             extension->Value.pbData, extension->Value.cbData,
-                             CRYPT_DECODE_ALLOC_FLAG,
-                             /*pDecodePara=*/nullptr, &names, &names_size)) {
-      return Unauthenticated(absl::StrCat(
-          "Failed to decode the leaf certificate's subjectAltName: error ",
-          GetLastError()));
-    }
-    bool matched = false;
+  CertAltNameInfoPtr names;
+  grpc::Status decode_status = DecodeSubjectAltName(leaf, &names);
+  if (!decode_status.ok()) {
+    return decode_status;
+  }
+  if (names != nullptr) {
     for (DWORD i = 0; i < names->cAltEntry; ++i) {
       const CERT_ALT_NAME_ENTRY& entry = names->rgAltEntry[i];
       if (entry.dwAltNameChoice == CERT_ALT_NAME_IP_ADDRESS &&
           entry.IPAddress.cbData == expected.size() &&
+          entry.IPAddress.pbData != nullptr &&
           std::memcmp(entry.IPAddress.pbData, expected.data(),
                       expected.size()) == 0) {
-        matched = true;
-        break;
+        return grpc::Status::OK;
       }
-    }
-    LocalFree(names);
-    if (matched) {
-      return grpc::Status::OK;
     }
   }
   return Unauthenticated(absl::StrCat(
@@ -266,11 +279,9 @@ std::string DescribeChainPolicyError(DWORD error) {
                          name ? name : "");
 }
 
-VOID CALLBACK RunThreadPoolTask(PTP_CALLBACK_INSTANCE instance, PVOID context) {
+VOID CALLBACK RunThreadPoolTask(PTP_CALLBACK_INSTANCE, PVOID context) {
   std::unique_ptr<std::function<void()>> task(
       static_cast<std::function<void()>*>(context));
-  // Chain building may fetch root updates over the network.
-  CallbackMayRunLong(instance);
   (*task)();
 }
 
@@ -295,8 +306,34 @@ bool TrySubmitToThreadPool(std::function<void()>* task) {
  */
 void ScheduleOnThreadPool(std::function<void()> task) {
   if (!TrySubmitToThreadPool(&task)) {
-    std::thread(std::move(task)).detach();
+    try {
+      std::thread(std::move(task)).detach();
+    } catch (const std::system_error& e) {
+      LOG_ERROR("Failed to schedule TLS cancellation callback: %s", e.what());
+    }
   }
+}
+
+struct EvalTask {
+  WindowsTrustConfig config;
+  TlsVerificationInput input;
+  TlsVerificationCallback completion;
+};
+
+VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance, PVOID context) {
+  std::unique_ptr<EvalTask> task(static_cast<EvalTask*>(context));
+  // Chain building may fetch root updates over the network.
+  CallbackMayRunLong(instance);
+  if (task->config.before_async_evaluation) {
+    task->config.before_async_evaluation();
+  }
+  grpc::Status status = VerifyWindowsTlsCertificateChain(
+      task->input.pem_chain, task->input.target_name, task->config);
+  if (!status.ok()) {
+    LOG_WARN("TLS peer certificate verification failed: %s",
+             status.error_message());
+  }
+  task->completion(std::move(status));
 }
 
 /**
@@ -306,25 +343,23 @@ void ScheduleOnThreadPool(std::function<void()> task) {
 void EvaluateOnThreadPool(const WindowsTrustConfig& config,
                           TlsVerificationInput input,
                           TlsVerificationCallback completion) {
-  auto shared_completion =
-      std::make_shared<TlsVerificationCallback>(std::move(completion));
-  std::function<void()> task = [config, input = std::move(input),
-                                shared_completion] {
-    if (config.before_async_evaluation) {
-      config.before_async_evaluation();
-    }
-    (*shared_completion)(VerifyWindowsTlsCertificateChain(
-        input.pem_chain, input.target_name, config));
-  };
-  if (TrySubmitToThreadPool(&task)) {
+  auto task = std::make_unique<EvalTask>(
+      EvalTask{config, std::move(input), std::move(completion)});
+  if (TrySubmitThreadpoolCallback(RunEvalTask, task.get(),
+                                  /*pcbe=*/nullptr)) {
+    task.release();  // Now owned by `RunEvalTask`.
     return;
   }
-  // `AsyncTlsVerifier` reports an inline completion synchronously.
-  (*shared_completion)(grpc::Status(
+  DWORD error = GetLastError();
+  grpc::Status status(
       grpc::StatusCode::UNAVAILABLE,
       absl::StrCat("Failed to schedule TLS certificate verification: "
                    "TrySubmitThreadpoolCallback failed with error ",
-                   GetLastError())));
+                   error));
+  LOG_WARN("TLS peer certificate verification failed: %s",
+           status.error_message());
+  // `AsyncTlsVerifier` reports an inline completion synchronously.
+  task->completion(std::move(status));
 }
 
 AsyncTlsVerifier::Evaluator MakeThreadPoolEvaluator(
@@ -347,18 +382,30 @@ grpc::Status VerifyWindowsTlsCertificateChain(
                                         absl::CHexEscape(target_name), "'"));
   }
   const TlsTargetHost& target = parsed.ValueOrDie();
+  if (target.kind == TlsTargetHost::Kind::kDns &&
+      (target.host.empty() || target.host.front() == '.' ||
+       target.host.back() == '.' ||
+       target.host.find('*') != std::string::npos)) {
+    return Unauthenticated(absl::StrCat("Invalid TLS target host name: '",
+                                        absl::CHexEscape(target_name), "'"));
+  }
   std::wstring server_name;
   if (!Utf8ToWide(target.host, &server_name)) {
     return Unauthenticated(absl::StrCat("Invalid TLS target host name: '",
                                         absl::CHexEscape(target_name), "'"));
   }
 
-  std::vector<std::string> ders;
-  grpc::Status parse_status = DecodePemCertificates(pem_chain, &ders);
-  if (!parse_status.ok()) {
-    return parse_status;
+  util::StatusOr<std::vector<std::string>> ders_or =
+      SplitPemCertificates(pem_chain);
+  if (!ders_or.ok()) {
+    return Unauthenticated(ders_or.status().error_message());
   }
+  const std::vector<std::string>& ders = ders_or.ValueOrDie();
 
+  if (ders[0].size() > static_cast<size_t>(MAXDWORD)) {
+    return Unauthenticated(
+        "Leaf certificate in peer chain exceeds maximum supported size");
+  }
   CertContextPtr leaf(CertCreateCertificateContext(
       kCertEncoding, reinterpret_cast<const BYTE*>(ders[0].data()),
       static_cast<DWORD>(ders[0].size())));
@@ -379,6 +426,11 @@ grpc::Status VerifyWindowsTlsCertificateChain(
                      GetLastError()));
   }
   for (size_t i = 1; i < ders.size(); ++i) {
+    if (ders[i].size() > static_cast<size_t>(MAXDWORD)) {
+      return Unauthenticated(
+          absl::StrCat("Intermediate certificate ", i,
+                       " in peer chain exceeds maximum supported size"));
+    }
     if (!CertAddEncodedCertificateToStore(
             intermediates.get(), kCertEncoding,
             reinterpret_cast<const BYTE*>(ders[i].data()),
@@ -418,10 +470,13 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   }
   CertChainPtr chain(raw_chain);
 
-  // CryptoAPI's SSL policy matches DNS names. Its handling of IP address
-  // targets against `iPAddress` subjectAltNames isn't consistent across
-  // Windows versions, so for IP targets the policy skips the name check
-  // (null server name) and `VerifyIpAddressSubjectAltName()` does it.
+  // CryptoAPI's SSL policy matches DNS names, but falls back to the Subject
+  // Common Name when the certificate has no `dNSName` subjectAltName;
+  // `VerifyHasDnsSubjectAltName()` closes that fallback afterwards (RFC 9525).
+  // Its handling of IP address targets against `iPAddress` subjectAltNames
+  // isn't consistent across Windows versions, so for IP targets the policy
+  // skips the name check (null server name) and
+  // `VerifyIpAddressSubjectAltName()` does it.
   const bool is_ip_target = target.kind != TlsTargetHost::Kind::kDns;
   SSL_EXTRA_CERT_CHAIN_POLICY_PARA ssl_para = {};
   ssl_para.cbSize = sizeof(ssl_para);
@@ -450,7 +505,7 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   if (is_ip_target) {
     return VerifyIpAddressSubjectAltName(leaf.get(), target);
   }
-  return grpc::Status::OK;
+  return VerifyHasDnsSubjectAltName(leaf.get(), target);
 }
 
 std::shared_ptr<grpc::ChannelCredentials> CreateWindowsTlsCredentials(
