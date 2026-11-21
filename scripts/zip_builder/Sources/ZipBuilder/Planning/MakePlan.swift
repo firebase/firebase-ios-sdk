@@ -84,16 +84,22 @@ private struct Planning {
     graph.package(for: module).map(graph.isRootPackage) ?? false
   }
 
-  /// The release version for the root package's modules, else their package's version.
+  /// The release version for the root package's modules, else their package's version: its
+  /// resolved tag, or for a package resolved to a branch or revision, the release tag on its
+  /// checked-out commit.
   func version(of module: ResolvedModule) -> String {
     if isRoot(module) {
       return releaseVersion
     }
-    if let packageVersion = graph.package(for: module)?.manifest.version {
+    let package = graph.package(for: module)
+    if let packageVersion = package?.manifest.version {
       return packageVersion.description
     }
-    warn("\(module.name): its package has no version (not resolved to a tag); "
-      + "using \(releaseVersion).")
+    if let package, let tagged = taggedVersion(ofCheckoutAt: package.path) {
+      return tagged
+    }
+    warn("\(module.name): its package has no version (not resolved to a tag, and no release "
+      + "tag on its checked-out commit); using \(releaseVersion).")
     return releaseVersion
   }
 
