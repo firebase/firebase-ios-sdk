@@ -14,30 +14,50 @@
  * limitations under the License.
  */
 
-#if defined(_WIN32)
-// `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot` is declared only when targeting
-// Windows 7 or later, but the build targets Vista (see compiler_setup.cmake).
-// This must come before any header that includes <windows.h>.
-#if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0601
-#undef _WIN32_WINNT
-#define _WIN32_WINNT 0x0601
-#endif
-#endif  // defined(_WIN32)
-
 #include "Firestore/core/src/remote/grpc_tls_credentials_provider_windows.h"
 
 #if defined(_WIN32)
 
-// <wincrypt.h> (included above) defines macros that collide with OpenSSL and
-// BoringSSL type names. This file uses only the OpenSSL meanings.
+#if defined(X509_NAME) || defined(X509_EXTENSIONS) || defined(OCSP_REQUEST)
+#error "grpc_tls_credentials_provider_windows.h must not include <wincrypt.h>"
+#endif
+
+// `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot` in `<wincrypt.h>` is gated on
+// Windows 7 (`NTDDI_VERSION >= NTDDI_WIN7`), whereas CMake targets Vista
+// (`_WIN32_WINNT=0x600`; see compiler_setup.cmake) and gRPC's
+// `port_platform.h` has already included `<windows.h>` / `<sdkddkver.h>`.
+#if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0601
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+#endif
+#if !defined(NTDDI_VERSION) || NTDDI_VERSION < 0x06010000
+#undef NTDDI_VERSION
+#define NTDDI_VERSION 0x06010000
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <winsock2.h>  // NOLINT(build/include_order)
+#include <ws2tcpip.h>  // NOLINT(build/include_order)
+
+#include <windows.h>  // NOLINT(build/include_order)
+
+#include <wincrypt.h>  // NOLINT(build/include_order)
+#include <winreg.h>    // NOLINT(build/include_order)
+
+// <wincrypt.h> defines macros that collide with OpenSSL and BoringSSL type
+// names. This file uses only the OpenSSL meanings.
 #undef X509_NAME
 #undef X509_EXTENSIONS
 #undef PKCS7_ISSUER_AND_SERIAL
 #undef PKCS7_SIGNER_INFO
 #undef OCSP_REQUEST
 #undef OCSP_RESPONSE
-
-#include <ws2tcpip.h>  // NOLINT(build/include_order)
 
 #include <atomic>
 #include <chrono>
@@ -69,6 +89,12 @@ SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/tls_certificate_verifier.h"
 SUPPRESS_END()
 
+#if defined(_MSC_VER)
+#pragma comment(lib, "advapi32")
+#pragma comment(lib, "crypt32")
+#pragma comment(lib, "ws2_32")
+#endif
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -77,9 +103,11 @@ namespace {
 using ::testing::HasSubstr;
 using tls_testing::CreateLoopbackChannel;
 using tls_testing::CreateTestPki;
+using tls_testing::IssueTestCertificate;
 using tls_testing::PemChain;
 using tls_testing::PerformUnaryEcho;
 using tls_testing::TestCertificate;
+using tls_testing::TestCertOptions;
 using tls_testing::TestPki;
 using tls_testing::TlsLoopbackServer;
 
@@ -401,6 +429,20 @@ PCCERT_CONTEXT CreateCertContextFromPem(const std::string& pem) {
       kCertEncoding, reinterpret_cast<const BYTE*>(der.data()), der_size);
 }
 
+/**
+ * Returns whether Group Policy disables CryptoAPI AIA URL retrieval
+ * machine-wide (`CERT_CHAIN_OPTION_DISABLE_AIA_URL_RETRIEVAL`).
+ */
+bool IsAiaUrlRetrievalDisabledByGroupPolicy() {
+  DWORD options = 0;
+  DWORD size = sizeof(options);
+  LSTATUS status = RegGetValueW(
+      HKEY_LOCAL_MACHINE,
+      L"SOFTWARE\\Policies\\Microsoft\\SystemCertificates\\ChainEngine\\Config",
+      L"Options", RRF_RT_REG_DWORD, nullptr, &options, &size);
+  return status == ERROR_SUCCESS && (options & 0x2u) != 0;
+}
+
 class GrpcTlsCredentialsProviderWindowsTest : public ::testing::Test {
  protected:
   GrpcTlsCredentialsProviderWindowsTest()
@@ -432,6 +474,121 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, MatchesIpAddressTargets) {
         VerifyWindowsTlsCertificateChain(pki_.ServerChainPem(), target, trust);
     EXPECT_EQ(mismatch.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << target;
+  }
+
+  // Positive and negative IPv6 `iPAddress` subjectAltName matching, including
+  // non-canonical and IPv4-mapped forms.
+  TestCertOptions ipv6_opts;
+  ipv6_opts.common_name = "ipv6.firestore.test";
+  ipv6_opts.ip_sans = {"::1", "::ffff:127.0.0.1"};
+  TestCertificate ipv6_leaf =
+      IssueTestCertificate(ipv6_opts, &pki_.intermediate);
+  std::string ipv6_chain = PemChain({&ipv6_leaf, &pki_.intermediate});
+
+  for (const char* target : {"::1", "0:0:0:0:0:0:0:1", "::ffff:127.0.0.1",
+                             "0:0:0:0:0:ffff:7f00:1"}) {
+    grpc::Status ipv6_ok =
+        VerifyWindowsTlsCertificateChain(ipv6_chain, target, trust);
+    EXPECT_TRUE(ipv6_ok.ok()) << target << ": " << ipv6_ok.error_message();
+  }
+  for (const char* target : {"::2", "127.0.0.1"}) {
+    grpc::Status ipv6_mismatch =
+        VerifyWindowsTlsCertificateChain(ipv6_chain, target, trust);
+    EXPECT_EQ(ipv6_mismatch.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << target;
+  }
+
+  // An IP literal in `CN` and `dNSName` (without an `iPAddress` SAN) must not
+  // satisfy an IP address target.
+  TestCertOptions dns_ip_opts;
+  dns_ip_opts.common_name = "127.0.0.1";
+  dns_ip_opts.dns_sans = {"127.0.0.1"};
+  TestCertificate dns_ip_leaf =
+      IssueTestCertificate(dns_ip_opts, &pki_.intermediate);
+  grpc::Status dns_ip_status = VerifyWindowsTlsCertificateChain(
+      PemChain({&dns_ip_leaf, &pki_.intermediate}), "127.0.0.1", trust);
+  EXPECT_EQ(dns_ip_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(dns_ip_status.error_message(),
+              HasSubstr("no matching IP address subjectAltName"));
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       DoesNotFallBackToSubjectCommonName) {
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+
+  // Leaf with `CN=loopback.firestore.test` and no `subjectAltName` extension at
+  // all.
+  TestCertOptions cn_only_opts;
+  cn_only_opts.common_name = kHost;
+  TestCertificate cn_only_leaf =
+      IssueTestCertificate(cn_only_opts, &pki_.intermediate);
+  ASSERT_EQ(X509_get_ext_by_NID(cn_only_leaf.x509(), NID_subject_alt_name, -1),
+            -1);
+  std::string cn_only_chain = PemChain({&cn_only_leaf, &pki_.intermediate});
+
+  grpc::Status cn_status =
+      VerifyWindowsTlsCertificateChain(cn_only_chain, kHost, trust);
+  EXPECT_EQ(cn_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(cn_status.error_message(), HasSubstr("CERT_E_CN_NO_MATCH"));
+
+  // End-to-end loopback: gRPC's per-call check would fall back to CN on a
+  // SAN-less cert if handshake verification did not reject it.
+  TlsLoopbackServer server(cn_only_leaf.private_key_pem(), cn_only_chain);
+  ASSERT_TRUE(server.started());
+  auto channel =
+      CreateLoopbackChannel(server, CreateWindowsTlsCredentials(trust), kHost);
+  EXPECT_FALSE(PerformUnaryEcho(channel, "ping").ok());
+
+  // Leaf with `CN=loopback.firestore.test` and an `iPAddress` SAN, but zero
+  // `dNSName` SANs (where CryptoAPI's `CERT_CHAIN_POLICY_SSL` also falls back
+  // to `CN`).
+  TestCertOptions ip_only_opts;
+  ip_only_opts.common_name = kHost;
+  ip_only_opts.ip_sans = {"127.0.0.1"};
+  TestCertificate ip_only_leaf =
+      IssueTestCertificate(ip_only_opts, &pki_.intermediate);
+  std::string ip_only_chain = PemChain({&ip_only_leaf, &pki_.intermediate});
+
+  ASSERT_TRUE(
+      VerifyWindowsTlsCertificateChain(ip_only_chain, "127.0.0.1", trust).ok());
+  grpc::Status ip_only_dns_status =
+      VerifyWindowsTlsCertificateChain(ip_only_chain, kHost, trust);
+  EXPECT_EQ(ip_only_dns_status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(ip_only_dns_status.error_message(),
+              HasSubstr("CERT_E_CN_NO_MATCH"));
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       MatchesWildcardAndRejectsInvalidDnsTargets) {
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+
+  TestCertOptions wild_opts;
+  wild_opts.common_name = "*.wild.firestore.test";
+  wild_opts.dns_sans = {"*.wild.firestore.test"};
+  TestCertificate wild_leaf =
+      IssueTestCertificate(wild_opts, &pki_.intermediate);
+  std::string wild_chain = PemChain({&wild_leaf, &pki_.intermediate});
+
+  grpc::Status ok_status = VerifyWindowsTlsCertificateChain(
+      wild_chain, "sub.wild.firestore.test", trust);
+  EXPECT_TRUE(ok_status.ok()) << ok_status.error_message();
+
+  for (const char* bad_target :
+       {"*.wild.firestore.test", ".wild.firestore.test", "wild.firestore.test",
+        "a.b.wild.firestore.test", ".firestore.test",
+        "sub.wild.firestore.test.", "loopback.firestore.test."}) {
+    grpc::Status status =
+        VerifyWindowsTlsCertificateChain(wild_chain, bad_target, trust);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << bad_target;
+  }
+
+  for (const char* bad_target : {".firestore.test", ".loopback.firestore.test",
+                                 "loopback.firestore.test."}) {
+    grpc::Status status = VerifyWindowsTlsCertificateChain(
+        pki_.ServerChainPem(), bad_target, trust);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+        << bad_target;
   }
 }
 
@@ -477,28 +634,31 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest,
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
   EXPECT_EQ(aia_server.request_count(), 0);
 
-  // Control: the same setup with AIA retrieval left on (a separate server,
-  // URL, leaf, and engine, so nothing is cached) does fetch the intermediate,
-  // so the assertions above aren't vacuous.
-  CountingHttpServer control_server(pki_.intermediate.cert_der());
-  ASSERT_TRUE(control_server.started());
-  std::string control_leaf_pem = ReissueWithCaIssuersUrl(
-      pki_.leaf, pki_.intermediate, control_server.url());
-  WindowsTrustConfig control_trust = ExclusiveRootConfig({&pki_.root});
-  PCCERT_CONTEXT control_leaf = CreateCertContextFromPem(control_leaf_pem);
-  ASSERT_NE(control_leaf, nullptr);
-  CERT_CHAIN_PARA chain_para = {};
-  chain_para.cbSize = sizeof(chain_para);
-  PCCERT_CHAIN_CONTEXT chain = nullptr;
-  ASSERT_TRUE(CertGetCertificateChain(
-      static_cast<HCERTCHAINENGINE>(control_trust.chain_engine.get()),
-      control_leaf, nullptr, nullptr, &chain_para, /*dwFlags=*/0, nullptr,
-      &chain));
-  EXPECT_EQ(chain->TrustStatus.dwErrorStatus,
-            static_cast<DWORD>(CERT_TRUST_NO_ERROR));
-  EXPECT_GT(control_server.request_count(), 0);
-  CertFreeCertificateChain(chain);
-  CertFreeCertificateContext(control_leaf);
+  if (!IsAiaUrlRetrievalDisabledByGroupPolicy()) {
+    // Control: the same setup with AIA retrieval left on (a separate server,
+    // URL, leaf, and engine, so nothing is cached) does fetch the intermediate,
+    // so the assertions above aren't vacuous. Skipped when Group Policy
+    // disables AIA URL retrieval machine-wide.
+    CountingHttpServer control_server(pki_.intermediate.cert_der());
+    ASSERT_TRUE(control_server.started());
+    std::string control_leaf_pem = ReissueWithCaIssuersUrl(
+        pki_.leaf, pki_.intermediate, control_server.url());
+    WindowsTrustConfig control_trust = ExclusiveRootConfig({&pki_.root});
+    PCCERT_CONTEXT control_leaf = CreateCertContextFromPem(control_leaf_pem);
+    ASSERT_NE(control_leaf, nullptr);
+    CERT_CHAIN_PARA chain_para = {};
+    chain_para.cbSize = sizeof(chain_para);
+    PCCERT_CHAIN_CONTEXT chain = nullptr;
+    ASSERT_TRUE(CertGetCertificateChain(
+        static_cast<HCERTCHAINENGINE>(control_trust.chain_engine.get()),
+        control_leaf, nullptr, nullptr, &chain_para, /*dwFlags=*/0, nullptr,
+        &chain));
+    EXPECT_EQ(chain->TrustStatus.dwErrorStatus,
+              static_cast<DWORD>(CERT_TRUST_NO_ERROR));
+    EXPECT_GT(control_server.request_count(), 0);
+    CertFreeCertificateChain(chain);
+    CertFreeCertificateContext(control_leaf);
+  }
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsWrongHostname) {
@@ -539,11 +699,21 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
   WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
   const std::string chain = pki_.ServerChainPem();
 
+  std::string leaf_with_trailing_garbage = pki_.leaf.cert_pem();
+  size_t end_pos = leaf_with_trailing_garbage.find("-----END CERTIFICATE-----");
+  ASSERT_NE(end_pos, std::string::npos);
+  leaf_with_trailing_garbage.insert(end_pos, "TUlJQg==junk\n");
+
   for (const std::string& bad_chain :
        {std::string(), std::string("not a certificate"), "junk\n" + chain,
         chain + "-----BEGIN CERTIFICATE-----\nAAAA\n",
         std::string("-----BEGIN CERTIFICATE-----\n!!!!\n"
                     "-----END CERTIFICATE-----\n"),
+        std::string("-----BEGIN CERTIFICATE-----\nTUlJQg==junk\n"
+                    "-----END CERTIFICATE-----\n"),
+        std::string("-----BEGIN CERTIFICATE-----\nTUlJQg==\nTUlJQg==\n"
+                    "-----END CERTIFICATE-----\n"),
+        leaf_with_trailing_garbage + pki_.intermediate.cert_pem(),
         std::string("-----BEGIN CERTIFICATE-----\nAAAA\n"
                     "-----END CERTIFICATE-----\n")}) {
     grpc::Status status =
@@ -551,6 +721,14 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, RejectsMalformedInput) {
     EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
         << bad_chain;
   }
+
+  grpc::Status padding_garbage_status = VerifyWindowsTlsCertificateChain(
+      "-----BEGIN CERTIFICATE-----\nTUlJQg==junk\n-----END CERTIFICATE-----\n",
+      kHost, trust);
+  EXPECT_EQ(padding_garbage_status.error_code(),
+            grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(padding_garbage_status.error_message(),
+              HasSubstr("Invalid base64 payload"));
 
   // gRPC passes a bare host (no port or brackets) as the target name.
   for (const char* bad_target :
@@ -591,6 +769,29 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackHandshakeSucceeds) {
   EXPECT_EQ(response, "ping");
 }
 
+TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackMatchesIpv6Target) {
+  WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
+  TestCertOptions ipv6_opts;
+  ipv6_opts.common_name = "ipv6.firestore.test";
+  ipv6_opts.ip_sans = {"::1"};
+  TestCertificate ipv6_leaf =
+      IssueTestCertificate(ipv6_opts, &pki_.intermediate);
+  TlsLoopbackServer server(ipv6_leaf.private_key_pem(),
+                           PemChain({&ipv6_leaf, &pki_.intermediate}));
+  ASSERT_TRUE(server.started());
+
+  auto ok_channel =
+      CreateLoopbackChannel(server, CreateWindowsTlsCredentials(trust), "::1");
+  std::string response;
+  grpc::Status status = PerformUnaryEcho(ok_channel, "ping", &response);
+  EXPECT_TRUE(status.ok()) << status.error_message();
+  EXPECT_EQ(response, "ping");
+
+  auto bad_channel =
+      CreateLoopbackChannel(server, CreateWindowsTlsCredentials(trust), "::2");
+  EXPECT_FALSE(PerformUnaryEcho(bad_channel, "ping").ok());
+}
+
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, LoopbackRejectsWrongHostname) {
   WindowsTrustConfig trust = ExclusiveRootConfig({&pki_.root});
   TlsLoopbackServer server(pki_.leaf.private_key_pem(), pki_.ServerChainPem());
@@ -628,16 +829,62 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, VerifiesAsynchronously) {
   EXPECT_TRUE(statuses[0].ok()) << statuses[0].error_message();
 }
 
-TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
-  std::promise<void> release_evaluation;
-  std::shared_future<void> evaluation_released =
-      release_evaluation.get_future().share();
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       LogsWarningOnAsyncVerificationFailure) {
+  WindowsTrustConfig trust = ExclusiveRootConfig({&other_pki_.root});
+  std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(trust);
 
-  WindowsTrustConfig config = ExclusiveRootConfig({&pki_.root});
-  config.before_async_evaluation = [evaluation_released] {
-    evaluation_released.wait();
-  };
-  std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(config);
+  FakeRequest request(pki_.ServerChainPem(), kHost);
+  StatusRecorder recorder;
+  grpc::Status sync_status;
+  testing::internal::CaptureStdout();
+  bool sync =
+      verifier->Verify(request.get(), recorder.AsCallback(), &sync_status);
+  bool recorded = !sync && recorder.WaitForCount(1);
+  std::string logs = testing::internal::GetCapturedStdout();
+
+  ASSERT_FALSE(sync);
+  ASSERT_TRUE(recorded);
+  std::vector<grpc::Status> statuses = recorder.statuses();
+  ASSERT_EQ(statuses.size(), 1u);
+  EXPECT_EQ(statuses[0].error_code(), grpc::StatusCode::UNAUTHENTICATED);
+  EXPECT_THAT(logs, HasSubstr("TLS peer certificate verification failed:"));
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
+  std::promise<void> entered;
+  std::future<void> entered_future = entered.get_future();
+  std::promise<void> release;
+  std::shared_future<void> release_future = release.get_future().share();
+  bool released = false;
+  struct ReleaseOnExit {
+    std::promise<void>* promise;
+    bool* flag;
+    ~ReleaseOnExit() {
+      if (!*flag) {
+        promise->set_value();
+      }
+    }
+  } release_guard{&release, &released};
+
+  auto finished_promise = std::make_shared<std::promise<void>>();
+  std::future<void> finished_future = finished_promise->get_future();
+  std::shared_ptr<void> finish_token(
+      nullptr, [finished_promise](void*) { finished_promise->set_value(); });
+
+  std::unique_ptr<AsyncTlsVerifier> verifier;
+  {
+    WindowsTrustConfig config = ExclusiveRootConfig({&pki_.root});
+    auto entered_once =
+        std::make_shared<std::promise<void>>(std::move(entered));
+    config.before_async_evaluation = [entered_once, release_future,
+                                      finish_token] {
+      entered_once->set_value();
+      release_future.wait();
+    };
+    verifier = CreateWindowsTlsVerifier(config);
+  }
+  finish_token.reset();
 
   FakeRequest request(pki_.ServerChainPem(), kHost);
   StatusRecorder recorder;
@@ -646,14 +893,17 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
       verifier->Verify(request.get(), recorder.AsCallback(), &sync_status);
   ASSERT_FALSE(sync);
 
+  ASSERT_EQ(entered_future.wait_for(kTimeout), std::future_status::ready);
+
   verifier->Cancel(request.get());
   ASSERT_TRUE(recorder.WaitForCount(1));
 
-  // Let the held evaluation finish; its result must be ignored. Destroying the
-  // verifier must not wait for it either.
-  release_evaluation.set_value();
+  // Destroying the verifier while the evaluation is still held must not block,
+  // and when the worker finishes its result must be ignored.
   verifier.reset();
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  released = true;
+  release.set_value();
+  ASSERT_EQ(finished_future.wait_for(kTimeout), std::future_status::ready);
 
   std::vector<grpc::Status> statuses = recorder.statuses();
   ASSERT_EQ(statuses.size(), 1u);

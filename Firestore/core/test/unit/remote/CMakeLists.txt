@@ -55,3 +55,12 @@ target_link_libraries(
   firestore_remote_testing
   firestore_testutil
 )
+
+if(WIN32)
+  target_link_libraries(
+    firestore_remote_test PRIVATE
+    advapi32
+    crypt32
+    ws2_32
+  )
+endif()

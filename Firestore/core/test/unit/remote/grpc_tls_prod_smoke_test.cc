@@ -30,14 +30,41 @@
 // the handshake succeeded.
 
 #if defined(_WIN32)
-// `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot` is declared only when targeting
-// Windows 7 or later, but the build targets Vista (see compiler_setup.cmake).
-// This must come before any header that includes <windows.h>.
+// Included before any Win32 headers or `_WIN32_WINNT` overrides so the build
+// verifies that `grpc_tls_credentials_provider_windows.h` is self-contained and
+// does not pull in `<wincrypt.h>`.
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_windows.h"
+
+#if defined(X509_NAME) || defined(X509_EXTENSIONS) || defined(OCSP_REQUEST)
+#error "grpc_tls_credentials_provider_windows.h must not include <wincrypt.h>"
+#endif
+
+// `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot` in `<wincrypt.h>` is gated on
+// Windows 7 (`NTDDI_VERSION >= NTDDI_WIN7`), whereas CMake targets Vista
+// (`_WIN32_WINNT=0x600`; see compiler_setup.cmake) and gRPC's
+// `port_platform.h` has already included `<windows.h>` / `<sdkddkver.h>`.
 #if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0601
 #undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0601
 #endif
-#endif  // defined(_WIN32)
+#if !defined(NTDDI_VERSION) || NTDDI_VERSION < 0x06010000
+#undef NTDDI_VERSION
+#define NTDDI_VERSION 0x06010000
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <windows.h>  // NOLINT(build/include_order)
+
+#include <wincrypt.h>  // NOLINT(build/include_order)
+#elif !defined(__APPLE__)
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_linux.h"
+#endif
 
 #include <cstdlib>
 
@@ -70,12 +97,6 @@
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
-
-#if defined(_WIN32)
-#include "Firestore/core/src/remote/grpc_tls_credentials_provider_windows.h"
-#elif !defined(__APPLE__)
-#include "Firestore/core/src/remote/grpc_tls_credentials_provider_linux.h"
-#endif
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/client_context.h"
