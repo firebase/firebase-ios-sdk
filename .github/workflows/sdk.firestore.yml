@@ -292,12 +292,14 @@ jobs:
     # test on its own to log its results and to fail if it was skipped.
     - name: Production TLS smoke test
       run: |
+        set -euo pipefail
         exe=$(find build -name firestore_remote_test.exe -print -quit)
         if [[ -z "$exe" ]]; then
           echo "::error::firestore_remote_test.exe not found"
           exit 1
         fi
-        "$exe" --gtest_filter='GrpcTlsProdSmokeTest.*' | tee smoke.log
+        scripts/third_party/travis/retry.sh \
+          "$exe" --gtest_filter='GrpcTlsProdSmokeTest.*' | tee smoke.log
         if grep -q '\[  SKIPPED \]' smoke.log; then
           echo "::error::GrpcTlsProdSmokeTest was skipped"
           exit 1
@@ -1060,6 +1062,7 @@ jobs:
     needs:
       - cmake
       - cmake-linux-boringssl
+      - cmake-windows
       # - xcodetest_emulator
       - spm-source
       - spm-binary
