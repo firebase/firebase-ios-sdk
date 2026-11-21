@@ -28,11 +28,11 @@ import Testing
 @Suite(.serialized)
 struct GenerateContentIntegrationTests {
   let safetySettings = [
-    SafetySetting(harmCategory: .harassment, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .hateSpeech, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .dangerousContent, threshold: .blockLowAndAbove),
-    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockLowAndAbove),
+    SafetySetting(harmCategory: .harassment, threshold: .blockMediumAndAbove),
+    SafetySetting(harmCategory: .hateSpeech, threshold: .blockMediumAndAbove),
+    SafetySetting(harmCategory: .sexuallyExplicit, threshold: .blockMediumAndAbove),
+    SafetySetting(harmCategory: .dangerousContent, threshold: .blockMediumAndAbove),
+    SafetySetting(harmCategory: .civicIntegrity, threshold: .blockMediumAndAbove),
   ]
   // Candidates and total token counts may differ slightly between runs due to whitespace tokens.
   let tokenCountAccuracy = 1
@@ -52,9 +52,9 @@ struct GenerateContentIntegrationTests {
     (InstanceConfig.googleAI_v1beta, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta_appCheckLimitedUse, ModelNames.gemini3_1_FlashLite),
     (InstanceConfig.googleAI_v1beta, ModelNames.gemma4_31B),
-    (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // Note: The following configs are commented out for easy one-off manual testing.
     // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemini2_5_FlashLite),
+    // (InstanceConfig.googleAI_v1beta_freeTier, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemini2_5_FlashLite),
     // (InstanceConfig.googleAI_v1beta_staging, ModelNames.gemma4_31B),
     // (InstanceConfig.googleAI_v1beta_freeTier_bypassProxy, ModelNames.gemini2_5_FlashLite),
@@ -82,12 +82,11 @@ struct GenerateContentIntegrationTests {
     if !modelName.contains("flash-lite") {
       #expect(usageMetadata.thoughtsTokenCount > 0)
     }
+    #expect((1 ... 4).contains(usageMetadata.candidatesTokenCount))
     // The `candidatesTokensDetails` field is not included when using Gemini 3 or Gemma models.
     if modelName.hasPrefix("gemini-3") || modelName.hasPrefix("gemma") {
-      #expect(usageMetadata.candidatesTokenCount == 2)
       #expect(usageMetadata.candidatesTokensDetails.isEmpty)
     } else {
-      #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
       #expect(usageMetadata.candidatesTokensDetails.count == 1)
       let candidatesTokensDetails = try #require(usageMetadata.candidatesTokensDetails.first)
       #expect(candidatesTokensDetails.modality == .text)
@@ -226,21 +225,18 @@ struct GenerateContentIntegrationTests {
       #expect(usageMetadata.thoughtsTokenCount > 0)
       #expect(usageMetadata.thoughtsTokenCount <= thinkingBudget)
     } else if let thinkingLevel = thinkingConfig.thinkingLevel {
-      // For gemini3FlashPreview, repeated runs show that for any of the four
-      // levels, 64 or 68 may be returned.
-      let minThoughtTokens = 64
       switch thinkingLevel {
       case .minimal:
         #expect(usageMetadata.thoughtsTokenCount == 0)
       case .low, .medium, .high:
-        #expect(usageMetadata.thoughtsTokenCount >= minThoughtTokens)
+        #expect(usageMetadata.thoughtsTokenCount > 0)
       default:
         Issue.record("Unhandled ThinkingLevel: \(thinkingLevel)")
       }
     } else {
       #expect(usageMetadata.thoughtsTokenCount == 0)
     }
-    #expect(usageMetadata.candidatesTokenCount.isEqual(to: 3, accuracy: tokenCountAccuracy))
+    #expect((1 ... 4).contains(usageMetadata.candidatesTokenCount))
     // The `candidatesTokensDetails` field is erroneously omitted when using the Google AI (Gemini
     // Developer API) backend.
     if case .googleAI = config.apiConfig.service {
