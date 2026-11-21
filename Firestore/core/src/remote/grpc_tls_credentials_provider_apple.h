@@ -27,6 +27,7 @@
 #import <dispatch/dispatch.h>
 #endif  // defined(__OBJC__)
 
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -56,6 +57,12 @@ namespace remote {
 std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
     CFArrayRef anchor_certs = nullptr);
 
+/**
+ * Returns how many trust evaluations have been started with
+ * `SecTrustEvaluateAsyncWithError` in this process. For tests only.
+ */
+uint64_t AppleSecTrustEvaluationCountForTesting();
+
 #if defined(__OBJC__)
 
 /**
@@ -84,11 +91,15 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
 /**
  * The gRPC `ExternalCertificateVerifier` used by `CreateAppleTlsCredentials()`.
  *
- * Each verification is evaluated with `VerifyAppleTlsCertificateChainAsync()`
- * on `queue`. If `queue` is null, the verifier creates and owns a private
- * serial queue. Tests inject a queue to control when evaluations run.
- * Cancellations are delivered on a global dispatch queue, never inside
- * `Cancel()` and never behind a busy `queue`.
+ * Verifications are dispatched onto `queue` (or a private serial queue created
+ * and owned by the verifier when `queue` is null; tests inject a queue to
+ * control when evaluations run). Identical concurrent verifications, across
+ * every verifier in the process, share one `SecTrust` evaluation via a
+ * `TlsVerificationCoalescer` (so a verification that joins an evaluation in
+ * flight completes on the initiating verifier's queue). Results, successful or
+ * not, are never reused once that evaluation completes. Cancellations are
+ * delivered on a global dispatch queue, never inside `Cancel()` and never
+ * behind a busy `queue`.
  */
 class AppleSecTrustCertificateVerifier final : public AsyncTlsVerifier {
  public:
