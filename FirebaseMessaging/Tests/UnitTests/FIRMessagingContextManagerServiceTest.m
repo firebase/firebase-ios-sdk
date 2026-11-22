@@ -159,6 +159,42 @@ API_AVAILABLE(macos(10.14))
 }
 
 /**
+ *  A gcm.message_id that is empty or not a string must not be passed to
+ *  UNNotificationRequest; scheduleLocalNotificationForMessage:atDate: should
+ *  fall back to a generated UUID string instead.
+ */
+- (void)testScheduleLocalNotification_invalidMessageIDFallsBackToUUID {
+  NSString *startTimeString = [self.dateFormatter stringFromDate:[NSDate distantFuture]];
+  NSArray *invalidIdentifiers = @[
+    @1623702615599207,
+    @[ @"1584748495200141" ],
+    @{@"id" : @"1584748495200141"},
+    [NSNull null],
+    @"",
+  ];
+  for (id badID in invalidIdentifiers) {
+    [self.requests removeAllObjects];
+    NSDictionary *message = @{
+      kFIRMessagingContextManagerLocalTimeStart : startTimeString,
+      kMessageIdentifierKey : badID,
+    };
+    XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message],
+                  @"message ID: %@", badID);
+    XCTAssertEqual(self.requests.count, 1u, @"message ID: %@", badID);
+    UNNotificationRequest *request = self.requests.firstObject;
+    id identifier = request.identifier;
+    XCTAssertTrue([identifier isKindOfClass:[NSString class]],
+                  @"Expected NSString identifier for %@, got %@", badID, [identifier class]);
+    if ([identifier isKindOfClass:[NSString class]]) {
+      NSString *identifierString = identifier;
+      XCTAssertGreaterThan(identifierString.length, 0u, @"message ID: %@", badID);
+      XCTAssertNotNil([[NSUUID alloc] initWithUUIDString:identifierString],
+                      @"Expected UUID fallback for %@, got %@", badID, identifierString);
+    }
+  }
+}
+
+/**
  *  Notification content fields also come from the untrusted payload. Non-string
  *  body/title/sound/category and a non-number badge must be ignored, not crash.
  */

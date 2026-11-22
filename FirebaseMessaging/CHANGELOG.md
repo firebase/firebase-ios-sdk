@@ -1,4 +1,8 @@
 # Unreleased
+- [fixed] Fixed a potential crash when an incoming push payload contains a
+  non-string `gcm.message_id`. Non-string message IDs are now ignored when
+  handling messages, and local-time notifications fall back to a generated UUID
+  identifier when `gcm.message_id` is empty or not a string.
 - [fixed] Fixed a potential crash when a contextual (local time) message
   payload contains fields of an unexpected type. Messages whose local start
   or end time can't be parsed are now dropped instead of being scheduled.
