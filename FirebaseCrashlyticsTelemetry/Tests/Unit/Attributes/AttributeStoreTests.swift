@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseCore
 import OpenTelemetryApi
 import XCTest
 
@@ -24,16 +25,12 @@ final class AttributeStoreTests: XCTestCase {
     super.tearDown()
   }
 
-  func test_commonSpanAttributes_containsScreenNameAppVersionThreadInfoAndOmitsSessionIdWhenNil() {
+  func test_commonSpanAttributes_containsScreenNameThreadInfoAndOmitsSessionIdWhenNil() {
     let attributes = AttributeStore.commonSpanAttributes()
 
     XCTAssertEqual(
       attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsScreen.unknown.name)
-    )
-    XCTAssertEqual(
-      attributes["gcp.firebase.app_version"],
-      .string("1.0")
     )
     XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
     if case let .int(threadId) = attributes[SemanticConventions.Thread.id.rawValue] {
@@ -173,6 +170,99 @@ final class AttributeStoreTests: XCTestCase {
     XCTAssertEqual(
       AttributeStore.commonLogAttributes()[SemanticConventions.Session.id.rawValue],
       .string("test-session-123")
+    )
+  }
+
+  func test_resourceAttributes_setsRequiredMobileAndBackendAttributes() {
+    let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef", gcmSenderID: "1234567890")
+    options.projectID = "test-project"
+    let environment = MockTelemetryEnvironment(
+      bundleIdentifier: "com.example.demo",
+      appVersion: "3.4.5",
+      appBuildId: "108",
+      sdkVersion: "13.0.0"
+    )
+
+    let attributes = AttributeStore.resourceAttributes(
+      options: options,
+      environment: environment
+    )
+
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.name.rawValue],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsFirebaseAppId],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsProjectId],
+      .string("test-project")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.namespace.rawValue],
+      .string("com.example.demo")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.version.rawValue],
+      .string("3.4.5")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.App.buildId.rawValue],
+      .string("108")
+    )
+  }
+
+  func test_resourceAttributes_omitsNilAndEmptyOptionalValues() {
+    let options = FirebaseOptions(googleAppID: "1:1234567890:ios:abcdef", gcmSenderID: "1234567890")
+    options.projectID = ""
+    let environment = MockTelemetryEnvironment(
+      bundleIdentifier: nil,
+      appVersion: "",
+      appBuildId: nil,
+      sdkVersion: "13.0.0"
+    )
+
+    let attributes = AttributeStore.resourceAttributes(
+      options: options,
+      environment: environment
+    )
+
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.name.rawValue],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsFirebaseAppId],
+      .string("1:1234567890:ios:abcdef")
+    )
+    XCTAssertNil(attributes[SemanticConventions.Gcp.crashlyticsProjectId])
+    XCTAssertNil(attributes[SemanticConventions.Service.namespace.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Service.version.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.App.buildId.rawValue])
+  }
+
+  func test_instrumentationScopeAttributes_setsExpectedClientAttributes() {
+    let environment = MockTelemetryEnvironment(sdkVersion: "13.2.1")
+
+    let attributes = AttributeStore.instrumentationScopeAttributes(environment: environment)
+
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsClientArtifact],
+      .string("FirebaseCrashlyticsTelemetry")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsClientRepo],
+      .string("firebase/firebase-ios-sdk")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.clientService.rawValue],
+      .string("firebasetelemetry")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Gcp.crashlyticsClientVersion],
+      .string("v13.2.1")
     )
   }
 }
