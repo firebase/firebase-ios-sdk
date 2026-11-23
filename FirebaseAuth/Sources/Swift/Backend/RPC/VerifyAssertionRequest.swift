@@ -236,11 +236,19 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// A warning to log before sending the request, or `nil` if no `postBody` parameter is empty.
   var emptyPostBodyParametersWarning: String? {
     let names = emptyPostBodyParameterNames
-    guard let firstName = names.first else {
+    guard let lastName = names.last else {
       return nil
     }
-    let emptyDescription = names.count == 1 ? "an empty \(firstName)" :
-      "empty values for \(names.joined(separator: ", "))"
+    let emptyDescription: String
+    switch names.count {
+    case 1:
+      emptyDescription = "an empty \(lastName)"
+    case 2:
+      emptyDescription = "empty values for \(names[0]) and \(lastName)"
+    default:
+      emptyDescription =
+        "empty values for \(names.dropLast().joined(separator: ", ")), and \(lastName)"
+    }
     return "The verifyAssertion request for \(providerID) has \(emptyDescription). " +
       "If you don't have a value, pass nil instead of an empty string. The server can reject " +
       "empty values, for example with INVALID_IDP_RESPONSE."
