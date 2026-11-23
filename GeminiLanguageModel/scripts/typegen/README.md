@@ -49,14 +49,20 @@ from `firebasevertexai-overrides.yaml`, and writes
 `discovery_documents/firebasevertexai-openapi.yaml` (gitignored).
 
 Pass `--input-file` to convert an alternate local OpenAPI 3.0 or Google
-Discovery Document JSON file. To download and convert the latest live Google
-REST Discovery Document instead (saving it to the gitignored
-`discovery_documents/firebasevertexai_discovery_v1beta.json` without modifying
-the checked-in OpenAPI 3.0 file):
+Discovery Document JSON file. For **upstream comparison only**, pass `--fetch`
+to download and convert the latest live Google REST Discovery Document (saved to
+the gitignored `discovery_documents/firebasevertexai_discovery_v1beta.json`; the
+script refuses to overwrite the checked-in OpenAPI 3.0 spec):
 
 ```bash
 python upgrade_spec.py --fetch
 ```
+
+Do not commit Swift models regenerated with `--fetch`: the live REST Discovery
+Document formats doc descriptions differently and omits some OpenAPI 3.0
+metadata (such as `BidiGenerateContent` descriptions and `google-duration`
+formats). See [discovery_documents/README.md](discovery_documents/README.md) for
+details on the checked-in OpenAPI 3.0 spec.
 
 ---
 

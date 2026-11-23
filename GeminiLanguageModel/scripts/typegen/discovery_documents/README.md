@@ -7,9 +7,9 @@ type-safe Swift data models.
 ## Document list
 
 *   [firebasevertexai_public_openapi3_0_v1beta.json](firebasevertexai_public_openapi3_0_v1beta.json):
-    The checked-in OpenAPI 3.0 Discovery Document JSON file describing the
-    public Firebase AI Logic API (`v1beta`), formatted deterministically with
-    sorted keys and used by `upgrade_spec.py` by default.
+    The checked-in OpenAPI 3.0 specification describing the public Firebase AI
+    Logic API (`firebasevertexai.googleapis.com`, `v1beta`), formatted
+    deterministically with sorted keys and used by `upgrade_spec.py` by default.
 *   [firebasevertexai-overrides.yaml](firebasevertexai-overrides.yaml):
     The manually maintained YAML overrides file defining schema patches
     (`required` properties, `oneOf` unions) and `generatorConfig` settings.
@@ -18,7 +18,36 @@ type-safe Swift data models.
     `upgrade_spec.py`. This file is the direct input to `generate_types.py`.
 *   `firebasevertexai_discovery_v1beta.json` *(gitignored)*:
     Optional live Google REST Discovery Document JSON file downloaded when
-    `python upgrade_spec.py --fetch` is run.
+    `python upgrade_spec.py --fetch` is run for upstream comparison.
+
+---
+
+## Checked-in OpenAPI 3.0 specification
+
+Unlike the Google REST Discovery Document
+(`https://firebasevertexai.googleapis.com/$discovery/rest?version=v1beta`), the
+OpenAPI 3.0 specification is not currently served from a public HTTP endpoint.
+Firebase SDK maintainers refresh and check in
+`firebasevertexai_public_openapi3_0_v1beta.json` from the public API definition
+when the API surface changes.
+
+*   **Source revision**: Matches public Discovery Document revision `20261109`
+    (the `info.x-google-revision` field inside the OpenAPI 3.0 file itself is
+    `"0"`).
+*   **Deterministic formatting**: Before committing an updated copy of
+    `firebasevertexai_public_openapi3_0_v1beta.json`, normalize it with sorted
+    keys and 2-space indentation so diffs remain minimal:
+
+```bash
+python3 -c '
+import json, pathlib
+p = pathlib.Path("discovery_documents/firebasevertexai_public_openapi3_0_v1beta.json")
+p.write_text(
+    json.dumps(json.loads(p.read_text("utf-8")), indent=2, sort_keys=True) + "\n",
+    "utf-8",
+)
+'
+```
 
 ---
 
@@ -31,7 +60,9 @@ From `GeminiLanguageModel/scripts/typegen/`:
 # firebasevertexai-openapi.yaml:
 python upgrade_spec.py
 
-# Optional: fetch and upgrade the live Google REST Discovery Document instead:
+# Upstream comparison only (do not use to regenerate committed Swift models;
+# REST Discovery Docs format descriptions differently and omit some OpenAPI 3.0
+# metadata):
 python upgrade_spec.py --fetch
 ```
 

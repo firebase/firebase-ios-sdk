@@ -295,8 +295,6 @@ def extract_standalone_enums(
     # OpenAPI 3.0 inputs may already hoist shared enums to top-level schemas
     # without top-level descriptions; backfill rule descriptions when empty.
     for rule in STANDALONE_ENUM_RULES:
-        if "description" not in rule:
-            continue
         for prefix in (*prefixes, ""):
             enum_schema_name = rule["name_fn"](prefix)
             candidate = schemas.get(enum_schema_name)
@@ -340,7 +338,7 @@ def upgrade_nullables(node: Any) -> None:
         node: The schema object or tree node to convert.
     """
     if isinstance(node, dict):
-        if node.get("nullable"):
+        if node.get("nullable") is True:
             if "type" in node:
                 t = node["type"]
                 if isinstance(t, str):
@@ -352,8 +350,12 @@ def upgrade_nullables(node: Any) -> None:
                 node["oneOf"] = [{"$ref": ref}, {"type": "null"}]
             node.pop("nullable", None)
 
-        for _, v in list(node.items()):
-            upgrade_nullables(v)
+        for key, v in list(node.items()):
+            if key == "properties" and isinstance(v, dict):
+                for prop_schema in v.values():
+                    upgrade_nullables(prop_schema)
+            else:
+                upgrade_nullables(v)
     elif isinstance(node, list):
         for item in node:
             upgrade_nullables(item)
@@ -380,8 +382,12 @@ def simplify_all_of(node: Any) -> None:
                 node.pop("allOf")
                 node["$ref"] = ref
 
-        for _, v in list(node.items()):
-            simplify_all_of(v)
+        for key, v in list(node.items()):
+            if key == "properties" and isinstance(v, dict):
+                for prop_schema in v.values():
+                    simplify_all_of(prop_schema)
+            else:
+                simplify_all_of(v)
     elif isinstance(node, list):
         for item in node:
             simplify_all_of(item)
@@ -460,8 +466,10 @@ def main(argv: list[str] | None = None) -> None:
         "--fetch",
         action="store_true",
         help=(
-            "Fetch the latest Discovery Document live from Google APIs and"
-            " save it to the input file path."
+            "Fetch the latest live Google REST Discovery Document for upstream"
+            " comparison (not for committing generated models) and save it to"
+            " the input file path. Refuses to overwrite the checked-in OpenAPI"
+            " 3.0 spec."
         ),
     )
     parser.add_argument(
@@ -479,6 +487,14 @@ def main(argv: list[str] | None = None) -> None:
         input_file = default_input_file
     output_file = args.output_file
     overrides_file = args.overrides_file
+
+    if args.fetch and os.path.realpath(input_file) == os.path.realpath(
+        default_input_file
+    ):
+        raise ValueError(
+            "Refusing to overwrite the checked-in OpenAPI 3.0 spec at"
+            f" {default_input_file} with a fetched REST Discovery Document."
+        )
 
     if not os.path.exists(overrides_file):
         raise FileNotFoundError(

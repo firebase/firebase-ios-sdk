@@ -402,6 +402,30 @@ class TestUpgradeSpec(unittest.TestCase):
             [{"$ref": "#/components/schemas/MyType"}, {"type": "null"}],
         )
 
+    def test_upgrade_nullables_preserves_nullable_property(self):
+        data = {
+            "type": "object",
+            "properties": {
+                "nullable": {
+                    "type": "boolean",
+                    "description": "Indicates if the value may be null.",
+                },
+                "other": {"type": "string", "nullable": True},
+            },
+        }
+        upgrade_spec.upgrade_nullables(data)
+        self.assertEqual(
+            data["properties"]["nullable"],
+            {
+                "type": "boolean",
+                "description": "Indicates if the value may be null.",
+            },
+        )
+        self.assertEqual(
+            data["properties"]["other"]["type"], ["string", "null"]
+        )
+        self.assertNotIn("nullable", data["properties"]["other"])
+
     def test_simplify_all_of(self):
         data = {
             "allOf": [{"$ref": "#/components/schemas/MyType"}],
@@ -411,6 +435,25 @@ class TestUpgradeSpec(unittest.TestCase):
         self.assertNotIn("allOf", data)
         self.assertEqual(data["$ref"], "#/components/schemas/MyType")
         self.assertEqual(data["description"], "Sibling description")
+
+    def test_simplify_all_of_preserves_all_of_property(self):
+        data = {
+            "type": "object",
+            "properties": {
+                "allOf": {
+                    "allOf": [{"$ref": "#/components/schemas/MyType"}],
+                    "description": "Nested allOf property.",
+                }
+            },
+        }
+        upgrade_spec.simplify_all_of(data)
+        self.assertEqual(
+            data["properties"]["allOf"],
+            {
+                "$ref": "#/components/schemas/MyType",
+                "description": "Nested allOf property.",
+            },
+        )
 
     def test_deep_merge(self):
         source = {
@@ -477,6 +520,36 @@ class TestUpgradeSpec(unittest.TestCase):
                 spec = yaml.safe_load(f)
             self.assertEqual(spec["openapi"], "3.1.0")
             self.assertTrue(spec["components"]["schemas"])
+            self.assertIn(
+                "nullable",
+                spec["components"]["schemas"][
+                    "GoogleAiGenerativelanguageV1betaSchema"
+                ]["properties"],
+            )
+
+    def test_checked_in_spec_contains_all_override_schemas(self):
+        docs_dir = os.path.join(
+            os.path.dirname(os.path.abspath(upgrade_spec.__file__)),
+            "discovery_documents",
+        )
+        spec_path = os.path.join(
+            docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+        )
+        overrides_path = os.path.join(
+            docs_dir, "firebasevertexai-overrides.yaml"
+        )
+        with open(spec_path, "r", encoding="utf-8") as f:
+            raw_spec = json.load(f)
+        with open(overrides_path, "r", encoding="utf-8") as f:
+            overrides = yaml.safe_load(f)
+
+        raw_schemas = raw_spec["components"]["schemas"]
+        missing = [
+            name
+            for name in overrides.get("schemas", {})
+            if name not in raw_schemas
+        ]
+        self.assertEqual(missing, [])
 
     @mock.patch("urllib.request.urlopen")
     def test_main_raises_when_default_input_file_missing(self, mock_urlopen):
@@ -554,6 +627,49 @@ class TestUpgradeSpec(unittest.TestCase):
             mock_urlopen.assert_called_once()
             self.assertTrue(os.path.isfile(fetched_file))
             self.assertTrue(os.path.isfile(output_file))
+            with open(checked_in_spec, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), '{"sentinel": true}\n')
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_fetch_refuses_to_overwrite_checked_in_spec(
+        self, mock_urlopen
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            docs_dir = os.path.join(tmp, "discovery_documents")
+            os.makedirs(docs_dir)
+            checked_in_spec = os.path.join(
+                docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+            )
+            with open(checked_in_spec, "w", encoding="utf-8") as f:
+                f.write('{"sentinel": true}\n')
+            overrides_file = os.path.join(
+                docs_dir, "firebasevertexai-overrides.yaml"
+            )
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                mock.patch.object(
+                    upgrade_spec,
+                    "__file__",
+                    os.path.join(tmp, "upgrade_spec.py"),
+                ),
+                self.assertRaisesRegex(ValueError, "Refusing to overwrite"),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    [
+                        "--fetch",
+                        "--input-file",
+                        checked_in_spec,
+                        "--output-file",
+                        os.path.join(tmp, "openapi.yaml"),
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_not_called()
             with open(checked_in_spec, "r", encoding="utf-8") as f:
                 self.assertEqual(f.read(), '{"sentinel": true}\n')
 
