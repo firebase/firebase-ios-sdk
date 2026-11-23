@@ -173,8 +173,8 @@ class VerifyAssertionTests: RPCBaseTests {
     XCTAssertEqual(
       request.emptyPostBodyParametersWarning,
       "The verifyAssertion request for apple.com has empty values for nonce and access_token. " +
-        "If you don't have a value, pass nil instead of an empty string. The server can " +
-        "reject empty values, for example with INVALID_IDP_RESPONSE."
+        "If you don't have a value, omit the parameter or pass nil instead of an empty " +
+        "string. The server can reject empty values, for example with INVALID_IDP_RESPONSE."
     )
   }
 
@@ -189,8 +189,9 @@ class VerifyAssertionTests: RPCBaseTests {
     XCTAssertEqual(
       request.emptyPostBodyParametersWarning,
       "The verifyAssertion request for apple.com has empty values for id_token, nonce, and " +
-        "access_token. If you don't have a value, pass nil instead of an empty string. The " +
-        "server can reject empty values, for example with INVALID_IDP_RESPONSE."
+        "access_token. If you don't have a value, omit the parameter or pass nil instead of " +
+        "an empty string. The server can reject empty values, for example with " +
+        "INVALID_IDP_RESPONSE."
     )
   }
 
@@ -205,8 +206,47 @@ class VerifyAssertionTests: RPCBaseTests {
     XCTAssertEqual(
       request.emptyPostBodyParametersWarning,
       "The verifyAssertion request for apple.com has an empty access_token. If you don't " +
-        "have a value, pass nil instead of an empty string. The server can reject empty " +
+        "have a value, omit the parameter or pass nil instead of an empty string. The server " +
+        "can reject empty values, for example with INVALID_IDP_RESPONSE."
+    )
+  }
+
+  func testDiagnosticsWithEmptyProviderID() {
+    let request = VerifyAssertionRequest(providerID: "",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+
+    XCTAssertEqual(request.emptyPostBodyParameterNames, ["providerId"])
+    XCTAssertEqual(
+      request.emptyPostBodyParametersWarning,
+      "The verifyAssertion request has an empty providerId. If you don't have a value, omit " +
+        "the parameter or pass nil instead of an empty string. The server can reject empty " +
         "values, for example with INVALID_IDP_RESPONSE."
+    )
+    XCTAssertEqual(
+      request.failureSummary(for: AuthErrorUtils.invalidCredentialError(message: nil)),
+      "The verifyAssertion request failed with ERROR_INVALID_CREDENTIAL (17004). postBody " +
+        "parameters sent: providerId (empty), id_token."
+    )
+  }
+
+  /// Checks that a request with an empty parameter goes through `AuthBackend`, which logs the
+  /// warning, and that the empty value is still sent.
+  func testEmptyPostBodyParameterStillSentThroughBackend() async throws {
+    let request = VerifyAssertionRequest(providerID: "apple.com",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+    request.providerAccessToken = ""
+    try await checkRequest(
+      request: request,
+      expected: kExpectedAPIURL,
+      key: kIDTokenKey,
+      value: nil
+    )
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
+    XCTAssertEqual(
+      requestDictionary[kPostBodyKey] as? String,
+      "providerId=apple.com&id_token=secretIDToken&access_token="
     )
   }
 

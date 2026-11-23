@@ -249,9 +249,9 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
       emptyDescription =
         "empty values for \(names.dropLast().joined(separator: ", ")), and \(lastName)"
     }
-    return "The verifyAssertion request for \(providerID) has \(emptyDescription). " +
-      "If you don't have a value, pass nil instead of an empty string. The server can reject " +
-      "empty values, for example with INVALID_IDP_RESPONSE."
+    return "\(requestDescription) has \(emptyDescription). If you don't have a value, omit " +
+      "the parameter or pass nil instead of an empty string. The server can reject empty " +
+      "values, for example with INVALID_IDP_RESPONSE."
   }
 
   /// A summary of a failed request to log at debug level.
@@ -261,7 +261,14 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
     let parameters = postBodyQueryItems.map { item in
       item.value?.isEmpty == true ? "\(item.name) (empty)" : item.name
     }
-    return "The verifyAssertion request for \(providerID) failed with \(errorName) " +
-      "(\(nsError.code)). postBody parameters sent: \(parameters.joined(separator: ", "))."
+    return "\(requestDescription) failed with \(errorName) (\(nsError.code)). " +
+      "postBody parameters sent: \(parameters.joined(separator: ", "))."
+  }
+
+  /// How the messages refer to the request. The provider ID can be empty, because the public
+  /// credential APIs accept any string.
+  private var requestDescription: String {
+    providerID.isEmpty ? "The verifyAssertion request" :
+      "The verifyAssertion request for \(providerID)"
   }
 }

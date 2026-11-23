@@ -1,9 +1,9 @@
 # Unreleased
-- [added] Auth now logs a warning when a sign-in request for an identity
-  provider credential contains an empty ID token, access token, nonce, or other
-  value, which the server can reject. With debug logging enabled, Auth also
-  logs which of these values a failed sign-in request sent, without the values
-  themselves. (#15571)
+- [added] Auth now logs a warning when a sign-in, link, or reauthentication
+  request for an identity provider credential contains an empty ID token,
+  access token, nonce, or other value, which the server can reject. With
+  debug logging enabled, Auth also logs which of these values a failed
+  request sent, without the values themselves. (#15571)
 - [fixed] `TOTPSecret` (`FIRTOTPSecret`) now has the `hashingAlgorithm`,
   `codeLength`, `codeIntervalSeconds`, and `enrollmentCompletionDeadline`
   properties that the Android and JavaScript SDKs provide. Apps can use them
