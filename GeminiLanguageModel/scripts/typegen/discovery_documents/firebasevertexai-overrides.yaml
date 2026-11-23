@@ -162,8 +162,10 @@ generatorConfig:
     - prefix: GoogleCloudAiplatformV1beta1
       tag: ai-enterprise
   # Hand-written Swift files in the output directory that must not be pruned.
-  preservedFiles:
-    - ResponseFormatConfig.swift
+  # Empty because hand-written sources (including the `manualOverrideSchemas`
+  # implementations) live in `Sources/GeminiAPIDataModels/Core`, which the
+  # generator never writes to or prunes.
+  preservedFiles: []
   typeOverrides: {}
   propertyTypeOverrides:
     GenerationConfig.responseJsonSchema: JSONObject

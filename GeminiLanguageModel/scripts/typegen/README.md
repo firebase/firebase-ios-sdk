@@ -4,6 +4,12 @@ This directory contains the OpenAPI 3.1.0 upgrade and Swift code generation
 pipeline used to generate the data models in
 `GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent`.
 
+Hand-written support types used by the generated models (`Buildable`,
+`JSONValue`, `GoogleCloudAPIError`, and `manualOverrideSchemas` implementations
+such as `ResponseFormatConfig`) live in
+`GeminiLanguageModel/Sources/GeminiAPIDataModels/Core`, which the generator
+never writes to or prunes.
+
 ---
 
 ## Architecture and code generation workflow
