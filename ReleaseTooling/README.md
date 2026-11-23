@@ -3,6 +3,11 @@
 This project includes Firebase release tooling including a zip builder and a
 Firebase release candidate creation tool.
 
+A SwiftPM-based replacement for the zip builder lives in
+[`scripts/zip_builder`](../scripts/zip_builder/README.md). Until it replaces this one,
+`release.zip_builder.yml` builds its release zip alongside `release.zip.yml`; see its README's
+"Release zip" section.
+
 The rest of this file documents using the `zip-builder` tool. Information about the rest of the
 tools for managing Firebase releases and information about developing these tools is at
 [DEVELOP.md](DEVELOP.md)

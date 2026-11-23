@@ -16,12 +16,20 @@ import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import XCTest
+#if canImport(CoreImage)
+  import CoreImage
+#endif // canImport(CoreImage)
 
 @testable import FirebaseAILogic
 
 @available(macOS 12.0, watchOS 8.0, *)
 final class GenerativeModelVertexAITests: XCTestCase {
   let testPrompt = "What sorts of questions can I ask you?"
+  /// Content with the part that an image returns when it cannot be converted to JPEG.
+  let invalidImageContent = ModelContent(parts: [
+    TextPart("Describe this image."),
+    ErrorPart(ImageConversionError.couldNotConvertToJPEG),
+  ])
   let safetyRatingsNegligible: [SafetyRating] = [
     .init(
       category: .sexuallyExplicit,
@@ -94,7 +102,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
   let testModelName = "test-model"
   let testModelResourceName =
     "projects/test-project-id/locations/test-location/publishers/google/models/test-model"
-  let apiConfig = FirebaseAI.defaultEnterpriseAPIConfig
+  let apiConfig = FirebaseAI.defaultAgentPlatformAPIConfig
 
   let vertexSubdirectory = "mock-responses/vertexai"
 
@@ -886,7 +894,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
         .starts(with: "Vertex AI in Firebase API has not been used in project"))
-      XCTAssertTrue(error.isEnterpriseInFirebaseServiceDisabledError())
+      XCTAssertTrue(error.isFirebaseAILogicServiceDisabledError())
       return
     } catch {
       XCTFail("Should throw GenerateContentError.internalError(RPCError); error thrown: \(error)")
@@ -1172,6 +1180,20 @@ final class GenerativeModelVertexAITests: XCTestCase {
     )
   }
 
+  #if canImport(CoreImage)
+    func testGenerateContent_failure_invalidImage() async throws {
+      // No request handler is set; `MockURLProtocol` traps if a request is sent.
+      do {
+        _ = try await model.generateContent(testPrompt, CIImage.empty())
+      } catch let GenerateContentError.internalError(error as ImageConversionError) {
+        XCTAssertEqual(error, .couldNotConvertToJPEG)
+        return
+      }
+
+      XCTFail("Should have caught an error.")
+    }
+  #endif // canImport(CoreImage)
+
   func testGenerateContentMissingSafetyRatings() async throws {
     MockURLProtocol.requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
       forResource: "unary-success-missing-safety-ratings",
@@ -1241,7 +1263,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
     XCTFail("Should have caught an error.")
   }
 
-  func testGenerateContentStream_failure_enterpriseInFirebaseAPINotEnabled() async throws {
+  func testGenerateContentStream_failure_agentPlatformInFirebaseAPINotEnabled() async throws {
     let expectedStatusCode = 403
     MockURLProtocol
       .requestHandler = try GenerativeModelTestUtil.httpRequestHandler(
@@ -1261,7 +1283,7 @@ final class GenerativeModelVertexAITests: XCTestCase {
       XCTAssertEqual(error.status, .permissionDenied)
       XCTAssertTrue(error.message
         .starts(with: "Vertex AI in Firebase API has not been used in project"))
-      XCTAssertTrue(error.isEnterpriseInFirebaseServiceDisabledError())
+      XCTAssertTrue(error.isFirebaseAILogicServiceDisabledError())
       return
     }
 
@@ -1287,6 +1309,17 @@ final class GenerativeModelVertexAITests: XCTestCase {
     }
 
     XCTFail("Should have caught an error.")
+  }
+
+  func testGenerateContentStream_failure_imageConversionError() async throws {
+    // No request handler is set; `MockURLProtocol` traps if a request is sent.
+    XCTAssertThrowsError(try model.generateContentStream([invalidImageContent])) { error in
+      guard case let GenerateContentError.internalError(underlying) = error else {
+        XCTFail("Expected an internal error, got \(error) instead.")
+        return
+      }
+      XCTAssertEqual(underlying as? ImageConversionError, .couldNotConvertToJPEG)
+    }
   }
 
   func testGenerateContentStream_failureFinishReasonSafety() async throws {
@@ -1906,6 +1939,18 @@ final class GenerativeModelVertexAITests: XCTestCase {
     }
 
     XCTFail("Expected internal RPCError.")
+  }
+
+  func testCountTokens_failure_imageConversionError() async throws {
+    // No request handler is set; `MockURLProtocol` traps if a request is sent.
+    do {
+      _ = try await model.countTokens([invalidImageContent])
+    } catch let GenerateContentError.internalError(error as ImageConversionError) {
+      XCTAssertEqual(error, .couldNotConvertToJPEG)
+      return
+    }
+
+    XCTFail("Should have caught an error.")
   }
 
   func testCountTokens_requestOptions_customTimeout() async throws {

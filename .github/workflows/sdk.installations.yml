@@ -15,6 +15,7 @@ on:
     - '.github/workflows/_quickstart.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'

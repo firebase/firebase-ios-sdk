@@ -1,0 +1,65 @@
+public struct Mixed {
+  public var shown: String
+  var hidden: Int
+  private var secret: Int
+  public private(set) var readOnly: String
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "shown", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "hidden", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "secret", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "readOnly", type: String.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "shown", value: self.shown)
+        addProperty(name: "hidden", value: self.hidden)
+        addProperty(name: "secret", value: self.secret)
+        addProperty(name: "readOnly", value: self.readOnly)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        public var id: FoundationModelsFake.GenerationID
+        public var shown: String.PartiallyGenerated?
+        var hidden: Int.PartiallyGenerated?
+        private var secret: Int.PartiallyGenerated?
+        public private(set) var readOnly: String.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.shown = try content.value(forProperty: "shown")
+            self.hidden = try content.value(forProperty: "hidden")
+            self.secret = try content.value(forProperty: "secret")
+            self.readOnly = try content.value(forProperty: "readOnly")
+        }
+    }
+}
+
+extension Mixed: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.shown = try content.value(forProperty: "shown")
+        self.hidden = try content.value(forProperty: "hidden")
+        self.secret = try content.value(forProperty: "secret")
+        self.readOnly = try content.value(forProperty: "readOnly")
+    }
+}

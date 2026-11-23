@@ -1,0 +1,48 @@
+public struct Named {
+  public var value: Int
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            __name: "CustomName",
+            description: "A type with a custom schema name",
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "value", value: self.value)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        public var id: FoundationModelsFake.GenerationID
+        public var value: Int.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.value = try content.value(forProperty: "value")
+        }
+    }
+}
+
+extension Named: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.value = try content.value(forProperty: "value")
+    }
+}

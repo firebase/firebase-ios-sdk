@@ -56,7 +56,6 @@ NSString *kInvalidTokenErrorMessage =
   if (!customToken) {
     XCTFail(@"There was an error retrieving the custom token: %@", error);
   }
-  NSLog(@"The valid token is: %@", customToken);
 
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"CustomAuthToken sign-in finished."];

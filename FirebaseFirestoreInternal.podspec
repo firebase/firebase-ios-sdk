@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestoreInternal'
-  s.version          = '13.0.0'
+  s.version          = '13.3.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -82,6 +82,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.exclude_files = [
     'Firestore/core/src/api/input_validation_std.cc',
     'Firestore/core/src/remote/connectivity_monitor_noop.cc',
+    'Firestore/core/src/remote/grpc_root_certificate_finder_generated.cc',
+    'Firestore/core/src/remote/grpc_root_certificates_generated.cc',
+    'Firestore/core/src/remote/grpc_tls_credentials_provider_embedded.cc',
     'Firestore/core/src/util/filesystem_win.cc',
     'Firestore/core/src/util/hard_assert_stdio.cc',
     'Firestore/core/src/util/log_stdio.cc',
@@ -92,8 +95,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     "#{s.module_name}_Privacy" => 'Firestore/Source/Resources/PrivacyInfo.xcprivacy'
   }
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 13.0.0'
-  s.dependency 'FirebaseCore', '~> 13.0.0'
+  s.dependency 'FirebaseAppCheckInterop', '~> 13.3.0'
+  s.dependency 'FirebaseCore', '~> 13.3.0'
 
   abseil_version = '~> 1.20250512.2'
   s.dependency 'abseil/algorithm', abseil_version
@@ -110,9 +113,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'leveldb-library', '>= 1.22.6', '< 1.23'
   s.dependency 'nanopb', '~> 3.30910.0'
 
-  s.ios.frameworks = 'SystemConfiguration', 'UIKit', 'Network'
-  s.osx.frameworks = 'SystemConfiguration', 'Network'
-  s.tvos.frameworks = 'SystemConfiguration', 'UIKit', 'Network'
+  s.ios.frameworks = 'SystemConfiguration', 'UIKit', 'Network', 'Security'
+  s.osx.frameworks = 'SystemConfiguration', 'Network', 'Security'
+  s.tvos.frameworks = 'SystemConfiguration', 'UIKit', 'Network', 'Security'
 
   s.library = 'c++'
   s.pod_target_xcconfig = {

@@ -21,6 +21,7 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 #import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
@@ -29,6 +30,7 @@
 #import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenDeleteOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenFetchOperation.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
@@ -44,6 +46,11 @@ static NSString *kRegistrationToken = @"token-12345";
 @interface FIRMessagingTokenOperation (ExposedForTest)
 - (void)performTokenOperation;
 + (NSString *)HTTPAuthHeaderFromCheckin:(FIRMessagingCheckinPreferences *)checkin;
+@end
+
+@interface FIRMessagingTopicOperation (ExposedForTest)
++ (NSURLSession *)sharedSession;
+- (void)performTokenSubscriptionChange;
 @end
 
 @interface FIRInstallationsAuthTokenResult (Tests)
@@ -460,7 +467,104 @@ static NSString *kRegistrationToken = @"token-12345";
             FIRDailyHeartbeatCodeNone];
 }
 
+- (void)testTokenFetchOperationSendsVersionInfoHeader {
+  FIRMessagingCheckinPreferences *checkinPreferences =
+      [self setCheckinPreferencesWithLastCheckinTime:0];
+  [self assertTokenFetchOperationWithCheckin:checkinPreferences sendsInfoHeader:kVersionInfoString];
+}
+
+- (void)testTokenFetchOperationSkipsNonStringVersionInfoHeader {
+  FIRMessagingCheckinPreferences *checkinPreferences =
+      [self setCheckinPreferencesWithLastCheckinTime:0];
+  // Checkin preferences drop non-string values, so stub one to test the header check by itself.
+  id checkinPreferencesMock = OCMPartialMock(checkinPreferences);
+  OCMStub([checkinPreferencesMock versionInfo]).andReturn(@123);
+  [self addTeardownBlock:^{
+    [checkinPreferencesMock stopMocking];
+  }];
+
+  [self assertTokenFetchOperationWithCheckin:checkinPreferences sendsInfoHeader:nil];
+}
+
+- (void)testTopicOperationSendsVersionInfoHeader {
+  [self assertTopicOperationWithVersionInfo:kVersionInfoString sendsInfoHeader:kVersionInfoString];
+}
+
+- (void)testTopicOperationSkipsNonStringVersionInfoHeader {
+  [self assertTopicOperationWithVersionInfo:@123 sendsInfoHeader:nil];
+}
+
 #pragma mark - Internal Helpers
+
+- (void)assertTokenFetchOperationWithCheckin:(FIRMessagingCheckinPreferences *)checkinPreferences
+                             sendsInfoHeader:(nullable NSString *)expectedInfoHeader {
+  XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Token request sent"];
+  FIRMessagingTokenFetchOperation *operation = [[FIRMessagingTokenFetchOperation alloc]
+      initWithAuthorizedEntity:kAuthorizedEntity
+                         scope:kScope
+                       options:nil
+            checkinPreferences:checkinPreferences
+                    instanceID:self.instanceID
+               heartbeatLogger:[[FIRHeartbeatLoggerFake alloc] init]];
+
+  [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:[FIRURLSessionOCMockStub HTTPResponseWithCode:200]
+                                    body:[self dataForResponseWithValidToken:@""]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    XCTAssertEqualObjects([sentRequest valueForHTTPHeaderField:@"info"],
+                                          expectedInfoHeader);
+                    [requestExpectation fulfill];
+                    return YES;
+                  }];
+
+  [operation start];
+
+  [self waitForExpectations:@[ requestExpectation ] timeout:1];
+}
+
+- (void)assertTopicOperationWithVersionInfo:(id)versionInfo
+                            sendsInfoHeader:(nullable NSString *)expectedInfoHeader {
+  // The token manager returns the version info of the checkin preferences, which drop non-string
+  // values, so stub it to test the header check by itself.
+  id tokenManagerMock = OCMClassMock([FIRMessagingTokenManager class]);
+  OCMStub([tokenManagerMock versionInfo]).andReturn(versionInfo);
+  id topicOperationClassMock = OCMClassMock([FIRMessagingTopicOperation class]);
+  OCMStub(ClassMethod([topicOperationClassMock sharedSession])).andReturn(self.URLSessionMock);
+  [self addTeardownBlock:^{
+    [topicOperationClassMock stopMocking];
+  }];
+
+  XCTestExpectation *requestExpectation = [self expectationWithDescription:@"Topic request sent"];
+  id dataTaskMock = [FIRURLSessionOCMockStub
+      stubURLSessionDataTaskWithResponse:[FIRURLSessionOCMockStub HTTPResponseWithCode:200]
+                                    body:[self dataForResponseWithValidToken:@""]
+                                   error:nil
+                          URLSessionMock:self.URLSessionMock
+                  requestValidationBlock:^BOOL(NSURLRequest *_Nonnull sentRequest) {
+                    XCTAssertEqualObjects([sentRequest valueForHTTPHeaderField:@"info"],
+                                          expectedInfoHeader);
+                    [requestExpectation fulfill];
+                    return YES;
+                  }];
+  OCMStub([dataTaskMock setTaskDescription:OCMOCK_ANY]);
+
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"Topic operation completed"];
+  FIRMessagingTopicOperation *operation =
+      [[FIRMessagingTopicOperation alloc] initWithTopic:@"/topics/news"
+                                                 action:FIRMessagingTopicActionSubscribe
+                                           tokenManager:tokenManagerMock
+                                                options:nil
+                                             completion:^(NSError *_Nullable error) {
+                                               XCTAssertNil(error);
+                                               [completionExpectation fulfill];
+                                             }];
+  [operation performTokenSubscriptionChange];
+
+  [self waitForExpectations:@[ requestExpectation, completionExpectation ] timeout:1];
+}
 
 - (void)assertTokenFetchOperationRequestContainsFirebaseUserAgentAndHeartbeatInfoCode:
     (FIRDailyHeartbeatCode)heartbeatInfoCode {

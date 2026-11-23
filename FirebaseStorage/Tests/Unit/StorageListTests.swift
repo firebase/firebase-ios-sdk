@@ -261,4 +261,57 @@ class StorageListTests: StorageTestHelpers {
       XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
     }
   }
+
+  func testListAllReleasesCompletionAfterError() async throws {
+    let firstPage = try XCTUnwrap("""
+    {
+      "items": [{"name": "object/data1.dat", "bucket": "bucket"}],
+      "nextPageToken": "page2"
+    }
+    """.data(using: .utf8))
+    let errorBlock = unauthorizedBlock()
+    let testBlock: GTMSessionFetcherTestBlock = { fetcher, response in
+      let url = fetcher.request!.url!
+      let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
+      if queryItems?.contains(where: { $0.name == "pageToken" }) == true {
+        // The second page fails.
+        errorBlock(fetcher, response)
+      } else {
+        let httpResponse = HTTPURLResponse(url: url,
+                                           statusCode: 200,
+                                           httpVersion: "HTTP/1.1",
+                                           headerFields: nil)
+        response(httpResponse, firstPage, nil)
+      }
+    }
+    await StorageFetcherService.shared.updateTestBlock(testBlock)
+    let ref = storage().reference(withPath: "object")
+
+    let completionCalled = expectation(description: "completion called")
+    let completionReleased = expectation(description: "completion released")
+    var tracker: DeallocationTracker? = DeallocationTracker { completionReleased.fulfill() }
+    ref.listAll { [tracker] result, error in
+      XCTAssertNotNil(tracker)
+      XCTAssertNil(result)
+      XCTAssertEqual((error as NSError?)?.code, StorageErrorCode.unauthorized.rawValue)
+      completionCalled.fulfill()
+    }
+    tracker = nil
+
+    // The completion, and everything it captures, must be released once it has been called.
+    await fulfillment(of: [completionCalled, completionReleased], timeout: 10, enforceOrder: true)
+  }
+}
+
+/// Calls `onDeinit` when it is deallocated.
+private final class DeallocationTracker {
+  private let onDeinit: () -> Void
+
+  init(onDeinit: @escaping () -> Void) {
+    self.onDeinit = onDeinit
+  }
+
+  deinit {
+    onDeinit()
+  }
 }

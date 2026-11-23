@@ -546,6 +546,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = obj.sharedSecretKey()
       _ = obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
       await obj.openInOTPApp(withQRCodeURL: "url")
+      let _: Int = obj.codeLength
+      let _: Int = obj.codeIntervalSeconds
+      if let _: String = obj.hashingAlgorithm,
+         let _: Date = obj.enrollmentCompletionDeadline {}
     }
 
     func FIRTOTPMultiFactorGenerator_h(session: MultiFactorSession, secret: TOTPSecret) {

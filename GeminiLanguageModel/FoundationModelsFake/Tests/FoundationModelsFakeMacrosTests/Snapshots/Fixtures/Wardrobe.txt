@@ -1,0 +1,65 @@
+public struct Wardrobe: Equatable {
+  public var color: SimpleColor
+  public var size: ShirtSize
+  public var shape: Shape
+  public var colors: [SimpleColor]
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "color", type: SimpleColor.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "size", type: ShirtSize.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "shape", type: Shape.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "colors", type: [SimpleColor].self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "color", value: self.color)
+        addProperty(name: "size", value: self.size)
+        addProperty(name: "shape", value: self.shape)
+        addProperty(name: "colors", value: self.colors)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Equatable {
+        public var id: FoundationModelsFake.GenerationID
+        public var color: SimpleColor.PartiallyGenerated?
+        public var size: ShirtSize.PartiallyGenerated?
+        public var shape: Shape.PartiallyGenerated?
+        public var colors: [SimpleColor].PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.color = try content.value(forProperty: "color")
+            self.size = try content.value(forProperty: "size")
+            self.shape = try content.value(forProperty: "shape")
+            self.colors = try content.value(forProperty: "colors")
+        }
+    }
+}
+
+extension Wardrobe: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.color = try content.value(forProperty: "color")
+        self.size = try content.value(forProperty: "size")
+        self.shape = try content.value(forProperty: "shape")
+        self.colors = try content.value(forProperty: "colors")
+    }
+}

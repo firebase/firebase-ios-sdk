@@ -14,7 +14,9 @@
 
 import Foundation
 
-/// Tool configuration options for tools used with server prompt templates.
+/// **[Public Preview]** Tool configuration options for tools used with server prompt templates.
+///
+/// > Warning: This API is a public preview and may be subject to change.
 ///
 /// In Server Prompt Templates, `TemplateToolConfig` allows the client application to supply
 /// runtime configuration parameters for tools declared in the template's frontmatter.
@@ -25,7 +27,9 @@ public struct TemplateToolConfig: Sendable, Encodable {
   /// Configures how the model should use retrieval options for Grounding with Google Maps.
   public let retrievalConfig: RetrievalConfig?
 
-  /// Constructs a new `TemplateToolConfig`.
+  /// **[Public Preview]** Constructs a new `TemplateToolConfig`.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// - Parameter retrievalConfig: Configures retrieval options (such as user location coordinates
   ///   and language preferences) for Grounding with Google Maps.

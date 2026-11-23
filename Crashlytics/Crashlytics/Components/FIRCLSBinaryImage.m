@@ -311,6 +311,7 @@ static void FIRCLSPopulateImageDetailWithLoadCommand(uint32_t type,
     case LC_VERSION_MIN_IPHONEOS:
     case LC_VERSION_MIN_TVOS:
     case LC_VERSION_MIN_WATCHOS:
+    case LC_BUILD_VERSION:
       details->minSDK = FIRCLSMachOGetMinimumOSVersion(cmd);
       details->builtSDK = FIRCLSMachOGetLinkedSDKVersion(cmd);
       break;

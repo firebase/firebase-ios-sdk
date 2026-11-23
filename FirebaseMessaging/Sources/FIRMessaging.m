@@ -318,7 +318,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)setupRmqManager {
   self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
-  [self.rmq2Manager loadRmqId];
 }
 
 - (void)setupTopics {
@@ -350,8 +349,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   BOOL isOldMessage = NO;
   NSString *messageID = message[kFIRMessagingMessageIDKey];
   if (messageID.length) {
-    [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
-
     BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
@@ -442,6 +439,24 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return nil;
   }
   NSURL *url = [NSURL URLWithString:urlString];
+  if (!url) {
+    // Don't log the link itself, since it may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidLinkURL,
+                           @"Ignoring message link because it is not a valid URL.");
+    return nil;
+  }
+  // The link is delivered as an NSUserActivity webpageURL, which raises for any scheme other than
+  // http or https.
+  NSString *scheme = url.scheme;
+  if (!scheme || ([scheme caseInsensitiveCompare:@"http"] != NSOrderedSame &&
+                  [scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)) {
+    // Log only the scheme, since the rest of the link may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeUnsupportedLinkScheme,
+                           @"Ignoring message link with unsupported scheme '%@'. Only http and "
+                           @"https links are supported.",
+                           scheme ?: @"(none)");
+    return nil;
+  }
   return url;
 }
 

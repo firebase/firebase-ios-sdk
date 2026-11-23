@@ -66,6 +66,9 @@ static NSInteger const gFetchAttempts = 3;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
+/// Upper bound applied to the server-provided `retryIntervalSeconds` (24 hours), so a malformed
+/// value cannot overflow the dispatch timer or persist an effectively infinite backoff.
+static NSTimeInterval const kRealtimeMaxRetryIntervalSeconds = 60 * 60 * 24;
 
 @interface FIRConfigUpdateListenerRegistration ()
 @property(strong, atomic, nonnull) RCNConfigUpdateCompletion completionHandler;
@@ -112,6 +115,9 @@ static NSInteger const gMaxRetries = 7;
   bool _isRequestInProgress;
   bool _isInBackground;
   bool _isRealtimeDisabled;
+  /// Stream data that hasn't been handled yet, such as the beginning of a config update message
+  /// whose end hasn't been received.
+  NSMutableData *_pendingStreamData;
 }
 
 - (instancetype)init:(RCNConfigFetch *)configFetch
@@ -133,6 +139,7 @@ static NSInteger const gMaxRetries = 7;
     _isRequestInProgress = false;
     _isRealtimeDisabled = false;
     _isInBackground = false;
+    _pendingStreamData = [[NSMutableData alloc] init];
 
     [self setUpHttpRequest];
     [self setUpHttpSession];
@@ -523,15 +530,34 @@ static NSInteger const gMaxRetries = 7;
 - (void)evaluateStreamResponse:(NSDictionary *)response error:(NSError *)dataError {
   NSInteger updateTemplateVersion = 1;
   NSTimeInterval realtimeRetryInterval = 0;
+  if (dataError == nil && ![response isKindOfClass:[NSDictionary class]]) {
+    dataError =
+        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                            code:FIRRemoteConfigUpdateErrorMessageInvalid
+                        userInfo:@{
+                          NSLocalizedDescriptionKey : @"ConfigUpdate message is not a JSON object."
+                        }];
+  }
   if (dataError == nil) {
-    if ([response objectForKey:kTemplateVersionNumberKey]) {
-      updateTemplateVersion = [[response objectForKey:kTemplateVersionNumberKey] integerValue];
+    id templateVersion = [response objectForKey:kTemplateVersionNumberKey];
+    if ([templateVersion isKindOfClass:[NSString class]] ||
+        [templateVersion isKindOfClass:[NSNumber class]]) {
+      updateTemplateVersion = [templateVersion integerValue];
     }
-    if ([response objectForKey:kIsFeatureDisabled]) {
-      self->_isRealtimeDisabled = [response objectForKey:kIsFeatureDisabled];
+    id featureDisabled = [response objectForKey:kIsFeatureDisabled];
+    if ([featureDisabled isKindOfClass:[NSString class]] ||
+        [featureDisabled isKindOfClass:[NSNumber class]]) {
+      self->_isRealtimeDisabled = [featureDisabled boolValue];
     }
-    if ([response objectForKey:kRealtime_Retry_Interval]) {
-      realtimeRetryInterval = [[response objectForKey:kRealtime_Retry_Interval] integerValue];
+    id retryInterval = [response objectForKey:kRealtime_Retry_Interval];
+    if ([retryInterval isKindOfClass:[NSString class]] ||
+        [retryInterval isKindOfClass:[NSNumber class]]) {
+      // Clamp as a double: `integerValue` of a value outside the NSInteger range is
+      // platform-dependent and can be negative. Non-positive and NaN values are ignored.
+      NSTimeInterval retrySeconds = [retryInterval doubleValue];
+      if (retrySeconds > 0) {
+        realtimeRetryInterval = MIN(retrySeconds, kRealtimeMaxRetryIntervalSeconds);
+      }
     }
 
     if (self->_isRealtimeDisabled) {
@@ -559,12 +585,44 @@ static NSInteger const gMaxRetries = 7;
       }
     }
   } else {
-    NSError *error =
-        [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
-                            code:FIRRemoteConfigUpdateErrorMessageInvalid
-                        userInfo:@{NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate."}];
+    NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                                         code:FIRRemoteConfigUpdateErrorMessageInvalid
+                                     userInfo:@{
+                                       NSLocalizedDescriptionKey : @"Unable to parse ConfigUpdate.",
+                                       NSUnderlyingErrorKey : dataError
+                                     }];
     [self propagateErrors:error];
   }
+}
+
+/// Removes the first complete config update message from `_pendingStreamData` and returns it, or
+/// returns nil if a complete message hasn't been received yet. The stream is a JSON array of flat
+/// JSON objects, one per message, and network reads don't necessarily line up with messages.
+- (NSData *)nextConfigUpdateMessage {
+  NSData *openingBrace = [NSData dataWithBytes:"{" length:1];
+  NSData *closingBrace = [NSData dataWithBytes:"}" length:1];
+  NSRange beginRange = [_pendingStreamData rangeOfData:openingBrace
+                                               options:0
+                                                 range:NSMakeRange(0, _pendingStreamData.length)];
+  if (beginRange.location == NSNotFound) {
+    // Data between messages, such as JSON array punctuation, isn't needed.
+    [_pendingStreamData setLength:0];
+    return nil;
+  }
+  [_pendingStreamData replaceBytesInRange:NSMakeRange(0, beginRange.location)
+                                withBytes:NULL
+                                   length:0];
+  NSRange endRange = [_pendingStreamData rangeOfData:closingBrace
+                                             options:0
+                                               range:NSMakeRange(1, _pendingStreamData.length - 1)];
+  if (endRange.location == NSNotFound) {
+    // Wait for the rest of the message.
+    return nil;
+  }
+  NSRange messageRange = NSMakeRange(0, endRange.location + 1);
+  NSData *message = [_pendingStreamData subdataWithRange:messageRange];
+  [_pendingStreamData replaceBytesInRange:messageRange withBytes:NULL length:0];
+  return message;
 }
 
 /// Delegate to asynchronously handle every new notification that comes over the wire. Auto-fetches
@@ -572,12 +630,18 @@ static NSInteger const gMaxRetries = 7;
 - (void)URLSession:(NSURLSession *)session
           dataTask:(NSURLSessionDataTask *)dataTask
     didReceiveData:(NSData *)data {
+  if (_isRealtimeDisabled) {
+    [_pendingStreamData setLength:0];
+    return;
+  }
+
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
   /// If response data contains the API enablement link, return the entire message to the user in
   /// the form of a error.
   if ([strData containsString:kServerForbiddenStatusCode]) {
+    [_pendingStreamData setLength:0];
     NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                                          code:FIRRemoteConfigUpdateErrorStreamError
                                      userInfo:@{NSLocalizedDescriptionKey : strData}];
@@ -586,26 +650,23 @@ static NSInteger const gMaxRetries = 7;
     return;
   }
 
-  NSRange beginRange = [strData rangeOfString:@"{"];
-  if (beginRange.location != NSNotFound) {
-    NSRange endRange =
-        [strData rangeOfString:@"}"
-                       options:0
-                         range:NSMakeRange(beginRange.location + 1,
-                                           strData.length - beginRange.location - 1)];
-    if (endRange.location != NSNotFound) {
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
-                  @"Received config update message on stream.");
-      NSRange msgRange =
-          NSMakeRange(beginRange.location, endRange.location - beginRange.location + 1);
-      strData = [strData substringWithRange:msgRange];
-      data = [strData dataUsingEncoding:NSUTF8StringEncoding];
-      NSDictionary *response =
-          [NSJSONSerialization JSONObjectWithData:data
-                                          options:NSJSONReadingMutableContainers
-                                            error:&dataError];
+  /// A message can be split across reads, and a read can contain several messages, so buffer the
+  /// data and handle each complete message.
+  [_pendingStreamData appendData:data];
+  NSData *message;
+  while ((message = [self nextConfigUpdateMessage])) {
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000015",
+                @"Received config update message on stream.");
+    dataError = nil;
+    NSDictionary *response = [NSJSONSerialization JSONObjectWithData:message
+                                                             options:NSJSONReadingMutableContainers
+                                                               error:&dataError];
 
-      [self evaluateStreamResponse:response error:dataError];
+    [self evaluateStreamResponse:response error:dataError];
+    if (_isRealtimeDisabled) {
+      // The stream has been paused, so ignore the rest of its data.
+      [_pendingStreamData setLength:0];
+      break;
     }
   }
 }
@@ -625,6 +686,8 @@ static NSInteger const gMaxRetries = 7;
     didReceiveResponse:(NSURLResponse *)response
      completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
   _isRequestInProgress = false;
+  // A new response starts a new stream, so drop any partial message from the previous one.
+  [_pendingStreamData setLength:0];
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
 
@@ -666,6 +729,7 @@ static NSInteger const gMaxRetries = 7;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   _isRequestInProgress = false;
+  [_pendingStreamData setLength:0];
   if (error != nil && [error code] != NSURLErrorCancelled) {
     [self->_settings updateRealtimeExponentialBackoffTime];
   }

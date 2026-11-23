@@ -24,3 +24,9 @@ protocol SelectableWrapper: Sendable {
   var alias: String { get }
   var expr: Expression { get }
 }
+
+protocol WindowFieldWrapper: Sendable {
+  var alias: String { get }
+  var bridge: __AggregateFunctionBridge { get }
+  var errorMessage: String? { get }
+}

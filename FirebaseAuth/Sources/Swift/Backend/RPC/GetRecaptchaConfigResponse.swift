@@ -20,6 +20,11 @@ struct GetRecaptchaConfigResponse: AuthRPCResponse {
 
   init(dictionary: [String: AnyHashable]) throws {
     recaptchaKey = dictionary["recaptchaKey"] as? String
-    enforcementState = dictionary["recaptchaEnforcementState"] as? [[String: String]]
+    // Parse each entry independently, keeping only string values, so that a single malformed
+    // entry or field from the server does not discard the entire enforcement state.
+    enforcementState = (dictionary["recaptchaEnforcementState"] as? [Any])?.compactMap { state in
+      guard let state = state as? [String: Any] else { return nil }
+      return state.compactMapValues { $0 as? String }
+    }
   }
 }

@@ -701,8 +701,10 @@
   return shouldFetchDefaultToken;
 }
 
-- (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                          isSandbox:(BOOL)isSandbox {
+- (NSArray<FIRMessagingTokenInfo *> *)
+    updateTokensToAPNSDeviceToken:(NSData *)deviceToken
+                        isSandbox:(BOOL)isSandbox
+                 cachedTokenInfos:(NSArray<FIRMessagingTokenInfo *> *)tokenInfos {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
   FIRMessagingAPNSInfo *APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:deviceToken
@@ -712,7 +714,6 @@
   }
   self.currentAPNSInfo = APNSInfo;
 
-  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [_tokenStore cachedTokenInfos];
   NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
   for (FIRMessagingTokenInfo *cachedTokenInfo in tokenInfos) {
@@ -764,17 +765,25 @@
   }
 #endif  // TARGET_OS_SIMULATOR
 
+  // Reading the cached tokens is a synchronous keychain query, and this method is usually called on
+  // the main thread, so only read them once.
+  NSArray<FIRMessagingTokenInfo *> *cachedTokenInfos = [_tokenStore cachedTokenInfos];
+
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
   NSArray<FIRMessagingTokenInfo *> *invalidatedTokens =
-      [self updateTokensToAPNSDeviceToken:APNSToken isSandbox:isSandboxApp];
+      [self updateTokensToAPNSDeviceToken:APNSToken
+                                isSandbox:isSandboxApp
+                         cachedTokenInfos:cachedTokenInfos];
 
   self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
                                                                  isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
   // they are up-to-date. Or this is a fresh install and no apns token stored yet.
-  if (invalidatedTokens.count > 0 || [_tokenStore cachedTokenInfos].count == 0) {
+  // `cachedTokenInfos` was read before the invalidation, but it's only checked when no tokens were
+  // invalidated, in which case the store is unchanged.
+  if (invalidatedTokens.count > 0 || cachedTokenInfos.count == 0) {
     FIRMessaging_WEAKIFY(self);
 
     [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,

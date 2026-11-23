@@ -241,8 +241,8 @@ import Foundation
       }
       kAuthGlobalWorkQueue.async { [weak self] in
         guard let self = self else { return }
-        let eventID = AuthWebUtils.randomString(withLength: 10)
-        let sessionID = AuthWebUtils.randomString(withLength: 10)
+        let eventID = AuthWebUtils.randomString(withLength: 43)
+        let sessionID = AuthWebUtils.randomString(withLength: 43)
 
         let callbackOnMainThread: ((AuthCredential?, Error?) -> Void) = { credential, error in
           if let completion {

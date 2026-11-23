@@ -31,7 +31,7 @@ Pipeline Pipeline::AddingStage(std::shared_ptr<Stage> stage) {
   auto copy = std::vector<std::shared_ptr<Stage>>(this->stages_);
   copy.push_back(stage);
 
-  return {copy, this->firestore_};
+  return {copy, this->firestore_, this->atomic_};
 }
 
 const std::vector<std::shared_ptr<Stage>>& Pipeline::stages() const {
