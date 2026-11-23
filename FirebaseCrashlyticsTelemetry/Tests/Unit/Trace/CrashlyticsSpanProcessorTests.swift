@@ -88,10 +88,6 @@ final class CrashlyticsSpanProcessorTests: XCTestCase {
       .string("main")
     )
     XCTAssertEqual(
-      readableSpan.getAttributes()["gcp.firebase.app_version"],
-      .string("1.0")
-    )
-    XCTAssertEqual(
       mockBuffer.addedSpans.first?.attributes[SemanticConventions.Session.id.rawValue],
       "session-abc"
     )

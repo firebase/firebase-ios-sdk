@@ -26,18 +26,19 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   SessionsSubscriber, @unchecked Sendable {
   private(set) nonisolated(unsafe) static var instance: FirebaseCrashlyticsTelemetry?
 
+  static let scopeName = "FirebaseCrashlyticsTelemetry"
+
   let tracerProvider: TracerProvider
   let loggerProvider: LoggerProvider
   let tracer: Tracer
   let logger: Logger
+  let resource: Resource
+  let scopeInfo: InstrumentationScopeInfo
 
   private var recoveryManager: RecoveredTelemetryExporter?
   private var networkInstrumentation: NetworkInstrumentation?
   private var screenInstrumentation: ScreenInstrumentation?
   private var userInteractionInstrumentation: UserInteractionInstrumentation?
-
-  private let scopeName = "Firebase Crashlytics Telemetry"
-  private let scopeVersion = "semver:0.1.0"
 
   // TODO: Remove lock and activeSpans
   private let lock = NSRecursiveLock()
@@ -47,12 +48,30 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   private let mutableCustomAttributeKey = "firebase.test_attribute"
   private var mutableCustomAttributeValue = 0
 
-  init(options: FirebaseOptions, sessions: SessionsProvider) {
-    let resource = Self.createResource(scopeName: scopeName, projectId: options.projectID)
+  init(options: FirebaseOptions,
+       sessions: SessionsProvider,
+       environment: any TelemetryEnvironmentInfo = TelemetryEnvironment()) {
+    let scopeVersion = environment.sdkVersion
+    let scopeAttributes = AttributeStore.instrumentationScopeAttributes(environment: environment)
+    let scopeInfo = InstrumentationScopeInfo(
+      name: Self.scopeName,
+      version: scopeVersion,
+      schemaUrl: nil,
+      attributes: scopeAttributes
+    )
+    let resource = Resource(
+      attributes: AttributeStore.resourceAttributes(
+        options: options,
+        environment: environment
+      )
+    )
+
+    self.resource = resource
+    self.scopeInfo = scopeInfo
 
     recoveryManager = RecoveryManager(
       uploader: TelemetryUploader(options: options),
-      scope: InstrumentationScopeInfo(name: scopeName, version: scopeVersion),
+      scope: scopeInfo,
       resource: resource
     )
 
@@ -67,9 +86,16 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     let loggerProvider = Self.createLoggerProvider(with: resource)
 
     tracer = tracerProvider.get(
-      instrumentationName: scopeName, instrumentationVersion: scopeVersion
+      instrumentationName: Self.scopeName,
+      instrumentationVersion: scopeVersion,
+      schemaUrl: nil,
+      attributes: scopeAttributes
     )
-    logger = loggerProvider.get(instrumentationScopeName: scopeName)
+    logger = loggerProvider
+      .loggerBuilder(instrumentationScopeName: Self.scopeName)
+      .setInstrumentationVersion(scopeVersion)
+      .setAttributes(scopeAttributes)
+      .build()
 
     self.tracerProvider = tracerProvider
     self.loggerProvider = loggerProvider
@@ -170,16 +196,6 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   }
 
   // MARK: - Private Helpers
-
-  private static func createResource(scopeName: String, projectId: String?) -> Resource {
-    var attributes: [String: AttributeValue] = ["service.name": AttributeValue(scopeName)]
-
-    if let id = projectId {
-      attributes["gcp.project_id"] = AttributeValue(id)
-    }
-
-    return Resource(attributes: attributes)
-  }
 
   private static func createTracerProvider(with resource: Resource) -> TracerProvider {
     let spanProcessor = SimpleSpanProcessor(spanExporter: StdoutSpanExporter())
