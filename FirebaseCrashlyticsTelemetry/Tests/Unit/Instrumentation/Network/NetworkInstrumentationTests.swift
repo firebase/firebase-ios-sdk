@@ -150,6 +150,55 @@ final class NetworkInstrumentationTests: XCTestCase {
     XCTAssertNil(readableNonHttpSpan.getAttributes()[SemanticConventions.Error.type.rawValue])
   }
 
+  func test_annotateResponse_setsResponseContentTypeHeaderWhenPresent() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com/api"))
+    let responseContentTypeKey =
+      "\(SemanticConventions.Http.responseHeader.rawValue).content-type"
+
+    let responseWithHeader = try XCTUnwrap(
+      HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: nil,
+        headerFields: ["content-type": "application/json; charset=utf-8"]
+      )
+    )
+    let span = tracer.spanBuilder(spanName: "GET").startSpan()
+    NetworkInstrumentation.annotateResponse(responseWithHeader, span: span)
+    span.end()
+
+    let readableSpan = try XCTUnwrap(span as? ReadableSpan)
+    XCTAssertEqual(
+      readableSpan.getAttributes()[responseContentTypeKey],
+      AttributeValue(["application/json; charset=utf-8"])
+    )
+
+    let responseWithoutHeader = try XCTUnwrap(
+      HTTPURLResponse(url: url, statusCode: 204, httpVersion: nil, headerFields: nil)
+    )
+    let emptySpan = tracer.spanBuilder(spanName: "DELETE").startSpan()
+    NetworkInstrumentation.annotateResponse(responseWithoutHeader, span: emptySpan)
+    emptySpan.end()
+
+    let readableEmptySpan = try XCTUnwrap(emptySpan as? ReadableSpan)
+    XCTAssertNil(readableEmptySpan.getAttributes()[responseContentTypeKey])
+
+    let responseWithEmptyHeader = try XCTUnwrap(
+      HTTPURLResponse(
+        url: url,
+        statusCode: 200,
+        httpVersion: nil,
+        headerFields: ["Content-Type": ""]
+      )
+    )
+    let blankHeaderSpan = tracer.spanBuilder(spanName: "GET").startSpan()
+    NetworkInstrumentation.annotateResponse(responseWithEmptyHeader, span: blankHeaderSpan)
+    blankHeaderSpan.end()
+
+    let readableBlankHeaderSpan = try XCTUnwrap(blankHeaderSpan as? ReadableSpan)
+    XCTAssertNil(readableBlankHeaderSpan.getAttributes()[responseContentTypeKey])
+  }
+
   func test_annotateError_usesStatusCodeWhenAvailableOrErrorDomainAndCode() throws {
     let timeoutError = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
 
@@ -205,5 +254,53 @@ final class NetworkInstrumentationTests: XCTestCase {
 
     let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
     XCTAssertNil(readableSpan.toSpanData().parentSpanId)
+  }
+
+  func test_customizeSpan_setsUrlDomainAndOptionalRequestHeaders() throws {
+    var request = try URLRequest(url: XCTUnwrap(URL(string: "https://api.example.com/v1/items")))
+    request.setValue("application/json", forHTTPHeaderField: "Accept")
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    let builder = tracer.spanBuilder(spanName: "POST")
+    NetworkInstrumentation.customizeSpan(request, builder: builder, parentSpan: nil)
+
+    let networkSpan = builder.startSpan()
+    defer { networkSpan.end() }
+
+    let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
+    let attrs = readableSpan.getAttributes()
+    XCTAssertEqual(attrs[SemanticConventions.Url.domain.rawValue], .string("api.example.com"))
+    XCTAssertEqual(
+      attrs["\(SemanticConventions.Http.requestHeader.rawValue).accept"],
+      AttributeValue(["application/json"])
+    )
+    XCTAssertEqual(
+      attrs["\(SemanticConventions.Http.requestHeader.rawValue).content-type"],
+      AttributeValue(["application/json"])
+    )
+
+    let plainRequest = try URLRequest(url: XCTUnwrap(URL(string: "https://api.example.com/ping")))
+    let plainBuilder = tracer.spanBuilder(spanName: "GET")
+    NetworkInstrumentation.customizeSpan(plainRequest, builder: plainBuilder, parentSpan: nil)
+
+    let plainSpan = plainBuilder.startSpan()
+    defer { plainSpan.end() }
+
+    let readablePlainSpan = try XCTUnwrap(plainSpan as? ReadableSpan)
+    let plainAttrs = readablePlainSpan.getAttributes()
+    XCTAssertEqual(plainAttrs[SemanticConventions.Url.domain.rawValue], .string("api.example.com"))
+    XCTAssertNil(plainAttrs["\(SemanticConventions.Http.requestHeader.rawValue).accept"])
+    XCTAssertNil(plainAttrs["\(SemanticConventions.Http.requestHeader.rawValue).content-type"])
+
+    var nilURLRequest = try URLRequest(url: XCTUnwrap(URL(string: "https://api.example.com")))
+    nilURLRequest.url = nil
+    let nilURLBuilder = tracer.spanBuilder(spanName: "GET")
+    NetworkInstrumentation.customizeSpan(nilURLRequest, builder: nilURLBuilder, parentSpan: nil)
+
+    let nilURLSpan = nilURLBuilder.startSpan()
+    defer { nilURLSpan.end() }
+
+    let readableNilURLSpan = try XCTUnwrap(nilURLSpan as? ReadableSpan)
+    XCTAssertNil(readableNilURLSpan.getAttributes()[SemanticConventions.Url.domain.rawValue])
   }
 }
