@@ -172,9 +172,25 @@ class VerifyAssertionTests: RPCBaseTests {
     XCTAssertEqual(request.emptyPostBodyParameterNames, ["nonce", "access_token"])
     XCTAssertEqual(
       request.emptyPostBodyParametersWarning,
-      "The verifyAssertion request for apple.com has an empty nonce, access_token. If you " +
-        "don't have a value, pass nil instead of an empty string. The server can reject " +
-        "empty values, for example with INVALID_IDP_RESPONSE."
+      "The verifyAssertion request for apple.com has empty values for nonce, access_token. " +
+        "If you don't have a value, pass nil instead of an empty string. The server can " +
+        "reject empty values, for example with INVALID_IDP_RESPONSE."
+    )
+  }
+
+  func testEmptyPostBodyParameterWarningForOneParameter() {
+    let request = VerifyAssertionRequest(providerID: "apple.com",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+    request.providerRawNonce = "secretNonce"
+    request.providerAccessToken = ""
+
+    XCTAssertEqual(request.emptyPostBodyParameterNames, ["access_token"])
+    XCTAssertEqual(
+      request.emptyPostBodyParametersWarning,
+      "The verifyAssertion request for apple.com has an empty access_token. If you don't " +
+        "have a value, pass nil instead of an empty string. The server can reject empty " +
+        "values, for example with INVALID_IDP_RESPONSE."
     )
   }
 
