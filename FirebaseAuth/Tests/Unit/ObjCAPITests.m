@@ -425,10 +425,15 @@
                                          IDToken:@"idToken"
                                      accessToken:@"accessToken"];
   c = [FIROAuthProvider credentialWithProviderID:@"id" IDToken:@"idtoken" rawNonce:@"nonce"];
+  c = [FIROAuthProvider credentialWithProviderID:@"id" IDToken:@"idtoken" rawNonce:nil];
   c = [FIROAuthProvider credentialWithProviderID:@"id"
                                          IDToken:@"token"
                                         rawNonce:@"nonce"
                                      accessToken:@"accessToken"];
+  c = [FIROAuthProvider credentialWithProviderID:@"id"
+                                         IDToken:@"token"
+                                        rawNonce:nil
+                                     accessToken:nil];
   c = [FIROAuthProvider appleCredentialWithIDToken:@"idToken" rawNonce:@"nonce" fullName:nil];
   [provider getCredentialWithUIDelegate:nil
                              completion:^(FIRAuthCredential *_Nullable credential,

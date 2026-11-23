@@ -93,6 +93,138 @@ import FirebaseCore
       XCTAssertEqual(credential.idToken, kFakeIDToken)
     }
 
+    func testObjCCredentialWithRawNonceAndNilAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: "fakeRawNonce",
+        accessToken: nil
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertEqual(credential.rawNonce, "fakeRawNonce")
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertEqual(request.providerIDToken, kFakeIDToken)
+      XCTAssertEqual(request.providerRawNonce, "fakeRawNonce")
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)&nonce=fakeRawNonce")
+    }
+
+    func testObjCCredentialWithNilRawNonceAndAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: nil,
+        accessToken: kFakeAccessToken
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertEqual(credential.accessToken, kFakeAccessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertEqual(request.providerAccessToken, kFakeAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(
+        postBody,
+        "providerId=apple.com&id_token=\(kFakeIDToken)&access_token=\(kFakeAccessToken)"
+      )
+    }
+
+    func testObjCCredentialWithNilRawNonceAndNilAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: nil,
+        accessToken: nil
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)")
+    }
+
+    func testObjCCredentialWithIDTokenAndNilRawNonce() throws {
+      let selector = NSSelectorFromString("credentialWithProviderID:IDToken:rawNonce:")
+      let metaclass: AnyClass = try XCTUnwrap(object_getClass(OAuthProvider.self))
+      let imp = try XCTUnwrap(class_getMethodImplementation(metaclass, selector))
+      typealias ThreeArgIMP = @convention(c) (AnyClass,
+                                              Selector,
+                                              NSString,
+                                              NSString,
+                                              NSString?) -> Unmanaged<OAuthCredential>
+      let fn = unsafeBitCast(imp, to: ThreeArgIMP.self)
+      let credential = fn(
+        OAuthProvider.self,
+        selector,
+        AuthProviderID.apple.rawValue as NSString,
+        kFakeIDToken as NSString,
+        nil
+      ).takeUnretainedValue()
+
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)")
+    }
+
+    private func invokeObjCCredential(providerID: String,
+                                      idToken: String,
+                                      rawNonce: String?,
+                                      accessToken: String?) throws -> OAuthCredential {
+      let selector =
+        NSSelectorFromString("credentialWithProviderID:IDToken:rawNonce:accessToken:")
+      let metaclass: AnyClass = try XCTUnwrap(object_getClass(OAuthProvider.self))
+      let imp = try XCTUnwrap(class_getMethodImplementation(metaclass, selector))
+      typealias FourArgIMP = @convention(c) (AnyClass,
+                                             Selector,
+                                             NSString,
+                                             NSString,
+                                             NSString?,
+                                             NSString?) -> Unmanaged<OAuthCredential>
+      let fn = unsafeBitCast(imp, to: FourArgIMP.self)
+      return fn(
+        OAuthProvider.self,
+        selector,
+        providerID as NSString,
+        idToken as NSString,
+        rawNonce as NSString?,
+        accessToken as NSString?
+      ).takeUnretainedValue()
+    }
+
     /** @fn testObtainingOAuthProvider
         @brief Tests the correct creation of an FIROAuthProvider instance.
      */

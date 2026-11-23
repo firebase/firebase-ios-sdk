@@ -12,6 +12,12 @@
   user after a token refresh fails, for example because the account was
   disabled, while the app calls `signOut()` or another refresh fails at the
   same time. (#17085)
+- [fixed] Fixed `OAuthProvider` (`FIROAuthProvider`) Objective-C methods
+  `credentialWithProviderID:IDToken:rawNonce:accessToken:` and
+  `credentialWithProviderID:IDToken:rawNonce:` treating `nil` `accessToken` or
+  `rawNonce` values as empty strings, which caused Sign in with Apple and other
+  OAuth flows to fail with an invalid credential error when omitting an access
+  token. Both parameters are now nullable and preserve `nil`. (#15571)
 
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,
