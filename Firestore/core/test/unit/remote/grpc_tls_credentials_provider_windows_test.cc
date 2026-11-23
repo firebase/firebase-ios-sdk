@@ -77,9 +77,11 @@
 #include "Firestore/core/test/unit/remote/tls_test_pki.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "openssl/asn1.h"
 #include "openssl/bio.h"
 #include "openssl/evp.h"
 #include "openssl/obj_mac.h"
+#include "openssl/objects.h"
 #include "openssl/pem.h"
 #include "openssl/x509.h"
 #include "openssl/x509v3.h"
@@ -410,6 +412,91 @@ std::string ReissueWithCaIssuersUrl(const TestCertificate& cert,
   return std::string(data, static_cast<size_t>(size));
 }
 
+struct LocalAllocDeleter {
+  void operator()(void* ptr) const {
+    LocalFree(ptr);
+  }
+};
+
+struct CertContextDeleter {
+  void operator()(PCCERT_CONTEXT context) const {
+    CertFreeCertificateContext(context);
+  }
+};
+
+/**
+ * Returns `cert` re-signed by `issuer` with Microsoft's Cross-Certificate
+ * Distribution Points (`szOID_CROSS_CERT_DIST_POINTS`,
+ * `1.3.6.1.4.1.311.10.9.1`) extension pointing at `url`, as PEM.
+ */
+std::string ReissueWithCrossCertDistPointsUrl(const TestCertificate& cert,
+                                              const TestCertificate& issuer,
+                                              const std::string& url) {
+  std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(cert.x509()),
+                                                   X509_free);
+  if (!copy) {
+    ADD_FAILURE() << "X509_dup failed";
+    return "";
+  }
+
+  std::wstring wide_url(url.begin(), url.end());
+  CERT_ALT_NAME_ENTRY entry = {};
+  entry.dwAltNameChoice = CERT_ALT_NAME_URL;
+  entry.pwszURL = &wide_url[0];
+
+  CERT_ALT_NAME_INFO dist_point = {};
+  dist_point.cAltEntry = 1;
+  dist_point.rgAltEntry = &entry;
+
+  CROSS_CERT_DIST_POINTS_INFO dist_points_info = {};
+  dist_points_info.dwSyncDeltaTime = 1;
+  dist_points_info.cDistPoint = 1;
+  dist_points_info.rgDistPoint = &dist_point;
+
+  BYTE* encoded = nullptr;
+  DWORD encoded_size = 0;
+  if (!CryptEncodeObjectEx(kCertEncoding, X509_CROSS_CERT_DIST_POINTS,
+                           &dist_points_info, CRYPT_ENCODE_ALLOC_FLAG,
+                           /*pEncodePara=*/nullptr, &encoded, &encoded_size)) {
+    ADD_FAILURE() << "CryptEncodeObjectEx(X509_CROSS_CERT_DIST_POINTS) failed: "
+                  << GetLastError();
+    return "";
+  }
+  std::unique_ptr<BYTE, LocalAllocDeleter> encoded_holder(encoded);
+
+  std::unique_ptr<ASN1_OBJECT, decltype(&ASN1_OBJECT_free)> oid(
+      OBJ_txt2obj(szOID_CROSS_CERT_DIST_POINTS, /*dont_search_names=*/1),
+      ASN1_OBJECT_free);
+  std::unique_ptr<ASN1_OCTET_STRING, decltype(&ASN1_OCTET_STRING_free)> value(
+      ASN1_OCTET_STRING_new(), ASN1_OCTET_STRING_free);
+  if (!oid || !value ||
+      !ASN1_OCTET_STRING_set(value.get(), encoded,
+                             static_cast<int>(encoded_size))) {
+    ADD_FAILURE() << "Building the CCDP extension value failed";
+    return "";
+  }
+  std::unique_ptr<X509_EXTENSION, decltype(&X509_EXTENSION_free)> ext(
+      X509_EXTENSION_create_by_OBJ(nullptr, oid.get(), /*crit=*/0, value.get()),
+      X509_EXTENSION_free);
+  if (!ext || !X509_add_ext(copy.get(), ext.get(), -1)) {
+    ADD_FAILURE() << "Adding the CCDP extension failed";
+    return "";
+  }
+  if (X509_sign(copy.get(), issuer.key(), EVP_sha256()) <= 0) {
+    ADD_FAILURE() << "X509_sign failed";
+    return "";
+  }
+
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  if (!bio || !PEM_write_bio_X509(bio.get(), copy.get())) {
+    ADD_FAILURE() << "PEM_write_bio_X509 failed";
+    return "";
+  }
+  char* data = nullptr;
+  long size = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+  return std::string(data, static_cast<size_t>(size));
+}
+
 /** Decodes the first PEM certificate in `pem` into a CryptoAPI context. */
 PCCERT_CONTEXT CreateCertContextFromPem(const std::string& pem) {
   DWORD der_size = 0;
@@ -658,6 +745,70 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest,
     EXPECT_GT(control_server.request_count(), 0);
     CertFreeCertificateChain(chain);
     CertFreeCertificateContext(control_leaf);
+  }
+}
+
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       DoesNotFetchCrossCertDistPointsUrl) {
+  // Unlike RFC 5280 AIA, Microsoft's Cross-Certificate Distribution Points
+  // (`szOID_CROSS_CERT_DIST_POINTS`, `1.3.6.1.4.1.311.10.9.1`) is not
+  // suppressed by `CERT_CHAIN_DISABLE_AIA` alone. Verify that neither a leaf
+  // nor a peer-supplied intermediate carrying CCDP triggers outbound URL
+  // retrieval under either a custom `chain_engine` or the default system
+  // engine (`chain_engine == nullptr`).
+  CountingHttpServer ccdp_server(pki_.cross_intermediate.cert_der());
+  ASSERT_TRUE(ccdp_server.started());
+
+  std::string leaf_with_ccdp_pem = ReissueWithCrossCertDistPointsUrl(
+      pki_.leaf, pki_.intermediate, ccdp_server.url());
+  ASSERT_FALSE(leaf_with_ccdp_pem.empty());
+
+  // Sanity-check that CryptoAPI decodes the `szOID_CROSS_CERT_DIST_POINTS`
+  // extension on the issued certificate back to `ccdp_server.url()`.
+  std::unique_ptr<const CERT_CONTEXT, CertContextDeleter> parsed_leaf(
+      CreateCertContextFromPem(leaf_with_ccdp_pem));
+  ASSERT_NE(parsed_leaf, nullptr);
+  PCERT_EXTENSION ccdp_ext = CertFindExtension(
+      szOID_CROSS_CERT_DIST_POINTS, parsed_leaf->pCertInfo->cExtension,
+      parsed_leaf->pCertInfo->rgExtension);
+  ASSERT_NE(ccdp_ext, nullptr);
+  CROSS_CERT_DIST_POINTS_INFO* decoded = nullptr;
+  DWORD decoded_size = 0;
+  ASSERT_TRUE(CryptDecodeObjectEx(
+      kCertEncoding, X509_CROSS_CERT_DIST_POINTS, ccdp_ext->Value.pbData,
+      ccdp_ext->Value.cbData, CRYPT_DECODE_ALLOC_FLAG,
+      /*pDecodePara=*/nullptr, &decoded, &decoded_size));
+  std::unique_ptr<CROSS_CERT_DIST_POINTS_INFO, LocalAllocDeleter>
+      decoded_holder(decoded);
+  ASSERT_EQ(decoded->cDistPoint, 1u);
+  ASSERT_EQ(decoded->rgDistPoint[0].cAltEntry, 1u);
+  ASSERT_EQ(decoded->rgDistPoint[0].rgAltEntry[0].dwAltNameChoice,
+            static_cast<DWORD>(CERT_ALT_NAME_URL));
+  std::wstring expected_wide_url(ccdp_server.url().begin(),
+                                 ccdp_server.url().end());
+  EXPECT_EQ(std::wstring(decoded->rgDistPoint[0].rgAltEntry[0].pwszURL),
+            expected_wide_url);
+
+  for (const WindowsTrustConfig& trust :
+       {ExclusiveRootConfig({&pki_.root}), WindowsTrustConfig{}}) {
+    grpc::Status status =
+        VerifyWindowsTlsCertificateChain(leaf_with_ccdp_pem, kHost, trust);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(ccdp_server.request_count(), 0);
+  }
+
+  std::string intermediate_with_ccdp_pem = ReissueWithCrossCertDistPointsUrl(
+      pki_.intermediate, pki_.root, ccdp_server.url());
+  ASSERT_FALSE(intermediate_with_ccdp_pem.empty());
+  std::string chain_with_ccdp_intermediate =
+      pki_.leaf.cert_pem() + intermediate_with_ccdp_pem;
+
+  for (const WindowsTrustConfig& trust :
+       {ExclusiveRootConfig({&pki_.cross_root}), WindowsTrustConfig{}}) {
+    grpc::Status status = VerifyWindowsTlsCertificateChain(
+        chain_with_ccdp_intermediate, kHost, trust);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(ccdp_server.request_count(), 0);
   }
 }
 

@@ -240,6 +240,32 @@ grpc::Status VerifyIpAddressSubjectAltName(PCCERT_CONTEXT leaf,
       "': the certificate has no matching IP address subjectAltName"));
 }
 
+bool HasCrossCertDistPoints(PCCERT_CONTEXT cert) {
+  return cert != nullptr && cert->pCertInfo != nullptr &&
+         CertFindExtension(szOID_CROSS_CERT_DIST_POINTS,
+                           cert->pCertInfo->cExtension,
+                           cert->pCertInfo->rgExtension) != nullptr;
+}
+
+bool ChainHasCrossCertDistPoints(PCCERT_CHAIN_CONTEXT chain) {
+  if (chain == nullptr) {
+    return false;
+  }
+  for (DWORD i = 0; i < chain->cChain; ++i) {
+    const CERT_SIMPLE_CHAIN* simple = chain->rgpChain[i];
+    if (simple == nullptr) {
+      continue;
+    }
+    for (DWORD j = 0; j < simple->cElement; ++j) {
+      if (simple->rgpElement[j] != nullptr &&
+          HasCrossCertDistPoints(simple->rgpElement[j]->pCertContext)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 std::string DescribeChainPolicyError(DWORD error) {
   const char* name = nullptr;
   switch (static_cast<HRESULT>(error)) {
@@ -416,6 +442,8 @@ grpc::Status VerifyWindowsTlsCertificateChain(
                      GetLastError()));
   }
 
+  bool peer_has_ccdp = HasCrossCertDistPoints(leaf.get());
+
   // Everything after the leaf is an untrusted intermediate candidate. A root
   // the peer sends is only trusted if it is also in the engine's root store.
   CertStorePtr intermediates(CertOpenStore(
@@ -431,15 +459,18 @@ grpc::Status VerifyWindowsTlsCertificateChain(
           absl::StrCat("Intermediate certificate ", i,
                        " in peer chain exceeds maximum supported size"));
     }
+    PCCERT_CONTEXT raw_intermediate = nullptr;
     if (!CertAddEncodedCertificateToStore(
             intermediates.get(), kCertEncoding,
             reinterpret_cast<const BYTE*>(ders[i].data()),
             static_cast<DWORD>(ders[i].size()), CERT_STORE_ADD_ALWAYS,
-            nullptr)) {
+            &raw_intermediate)) {
       return Unauthenticated(
           absl::StrCat("Failed to parse intermediate certificate ", i,
                        " in peer chain: error ", GetLastError()));
     }
+    CertContextPtr intermediate(raw_intermediate);
+    peer_has_ccdp = peer_has_ccdp || HasCrossCertDistPoints(intermediate.get());
   }
 
   char server_auth_oid[] = szOID_PKIX_KP_SERVER_AUTH;
@@ -450,25 +481,57 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   chain_para.RequestedUsage.Usage.cUsageIdentifier = 1;
   chain_para.RequestedUsage.Usage.rgpszUsageIdentifier = usages;
 
-  // CERT_CHAIN_DISABLE_AIA: never fetch a missing issuer from the URL in a
-  // certificate the (still unauthenticated) peer sent; that would let any
-  // server make this client issue HTTP requests to a host of its choosing.
-  // The server must send its intermediates, as TLS requires. Root updates
-  // (AuthRoot auto-update) are controlled separately and stay enabled.
+  auto build_chain = [&](DWORD flags, CertChainPtr* out) -> grpc::Status {
+    PCCERT_CHAIN_CONTEXT raw_chain = nullptr;
+    if (!CertGetCertificateChain(
+            static_cast<HCERTCHAINENGINE>(config.chain_engine.get()),
+            leaf.get(), /*pTime=*/nullptr, intermediates.get(), &chain_para,
+            flags, /*pvReserved=*/nullptr, &raw_chain) ||
+        raw_chain == nullptr) {
+      return Unauthenticated(absl::StrCat(
+          "CertGetCertificateChain failed with error ", GetLastError()));
+    }
+    out->reset(raw_chain);
+    return grpc::Status::OK;
+  };
+
+  // Pass 1 (offline fast path): build the chain using only locally cached
+  // roots, intermediates, and CTLs (`CERT_CHAIN_CACHE_ONLY_URL_RETRIEVAL`)
+  // with RFC 5280 AIA disabled (`CERT_CHAIN_DISABLE_AIA`). Whenever the root
+  // is already in `Root`, `AuthRoot`, or `hExclusiveRoot`, zero network I/O
+  // occurs.
   //
   // No revocation flags: like the bundled-roots verification this replaces,
   // and like browsers, don't block on online CRL/OCSP checks. Certificates
   // in the `Disallowed` store and Microsoft's distrust lists are still
   // rejected.
-  PCCERT_CHAIN_CONTEXT raw_chain = nullptr;
-  if (!CertGetCertificateChain(
-          static_cast<HCERTCHAINENGINE>(config.chain_engine.get()), leaf.get(),
-          /*pTime=*/nullptr, intermediates.get(), &chain_para,
-          CERT_CHAIN_DISABLE_AIA, /*pvReserved=*/nullptr, &raw_chain)) {
-    return Unauthenticated(absl::StrCat(
-        "CertGetCertificateChain failed with error ", GetLastError()));
+  CertChainPtr chain;
+  grpc::Status chain_status = build_chain(
+      CERT_CHAIN_DISABLE_AIA | CERT_CHAIN_CACHE_ONLY_URL_RETRIEVAL, &chain);
+  if (!chain_status.ok()) {
+    return chain_status;
   }
-  CertChainPtr chain(raw_chain);
+
+  // Pass 2 (`AuthRoot` fallback): only allow network URL retrieval (so Windows
+  // Automatic Root Certificates Update can fetch an uncached Microsoft-trusted
+  // root) when using the system chain engine, Pass 1 failed solely for a
+  // missing/untrusted root without explicit distrust, and no certificate in
+  // the peer chain or built path carries Microsoft's Cross-Certificate
+  // Distribution Points (`szOID_CROSS_CERT_DIST_POINTS`) extension — which
+  // `CERT_CHAIN_DISABLE_AIA` does not suppress and which would otherwise let
+  // an unauthenticated peer trigger outbound HTTP/LDAP/SMB requests.
+  constexpr DWORD kMissingRootErrors =
+      CERT_TRUST_IS_PARTIAL_CHAIN | CERT_TRUST_IS_UNTRUSTED_ROOT;
+  const DWORD trust_errors = chain->TrustStatus.dwErrorStatus;
+  if (config.chain_engine == nullptr && !peer_has_ccdp &&
+      !ChainHasCrossCertDistPoints(chain.get()) &&
+      (trust_errors & kMissingRootErrors) != 0 &&
+      (trust_errors & CERT_TRUST_IS_EXPLICIT_DISTRUST) == 0) {
+    chain_status = build_chain(CERT_CHAIN_DISABLE_AIA, &chain);
+    if (!chain_status.ok()) {
+      return chain_status;
+    }
+  }
 
   // CryptoAPI's SSL policy matches DNS names, but falls back to the Subject
   // Common Name when the certificate has no `dNSName` subjectAltName;
