@@ -57,6 +57,39 @@ enum AttributeStore {
       attributes[SemanticConventions.App.buildId.rawValue] = .string(appBuildId)
     }
 
+    if let osName = environment.osName, !osName.isEmpty {
+      attributes[SemanticConventions.Os.name.rawValue] = .string(osName)
+    }
+
+    if let osVersion = environment.osVersion, !osVersion.isEmpty {
+      attributes[SemanticConventions.Os.version.rawValue] = .string(osVersion)
+    }
+
+    if let deviceManufacturer = environment.deviceManufacturer, !deviceManufacturer.isEmpty {
+      attributes[SemanticConventions.Device.manufacturer.rawValue] = .string(deviceManufacturer)
+    }
+
+    if let deviceModelIdentifier = environment.deviceModelIdentifier,
+       !deviceModelIdentifier.isEmpty {
+      attributes[SemanticConventions.Device.modelIdentifier.rawValue] = .string(
+        deviceModelIdentifier
+      )
+    }
+
+    if let deviceArch = environment.deviceArch, !deviceArch.isEmpty {
+      attributes[SemanticConventions.Device.crashlyticsArch] = .string(deviceArch)
+    }
+
+    if environment.deviceCores > 0 {
+      attributes[SemanticConventions.Device.crashlyticsCores] = .int(environment.deviceCores)
+    }
+
+    if environment.deviceRamBytes > 0 {
+      attributes[SemanticConventions.Device.crashlyticsRam] = .int(environment.deviceRamBytes)
+    }
+
+    attributes[SemanticConventions.Device.crashlyticsSimulator] = .bool(environment.isSimulator)
+
     return attributes
   }
 

@@ -88,6 +88,38 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
       Self.telemetry.resource.attributes[SemanticConventions.App.buildId.rawValue],
       .string("42")
     )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Os.name.rawValue],
+      .string("ios")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Os.version.rawValue],
+      .string("18.2")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.manufacturer.rawValue],
+      .string("Apple")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.modelIdentifier.rawValue],
+      .string("iPhone16,2")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsArch],
+      .string("arm64")
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsCores],
+      .int(6)
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsRam],
+      .int(8_589_934_592)
+    )
+    XCTAssertEqual(
+      Self.telemetry.resource.attributes[SemanticConventions.Device.crashlyticsSimulator],
+      .bool(true)
+    )
 
     XCTAssertEqual(Self.telemetry.scopeInfo.name, "FirebaseCrashlyticsTelemetry")
     XCTAssertEqual(Self.telemetry.scopeInfo.version, "13.0.0")

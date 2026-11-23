@@ -180,7 +180,15 @@ final class AttributeStoreTests: XCTestCase {
       bundleIdentifier: "com.example.demo",
       appVersion: "3.4.5",
       appBuildId: "108",
-      sdkVersion: "13.0.0"
+      sdkVersion: "13.0.0",
+      osName: "ios",
+      osVersion: "18.1",
+      deviceManufacturer: "Apple",
+      deviceModelIdentifier: "iPhone15,3",
+      deviceArch: "arm64",
+      deviceCores: 6,
+      deviceRamBytes: 6_442_450_944,
+      isSimulator: false
     )
 
     let attributes = AttributeStore.resourceAttributes(
@@ -212,6 +220,20 @@ final class AttributeStoreTests: XCTestCase {
       attributes[SemanticConventions.App.buildId.rawValue],
       .string("108")
     )
+    XCTAssertEqual(attributes[SemanticConventions.Os.name.rawValue], .string("ios"))
+    XCTAssertEqual(attributes[SemanticConventions.Os.version.rawValue], .string("18.1"))
+    XCTAssertEqual(attributes[SemanticConventions.Device.manufacturer.rawValue], .string("Apple"))
+    XCTAssertEqual(
+      attributes[SemanticConventions.Device.modelIdentifier.rawValue],
+      .string("iPhone15,3")
+    )
+    XCTAssertEqual(attributes[SemanticConventions.Device.crashlyticsArch], .string("arm64"))
+    XCTAssertEqual(attributes[SemanticConventions.Device.crashlyticsCores], .int(6))
+    XCTAssertEqual(
+      attributes[SemanticConventions.Device.crashlyticsRam],
+      .int(6_442_450_944)
+    )
+    XCTAssertEqual(attributes[SemanticConventions.Device.crashlyticsSimulator], .bool(false))
   }
 
   func test_resourceAttributes_omitsNilAndEmptyOptionalValues() {
@@ -221,7 +243,15 @@ final class AttributeStoreTests: XCTestCase {
       bundleIdentifier: nil,
       appVersion: "",
       appBuildId: nil,
-      sdkVersion: "13.0.0"
+      sdkVersion: "13.0.0",
+      osName: "",
+      osVersion: nil,
+      deviceManufacturer: "",
+      deviceModelIdentifier: nil,
+      deviceArch: nil,
+      deviceCores: 0,
+      deviceRamBytes: 0,
+      isSimulator: true
     )
 
     let attributes = AttributeStore.resourceAttributes(
@@ -241,6 +271,14 @@ final class AttributeStoreTests: XCTestCase {
     XCTAssertNil(attributes[SemanticConventions.Service.namespace.rawValue])
     XCTAssertNil(attributes[SemanticConventions.Service.version.rawValue])
     XCTAssertNil(attributes[SemanticConventions.App.buildId.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Os.name.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Os.version.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Device.manufacturer.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Device.modelIdentifier.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Device.crashlyticsArch])
+    XCTAssertNil(attributes[SemanticConventions.Device.crashlyticsCores])
+    XCTAssertNil(attributes[SemanticConventions.Device.crashlyticsRam])
+    XCTAssertEqual(attributes[SemanticConventions.Device.crashlyticsSimulator], .bool(true))
   }
 
   func test_instrumentationScopeAttributes_setsExpectedClientAttributes() {
