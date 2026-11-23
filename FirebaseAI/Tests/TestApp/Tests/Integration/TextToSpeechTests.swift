@@ -208,10 +208,10 @@ struct TextToSpeechTests {
     #expect(receivedAudioDataCount > 0)
   }
 
-  // MARK: - Error Handling Tests
-
+  // Gemini 3.8 TTS relaxes schema enforcement on `speaker_voice_configs`: rather than rejecting
+  // requests with more than two speakers, the backend accepts them and ignores excess speakers.
   @Test(arguments: InstanceConfig.defaultConfigs, ttsModels)
-  func multiSpeaker_invalidSize(_ config: InstanceConfig, modelName: String) async throws {
+  func multiSpeaker_excessSpeakers(_ config: InstanceConfig, modelName: String) async throws {
     let model = FirebaseAI.componentInstance(config).generativeModel(
       modelName: modelName,
       generationConfig: GenerationConfig(
@@ -231,16 +231,13 @@ struct TextToSpeechTests {
     let turn1 = TextPart("Hello!", speechMetadata: SpeechMetadata(speaker: "Speaker1"))
     let turn2 = TextPart("Hi!", speechMetadata: SpeechMetadata(speaker: "Speaker2"))
     let turn3 = TextPart("Hey!", speechMetadata: SpeechMetadata(speaker: "Speaker3"))
-    let error = try await #require(throws: GenerateContentError.self) {
-      try await model.generateContent(turn1, turn2, turn3)
-    }
-    guard case let .internalError(underlyingError) = error else {
-      Issue.record("Expected internalError; got \(error).")
-      return
-    }
-    #expect(
-      String(describing: underlyingError)
-        .contains("the number of speaker_voice_configs must equal 2")
-    )
+
+    let response = try await model.generateContent(turn1, turn2, turn3)
+
+    let candidate = try #require(response.candidates.first)
+    #expect(candidate.finishReason == .stop)
+    let audioPart = try #require(candidate.content.parts.first as? InlineDataPart)
+    #expect(!audioPart.data.isEmpty)
+    #expect(audioPart.mimeType == unaryMIMEType)
   }
 }
