@@ -185,6 +185,7 @@ final class AttributeStoreTests: XCTestCase {
 
     let attributes = AttributeStore.resourceAttributes(
       options: options,
+      installationId: "fid-abc-123",
       environment: environment
     )
 
@@ -212,6 +213,14 @@ final class AttributeStoreTests: XCTestCase {
       attributes[SemanticConventions.App.buildId.rawValue],
       .string("108")
     )
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.instanceId.rawValue],
+      .string("fid-abc-123")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.App.installationId.rawValue],
+      .string("fid-abc-123")
+    )
   }
 
   func test_resourceAttributes_omitsNilAndEmptyOptionalValues() {
@@ -226,6 +235,7 @@ final class AttributeStoreTests: XCTestCase {
 
     let attributes = AttributeStore.resourceAttributes(
       options: options,
+      installationId: "",
       environment: environment
     )
 
@@ -241,6 +251,8 @@ final class AttributeStoreTests: XCTestCase {
     XCTAssertNil(attributes[SemanticConventions.Service.namespace.rawValue])
     XCTAssertNil(attributes[SemanticConventions.Service.version.rawValue])
     XCTAssertNil(attributes[SemanticConventions.App.buildId.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.Service.instanceId.rawValue])
+    XCTAssertNil(attributes[SemanticConventions.App.installationId.rawValue])
   }
 
   func test_instrumentationScopeAttributes_setsExpectedClientAttributes() {

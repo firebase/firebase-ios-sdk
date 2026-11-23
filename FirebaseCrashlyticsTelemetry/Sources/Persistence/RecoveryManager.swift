@@ -14,30 +14,44 @@
 
 import FirebaseCrashlytics
 import Foundation
+import OpenTelemetryApi
 import OpenTelemetrySdk
 
 /// Manages the recovery and export of telemetry data from previous app sessions.
 actor RecoveryManager: RecoveredTelemetryExporter {
   /// The uploader to upload recovered telemetry
-  private let uploader: TelemetryUploader
+  private let uploader: any TelemetryUploading
   /// The instrumentation scope information associated with the exported traces.
   private var scope: InstrumentationScopeInfo?
   /// The resource metadata associated with the exported traces.
   private var resource: Resource?
+  /// Provider used to resolve the app installation ID for resource attributes.
+  private let installations: (any TelemetryInstallationsProvider)?
+  /// Returns whether the application crashed during its previous run.
+  private let didCrashDuringPreviousExecution: @Sendable () -> Bool
 
   /// Initializes a new recovery manager.
   ///
   /// - Parameters:
+  ///   - uploader: The uploader responsible for sending serialized trace payloads.
   ///   - scope: The instrumentation scope info to include in trace exports.
   ///   - resource: The resource metadata to include in trace exports.
-  public init(uploader: TelemetryUploader,
+  ///   - installations: Provider for resolving the Firebase Installation ID.
+  ///   - didCrashDuringPreviousExecution: Closure reporting whether the previous run crashed.
+  public init(uploader: any TelemetryUploading,
               // TODO: Support persistence and recovery of these values instead of using
               // the ones on initialization.
               scope: InstrumentationScopeInfo? = nil,
-              resource: Resource? = nil) {
+              resource: Resource? = nil,
+              installations: (any TelemetryInstallationsProvider)? = nil,
+              didCrashDuringPreviousExecution: @escaping @Sendable () -> Bool = {
+                Crashlytics.crashlytics().didCrashDuringPreviousExecution()
+              }) {
     self.uploader = uploader
     self.scope = scope
     self.resource = resource
+    self.installations = installations
+    self.didCrashDuringPreviousExecution = didCrashDuringPreviousExecution
   }
 
   public func uploadRecoveredSpans(spans: [RecoveredSpan]) async {
@@ -48,7 +62,10 @@ actor RecoveryManager: RecoveredTelemetryExporter {
       return
     }
 
-    let traceExportRequestPayloads = createTraceExportRequestPayloads(from: spans)
+    let exportResource = await resolvedResource()
+    let traceExportRequestPayloads = createTraceExportRequestPayloads(
+      from: spans, resource: exportResource
+    )
 
     // The implementation for the final network request is not robust as we may
     // decide to use GDT for this, which will provide the robustness.
@@ -62,19 +79,53 @@ actor RecoveryManager: RecoveredTelemetryExporter {
     }
   }
 
+  /// Resolves the installation ID if available and merges `service.instance.id` and
+  /// `app.installation.id` into the export resource.
+  private func resolvedResource() async -> Resource? {
+    guard let installations else {
+      return resource
+    }
+
+    if let existingResource = resource,
+       existingResource.attributes[SemanticConventions.Service.instanceId.rawValue] != nil,
+       existingResource.attributes[SemanticConventions.App.installationId.rawValue] != nil {
+      return existingResource
+    }
+
+    do {
+      let installationId = try await installations.installationID()
+      let installationAttrs = AttributeStore.installationAttributes(installationId: installationId)
+      guard !installationAttrs.isEmpty else {
+        return resource
+      }
+
+      let merged = (resource ?? Resource(attributes: [:])).merging(
+        other: Resource(attributes: installationAttrs)
+      )
+      resource = merged
+      return merged
+    } catch {
+      LoggingHelper.logger.debug("Failed to resolve installation ID for telemetry: \(error)")
+      return resource
+    }
+  }
+
   /// Returns a Boolean value indicating whether the application crashed during its previous run.
   ///
   /// - Returns: `true` if a crash occurred during the previous run; otherwise, `false`.
   private func crashDidOccur() -> Bool {
-    return Crashlytics.crashlytics().didCrashDuringPreviousExecution()
+    return didCrashDuringPreviousExecution()
   }
 
   /// Makes 1-2KB sized chunks of the given spans and converts
   /// them into a serialized payload of ExportTraceServiceRequest's.
   ///
-  /// - Parameter spans: The array of spans to serialize.
+  /// - Parameters:
+  ///   - spans: The array of spans to serialize.
+  ///   - resource: The resolved resource metadata to attach to each export request.
   /// - Returns: An array of serialized trace export requests payloads.
-  private func createTraceExportRequestPayloads(from spans: [RecoveredSpan]) -> [Data] {
+  private func createTraceExportRequestPayloads(from spans: [RecoveredSpan],
+                                                resource: Resource?) -> [Data] {
     // Each OpenTelemetry span is roughly 1-2 KB in size.
     // Limiting each export trace request to 512 spans set the max request size to ~1MB.
     let chunkLength = 512

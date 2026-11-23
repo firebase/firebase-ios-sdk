@@ -15,6 +15,7 @@
 internal import FirebaseCore
 internal import FirebaseCoreExtension
 import FirebaseCrashlytics
+internal import FirebaseInstallations
 internal import FirebaseSessions
 
 import OpenTelemetryApi
@@ -51,6 +52,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
   init(options: FirebaseOptions,
        sessions: SessionsProvider,
+       installations: (any TelemetryInstallationsProvider)? = nil,
        environment: any TelemetryEnvironmentInfo = TelemetryEnvironment()) {
     let scopeVersion = environment.sdkVersion
     let scopeAttributes = AttributeStore.instrumentationScopeAttributes(environment: environment)
@@ -63,6 +65,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     let resource = Resource(
       attributes: AttributeStore.resourceAttributes(
         options: options,
+        installationId: nil,
         environment: environment
       )
     )
@@ -73,7 +76,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     recoveryManager = RecoveryManager(
       uploader: TelemetryUploader(options: options),
       scope: scopeInfo,
-      resource: resource
+      resource: resource,
+      installations: installations
     )
 
     // Initialize the persistence layer and upload the recovered spans.
@@ -262,7 +266,12 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
         isCacheable.pointee = true
 
-        self.instance = self.init(options: app.options, sessions: sessions)
+        let installations = Installations.installations(app: app)
+        self.instance = self.init(
+          options: app.options,
+          sessions: sessions,
+          installations: installations
+        )
         return self.instance
       }]
   }

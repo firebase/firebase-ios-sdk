@@ -34,6 +34,7 @@ enum AttributeStore {
 
   /// Returns the resource attributes identifying the Firebase app and host environment.
   static func resourceAttributes(options: FirebaseOptions,
+                                 installationId: String? = nil,
                                  environment: any TelemetryEnvironmentInfo = TelemetryEnvironment())
     -> [String: AttributeValue] {
     var attributes: [String: AttributeValue] = [
@@ -57,7 +58,24 @@ enum AttributeStore {
       attributes[SemanticConventions.App.buildId.rawValue] = .string(appBuildId)
     }
 
+    for (key, value) in installationAttributes(installationId: installationId) {
+      attributes[key] = value
+    }
+
     return attributes
+  }
+
+  /// Returns resource attributes representing the app installation ID (`service.instance.id` and
+  /// `app.installation.id`).
+  static func installationAttributes(installationId: String?) -> [String: AttributeValue] {
+    guard let installationId, !installationId.isEmpty else {
+      return [:]
+    }
+
+    return [
+      SemanticConventions.Service.instanceId.rawValue: .string(installationId),
+      SemanticConventions.App.installationId.rawValue: .string(installationId),
+    ]
   }
 
   /// Returns instrumentation scope attributes identifying the Crashlytics Telemetry client SDK.
