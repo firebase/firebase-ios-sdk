@@ -135,52 +135,12 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   var unencodedHTTPRequestBody: [String: AnyHashable]? {
-    var components = URLComponents()
-    var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
-    if let providerIDToken = providerIDToken {
-      queryItems.append(URLQueryItem(name: kProviderIDTokenKey, value: providerIDToken))
-    }
-    if let providerRawNonce = providerRawNonce {
-      queryItems.append(URLQueryItem(name: kProviderNonceKey, value: providerRawNonce))
-    }
-    if let providerAccessToken = providerAccessToken {
-      queryItems
-        .append(URLQueryItem(name: kProviderAccessTokenKey, value: providerAccessToken))
-    }
     guard providerIDToken != nil || providerAccessToken != nil || pendingToken != nil ||
       requestURI != nil else {
       fatalError("One of IDToken, accessToken, pendingToken, or requestURI must be supplied.")
     }
-    if let providerOAuthTokenSecret = providerOAuthTokenSecret {
-      queryItems
-        .append(URLQueryItem(name: kProviderOAuthTokenSecretKey,
-                             value: providerOAuthTokenSecret))
-    }
-    if let inputEmail = inputEmail {
-      queryItems.append(URLQueryItem(name: kIdentifierKey, value: inputEmail))
-    }
-
-    if fullName?.givenName != nil || fullName?.familyName != nil {
-      var nameDict = [String: String]()
-      if let given = fullName?.givenName {
-        nameDict[kFirstNameKey] = given
-      }
-      if let lastName = fullName?.familyName {
-        nameDict[kLastNameKey] = lastName
-      }
-      let userDict = [kNameKey: nameDict]
-      do {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-        let userJson = try encoder.encode(userDict)
-        let jsonString = String(data: userJson, encoding: .utf8)
-        queryItems.append(URLQueryItem(name: kUserKey, value: jsonString))
-      } catch {
-        fatalError("Auth Internal error: failed to serialize dictionary to json: \(error)")
-      }
-    }
-
-    components.queryItems = queryItems
+    var components = URLComponents()
+    components.queryItems = postBodyQueryItems
 
     var body: [String: AnyHashable] = [
       kRequestURIKey: requestURI ?? "http://localhost", // Unused by server, but required
@@ -217,5 +177,82 @@ class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
     body[kAutoCreateKey] = autoCreate
 
     return body
+  }
+
+  /// The parameters sent in the `postBody` value, in order.
+  private var postBodyQueryItems: [URLQueryItem] {
+    var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
+    if let providerIDToken = providerIDToken {
+      queryItems.append(URLQueryItem(name: kProviderIDTokenKey, value: providerIDToken))
+    }
+    if let providerRawNonce = providerRawNonce {
+      queryItems.append(URLQueryItem(name: kProviderNonceKey, value: providerRawNonce))
+    }
+    if let providerAccessToken = providerAccessToken {
+      queryItems
+        .append(URLQueryItem(name: kProviderAccessTokenKey, value: providerAccessToken))
+    }
+    if let providerOAuthTokenSecret = providerOAuthTokenSecret {
+      queryItems
+        .append(URLQueryItem(name: kProviderOAuthTokenSecretKey,
+                             value: providerOAuthTokenSecret))
+    }
+    if let inputEmail = inputEmail {
+      queryItems.append(URLQueryItem(name: kIdentifierKey, value: inputEmail))
+    }
+
+    if fullName?.givenName != nil || fullName?.familyName != nil {
+      var nameDict = [String: String]()
+      if let given = fullName?.givenName {
+        nameDict[kFirstNameKey] = given
+      }
+      if let lastName = fullName?.familyName {
+        nameDict[kLastNameKey] = lastName
+      }
+      let userDict = [kNameKey: nameDict]
+      do {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let userJson = try encoder.encode(userDict)
+        let jsonString = String(data: userJson, encoding: .utf8)
+        queryItems.append(URLQueryItem(name: kUserKey, value: jsonString))
+      } catch {
+        fatalError("Auth Internal error: failed to serialize dictionary to json: \(error)")
+      }
+    }
+    return queryItems
+  }
+
+  // MARK: - Diagnostics
+
+  // These messages name the `postBody` parameters but never include their values, which can be
+  // tokens or other credentials.
+
+  /// The names of the `postBody` parameters whose value is an empty string.
+  var emptyPostBodyParameterNames: [String] {
+    postBodyQueryItems.filter { $0.value?.isEmpty == true }.map(\.name)
+  }
+
+  /// A warning to log before sending the request, or `nil` if no `postBody` parameter is empty.
+  var emptyPostBodyParametersWarning: String? {
+    let names = emptyPostBodyParameterNames
+    guard !names.isEmpty else {
+      return nil
+    }
+    return "The verifyAssertion request for \(providerID) has an empty " +
+      "\(names.joined(separator: ", ")). If you don't have a value, pass nil instead of an " +
+      "empty string. The server can reject empty values, for example with " +
+      "INVALID_IDP_RESPONSE."
+  }
+
+  /// A summary of a failed request to log at debug level.
+  func failureSummary(for error: Error) -> String {
+    let nsError = error as NSError
+    let errorName = nsError.userInfo[AuthErrors.userInfoNameKey] as? String ?? nsError.domain
+    let parameters = postBodyQueryItems.map { item in
+      item.value?.isEmpty == true ? "\(item.name) (empty)" : item.name
+    }
+    return "The verifyAssertion request for \(providerID) failed with \(errorName) " +
+      "(\(nsError.code)). postBody parameters sent: \(parameters.joined(separator: ", "))."
   }
 }

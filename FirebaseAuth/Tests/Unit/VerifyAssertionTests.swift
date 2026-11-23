@@ -162,6 +162,51 @@ class VerifyAssertionTests: RPCBaseTests {
     "family_name": "Doe",
   ]
 
+  func testEmptyPostBodyParametersWarning() {
+    let request = VerifyAssertionRequest(providerID: "apple.com",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+    request.providerRawNonce = ""
+    request.providerAccessToken = ""
+
+    XCTAssertEqual(request.emptyPostBodyParameterNames, ["nonce", "access_token"])
+    XCTAssertEqual(
+      request.emptyPostBodyParametersWarning,
+      "The verifyAssertion request for apple.com has an empty nonce, access_token. If you " +
+        "don't have a value, pass nil instead of an empty string. The server can reject " +
+        "empty values, for example with INVALID_IDP_RESPONSE."
+    )
+  }
+
+  func testNoEmptyPostBodyParametersWarningForNilValues() {
+    let request = VerifyAssertionRequest(providerID: "apple.com",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+    request.providerRawNonce = "secretNonce"
+
+    XCTAssertEqual(request.emptyPostBodyParameterNames, [])
+    XCTAssertNil(request.emptyPostBodyParametersWarning)
+  }
+
+  func testFailureSummaryListsParameterNamesWithoutValues() {
+    let request = VerifyAssertionRequest(providerID: "apple.com",
+                                         requestConfiguration: makeRequestConfiguration())
+    request.providerIDToken = "secretIDToken"
+    request.providerRawNonce = "secretNonce"
+    request.providerAccessToken = ""
+    let error = AuthErrorUtils
+      .invalidCredentialError(message: "Invalid OAuth response from apple.com")
+
+    let summary = request.failureSummary(for: error)
+
+    XCTAssertEqual(
+      summary,
+      "The verifyAssertion request for apple.com failed with ERROR_INVALID_CREDENTIAL " +
+        "(17004). postBody parameters sent: providerId, id_token, nonce, access_token (empty)."
+    )
+    XCTAssertFalse(summary.contains("secret"))
+  }
+
   /** @fn testSuccessfulVerifyAssertionResponse
       @brief This test simulates a successful verify assertion flow.
    */
