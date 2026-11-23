@@ -61,9 +61,9 @@ enum AttributeStore {
   }
 
   /// Returns instrumentation scope attributes identifying the Crashlytics Telemetry client SDK.
-  static func instrumentationScopeAttributes(
-    environment: any TelemetryEnvironmentInfo = TelemetryEnvironment()
-  ) -> [String: AttributeValue] {
+  static func instrumentationScopeAttributes(environment: any TelemetryEnvironmentInfo =
+    TelemetryEnvironment(
+    )) -> [String: AttributeValue] {
     return [
       SemanticConventions.Gcp.crashlyticsClientArtifact: .string(
         FirebaseCrashlyticsTelemetry.scopeName
