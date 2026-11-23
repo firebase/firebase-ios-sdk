@@ -784,8 +784,9 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest,
   ASSERT_EQ(decoded->rgDistPoint[0].cAltEntry, 1u);
   ASSERT_EQ(decoded->rgDistPoint[0].rgAltEntry[0].dwAltNameChoice,
             static_cast<DWORD>(CERT_ALT_NAME_URL));
-  std::wstring expected_wide_url(ccdp_server.url().begin(),
-                                 ccdp_server.url().end());
+  // `url()` returns a new string each call, so take both iterators from one.
+  const std::string url = ccdp_server.url();
+  std::wstring expected_wide_url(url.begin(), url.end());
   EXPECT_EQ(std::wstring(decoded->rgDistPoint[0].rgAltEntry[0].pwszURL),
             expected_wide_url);
 
