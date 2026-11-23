@@ -48,6 +48,7 @@ firebase_ios_add_test(firestore_remote_test ${sources})
 target_link_libraries(
   firestore_remote_test PRIVATE
   GMock::GMock
+  OpenSSL::Crypto
   absl_base
   firestore_core
   firestore_protos_protobuf
