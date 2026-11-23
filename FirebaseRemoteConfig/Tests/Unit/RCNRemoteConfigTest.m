@@ -385,6 +385,85 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                }];
 }
 
+// #15764: no if-none-match when there is no local fetched config; sent once config exists.
+- (void)testIfNoneMatchHeaderSkippedWhenFetchedConfigIsEmpty {
+  RCNConfigContent *content = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+  RCNConfigFetch *fetch = [[RCNConfigFetch alloc] initWithContent:content
+                                                        DBManager:_DBManager
+                                                         settings:_settings
+                                                        analytics:nil
+                                                       experiment:_experimentMock
+                                                            queue:_queue
+                                                        namespace:_fullyQualifiedNamespace
+                                                          options:[self secondAppOptions]];
+  _settings.lastETag = @"etag1";
+  RCNConfigFetcherCompletion noop = ^(NSData *data, NSURLResponse *response, NSError *error) {
+  };
+
+  NSURLSessionDataTask *task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                                                    fetchTypeHeader:@"Base/1"
+                                                  completionHandler:noop];
+  XCTAssertNil([task.originalRequest valueForHTTPHeaderField:@"if-none-match"]);
+
+  [content updateConfigContentWithResponse:@{@"state" : @"UPDATE", @"entries" : @{@"k" : @"v"}}
+                              forNamespace:_fullyQualifiedNamespace];
+  task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                              fetchTypeHeader:@"Base/1"
+                            completionHandler:noop];
+  XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"], @"etag1");
+}
+
+// #15764: an in-session NO_CHANGE/EMPTY_CONFIG leaves an empty (non-nil) namespace entry,
+// so if-none-match must still be sent.
+- (void)testIfNoneMatchHeaderSentAfterNoChangeOrEmptyConfig {
+  RCNConfigFetcherCompletion noop = ^(NSData *data, NSURLResponse *response, NSError *error) {
+  };
+  for (NSString *state in @[ @"NO_CHANGE", @"EMPTY_CONFIG" ]) {
+    RCNConfigContent *content = [[RCNConfigContent alloc] initWithDBManager:_DBManager];
+    RCNConfigFetch *fetch = [[RCNConfigFetch alloc] initWithContent:content
+                                                          DBManager:_DBManager
+                                                           settings:_settings
+                                                          analytics:nil
+                                                         experiment:_experimentMock
+                                                              queue:_queue
+                                                          namespace:_fullyQualifiedNamespace
+                                                            options:[self secondAppOptions]];
+    _settings.lastETag = @"etag1";
+    [content updateConfigContentWithResponse:@{@"state" : state}
+                                forNamespace:_fullyQualifiedNamespace];
+
+    NSURLSessionDataTask *task = [fetch URLSessionDataTaskWithContent:[NSData data]
+                                                      fetchTypeHeader:@"Base/1"
+                                                    completionHandler:noop];
+    XCTAssertEqualObjects([task.originalRequest valueForHTTPHeaderField:@"if-none-match"], @"etag1",
+                          @"state: %@", state);
+  }
+}
+
+// #15764: after a restore, activate already ran on the empty DB (applyTime > etagUpdateTime).
+// An UPDATE with the SAME etag must still be activated.
+- (void)testUpdateWithSameETagIsActivatedAfterRestore {
+  int i = RCNTestRCInstanceSecondApp;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"recovered after restore"];
+  _settings.lastETag = @"etag1-2";        // same etag the stubbed server returns
+  _settings.lastETagUpdateTime = 100;     // T1: restored from backup
+  _settings.lastApplyTimeInterval = 101;  // T2: activate already ran on the empty DB
+
+  [_configInstances[i]
+      fetchWithExpirationDuration:0
+                completionHandler:^(FIRRemoteConfigFetchStatus status, NSError *error) {
+                  XCTAssertEqual(status, FIRRemoteConfigFetchStatusSuccess);
+                  [self->_configInstances[i]
+                      activateWithCompletion:^(BOOL changed, NSError *activateError) {
+                        XCTAssertTrue(changed);
+                        XCTAssertEqualObjects(self->_configInstances[i][@"key1-2"].stringValue,
+                                              @"value1-2");
+                        [expectation fulfill];
+                      }];
+                }];
+  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
 - (void)testFetchAndActivate {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
@@ -1888,6 +1967,117 @@ static NSString *UTCToLocal(NSString *utcTime) {
     [expectations[i] fulfill];
   }
   [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+}
+
+/// Records the config update messages that the default instance's realtime stream evaluates.
+/// Messages that can't be parsed are recorded as NSNull.
+- (NSMutableArray *)recordEvaluatedStreamMessages {
+  NSMutableArray *messages = [[NSMutableArray alloc] init];
+  OCMStub([_configRealtime[RCNTestRCInstanceDefault] evaluateStreamResponse:[OCMArg any]
+                                                                      error:[OCMArg any]])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained NSDictionary *response;
+        [invocation getArgument:&response atIndex:2];
+        [messages addObject:response ?: [NSNull null]];
+      });
+  return messages;
+}
+
+/// Delivers `string` to the default instance's realtime stream as a single network read.
+- (void)receiveStreamData:(NSString *)string {
+  NSURLSessionDataTask *dataTask = nil;
+  [_configRealtime[RCNTestRCInstanceDefault]
+          URLSession:[_configFetch[RCNTestRCInstanceDefault] currentNetworkSession]
+            dataTask:dataTask
+      didReceiveData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+}
+
+- (void)testRealtimeStreamHandlesMessageSplitAcrossReads {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\":"];
+  XCTAssertEqualObjects(messages, @[]);
+  [self receiveStreamData:@" \"5\"}"];
+
+  XCTAssertEqualObjects(messages, (@[ @{@"latestTemplateVersionNumber" : @"5"} ]));
+}
+
+- (void)testRealtimeStreamHandlesUTF8CharacterSplitAcrossReads {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+  NSURLSession *session = [_configFetch[RCNTestRCInstanceDefault] currentNetworkSession];
+  NSURLSessionDataTask *dataTask = nil;
+  // Split U+00E9 ('é', UTF-8 0xC3 0xA9) across two network reads.
+  const unsigned char firstRead[] = {'[', '{', '"', 'k', 'e', 'y', '"', ':', '"', 0xC3};
+  const unsigned char secondRead[] = {0xA9, '"', '}'};
+
+  [_configRealtime[RCNTestRCInstanceDefault] URLSession:session
+                                               dataTask:dataTask
+                                         didReceiveData:[NSData dataWithBytes:firstRead
+                                                                       length:sizeof(firstRead)]];
+  XCTAssertEqualObjects(messages, @[]);
+  [_configRealtime[RCNTestRCInstanceDefault] URLSession:session
+                                               dataTask:dataTask
+                                         didReceiveData:[NSData dataWithBytes:secondRead
+                                                                       length:sizeof(secondRead)]];
+
+  XCTAssertEqualObjects(messages, (@[ @{@"key" : @"é"} ]));
+}
+
+- (void)testRealtimeStreamHandlesSeveralMessagesInOneRead {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"5\"},\n"
+                          @"{\"latestTemplateVersionNumber\": \"6\"}"];
+
+  XCTAssertEqualObjects(
+      messages,
+      (@[ @{@"latestTemplateVersionNumber" : @"5"}, @{@"latestTemplateVersionNumber" : @"6"} ]));
+}
+
+- (void)testRealtimeStreamHandlesReadsThatEndAndStartMessages {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"5\""];
+  [self receiveStreamData:@"},{\"latestTemplateVersionNumber\": \"6\"},{"];
+  [self receiveStreamData:@"\"latestTemplateVersionNumber\": \"7\"}"];
+
+  XCTAssertEqualObjects(
+      messages, (@[
+        @{@"latestTemplateVersionNumber" : @"5"}, @{@"latestTemplateVersionNumber" : @"6"},
+        @{@"latestTemplateVersionNumber" : @"7"}
+      ]));
+}
+
+- (void)testRealtimeStreamDropsPartialMessageWhenNewResponseStarts {
+  NSMutableArray *messages = [self recordEvaluatedStreamMessages];
+  NSURLSessionDataTask *dataTask = nil;
+  NSHTTPURLResponse *response =
+      [[NSHTTPURLResponse alloc] initWithURL:[NSURL URLWithString:@"https://firebase.com"]
+                                  statusCode:200
+                                 HTTPVersion:nil
+                                headerFields:nil];
+
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"5\""];
+  [_configRealtime[RCNTestRCInstanceDefault]
+              URLSession:[_configFetch[RCNTestRCInstanceDefault] currentNetworkSession]
+                dataTask:dataTask
+      didReceiveResponse:response
+       completionHandler:^(NSURLSessionResponseDisposition disposition){
+       }];
+  [self receiveStreamData:@"[{\"latestTemplateVersionNumber\": \"6\"}"];
+
+  XCTAssertEqualObjects(messages, (@[ @{@"latestTemplateVersionNumber" : @"6"} ]));
+}
+
+- (void)testRealtimeStreamStopsHandlingMessagesWhenRealtimeIsDisabled {
+  id configRealtime = _configRealtime[RCNTestRCInstanceDefault];
+  OCMStub([configRealtime pauseRealtimeStream]).andDo(nil);
+
+  [self receiveStreamData:@"[{\"featureDisabled\": true},"
+                          @"{\"latestTemplateVersionNumber\": \"5\"},"];
+  [self receiveStreamData:@"{\"latestTemplateVersionNumber\": \"6\"}]"];
+
+  OCMVerify(times(1), [configRealtime evaluateStreamResponse:[OCMArg any] error:[OCMArg any]]);
 }
 
 - (void)testURLSessionDelegateIgnoresInvalidUTF8Data {

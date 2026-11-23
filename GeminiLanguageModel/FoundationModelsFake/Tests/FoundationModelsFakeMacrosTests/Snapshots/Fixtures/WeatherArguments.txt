@@ -1,0 +1,53 @@
+public struct WeatherArguments: Equatable {
+  public var city: String
+  public var units: String?
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "city", description: "The city to look up", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "units", description: "Units", type: String?.self, guides: [.anyOf(["celsius", "fahrenheit"])])
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "city", value: self.city)
+        addProperty(name: "units", value: self.units)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Equatable {
+        public var id: FoundationModelsFake.GenerationID
+        public var city: String.PartiallyGenerated?
+        public var units: String?.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.city = try content.value(forProperty: "city")
+            self.units = try content.value(forProperty: "units")
+        }
+    }
+}
+
+extension WeatherArguments: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.city = try content.value(forProperty: "city")
+        self.units = try content.value(forProperty: "units")
+    }
+}

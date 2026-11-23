@@ -533,7 +533,7 @@
         }];
         return;
     }
-    [self.persistenceManager setQueryActive:querySpec];
+    [self.serverSyncTree setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
@@ -554,14 +554,26 @@
                                     ? status
                                     : kFWPResponseForActionStatusFailed;
                    }
-                   NSDictionary *errorDict = @{
-                       NSLocalizedFailureReasonErrorKey : reason,
-                       NSLocalizedDescriptionKey : [NSString
+                   NSString *description;
+                   if ([reason isEqualToString:kPersistentConnectionOffline]) {
+                       // The get timed out waiting for a connection.
+                       description = [NSString
                            stringWithFormat:
                                @"Unable to get latest value for query %@, "
                                @"client offline with no active listeners "
                                @"and no matching disk cache entries",
-                               querySpec]
+                               querySpec];
+                   } else {
+                       // The server rejected the get, e.g. because of
+                       // security rules.
+                       description = [NSString
+                           stringWithFormat:
+                               @"Unable to get latest value for query %@: %@",
+                               querySpec, reason];
+                   }
+                   NSDictionary *errorDict = @{
+                       NSLocalizedFailureReasonErrorKey : reason,
+                       NSLocalizedDescriptionKey : description
                    };
                    [self.eventRaiser raiseCallback:^{
                      block([NSError errorWithDomain:kFirebaseCoreErrorDomain
@@ -569,7 +581,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
-                   [self.persistenceManager setQueryInactive:querySpec];
+                   [self.serverSyncTree setQueryInactive:querySpec];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
@@ -580,8 +592,8 @@
                node = [FSnapshotUtilities nodeFrom:data];
                [self.eventRaiser
                    raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+                                   applyGetResultForQuery:querySpec
+                                                  newData:node]];
                [self.eventRaiser raiseCallback:^{
                  block(
                      nil,
@@ -592,7 +604,7 @@
                                                        index:querySpec.index]]);
                }];
            }
-           [self.persistenceManager setQueryInactive:querySpec];
+           [self.serverSyncTree setQueryInactive:querySpec];
          }];
 }
 

@@ -1,5 +1,25 @@
 # Unreleased
+
+- [changed] On Apple platforms, Firestore now verifies gRPC TLS server
+  certificates using `Security.framework` (`SecTrust`) instead of an embedded
+  root certificate bundle, enabling automatic OS root store, enterprise MDM,
+  and Over-The-Air (`trustd`) CA revocation updates while reducing binary size.
+  Certificates are evaluated asynchronously so verification never blocks gRPC
+  threads, and missing intermediate certificates are never fetched over the
+  network on behalf of the server.
+- [changed] On Apple platforms, a custom `host` that is an IP address must be
+  written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
+  and internationalized host names must be Punycode-encoded.
+- [fixed] Security Update: Removed untrusted eMudhra root certificate
+  (`emSign Root CA - G1`) from embedded trust store.
+
+# 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
+- [feature] Added support for window functions in Pipelines, with the `addWindowFields`
+  stage for computing aggregates such as running totals and moving averages over
+  partitioned and sorted frames of documents, and `over()` for framing individual
+  aggregates. Window functions are in preview until the backend launch is announced
+  in the [Firestore release notes](https://docs.cloud.google.com/firestore/docs/release-notes). (#16715)
 - [fixed] Fixed `Firestore.Decoder` reusing the `DocumentReference` from a previous
   `decode(_:from:in:)` call to populate `@DocumentID` properties when a later call on the same
   decoder has no reference. (#16789)

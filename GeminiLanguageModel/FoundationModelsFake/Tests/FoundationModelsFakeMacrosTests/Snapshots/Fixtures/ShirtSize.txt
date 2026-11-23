@@ -1,0 +1,24 @@
+public enum ShirtSize: String, Equatable {
+  case small = "S"
+  case medium = "M"
+  case large
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(type: Self.self, description: "A shirt size", anyOf: [small.rawValue, medium.rawValue, large.rawValue])
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        rawValue.generatedContent
+    }
+}
+
+extension ShirtSize: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let rawValue = try content.value(String.self)
+        if let value = Self(rawValue: rawValue) {
+            self = value
+        } else {
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "\"\(rawValue)\" isn't a raw value of \(Self.self)")
+        }
+    }
+}

@@ -129,6 +129,64 @@ jobs:
       # credentials are provided.
       run: swift test --skip IntegrationTests
 
+  # Builds and tests against FoundationModelsFake, which the `FoundationModelsFake` trait enables
+  # by default on Linux.
+  unit-tests-linux:
+    name: unit-tests-linux
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    container: swift:6.4.2@sha256:119ff7d833ea622851b459513333bb4bda5ebb32b7acd05dd05077d5b0383129
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    # Both packages build swift-syntax for the `@Generable` macro, so cache their build
+    # directories between runs.
+    - name: Cache SwiftPM build directories
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: |
+          GeminiLanguageModel/FoundationModelsFake/.build
+          GeminiLanguageModel/.build
+        key: geminilanguagemodel-linux-swift-6.4.2-${{ hashFiles('GeminiLanguageModel/Package.swift', 'GeminiLanguageModel/FoundationModelsFake/Package.swift') }}
+        restore-keys: geminilanguagemodel-linux-swift-6.4.2-
+
+    - name: Run FoundationModelsFake tests
+      working-directory: GeminiLanguageModel/FoundationModelsFake
+      run: swift test
+
+    - name: Run GeminiLanguageModel unit tests
+      working-directory: GeminiLanguageModel
+      # Skips the `*IntegrationTests` suites, which need credentials and network access.
+      run: swift test --skip IntegrationTests
+
+  # Builds and tests against FoundationModelsFake on macOS, which compiles the fake's Apple-only
+  # code paths (CoreGraphics, ImageIO, and CoreImage) and GeminiLanguageModel's ImageIO-based image
+  # translation against the fake.
+  unit-tests-macos-fake:
+    name: unit-tests-macos-fake
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_27.2.app/Contents/Developer
+
+    - name: Run FoundationModelsFake tests
+      working-directory: GeminiLanguageModel/FoundationModelsFake
+      run: swift test
+
+    - name: Run GeminiLanguageModel unit tests
+      working-directory: GeminiLanguageModel
+      # Skips the `*IntegrationTests` suites, which need credentials and network access.
+      run: swift test --traits FoundationModelsFake --skip IntegrationTests
+
   integration-tests:
     name: integration-tests
     if: (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'

@@ -19,6 +19,7 @@ on:
     - 'FirebaseCombineSwift/Sources/Functions/**'
     - 'scripts/setup_quickstart.sh'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
 
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
@@ -43,7 +44,7 @@ jobs:
         target: [FirebaseFunctionsIntegration, FirebaseFunctionsObjCIntegration, FunctionsCombineUnit]
     with:
       target: ${{ matrix.target }}
-      platforms: iOS
+      platforms: '["iOS"]'
       setup_command: FirebaseFunctions/Backend/start.sh synchronous
 
   spm-unit:

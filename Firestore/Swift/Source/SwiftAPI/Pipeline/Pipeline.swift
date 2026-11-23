@@ -232,6 +232,26 @@ public class Pipeline: @unchecked Sendable {
     return Pipeline(stages: stages + [addFieldsStage], db: db)
   }
 
+  /// **[Public Preview]** Adds window function results to the output documents of the pipeline.
+  ///
+  /// > Warning: Window Functions SDK features are in preview until the backend feature
+  /// > launches. Look for the launch announcement at:
+  /// > https://docs.cloud.google.com/firestore/docs/release-notes
+  ///
+  /// - Parameters:
+  ///   - window: The window specification defining partition, sort, and frames. Defaults to an
+  ///     empty global window covering the entire result set.
+  ///   - fields: An array of at least one `WindowField`: an `AliasedAggregate` or an
+  ///     `AliasedWindowFunction`, which may be mixed.
+  ///   - options: Optional dictionary of named, `Sendable` raw parameters for the stage.
+  /// - Returns: A new `Pipeline` object with this stage appended.
+  public func addWindowFields(window: WindowSpec = WindowSpec(),
+                              fields: [WindowField],
+                              options: [String: Sendable]? = nil) -> Pipeline {
+    let stage = AddWindowFields(window: window, fields: fields, options: options)
+    return Pipeline(stages: stages + [stage], db: db)
+  }
+
   /// Removes fields from outputs of previous stages.
   ///
   /// ```swift

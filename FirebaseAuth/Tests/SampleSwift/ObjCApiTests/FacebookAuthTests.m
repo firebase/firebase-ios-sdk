@@ -47,7 +47,6 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 
   NSDictionary *userInfoDict = [self createFacebookTestingAccount];
   NSString *facebookAccessToken = userInfoDict[@"access_token"];
-  NSLog(@"Facebook testing account access token is: %@", facebookAccessToken);
   NSString *facebookAccountId = userInfoDict[@"id"];
   NSLog(@"Facebook testing account id is: %@", facebookAccountId);
 
@@ -89,7 +88,6 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
 
   NSDictionary *userInfoDict = [self createFacebookTestingAccount];
   NSString *facebookAccessToken = userInfoDict[@"access_token"];
-  NSLog(@"Facebook testing account access token is: %@", facebookAccessToken);
   NSString *facebookAccountId = userInfoDict[@"id"];
   NSLog(@"Facebook testing account id is: %@", facebookAccountId);
 

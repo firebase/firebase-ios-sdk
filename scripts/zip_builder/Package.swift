@@ -23,54 +23,43 @@ let package = Package(
   name: "ZipBuilder",
   platforms: [.macOS(.v15)],
   products: [
-    .executable(name: "zip-builder", targets: ["ZipBuilderCLI"]),
+    .executable(name: "zip-builder", targets: ["ZipBuilder"]),
   ],
+  // Direct dependencies are pinned to exact commits (the comment names the version), so a build
+  // can't pick up an unreviewed change. Bump one by changing its revision and running
+  // `swift package resolve`; Package.resolved pins the transitive ones.
   dependencies: [
-    .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
-    .package(url: "https://github.com/apple/swift-log.git", from: "1.6.0"),
+    .package(
+      url: "https://github.com/apple/swift-argument-parser.git",
+      revision: "6a52f3251125d74daf04fcbd5e6f08a75d074382" // 1.8.2
+    ),
+    .package(
+      url: "https://github.com/apple/swift-log.git",
+      revision: "4038b6a4f74a1426f47eb1dd5b4bb5628a15d597" // 1.16.1
+    ),
     .package(
       url: "https://github.com/swiftlang/swift-package-manager.git",
-      revision: "swift-6.3.3-RELEASE"
+      revision: "7137197d30da49413553f3dd5e03988b967be36a" // main
+    ),
+    .package(
+      url: "https://github.com/tuist/XcodeProj.git",
+      revision: "a97494b14b5ba3184b48c050d034c7534356e0ae" // 9.17.8
     ),
   ],
   targets: [
+    // The zip builder (see docs/how-it-works.md).
     .executableTarget(
-      name: "ZipBuilderCLI",
+      name: "ZipBuilder",
       dependencies: [
         .product(name: "ArgumentParser", package: "swift-argument-parser"),
         .product(name: "Logging", package: "swift-log"),
-        "ManifestReader",
-        "Common",
-      ]
-    ),
-    .target(
-      name: "ManifestReader",
-      dependencies: [
-        .product(name: "Logging", package: "swift-log"),
-        "Common",
-      ]
-    ),
-    .target(
-      name: "Common",
-      dependencies: [
-        .product(name: "Logging", package: "swift-log"),
-        .product(name: "SwiftPM", package: "swift-package-manager"),
+        .product(name: "SwiftPMDataModel-auto", package: "swift-package-manager"),
+        .product(name: "XcodeProj", package: "XcodeProj"),
       ]
     ),
     .testTarget(
-      name: "ManifestReaderTests",
-      dependencies: [
-        "ManifestReader",
-        "Common",
-      ]
-    ),
-    .testTarget(
-      name: "ZipBuilderCLITests",
-      dependencies: [
-        "ZipBuilderCLI",
-        "Common",
-        "ManifestReader",
-      ]
+      name: "ZipBuilderTests",
+      dependencies: ["ZipBuilder"]
     ),
   ]
 )

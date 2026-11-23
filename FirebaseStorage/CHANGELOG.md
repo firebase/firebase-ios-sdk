@@ -1,4 +1,9 @@
-# Unreleased
+# 13.2.0
+- [changed] The `async` APIs `data(maxSize:)`, `putDataAsync`, `putFileAsync`, and `writeAsync`
+  now cancel the underlying download or upload and throw `StorageError.cancelled` when the
+  calling Swift task is cancelled. (#11786)
+- [fixed] Serialized Auth and App Check token header updates to avoid concurrent
+  mutation of the request when using custom interop providers. (#16766)
 - [fixed] Fixed a memory leak where `StorageUploadTask` and `StorageDownloadTask` objects, and the
   data being uploaded, were never released after `cancel()` or, for downloads, `pause()`. (#16841)
 - [fixed] Prevented duplicate upload and download requests when resuming a task before its initial

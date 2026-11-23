@@ -3,8 +3,10 @@ name: infra.check
 on:
   workflow_dispatch:
   pull_request:
-    paths-ignore:
-    - 'Firestore/**'
+    paths:
+    - '**'
+    - '!Firestore/**'
+    - 'Firestore/**/CHANGELOG.md'
   push:
     branches: main
 

@@ -1,0 +1,161 @@
+public struct Guides {
+  public var constant: String
+  public var anyOf: String
+  public var patternGuide: String
+  public var regexGuide: String
+  public var countExact: [Int]
+  public var countRange: [Int]
+  public var minimumCount: [String]
+  public var maximumCount: [String]
+  public var minimumAndMaximumCount: [String]
+  public var intRange: Int
+  public var intMinimum: Int
+  public var intMaximum: Int
+  public var doubleRange: Double
+  public var floatMinimum: Float
+  public var decimalMaximum: Decimal
+  public var elementGuide: [Int]
+  public var elementStrings: [String]
+  public var describedAndGuided: Int
+  public var minimumAndMaximum: Int
+  public var optionalGuided: Int?
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "constant", type: String.self, guides: [.constant("fixed")]),
+                FoundationModelsFake.GenerationSchema.Property(name: "anyOf", type: String.self, guides: [.anyOf(["a", "b", "c"])]),
+                FoundationModelsFake.GenerationSchema.Property(name: "patternGuide", type: String.self, guides: [.pattern(/\d{3}-\d{4}/)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "regexGuide", description: "Regex guide", type: String.self, guides: [/^[a-z]+$/]),
+                FoundationModelsFake.GenerationSchema.Property(name: "countExact", type: [Int].self, guides: [.count(3)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "countRange", type: [Int].self, guides: [.count(1 ... 4)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "minimumCount", type: [String].self, guides: [.minimumCount(1)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "maximumCount", type: [String].self, guides: [.maximumCount(5)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "minimumAndMaximumCount", type: [String].self, guides: [.minimumCount(1), .maximumCount(3)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "intRange", type: Int.self, guides: [.range(0 ... 100)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "intMinimum", type: Int.self, guides: [.minimum(1)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "intMaximum", type: Int.self, guides: [.maximum(9)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "doubleRange", type: Double.self, guides: [.range(0.0 ... 1.0)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "floatMinimum", type: Float.self, guides: [.minimum(0.5)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "decimalMaximum", type: Decimal.self, guides: [.maximum(2.5)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "elementGuide", type: [Int].self, guides: [.element(.range(1 ... 10))]),
+                FoundationModelsFake.GenerationSchema.Property(name: "elementStrings", type: [String].self, guides: [.element(.anyOf(["x", "y"]))]),
+                FoundationModelsFake.GenerationSchema.Property(name: "describedAndGuided", description: "Description with guide", type: Int.self, guides: [.range(1 ... 5)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "minimumAndMaximum", type: Int.self, guides: [.minimum(0), .maximum(10)]),
+                FoundationModelsFake.GenerationSchema.Property(name: "optionalGuided", description: "An optional constrained value", type: Int?.self, guides: [.range(1 ... 3)])
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "constant", value: self.constant)
+        addProperty(name: "anyOf", value: self.anyOf)
+        addProperty(name: "patternGuide", value: self.patternGuide)
+        addProperty(name: "regexGuide", value: self.regexGuide)
+        addProperty(name: "countExact", value: self.countExact)
+        addProperty(name: "countRange", value: self.countRange)
+        addProperty(name: "minimumCount", value: self.minimumCount)
+        addProperty(name: "maximumCount", value: self.maximumCount)
+        addProperty(name: "minimumAndMaximumCount", value: self.minimumAndMaximumCount)
+        addProperty(name: "intRange", value: self.intRange)
+        addProperty(name: "intMinimum", value: self.intMinimum)
+        addProperty(name: "intMaximum", value: self.intMaximum)
+        addProperty(name: "doubleRange", value: self.doubleRange)
+        addProperty(name: "floatMinimum", value: self.floatMinimum)
+        addProperty(name: "decimalMaximum", value: self.decimalMaximum)
+        addProperty(name: "elementGuide", value: self.elementGuide)
+        addProperty(name: "elementStrings", value: self.elementStrings)
+        addProperty(name: "describedAndGuided", value: self.describedAndGuided)
+        addProperty(name: "minimumAndMaximum", value: self.minimumAndMaximum)
+        addProperty(name: "optionalGuided", value: self.optionalGuided)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        public var id: FoundationModelsFake.GenerationID
+        public var constant: String.PartiallyGenerated?
+        public var anyOf: String.PartiallyGenerated?
+        public var patternGuide: String.PartiallyGenerated?
+        public var regexGuide: String.PartiallyGenerated?
+        public var countExact: [Int].PartiallyGenerated?
+        public var countRange: [Int].PartiallyGenerated?
+        public var minimumCount: [String].PartiallyGenerated?
+        public var maximumCount: [String].PartiallyGenerated?
+        public var minimumAndMaximumCount: [String].PartiallyGenerated?
+        public var intRange: Int.PartiallyGenerated?
+        public var intMinimum: Int.PartiallyGenerated?
+        public var intMaximum: Int.PartiallyGenerated?
+        public var doubleRange: Double.PartiallyGenerated?
+        public var floatMinimum: Float.PartiallyGenerated?
+        public var decimalMaximum: Decimal.PartiallyGenerated?
+        public var elementGuide: [Int].PartiallyGenerated?
+        public var elementStrings: [String].PartiallyGenerated?
+        public var describedAndGuided: Int.PartiallyGenerated?
+        public var minimumAndMaximum: Int.PartiallyGenerated?
+        public var optionalGuided: Int?.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.constant = try content.value(forProperty: "constant")
+            self.anyOf = try content.value(forProperty: "anyOf")
+            self.patternGuide = try content.value(forProperty: "patternGuide")
+            self.regexGuide = try content.value(forProperty: "regexGuide")
+            self.countExact = try content.value(forProperty: "countExact")
+            self.countRange = try content.value(forProperty: "countRange")
+            self.minimumCount = try content.value(forProperty: "minimumCount")
+            self.maximumCount = try content.value(forProperty: "maximumCount")
+            self.minimumAndMaximumCount = try content.value(forProperty: "minimumAndMaximumCount")
+            self.intRange = try content.value(forProperty: "intRange")
+            self.intMinimum = try content.value(forProperty: "intMinimum")
+            self.intMaximum = try content.value(forProperty: "intMaximum")
+            self.doubleRange = try content.value(forProperty: "doubleRange")
+            self.floatMinimum = try content.value(forProperty: "floatMinimum")
+            self.decimalMaximum = try content.value(forProperty: "decimalMaximum")
+            self.elementGuide = try content.value(forProperty: "elementGuide")
+            self.elementStrings = try content.value(forProperty: "elementStrings")
+            self.describedAndGuided = try content.value(forProperty: "describedAndGuided")
+            self.minimumAndMaximum = try content.value(forProperty: "minimumAndMaximum")
+            self.optionalGuided = try content.value(forProperty: "optionalGuided")
+        }
+    }
+}
+
+extension Guides: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.constant = try content.value(forProperty: "constant")
+        self.anyOf = try content.value(forProperty: "anyOf")
+        self.patternGuide = try content.value(forProperty: "patternGuide")
+        self.regexGuide = try content.value(forProperty: "regexGuide")
+        self.countExact = try content.value(forProperty: "countExact")
+        self.countRange = try content.value(forProperty: "countRange")
+        self.minimumCount = try content.value(forProperty: "minimumCount")
+        self.maximumCount = try content.value(forProperty: "maximumCount")
+        self.minimumAndMaximumCount = try content.value(forProperty: "minimumAndMaximumCount")
+        self.intRange = try content.value(forProperty: "intRange")
+        self.intMinimum = try content.value(forProperty: "intMinimum")
+        self.intMaximum = try content.value(forProperty: "intMaximum")
+        self.doubleRange = try content.value(forProperty: "doubleRange")
+        self.floatMinimum = try content.value(forProperty: "floatMinimum")
+        self.decimalMaximum = try content.value(forProperty: "decimalMaximum")
+        self.elementGuide = try content.value(forProperty: "elementGuide")
+        self.elementStrings = try content.value(forProperty: "elementStrings")
+        self.describedAndGuided = try content.value(forProperty: "describedAndGuided")
+        self.minimumAndMaximum = try content.value(forProperty: "minimumAndMaximum")
+        self.optionalGuided = try content.value(forProperty: "optionalGuided")
+    }
+}
