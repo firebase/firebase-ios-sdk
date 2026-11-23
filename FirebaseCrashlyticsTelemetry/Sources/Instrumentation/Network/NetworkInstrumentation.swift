@@ -16,11 +16,7 @@ internal import CrashlyticsTelemetryOTelURLSessionInstrumentation
 import Foundation
 import OpenTelemetryApi
 
-/// Instruments `URLSession` network requests and emits OpenTelemetry spans aligned with
-/// stable HTTP semantic conventions.
-///
-/// Configures the underlying `URLSessionInstrumentation` on a background thread so
-/// Objective-C runtime swizzling does not block app startup on the main thread.
+/// Instruments `URLSession` network requests and emits OpenTelemetry spans.
 final actor NetworkInstrumentation {
   private let tracer: Tracer
   private let parentSpanProvider: (@Sendable () -> (any Span)?)?
