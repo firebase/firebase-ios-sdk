@@ -492,8 +492,7 @@ void EvaluateOnThreadPool(const WindowsTrustConfig& config,
         absl::StrCat("Failed to schedule TLS certificate verification: "
                      "GetModuleHandleExW failed with error ",
                      error));
-    LOG_WARN("TLS peer certificate verification failed: %s",
-             status.error_message());
+    LOG_ERROR("%s", status.error_message());
     task->completion(std::move(status));
     return;
   }
@@ -511,8 +510,7 @@ void EvaluateOnThreadPool(const WindowsTrustConfig& config,
       absl::StrCat("Failed to schedule TLS certificate verification: "
                    "CreateThreadpoolWork failed with error ",
                    error));
-  LOG_WARN("TLS peer certificate verification failed: %s",
-           status.error_message());
+  LOG_ERROR("%s", status.error_message());
   // `AsyncTlsVerifier` reports an inline completion synchronously.
   task->completion(std::move(status));
 }
