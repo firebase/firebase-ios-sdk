@@ -167,9 +167,8 @@ import FirebaseCore
     }
 
     func testObjCCredentialWithIDTokenAndNilRawNonce() throws {
-      let selector = NSSelectorFromString("credentialWithProviderID:IDToken:rawNonce:")
-      let metaclass: AnyClass = try XCTUnwrap(object_getClass(OAuthProvider.self))
-      let imp = try XCTUnwrap(class_getMethodImplementation(metaclass, selector))
+      let (selector, imp) =
+        try objCClassMethod("credentialWithProviderID:IDToken:rawNonce:")
       typealias ThreeArgIMP = @convention(c) (AnyClass,
                                               Selector,
                                               NSString,
@@ -200,14 +199,28 @@ import FirebaseCore
       XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)")
     }
 
+    /// Looks up an Objective-C class method on `OAuthProvider`.
+    ///
+    /// The `credentialWithProviderID:IDToken:rawNonce:...` methods are Objective-C only
+    /// (`@available(swift 1000.0)`), so Swift can't call them directly, and the SPM `AuthUnit`
+    /// target excludes the Objective-C test files. These tests call the methods through the
+    /// Objective-C runtime instead, so that `nil` arguments reach them the way they do from
+    /// Objective-C, without being bridged to Swift strings first.
+    private func objCClassMethod(_ name: String) throws -> (Selector, IMP) {
+      let selector = NSSelectorFromString(name)
+      // `class_getClassMethod` returns nil for a missing method, so a renamed selector fails
+      // here. (`class_getMethodImplementation` would return a forwarding IMP and crash.)
+      let method = try XCTUnwrap(class_getClassMethod(OAuthProvider.self, selector),
+                                 "OAuthProvider has no class method +\(name)")
+      return (selector, method_getImplementation(method))
+    }
+
     private func invokeObjCCredential(providerID: String,
                                       idToken: String,
                                       rawNonce: String?,
                                       accessToken: String?) throws -> OAuthCredential {
-      let selector =
-        NSSelectorFromString("credentialWithProviderID:IDToken:rawNonce:accessToken:")
-      let metaclass: AnyClass = try XCTUnwrap(object_getClass(OAuthProvider.self))
-      let imp = try XCTUnwrap(class_getMethodImplementation(metaclass, selector))
+      let (selector, imp) =
+        try objCClassMethod("credentialWithProviderID:IDToken:rawNonce:accessToken:")
       typealias FourArgIMP = @convention(c) (AnyClass,
                                              Selector,
                                              NSString,
