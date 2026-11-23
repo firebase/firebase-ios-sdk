@@ -53,11 +53,48 @@ enum AttributeStore {
     // TODO: Remove this attribute. Currently added as a work around to a limitation in the
     // backend server.
     attributes["gcp.firebase.app_version"] = .string("1.0")
+
+    if let threadId = currentThreadId() {
+      attributes[SemanticConventions.Thread.id.rawValue] = .int(threadId)
+    }
+
+    if let threadName = currentThreadName() {
+      attributes[SemanticConventions.Thread.name.rawValue] = .string(threadName)
+    }
+
     return attributes
   }
 
   /// Returns the common attributes that should be attached to all log records.
   static func commonLogAttributes() -> [String: AttributeValue] {
     return commonAttributes()
+  }
+
+  private static func currentThreadId() -> Int? {
+    var threadId: UInt64 = 0
+    guard pthread_threadid_np(nil, &threadId) == 0 else {
+      return nil
+    }
+    return Int(clamping: threadId)
+  }
+
+  private static func currentThreadName() -> String? {
+    if Thread.isMainThread {
+      return "main"
+    }
+
+    if let name = Thread.current.name, !name.isEmpty {
+      return name
+    }
+
+    var buffer = [CChar](repeating: 0, count: 64)
+    if pthread_getname_np(pthread_self(), &buffer, buffer.count) == 0 {
+      let name = String(cString: buffer)
+      if !name.isEmpty {
+        return name
+      }
+    }
+
+    return nil
   }
 }
