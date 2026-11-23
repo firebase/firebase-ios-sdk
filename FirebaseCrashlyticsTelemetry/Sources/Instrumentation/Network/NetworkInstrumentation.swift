@@ -88,6 +88,14 @@ final actor NetworkInstrumentation {
         value: .string(String(httpResponse.statusCode))
       )
     }
+
+    if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"),
+       !contentType.isEmpty {
+      span.setAttribute(
+        key: "\(SemanticConventions.Http.responseHeader.rawValue).content-type",
+        value: AttributeValue([contentType])
+      )
+    }
   }
 
   static func annotateError(_ error: Error, statusCode: Int, span: Span) {
@@ -107,6 +115,24 @@ final actor NetworkInstrumentation {
   static func customizeSpan(_ request: URLRequest, builder: SpanBuilder, parentSpan: (any Span)?) {
     if let parentSpan {
       builder.setParent(parentSpan)
+    }
+
+    if let host = request.url?.host, !host.isEmpty {
+      builder.setAttribute(key: SemanticConventions.Url.domain.rawValue, value: .string(host))
+    }
+
+    if let accept = request.value(forHTTPHeaderField: "Accept"), !accept.isEmpty {
+      builder.setAttribute(
+        key: "\(SemanticConventions.Http.requestHeader.rawValue).accept",
+        value: AttributeValue([accept])
+      )
+    }
+
+    if let contentType = request.value(forHTTPHeaderField: "Content-Type"), !contentType.isEmpty {
+      builder.setAttribute(
+        key: "\(SemanticConventions.Http.requestHeader.rawValue).content-type",
+        value: AttributeValue([contentType])
+      )
     }
   }
 }
