@@ -65,7 +65,6 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     let resource = Resource(
       attributes: AttributeStore.resourceAttributes(
         options: options,
-        installationId: nil,
         environment: environment
       )
     )
@@ -73,6 +72,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     self.resource = resource
     self.scopeInfo = scopeInfo
 
+    // Resolve the installation ID lazily in RecoveryManager on crash export rather than blocking
+    // synchronous SDK initialization on startup.
     recoveryManager = RecoveryManager(
       uploader: TelemetryUploader(options: options),
       scope: scopeInfo,

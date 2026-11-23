@@ -148,6 +148,89 @@ final class RecoveryManagerTests: XCTestCase {
     XCTAssertNil(resourceAttrs[SemanticConventions.App.installationId.rawValue])
   }
 
+  func test_uploadRecoveredSpans_whenInstallationsReturnsEmpty_stillUploadsBaseResource()
+    async throws {
+    let uploader = MockTelemetryUploader()
+    let baseResource = Resource(attributes: [
+      SemanticConventions.Service.name.rawValue: .string("1:123:ios:abc"),
+    ])
+    let manager = RecoveryManager(
+      uploader: uploader,
+      resource: baseResource,
+      installations: MockInstallationsProvider(installationId: ""),
+      didCrashDuringPreviousExecution: { true }
+    )
+
+    let span = makeRecoveredSpan()
+    await Task.detached {
+      await manager.uploadRecoveredSpans(spans: [span])
+    }.value
+
+    let payloads = await uploader.uploadedPayloads
+    XCTAssertEqual(payloads.count, 1)
+
+    let resourceAttrs = decodeResourceAttributes(from: try XCTUnwrap(payloads.first))
+    XCTAssertEqual(resourceAttrs[SemanticConventions.Service.name.rawValue], "1:123:ios:abc")
+    XCTAssertNil(resourceAttrs[SemanticConventions.Service.instanceId.rawValue])
+    XCTAssertNil(resourceAttrs[SemanticConventions.App.installationId.rawValue])
+  }
+
+  func test_uploadRecoveredSpans_whenInstallationsTimesOut_stillUploadsBaseResource() async throws {
+    let uploader = MockTelemetryUploader()
+    let baseResource = Resource(attributes: [
+      SemanticConventions.Service.name.rawValue: .string("1:123:ios:abc"),
+    ])
+    let manager = RecoveryManager(
+      uploader: uploader,
+      resource: baseResource,
+      installations: MockInstallationsProvider(
+        delayNanoseconds: 2_000_000_000,
+        installationId: "late-fid"
+      ),
+      installationIDTimeoutNanoseconds: 50_000_000,
+      didCrashDuringPreviousExecution: { true }
+    )
+
+    let span = makeRecoveredSpan()
+    await Task.detached {
+      await manager.uploadRecoveredSpans(spans: [span])
+    }.value
+
+    let payloads = await uploader.uploadedPayloads
+    XCTAssertEqual(payloads.count, 1)
+
+    let resourceAttrs = decodeResourceAttributes(from: try XCTUnwrap(payloads.first))
+    XCTAssertEqual(resourceAttrs[SemanticConventions.Service.name.rawValue], "1:123:ios:abc")
+    XCTAssertNil(resourceAttrs[SemanticConventions.Service.instanceId.rawValue])
+    XCTAssertNil(resourceAttrs[SemanticConventions.App.installationId.rawValue])
+  }
+
+  func test_uploadRecoveredSpans_whenInstallationsIsNil_uploadsBaseResource() async throws {
+    let uploader = MockTelemetryUploader()
+    let baseResource = Resource(attributes: [
+      SemanticConventions.Service.name.rawValue: .string("1:123:ios:abc"),
+    ])
+    let manager = RecoveryManager(
+      uploader: uploader,
+      resource: baseResource,
+      installations: nil,
+      didCrashDuringPreviousExecution: { true }
+    )
+
+    let span = makeRecoveredSpan()
+    await Task.detached {
+      await manager.uploadRecoveredSpans(spans: [span])
+    }.value
+
+    let payloads = await uploader.uploadedPayloads
+    XCTAssertEqual(payloads.count, 1)
+
+    let resourceAttrs = decodeResourceAttributes(from: try XCTUnwrap(payloads.first))
+    XCTAssertEqual(resourceAttrs[SemanticConventions.Service.name.rawValue], "1:123:ios:abc")
+    XCTAssertNil(resourceAttrs[SemanticConventions.Service.instanceId.rawValue])
+    XCTAssertNil(resourceAttrs[SemanticConventions.App.installationId.rawValue])
+  }
+
   func test_uploadRecoveredSpans_whenNoCrashOccurred_skipsUpload() async {
     let uploader = MockTelemetryUploader()
     let manager = RecoveryManager(

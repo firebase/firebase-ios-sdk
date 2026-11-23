@@ -34,7 +34,6 @@ enum AttributeStore {
 
   /// Returns the resource attributes identifying the Firebase app and host environment.
   static func resourceAttributes(options: FirebaseOptions,
-                                 installationId: String? = nil,
                                  environment: any TelemetryEnvironmentInfo = TelemetryEnvironment())
     -> [String: AttributeValue] {
     var attributes: [String: AttributeValue] = [
@@ -56,10 +55,6 @@ enum AttributeStore {
 
     if let appBuildId = environment.appBuildId, !appBuildId.isEmpty {
       attributes[SemanticConventions.App.buildId.rawValue] = .string(appBuildId)
-    }
-
-    for (key, value) in installationAttributes(installationId: installationId) {
-      attributes[key] = value
     }
 
     return attributes

@@ -17,17 +17,35 @@ import Foundation
 @testable import FirebaseCrashlyticsTelemetry
 
 struct MockInstallationsProvider: TelemetryInstallationsProvider {
-  let result: Result<String, Error>
+  private enum Behavior: Sendable {
+    case success(String)
+    case failure(Error)
+    case delayed(UInt64, String)
+  }
+
+  private let behavior: Behavior
 
   init(installationId: String) {
-    result = .success(installationId)
+    behavior = .success(installationId)
   }
 
   init(error: Error) {
-    result = .failure(error)
+    behavior = .failure(error)
+  }
+
+  init(delayNanoseconds: UInt64, installationId: String) {
+    behavior = .delayed(delayNanoseconds, installationId)
   }
 
   func installationID() async throws -> String {
-    return try result.get()
+    switch behavior {
+    case let .success(installationId):
+      return installationId
+    case let .failure(error):
+      throw error
+    case let .delayed(delayNanoseconds, installationId):
+      try await Task.sleep(nanoseconds: delayNanoseconds)
+      return installationId
+    }
   }
 }

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+private import FirebaseCoreInternal
 import FirebaseCrashlytics
 import Foundation
 import OpenTelemetryApi
@@ -19,14 +20,22 @@ import OpenTelemetrySdk
 
 /// Manages the recovery and export of telemetry data from previous app sessions.
 actor RecoveryManager: RecoveredTelemetryExporter {
+  private enum InstallationIDError: Error {
+    case timedOut
+  }
+
+  private static let defaultInstallationIDTimeoutNanoseconds: UInt64 = 10_000_000_000
+
   /// The uploader to upload recovered telemetry
   private let uploader: any TelemetryUploading
   /// The instrumentation scope information associated with the exported traces.
-  private var scope: InstrumentationScopeInfo?
+  private let scope: InstrumentationScopeInfo?
   /// The resource metadata associated with the exported traces.
-  private var resource: Resource?
+  private let resource: Resource?
   /// Provider used to resolve the app installation ID for resource attributes.
   private let installations: (any TelemetryInstallationsProvider)?
+  /// Maximum time to wait when resolving the installation ID before falling back to base resource.
+  private let installationIDTimeoutNanoseconds: UInt64
   /// Returns whether the application crashed during its previous run.
   private let didCrashDuringPreviousExecution: @Sendable () -> Bool
 
@@ -37,27 +46,30 @@ actor RecoveryManager: RecoveredTelemetryExporter {
   ///   - scope: The instrumentation scope info to include in trace exports.
   ///   - resource: The resource metadata to include in trace exports.
   ///   - installations: Provider for resolving the Firebase Installation ID.
+  ///   - installationIDTimeoutNanoseconds: Maximum wait time for resolving the installation ID.
   ///   - didCrashDuringPreviousExecution: Closure reporting whether the previous run crashed.
-  public init(uploader: any TelemetryUploading,
-              // TODO: Support persistence and recovery of these values instead of using
-              // the ones on initialization.
-              scope: InstrumentationScopeInfo? = nil,
-              resource: Resource? = nil,
-              installations: (any TelemetryInstallationsProvider)? = nil,
-              didCrashDuringPreviousExecution: @escaping @Sendable () -> Bool = {
-                Crashlytics.crashlytics().didCrashDuringPreviousExecution()
-              }) {
+  init(uploader: any TelemetryUploading,
+       // TODO: Support persistence and recovery of these values instead of using
+       // the ones on initialization.
+       scope: InstrumentationScopeInfo? = nil,
+       resource: Resource? = nil,
+       installations: (any TelemetryInstallationsProvider)? = nil,
+       installationIDTimeoutNanoseconds: UInt64 = defaultInstallationIDTimeoutNanoseconds,
+       didCrashDuringPreviousExecution: @escaping @Sendable () -> Bool = {
+         Crashlytics.crashlytics().didCrashDuringPreviousExecution()
+       }) {
     self.uploader = uploader
     self.scope = scope
     self.resource = resource
     self.installations = installations
+    self.installationIDTimeoutNanoseconds = installationIDTimeoutNanoseconds
     self.didCrashDuringPreviousExecution = didCrashDuringPreviousExecution
   }
 
-  public func uploadRecoveredSpans(spans: [RecoveredSpan]) async {
+  func uploadRecoveredSpans(spans: [RecoveredSpan]) async {
     ThreadHelper.isNotMainThread()
 
-    guard crashDidOccur() else {
+    guard didCrashDuringPreviousExecution() else {
       LoggingHelper.logger.info("Crash did not occur, skipping uploading \(spans.count) spans")
       return
     }
@@ -86,35 +98,60 @@ actor RecoveryManager: RecoveredTelemetryExporter {
       return resource
     }
 
-    if let existingResource = resource,
-       existingResource.attributes[SemanticConventions.Service.instanceId.rawValue] != nil,
-       existingResource.attributes[SemanticConventions.App.installationId.rawValue] != nil {
-      return existingResource
-    }
-
     do {
-      let installationId = try await installations.installationID()
+      let installationId = try await Self.fetchInstallationID(
+        from: installations,
+        timeoutNanoseconds: installationIDTimeoutNanoseconds
+      )
       let installationAttrs = AttributeStore.installationAttributes(installationId: installationId)
       guard !installationAttrs.isEmpty else {
         return resource
       }
 
-      let merged = (resource ?? Resource(attributes: [:])).merging(
+      return (resource ?? Resource(attributes: [:])).merging(
         other: Resource(attributes: installationAttrs)
       )
-      resource = merged
-      return merged
     } catch {
       LoggingHelper.logger.debug("Failed to resolve installation ID for telemetry: \(error)")
       return resource
     }
   }
 
-  /// Returns a Boolean value indicating whether the application crashed during its previous run.
-  ///
-  /// - Returns: `true` if a crash occurred during the previous run; otherwise, `false`.
-  private func crashDidOccur() -> Bool {
-    return didCrashDuringPreviousExecution()
+  /// Fetches the installation ID with a hard timeout so a stalled registration request does not
+  /// block uploading recovered crash traces.
+  private static func fetchInstallationID(
+    from installations: any TelemetryInstallationsProvider,
+    timeoutNanoseconds: UInt64
+  ) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      let hasResumed = UnfairLock(false)
+      let resumeOnce: @Sendable (Result<String, Error>) -> Void = { result in
+        let shouldResume = hasResumed.withLock { resumed -> Bool in
+          guard !resumed else { return false }
+          resumed = true
+          return true
+        }
+        if shouldResume {
+          continuation.resume(with: result)
+        }
+      }
+
+      let timeoutTask = Task {
+        try await Task.sleep(nanoseconds: timeoutNanoseconds)
+        resumeOnce(.failure(InstallationIDError.timedOut))
+      }
+
+      Task {
+        do {
+          let installationId = try await installations.installationID()
+          timeoutTask.cancel()
+          resumeOnce(.success(installationId))
+        } catch {
+          timeoutTask.cancel()
+          resumeOnce(.failure(error))
+        }
+      }
+    }
   }
 
   /// Makes 1-2KB sized chunks of the given spans and converts
