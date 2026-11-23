@@ -514,6 +514,11 @@ def main(argv: list[str] | None = None) -> None:
     with open(input_file, "r", encoding="utf-8") as f:
         doc = json.load(f)
 
+    if not isinstance(doc, dict):
+        raise ValueError(
+            f"Specification in {input_file} must be a JSON object."
+        )
+
     components = doc.get("components")
     if isinstance(doc.get("schemas"), dict):
         raw_schemas = copy.deepcopy(doc["schemas"])

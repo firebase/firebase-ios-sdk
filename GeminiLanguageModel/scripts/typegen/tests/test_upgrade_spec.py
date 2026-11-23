@@ -642,6 +642,36 @@ class TestUpgradeSpec(unittest.TestCase):
 
             self.assertFalse(os.path.exists(output_file))
 
+    def test_main_rejects_non_object_input_document(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "invalid.json")
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            for payload in ([], "scalar", 42, None):
+                with self.subTest(payload=payload):
+                    with open(input_file, "w", encoding="utf-8") as f:
+                        json.dump(payload, f)
+
+                    with (
+                        self.assertRaisesRegex(ValueError, "JSON object"),
+                        contextlib.redirect_stdout(io.StringIO()),
+                    ):
+                        upgrade_spec.main(
+                            [
+                                "--input-file",
+                                input_file,
+                                "--output-file",
+                                output_file,
+                                "--overrides-file",
+                                overrides_file,
+                            ]
+                        )
+
+                    self.assertFalse(os.path.exists(output_file))
+
     @mock.patch("urllib.request.urlopen")
     def test_main_uses_cached_input_file_without_fetch_flag(self, mock_urlopen):
         with tempfile.TemporaryDirectory() as tmp:
