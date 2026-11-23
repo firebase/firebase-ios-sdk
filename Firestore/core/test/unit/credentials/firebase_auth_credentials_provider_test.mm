@@ -21,7 +21,9 @@
 #include <memory>
 
 #import "FirebaseAuth/Interop/Public/FirebaseAuthInterop/FIRAuthInterop.h"
+#import "FirebaseCore/Extension/FIRAppInternal.h"
 
+#include "Firestore/core/include/firebase/firestore/firestore_errors.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
@@ -30,12 +32,16 @@
 
 /// A fake class to handle Auth interaction.
 @interface FSTAuthFake : NSObject <FIRAuthInterop>
-@property(nonatomic, nullable, strong, readonly) NSString* token;
-@property(nonatomic, nullable, strong, readonly) NSString* uid;
+@property(nonatomic, nullable, copy) NSString* token;
+@property(nonatomic, nullable, copy) NSString* uid;
 @property(nonatomic, readonly) BOOL forceRefreshTriggered;
+@property(nonatomic, assign) BOOL deferCallbacks;
+@property(nonatomic, nullable, copy, readonly) FIRTokenCallback pendingCallback;
 - (instancetype)initWithToken:(nullable NSString*)token
                           uid:(nullable NSString*)uid NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
+- (void)completePendingGetTokenWithToken:(nullable NSString*)token
+                                   error:(nullable NSError*)error;
 @end
 
 @implementation FSTAuthFake
@@ -47,8 +53,18 @@
     _token = [token copy];
     _uid = [uid copy];
     _forceRefreshTriggered = NO;
+    _deferCallbacks = NO;
   }
   return self;
+}
+
+- (void)completePendingGetTokenWithToken:(nullable NSString*)token
+                                   error:(nullable NSError*)error {
+  FIRTokenCallback callback = _pendingCallback;
+  _pendingCallback = nil;
+  if (callback) {
+    callback(token, error);
+  }
 }
 
 // FIRAuthInterop conformance.
@@ -60,7 +76,11 @@
 - (void)getTokenForcingRefresh:(BOOL)forceRefresh
                   withCallback:(nonnull FIRTokenCallback)callback {
   _forceRefreshTriggered = forceRefresh;
-  callback(self.token, nil);
+  if (self.deferCallbacks) {
+    _pendingCallback = [callback copy];
+  } else {
+    callback(self.token, nil);
+  }
 }
 
 @end
@@ -179,6 +199,123 @@ TEST(FirebaseAuthCredentialsProviderTest, GetTokenCalledByAnotherThread) {
 
   thread1.join();
   thread2.join();
+}
+
+TEST(FirebaseAuthCredentialsProviderTest,
+     GetTokenCallbackAfterAuthChangeAndListenerRemovedAborts) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token-user-alpha"
+                                                     uid:@"uid-user-alpha"];
+  auth.deferCallbacks = YES;
+
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->SetCredentialChangeListener([](User) {});
+
+  bool callback_invoked = false;
+  util::StatusOr<AuthToken> token_result;
+  credentials_provider->GetToken([&](util::StatusOr<AuthToken> result) {
+    callback_invoked = true;
+    token_result = std::move(result);
+  });
+
+  auth.uid = nil;
+  auth.token = nil;
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRAuthStateDidChangeInternalNotification
+                    object:nil
+                  userInfo:@{
+                    FIRAuthStateDidChangeInternalNotificationAppKey : app,
+                  }];
+  credentials_provider->SetCredentialChangeListener(nullptr);
+
+  [auth completePendingGetTokenWithToken:@"token-user-alpha" error:nil];
+
+  ASSERT_TRUE(callback_invoked);
+  EXPECT_FALSE(token_result.ok());
+  EXPECT_EQ(Error::kErrorAborted, token_result.status().code());
+  EXPECT_EQ(nil, auth.pendingCallback);
+}
+
+TEST(FirebaseAuthCredentialsProviderTest,
+     GetTokenCallbackAfterListenerRemovedWithoutAuthChangeAborts) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token-user-alpha"
+                                                     uid:@"uid-user-alpha"];
+  auth.deferCallbacks = YES;
+
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->SetCredentialChangeListener([](User) {});
+
+  bool callback_invoked = false;
+  util::StatusOr<AuthToken> token_result;
+  credentials_provider->GetToken([&](util::StatusOr<AuthToken> result) {
+    callback_invoked = true;
+    token_result = std::move(result);
+  });
+
+  credentials_provider->SetCredentialChangeListener(nullptr);
+  [auth completePendingGetTokenWithToken:@"token-user-alpha" error:nil];
+
+  ASSERT_TRUE(callback_invoked);
+  EXPECT_FALSE(token_result.ok());
+  EXPECT_EQ(Error::kErrorAborted, token_result.status().code());
+  EXPECT_EQ(nil, auth.pendingCallback);
+}
+
+TEST(FirebaseAuthCredentialsProviderTest,
+     GetTokenRetriesWhenUserChangesWhileListenerActive) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token-user-alpha"
+                                                     uid:@"uid-user-alpha"];
+  auth.deferCallbacks = YES;
+
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->SetCredentialChangeListener([](User) {});
+
+  bool callback_invoked = false;
+  util::StatusOr<AuthToken> token_result;
+  credentials_provider->GetToken([&](util::StatusOr<AuthToken> result) {
+    callback_invoked = true;
+    token_result = std::move(result);
+  });
+
+  auth.uid = @"uid-user-beta";
+  auth.token = @"token-user-beta";
+  auth.deferCallbacks = NO;
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:FIRAuthStateDidChangeInternalNotification
+                    object:nil
+                  userInfo:@{
+                    FIRAuthStateDidChangeInternalNotificationAppKey : app,
+                    FIRAuthStateDidChangeInternalNotificationUIDKey :
+                        @"uid-user-beta",
+                  }];
+
+  [auth completePendingGetTokenWithToken:@"token-user-alpha" error:nil];
+
+  ASSERT_TRUE(callback_invoked);
+  ASSERT_TRUE(token_result.ok());
+  EXPECT_EQ("token-user-beta", token_result.ValueOrDie().token());
+  EXPECT_EQ("uid-user-beta", token_result.ValueOrDie().user().uid());
+
+  credentials_provider->SetCredentialChangeListener(nullptr);
+}
+
+TEST(FirebaseAuthCredentialsProviderTest,
+     GetTokenCalledDirectlyAfterListenerRemovedAsserts) {
+  FIRApp* app = testutil::AppForUnitTesting();
+  FSTAuthFake* auth = [[FSTAuthFake alloc] initWithToken:@"token-user-alpha"
+                                                     uid:@"uid-user-alpha"];
+  auto credentials_provider =
+      std::make_shared<FirebaseAuthCredentialsProvider>(app, auth);
+  credentials_provider->SetCredentialChangeListener([](User) {});
+  credentials_provider->SetCredentialChangeListener(nullptr);
+
+  EXPECT_ANY_THROW(
+      credentials_provider->GetToken([](util::StatusOr<AuthToken>) {}));
 }
 
 }  // namespace credentials

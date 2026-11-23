@@ -76,6 +76,8 @@ class FirebaseAuthCredentialsProvider
       CredentialChangeListener<User> change_listener) override;
 
  private:
+  void GetTokenInternal(TokenListener<AuthToken> completion, bool is_retry);
+
   /**
    * Most contents of the FirebaseAuthCredentialsProvider are kept in this
    * Contents object and pointed to with a shared pointer. Callbacks

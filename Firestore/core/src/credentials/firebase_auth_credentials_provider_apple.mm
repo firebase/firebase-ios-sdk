@@ -74,12 +74,30 @@ FirebaseAuthCredentialsProvider::~FirebaseAuthCredentialsProvider() {
 
 void FirebaseAuthCredentialsProvider::GetToken(
     TokenListener<AuthToken> completion) {
-  HARD_ASSERT(auth_listener_handle_,
-              "GetToken cannot be called after listener removed.");
+  GetTokenInternal(std::move(completion), /*is_retry=*/false);
+}
 
-  // Take note of the current value of the token_counter so that this method can
-  // fail if there is a token change while the request is outstanding.
-  int initial_token_counter = contents_->token_counter;
+void FirebaseAuthCredentialsProvider::GetTokenInternal(
+    TokenListener<AuthToken> completion, bool is_retry) {
+  int initial_token_counter = 0;
+  {
+    std::unique_lock<std::mutex> lock(contents_->mutex);
+    if (!auth_listener_handle_) {
+      HARD_ASSERT(is_retry,
+                  "GetToken cannot be called after listener removed.");
+      lock.unlock();
+      LOG_DEBUG("GetToken aborted due to listener removal.");
+      if (completion) {
+        completion(util::Status(Error::kErrorAborted,
+                                "GetToken aborted due to listener removal."));
+      }
+      return;
+    }
+
+    // Take note of the current value of the token_counter so that this method
+    // can fail if there is a token change while the request is outstanding.
+    initial_token_counter = contents_->token_counter;
+  }
 
   // Capture self via a shared_ptr to ensure that the credentials provider
   // is not deallocated while the getToken request is outstanding.
@@ -88,16 +106,19 @@ void FirebaseAuthCredentialsProvider::GetToken(
       ^(NSString* _Nullable token, NSError* _Nullable error) {
         std::unique_lock<std::mutex> lock(self->contents_->mutex);
         if (initial_token_counter != self->contents_->token_counter) {
-          // Cancel the request since the user changed while the request was
-          // outstanding so the response is likely for a previous user (which
-          // user, we can't be sure).
+          // Cancel the request since the user changed (or the listener was
+          // removed) while the request was outstanding.
+          lock.unlock();
           LOG_DEBUG("GetToken aborted due to token change.");
-          return self->GetToken(completion);
+          return self->GetTokenInternal(completion, /*is_retry=*/true);
         } else {
+          User current_user = self->contents_->current_user;
+          lock.unlock();
+
           if (error == nil) {
             if (token != nil) {
-              completion(AuthToken{util::MakeString(token),
-                                   self->contents_->current_user});
+              completion(
+                  AuthToken{util::MakeString(token), std::move(current_user)});
             } else {
               completion(AuthToken::Unauthenticated());
             }
@@ -136,6 +157,7 @@ void FirebaseAuthCredentialsProvider::SetCredentialChangeListener(
     HARD_ASSERT(change_listener_, "change_listener removed without being set!");
     [[NSNotificationCenter defaultCenter] removeObserver:auth_listener_handle_];
     auth_listener_handle_ = nil;
+    contents_->token_counter++;
   }
   change_listener_ = change_listener;
 }

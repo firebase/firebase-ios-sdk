@@ -12,6 +12,9 @@
   and internationalized host names must be Punycode-encoded.
 - [fixed] Security Update: Removed untrusted eMudhra root certificate
   (`emSign Root CA - G1`) from embedded trust store.
+- [fixed] Fixed an assertion crash (`GetToken cannot be called after listener
+  removed.`) when an in-flight Firebase Auth token callback arrives after an
+  auth state change and `Firestore.terminate()`.
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
