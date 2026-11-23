@@ -175,14 +175,16 @@ import Foundation
   /// token, raw nonce, and access token.
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
-  /// - Parameter accessToken: The access token associated with the Auth credential be created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created,
+  /// if available.
+  /// - Parameter accessToken: The access token associated with the Auth credential being created,
+  /// if available.
   /// - Returns: An AuthCredential for the specified provider ID, ID token and access token.
   @available(swift 1000.0) // Objective-C only API
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
   public static func credential(withProviderID providerID: String, idToken: String,
-                                rawNonce: String,
-                                accessToken: String) -> OAuthCredential {
+                                rawNonce: String?,
+                                accessToken: String?) -> OAuthCredential {
     return OAuthCredential(
       withProviderID: providerID,
       idToken: idToken,
@@ -195,12 +197,13 @@ import Foundation
   /// an ID token and raw nonce.
   /// - Parameter providerID: The provider ID associated with the Auth credential being created.
   /// - Parameter idToken: The IDToken associated with the Auth credential being created.
-  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created.
+  /// - Parameter rawNonce: The raw nonce associated with the Auth credential being created,
+  /// if available.
   /// - Returns: An AuthCredential.
   @available(swift 1000.0) // Objective-C only API
   @objc(credentialWithProviderID:IDToken:rawNonce:)
   public static func credential(withProviderID providerID: String, idToken: String,
-                                rawNonce: String) -> OAuthCredential {
+                                rawNonce: String?) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, idToken: idToken, rawNonce: rawNonce)
   }
 
