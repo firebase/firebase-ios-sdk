@@ -1452,6 +1452,7 @@ func firebaseCrashlyticsTelemetryTargets() -> [Target] {
         "CrashlyticsTelemetryOTelURLSessionInstrumentation",
         "CrashlyticsTelemetryPersistenceWrapper",
         "FirebaseCrashlytics",
+        "FirebaseInstallations",
         "FirebaseSessions",
         .product(name: "OpenTelemetryApi", package: "opentelemetry-swift-core"),
         .product(name: "OpenTelemetrySdk", package: "opentelemetry-swift-core"),

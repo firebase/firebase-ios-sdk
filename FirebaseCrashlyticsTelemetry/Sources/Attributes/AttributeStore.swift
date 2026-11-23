@@ -60,6 +60,19 @@ enum AttributeStore {
     return attributes
   }
 
+  /// Returns resource attributes representing the app installation ID (`service.instance.id` and
+  /// `app.installation.id`).
+  static func installationAttributes(installationId: String?) -> [String: AttributeValue] {
+    guard let installationId, !installationId.isEmpty else {
+      return [:]
+    }
+
+    return [
+      SemanticConventions.Service.instanceId.rawValue: .string(installationId),
+      SemanticConventions.App.installationId.rawValue: .string(installationId),
+    ]
+  }
+
   /// Returns instrumentation scope attributes identifying the Crashlytics Telemetry client SDK.
   static func instrumentationScopeAttributes(environment: any TelemetryEnvironmentInfo =
     TelemetryEnvironment(

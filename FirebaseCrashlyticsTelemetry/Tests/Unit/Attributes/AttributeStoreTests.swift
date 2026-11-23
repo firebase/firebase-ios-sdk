@@ -243,6 +243,24 @@ final class AttributeStoreTests: XCTestCase {
     XCTAssertNil(attributes[SemanticConventions.App.buildId.rawValue])
   }
 
+  func test_installationAttributes_whenPresent_setsServiceInstanceIdAndAppInstallationId() {
+    let attributes = AttributeStore.installationAttributes(installationId: "fid-abc-123")
+
+    XCTAssertEqual(
+      attributes[SemanticConventions.Service.instanceId.rawValue],
+      .string("fid-abc-123")
+    )
+    XCTAssertEqual(
+      attributes[SemanticConventions.App.installationId.rawValue],
+      .string("fid-abc-123")
+    )
+  }
+
+  func test_installationAttributes_whenNilOrEmpty_returnsEmpty() {
+    XCTAssertTrue(AttributeStore.installationAttributes(installationId: nil).isEmpty)
+    XCTAssertTrue(AttributeStore.installationAttributes(installationId: "").isEmpty)
+  }
+
   func test_instrumentationScopeAttributes_setsExpectedClientAttributes() {
     let environment = MockTelemetryEnvironment(sdkVersion: "13.2.1")
 

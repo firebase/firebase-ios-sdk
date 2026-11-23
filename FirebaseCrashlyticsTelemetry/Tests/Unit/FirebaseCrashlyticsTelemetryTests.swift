@@ -34,6 +34,7 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     telemetry = FirebaseCrashlyticsTelemetry(
       options: options,
       sessions: mockSessions,
+      installations: MockInstallationsProvider(installationId: "mock-fid-123"),
       environment: MockTelemetryEnvironment()
     )
   }

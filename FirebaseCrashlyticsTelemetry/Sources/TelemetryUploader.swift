@@ -15,8 +15,13 @@
 internal import FirebaseCore
 import Foundation
 
+/// Protocol for uploading serialized OpenTelemetry trace payloads.
+protocol TelemetryUploading: Sendable {
+  func uploadTrace(_ payload: Data) async throws
+}
+
 /// Handles the formatting and network dispatch of telemetry data payloads.
-struct TelemetryUploader: @unchecked Sendable {
+struct TelemetryUploader: TelemetryUploading, @unchecked Sendable {
   /// The telemetry data types that should be supported for export.
   /// Currently only Traces are supported.
   private enum TelemetryType: String {
