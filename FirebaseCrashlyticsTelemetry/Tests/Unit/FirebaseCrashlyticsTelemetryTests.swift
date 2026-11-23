@@ -126,60 +126,23 @@ final class FirebaseCrashlyticsTelemetryTests: XCTestCase {
     )
   }
 
-  func test_filterNetworkRequests_excludesFirebaseTelemetryAndAllowsOtherURLs() throws {
-    let firebaseTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://firebasetelemetry.googleapis.com/v1/projects/test/traces")
-      )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: firebaseTelemetryRequest)
-    )
+  func test_latestActiveSpan_returnsMostRecentStartedSpanOrNilWhenEmpty() {
+    XCTAssertNil(Self.telemetry.latestActiveSpan())
 
-    let uppercaseTelemetryRequest = try URLRequest(
-      url: XCTUnwrap(
-        URL(string: "https://FIREBASETELEMETRY.googleapis.com/v1/projects/test/traces")
-      )
-    )
-    XCTAssertFalse(
-      FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: uppercaseTelemetryRequest)
-    )
-
-    let localhostRequest = try URLRequest(
-      url: XCTUnwrap(URL(string: "http://localhost:8080/api/data"))
-    )
-    XCTAssertTrue(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: localhostRequest))
-
-    let externalRequest = try URLRequest(
-      url: XCTUnwrap(URL(string: "https://example.com/api/resource"))
-    )
-    XCTAssertTrue(FirebaseCrashlyticsTelemetry.filterNetworkRequests(urlRequest: externalRequest))
-  }
-
-  func test_customizeNetworkSpan_whenActiveSpanExists_setsParentSpan() throws {
     XCTAssertEqual(Self.telemetry.startSpan(), 1)
+    let firstSpan = Self.telemetry.latestActiveSpan()
+    XCTAssertNotNil(firstSpan)
 
-    let request = try URLRequest(url: XCTUnwrap(URL(string: "https://example.com/api")))
-    let builder = Self.telemetry.tracer.spanBuilder(spanName: "HTTP GET")
-    Self.telemetry.customizeNetworkSpan(req: request, builder: builder)
+    XCTAssertEqual(Self.telemetry.startSpan(), 2)
+    let secondSpan = Self.telemetry.latestActiveSpan()
+    XCTAssertNotNil(secondSpan)
+    XCTAssertNotEqual(firstSpan?.context.spanId, secondSpan?.context.spanId)
 
-    let networkSpan = builder.startSpan()
-    defer { networkSpan.end() }
+    XCTAssertEqual(Self.telemetry.stopSpan(), 1)
+    XCTAssertEqual(Self.telemetry.latestActiveSpan()?.context.spanId, firstSpan?.context.spanId)
 
-    let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
-    XCTAssertNotNil(readableSpan.toSpanData().parentSpanId)
-  }
-
-  func test_customizeNetworkSpan_whenNoActiveSpan_doesNotSetParentSpan() throws {
-    let request = try URLRequest(url: XCTUnwrap(URL(string: "https://example.com/api")))
-    let builder = Self.telemetry.tracer.spanBuilder(spanName: "HTTP GET")
-    Self.telemetry.customizeNetworkSpan(req: request, builder: builder)
-
-    let networkSpan = builder.startSpan()
-    defer { networkSpan.end() }
-
-    let readableSpan = try XCTUnwrap(networkSpan as? ReadableSpan)
-    XCTAssertNil(readableSpan.toSpanData().parentSpanId)
+    XCTAssertEqual(Self.telemetry.stopSpan(), 0)
+    XCTAssertNil(Self.telemetry.latestActiveSpan())
   }
 
   func test_componentsToRegister_whenSessionsProviderMissing_returnsNil() throws {
