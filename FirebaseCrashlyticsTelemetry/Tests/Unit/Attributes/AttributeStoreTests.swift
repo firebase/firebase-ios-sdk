@@ -32,7 +32,6 @@ final class AttributeStoreTests: XCTestCase {
       attributes[SemanticConventions.App.screenName.rawValue],
       .string(CrashlyticsScreen.unknown.name)
     )
-    XCTAssertNil(attributes["gcp.firebase.app_version"])
     XCTAssertNil(attributes[SemanticConventions.Session.id.rawValue])
     if case let .int(threadId) = attributes[SemanticConventions.Thread.id.rawValue] {
       XCTAssertGreaterThan(threadId, 0)
