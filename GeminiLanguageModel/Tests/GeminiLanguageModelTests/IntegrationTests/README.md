@@ -67,7 +67,8 @@ All integration tests are parameterized across
   Parameterized integration tests for Vision's `BarcodeReaderTool` and
   `OCRTool`, which resolve images by attachment label. The prompts don't mention
   the labels, so the tests verify that labels are shown to the model with their
-  images, for one and two labeled images.
+  images, for one and two labeled images. These tests only build on macOS and
+  iOS devices, since the iOS Simulator SDK doesn't include these tools.
 * [`ImageUnderstandingIntegrationTests.swift`](ImageUnderstandingIntegrationTests.swift):
   Parameterized integration tests for image input (`vision`) using images
   generated in code, covering single and multiple images, `@Generable`

@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4) && canImport(CoreImage)
+// Vision's `BarcodeReaderTool` and `OCRTool` aren't available in the iOS Simulator SDK (as of
+// Xcode 27.3).
+#if compiler(>=6.4) && !FoundationModelsFake && (os(macOS) || (os(iOS) && !targetEnvironment(simulator)))
   import CoreGraphics
   import Foundation
   import FoundationModels
@@ -150,4 +152,4 @@
       }
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4) && canImport(CoreImage)
+#endif  // compiler(>=6.4) && !FoundationModelsFake && (macOS || iOS device)
