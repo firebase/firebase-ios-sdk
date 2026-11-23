@@ -17,21 +17,22 @@
 
 import Foundation
 
-/// Deprecated: Use top-level `language_codes` instead. Provides hints to the model about possible
-/// languages present in the audio.
-@available(*, deprecated)
-package struct AudioTranscriptionConfigLanguageHints: Codable, Sendable, Equatable, Hashable,
+/// Context window will be truncated by keeping only suffix of it. Context window will always be cut
+/// at start of USER role turn. System instructions and `BidiGenerateContentSetup.prefix_turns` will
+/// not be subject to the sliding window mechanism, they will always stay at the beginning of
+/// context window.
+package struct ContextWindowCompressionConfigSlidingWindow: Codable, Sendable, Equatable, Hashable,
   Buildable
 {
-  /// Required. Deprecated: Use top-level `language_codes` instead. BCP-47 language codes. At least
-  /// one must be specified.
-  @available(*, deprecated)
-  package var languageCodes: [String]?
+  /// Session reduction target -- how many tokens we should keep. Window shortening operation has
+  /// some latency costs, so we should avoid running it on every turn. Should be < trigger_tokens.
+  /// If not set, trigger_tokens/2 is assumed.
+  package var targetTokens: String?
 
-  /// Initializes a new `AudioTranscriptionConfigLanguageHints`.
+  /// Initializes a new `ContextWindowCompressionConfigSlidingWindow`.
   package init() {}
 
   enum CodingKeys: String, CodingKey {
-    case languageCodes
+    case targetTokens
   }
 }

@@ -51,6 +51,10 @@ class PipelineOptions:
         overrides_file: Path to the overrides YAML file.
         doc_wrap_width: Maximum column width for wrapping DocC comments.
         verbose: Whether to print detailed generation progress.
+        root_groups: Optional mapping of output subdirectory names to root
+            schema tuples. When provided, schemas reachable from each group's
+            roots (and not already claimed by an earlier group) are written to
+            that subdirectory under `output_dir`.
     """
 
     openapi_spec: str
@@ -64,6 +68,7 @@ class PipelineOptions:
     overrides_file: str
     doc_wrap_width: int
     verbose: bool = False
+    root_groups: dict[str, tuple[str, ...]] | None = None
 
 
 def load_config(overrides_file: str) -> config_lib.GeneratorConfig:
@@ -197,7 +202,9 @@ def preprocess_backend(
         )
 
     doc_schemas = merge.rename_schemas_and_refs(
-        doc_schemas, config.rename_mappings
+        doc_schemas,
+        config.rename_mappings,
+        divergences=config.type_divergences_resolutions,
     )
     doc_resolved = graph.resolve_all_types(
         doc_schemas,
@@ -336,11 +343,41 @@ def run(options: PipelineOptions) -> None:
     schema_processor = processor.SchemaProcessor(
         config=config, doc_wrap_width=options.doc_wrap_width
     )
-    swift_types = schema_processor.process(resolved, options.namespace)
-    print(
-        f"Processing generated {len(swift_types)} distinct types"
-        " (including nested enums/structs)."
-    )
-
-    write_types(swift_types, options, config.preserved_files)
+    if options.root_groups:
+        claimed: set[str] = set()
+        for subdir, group_roots in options.root_groups.items():
+            reachable: set[str] = set()
+            for doc_resolved in resolved_by_doc:
+                reachable.update(
+                    graph.resolve_all_types(
+                        doc_resolved,
+                        list(group_roots),
+                        excluded_schemas=config.excluded_schemas,
+                        excluded_properties=config.excluded_properties,
+                    )
+                )
+            group_schemas = {
+                name: resolved[name]
+                for name in sorted(resolved)
+                if name in reachable and name not in claimed
+            }
+            claimed.update(group_schemas)
+            swift_types = schema_processor.process(
+                group_schemas, options.namespace, all_resolved_schemas=resolved
+            )
+            print(
+                f"Processing '{subdir}' generated {len(swift_types)} distinct"
+                " types (including nested enums/structs)."
+            )
+            subdir_options = dataclasses.replace(
+                options, output_dir=os.path.join(options.output_dir, subdir)
+            )
+            write_types(swift_types, subdir_options, config.preserved_files)
+    else:
+        swift_types = schema_processor.process(resolved, options.namespace)
+        print(
+            f"Processing generated {len(swift_types)} distinct types"
+            " (including nested enums/structs)."
+        )
+        write_types(swift_types, options, config.preserved_files)
     print("Code generation completed successfully.")

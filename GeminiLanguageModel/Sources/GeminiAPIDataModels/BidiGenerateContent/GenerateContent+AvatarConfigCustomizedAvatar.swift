@@ -17,44 +17,29 @@
 
 import Foundation
 
-/// Configuration for video-specific output formatting.
+/// Customized avatar configuration.
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
-package struct VideoResponseFormat: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// The aspect ratio for the video output.
+package struct AvatarConfigCustomizedAvatar: Codable, Sendable, Equatable, Hashable, Buildable {
+  /// The data of the reference image, at most 5 MB. The image may be portrait or landscape, and
+  /// must be at least 704x1280 (portrait) or 1280x704 (landscape). Orientation is determined by the
+  /// image itself: an image is treated as landscape only when its width is strictly greater than
+  /// its height, so a square image is treated as portrait and must meet the portrait minimum. An
+  /// image that is too small is rejected with INVALID_ARGUMENT at setup.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var aspectRatio: AspectRatio?
+  package var imageData: Data?
 
-  /// Delivery mode for the generated content.
+  /// The mime type of the reference image, e.g., "image/jpeg".
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
-  package var delivery: Delivery?
+  package var imageMIMEType: String?
 
-  /// The duration for the video output.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  package var duration: String?
-
-  /// The Google Cloud Storage URI to store the video output. Required for Vertex if delivery is
-  /// URI.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  package var gcsURI: String?
-
-  /// The video output resolution. Supported values: "360p", "720p", "1080p", "4k".
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
-  package var resolution: String?
-
-  /// Initializes a new `VideoResponseFormat`.
+  /// Initializes a new `AvatarConfigCustomizedAvatar`.
   package init() {}
 
   enum CodingKeys: String, CodingKey {
-    case aspectRatio
-    case delivery
-    case duration
-    case gcsURI = "gcsUri"
-    case resolution
+    case imageData
+    case imageMIMEType = "imageMimeType"
   }
 }

@@ -55,7 +55,10 @@ STANDALONE_ENUM_RULES: list[dict[str, Any]] = [
     {
         "pattern": (
             lambda s_name, p_name, cases: bool(
-                p_name == "type" and cases and cases[0] == "TYPE_UNSPECIFIED"
+                p_name == "type"
+                and cases
+                and cases[0] == "TYPE_UNSPECIFIED"
+                and "STRING" in cases
             )
         ),
         "name_fn": lambda prefix: f"{prefix}Type",

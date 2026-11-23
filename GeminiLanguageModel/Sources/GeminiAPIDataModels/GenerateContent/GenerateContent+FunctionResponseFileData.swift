@@ -18,25 +18,17 @@
 import Foundation
 
 /// URI based data for function response.
-///
-/// > Important: This type is not supported in the Gemini Developer API.
 package struct FunctionResponseFileData: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Display name of the file data. Used to provide a label or filename to distinguish file datas.
   /// This field is only returned in PromptMessage for prompt management. It is currently used in
   /// the Gemini GenerateContent calls only when server side tools (code_execution, google_search,
   /// and url_context) are enabled.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var displayName: String?
 
   /// Required. URI.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var fileURI: String?
 
   /// Required. The IANA standard MIME type of the source data.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var mimeType: String?
 
   /// Initializes a new `FunctionResponseFileData`.

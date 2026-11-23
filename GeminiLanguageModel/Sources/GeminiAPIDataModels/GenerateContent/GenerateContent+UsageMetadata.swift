@@ -40,6 +40,16 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable, Buildable 
   /// A detailed breakdown of the token count for each modality in the prompt.
   package var promptTokensDetails: [ModalityTokenCount]?
 
+  /// Total number of tokens across all the generated response candidates.
+  ///
+  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  package var responseTokenCount: Int?
+
+  /// List of modalities that were returned in the response.
+  ///
+  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
+  package var responseTokensDetails: [ModalityTokenCount]?
+
   /// Service tier of the request.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
@@ -75,6 +85,8 @@ package struct UsageMetadata: Codable, Sendable, Equatable, Hashable, Buildable 
     case candidatesTokensDetails
     case promptTokenCount
     case promptTokensDetails
+    case responseTokenCount
+    case responseTokensDetails
     case serviceTier
     case thoughtsTokenCount
     case toolUsePromptTokenCount

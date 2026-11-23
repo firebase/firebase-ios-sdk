@@ -22,7 +22,9 @@ import Foundation
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package enum ModelStage: Codable, Sendable, Equatable, Hashable {
   /// The underlying model is subject to lots of tunings.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case unstableExperimental
 
   /// Models in this stage are for experimental purposes only.
@@ -39,7 +41,9 @@ package enum ModelStage: Codable, Sendable, Equatable, Hashable {
   case legacy
 
   /// Models in this stage are deprecated. These models cannot be used.
-  @available(*, deprecated)
+  #if hasAttribute(diagnose)
+    @available(*, deprecated)
+  #endif
   case deprecated
 
   /// Models in this stage are retired. These models cannot be used.
