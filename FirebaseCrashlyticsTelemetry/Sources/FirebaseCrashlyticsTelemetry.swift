@@ -20,7 +20,6 @@ internal import FirebaseSessions
 import OpenTelemetryApi
 import OpenTelemetrySdk
 import StdoutExporter
-internal import CrashlyticsTelemetryOTelURLSessionInstrumentation
 
 @objc(FIRCrashlyticsTelemetry)
 final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetryProvider,
@@ -37,7 +36,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   let scopeInfo: InstrumentationScopeInfo
 
   private var recoveryManager: RecoveredTelemetryExporter?
-  private var urlInstrumentation: URLSessionInstrumentation?
+  private var networkInstrumentation: NetworkInstrumentation?
   private var screenInstrumentation: ScreenInstrumentation?
   private var userInteractionInstrumentation: UserInteractionInstrumentation?
 
@@ -108,8 +107,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
     // MARK: - Instrumentation
 
-    Task.detached(priority: .utility) { [weak self] in
-      self?.configureURLSessionInstrumentation()
+    networkInstrumentation = NetworkInstrumentation(tracer: tracer) { [weak self] in
+      self?.latestActiveSpan()
     }
 
     screenInstrumentation = ScreenInstrumentation(logger: logger) { screen in
@@ -190,6 +189,12 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     _ = log.emit()
   }
 
+  func latestActiveSpan() -> (any Span)? {
+    lock.lock()
+    defer { lock.unlock() }
+    return activeSpans.last
+  }
+
   // MARK: - Private Helpers
 
   private static func createTracerProvider(with resource: Resource) -> TracerProvider {
@@ -207,39 +212,6 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
       .with(processors: [logProcessor])
       .with(resource: resource)
       .build()
-  }
-
-  private func configureURLSessionInstrumentation() {
-    ThreadHelper.isNotMainThread()
-
-    let instrumentation = URLSessionInstrumentation(
-      configuration: URLSessionInstrumentationConfiguration(
-        shouldInstrument: Self.filterNetworkRequests,
-        spanCustomization: { [weak self] req, builder in
-          self?.customizeNetworkSpan(req: req, builder: builder)
-        },
-        tracer: tracer,
-        semanticConvention: .stable
-      )
-    )
-
-    lock.lock()
-    defer { lock.unlock() }
-    urlInstrumentation = instrumentation
-  }
-
-  static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    guard let urlString = urlRequest.url?.absoluteString else { return false }
-    return urlString.range(of: "firebasetelemetry", options: .caseInsensitive) == nil
-  }
-
-  func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
-    lock.lock()
-    defer { lock.unlock() }
-
-    if let span = activeSpans.last {
-      builder.setParent(span)
-    }
   }
 
   // MARK: - Library conformance
