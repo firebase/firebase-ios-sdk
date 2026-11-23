@@ -215,6 +215,9 @@ generatorConfig:
     ResponseFormat: ResponseFormatConfig
     GenerateContentResponsePromptFeedback: PromptFeedback
     GenerateContentResponseUsageMetadata: UsageMetadata
+    # OpenAPI 3.0 inputs also export BidiGenerateContent's own `UsageMetadata`
+    # schema, which would otherwise collide with the rename above.
+    UsageMetadata: BidiGenerateContentUsageMetadata
     ToolGoogleSearch: GoogleSearch
     ToolComputerUse: ComputerUse
     ToolCodeExecution: CodeExecution

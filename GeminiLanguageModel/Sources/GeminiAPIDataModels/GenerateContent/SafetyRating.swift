@@ -17,8 +17,9 @@
 
 import Foundation
 
-/// A safety rating for a piece of content. The safety rating contains the harm category and the
-/// harm probability level.
+/// A safety rating for a piece of content.
+///
+/// The safety rating contains the harm category and the harm probability level.
 package struct SafetyRating: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Indicates whether the content was blocked because of this rating.
   package var blocked: Bool?

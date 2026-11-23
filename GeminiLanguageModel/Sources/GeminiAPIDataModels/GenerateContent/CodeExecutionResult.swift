@@ -17,7 +17,9 @@
 
 import Foundation
 
-/// Result of executing the ExecutableCode. Generated only when the `CodeExecution` tool is used.
+/// Result of executing the ExecutableCode.
+///
+/// Generated only when the `CodeExecution` tool is used.
 package struct CodeExecutionResult: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The identifier of the `ExecutableCode` part this result is for. Only populated if the
   /// corresponding `ExecutableCode` has an id.

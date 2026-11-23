@@ -28,9 +28,11 @@ package struct VoiceConfig: Codable, Sendable, Equatable, Hashable, Buildable {
   /// > Important: This property is not supported in the Gemini Developer API.
   package var replicatedVoiceConfig: ReplicatedVoiceConfig?
 
-  /// The speaker identifier for synthesis. Supported formats: * Speaker name for prebuilt voices
-  /// (for example, `Orus` or `Kore`). * Voice ID for stored voices (for example, `voice_xxx`). *
-  /// Voice replication key (for example, `voicekey_xxx`).
+  /// The speaker identifier for synthesis. Supported formats:
+  ///
+  /// *   Speaker name for prebuilt voices (for example, `Orus` or `Kore`).
+  /// *   Voice ID for stored voices (for example, `voice_xxx`).
+  /// *   Voice replication key (for example, `voicekey_xxx`).
   package var voice: String?
 
   /// Initializes a new `VoiceConfig`.

@@ -27,7 +27,8 @@ package struct GoogleMapsGroundingTypes: Codable, Sendable, Equatable, Hashable,
   /// > Important: This property is not supported in the Gemini Developer API.
   package var places: GoogleMapsPlaces?
 
-  /// Enables grounding with Google Maps Routing APIs (ComputeRoutes and SearchAlongRoute).
+  /// Enables grounding with Google Maps Routing APIs (ComputeRoutes and SearchAlongRoute). Also
+  /// enabled by default for Gemini 4 and later models when no `GroundingTypes` are specified.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   package var routing: GoogleMapsRouting?

@@ -17,9 +17,10 @@
 
 import Foundation
 
-/// Configuration for content generation. This message contains all the parameters that control how
-/// the model generates content. It allows you to influence the randomness, length, and structure of
-/// the output.
+/// Configuration for content generation.
+///
+/// This message contains all the parameters that control how the model generates content. It allows
+/// you to influence the randomness, length, and structure of the output.
 package struct GenerationConfig: Codable, Sendable, Equatable, Hashable, Buildable {
   /// If enabled, audio timestamps will be included in the request to the model. This can be useful
   /// for synchronizing audio with other modalities in the response.
@@ -30,9 +31,11 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable, Buildab
   /// Configuration for audio transcription (speech recognition).
   package var audioTranscriptionConfig: AudioTranscriptionConfig?
 
-  /// The number of candidate responses to generate. A higher `candidate_count` can provide more
-  /// options to choose from, but it also consumes more resources. This can be useful for generating
-  /// a variety of responses and selecting the best one.
+  /// The number of candidate responses to generate.
+  ///
+  /// A higher `candidate_count` can provide more options to choose from, but it also consumes more
+  /// resources. This can be useful for generating a variety of responses and selecting the best
+  /// one.
   package var candidateCount: Int?
 
   /// If enabled, the model will detect emotions and adapt its responses accordingly. For example,
@@ -51,14 +54,17 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable, Buildab
   /// Config for image generation features. Deprecated: Use `response_format.image` instead.
   package var imageConfig: ImageConfig?
 
-  /// The number of top log probabilities to return for each token. This can be used to see which
-  /// other tokens were considered likely candidates for a given position. A higher value will
-  /// return more options, but it will also increase the size of the response.
+  /// The number of top log probabilities to return for each token.
+  ///
+  /// This can be used to see which other tokens were considered likely candidates for a given
+  /// position. A higher value will return more options, but it will also increase the size of the
+  /// response.
   package var logprobs: Int?
 
-  /// The maximum number of tokens to generate in the response. A token is approximately four
-  /// characters. The default value varies by model. This parameter can be used to control the
-  /// length of the generated text and prevent overly long responses.
+  /// The maximum number of tokens to generate in the response.
+  ///
+  /// A token is approximately four characters. The default value varies by model. This parameter
+  /// can be used to control the length of the generated text and prevent overly long responses.
   package var maxOutputTokens: Int?
 
   /// The token resolution at which input media content is sampled. This is used to control the
@@ -80,10 +86,11 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable, Buildab
   /// `application/json`. Deprecated: Use `response_format` instead.
   package var responseJSONSchema: JSONObject?
 
-  /// If set to true, the log probabilities of the output tokens are returned. Log probabilities are
-  /// the logarithm of the probability of a token appearing in the output. A higher log probability
-  /// means the token is more likely to be generated. This can be useful for analyzing the model's
-  /// confidence in its own output and for debugging.
+  /// If set to true, the log probabilities of the output tokens are returned.
+  ///
+  /// Log probabilities are the logarithm of the probability of a token appearing in the output. A
+  /// higher log probability means the token is more likely to be generated. This can be useful for
+  /// analyzing the model's confidence in its own output and for debugging.
   package var responseLogprobs: Bool?
 
   /// The IANA standard MIME type of the response. The model will generate output that conforms to
@@ -97,12 +104,14 @@ package struct GenerationConfig: Codable, Sendable, Equatable, Hashable, Buildab
   /// include both text and an image.
   package var responseModalities: [Modality]?
 
-  /// A seed for the random number generator. By setting a seed, you can make the model's output
-  /// mostly deterministic. For a given prompt and parameters (like temperature, top_p, etc.), the
-  /// model will produce the same response every time. However, it's not a guaranteed absolute
-  /// deterministic behavior. This is different from parameters like `temperature`, which control
-  /// the *level* of randomness. `seed` ensures that the "random" choices the model makes are the
-  /// same on every run, making it essential for testing and ensuring reproducible results.
+  /// A seed for the random number generator.
+  ///
+  /// By setting a seed, you can make the model's output mostly deterministic. For a given prompt
+  /// and parameters (like temperature, top_p, etc.), the model will produce the same response every
+  /// time. However, it's not a guaranteed absolute deterministic behavior. This is different from
+  /// parameters like `temperature`, which control the *level* of randomness. `seed` ensures that
+  /// the "random" choices the model makes are the same on every run, making it essential for
+  /// testing and ensuring reproducible results.
   package var seed: Int?
 
   /// The speech generation config.

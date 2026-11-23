@@ -20,34 +20,45 @@ import Foundation
 /// Harm categories for safety settings and ratings.
 package enum HarmCategory: Codable, Sendable, Equatable, Hashable {
   /// **PaLM** - Negative or harmful comments targeting identity and/or protected attribute.
+  /// DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case derogatory
 
-  /// **PaLM** - Content that is rude, disrespectful, or profane.
+  /// **PaLM** - Content that is rude, disrespectful, or profane. DEPRECATED: PaLM-only category,
+  /// not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case toxicity
 
   /// **PaLM** - Describes scenarios depicting violence against an individual or group, or general
-  /// descriptions of gore.
+  /// descriptions of gore. DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case violence
 
-  /// **PaLM** - Contains references to sexual acts or other lewd content.
+  /// **PaLM** - Contains references to sexual acts or other lewd content. DEPRECATED: PaLM-only
+  /// category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case sexual
 
-  /// **PaLM** - Promotes unchecked medical advice.
+  /// **PaLM** - Promotes unchecked medical advice. DEPRECATED: PaLM-only category, not supported by
+  /// Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case medical
 
   /// **PaLM** - Dangerous content that promotes, facilitates, or encourages harmful acts.
+  /// DEPRECATED: PaLM-only category, not supported by Gemini models.
   ///
   /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
+  @available(*, deprecated)
   case dangerous
 
   /// **Gemini** - Harassment content.
