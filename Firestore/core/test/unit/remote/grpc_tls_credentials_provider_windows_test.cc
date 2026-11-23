@@ -1061,6 +1061,87 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
   EXPECT_EQ(statuses[0].error_code(), grpc::StatusCode::CANCELLED);
 }
 
+TEST_F(GrpcTlsCredentialsProviderWindowsTest,
+       BoundsConcurrentThreadPoolEvaluations) {
+  constexpr size_t kMaxPoolThreads = 4;
+  constexpr size_t kTotalRequests = 12;
+
+  struct Gate {
+    std::mutex mutex;
+    std::condition_variable cv;
+    size_t active = 0;
+    size_t peak_active = 0;
+    size_t entered = 0;
+    bool release = false;
+  };
+  auto gate = std::make_shared<Gate>();
+
+  WindowsTrustConfig config = ExclusiveRootConfig({&pki_.root});
+  config.before_async_evaluation = [gate] {
+    std::unique_lock<std::mutex> lock(gate->mutex);
+    ++gate->active;
+    ++gate->entered;
+    if (gate->active > gate->peak_active) {
+      gate->peak_active = gate->active;
+    }
+    gate->cv.notify_all();
+    gate->cv.wait(lock, [&] { return gate->release; });
+    --gate->active;
+  };
+
+  std::vector<std::unique_ptr<FakeRequest>> requests;
+  requests.reserve(kTotalRequests);
+  std::unique_ptr<AsyncTlsVerifier> verifier = CreateWindowsTlsVerifier(config);
+  struct ReleaseOnExit {
+    std::shared_ptr<Gate> gate;
+    ~ReleaseOnExit() {
+      std::lock_guard<std::mutex> lock(gate->mutex);
+      gate->release = true;
+      gate->cv.notify_all();
+    }
+  } release_guard{gate};
+
+  StatusRecorder recorder;
+  for (size_t i = 0; i < kTotalRequests; ++i) {
+    requests.push_back(
+        std::make_unique<FakeRequest>(pki_.ServerChainPem(), kHost));
+    grpc::Status sync_status;
+    bool sync = verifier->Verify(requests.back()->get(), recorder.AsCallback(),
+                                 &sync_status);
+    ASSERT_FALSE(sync);
+  }
+
+  {
+    std::unique_lock<std::mutex> lock(gate->mutex);
+    ASSERT_TRUE(gate->cv.wait_for(
+        lock, kTimeout, [&] { return gate->entered >= kMaxPoolThreads; }));
+    // With 8 more evaluations queued and all 4 pool threads blocked after
+    // CallbackMayRunLong(), wait briefly to confirm no 5th worker starts.
+    EXPECT_FALSE(gate->cv.wait_for(lock, std::chrono::milliseconds(100), [&] {
+      return gate->entered > kMaxPoolThreads;
+    }));
+    EXPECT_EQ(gate->active, kMaxPoolThreads);
+    EXPECT_EQ(gate->entered, kMaxPoolThreads);
+    EXPECT_LE(gate->peak_active, kMaxPoolThreads);
+
+    gate->release = true;
+    gate->cv.notify_all();
+  }
+
+  ASSERT_TRUE(recorder.WaitForCount(kTotalRequests));
+  {
+    std::lock_guard<std::mutex> lock(gate->mutex);
+    EXPECT_EQ(gate->entered, kTotalRequests);
+    EXPECT_EQ(gate->active, 0u);
+    EXPECT_LE(gate->peak_active, kMaxPoolThreads);
+  }
+  std::vector<grpc::Status> statuses = recorder.statuses();
+  ASSERT_EQ(statuses.size(), kTotalRequests);
+  for (const grpc::Status& status : statuses) {
+    EXPECT_TRUE(status.ok()) << status.error_message();
+  }
+}
+
 }  // namespace
 }  // namespace remote
 }  // namespace firestore

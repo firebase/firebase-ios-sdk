@@ -36,11 +36,11 @@
 
 #include <cstdint>
 #include <cstring>
+#include <exception>
 #include <functional>
 #include <limits>
 #include <memory>
 #include <string>
-#include <system_error>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -49,6 +49,7 @@
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/strings/escaping.h"
@@ -305,38 +306,145 @@ std::string DescribeChainPolicyError(DWORD error) {
                          name ? name : "");
 }
 
-VOID CALLBACK RunThreadPoolTask(PTP_CALLBACK_INSTANCE, PVOID context) {
-  std::unique_ptr<std::function<void()>> task(
-      static_cast<std::function<void()>*>(context));
-  (*task)();
+constexpr DWORD kMaxEvalThreadPoolThreads = 4;
+
+/**
+ * A private Win32 thread pool bounded to `max_threads` worker threads.
+ *
+ * Held inside `util::NoDestructor` so the pool outlives any `AsyncTlsVerifier`
+ * destroyed while an evaluation is still blocked in CryptoAPI.
+ */
+class BoundedThreadPool {
+ public:
+  explicit BoundedThreadPool(DWORD max_threads) {
+    pool_ = CreateThreadpool(nullptr);
+    if (pool_ == nullptr) {
+      LOG_WARN(
+          "CreateThreadpool failed with error %s; falling back to default "
+          "Windows thread pool",
+          GetLastError());
+      return;
+    }
+    SetThreadpoolThreadMaximum(pool_, max_threads);
+    if (!SetThreadpoolThreadMinimum(pool_, 1)) {
+      LOG_WARN("SetThreadpoolThreadMinimum failed with error %s",
+               GetLastError());
+    }
+    InitializeThreadpoolEnvironment(&env_);
+    SetThreadpoolCallbackPool(&env_, pool_);
+  }
+
+  ~BoundedThreadPool() {
+    if (pool_ != nullptr) {
+      DestroyThreadpoolEnvironment(&env_);
+      CloseThreadpool(pool_);
+    }
+  }
+
+  BoundedThreadPool(const BoundedThreadPool&) = delete;
+  BoundedThreadPool& operator=(const BoundedThreadPool&) = delete;
+
+  PTP_CALLBACK_ENVIRON callback_environ() {
+    return pool_ != nullptr ? &env_ : nullptr;
+  }
+
+ private:
+  PTP_POOL pool_ = nullptr;
+  TP_CALLBACK_ENVIRON env_ = {};
+};
+
+PTP_CALLBACK_ENVIRON GetEvalThreadPoolEnviron() {
+  static util::NoDestructor<BoundedThreadPool> pool(kMaxEvalThreadPoolThreads);
+  return pool->callback_environ();
+}
+
+// Separate 1-thread pool for cancellation deliveries so that `Cancel()` never
+// queues behind `kMaxEvalThreadPoolThreads` evaluations blocked in CryptoAPI
+// (matching `MakeAppleCancellationScheduler` on Apple) while keeping all work
+// off the host process's default Win32 thread pool.
+PTP_CALLBACK_ENVIRON GetCancelThreadPoolEnviron() {
+  static util::NoDestructor<BoundedThreadPool> pool(1);
+  return pool->callback_environ();
 }
 
 /**
- * Runs `*task` on the Windows thread pool. Returns false, leaving `*task`
- * untouched, if it could not be scheduled.
+ * Increments the reference count of the DLL/EXE containing `callback_fn` so it
+ * cannot be unloaded (`FreeLibrary`) while a thread-pool callback or fallback
+ * thread is still executing its code. Returns null if pinning fails.
  */
-bool TrySubmitToThreadPool(std::function<void()>* task) {
-  auto heap_task = std::make_unique<std::function<void()>>(std::move(*task));
-  if (TrySubmitThreadpoolCallback(RunThreadPoolTask, heap_task.get(),
-                                  /*pcbe=*/nullptr)) {
-    heap_task.release();  // Now owned by `RunThreadPoolTask`.
+HMODULE PinModuleForCallback(PTP_WORK_CALLBACK callback_fn) {
+  HMODULE module = nullptr;
+  if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+                          reinterpret_cast<LPCWSTR>(callback_fn), &module)) {
+    return nullptr;
+  }
+  return module;
+}
+
+struct ScheduledTask {
+  std::function<void()> task;
+  HMODULE module = nullptr;
+};
+
+VOID CALLBACK RunThreadPoolTask(PTP_CALLBACK_INSTANCE instance,
+                                PVOID context,
+                                PTP_WORK work) {
+  CloseThreadpoolWork(work);
+  std::unique_ptr<ScheduledTask> scheduled(
+      static_cast<ScheduledTask*>(context));
+  FreeLibraryWhenCallbackReturns(instance, scheduled->module);
+  scheduled->task();
+}
+
+/**
+ * Schedules `*task` on `GetCancelThreadPoolEnviron()`. Returns false, leaving
+ * `*task` untouched and releasing any temporary module pin, if scheduling
+ * fails.
+ */
+bool TrySubmitCancelTask(std::function<void()>* task) {
+  auto scheduled =
+      std::make_unique<ScheduledTask>(ScheduledTask{std::move(*task), nullptr});
+  scheduled->module = PinModuleForCallback(&RunThreadPoolTask);
+  if (scheduled->module == nullptr) {
+    *task = std::move(scheduled->task);
+    return false;
+  }
+  PTP_WORK work = CreateThreadpoolWork(RunThreadPoolTask, scheduled.get(),
+                                       GetCancelThreadPoolEnviron());
+  if (work != nullptr) {
+    scheduled.release();  // Now owned by `RunThreadPoolTask`.
+    SubmitThreadpoolWork(work);
     return true;
   }
-  *task = std::move(*heap_task);
+  FreeLibrary(scheduled->module);
+  *task = std::move(scheduled->task);
   return false;
 }
 
 /**
- * An `AsyncTlsVerifier::Scheduler` backed by the Windows thread pool, with a
- * new thread as a fallback since the task must run.
+ * An `AsyncTlsVerifier::Scheduler` backed by a private Windows thread pool,
+ * with a detached thread as a fallback since cancellation delivery must run.
  */
 void ScheduleOnThreadPool(std::function<void()> task) {
-  if (!TrySubmitToThreadPool(&task)) {
-    try {
-      std::thread(std::move(task)).detach();
-    } catch (const std::system_error& e) {
-      LOG_ERROR("Failed to schedule TLS cancellation callback: %s", e.what());
+  if (TrySubmitCancelTask(&task)) {
+    return;
+  }
+  HMODULE module = PinModuleForCallback(&RunThreadPoolTask);
+  try {
+    std::thread([task = std::move(task), module]() mutable {
+      {
+        std::function<void()> local_task = std::move(task);
+        local_task();
+      }
+      if (module != nullptr) {
+        FreeLibraryAndExitThread(module, 0);
+      }
+    }).detach();
+  } catch (const std::exception& e) {
+    if (module != nullptr) {
+      FreeLibrary(module);
     }
+    LOG_ERROR("Failed to schedule TLS cancellation callback: %s", e.what());
   }
 }
 
@@ -344,10 +452,15 @@ struct EvalTask {
   WindowsTrustConfig config;
   TlsVerificationInput input;
   TlsVerificationCallback completion;
+  HMODULE module = nullptr;
 };
 
-VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance, PVOID context) {
+VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance,
+                          PVOID context,
+                          PTP_WORK work) {
+  CloseThreadpoolWork(work);
   std::unique_ptr<EvalTask> task(static_cast<EvalTask*>(context));
+  FreeLibraryWhenCallbackReturns(instance, task->module);
   // Chain building may fetch root updates over the network.
   CallbackMayRunLong(instance);
   if (task->config.before_async_evaluation) {
@@ -364,23 +477,39 @@ VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance, PVOID context) {
 
 /**
  * An `AsyncTlsVerifier::Evaluator` that runs `VerifyWindowsTlsCertificateChain`
- * on the Windows thread pool.
+ * on the bounded Windows evaluation thread pool.
  */
 void EvaluateOnThreadPool(const WindowsTrustConfig& config,
                           TlsVerificationInput input,
                           TlsVerificationCallback completion) {
   auto task = std::make_unique<EvalTask>(
-      EvalTask{config, std::move(input), std::move(completion)});
-  if (TrySubmitThreadpoolCallback(RunEvalTask, task.get(),
-                                  /*pcbe=*/nullptr)) {
+      EvalTask{config, std::move(input), std::move(completion), nullptr});
+  task->module = PinModuleForCallback(&RunEvalTask);
+  if (task->module == nullptr) {
+    DWORD error = GetLastError();
+    grpc::Status status(
+        grpc::StatusCode::UNAVAILABLE,
+        absl::StrCat("Failed to schedule TLS certificate verification: "
+                     "GetModuleHandleExW failed with error ",
+                     error));
+    LOG_WARN("TLS peer certificate verification failed: %s",
+             status.error_message());
+    task->completion(std::move(status));
+    return;
+  }
+  PTP_WORK work =
+      CreateThreadpoolWork(RunEvalTask, task.get(), GetEvalThreadPoolEnviron());
+  if (work != nullptr) {
     task.release();  // Now owned by `RunEvalTask`.
+    SubmitThreadpoolWork(work);
     return;
   }
   DWORD error = GetLastError();
+  FreeLibrary(task->module);
   grpc::Status status(
       grpc::StatusCode::UNAVAILABLE,
       absl::StrCat("Failed to schedule TLS certificate verification: "
-                   "TrySubmitThreadpoolCallback failed with error ",
+                   "CreateThreadpoolWork failed with error ",
                    error));
   LOG_WARN("TLS peer certificate verification failed: %s",
            status.error_message());
