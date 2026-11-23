@@ -52,6 +52,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeInstallationIdDisabled = 2028,
   kFIRMessagingMessageCodeDebug = 2029,
   kFIRMessagingMessageCodeInstallationIdRotation = 2030,
+  kFIRMessagingMessageCodeUnsupportedLinkScheme = 2031,
+  kFIRMessagingMessageCodeInvalidLinkURL = 2032,
 
   // DO NOT USE 4000, 4004 - 4013
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004000
@@ -191,6 +193,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeService005 = 27005,
   kFIRMessagingMessageCodeService006 = 27006,
   kFIRMessagingInvalidSettingResponse = 27008,
+  kFIRMessagingMessageCodeService009 = 27009,
+  kFIRMessagingMessageCodeService010 = 27010,
   // FIRMessagingCheckinStore.m
   // DO NOT USE 8002, 8004 - 8008
   kFIRMessagingMessageCodeCheckinStore000 = 28000,

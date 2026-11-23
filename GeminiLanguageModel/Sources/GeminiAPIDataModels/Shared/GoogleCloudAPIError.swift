@@ -488,7 +488,9 @@ extension GoogleCloudAPIError: CustomNSError {
     }
 
     if let retryDelay {
-      userInfo["retryAfterSeconds"] = Double(retryDelay.components.seconds)
+      let components = retryDelay.components
+      userInfo["retryAfterSeconds"] =
+        Double(components.seconds) + Double(components.attoseconds) / 1e18
     }
 
     if let details {

@@ -533,7 +533,7 @@
         }];
         return;
     }
-    [self.persistenceManager setQueryActive:querySpec];
+    [self.serverSyncTree setQueryActive:querySpec];
     [self.connection
         getDataAtPath:[query.path toString]
            withParams:querySpec.params.wireProtocolParams
@@ -546,14 +546,34 @@
                FIndexedNode *node =
                    [self.serverSyncTree persistenceServerCache:querySpec];
                if (node == nil) {
-                   NSDictionary *errorDict = @{
-                       NSLocalizedFailureReasonErrorKey : errorReason,
-                       NSLocalizedDescriptionKey : [NSString
+                   // The server may omit the reason, or send one that isn't a
+                   // string, so fall back to the status.
+                   NSString *reason = errorReason;
+                   if (![reason isKindOfClass:[NSString class]]) {
+                       reason = [status isKindOfClass:[NSString class]]
+                                    ? status
+                                    : kFWPResponseForActionStatusFailed;
+                   }
+                   NSString *description;
+                   if ([reason isEqualToString:kPersistentConnectionOffline]) {
+                       // The get timed out waiting for a connection.
+                       description = [NSString
                            stringWithFormat:
                                @"Unable to get latest value for query %@, "
                                @"client offline with no active listeners "
                                @"and no matching disk cache entries",
-                               querySpec]
+                               querySpec];
+                   } else {
+                       // The server rejected the get, e.g. because of
+                       // security rules.
+                       description = [NSString
+                           stringWithFormat:
+                               @"Unable to get latest value for query %@: %@",
+                               querySpec, reason];
+                   }
+                   NSDictionary *errorDict = @{
+                       NSLocalizedFailureReasonErrorKey : reason,
+                       NSLocalizedDescriptionKey : description
                    };
                    [self.eventRaiser raiseCallback:^{
                      block([NSError errorWithDomain:kFirebaseCoreErrorDomain
@@ -561,6 +581,7 @@
                                            userInfo:errorDict],
                            nil);
                    }];
+                   [self.serverSyncTree setQueryInactive:querySpec];
                    return;
                }
                [self.eventRaiser raiseCallback:^{
@@ -571,8 +592,8 @@
                node = [FSnapshotUtilities nodeFrom:data];
                [self.eventRaiser
                    raiseEvents:[self.serverSyncTree
-                                   applyServerOverwriteAtPath:[query path]
-                                                      newData:node]];
+                                   applyGetResultForQuery:querySpec
+                                                  newData:node]];
                [self.eventRaiser raiseCallback:^{
                  block(
                      nil,
@@ -583,7 +604,7 @@
                                                        index:querySpec.index]]);
                }];
            }
-           [self.persistenceManager setQueryInactive:querySpec];
+           [self.serverSyncTree setQueryInactive:querySpec];
          }];
 }
 
@@ -1330,7 +1351,7 @@
         }
 
         [self.eventRaiser raiseEvents:events];
-        events = nil;
+        events = [[NSMutableArray alloc] init];
 
         if (abortTransaction) {
             // Abort

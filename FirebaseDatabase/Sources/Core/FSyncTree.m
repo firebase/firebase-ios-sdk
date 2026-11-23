@@ -223,6 +223,16 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                              persist:(BOOL)persist
                                clock:(id<FClock>)clock {
     FWriteRecord *write = [self.pendingWriteTree writeForId:writeId];
+    if (write == nil) {
+        // The write was already removed by removeAllWrites, which reverted it
+        // and removed it from persistence. The connection can still deliver an
+        // ack for it afterwards: it defers acks that arrive while listens are
+        // outstanding, and delivers them when the writes are purged.
+        // https://github.com/firebase/firebase-ios-sdk/issues/5161
+        FFLog(@"I-RDB038025", @"Ignoring ack for removed write %ld",
+              (long)writeId);
+        return @[];
+    }
     BOOL needToReevaluate = [self.pendingWriteTree removeWriteId:writeId];
     if (write.visible) {
         if (persist) {
@@ -454,6 +464,20 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
  */
 - (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
                          forQuery:(FQuerySpec *)query {
+    return [self addEventRegistration:eventRegistration
+                             forQuery:query
+                    skipListenerSetup:NO];
+}
+
+/**
+ * Add an event callback for the specified query
+ * @param skipListenerSetup If YES, no listen is started for a new view. Used
+ * when applying a get result, which doesn't need a listen.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)addEventRegistration:(id<FEventRegistration>)eventRegistration
+                         forQuery:(FQuerySpec *)query
+                skipListenerSetup:(BOOL)skipListenerSetup {
     FPath *path = query.path;
 
     __block BOOL foundAncestorDefaultView = NO;
@@ -499,7 +523,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                      serverCache:serverCache];
 
         // There was no view and no default listen
-        if (!foundAncestorDefaultView) {
+        if (!foundAncestorDefaultView && !skipListenerSetup) {
             FView *view = [syncPoint viewForQuery:query];
             NSMutableArray *mutableEvents = [events mutableCopy];
             [mutableEvents
@@ -589,6 +613,24 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 - (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
                             forQuery:(FQuerySpec *)query
                          cancelError:(NSError *)cancelError {
+    return [self removeEventRegistration:eventRegistration
+                                forQuery:query
+                             cancelError:cancelError
+                       skipListenerDedup:NO];
+}
+
+/**
+ * Remove event callback(s), as removeEventRegistration:forQuery:cancelError:
+ * does.
+ *
+ * @param skipListenerDedup If YES, no listens are started or stopped. Used to
+ * remove a registration added with skipListenerSetup, whose view has no listen.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)removeEventRegistration:(id<FEventRegistration>)eventRegistration
+                            forQuery:(FQuerySpec *)query
+                         cancelError:(NSError *)cancelError
+                   skipListenerDedup:(BOOL)skipListenerDedup {
     // Find the syncPoint first. Then deal with whether or not it has matching
     // listeners
     FPath *path = query.path;
@@ -636,7 +678,7 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                   [NSNumber numberWithBool:[parentSyncPoint hasCompleteView]];
             }];
 
-        if (removingDefault && ![covered boolValue]) {
+        if (!skipListenerDedup && removingDefault && ![covered boolValue]) {
             FImmutableTree *subtree = [self.syncPointTree subtreeAtPath:path];
             // There are potentially child listeners. Determine what if any
             // listens we need to send before executing the removal
@@ -668,7 +710,8 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
         // covered in terms of making sure we're set up on listens lower in the
         // tree. Also, note that if we have a cancelError, it's already been
         // removed at the provider level.
-        if (![covered boolValue] && [removed count] > 0 && cancelError == nil) {
+        if (!skipListenerDedup && ![covered boolValue] && [removed count] > 0 &&
+            cancelError == nil) {
             // If we removed a default, then we weren't listening on any of the
             // other queries here. Just cancel the one default. Otherwise, we
             // need to iterate through and cancel each individual query
@@ -709,6 +752,56 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
     }
 }
 
+- (void)setQueryActive:(FQuerySpec *)query {
+    [self.persistenceManager setQueryActive:query];
+}
+
+- (void)setQueryInactive:(FQuerySpec *)query {
+    FSyncPoint *syncPoint = [self.syncPointTree valueAtPath:query.path];
+    BOOL hasActiveView =
+        syncPoint != nil &&
+        (query.loadsAllData ? [syncPoint hasCompleteView]
+                            : [syncPoint viewExistsForQuery:query]);
+    if (!hasActiveView) {
+        [self.persistenceManager setQueryInactive:query];
+    }
+}
+
+/**
+ * Apply the result of a get request for the specified query.
+ *
+ * The result for a query that doesn't load all data is only part of the data
+ * at the query's path. Applying it as a server overwrite at the path would
+ * replace the data of the other views at and below the path, and of the
+ * persisted server cache. Instead, it's applied to the query's own view, which
+ * is added without a listen for the duration of this call, like the JS SDK
+ * does. See https://github.com/firebase/firebase-ios-sdk/issues/14137.
+ * @return NSArray of FEvent to raise.
+ */
+- (NSArray *)applyGetResultForQuery:(FQuerySpec *)query
+                            newData:(id<FNode>)newData {
+    if ([query loadsAllData]) {
+        return [self applyServerOverwriteAtPath:query.path newData:newData];
+    }
+    // This registration raises no events. A new instance only matches itself,
+    // so removing it doesn't remove the query's other registrations, such as
+    // the shared keepSynced one.
+    id<FEventRegistration> registration =
+        [[FKeepSyncedEventRegistration alloc] init];
+    [self addEventRegistration:registration
+                      forQuery:query
+             skipListenerSetup:YES];
+    NSArray *events =
+        [self applyTaggedQueryOverwriteAtPath:query.path
+                                      newData:newData
+                                        tagId:[self tagForQuery:query]];
+    [self removeEventRegistration:registration
+                         forQuery:query
+                      cancelError:nil
+                skipListenerDedup:YES];
+    return events;
+}
+
 - (NSArray *)removeAllWrites {
     [self.persistenceManager removeAllUserWrites];
     NSArray *removedWrites = [self.pendingWriteTree removeAllWrites];
@@ -736,7 +829,6 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
 
 - (id<FNode>)getServerValue:(FQuerySpec *)query {
     __block id<FNode> serverCacheNode = nil;
-    __block FSyncPoint *targetSyncPoint = nil;
     [self.syncPointTree
         forEachOnPath:query.path
            whileBlock:^BOOL(FPath *pathToSyncPoint, FSyncPoint *syncPoint) {
@@ -744,15 +836,18 @@ static const NSUInteger kFSizeThresholdForCompoundHash = 1024;
                                                         to:query.path];
              serverCacheNode =
                  [syncPoint completeEventCacheAtPath:relativePath];
-             targetSyncPoint = syncPoint;
              return serverCacheNode == nil;
            }];
 
+    // Get the view from the sync point at the query's own path. A sync point at
+    // an ancestor path can have a view for the same query params, but that
+    // view holds the data at the ancestor path.
+    FSyncPoint *targetSyncPoint = [self.syncPointTree valueAtPath:query.path];
     if (targetSyncPoint == nil) {
+        // Use a temporary sync point, so that an empty one isn't left in the
+        // tree.
         targetSyncPoint = [[FSyncPoint alloc]
             initWithPersistenceManager:self.persistenceManager];
-        self.syncPointTree = [self.syncPointTree setValue:targetSyncPoint
-                                                   atPath:[query path]];
     } else {
         serverCacheNode =
             serverCacheNode != nil

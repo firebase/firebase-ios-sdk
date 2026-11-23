@@ -85,7 +85,8 @@
 
 /// Copy method.
 - (id)copyWithZone:(NSZone *)zone {
-  FIRRemoteConfigValue *value = [[[self class] allocWithZone:zone] initWithData:_data];
+  FIRRemoteConfigValue *value = [[[self class] allocWithZone:zone] initWithData:_data
+                                                                         source:_source];
   return value;
 }
 @end

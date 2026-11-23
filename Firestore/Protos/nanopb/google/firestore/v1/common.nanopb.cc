@@ -54,8 +54,9 @@ const pb_field_t google_firestore_v1_TransactionOptions_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_TransactionOptions_ReadWrite_fields[2] = {
+const pb_field_t google_firestore_v1_TransactionOptions_ReadWrite_fields[3] = {
     PB_FIELD(  1, BYTES   , SINGULAR, POINTER , FIRST, google_firestore_v1_TransactionOptions_ReadWrite, retry_transaction, retry_transaction, 0),
+    PB_FIELD(  2, UENUM   , SINGULAR, STATIC  , OTHER, google_firestore_v1_TransactionOptions_ReadWrite, concurrency_mode, retry_transaction, 0),
     PB_LAST_FIELD
 };
 
@@ -63,6 +64,7 @@ const pb_field_t google_firestore_v1_TransactionOptions_ReadOnly_fields[2] = {
     PB_ANONYMOUS_ONEOF_FIELD(consistency_selector,   2, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1_TransactionOptions_ReadOnly, read_time, read_time, &google_protobuf_Timestamp_fields),
     PB_LAST_FIELD
 };
+
 
 
 /* Check that field information fits in pb_field_t */
@@ -88,6 +90,19 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Precondition, update_time) <
 PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Precondition, update_time) < 256 && pb_membersize(google_firestore_v1_TransactionOptions, read_only) < 256 && pb_membersize(google_firestore_v1_TransactionOptions, read_write) < 256 && pb_membersize(google_firestore_v1_TransactionOptions_ReadOnly, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_DocumentMask_google_firestore_v1_Precondition_google_firestore_v1_TransactionOptions_google_firestore_v1_TransactionOptions_ReadWrite_google_firestore_v1_TransactionOptions_ReadOnly)
 #endif
 
+
+const char* EnumToString(
+  google_firestore_v1_TransactionOptions_ConcurrencyMode value) {
+    switch (value) {
+    case google_firestore_v1_TransactionOptions_ConcurrencyMode_CONCURRENCY_MODE_UNSPECIFIED:
+        return "CONCURRENCY_MODE_UNSPECIFIED";
+    case google_firestore_v1_TransactionOptions_ConcurrencyMode_OPTIMISTIC:
+        return "OPTIMISTIC";
+    case google_firestore_v1_TransactionOptions_ConcurrencyMode_PESSIMISTIC:
+        return "PESSIMISTIC";
+    }
+    return "<unknown enum value>";
+}
 
 std::string google_firestore_v1_DocumentMask::ToString(int indent) const {
     std::string tostring_header = PrintHeader(indent, "DocumentMask", this);
@@ -161,6 +176,8 @@ std::string google_firestore_v1_TransactionOptions_ReadWrite::ToString(int inden
 
     tostring_result += PrintPrimitiveField("retry_transaction: ",
         retry_transaction, indent + 1, false);
+    tostring_result += PrintEnumField("concurrency_mode: ",
+        concurrency_mode, indent + 1, false);
 
     bool is_root = indent == 0;
     if (!tostring_result.empty() || is_root) {

@@ -26,16 +26,17 @@ class FakeConsoleTests: APITestBase {
   // Test New API.
   // Contrast with testUnchangedActivateWillFlag in APITests.swift.
   func testChangedActivateWillNotFlag() {
+    let config: RemoteConfig = self.config
     let expectation = self.expectation(description: #function)
     config.fetch { status, error in
       if let error {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { changed, error in
+      config.activate { changed, error in
         XCTAssertNil(error)
         XCTAssertTrue(changed)
-        XCTAssertEqual(self.config["Key1"].stringValue, "Value1")
+        XCTAssertEqual(config["Key1"].stringValue, "Value1")
         expectation.fulfill()
       }
     }
@@ -50,10 +51,10 @@ class FakeConsoleTests: APITestBase {
         XCTFail("Fetch Error \(error)")
       }
       XCTAssertEqual(status, RemoteConfigFetchStatus.success)
-      self.config.activate { changed, error in
+      config.activate { changed, error in
         XCTAssertNil(error)
         XCTAssert(changed)
-        XCTAssertEqual(self.config["Key1"].stringValue, "Value2")
+        XCTAssertEqual(config["Key1"].stringValue, "Value2")
         expectation2.fulfill()
       }
     }

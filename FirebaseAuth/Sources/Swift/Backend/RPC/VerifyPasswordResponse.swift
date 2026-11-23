@@ -56,10 +56,7 @@ struct VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
     idToken = dictionary["idToken"] as? String
-    if let expiresIn = dictionary["expiresIn"] as? String {
-      approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
-        .doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
     refreshToken = dictionary["refreshToken"] as? String
     photoURL = (dictionary["photoUrl"] as? String).flatMap { URL(string: $0) }
 

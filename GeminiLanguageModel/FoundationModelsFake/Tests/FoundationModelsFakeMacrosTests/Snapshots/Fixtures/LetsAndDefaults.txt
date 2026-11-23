@@ -1,0 +1,55 @@
+public struct LetsAndDefaults {
+  public let identifier: String
+  public var count: Int = 5
+  public var computed: Int { count * 2 }
+  public static var staticValue: Int { 1 }
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "identifier", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "count", type: Int.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "identifier", value: self.identifier)
+        addProperty(name: "count", value: self.count)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        public var id: FoundationModelsFake.GenerationID
+        public var identifier: String.PartiallyGenerated?
+        public var count: Int.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.identifier = try content.value(forProperty: "identifier")
+            self.count = try content.value(forProperty: "count")
+        }
+    }
+}
+
+extension LetsAndDefaults: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.identifier = try content.value(forProperty: "identifier")
+        self.count = try content.value(forProperty: "count")
+    }
+}

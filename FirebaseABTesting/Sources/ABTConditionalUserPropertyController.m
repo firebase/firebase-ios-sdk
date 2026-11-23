@@ -55,6 +55,12 @@
              withOrigin:(NSString *)origin
                 payload:(ABTExperimentPayload *)payload
                  events:(FIRLifecycleEvents *)events {
+  if (experimentID == nil) {
+    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000021",
+               @"Experiment ID to clear is empty. Skipping clear.");
+    return;
+  }
+
   // Payload always overwrite event names.
   NSString *clearExperimentEventName = events.clearExperimentEventName;
   if (payload && payload.clearEventToLog && payload.clearEventToLog.length) {
@@ -64,7 +70,8 @@
   [_analytics clearConditionalUserProperty:experimentID
                                  forOrigin:origin
                             clearEventName:clearExperimentEventName
-                      clearEventParameters:@{experimentID : variantID}];
+                      clearEventParameters:[self eventParamsWithExperimentID:experimentID
+                                                                   variantID:variantID]];
 
   FIRLogDebug(kFIRLoggerABTesting, @"I-ABT000015", @"Clear Experiment ID %@, variant ID %@.",
               experimentID, variantID);
@@ -91,6 +98,12 @@
     // When doing experiment test on devices, the payload could be empty. Returning here to prevent
     // app crash.
     FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000020", @"Experiment Id in payload is empty.");
+    return;
+  }
+
+  if (payload.variantId == nil) {
+    FIRLogInfo(kFIRLoggerABTesting, @"I-ABT000022",
+               @"Variant Id in payload for experiment ID %@ is empty.", payload.experimentId);
     return;
   }
 
@@ -158,7 +171,7 @@
   NSString *experimentID = payload.experimentId;
   NSString *variantID = payload.variantId;
 
-  NSDictionary *eventParams = @{experimentID : variantID};
+  NSDictionary *eventParams = [self eventParamsWithExperimentID:experimentID variantID:variantID];
 
   [experiment setValue:origin forKey:kABTExperimentDictionaryOriginKey];
 
@@ -227,6 +240,16 @@
   };
 }
 
+/// Returns the event parameters for an experiment, or an empty dictionary if either ID is missing.
+- (NSDictionary<NSString *, NSString *> *)
+    eventParamsWithExperimentID:(nullable NSString *)experimentID
+                      variantID:(nullable NSString *)variantID {
+  if (experimentID == nil || variantID == nil) {
+    return @{};
+  }
+  return @{experimentID : variantID};
+}
+
 #pragma mark - experiment properties
 - (NSString *)experimentIDOfExperiment:(id)experiment {
   if (!experiment) {
@@ -259,7 +282,7 @@
     setExperimentEventName = payload.setEventToLog;
   }
   NSDictionary<NSString *, NSString *> *params;
-  params = payload.experimentId ? @{payload.experimentId : payload.variantId} : @{};
+  params = [self eventParamsWithExperimentID:payload.experimentId variantID:payload.variantId];
   [_analytics logEventWithOrigin:origin name:setExperimentEventName parameters:params];
 }
 

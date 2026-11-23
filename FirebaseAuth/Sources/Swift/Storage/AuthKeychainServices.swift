@@ -168,7 +168,7 @@ final class AuthKeychainServices: Sendable {
           level: .warning,
           service: "[FirebaseAuth]",
           code: "I-AUT000005",
-          message: "Keychain query returned multiple results, all but the first will be ignored: \(items)"
+          message: "Keychain query returned multiple results, all but the first will be ignored."
         )
       }
 

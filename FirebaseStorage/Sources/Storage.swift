@@ -241,7 +241,11 @@ internal import FirebaseCoreExtension
   }
 
   @objc override public var hash: Int {
-    return app.hash ^ callbackQueue.hashValue
+    // Only hash properties compared in `isEqual(_:)`, so that equal instances have equal hashes.
+    var hasher = Hasher()
+    hasher.combine(app)
+    hasher.combine(storageBucket)
+    return hasher.finalize()
   }
 
   // MARK: - Internal and Private APIs

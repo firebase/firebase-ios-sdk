@@ -14,7 +14,8 @@
 
 import Foundation
 
-struct AuthProtoStartMFATOTPEnrollmentResponseInfo: AuthProto {
+/// Not an `AuthProto`, because decoding fails if the shared secret key is missing.
+struct AuthProtoStartMFATOTPEnrollmentResponseInfo {
   let sharedSecretKey: String
   let verificationCodeLength: Int
   let hashingAlgorithm: String?
@@ -22,21 +23,16 @@ struct AuthProtoStartMFATOTPEnrollmentResponseInfo: AuthProto {
   let sessionInfo: String?
   let finalizeEnrollmentTime: Date?
 
-  init(dictionary: [String: AnyHashable]) {
+  /// Returns `nil` if `sharedSecretKey` is missing or isn't a string.
+  init?(dictionary: [String: AnyHashable]) {
     guard let key = dictionary["sharedSecretKey"] as? String else {
-      fatalError("Missing sharedSecretKey for AuthProtoStartMFATOTPEnrollmentResponseInfo")
+      return nil
     }
     sharedSecretKey = key
     verificationCodeLength = dictionary["verificationCodeLength"] as? Int ?? 0
     hashingAlgorithm = dictionary["hashingAlgorithm"] as? String
     periodSec = dictionary["periodSec"] as? Int ?? 0
     sessionInfo = dictionary["sessionInfo"] as? String
-    if let finalizeEnrollmentTime = dictionary["finalizeEnrollmentTime"] as? String {
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-      self.finalizeEnrollmentTime = dateFormatter.date(from: finalizeEnrollmentTime)
-    } else {
-      finalizeEnrollmentTime = nil
-    }
+    finalizeEnrollmentTime = AuthProtoTimestamp.date(from: dictionary["finalizeEnrollmentTime"])
   }
 }

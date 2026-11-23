@@ -277,6 +277,36 @@
   XCTAssertEqual((uint32_t)0, version.bugfix, @"");
 }
 
+- (void)testReadVersionsFromBuildVersionLoadCommand {
+  // Binaries built for iOS 12, macOS 10.14, tvOS 12, watchOS 5 or later carry LC_BUILD_VERSION
+  // instead of LC_VERSION_MIN_*.
+  struct build_version_command command = {0};
+  command.cmd = LC_BUILD_VERSION;
+  command.cmdsize = sizeof(command);
+  command.platform = PLATFORM_IOS;
+  command.minos = 0x000F0200;  // 15.2.0
+  command.sdk = 0x001A0501;    // 26.5.1
+
+  FIRCLSMachOVersion version = FIRCLSMachOGetMinimumOSVersion((const struct load_command*)&command);
+  XCTAssertEqual((uint32_t)15, version.major);
+  XCTAssertEqual((uint32_t)2, version.minor);
+  XCTAssertEqual((uint32_t)0, version.bugfix);
+
+  version = FIRCLSMachOGetLinkedSDKVersion((const struct load_command*)&command);
+  XCTAssertEqual((uint32_t)26, version.major);
+  XCTAssertEqual((uint32_t)5, version.minor);
+  XCTAssertEqual((uint32_t)1, version.bugfix);
+}
+
+- (void)testRunningSliceReadsMinimumOSAndSDKVersions {
+  // The test host is built with a current toolchain and deployment target, so its versions are
+  // described by LC_BUILD_VERSION.
+  FIRCLSMachOSlice* slice = [FIRCLSMachOSlice runningSlice];
+
+  XCTAssertGreaterThan(slice.minimumOSVersion.major, (uint32_t)0);
+  XCTAssertGreaterThan(slice.linkedSDKVersion.major, (uint32_t)0);
+}
+
 - (void)testReadx86_64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"x86_64-executable"];
   struct FIRCLSMachOFile file;

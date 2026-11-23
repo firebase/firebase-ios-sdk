@@ -83,7 +83,7 @@ struct GeminiAPIErrorTests {
               description: "Help doc", url: "https://cloud.google.com/help")
           ])),
       ],
-      retryDelay: .seconds(15)
+      retryDelay: .seconds(15.5)
     )
 
     let apiError = GeminiAPIError.apiError(cloudError)
@@ -96,7 +96,7 @@ struct GeminiAPIErrorTests {
     #expect(GeminiAPIError.errorDomain == "GeminiAPIClient.GeminiAPIError")
     #expect(apiError.errorUserInfo["code"] as? Int == 400)
     #expect(apiError.errorUserInfo["status"] as? String == "INVALID_ARGUMENT")
-    #expect(apiError.errorUserInfo["retryAfterSeconds"] as? Double == 15.0)
+    #expect(apiError.errorUserInfo["retryAfterSeconds"] as? Double == 15.5)
 
     #expect(httpError.errorDescription == "HTTP 503: Service unavailable")
     #expect(httpError.failureReason == "HTTP status 503")

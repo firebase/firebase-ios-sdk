@@ -13,7 +13,7 @@ swift test --filter IntegrationTests
 swift test --filter ToolCallingIntegrationTests
 
 # Run all unit tests (fast, skips all integration tests)
-swift test --skip Integration
+swift test --skip IntegrationTests
 ```
 
 ## Running Integration Tests
@@ -45,8 +45,8 @@ All integration tests are parameterized across
   (`generativelanguage.googleapis.com`).
 * `.firebaseAILogicDeveloperAPI`: Firebase AI Logic proxy to Gemini Developer
   API (`firebasevertexai.googleapis.com`).
-* `.firebaseAILogicEnterprise(location:)`: Firebase AI Logic proxy to Gemini
-  Enterprise API (defaulting to `location: "global"`).
+* `.firebaseAILogicAgentPlatform(location:)`: Firebase AI Logic proxy to Gemini
+  Enterprise Agent Platform (defaulting to `location: "global"`).
 
 ## Files in this Directory
 
@@ -61,7 +61,15 @@ All integration tests are parameterized across
   Parameterized integration tests for tool calling (function calling) using
   FoundationModels `Tool` definitions, covering single-turn tool calls,
   sequential tool calls, parallel tool calls, tool calling mode configuration,
-  parameterless tools with empty arguments, and reasoning models.
+  parameterless tools with empty arguments, thought signatures recorded as
+  reasoning entries, and the limit on tool-calling turns per prompt.
+* [`ImageUnderstandingIntegrationTests.swift`](ImageUnderstandingIntegrationTests.swift):
+  Parameterized integration tests for image input (`vision`) using images
+  generated in code, covering single and multiple images, `@Generable`
+  classification, image orientation, PNG and HEIC file URLs, streaming, and
+  images in multi-turn history. These tests use the default sampling mode with
+  tightly constrained prompts, since many Gemini 3 models don't support greedy
+  sampling.
 * [`IntegrationTestingBackend+GeminiLanguageModel.swift`](IntegrationTestingBackend+GeminiLanguageModel.swift):
   Convenience extension providing `backend.makeModel()` to instantiate a
   pre-configured `GeminiLanguageModel`.

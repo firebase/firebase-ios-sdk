@@ -108,7 +108,9 @@ public final class FirebaseAI: Sendable {
     )
   }
 
-  /// Initializes a new `TemplateGenerativeModel`.
+  /// **[Public Preview]** Initializes a new `TemplateGenerativeModel`.
+  ///
+  /// > Warning: This API is a public preview and may be subject to change.
   ///
   /// Server prompt templates let you store prompts, schemas, tools, and configurations on the
   /// server, decoupling prompt iteration from app release cycles.
@@ -262,14 +264,14 @@ public final class FirebaseAI: Sendable {
     }
 
     switch apiConfig.service {
-    case let .enterprise(endpoint: _, location: location):
-      return enterpriseModelResourceName(modelName: modelName, location: location)
+    case let .agentPlatform(endpoint: _, location: location):
+      return agentPlatformModelResourceName(modelName: modelName, location: location)
     case .googleAI:
       return developerModelResourceName(modelName: modelName)
     }
   }
 
-  private func enterpriseModelResourceName(modelName: String, location: String) -> String {
+  private func agentPlatformModelResourceName(modelName: String, location: String) -> String {
     guard !location.isEmpty && location
       .allSatisfy({ !$0.isWhitespace && !$0.isNewline && $0 != "/" }) else {
       fatalError("""
@@ -292,9 +294,9 @@ public final class FirebaseAI: Sendable {
         return "models/\(modelName)"
       case .firebaseProxyStaging:
         return "projects/\(firebaseInfo.projectID)/models/\(modelName)"
-      case .enterpriseStagingBypassProxy:
+      case .agentPlatformStagingBypassProxy:
         fatalError(
-          "The Gemini Enterprise API staging endpoint does not support the Gemini Developer API."
+          "The Agent Platform Gemini API staging endpoint does not support the Gemini Developer API."
         )
     #endif // DEBUG
     }

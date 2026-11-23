@@ -20,6 +20,7 @@ on:
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
     - 'scripts/run_database_emulator.sh'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     - cron:  '0 10 * * *'

@@ -18,6 +18,7 @@ on:
     - 'Gemfile*'
     - 'scripts/generate_access_token.sh'
     - 'scripts/gha-encrypted/RemoteConfigSwiftAPI/**'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
     - cron:  '0 8 * * *'

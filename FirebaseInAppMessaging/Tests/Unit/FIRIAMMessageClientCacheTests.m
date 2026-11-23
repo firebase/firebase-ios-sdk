@@ -22,6 +22,7 @@
 #import "FirebaseInAppMessaging/Sources/Private/DisplayTrigger/FIRIAMDisplayTriggerDefinition.h"
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMDisplayCheckOnAnalyticEventsFlow.h"
 #import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMMessageClientCache.h"
+#import "FirebaseInAppMessaging/Sources/Private/Flows/FIRIAMServerMsgFetchStorage.h"
 #import "FirebaseInAppMessaging/Sources/Private/Util/FIRIAMTimeFetcher.h"
 
 @interface FIRIAMMessageClientCacheTests : XCTestCase
@@ -382,5 +383,66 @@
 
   // we still have 4 regular messages after the first fetch
   XCTAssertEqual(4, self.clientCache.allRegularMessages.count);
+}
+
+// Builds a minimal, active, analytics event triggered message node as found in a fetch response.
+- (NSDictionary *)messageNodeWithID:(NSString *)messageID eventName:(id)eventName {
+  return @{
+    @"vanillaPayload" : @{
+      @"campaignId" : messageID,
+      @"campaignName" : messageID,
+      @"campaignStartTimeMillis" : @"0",
+      @"campaignEndTimeMillis" : @"9223372036854775807"
+    },
+    @"content" : @{@"banner" : @{@"title" : @{@"text" : @"title"}}},
+    @"triggeringConditions" : @[ @{@"event" : @{@"name" : eventName}} ]
+  };
+}
+
+- (void)testLoadingCachedResponseWithMalformedEventNames {
+  FIRIAMServerMsgFetchStorage *mockStorage = OCMClassMock([FIRIAMServerMsgFetchStorage class]);
+  NSDictionary *cachedResponse = @{
+    @"messages" : @[
+      [self messageNodeWithID:@"number_event_name" eventName:@7],
+      [self messageNodeWithID:@"null_event_name" eventName:[NSNull null]],
+      [self messageNodeWithID:@"valid" eventName:@"test_event"]
+    ]
+  };
+  OCMStub([mockStorage
+      readResponseDictionary:([OCMArg invokeBlockWithArgs:cachedResponse, @YES, nil])]);
+
+  __block BOOL loaded = NO;
+  [self.clientCache loadMessageDataFromServerFetchStorage:mockStorage
+                                           withCompletion:^(BOOL success) {
+                                             loaded = success;
+                                           }];
+  XCTAssertTrue(loaded);
+  XCTAssertEqual(1, self.clientCache.allRegularMessages.count);
+  XCTAssertEqualObjects([NSSet setWithObject:@"test_event"],
+                        self.clientCache.firebaseAnalyticEventsToWatch);
+
+  FIRIAMMessageDefinition *next =
+      [self.clientCache nextOnFirebaseAnalyticEventDisplayMsg:@"test_event"];
+  XCTAssertEqualObjects(@"valid", next.renderData.messageID);
+}
+
+- (void)testLoadingCorruptCachedResponse {
+  NSArray *corruptResponses = @[
+    @{@"messages" : @"not an array"}, @{@"messages" : @42}, @{@"messages" : @[ @"not a message" ]}
+  ];
+  for (NSDictionary *cachedResponse in corruptResponses) {
+    FIRIAMServerMsgFetchStorage *mockStorage = OCMClassMock([FIRIAMServerMsgFetchStorage class]);
+    OCMStub([mockStorage
+        readResponseDictionary:([OCMArg invokeBlockWithArgs:cachedResponse, @YES, nil])]);
+
+    [self.clientCache setMessageData:@[ m1, m2 ]];
+    __block BOOL completionCalled = NO;
+    [self.clientCache loadMessageDataFromServerFetchStorage:mockStorage
+                                             withCompletion:^(BOOL success) {
+                                               completionCalled = YES;
+                                             }];
+    XCTAssertTrue(completionCalled, @"%@", cachedResponse);
+    XCTAssertEqual(0, self.clientCache.allRegularMessages.count, @"%@", cachedResponse);
+  }
 }
 @end

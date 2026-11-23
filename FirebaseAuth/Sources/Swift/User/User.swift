@@ -75,7 +75,11 @@ extension User: NSSecureCoding {}
   private(set) var backend: AuthBackend
 
   /// Metadata associated with the Firebase user in question.
-  @objc public private(set) var metadata: UserMetadata
+  @objc public var metadata: UserMetadata {
+    propertyAccessQueue.sync { _metadata }
+  }
+
+  private var _metadata: UserMetadata
 
   /// The tenant ID of the current user. `nil` if none is available.
   @objc public private(set) var tenantID: String?
@@ -84,7 +88,11 @@ extension User: NSSecureCoding {}
     /// Multi factor object associated with the user.
     ///
     /// This property is available on iOS and macOS.
-    @objc public private(set) var multiFactor: MultiFactor
+    @objc public var multiFactor: MultiFactor {
+      propertyAccessQueue.sync { _multiFactor }
+    }
+
+    private var _multiFactor: MultiFactor
   #endif
 
   /// [Deprecated] Updates the email address for the user.
@@ -904,7 +912,8 @@ extension User: NSSecureCoding {}
             let _ = try await self.backend.call(with: request)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
-            self.signOutIfTokenIsInvalid(withError: error)
+            await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                 rejectedToken: accessToken)
             User.callInMainThreadWithError(callback: completion, error: error)
           }
         }
@@ -1075,14 +1084,18 @@ extension User: NSSecureCoding {}
     self.tokenService = tokenService
     _isAnonymous = false
     _isEmailVerified = false
-    metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    _metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
     #if os(iOS) || os(macOS)
-      multiFactor = MultiFactor(withMFAEnrollments: [])
+      _multiFactor = MultiFactor(withMFAEnrollments: [])
     #endif
     _uid = ""
     _hasEmailPasswordCredential = false
     requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
+    super.init()
+    #if os(iOS) || os(macOS)
+      _multiFactor.user = self
+    #endif
   }
 
   class func retrieveUser(withAuth auth: Auth,
@@ -1294,7 +1307,8 @@ extension User: NSSecureCoding {}
                   }
                   callback(nil)
                 } catch {
-                  self.signOutIfTokenIsInvalid(withError: error)
+                  await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                       rejectedToken: accessToken)
                   callback(error)
                 }
               }
@@ -1369,27 +1383,25 @@ extension User: NSSecureCoding {}
       _photoURL = user.photoURL
       _phoneNumber = user.phoneNumber
       _hasEmailPasswordCredential = user.passwordHash.flatMap { $0.count > 0 } ?? false
-      metadata = UserMetadata(withCreationDate: user.creationDate,
-                              lastSignInDate: user.lastLoginDate)
+      _metadata = UserMetadata(withCreationDate: user.creationDate,
+                               lastSignInDate: user.lastLoginDate)
       var providerData: [String: UserInfoImpl] = [:]
       if let providerUserInfos = user.providerUserInfo {
         for providerUserInfo in providerUserInfos {
-          let userInfo = UserInfoImpl.userInfo(
+          if let userInfo = UserInfoImpl.userInfo(
             withGetAccountInfoResponseProviderUserInfo: providerUserInfo
-          )
-          if let providerID = providerUserInfo.providerID {
-            providerData[providerID] = userInfo
+          ) {
+            providerData[userInfo.providerID] = userInfo
           }
         }
       }
       _providerData = providerData
+      #if os(iOS) || os(macOS)
+        // A response without `mfaInfo` means the user has no enrolled factors.
+        _multiFactor = MultiFactor(withMFAEnrollments: user.mfaEnrollments ?? [])
+        _multiFactor.user = self
+      #endif
     }
-    #if os(iOS) || os(macOS)
-      if let enrollments = user.mfaEnrollments {
-        multiFactor = MultiFactor(withMFAEnrollments: enrollments)
-      }
-      multiFactor.user = self
-    #endif
   }
 
   #if os(iOS)
@@ -1442,8 +1454,9 @@ extension User: NSSecureCoding {}
               )
               // Get account info to update cached user info.
               self.getAccountInfoRefreshingCache { user, error in
+                // `getAccountInfoRefreshingCache` has already checked whether this error should
+                // sign out the user.
                 if let error {
-                  self.signOutIfTokenIsInvalid(withError: error)
                   completion(error)
                   return
                 }
@@ -1455,7 +1468,8 @@ extension User: NSSecureCoding {}
                 completion(nil)
               }
             } catch {
-              self.signOutIfTokenIsInvalid(withError: error)
+              await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                                   rejectedToken: accessToken)
               completion(error)
             }
           }
@@ -1478,21 +1492,30 @@ extension User: NSSecureCoding {}
                                          idToken: accessToken,
                                          requestConfiguration: requestConfiguration)
       Task {
+        let response: SignUpNewUserResponse
         do {
           #if os(iOS)
             guard let auth = self.auth else {
               fatalError("Internal Auth error: missing auth instance on user")
             }
-            let response = try await auth.injectRecaptcha(request: request,
-                                                          action: AuthRecaptchaAction
-                                                            .signUpPassword)
+            response = try await auth.injectRecaptcha(request: request,
+                                                      action: AuthRecaptchaAction
+                                                        .signUpPassword)
           #else
-            let response = try await self.backend.call(with: request)
+            response = try await self.backend.call(with: request)
           #endif
-          guard let refreshToken = response.refreshToken,
-                let idToken = response.idToken else {
-            fatalError("Internal auth error: Invalid SignUpNewUserResponse")
-          }
+        } catch {
+          await self.signOutIfSessionIsInvalid(afterIDTokenRequestError: error,
+                                               rejectedToken: accessToken)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: nil, error: error)
+          return
+        }
+        guard let refreshToken = response.refreshToken,
+              let idToken = response.idToken else {
+          fatalError("Internal auth error: Invalid SignUpNewUserResponse")
+        }
+        do {
           // Update the new token and refresh user info again.
           try await self.updateTokenAndRefreshUser(
             idToken: idToken,
@@ -1506,7 +1529,6 @@ extension User: NSSecureCoding {}
             error: nil
           )
         } catch {
-          self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                           result: nil, error: error)
         }
@@ -1673,6 +1695,61 @@ extension User: NSSecureCoding {}
     }
   }
 
+  /// Handles an error from a backend request that sent this user's ID token.
+  ///
+  /// The backend returns `INVALID_ID_TOKEN` (`invalidUserToken`) when the ID token's `exp`
+  /// timestamp has passed and `TOKEN_EXPIRED` (`userTokenExpired`) when the account's
+  /// `valid_since` timestamp is newer than the token's issue time. Neither error necessarily means
+  /// that the session has ended, so instead of signing out, force a token refresh to check. The
+  /// user stays signed in if the refresh succeeds or fails with a network error, and is signed out
+  /// if it fails with any other error. Other errors are handled by
+  /// `signOutIfTokenIsInvalid(withError:)`.
+  /// - Parameter error: The error from the server.
+  /// - Parameter rejectedToken: The ID token that was sent with the request.
+  func signOutIfSessionIsInvalid(afterIDTokenRequestError error: Error,
+                                 rejectedToken: String?) async {
+    let code = (error as NSError).code
+    guard code == AuthErrorCode.invalidUserToken.rawValue ||
+      code == AuthErrorCode.userTokenExpired.rawValue else {
+      signOutIfTokenIsInvalid(withError: error)
+      return
+    }
+    // Skip the check if this user is no longer signed in.
+    guard auth?.currentUser === self else {
+      return
+    }
+    // Skip the check if the token was refreshed or replaced after the request was sent. If the new
+    // token is rejected too, that request checks again.
+    let service = tokenService
+    if let rejectedToken, service.accessToken != rejectedToken {
+      return
+    }
+    AuthLog.logNotice(code: "I-AUT000032",
+                      message: "ID token rejected by the backend. Refreshing it to check whether " +
+                        "the user is still signed in.")
+    do {
+      let (_, tokenUpdated) = try await service.fetchAccessToken(forcingRefresh: true,
+                                                                 backend: backend)
+      if tokenUpdated {
+        _ = updateKeychain()
+      }
+    } catch let refreshError {
+      // If another operation replaced the credentials, or another user signed in, while the
+      // refresh was in flight, the failure is about the old session, not the current one.
+      guard tokenService === service, auth?.currentUser === self else {
+        return
+      }
+      // A network error doesn't show whether the session has ended. Stay signed in; the next
+      // refresh checks again.
+      if (refreshError as NSError).code == AuthErrorCode.networkError.rawValue {
+        return
+      }
+      // Any other failure, including one without a specific error code, signs out, as the
+      // original error did before this check was added.
+      signOutIfTokenIsInvalid(withError: error)
+    }
+  }
+
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   /// - Parameter callback: The block to invoke when the token is available. Invoked asynchronously
   /// on the  global work thread in the future.
@@ -1799,7 +1876,7 @@ extension User: NSSecureCoding {}
       coder.encode(_isEmailVerified, forKey: kEmailVerifiedCodingKey)
       coder.encode(_photoURL, forKey: kPhotoURLCodingKey)
       coder.encode(_displayName, forKey: kDisplayNameCodingKey)
-      coder.encode(metadata, forKey: kMetadataCodingKey)
+      coder.encode(_metadata, forKey: kMetadataCodingKey)
       coder.encode(tenantID, forKey: kTenantIDCodingKey)
 
       if let auth {
@@ -1808,7 +1885,7 @@ extension User: NSSecureCoding {}
       }
       coder.encode(tokenService, forKey: kTokenServiceCodingKey)
       #if os(iOS) || os(macOS)
-        coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
+        coder.encode(_multiFactor, forKey: kMultiFactorCodingKey)
       #endif
     }
   }
@@ -1850,7 +1927,7 @@ extension User: NSSecureCoding {}
     _photoURL = photoURL
     _providerData = providerData ?? [:]
     _phoneNumber = phoneNumber
-    self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    _metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
 
     // Note, in practice, the caller will set the `auth` property of this user
@@ -1869,9 +1946,11 @@ extension User: NSSecureCoding {}
 
     userProfileUpdate = UserProfileUpdate()
     #if os(iOS) || os(macOS)
-      self.multiFactor = multiFactor ?? MultiFactor()
-      super.init()
-      multiFactor?.user = self
+      _multiFactor = multiFactor ?? MultiFactor()
+    #endif
+    super.init()
+    #if os(iOS) || os(macOS)
+      _multiFactor.user = self
     #endif
   }
 }

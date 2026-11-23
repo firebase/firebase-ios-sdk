@@ -49,6 +49,7 @@
 #include "google/protobuf/message.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/generated_enum_reflection.h"
 #include "google/protobuf/unknown_field_set.h"
 #include "google/protobuf/timestamp.pb.h"
 // @@protoc_insertion_point(includes)
@@ -99,6 +100,40 @@ namespace protobuf {
 namespace google {
 namespace firestore {
 namespace v1 {
+enum TransactionOptions_ConcurrencyMode : int {
+  TransactionOptions_ConcurrencyMode_CONCURRENCY_MODE_UNSPECIFIED = 0,
+  TransactionOptions_ConcurrencyMode_OPTIMISTIC = 1,
+  TransactionOptions_ConcurrencyMode_PESSIMISTIC = 2,
+  TransactionOptions_ConcurrencyMode_TransactionOptions_ConcurrencyMode_INT_MIN_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::min(),
+  TransactionOptions_ConcurrencyMode_TransactionOptions_ConcurrencyMode_INT_MAX_SENTINEL_DO_NOT_USE_ =
+      std::numeric_limits<::int32_t>::max(),
+};
+
+bool TransactionOptions_ConcurrencyMode_IsValid(int value);
+extern const uint32_t TransactionOptions_ConcurrencyMode_internal_data_[];
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions_ConcurrencyMode_ConcurrencyMode_MIN = static_cast<TransactionOptions_ConcurrencyMode>(0);
+constexpr TransactionOptions_ConcurrencyMode TransactionOptions_ConcurrencyMode_ConcurrencyMode_MAX = static_cast<TransactionOptions_ConcurrencyMode>(2);
+constexpr int TransactionOptions_ConcurrencyMode_ConcurrencyMode_ARRAYSIZE = 2 + 1;
+const ::google::protobuf::EnumDescriptor*
+TransactionOptions_ConcurrencyMode_descriptor();
+template <typename T>
+const std::string& TransactionOptions_ConcurrencyMode_Name(T value) {
+  static_assert(std::is_same<T, TransactionOptions_ConcurrencyMode>::value ||
+                    std::is_integral<T>::value,
+                "Incorrect type passed to ConcurrencyMode_Name().");
+  return TransactionOptions_ConcurrencyMode_Name(static_cast<TransactionOptions_ConcurrencyMode>(value));
+}
+template <>
+inline const std::string& TransactionOptions_ConcurrencyMode_Name(TransactionOptions_ConcurrencyMode value) {
+  return ::google::protobuf::internal::NameOfDenseEnum<TransactionOptions_ConcurrencyMode_descriptor,
+                                                 0, 2>(
+      static_cast<int>(value));
+}
+inline bool TransactionOptions_ConcurrencyMode_Parse(absl::string_view name, TransactionOptions_ConcurrencyMode* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<TransactionOptions_ConcurrencyMode>(
+      TransactionOptions_ConcurrencyMode_descriptor(), name, value);
+}
 
 // ===================================================================
 
@@ -238,6 +273,7 @@ class TransactionOptions_ReadWrite final :
 
   enum : int {
     kRetryTransactionFieldNumber = 1,
+    kConcurrencyModeFieldNumber = 2,
   };
   // bytes retry_transaction = 1;
   void clear_retry_transaction() ;
@@ -255,13 +291,23 @@ class TransactionOptions_ReadWrite final :
   std::string* _internal_mutable_retry_transaction();
 
   public:
+  // .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+  void clear_concurrency_mode() ;
+  ::google::firestore::v1::TransactionOptions_ConcurrencyMode concurrency_mode() const;
+  void set_concurrency_mode(::google::firestore::v1::TransactionOptions_ConcurrencyMode value);
+
+  private:
+  ::google::firestore::v1::TransactionOptions_ConcurrencyMode _internal_concurrency_mode() const;
+  void _internal_set_concurrency_mode(::google::firestore::v1::TransactionOptions_ConcurrencyMode value);
+
+  public:
   // @@protoc_insertion_point(class_scope:google.firestore.v1.TransactionOptions.ReadWrite)
  private:
   class _Internal;
 
   friend class ::google::protobuf::internal::TcParser;
   static const ::google::protobuf::internal::TcParseTable<
-      0, 1, 0,
+      1, 2, 0,
       0, 2>
       _table_;
   friend class ::google::protobuf::MessageLite;
@@ -279,6 +325,7 @@ class TransactionOptions_ReadWrite final :
         inline explicit Impl_(::google::protobuf::internal::InternalVisibility visibility,
                               ::google::protobuf::Arena* arena, const Impl_& from);
     ::google::protobuf::internal::ArenaStringPtr retry_transaction_;
+    int concurrency_mode_;
     mutable ::google::protobuf::internal::CachedSize _cached_size_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
@@ -1034,6 +1081,27 @@ class TransactionOptions final :
   using ReadWrite = TransactionOptions_ReadWrite;
   using ReadOnly = TransactionOptions_ReadOnly;
 
+  using ConcurrencyMode = TransactionOptions_ConcurrencyMode;
+  static constexpr ConcurrencyMode CONCURRENCY_MODE_UNSPECIFIED = TransactionOptions_ConcurrencyMode_CONCURRENCY_MODE_UNSPECIFIED;
+  static constexpr ConcurrencyMode OPTIMISTIC = TransactionOptions_ConcurrencyMode_OPTIMISTIC;
+  static constexpr ConcurrencyMode PESSIMISTIC = TransactionOptions_ConcurrencyMode_PESSIMISTIC;
+  static inline bool ConcurrencyMode_IsValid(int value) {
+    return TransactionOptions_ConcurrencyMode_IsValid(value);
+  }
+  static constexpr ConcurrencyMode ConcurrencyMode_MIN = TransactionOptions_ConcurrencyMode_ConcurrencyMode_MIN;
+  static constexpr ConcurrencyMode ConcurrencyMode_MAX = TransactionOptions_ConcurrencyMode_ConcurrencyMode_MAX;
+  static constexpr int ConcurrencyMode_ARRAYSIZE = TransactionOptions_ConcurrencyMode_ConcurrencyMode_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor* ConcurrencyMode_descriptor() {
+    return TransactionOptions_ConcurrencyMode_descriptor();
+  }
+  template <typename T>
+  static inline const std::string& ConcurrencyMode_Name(T value) {
+    return TransactionOptions_ConcurrencyMode_Name(value);
+  }
+  static inline bool ConcurrencyMode_Parse(absl::string_view name, ConcurrencyMode* value) {
+    return TransactionOptions_ConcurrencyMode_Parse(name, value);
+  }
+
   // accessors -------------------------------------------------------
 
   enum : int {
@@ -1413,6 +1481,29 @@ inline void TransactionOptions_ReadWrite::set_allocated_retry_transaction(std::s
   // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.TransactionOptions.ReadWrite.retry_transaction)
 }
 
+// .google.firestore.v1.TransactionOptions.ConcurrencyMode concurrency_mode = 2;
+inline void TransactionOptions_ReadWrite::clear_concurrency_mode() {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  _impl_.concurrency_mode_ = 0;
+}
+inline ::google::firestore::v1::TransactionOptions_ConcurrencyMode TransactionOptions_ReadWrite::concurrency_mode() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.TransactionOptions.ReadWrite.concurrency_mode)
+  return _internal_concurrency_mode();
+}
+inline void TransactionOptions_ReadWrite::set_concurrency_mode(::google::firestore::v1::TransactionOptions_ConcurrencyMode value) {
+  _internal_set_concurrency_mode(value);
+  // @@protoc_insertion_point(field_set:google.firestore.v1.TransactionOptions.ReadWrite.concurrency_mode)
+}
+inline ::google::firestore::v1::TransactionOptions_ConcurrencyMode TransactionOptions_ReadWrite::_internal_concurrency_mode() const {
+  PROTOBUF_TSAN_READ(&_impl_._tsan_detect_race);
+  return static_cast<::google::firestore::v1::TransactionOptions_ConcurrencyMode>(_impl_.concurrency_mode_);
+}
+inline void TransactionOptions_ReadWrite::_internal_set_concurrency_mode(::google::firestore::v1::TransactionOptions_ConcurrencyMode value) {
+  PROTOBUF_TSAN_WRITE(&_impl_._tsan_detect_race);
+  ;
+  _impl_.concurrency_mode_ = value;
+}
+
 // -------------------------------------------------------------------
 
 // TransactionOptions_ReadOnly
@@ -1667,6 +1758,19 @@ inline TransactionOptions::ModeCase TransactionOptions::mode_case() const {
 }  // namespace firestore
 }  // namespace google
 
+
+namespace google {
+namespace protobuf {
+
+template <>
+struct is_proto_enum<::google::firestore::v1::TransactionOptions_ConcurrencyMode> : std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor<::google::firestore::v1::TransactionOptions_ConcurrencyMode>() {
+  return ::google::firestore::v1::TransactionOptions_ConcurrencyMode_descriptor();
+}
+
+}  // namespace protobuf
+}  // namespace google
 
 // @@protoc_insertion_point(global_scope)
 

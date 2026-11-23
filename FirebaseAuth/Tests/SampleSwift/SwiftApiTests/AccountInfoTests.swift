@@ -18,17 +18,17 @@ import FirebaseAuth
 import XCTest
 
 class AccountInfoTests: TestsBase {
-  /** The testing email address for testCreateAccountWithEmailAndPassword. */
-  let kOldUserEmail = "user+user_old_email@example.com"
-
-  /** The testing email address for testUpdatingUsersEmail. */
-  let kNewUserEmail = "user+user_new_email@example.com"
+  /** A unique testing email address per test run to avoid parallel-job collisions. */
+  private var oldUserEmail: String!
 
   override func setUp() {
+    super.setUp()
+    signOut()
+    oldUserEmail = fakeRandomEmail()
     let auth = Auth.auth()
     let expectation1 = expectation(description: "Created account with email and password.")
-    auth.createUser(withEmail: kOldUserEmail, password: "password") { user, error in
-      // Succeed whether or not the user already exists.
+    auth.createUser(withEmail: oldUserEmail, password: "password") { user, error in
+      XCTAssertNil(error)
       expectation1.fulfill()
     }
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
@@ -36,13 +36,16 @@ class AccountInfoTests: TestsBase {
 
   override func tearDown() {
     // Clean up the created Firebase user for future runs.
-    deleteCurrentUser()
+    if let oldUserEmail, Auth.auth().currentUser?.email == oldUserEmail {
+      deleteCurrentUser()
+    }
+    super.tearDown()
   }
 
   func testUpdatingUsersEmail() {
     let auth = Auth.auth()
     let expectation1 = expectation(description: "Created account with email and password.")
-    auth.createUser(withEmail: kOldUserEmail, password: "password") { user, error in
+    auth.createUser(withEmail: oldUserEmail, password: "password") { user, error in
       if let error {
         XCTAssertEqual((error as NSError).code,
                        AuthErrorCode.emailAlreadyInUse.rawValue,
@@ -55,10 +58,10 @@ class AccountInfoTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
 
     let expectation2 = expectation(description: "Sign in with email and password.")
-    auth.signIn(withEmail: kOldUserEmail, password: "password") { user, error in
+    auth.signIn(withEmail: oldUserEmail, password: "password") { user, error in
       XCTAssertNil(error)
       XCTAssertEqual(auth.currentUser?.email,
-                     self.kOldUserEmail,
+                     self.oldUserEmail,
                      "Signed user does not match request.")
       expectation2.fulfill()
     }
@@ -68,7 +71,7 @@ class AccountInfoTests: TestsBase {
   func testUpdatingUsersEmailAsync() async throws {
     let auth = Auth.auth()
     do {
-      _ = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
+      _ = try await auth.createUser(withEmail: oldUserEmail, password: "password")
       XCTFail("Did not get error for recreating a user")
     } catch {
       XCTAssertEqual((error as NSError).code,
@@ -76,10 +79,10 @@ class AccountInfoTests: TestsBase {
                      "Created a user despite it already exiting.")
     }
 
-    let user = try await auth.signIn(withEmail: kOldUserEmail, password: "password")
-    XCTAssertEqual(user.user.email, kOldUserEmail)
+    let user = try await auth.signIn(withEmail: oldUserEmail, password: "password")
+    XCTAssertEqual(user.user.email, oldUserEmail)
     XCTAssertEqual(auth.currentUser?.email,
-                   kOldUserEmail,
+                   oldUserEmail,
                    "Signed user does not match request.")
   }
 }

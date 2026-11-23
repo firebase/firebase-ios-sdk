@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "Firestore/core/src/remote/connectivity_monitor.h"
+#include "Firestore/core/src/util/hard_assert.h"
 
 #if defined(__APPLE__)
 
@@ -31,33 +32,49 @@ namespace firestore {
 namespace remote {
 
 // IMPORTANT: ConnectivityMonitorApple must be both constructed AND
-// destructed on the AsyncQueue passed to the constructor.
+// destructed on the AsyncQueue passed to the constructor (enforced by
+// HARD_ASSERT in both constructor and destructor).
 //
 // The NWPathMonitor update handler and the iOS foreground-notification
-// observer block both dispatch work onto the AsyncQueue. Those
-// dispatched lambdas capture raw `this` and a std::weak_ptr<State>
-// liveness token. Their safety relies on:
-//   1. The destructor calls dispatch_sync on monitor_queue_ to drain
-//      any in-flight outer handler blocks before resetting state_.
-//   2. The destructor and the inner lambdas run on the same serial
-//      AsyncQueue, so they cannot interleave.
+// observer block both dispatch work onto the AsyncQueue. Neither outer
+// handler block is drained or synchronized with the destructor, which is
+// safe because outer blocks never dereference `this`. The dispatched inner
+// lambdas capture raw `this` and a std::weak_ptr<State> liveness token.
+// Their safety relies on:
+//   1. Outer handler blocks check `weak_state.expired()` but never hold
+//      a strong `State` reference across `Enqueue`. Thus, calling
+//      `state_.reset()` in the destructor immediately invalidates all
+//      future and not-yet-run inner lambdas.
+//   2. The constructor, destructor, and inner lambdas all run on the same
+//      serial AsyncQueue, so inner lambdas and destruction cannot interleave.
+//      Any inner lambda already queued when destruction begins will observe
+//      an expired `weak_state` when it runs and safely bail out without
+//      dereferencing `this`.
 //
-// If destruction is moved off the AsyncQueue, invariant (2) breaks
-// and inner lambdas may dereference a dangling `this` pointer.
+// All operations on the monitor (construction, destruction, callback
+// registration, and status queries) must be confined to the AsyncQueue
+// so all accesses to monitor state are ordered by the serial queue and
+// cannot race with inner lambdas.
 //
 // Tests that create a ConnectivityMonitorApple directly must
-// explicitly destroy it on its AsyncQueue:
-//   worker_queue->EnqueueBlocking([&monitor]() { monitor.reset(); });
-// See FSTConnectivityMonitorTests for an example.
+// explicitly construct and destroy it on its AsyncQueue:
+//   std::unique_ptr<ConnectivityMonitorApple> monitor;
+//   worker_queue->EnqueueBlocking([&] {
+//     monitor = std::make_unique<ConnectivityMonitorApple>(worker_queue);
+//   });
+//   ...
+//   worker_queue->EnqueueBlocking([&] { monitor.reset(); });
+// See FSTConnectivityMonitorTests for examples.
 class ConnectivityMonitorApple : public ConnectivityMonitor {
  public:
   explicit ConnectivityMonitorApple(
       const std::shared_ptr<util::AsyncQueue>& worker_queue);
   ~ConnectivityMonitorApple() override;
 
-  // Expose for testing. Test-only, must be called after AsyncQueue activity has
-  // settled.
+  // Expose for testing. Test-only, must be called on the AsyncQueue.
   absl::optional<NetworkStatus> GetCurrentStatus() const {
+    HARD_ASSERT(this->queue()->IsCurrentQueue(),
+                "GetCurrentStatus must be called on the AsyncQueue.");
     return current_status();
   }
 
@@ -67,6 +84,11 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   // Intentionally empty — see class-level comment for why holding
   // weak_ptr<State> + raw `this` is sufficient under our destructor
   // invariant.
+  //
+  // INVARIANT: `state_` must remain the sole strong owner of `State`.
+  // Never call `weak_state.lock()` or create another `std::shared_ptr<State>`.
+  // Doing so would extend State's lifetime past `state_.reset()` in the
+  // destructor, causing queued inner lambdas to dereference a dangling `this`.
   struct State {};
 
   nw_path_monitor_t monitor_ = nullptr;
