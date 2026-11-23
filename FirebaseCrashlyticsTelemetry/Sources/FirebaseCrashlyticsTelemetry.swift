@@ -20,7 +20,6 @@ internal import FirebaseSessions
 import OpenTelemetryApi
 import OpenTelemetrySdk
 import StdoutExporter
-internal import CrashlyticsTelemetryOTelURLSessionInstrumentation
 
 @objc(FIRCrashlyticsTelemetry)
 final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetryProvider,
@@ -33,7 +32,7 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
   let logger: Logger
 
   private var recoveryManager: RecoveredTelemetryExporter?
-  private var urlInstrumentation: URLSessionInstrumentation?
+  private var networkInstrumentation: NetworkInstrumentation?
   private var screenInstrumentation: ScreenInstrumentation?
   private var userInteractionInstrumentation: UserInteractionInstrumentation?
 
@@ -82,8 +81,8 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
 
     // MARK: - Instrumentation
 
-    Task.detached(priority: .utility) { [weak self] in
-      self?.configureURLSessionInstrumentation()
+    networkInstrumentation = NetworkInstrumentation(tracer: tracer) { [weak self] in
+      self?.latestActiveSpan()
     }
 
     screenInstrumentation = ScreenInstrumentation(logger: logger) { screen in
@@ -164,6 +163,12 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
     _ = log.emit()
   }
 
+  func latestActiveSpan() -> (any Span)? {
+    lock.lock()
+    defer { lock.unlock() }
+    return activeSpans.last
+  }
+
   // MARK: - Private Helpers
 
   private static func createResource(scopeName: String, projectId: String?) -> Resource {
@@ -191,91 +196,6 @@ final class FirebaseCrashlyticsTelemetry: NSObject, Library, CrashlyticsTelemetr
       .with(processors: [logProcessor])
       .with(resource: resource)
       .build()
-  }
-
-  private func configureURLSessionInstrumentation() {
-    ThreadHelper.isNotMainThread()
-
-    let instrumentation = URLSessionInstrumentation(
-      configuration: URLSessionInstrumentationConfiguration(
-        shouldInstrument: Self.filterNetworkRequests,
-        nameSpan: Self.networkSpanName,
-        spanCustomization: { [weak self] req, builder in
-          self?.customizeNetworkSpan(req: req, builder: builder)
-        },
-        receivedResponse: { response, _, span in
-          Self.annotateNetworkResponse(response, span: span)
-        },
-        receivedError: { error, _, statusCode, span in
-          Self.annotateNetworkError(error, statusCode: statusCode, span: span)
-        },
-        tracer: tracer,
-        semanticConvention: .stable
-      )
-    )
-
-    lock.lock()
-    defer { lock.unlock() }
-    urlInstrumentation = instrumentation
-  }
-
-  static func filterNetworkRequests(urlRequest: URLRequest) -> Bool {
-    guard let url = urlRequest.url else { return false }
-    guard let rawHost = url.host else { return true }
-
-    let lowercasedHost = rawHost.lowercased()
-    let host = lowercasedHost.hasSuffix(".") ? String(lowercasedHost.dropLast()) : lowercasedHost
-
-    guard host.hasSuffix(".googleapis.com"),
-          let serviceLabel = host.split(separator: ".").first else {
-      return true
-    }
-
-    let telemetryServices = ["firebasetelemetry", "clienttelemetry"]
-    let isTelemetryHost = telemetryServices.contains { service in
-      serviceLabel == service || serviceLabel.hasSuffix("-\(service)")
-    }
-    return !isTelemetryHost
-  }
-
-  static func networkSpanName(urlRequest: URLRequest) -> String {
-    guard let method = urlRequest.httpMethod, !method.isEmpty else {
-      return "HTTP"
-    }
-    return method
-  }
-
-  static func annotateNetworkResponse(_ response: URLResponse, span: Span) {
-    guard let httpResponse = response as? HTTPURLResponse else { return }
-    if httpResponse.statusCode >= 400 {
-      span.setAttribute(
-        key: SemanticConventions.Error.type.rawValue,
-        value: .string(String(httpResponse.statusCode))
-      )
-    }
-  }
-
-  static func annotateNetworkError(_ error: Error, statusCode: Int, span: Span) {
-    let errorType: String
-    if statusCode >= 400 {
-      errorType = String(statusCode)
-    } else {
-      let nsError = error as NSError
-      errorType = "\(nsError.domain):\(nsError.code)"
-    }
-    span.setAttribute(
-      key: SemanticConventions.Error.type.rawValue,
-      value: .string(errorType)
-    )
-  }
-
-  func customizeNetworkSpan(req: URLRequest, builder: SpanBuilder) {
-    lock.lock()
-    defer { lock.unlock() }
-
-    if let span = activeSpans.last {
-      builder.setParent(span)
-    }
   }
 
   // MARK: - Library conformance
