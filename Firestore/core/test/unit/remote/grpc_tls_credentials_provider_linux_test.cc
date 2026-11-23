@@ -40,12 +40,15 @@
 #include "gtest/gtest.h"
 #include "openssl/asn1.h"
 #include "openssl/bio.h"
+#include "openssl/ec.h"
 #include "openssl/err.h"
 #include "openssl/evp.h"
 #include "openssl/obj_mac.h"
 #include "openssl/objects.h"
 #include "openssl/pem.h"
+#include "openssl/rsa.h"
 #include "openssl/x509.h"
+#include "openssl/x509v3.h"
 
 namespace firebase {
 namespace firestore {
@@ -674,6 +677,396 @@ TEST_F(GrpcTlsCredentialsProviderLinuxTest,
   EXPECT_FALSE(IsBlocked(store, root));
 }
 
+struct EncodedCert {
+  std::string cert_pem;
+  std::string cert_der;
+  std::string raw_spki_der;
+  std::string pubkey_pem;
+};
+
+std::string PemBlock(const char* name, absl::string_view der) {
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  EXPECT_GT(PEM_write_bio(bio.get(), name, "",
+                          reinterpret_cast<const uint8_t*>(der.data()),
+                          static_cast<long>(der.size())),  // NOLINT
+            0);
+  char* data = nullptr;
+  long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+  return std::string(data, static_cast<size_t>(len));
+}
+
+EncodedCert SerializeCert(X509* cert) {
+  EncodedCert out;
+  std::unique_ptr<BIO, decltype(&BIO_free)> bio(BIO_new(BIO_s_mem()), BIO_free);
+  EXPECT_EQ(PEM_write_bio_X509(bio.get(), cert), 1);
+  char* pem_data = nullptr;
+  long pem_len = BIO_get_mem_data(bio.get(), &pem_data);  // NOLINT(runtime/int)
+  out.cert_pem.assign(pem_data, static_cast<size_t>(pem_len));
+
+  uint8_t* der = nullptr;
+  int der_len = i2d_X509(cert, &der);
+  EXPECT_GT(der_len, 0);
+  if (der_len > 0) {
+    out.cert_der.assign(reinterpret_cast<const char*>(der),
+                        static_cast<size_t>(der_len));
+  }
+  OPENSSL_free(der);
+
+  uint8_t* spki = nullptr;
+  int spki_len = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), &spki);
+  EXPECT_GT(spki_len, 0);
+  if (spki_len > 0) {
+    out.raw_spki_der.assign(reinterpret_cast<const char*>(spki),
+                            static_cast<size_t>(spki_len));
+  }
+  OPENSSL_free(spki);
+
+  out.pubkey_pem = PemBlock("PUBLIC KEY", out.raw_spki_der);
+  return out;
+}
+
+// Clones an EC P-256 certificate, re-encodes its SubjectPublicKeyInfo point in
+// `form` (`POINT_CONVERSION_COMPRESSED` vs `POINT_CONVERSION_UNCOMPRESSED`)
+// with a fresh serial number, and re-signs it with `signer`.
+EncodedCert ReissueEcCertWithPointForm(const TestCertificate& base,
+                                       const TestCertificate& signer,
+                                       point_conversion_form_t form,
+                                       uint64_t serial) {
+  std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(base.x509()),
+                                                   X509_free);
+  EXPECT_EQ(ASN1_INTEGER_set_uint64(X509_get_serialNumber(copy.get()), serial),
+            1);
+
+  const uint8_t* pk_bytes = nullptr;
+  int pk_len = 0;
+  EXPECT_EQ(X509_PUBKEY_get0_param(nullptr, &pk_bytes, &pk_len, nullptr,
+                                   X509_get_X509_PUBKEY(base.x509())),
+            1);
+
+  std::unique_ptr<EC_GROUP, decltype(&EC_GROUP_free)> group(
+      EC_GROUP_new_by_curve_name(NID_X9_62_prime256v1), EC_GROUP_free);
+  std::unique_ptr<EC_POINT, decltype(&EC_POINT_free)> point(
+      EC_POINT_new(group.get()), EC_POINT_free);
+  EXPECT_EQ(EC_POINT_oct2point(group.get(), point.get(), pk_bytes,
+                               static_cast<size_t>(pk_len), nullptr),
+            1);
+  size_t encoded_len =
+      EC_POINT_point2oct(group.get(), point.get(), form, nullptr, 0, nullptr);
+  EXPECT_GT(encoded_len, 0u);
+  uint8_t* encoded = static_cast<uint8_t*>(OPENSSL_malloc(encoded_len));
+  EXPECT_EQ(EC_POINT_point2oct(group.get(), point.get(), form, encoded,
+                               encoded_len, nullptr),
+            encoded_len);
+
+  EXPECT_EQ(
+      X509_PUBKEY_set0_param(X509_get_X509_PUBKEY(copy.get()),
+                             OBJ_nid2obj(NID_X9_62_id_ecPublicKey),
+                             V_ASN1_OBJECT, OBJ_nid2obj(NID_X9_62_prime256v1),
+                             encoded, static_cast<int>(encoded_len)),
+      1);
+  EXPECT_GT(X509_sign(copy.get(), signer.key(), EVP_sha256()), 0);
+  ERR_clear_error();
+  return SerializeCert(copy.get());
+}
+
+std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)> GenerateRsa2048Key() {
+  std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)> ctx(
+      EVP_PKEY_CTX_new_id(EVP_PKEY_RSA, nullptr), EVP_PKEY_CTX_free);
+  EXPECT_NE(ctx, nullptr);
+  EXPECT_EQ(EVP_PKEY_keygen_init(ctx.get()), 1);
+  EXPECT_EQ(EVP_PKEY_CTX_set_rsa_keygen_bits(ctx.get(), 2048), 1);
+  EVP_PKEY* raw = nullptr;
+  EXPECT_EQ(EVP_PKEY_keygen(ctx.get(), &raw), 1);
+  return std::unique_ptr<EVP_PKEY, decltype(&EVP_PKEY_free)>(raw,
+                                                             EVP_PKEY_free);
+}
+
+// Issues a leaf certificate for `rsa_key` signed by `issuer` whose
+// SubjectPublicKeyInfo AlgorithmIdentifier uses `param_type` (`V_ASN1_NULL` vs
+// omitted `V_ASN1_UNDEF`).
+EncodedCert IssueRsaLeafCert(EVP_PKEY* rsa_key,
+                             const TestCertificate& issuer,
+                             const std::string& dns_san,
+                             int param_type,
+                             uint64_t serial) {
+  std::unique_ptr<X509, decltype(&X509_free)> cert(X509_new(), X509_free);
+  EXPECT_EQ(X509_set_version(cert.get(), 2), 1);
+  EXPECT_EQ(ASN1_INTEGER_set_uint64(X509_get_serialNumber(cert.get()), serial),
+            1);
+  EXPECT_NE(X509_gmtime_adj(X509_getm_notBefore(cert.get()), -3600), nullptr);
+  EXPECT_NE(X509_gmtime_adj(X509_getm_notAfter(cert.get()), 3600), nullptr);
+
+  X509_NAME* subject = X509_get_subject_name(cert.get());
+  EXPECT_EQ(X509_NAME_add_entry_by_txt(
+                subject, "CN", MBSTRING_ASC,
+                reinterpret_cast<const uint8_t*>(dns_san.c_str()), -1, -1, 0),
+            1);
+  EXPECT_EQ(
+      X509_set_issuer_name(cert.get(), X509_get_subject_name(issuer.x509())),
+      1);
+  EXPECT_EQ(X509_set_pubkey(cert.get(), rsa_key), 1);
+
+  if (param_type == V_ASN1_UNDEF) {
+    const uint8_t* pk_bytes = nullptr;
+    int pk_len = 0;
+    EXPECT_EQ(X509_PUBKEY_get0_param(nullptr, &pk_bytes, &pk_len, nullptr,
+                                     X509_get_X509_PUBKEY(cert.get())),
+              1);
+    uint8_t* pk_copy =
+        static_cast<uint8_t*>(OPENSSL_malloc(static_cast<size_t>(pk_len)));
+    std::memcpy(pk_copy, pk_bytes, static_cast<size_t>(pk_len));
+    EXPECT_EQ(X509_PUBKEY_set0_param(X509_get_X509_PUBKEY(cert.get()),
+                                     OBJ_nid2obj(NID_rsaEncryption),
+                                     V_ASN1_UNDEF, nullptr, pk_copy, pk_len),
+              1);
+  }
+
+  X509V3_CTX v3_ctx{};
+  X509V3_set_ctx(&v3_ctx, issuer.x509(), cert.get(), nullptr, nullptr, 0);
+  auto add_ext = [&](int nid, const std::string& val) {
+    std::unique_ptr<X509_EXTENSION, decltype(&X509_EXTENSION_free)> ext(
+        X509V3_EXT_nconf_nid(nullptr, &v3_ctx, nid, val.c_str()),
+        X509_EXTENSION_free);
+    ASSERT_NE(ext, nullptr);
+    ASSERT_EQ(X509_add_ext(cert.get(), ext.get(), -1), 1);
+  };
+  add_ext(NID_basic_constraints, "critical,CA:FALSE");
+  add_ext(NID_key_usage, "critical,digitalSignature");
+  add_ext(NID_ext_key_usage, "serverAuth");
+  add_ext(NID_subject_alt_name, absl::StrCat("DNS:", dns_san));
+
+  EXPECT_GT(X509_sign(cert.get(), issuer.key(), EVP_sha256()), 0);
+  ERR_clear_error();
+  return SerializeCert(cert.get());
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       CanonicalizesCompressedAndUncompressedEcSpkiAcrossCertsAndPublicKeys) {
+  TestPki pki = CreateTestPki("ec-spki-canon", {kHost});
+  EncodedCert uncompressed_inter = ReissueEcCertWithPointForm(
+      pki.intermediate, pki.root, POINT_CONVERSION_UNCOMPRESSED, 0x1001);
+  EncodedCert compressed_inter = ReissueEcCertWithPointForm(
+      pki.intermediate, pki.root, POINT_CONVERSION_COMPRESSED, 0x1002);
+
+  ASSERT_EQ(uncompressed_inter.raw_spki_der.size(), 91u);
+  ASSERT_EQ(compressed_inter.raw_spki_der.size(), 59u);
+  ASSERT_NE(uncompressed_inter.cert_der, compressed_inter.cert_der);
+
+  Path anchors = File("anchors.pem", pki.root.cert_pem());
+  const std::string uncompressed_chain =
+      absl::StrCat(pki.leaf.cert_pem(), uncompressed_inter.cert_pem);
+  const std::string compressed_chain =
+      absl::StrCat(pki.leaf.cert_pem(), compressed_inter.cert_pem);
+
+  // Every blocklist representation (uncompressed/compressed CERTIFICATE or
+  // uncompressed/compressed bare PUBLIC KEY) must reject both the uncompressed
+  // and compressed peer chains via canonical SPKI digest.
+  const std::vector<std::string> blocklist_entries = {
+      uncompressed_inter.cert_pem,
+      compressed_inter.cert_pem,
+      uncompressed_inter.pubkey_pem,
+      compressed_inter.pubkey_pem,
+  };
+  for (size_t i = 0; i < blocklist_entries.size(); ++i) {
+    Path bl = Dir(absl::StrCat("ec_bl_", i));
+    WriteFile(bl.AppendUtf8("entry.pem"), blocklist_entries[i]);
+
+    IsolatedConfig iso;
+    iso.config().bundle_files =
+        std::vector<std::string>{anchors.ToUtf8String()};
+    iso.config().blocklist_dirs = std::vector<std::string>{bl.ToUtf8String()};
+
+    DirtyErrorQueue();
+    LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+    EXPECT_EQ(ERR_peek_error(), 0u) << "entry " << i;
+    ASSERT_EQ(store.blocked_spki_sha256.size(), 1u) << "entry " << i;
+
+    for (const std::string& chain : {uncompressed_chain, compressed_chain}) {
+      DirtyErrorQueue();
+      grpc::Status status =
+          VerifyLinuxPeerCertificateChain(chain, kHost, store);
+      EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+          << "entry " << i;
+      EXPECT_EQ(ERR_peek_error(), 0u) << "entry " << i;
+    }
+  }
+
+  // Also filters compressed-point anchors when blocklisted by uncompressed
+  // PUBLIC KEY (and vice versa).
+  EncodedCert compressed_root = ReissueEcCertWithPointForm(
+      pki.root, pki.root, POINT_CONVERSION_COMPRESSED, 0x1003);
+  Path mixed_anchors =
+      File("mixed_anchors.pem",
+           absl::StrCat(compressed_root.cert_pem, pki.cross_root.cert_pem()));
+  Path root_bl = Dir("ec_root_bl");
+  WriteFile(root_bl.AppendUtf8("root_pub.pem"), PublicKeyPem(pki.root));
+  IsolatedConfig iso;
+  iso.config().bundle_files =
+      std::vector<std::string>{mixed_anchors.ToUtf8String()};
+  iso.config().blocklist_dirs =
+      std::vector<std::string>{root_bl.ToUtf8String()};
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  EXPECT_EQ(store.anchor_count, 1u);
+  EXPECT_TRUE(HasAnchor(store, pki.cross_root));
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       CanonicalizesRsaOmittedAndExplicitNullParametersInSpki) {
+  TestCertificate root = MakeRoot("rsa-spki-canon");
+  auto rsa_key = GenerateRsa2048Key();
+  EncodedCert rsa_null =
+      IssueRsaLeafCert(rsa_key.get(), root, kHost, V_ASN1_NULL, 0x2001);
+  EncodedCert rsa_undef =
+      IssueRsaLeafCert(rsa_key.get(), root, kHost, V_ASN1_UNDEF, 0x2002);
+
+  ASSERT_NE(rsa_null.cert_der, rsa_undef.cert_der);
+  ASSERT_EQ(rsa_null.raw_spki_der.size(), rsa_undef.raw_spki_der.size() + 2);
+
+  Path anchors = File("rsa_anchors.pem", root.cert_pem());
+  const std::vector<std::string> blocklist_entries = {
+      rsa_null.cert_pem,
+      rsa_undef.cert_pem,
+      rsa_null.pubkey_pem,
+      rsa_undef.pubkey_pem,
+  };
+  for (size_t i = 0; i < blocklist_entries.size(); ++i) {
+    Path bl = Dir(absl::StrCat("rsa_bl_", i));
+    WriteFile(bl.AppendUtf8("entry.pem"), blocklist_entries[i]);
+
+    IsolatedConfig iso;
+    iso.config().bundle_files =
+        std::vector<std::string>{anchors.ToUtf8String()};
+    iso.config().blocklist_dirs = std::vector<std::string>{bl.ToUtf8String()};
+
+    DirtyErrorQueue();
+    LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+    EXPECT_EQ(ERR_peek_error(), 0u) << "entry " << i;
+    ASSERT_EQ(store.blocked_spki_sha256.size(), 1u) << "entry " << i;
+
+    for (const std::string& chain : {rsa_null.cert_pem, rsa_undef.cert_pem}) {
+      DirtyErrorQueue();
+      grpc::Status status =
+          VerifyLinuxPeerCertificateChain(chain, kHost, store);
+      EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED)
+          << "entry " << i;
+      EXPECT_EQ(ERR_peek_error(), 0u) << "entry " << i;
+    }
+  }
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       UnknownPublicKeyAlgorithmOidFallsBackToRawSpkiDer) {
+  TestCertificate root = MakeRoot("unknown-oid");
+  TestCertOptions leaf_opts;
+  leaf_opts.common_name = kHost;
+  leaf_opts.dns_sans = {kHost};
+  TestCertificate base_leaf = IssueTestCertificate(leaf_opts, &root);
+
+  auto make_unknown_oid_cert = [&](uint64_t serial) {
+    std::unique_ptr<X509, decltype(&X509_free)> copy(X509_dup(base_leaf.x509()),
+                                                     X509_free);
+    EXPECT_EQ(
+        ASN1_INTEGER_set_uint64(X509_get_serialNumber(copy.get()), serial), 1);
+    const uint8_t kRawKey[] = {0x01, 0x02, 0x03, 0x04};
+    uint8_t* key_buf = static_cast<uint8_t*>(OPENSSL_malloc(sizeof(kRawKey)));
+    std::memcpy(key_buf, kRawKey, sizeof(kRawKey));
+    ASN1_OBJECT* unknown_oid = OBJ_txt2obj("1.3.6.1.4.1.55555.999.1", 1);
+    EXPECT_NE(unknown_oid, nullptr);
+    EXPECT_EQ(
+        X509_PUBKEY_set0_param(X509_get_X509_PUBKEY(copy.get()), unknown_oid,
+                               V_ASN1_UNDEF, nullptr, key_buf, sizeof(kRawKey)),
+        1);
+    EXPECT_GT(X509_sign(copy.get(), root.key(), EVP_sha256()), 0);
+    ERR_clear_error();
+    return SerializeCert(copy.get());
+  };
+
+  EncodedCert unknown_a = make_unknown_oid_cert(0x3001);
+  EncodedCert unknown_b = make_unknown_oid_cert(0x3002);
+  ASSERT_NE(unknown_a.cert_der, unknown_b.cert_der);
+  ASSERT_EQ(unknown_a.raw_spki_der, unknown_b.raw_spki_der);
+
+  Path anchors = File("unk_anchors.pem", root.cert_pem());
+  for (const std::string& bl_entry :
+       {unknown_a.cert_pem, unknown_a.pubkey_pem}) {
+    Path bl = Dir(absl::StrCat(
+        "unk_bl_", bl_entry == unknown_a.cert_pem ? "cert" : "pub"));
+    WriteFile(bl.AppendUtf8("entry.pem"), bl_entry);
+
+    IsolatedConfig iso;
+    iso.config().bundle_files =
+        std::vector<std::string>{anchors.ToUtf8String()};
+    iso.config().blocklist_dirs = std::vector<std::string>{bl.ToUtf8String()};
+
+    DirtyErrorQueue();
+    LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+    EXPECT_EQ(ERR_peek_error(), 0u);
+    EXPECT_EQ(store.blocked_spki_sha256.size(), 1u);
+
+    DirtyErrorQueue();
+    grpc::Status status =
+        VerifyLinuxPeerCertificateChain(unknown_b.cert_pem, kHost, store);
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAUTHENTICATED);
+    EXPECT_EQ(ERR_peek_error(), 0u);
+  }
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxTest,
+       SkipsAndLogsMalformedPublicKeyPemBlocks) {
+  TestCertificate anchor = MakeRoot("pk-malformed-anchor");
+  TestCertificate blocked_before = MakeRoot("pk-blocked-before");
+  TestCertificate blocked_after = MakeRoot("pk-blocked-after");
+  TestCertificate trailing_nul_key = MakeRoot("pk-trailing-nul");
+  TestCertificate trailing_garbage_key = MakeRoot("pk-trailing-garbage");
+
+  const std::string corrupt_der_pubkey =
+      "-----BEGIN PUBLIC KEY-----\nAAAA\n-----END PUBLIC KEY-----\n";
+  const std::string empty_pubkey =
+      "-----BEGIN PUBLIC KEY-----\n-----END PUBLIC KEY-----\n";
+  const std::string trailing_nul_pubkey = PemBlock(
+      "PUBLIC KEY", trailing_nul_key.spki_der() + std::string("\x00", 1));
+  const std::string trailing_garbage_pubkey =
+      PemBlock("PUBLIC KEY", trailing_garbage_key.spki_der() + "trailing");
+
+  Path anchors = File("pk_anchors.pem", anchor.cert_pem());
+  Path bl = Dir("pk_malformed_bl");
+  Path mixed_path = bl.AppendUtf8("mixed_pubkeys.pem");
+  WriteFile(
+      mixed_path,
+      absl::StrCat(PublicKeyPem(blocked_before),
+                   CorruptBase64(PublicKeyPem(MakeRoot("pk-corrupt-b64"))),
+                   empty_pubkey, corrupt_der_pubkey, trailing_nul_pubkey,
+                   trailing_garbage_pubkey, PublicKeyPem(blocked_after)));
+
+  IsolatedConfig iso;
+  iso.config().bundle_files = std::vector<std::string>{anchors.ToUtf8String()};
+  iso.config().blocklist_dirs = std::vector<std::string>{bl.ToUtf8String()};
+
+  testing::internal::CaptureStdout();
+  DirtyErrorQueue();
+  LinuxTrustStore store = LoadLinuxTrustStore(iso.config());
+  EXPECT_EQ(ERR_peek_error(), 0u);
+  std::string logs = testing::internal::GetCapturedStdout();
+
+  // Corrupt DER and trailing-garbage PUBLIC KEY blocks must be logged and
+  // skipped without dropping subsequent valid entries.
+  const std::string expected_warn = absl::StrCat(
+      "Ignoring malformed PUBLIC KEY in ", mixed_path.ToUtf8String());
+  size_t occurrences = 0;
+  for (size_t pos = 0;
+       (pos = logs.find(expected_warn, pos)) != std::string::npos;
+       pos += expected_warn.size()) {
+    ++occurrences;
+  }
+  EXPECT_EQ(occurrences, 3u) << logs;
+
+  EXPECT_TRUE(IsBlocked(store, blocked_before));
+  EXPECT_TRUE(IsBlocked(store, blocked_after));
+  EXPECT_FALSE(IsBlocked(store, trailing_nul_key));
+  EXPECT_FALSE(IsBlocked(store, trailing_garbage_key));
+  EXPECT_FALSE(IsBlocked(store, anchor));
+}
+
 // ===========================================================================
 // 3. VerifyLinuxPeerCertificateChain
 // ===========================================================================
@@ -1026,6 +1419,25 @@ class GrpcTlsCredentialsProviderLinuxLoopbackTest
     return CreateLinuxTlsCredentials(iso.config());
   }
 
+  std::shared_ptr<grpc::ChannelCredentials> CredentialsWithBlocklistPems(
+      const std::vector<const TestCertificate*>& anchors,
+      const std::vector<std::string>& blocked_pems) {
+    IsolatedConfig iso;
+    std::string anchors_pem = PemChain(anchors);
+    if (!anchors_pem.empty()) {
+      iso.config().bundle_files = std::vector<std::string>{
+          File(absl::StrCat("anchors", ++files_, ".pem"), anchors_pem)
+              .ToUtf8String()};
+    }
+    Path blacklist = Dir(absl::StrCat("blacklist", ++files_));
+    for (size_t i = 0; i < blocked_pems.size(); ++i) {
+      WriteFile(blacklist.AppendUtf8(absl::StrCat(i, ".pem")), blocked_pems[i]);
+    }
+    iso.config().blocklist_dirs =
+        std::vector<std::string>{blacklist.ToUtf8String()};
+    return CreateLinuxTlsCredentials(iso.config());
+  }
+
   grpc::Status Echo(const TlsLoopbackServer& server,
                     const std::shared_ptr<grpc::ChannelCredentials>& creds,
                     const std::string& target_name = kHost) {
@@ -1083,6 +1495,45 @@ TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
       Echo(server, Credentials({&pki.root}, {&pki.intermediate}));
   EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
       << status.error_message();
+}
+
+TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest,
+       RejectsCompressedPointReissuedIntermediateUnderTrustedRoot) {
+  // End-to-end regression test for SPKI canonicalization: a server presenting a
+  // re-issued intermediate with compressed EC point encoding (59-byte SPKI) for
+  // the same key as a blocklisted uncompressed-point intermediate (91-byte
+  // SPKI, or bare PUBLIC KEY) must be rejected under a trusted root.
+  TestPki pki = CreateTestPki("loop-blocked-ec-compressed", {kHost});
+  EncodedCert compressed_inter = ReissueEcCertWithPointForm(
+      pki.intermediate, pki.root, POINT_CONVERSION_COMPRESSED, 0x4001);
+  ASSERT_EQ(compressed_inter.raw_spki_der.size(), 59u);
+  ASSERT_EQ(pki.intermediate.spki_der().size(), 91u);
+
+  TlsLoopbackServer compressed_server(
+      pki.leaf.private_key_pem(),
+      absl::StrCat(pki.leaf.cert_pem(), compressed_inter.cert_pem));
+  ASSERT_TRUE(compressed_server.started());
+  ASSERT_TRUE(Echo(compressed_server, Credentials({&pki.root})).ok());
+
+  for (const std::string& bl_pem :
+       {pki.intermediate.cert_pem(), PublicKeyPem(pki.intermediate)}) {
+    grpc::Status status = Echo(
+        compressed_server, CredentialsWithBlocklistPems({&pki.root}, {bl_pem}));
+    EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+        << status.error_message();
+  }
+
+  // And vice versa: blocklisting the compressed bare PUBLIC KEY rejects the
+  // standard uncompressed intermediate chain.
+  TlsLoopbackServer uncompressed_server(pki.leaf.private_key_pem(),
+                                        pki.ServerChainPem());
+  ASSERT_TRUE(uncompressed_server.started());
+  ASSERT_TRUE(Echo(uncompressed_server, Credentials({&pki.root})).ok());
+  grpc::Status reverse_status = Echo(
+      uncompressed_server,
+      CredentialsWithBlocklistPems({&pki.root}, {compressed_inter.pubkey_pem}));
+  EXPECT_EQ(reverse_status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << reverse_status.error_message();
 }
 
 TEST_F(GrpcTlsCredentialsProviderLinuxLoopbackTest, RejectsWrongHostName) {

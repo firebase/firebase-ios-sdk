@@ -43,12 +43,20 @@
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
 #include "absl/types/optional.h"
+#include "openssl/asn1.h"
 #include "openssl/bio.h"
 #include "openssl/err.h"
+#include "openssl/evp.h"
+#include "openssl/objects.h"
 #include "openssl/pem.h"
 #include "openssl/sha.h"
 #include "openssl/x509.h"
 #include "openssl/x509v3.h"
+#if !defined(OPENSSL_IS_BORINGSSL) && OPENSSL_VERSION_NUMBER >= 0x30000000L
+#include "openssl/core_names.h"
+#elif !defined(OPENSSL_IS_BORINGSSL)
+#include "openssl/ec.h"
+#endif
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/security/credentials.h"
@@ -137,6 +145,20 @@ struct X509Deleter {
 };
 using UniqueX509 = std::unique_ptr<X509, X509Deleter>;
 
+struct X509PubkeyDeleter {
+  void operator()(X509_PUBKEY* pubkey) const {
+    X509_PUBKEY_free(pubkey);
+  }
+};
+using UniqueX509Pubkey = std::unique_ptr<X509_PUBKEY, X509PubkeyDeleter>;
+
+struct EvpPkeyDeleter {
+  void operator()(EVP_PKEY* pkey) const {
+    EVP_PKEY_free(pkey);
+  }
+};
+using UniqueEvpPkey = std::unique_ptr<EVP_PKEY, EvpPkeyDeleter>;
+
 struct BioDeleter {
   void operator()(BIO* bio) const {
     BIO_free(bio);
@@ -164,14 +186,126 @@ std::string CertDer(X509* cert) {
   return result;
 }
 
-std::string SpkiDer(X509* cert) {
+// Encodes `pubkey` (`pkey` is its decoded `EVP_PKEY`, or null if decoding
+// failed) as canonical SubjectPublicKeyInfo DER. Marshaling through `EVP_PKEY`
+// normalizes alternate valid encodings of the same key (such as compressed vs.
+// uncompressed EC points, or omitted vs. explicit `NULL` RSA
+// `AlgorithmIdentifier` parameters); if `EVP_PKEY` decoding fails (for example
+// on an unknown key algorithm OID), falls back to the raw `X509_PUBKEY` DER so
+// unknown key types are still hashed by raw SPKI DER.
+std::string EncodeCanonicalSpkiDer(EVP_PKEY* pkey, X509_PUBKEY* pubkey) {
+  UniqueEvpPkey owned_pkey;
+  if (pkey == nullptr) {
+    ERR_clear_error();
+#if defined(OPENSSL_IS_BORINGSSL)
+    // BoringSSL's `EVP_parse_public_key` requires an explicit `NULL` parameter
+    // on `rsaEncryption` (RFC 3279 section 2.3.1), whereas OpenSSL accepts
+    // omitted parameters (`V_ASN1_UNDEF`). Decode omitted-parameter RSA SPKIs
+    // so both forms canonicalize to the same SPKI digest on BoringSSL too.
+    if (pubkey != nullptr) {
+      ASN1_OBJECT* alg_obj = nullptr;
+      const uint8_t* pk_bytes = nullptr;
+      int pk_len = 0;
+      X509_ALGOR* alg = nullptr;
+      const ASN1_BIT_STRING* bits = X509_PUBKEY_get0_public_key(pubkey);
+      if (bits != nullptr && (bits->flags & 0x07) == 0 &&
+          X509_PUBKEY_get0_param(&alg_obj, &pk_bytes, &pk_len, &alg, pubkey) ==
+              1 &&
+          alg != nullptr) {
+        const ASN1_OBJECT* aobj = nullptr;
+        int param_type = V_ASN1_UNDEF;
+        const void* param_val = nullptr;
+        X509_ALGOR_get0(&aobj, &param_type, &param_val, alg);
+        if (OBJ_obj2nid(aobj) == NID_rsaEncryption &&
+            param_type == V_ASN1_UNDEF && pk_bytes != nullptr && pk_len > 0) {
+          const uint8_t* p = pk_bytes;
+          UniqueEvpPkey decoded(
+              d2i_PublicKey(EVP_PKEY_RSA, nullptr, &p, pk_len));
+          if (decoded != nullptr && p == pk_bytes + pk_len) {
+            owned_pkey = std::move(decoded);
+            pkey = owned_pkey.get();
+          } else {
+            ERR_clear_error();
+          }
+        }
+      }
+    }
+#endif
+  }
+
   uint8_t* der = nullptr;
-  int len = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), &der);
-  if (len <= 0) return "";
+  int len = 0;
+  if (pkey != nullptr) {
+#if !defined(OPENSSL_IS_BORINGSSL) && OPENSSL_VERSION_NUMBER >= 0x30000000L
+    // OpenSSL 3 preserves the input EC point-conversion format (`compressed`
+    // vs. `uncompressed`) and parameter encoding on decoded `EVP_PKEY`s; clone
+    // and normalize to uncompressed named-curve form (matching BoringSSL's
+    // `i2d_PUBKEY`) before marshaling.
+    if (EVP_PKEY_is_a(pkey, "EC") || EVP_PKEY_is_a(pkey, "SM2")) {
+      UniqueEvpPkey copy(EVP_PKEY_dup(pkey));
+      if (copy != nullptr) {
+        EVP_PKEY_set_utf8_string_param(
+            copy.get(), OSSL_PKEY_PARAM_EC_POINT_CONVERSION_FORMAT,
+            OSSL_PKEY_EC_POINT_CONVERSION_FORMAT_UNCOMPRESSED);
+        EVP_PKEY_set_utf8_string_param(copy.get(), OSSL_PKEY_PARAM_EC_ENCODING,
+                                       OSSL_PKEY_EC_ENCODING_GROUP);
+        ERR_clear_error();
+        owned_pkey = std::move(copy);
+        pkey = owned_pkey.get();
+      } else {
+        ERR_clear_error();
+      }
+    }
+#elif !defined(OPENSSL_IS_BORINGSSL)
+    if (EVP_PKEY_base_id(pkey) == EVP_PKEY_EC) {
+      const EC_KEY* ec = EVP_PKEY_get0_EC_KEY(pkey);
+      if (ec != nullptr) {
+        EC_KEY* ec_copy = EC_KEY_dup(ec);
+        if (ec_copy != nullptr) {
+          EC_KEY_set_conv_form(ec_copy, POINT_CONVERSION_UNCOMPRESSED);
+          EC_KEY_set_asn1_flag(ec_copy, OPENSSL_EC_NAMED_CURVE);
+          UniqueEvpPkey copy(EVP_PKEY_new());
+          if (copy != nullptr && EVP_PKEY_assign_EC_KEY(copy.get(), ec_copy)) {
+            owned_pkey = std::move(copy);
+            pkey = owned_pkey.get();
+          } else {
+            EC_KEY_free(ec_copy);
+            ERR_clear_error();
+          }
+        } else {
+          ERR_clear_error();
+        }
+      }
+    }
+#endif
+    len = i2d_PUBKEY(pkey, &der);
+    if (len <= 0) {
+      OPENSSL_free(der);
+      der = nullptr;
+      ERR_clear_error();
+    }
+  }
+  if (len <= 0 && pubkey != nullptr) {
+    len = i2d_X509_PUBKEY(pubkey, &der);
+  }
+  if (len <= 0) {
+    OPENSSL_free(der);
+    ERR_clear_error();
+    return "";
+  }
   std::string result(reinterpret_cast<const char*>(der),
                      static_cast<size_t>(len));
   OPENSSL_free(der);
   return result;
+}
+
+std::string SpkiDer(X509* cert) {
+  return EncodeCanonicalSpkiDer(X509_get0_pubkey(cert),
+                                X509_get_X509_PUBKEY(cert));
+}
+
+std::string SpkiDer(X509_PUBKEY* pubkey) {
+  return EncodeCanonicalSpkiDer(X509_PUBKEY_get0(pubkey), pubkey);
 }
 
 // Returns the certificate's subject for error messages. The subject is
@@ -187,14 +321,26 @@ std::string SubjectName(X509* cert) {
   return absl::CHexEscape(buf);
 }
 
-// Parses exactly `size` bytes of DER as a certificate. Returns null if the
-// bytes are not a certificate or have trailing data.
+// Parses `data` as a DER certificate and sets `*consumed` to the byte length of
+// the certificate prefix. Callers check `*consumed == size` (or parse trailing
+// auxiliary data) to reject trailing bytes.
 UniqueX509 ParseCertDer(const uint8_t* data, size_t size, size_t* consumed) {
   const uint8_t* p = data;
   UniqueX509 cert(d2i_X509(nullptr, &p, static_cast<long>(size)));  // NOLINT
   if (cert == nullptr) return nullptr;
   *consumed = static_cast<size_t>(p - data);
   return cert;
+}
+
+UniqueX509Pubkey ParsePubkeyDer(const uint8_t* data,
+                                size_t size,
+                                size_t* consumed) {
+  const uint8_t* p = data;
+  UniqueX509Pubkey pubkey(
+      d2i_X509_PUBKEY(nullptr, &p, static_cast<long>(size)));  // NOLINT
+  if (pubkey == nullptr) return nullptr;
+  *consumed = static_cast<size_t>(p - data);
+  return pubkey;
 }
 
 // ---------------------------------------------------------------------------
@@ -386,9 +532,21 @@ std::vector<ParsedEntry> ParseCertificates(const std::string& data,
         entries.push_back(std::move(entry));
       }
     } else if (block_name == "PUBLIC KEY") {
-      ParsedEntry entry;
-      entry.spki_der = std::string(block);
-      entries.push_back(std::move(entry));
+      size_t consumed = 0;
+      UniqueX509Pubkey pubkey =
+          ParsePubkeyDer(body, static_cast<size_t>(len), &consumed);
+      std::string spki_der =
+          (pubkey != nullptr && consumed == static_cast<size_t>(len))
+              ? SpkiDer(pubkey.get())
+              : "";
+      if (spki_der.empty()) {
+        ERR_clear_error();
+        LOG_WARN("Ignoring malformed %s in %s", block_name, path);
+      } else {
+        ParsedEntry entry;
+        entry.spki_der = std::move(spki_der);
+        entries.push_back(std::move(entry));
+      }
     }
     OPENSSL_free(body);
   }
