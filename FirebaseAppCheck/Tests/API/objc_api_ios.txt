@@ -1,0 +1,100 @@
+#define FIR_APP_ATTEST_PROVIDER_AVAILABILITY API_AVAILABLE(macos(11.3), watchos(9.0))
+#define FIR_APP_ATTEST_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
+#define FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY API_AVAILABLE(watchos(9.0))
+#define FIR_DEVICE_CHECK_SUPPORTED_TARGETS TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
+@interface FIRAppAttestProvider - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRAppAttestProvider - (instancetype _Nullable)initWithApp:(FIRApp * _Nonnull)
+@interface FIRAppAttestProvider - (void)getLimitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppAttestProvider - (void)getTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppAttestProvider : NSObject
+@interface FIRAppAttestProvider <FIRAppCheckProvider>
+@interface FIRAppAttestProvider API_AVAILABLE(macos 11.3)
+@interface FIRAppAttestProvider API_AVAILABLE(watchos 9.0)
+@interface FIRAppAttestProvider NS_SWIFT_NAME(AppAttestProvider)
+@interface FIRAppAttestProviderFactory : NSObject
+@interface FIRAppAttestProviderFactory <FIRAppCheckProviderFactory>
+@interface FIRAppAttestProviderFactory API_AVAILABLE(macos 11.3)
+@interface FIRAppAttestProviderFactory API_AVAILABLE(watchos 9.0)
+@interface FIRAppAttestProviderFactory NS_SWIFT_NAME(AppAttestProviderFactory)
+@interface FIRAppCheck + (instancetype _Nonnull)appCheck
+@interface FIRAppCheck + (instancetype _Nullable)appCheckWithApp:(FIRApp * _Nonnull)
+@interface FIRAppCheck + (void)setAppCheckProviderFactory:(id<FIRAppCheckProviderFactory> _Nullable)
+@interface FIRAppCheck - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRAppCheck - (void)limitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppCheck - (void)tokenForcingRefresh:(BOOL) completion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppCheck : NSObject
+@interface FIRAppCheck @property(assign,nonatomic,readwrite) BOOL isTokenAutoRefreshEnabled
+@interface FIRAppCheck NS_SWIFT_NAME(AppCheck)
+@interface FIRAppCheckDebugProvider - (NSString * _Nonnull)currentDebugToken
+@interface FIRAppCheckDebugProvider - (NSString * _Nonnull)localDebugToken
+@interface FIRAppCheckDebugProvider - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRAppCheckDebugProvider - (instancetype _Nullable)initWithApp:(FIRApp * _Nonnull)
+@interface FIRAppCheckDebugProvider - (void)getLimitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppCheckDebugProvider - (void)getTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRAppCheckDebugProvider : NSObject
+@interface FIRAppCheckDebugProvider <FIRAppCheckProvider>
+@interface FIRAppCheckDebugProvider NS_SWIFT_NAME(AppCheckDebugProvider)
+@interface FIRAppCheckDebugProviderFactory : NSObject
+@interface FIRAppCheckDebugProviderFactory <FIRAppCheckProviderFactory>
+@interface FIRAppCheckDebugProviderFactory NS_SWIFT_NAME(AppCheckDebugProviderFactory)
+@interface FIRAppCheckToken - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRAppCheckToken - (instancetype _Nonnull)initWithToken:(NSString * _Nonnull) expirationDate:(NSDate * _Nonnull)
+@interface FIRAppCheckToken : NSObject
+@interface FIRAppCheckToken @property(nonatomic,readonly) NSDate * _Nonnull expirationDate
+@interface FIRAppCheckToken @property(nonatomic,readonly) NSString * _Nonnull token
+@interface FIRAppCheckToken NS_SWIFT_NAME(AppCheckToken)
+@interface FIRDeviceCheckProvider - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRDeviceCheckProvider - (instancetype _Nullable)initWithApp:(FIRApp * _Nonnull)
+@interface FIRDeviceCheckProvider - (void)getLimitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRDeviceCheckProvider - (void)getTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRDeviceCheckProvider : NSObject
+@interface FIRDeviceCheckProvider <FIRAppCheckProvider>
+@interface FIRDeviceCheckProvider API_AVAILABLE(watchos 9.0)
+@interface FIRDeviceCheckProvider NS_SWIFT_NAME(DeviceCheckProvider)
+@interface FIRDeviceCheckProviderFactory : NSObject
+@interface FIRDeviceCheckProviderFactory <FIRAppCheckProviderFactory>
+@interface FIRDeviceCheckProviderFactory API_AVAILABLE(watchos 9.0)
+@interface FIRDeviceCheckProviderFactory NS_SWIFT_NAME(DeviceCheckProviderFactory)
+@interface FIRRecaptchaProvider - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRRecaptchaProvider - (instancetype _Nullable)initWithApp:(FIRApp * _Nonnull) siteKey:(NSString * _Nonnull)
+@interface FIRRecaptchaProvider - (void)getLimitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRRecaptchaProvider - (void)getTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@interface FIRRecaptchaProvider : NSObject
+@interface FIRRecaptchaProvider <FIRAppCheckProvider>
+@interface FIRRecaptchaProvider API_AVAILABLE(ios 15.0)
+@interface FIRRecaptchaProvider API_AVAILABLE(xros 1.0)
+@interface FIRRecaptchaProvider API_UNAVAILABLE(maccatalyst)
+@interface FIRRecaptchaProvider API_UNAVAILABLE(macos)
+@interface FIRRecaptchaProvider API_UNAVAILABLE(tvos)
+@interface FIRRecaptchaProvider API_UNAVAILABLE(watchos)
+@interface FIRRecaptchaProvider NS_SWIFT_NAME(RecaptchaProvider)
+@interface FIRRecaptchaProviderFactory - (instancetype _Nonnull)init UNAVAILABLE
+@interface FIRRecaptchaProviderFactory - (instancetype _Nonnull)initWithSiteKey:(NSString * _Nonnull)
+@interface FIRRecaptchaProviderFactory : NSObject
+@interface FIRRecaptchaProviderFactory <FIRAppCheckProviderFactory>
+@interface FIRRecaptchaProviderFactory API_AVAILABLE(ios 15.0)
+@interface FIRRecaptchaProviderFactory API_AVAILABLE(xros 1.0)
+@interface FIRRecaptchaProviderFactory API_UNAVAILABLE(maccatalyst)
+@interface FIRRecaptchaProviderFactory API_UNAVAILABLE(macos)
+@interface FIRRecaptchaProviderFactory API_UNAVAILABLE(tvos)
+@interface FIRRecaptchaProviderFactory API_UNAVAILABLE(watchos)
+@interface FIRRecaptchaProviderFactory NS_SWIFT_NAME(RecaptchaProviderFactory)
+@protocol FIRAppCheckProvider - (void)getLimitedUseTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@protocol FIRAppCheckProvider - (void)getTokenWithCompletion:(void (^ _Nonnull)(FIRAppCheckToken * _Nullable, NSError * _Nullable))
+@protocol FIRAppCheckProvider <NSObject>
+@protocol FIRAppCheckProvider NS_SWIFT_NAME(AppCheckProvider)
+@protocol FIRAppCheckProviderFactory - (id<FIRAppCheckProvider> _Nullable)createProviderWithApp:(FIRApp * _Nonnull)
+@protocol FIRAppCheckProviderFactory <NSObject>
+@protocol FIRAppCheckProviderFactory NS_SWIFT_NAME(AppCheckProviderFactory)
+enum FIRAppCheckErrorCode FIRAppCheckErrorCodeInvalidConfiguration = 2
+enum FIRAppCheckErrorCode FIRAppCheckErrorCodeKeychain = 3
+enum FIRAppCheckErrorCode FIRAppCheckErrorCodeServerUnreachable = 1
+enum FIRAppCheckErrorCode FIRAppCheckErrorCodeUnknown = 0
+enum FIRAppCheckErrorCode FIRAppCheckErrorCodeUnsupported = 4
+enum FIRAppCheckErrorCode NS_ERROR_ENUM(FIRAppCheckErrorDomain)
+enum FIRAppCheckErrorCode NS_SWIFT_NAME(AppCheckErrorCode)
+extern NS_SWIFT_NAME NSString *const kFIRAppCheckAppNameNotificationKey NS_SWIFT_NAME(AppCheckAppNameNotificationKey)
+extern NS_SWIFT_NAME NSString *const kFIRAppCheckTokenNotificationKey NS_SWIFT_NAME(AppCheckTokenNotificationKey)
+extern NS_SWIFT_NAME const NSNotificationName FIRAppCheckAppCheckTokenDidChangeNotification NS_SWIFT_NAME(AppCheckTokenDidChange)
+extern const NSErrorDomain FIRAppCheckErrorDomain NS_SWIFT_NAME(AppCheckErrorDomain)
+typedef enum FIRAppCheckErrorCode FIRAppCheckErrorCode
