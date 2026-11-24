@@ -23,6 +23,7 @@ internal import AppCheckCore
 internal import FirebaseCoreExtension
 
 /// Implements `FIRAppAttestProvider`, declared in `FIRAppAttestProvider.h`.
+@available(macOS 11.3, watchOS 9.0, *)
 @objc @implementation extension AppAttestProvider {
   /// The App Check Core provider that implements App Attest attestation.
   final var appAttestProvider: AppCheckCoreProvider
@@ -51,6 +52,7 @@ internal import FirebaseCoreExtension
 }
 
 /// Implements `FIRAppAttestProviderFactory`, declared in `FIRAppAttestProviderFactory.h`.
+@available(macOS 11.3, watchOS 9.0, *)
 @objc @implementation extension AppAttestProviderFactory {
   @objc(createProviderWithApp:)
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {

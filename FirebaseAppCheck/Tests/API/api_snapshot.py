@@ -30,8 +30,9 @@ Any difference is a public API change.
 
 Usage (from the repository root):
 
-  swift build --target FirebaseAppCheck
-  FirebaseAppCheck/Tests/API/api_snapshot.py --check
+  swift build --target FirebaseAppCheckSwift
+  FirebaseAppCheck/Tests/API/api_snapshot.py --check [--platform ios]
+  FirebaseAppCheck/Tests/API/api_snapshot.py --negative
   FirebaseAppCheck/Tests/API/api_snapshot.py --update   # regenerate goldens
 """
 
@@ -50,10 +51,13 @@ API_DIR = os.path.dirname(os.path.abspath(__file__))
 PUBLIC_HEADERS = os.path.join(REPO_ROOT, 'FirebaseAppCheck', 'Sources',
                               'Public', 'FirebaseAppCheck')
 
-# The module that apps import. Its public API is declared in Objective-C headers, both in the
-# Objective-C implementation of the SDK and in the Swift implementation, where the
-# `FirebaseAppCheckSwift` module implements the declared classes with `@objc @implementation`.
-API_MODULES = ['FirebaseAppCheck']
+# `FirebaseAppCheck` is the module that apps import. Its public API is declared in Objective-C
+# headers, both in the Objective-C implementation of the SDK and in the Swift implementation,
+# where the `FirebaseAppCheckSwift` module implements the declared classes with
+# `@objc @implementation`. `FirebaseAppCheckSwift` must not add public API: with CocoaPods, both
+# are a single module.
+API_MODULES = ['FirebaseAppCheck', 'FirebaseAppCheckSwift']
+SWIFT_MODULES = ['FirebaseAppCheckSwift']
 
 # The Objective-C implementation forward-declares `FIRApp` in its headers, so
 # the Clang importer prints the Objective-C name. Swift prints the Swift name.
@@ -121,9 +125,8 @@ def module_map_flags(build_dir):
   for module_map in sorted(set(module_maps)):
     # The module map of a Swift module only adds its generated header, which would shadow the
     # Swift module itself.
-    if os.path.basename(module_map) == 'FirebaseAppCheck.modulemap' and \
-        os.path.exists(os.path.join(swift_modules_dir(build_dir),
-                                    'FirebaseAppCheck.swiftmodule')):
+    name = os.path.splitext(os.path.basename(module_map))[0]
+    if os.path.exists(os.path.join(swift_modules_dir(build_dir), name + '.swiftmodule')):
       continue
     flags += ['-Xcc', '-fmodule-map-file=' + module_map]
   return flags
@@ -143,14 +146,29 @@ def synthesize_swift_interface(build_dir, module, target, sdk):
   ] + module_map_flags(build_dir) + header_search_flags()
   result = subprocess.run(cmd, capture_output=True, text=True)
   if result.returncode != 0:
-    if 'Failed to load the module' in result.stdout + result.stderr and \
-        os.path.exists(os.path.join(swift_modules_dir(build_dir), module + '.swiftmodule')):
-      sys.stderr.write(result.stdout + result.stderr)
+    messages = result.stdout + result.stderr
+    swift_module = os.path.join(swift_modules_dir(build_dir), module + '.swiftmodule')
+    if 'Failed to load the module' in messages and os.path.exists(swift_module):
+      if module in SWIFT_MODULES and not swift_module_supports(swift_module, target):
+        # A Swift module built for another platform. The Objective-C headers, which are the
+        # public API, don't need a build for the target platform.
+        sys.stderr.write('Skipping %s, which was not built for %s.\n' % (module, target))
+        return ''
+      sys.stderr.write(messages)
       raise SystemExit('Failed to synthesize the interface of %s' % module)
     # The module doesn't exist in this build configuration.
     return ''
   with open(output) as f:
     return f.read()
+
+
+def swift_module_supports(swift_module, target):
+  """Whether a `.swiftmodule` (a file, or a directory with a file per target) is for `target`."""
+  platform = target.split('-')[2].rstrip('0123456789.')
+  if os.path.isdir(swift_module):
+    return any(platform in name for name in os.listdir(swift_module))
+  # A single-file module is built for the host platform of `swift build`.
+  return platform == 'macos'
 
 
 def strip_param_names(signature):
@@ -503,12 +521,16 @@ def objc_macros(source, include_dirs, sdk, target):
   return macros
 
 
-def generated_swift_header(build_dir):
-  candidates = glob.glob(os.path.join(build_dir, 'FirebaseAppCheck.build',
-                                      'include', 'FirebaseAppCheck-Swift.h'))
-  candidates += glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
-                                       'GeneratedModuleMaps*', 'FirebaseAppCheck-Swift.h'))
-  return candidates[0] if candidates else None
+def generated_swift_headers(build_dir):
+  """Returns the generated Objective-C headers of the Swift modules of the SDK."""
+  headers = []
+  for module in SWIFT_MODULES:
+    candidates = glob.glob(os.path.join(build_dir, module + '.build', 'include',
+                                        module + '-Swift.h'))
+    candidates += glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
+                                         'GeneratedModuleMaps*', module + '-Swift.h'))
+    headers += candidates[:1]
+  return headers
 
 
 def objc_snapshot(build_dir, target, sdk):
@@ -521,8 +543,7 @@ def objc_snapshot(build_dir, target, sdk):
             '#import <FirebaseCore/FirebaseCore.h>\n'
             '#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>\n'
             '#import <FirebaseAppCheck/FirebaseAppCheck.h>\n')
-  swift_header = generated_swift_header(build_dir)
-  if swift_header:
+  for swift_header in generated_swift_headers(build_dir):
     source += '#import "%s"\n' % swift_header
   lines = set()
   for root in parse_ast_dump(objc_ast(source, include_dirs, sdk, target)):
@@ -648,11 +669,24 @@ def diff(kind, platform, actual, approved):
   return False
 
 
+def default_build_dir():
+  """Returns the build directory of `swift build` in the repository, for either build system."""
+  candidates = [
+      os.path.join(REPO_ROOT, '.build', 'out'),
+      os.path.join(REPO_ROOT, '.build', 'debug'),
+      os.path.join(REPO_ROOT, '.build', 'arm64-apple-macosx', 'debug'),
+  ]
+  for candidate in candidates:
+    if os.path.isdir(candidate):
+      return os.path.realpath(candidate)
+  return candidates[-1]
+
+
 def main():
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument('--build-dir',
-                      default=os.path.join(REPO_ROOT, '.build',
-                                           'arm64-apple-macosx', 'debug'))
+  parser.add_argument('--build-dir', default=default_build_dir(),
+                      help='The SwiftPM build directory. Build the `FirebaseAppCheckSwift` '
+                      'target first.')
   parser.add_argument('--platform', choices=sorted(PLATFORMS), default='macos')
   group = parser.add_mutually_exclusive_group(required=True)
   group.add_argument('--check', action='store_true')

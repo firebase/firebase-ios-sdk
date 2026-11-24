@@ -32,6 +32,28 @@ jobs:
     with:
       target: ${{  matrix.target }}
 
+  api_compatibility:
+    # Checks the public Swift and Objective-C APIs against the snapshots in
+    # FirebaseAppCheck/Tests/API, which were generated from the Objective-C
+    # implementation of the SDK, and runs the negative compile tests.
+    runs-on: macos-26
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Build
+      run: swift build --target FirebaseAppCheckSwift
+    - name: Check the API snapshots
+      run: |
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform macos
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform ios
+    - name: Negative compile tests
+      run: python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform macos
+
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
