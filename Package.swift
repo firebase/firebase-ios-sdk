@@ -861,6 +861,31 @@ func packageTargets() -> [Target] {
         .linkedFramework("Security"),
       ]
     ),
+    .testTarget(
+      name: "InstallationsUnit",
+      dependencies: [
+        "FirebaseInstallations",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
+      path: "FirebaseInstallations/Source/Tests",
+      exclude: [
+        // Requires a GoogleService-Info.plist and network access; run by the CocoaPods
+        // `integration` test spec.
+        "Integration",
+        // Swift tests are in the target `InstallationsSwiftUnit` since mixed language targets
+        // are not supported.
+        "Unit/Swift",
+      ],
+      resources: [.process("Fixture")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "InstallationsSwiftUnit",
+      dependencies: ["FirebaseInstallations"],
+      path: "FirebaseInstallations/Source/Tests/Unit/Swift"
+    ),
 
     .target(
       name: "FirebaseMessaging",

@@ -97,6 +97,12 @@
   if (status == errSecMissingEntitlement) {
     XCTSkip(@"Catalyst test host lacks keychain entitlements for permanent RSA keys.");
   }
+#elif SWIFT_PACKAGE
+  if (status == errSecMissingEntitlement) {
+    // SPM test bundles run without a host app, so they have no keychain entitlements. The
+    // CocoaPods unit test spec runs this test in an app host.
+    XCTSkip(@"Swift Package Manager tests have no keychain entitlements for permanent RSA keys.");
+  }
 #endif
   XCTAssertEqual(status, errSecSuccess);
 
