@@ -109,6 +109,8 @@ final class FakeAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
   }
 }
 
+private class AppCheckSubclass: AppCheck {}
+
 // MARK: - AppCheck
 
 final class AppCheckTests: XCTestCase {
@@ -257,6 +259,26 @@ final class AppCheckTests: XCTestCase {
     XCTAssertTrue(AppCheck.appCheck(app: app) === appCheck)
     // The App Check Core logging level is the default (Warning).
     XCTAssertEqual(AppCheckCoreLogger.logLevel, .warning)
+    await app.delete()
+  }
+
+  /// Changed from the Objective-C implementation, which returned the registered `AppCheck`
+  /// instance, typed as the subclass, from `appCheck(app:)` called on a subclass. Calling a member
+  /// of the subclass on it was undefined behavior. The Swift implementation returns `nil`.
+  func testAppCheckForAppIsNilWhenCalledOnASubclass() async throws {
+    AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
+      FakeAppCheckProvider()))
+    let options = FirebaseOptions(googleAppID: "1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
+                                  gcmSenderID: "sender_id")
+    options.apiKey = "api_key"
+    options.projectID = "project_id"
+    let appName = "testAppCheckForAppIsNilWhenCalledOnASubclass"
+    FirebaseApp.configure(name: appName, options: options)
+    let app = try XCTUnwrap(FirebaseApp.app(name: appName))
+    app.isDataCollectionDefaultEnabled = false
+
+    XCTAssertNotNil(AppCheck.appCheck(app: app))
+    XCTAssertNil(AppCheckSubclass.appCheck(app: app))
     await app.delete()
   }
 

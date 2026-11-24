@@ -1,6 +1,10 @@
 # Unreleased
 - [changed] Firebase App Check is now implemented in Swift. The public Swift and
   Objective-C APIs are unchanged. (#17113)
+- [changed] `AppCheck.appCheck()` and `AppCheck.appCheck(app:)` called on a
+  subclass of `AppCheck` now return `nil`, because the App Check instance isn't
+  an instance of the subclass. They used to return the `AppCheck` instance,
+  typed as the subclass. (#17113)
 
 # 13.2.0
 - [added] `AppCheckDebugProvider` now automatically uses a debug token

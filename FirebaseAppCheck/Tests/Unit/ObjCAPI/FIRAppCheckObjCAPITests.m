@@ -50,6 +50,12 @@ typedef void (^FIRAppCheckObjCAPITestsTokenHandler)(FIRAppCheckToken *_Nullable 
 @end
 
 // Subclasses can override the public methods.
+@interface FIRAppCheckObjCAPITestsAppCheck : FIRAppCheck
+@end
+
+@implementation FIRAppCheckObjCAPITestsAppCheck
+@end
+
 @interface FIRAppCheckObjCAPITestsDebugProvider : FIRAppCheckDebugProvider
 @end
 
@@ -375,6 +381,38 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   XCTAssertNil(appCheck);
   XCTAssertNil([FIRAppCheck appCheckWithApp:defaultApp]);
   XCTAssertFalse(appCheck.isTokenAutoRefreshEnabled);
+
+  XCTestExpectation *deleted = [self expectationWithDescription:@"default app deleted"];
+  [defaultApp deleteApp:^(BOOL success) {
+    [deleted fulfill];
+  }];
+  [self waitForExpectations:@[ deleted ] timeout:5];
+}
+
+- (void)testSubclassesDontReturnTheAppCheckInstance {
+  // Changed in the Swift implementation: the Objective-C implementation returned the registered
+  // `FIRAppCheck` instance, typed as the subclass, from `+appCheck` and `+appCheckWithApp:` sent
+  // to a subclass. The Swift implementation returns the instance only if it is an instance of the
+  // receiver, so subclasses get nil.
+  if ([FIRApp defaultApp] != nil) {
+    XCTSkip(@"A default app is configured.");
+  }
+  [FIRAppCheck setAppCheckProviderFactory:[[FIRAppCheckObjCAPITestsFactory alloc] init]];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                  GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  [FIRApp configureWithOptions:options];
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  XCTAssertNotNil(defaultApp);
+  defaultApp.dataCollectionDefaultEnabled = NO;
+
+  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:defaultApp];
+  XCTAssertNotNil(appCheck);
+  XCTAssertEqual([FIRAppCheck appCheck], appCheck);
+  XCTAssertNil([FIRAppCheckObjCAPITestsAppCheck appCheckWithApp:defaultApp]);
+  XCTAssertNil([FIRAppCheckObjCAPITestsAppCheck appCheck]);
 
   XCTestExpectation *deleted = [self expectationWithDescription:@"default app deleted"];
   [defaultApp deleteApp:^(BOOL success) {
