@@ -73,8 +73,6 @@ extension Candidate {
     case unexpectedToolCall
 
     /// Model called too many tools consecutively, thus the system exited execution.
-    ///
-    /// > Important: This case is not supported in the Gemini Enterprise Agent Platform.
     case tooManyToolCalls
 
     /// Request has at least one thought signature missing.

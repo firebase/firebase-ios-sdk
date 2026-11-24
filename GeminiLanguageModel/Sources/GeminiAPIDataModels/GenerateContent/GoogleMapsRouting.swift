@@ -17,7 +17,8 @@
 
 import Foundation
 
-/// Grounding with Google Maps Routing APIs (ComputeRoutes and SearchAlongRoute).
+/// Grounding with Google Maps Routing APIs (ComputeRoutes and SearchAlongRoute). Also enabled by
+/// default for Gemini 4 and later models when no grounding type is specified.
 ///
 /// > Important: This type is not supported in the Gemini Developer API.
 package struct GoogleMapsRouting: Codable, Sendable, Equatable, Hashable, Buildable {

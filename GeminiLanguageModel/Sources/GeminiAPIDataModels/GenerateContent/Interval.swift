@@ -18,20 +18,23 @@
 import Foundation
 
 /// Represents a time interval, encoded as a Timestamp start (inclusive) and a Timestamp end
-/// (exclusive). The start must be less than or equal to the end. When the start equals the end, the
-/// interval is empty (matches no time). When both start and end are unspecified, the interval
-/// matches any time.
+/// (exclusive).
+///
+/// The start must be less than or equal to the end. When the start equals the end, the interval is
+/// empty (matches no time). When both start and end are unspecified, the interval matches any time.
 ///
 /// > Important: This type is not supported in the Gemini Enterprise Agent Platform.
 package struct Interval: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// Exclusive end of the interval. If specified, a Timestamp matching this interval will have to
-  /// be before the end.
+  /// Exclusive end of the interval.
+  ///
+  /// If specified, a Timestamp matching this interval will have to be before the end.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var endTime: String?
 
-  /// Inclusive start of the interval. If specified, a Timestamp matching this interval will have to
-  /// be the same or after the start.
+  /// Inclusive start of the interval.
+  ///
+  /// If specified, a Timestamp matching this interval will have to be the same or after the start.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var startTime: String?

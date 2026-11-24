@@ -17,9 +17,11 @@
 
 import Foundation
 
-/// Configuration for the model's thinking features. "Thinking" is a process where the model breaks
-/// down a complex task into smaller, manageable steps. This allows the model to reason about the
-/// task, plan its approach, and execute the plan to generate a high-quality response.
+/// Configuration for the model's thinking features.
+///
+/// "Thinking" is a process where the model breaks down a complex task into smaller, manageable
+/// steps. This allows the model to reason about the task, plan its approach, and execute the plan
+/// to generate a high-quality response.
 package struct ThinkingConfig: Codable, Sendable, Equatable, Hashable, Buildable {
   /// If true, the model will include its thoughts in the response. "Thoughts" are the intermediate
   /// steps the model takes to arrive at the final response. They can provide insights into the

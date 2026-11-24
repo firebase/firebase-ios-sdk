@@ -17,11 +17,12 @@
 
 import Foundation
 
-/// Represents a breakdown of token usage by modality. This message is used in CountTokensResponse
-/// and GenerateContentResponse.UsageMetadata to provide a detailed view of how many tokens are used
-/// by each modality (e.g., text, image, video) in a request. This is particularly useful for
-/// multimodal models, allowing you to track and manage token consumption for billing and quota
-/// purposes.
+/// Represents a breakdown of token usage by modality.
+///
+/// This message is used in CountTokensResponse and GenerateContentResponse.UsageMetadata to provide
+/// a detailed view of how many tokens are used by each modality (e.g., text, image, video) in a
+/// request. This is particularly useful for multimodal models, allowing you to track and manage
+/// token consumption for billing and quota purposes.
 package struct ModalityTokenCount: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The modality that this token count applies to.
   package var modality: Modality?

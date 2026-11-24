@@ -54,8 +54,9 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
   /// debugging, understanding model uncertainty, and identifying potential "hallucinations".
   package var logprobsResult: LogprobsResult?
 
-  /// A list of ratings for the safety of a response candidate. There is at most one rating per
-  /// category.
+  /// A list of ratings for the safety of a response candidate.
+  ///
+  /// There is at most one rating per category.
   package var safetyRatings: [SafetyRating]?
 
   /// Token count for this candidate.

@@ -17,8 +17,9 @@
 
 import Foundation
 
-/// A safety setting that affects the safety-blocking behavior. A SafetySetting consists of a harm
-/// category and a threshold for that category.
+/// A safety setting that affects the safety-blocking behavior.
+///
+/// A SafetySetting consists of a harm category and a threshold for that category.
 package struct SafetySetting: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Required. The harm category to be blocked.
   package var category: HarmCategory?

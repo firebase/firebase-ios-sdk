@@ -32,6 +32,11 @@ extension ThinkingConfig {
     /// High thinking level.
     case high
 
+    /// XHIGH thinking level.
+    ///
+    /// > Important: This case is not supported in the Gemini Developer API.
+    case xhigh
+
     /// Unrecognized case.
     ///
     /// - Parameter value: The raw string value of the unrecognized enum case.
@@ -48,6 +53,7 @@ extension ThinkingConfig.ThinkingLevel: RawRepresentable {
     case .low: "LOW"
     case .medium: "MEDIUM"
     case .high: "HIGH"
+    case .xhigh: "XHIGH"
     case .unrecognized(let value): value
     }
   }
@@ -58,6 +64,7 @@ extension ThinkingConfig.ThinkingLevel: RawRepresentable {
     case "LOW": self = .low
     case "MEDIUM": self = .medium
     case "HIGH": self = .high
+    case "XHIGH": self = .xhigh
     default: self = .unrecognized(rawValue)
     }
   }

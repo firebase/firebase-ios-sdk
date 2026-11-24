@@ -17,18 +17,20 @@
 
 import Foundation
 
-/// Raw media bytes for function response. Text should not be sent as raw bytes, use the 'text'
-/// field.
+/// Raw media bytes for function response.
+///
+/// Text should not be sent as raw bytes, use the 'text' field.
 package struct FunctionResponseBlob: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Required. Raw bytes.
   package var data: Data?
 
-  /// Display name of the blob. Used to provide a label or filename to distinguish blobs. This field
-  /// is only returned in PromptMessage for prompt management. It is currently used in the Gemini
-  /// GenerateContent calls only when server side tools (code_execution, google_search, and
-  /// url_context) are enabled.
+  /// Display name of the blob.
   ///
-  /// > Important: This property is not supported in the Gemini Developer API.
+  /// Used to provide a label or filename to distinguish blobs.
+  ///
+  /// This field is only returned in PromptMessage for prompt management. It is currently used in
+  /// the Gemini GenerateContent calls only when server side tools (code_execution, google_search,
+  /// and url_context) are enabled.
   package var displayName: String?
 
   /// Required. The IANA standard MIME type of the source data.
