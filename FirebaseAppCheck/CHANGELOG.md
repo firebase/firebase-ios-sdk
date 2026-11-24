@@ -1,6 +1,6 @@
 # Unreleased
 - [changed] Firebase App Check is now implemented in Swift. The public Swift and
-  Objective-C APIs are unchanged.
+  Objective-C APIs are unchanged. (#17113)
 
 # 13.2.0
 - [added] `AppCheckDebugProvider` now automatically uses a debug token
