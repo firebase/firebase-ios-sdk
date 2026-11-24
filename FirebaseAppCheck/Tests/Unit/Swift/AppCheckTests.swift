@@ -245,15 +245,27 @@ final class AppCheckTests: XCTestCase {
     XCTAssertNil(AppCheck(app: AppCheckTestUtils.app()))
   }
 
-  func testAppCheckInstanceForApp() async throws {
+  /// Configures a Firebase app named `name`, whose App Check instance uses a fake provider.
+  ///
+  /// `FirebaseApp(instanceWithName:options:)` isn't enough for tests that need the App Check
+  /// component: FirebaseCore registers `FIRAppCheckComponent` in the first
+  /// `FirebaseApp.configure(name:options:)` call, and an app's component container only has the
+  /// components registered when it was created.
+  private func configureApp(name: String) throws -> FirebaseApp {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
     let options = FirebaseOptions(googleAppID: "1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
                                   gcmSenderID: "sender_id")
     options.apiKey = "api_key"
     options.projectID = "project_id"
-    let app = FirebaseApp(instanceWithName: "testAppCheckInstanceForApp", options: options)
+    FirebaseApp.configure(name: name, options: options)
+    let app = try XCTUnwrap(FirebaseApp.app(name: name))
     app.isDataCollectionDefaultEnabled = false
+    return app
+  }
+
+  func testAppCheckInstanceForApp() async throws {
+    let app = try configureApp(name: "testAppCheckInstanceForApp")
 
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
     XCTAssertTrue(AppCheck.appCheck(app: app) === appCheck)
@@ -266,16 +278,7 @@ final class AppCheckTests: XCTestCase {
   /// instance, typed as the subclass, from `appCheck(app:)` called on a subclass. Calling a member
   /// of the subclass on it was undefined behavior. The Swift implementation returns `nil`.
   func testAppCheckForAppIsNilWhenCalledOnASubclass() async throws {
-    AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
-      FakeAppCheckProvider()))
-    let options = FirebaseOptions(googleAppID: "1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
-                                  gcmSenderID: "sender_id")
-    options.apiKey = "api_key"
-    options.projectID = "project_id"
-    let appName = "testAppCheckForAppIsNilWhenCalledOnASubclass"
-    FirebaseApp.configure(name: appName, options: options)
-    let app = try XCTUnwrap(FirebaseApp.app(name: appName))
-    app.isDataCollectionDefaultEnabled = false
+    let app = try configureApp(name: "testAppCheckForAppIsNilWhenCalledOnASubclass")
 
     XCTAssertNotNil(AppCheck.appCheck(app: app))
     XCTAssertNil(AppCheckSubclass.appCheck(app: app))
