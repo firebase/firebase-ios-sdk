@@ -32,7 +32,7 @@ private protocol WrappingProviderTests: XCTestCase {
 }
 
 private extension WrappingProviderTests {
-  func verifyGetTokenSuccess() {
+  func verifyGetTokenSuccess(file: StaticString = #filePath, line: UInt = #line) {
     let validInternalToken = AppCheckCoreToken(token: "valid_token", expirationDate: Date(),
                                                receivedAt: Date(timeIntervalSince1970: 1000))
     coreProvider.tokenResult = (validInternalToken, nil)
@@ -40,32 +40,42 @@ private extension WrappingProviderTests {
     let handlerCalled = CallRecorder()
     provider.getToken { token, error in
       handlerCalled.called = true
-      XCTAssertEqual(token?.token, validInternalToken.token)
-      XCTAssertEqual(token?.expirationDate, validInternalToken.expirationDate)
-      XCTAssertEqual(token?.receivedAtDate, validInternalToken.receivedAtDate)
-      XCTAssertNil(error)
+      XCTAssertEqual(token?.token, validInternalToken.token, file: file, line: line)
+      XCTAssertEqual(
+        token?.expirationDate,
+        validInternalToken.expirationDate,
+        file: file,
+        line: line
+      )
+      XCTAssertEqual(
+        token?.receivedAtDate,
+        validInternalToken.receivedAtDate,
+        file: file,
+        line: line
+      )
+      XCTAssertNil(error, file: file, line: line)
     }
 
-    XCTAssertTrue(handlerCalled.called)
-    XCTAssertEqual(coreProvider.getTokenCount, 1)
+    XCTAssertTrue(handlerCalled.called, file: file, line: line)
+    XCTAssertEqual(coreProvider.getTokenCount, 1, file: file, line: line)
   }
 
-  func verifyGetTokenAPIError() {
+  func verifyGetTokenAPIError(file: StaticString = #filePath, line: UInt = #line) {
     let expectedError = NSError(domain: "testGetTokenAPIError", code: -1)
     coreProvider.tokenResult = (nil, expectedError)
 
     let handlerCalled = CallRecorder()
     provider.getToken { token, error in
       handlerCalled.called = true
-      XCTAssertNil(token)
+      XCTAssertNil(token, file: file, line: line)
       // Provider errors are not converted to the public error domain.
-      XCTAssertTrue(error as NSError? === expectedError)
+      XCTAssertTrue(error as NSError? === expectedError, file: file, line: line)
     }
 
-    XCTAssertTrue(handlerCalled.called)
+    XCTAssertTrue(handlerCalled.called, file: file, line: line)
   }
 
-  func verifyGetLimitedUseTokenSuccess() {
+  func verifyGetLimitedUseTokenSuccess(file: StaticString = #filePath, line: UInt = #line) {
     let validInternalToken = AppCheckCoreToken(token: "TEST_ValidToken", expirationDate: Date(),
                                                receivedAt: Date(timeIntervalSince1970: 1000))
     coreProvider.limitedUseTokenResult = (validInternalToken, nil)
@@ -73,36 +83,46 @@ private extension WrappingProviderTests {
     let handlerCalled = CallRecorder()
     provider.getLimitedUseToken? { token, error in
       handlerCalled.called = true
-      XCTAssertEqual(token?.token, validInternalToken.token)
-      XCTAssertEqual(token?.expirationDate, validInternalToken.expirationDate)
-      XCTAssertEqual(token?.receivedAtDate, validInternalToken.receivedAtDate)
-      XCTAssertNil(error)
+      XCTAssertEqual(token?.token, validInternalToken.token, file: file, line: line)
+      XCTAssertEqual(
+        token?.expirationDate,
+        validInternalToken.expirationDate,
+        file: file,
+        line: line
+      )
+      XCTAssertEqual(
+        token?.receivedAtDate,
+        validInternalToken.receivedAtDate,
+        file: file,
+        line: line
+      )
+      XCTAssertNil(error, file: file, line: line)
     }
 
-    XCTAssertTrue(handlerCalled.called)
-    XCTAssertEqual(coreProvider.getLimitedUseTokenCount, 1)
-    XCTAssertEqual(coreProvider.getTokenCount, 0)
+    XCTAssertTrue(handlerCalled.called, file: file, line: line)
+    XCTAssertEqual(coreProvider.getLimitedUseTokenCount, 1, file: file, line: line)
+    XCTAssertEqual(coreProvider.getTokenCount, 0, file: file, line: line)
   }
 
-  func verifyGetLimitedUseTokenProviderError() {
+  func verifyGetLimitedUseTokenProviderError(file: StaticString = #filePath, line: UInt = #line) {
     let expectedError = NSError(domain: "TEST_LimitedUseToken_Error", code: -1)
     coreProvider.limitedUseTokenResult = (nil, expectedError)
 
     let handlerCalled = CallRecorder()
     provider.getLimitedUseToken? { token, error in
       handlerCalled.called = true
-      XCTAssertNil(token)
-      XCTAssertTrue(error as NSError? === expectedError)
+      XCTAssertNil(token, file: file, line: line)
+      XCTAssertTrue(error as NSError? === expectedError, file: file, line: line)
     }
 
-    XCTAssertTrue(handlerCalled.called)
+    XCTAssertTrue(handlerCalled.called, file: file, line: line)
   }
 
-  func verifyAsyncVariants() async throws {
+  func verifyAsyncVariants(file: StaticString = #filePath, line: UInt = #line) async throws {
     coreProvider.tokenResult = (AppCheckCoreToken(token: "token", expirationDate: .distantFuture),
                                 nil)
     let token = try await provider.getToken()
-    XCTAssertEqual(token.token, "token")
+    XCTAssertEqual(token.token, "token", file: file, line: line)
   }
 }
 

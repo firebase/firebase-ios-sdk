@@ -30,7 +30,7 @@ internal import FirebaseCoreExtension
 // MARK: - Shared test helpers
 
 /// The App Check token value App Check Core returns when an error occurs.
-let kPlaceholderToken = "eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ=="
+let placeholderToken = "eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ=="
 
 enum AppCheckTestUtils {
   static let appName = "test_app_name"
@@ -154,11 +154,12 @@ final class AppCheckTests: XCTestCase {
 
   /// Returns an `AppCheck` instance that uses fakes.
   private func makeAppCheck(appCheckCore: AppCheckCoreProtocol,
-                            settings: AppCheckCoreSettingsProtocol) -> AppCheck {
+                            settings: AppCheckCoreSettingsProtocol,
+                            file: StaticString = #filePath, line: UInt = #line) -> AppCheck {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
     let appCheck = AppCheck(app: AppCheckTestUtils.app(name: appName))!
-    XCTAssertEqual(appCheck.appName, appName)
+    XCTAssertEqual(appCheck.appName, appName, file: file, line: line)
     appCheck.appCheckCore = appCheckCore
     appCheck.settings = settings
     appCheck.notificationCenter = notificationCenter
@@ -439,7 +440,7 @@ final class AppCheckTests: XCTestCase {
     let completion = expectation(description: "getToken")
 
     appCheck.getToken(forcingRefresh: false) { result in
-      XCTAssertEqual(result.token, kPlaceholderToken)
+      XCTAssertEqual(result.token, placeholderToken)
       // The interop API doesn't wrap errors in the public domain.
       XCTAssertEqual(result.error as NSError?, providerError)
       completion.fulfill()

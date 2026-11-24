@@ -293,16 +293,17 @@ final class AppCheckDebugProviderTests: XCTestCase {
       XCTAssertEqual(provider.debugTokenSource, .environmentVariable)
     }
 
-    private func temporaryHostHome(tokens: [String: String]) -> URL {
+    private func temporaryHostHome(tokens: [String: String], file: StaticString = #filePath,
+                                   line: UInt = #line) -> URL {
       let hostHomeURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         .appendingPathComponent(UUID().uuidString, isDirectory: true)
       let fileURL = hostHomeURL.appendingPathComponent(DebugTokenConfigStore.relativePath,
                                                        isDirectory: false)
       XCTAssertNoThrow(try FileManager.default.createDirectory(
         at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true
-      ))
+      ), file: file, line: line)
       XCTAssertNoThrow(try JSONSerialization.data(withJSONObject: ["tokens": tokens])
-        .write(to: fileURL, options: .atomic))
+        .write(to: fileURL, options: .atomic), file: file, line: line)
       addTeardownBlock {
         try? FileManager.default.removeItem(at: hostHomeURL)
       }
@@ -495,10 +496,11 @@ final class DebugTokenConfigStoreTests: XCTestCase {
 
   /// Reads the config store file under the temporary host home the same way the config store
   /// does, and returns the resulting error.
-  private func configStoreReadError() -> Error? {
+  private func configStoreReadError(file: StaticString = #filePath,
+                                    line: UInt = #line) -> Error? {
     do {
       _ = try Data(contentsOf: configStoreURL)
-      XCTFail("Expected reading the config store to fail.")
+      XCTFail("Expected reading the config store to fail.", file: file, line: line)
       return nil
     } catch {
       return error

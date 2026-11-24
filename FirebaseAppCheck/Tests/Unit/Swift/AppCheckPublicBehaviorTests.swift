@@ -59,12 +59,12 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   /// the provider factory that is set at that time.
   private func configureApp(factory: AppCheckProviderFactory?,
                             options: FirebaseOptions? = nil,
-                            function: String = #function) -> FirebaseApp {
+                            function: String = #function) throws -> FirebaseApp {
     AppCheck.setAppCheckProviderFactory(factory)
     let name = "AppCheckPublicBehaviorTests_" + function
       .replacingOccurrences(of: "()", with: "")
     FirebaseApp.configure(name: name, options: options ?? Self.completeOptions())
-    let app = FirebaseApp.app(name: name)!
+    let app = try XCTUnwrap(FirebaseApp.app(name: name))
     // Disables automatic token refresh, which could interfere with the tests.
     app.isDataCollectionDefaultEnabled = false
     self.app = app
@@ -93,7 +93,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   // MARK: - Instances
 
   func testAppCheckForAppIsTheInteropComponent() throws {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
 
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
     XCTAssertTrue(AppCheck.appCheck(app: app) === appCheck)
@@ -104,21 +104,21 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
 
   func testFactoryIsCalledWithTheApp() throws {
     let factory = FakeProviderFactory(provider: FakeProvider())
-    let app = configureApp(factory: factory)
+    let app = try configureApp(factory: factory)
 
     XCTAssertTrue(factory.requestedApps.contains { $0 === app })
     XCTAssertNotNil(AppCheck.appCheck(app: app))
   }
 
-  func testNilProviderFactoryDisablesAppCheck() {
-    let app = configureApp(factory: nil)
+  func testNilProviderFactoryDisablesAppCheck() throws {
+    let app = try configureApp(factory: nil)
 
     XCTAssertNil(AppCheck.appCheck(app: app))
     XCTAssertNil(interop(for: app))
   }
 
-  func testNilProviderDisablesAppCheck() {
-    let app = configureApp(factory: FakeProviderFactory(provider: nil))
+  func testNilProviderDisablesAppCheck() throws {
+    let app = try configureApp(factory: FakeProviderFactory(provider: nil))
 
     XCTAssertNil(AppCheck.appCheck(app: app))
   }
@@ -140,7 +140,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   func testLimitedUseTokenUsesProviderLimitedUseMethod() throws {
     let provider = FakeProvider()
     provider.limitedUseResult = .success("limited")
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     let completion = expectation(description: "completion")
@@ -158,7 +158,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   func testLimitedUseTokenAsync() async throws {
     let provider = FakeProvider()
     provider.limitedUseResult = .success("limited")
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     let token = try await appCheck.limitedUseToken()
@@ -168,7 +168,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
 
   func testLimitedUseTokenFallsBackToGetToken() throws {
     let provider = FakeProviderWithoutLimitedUse()
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     let completion = expectation(description: "completion")
@@ -185,7 +185,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
                                 userInfo: [NSLocalizedFailureReasonErrorKey: "reason"])
     let provider = FakeProvider()
     provider.limitedUseResult = .failure(providerError)
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     let completion = expectation(description: "completion")
@@ -204,7 +204,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   func testLimitedUseTokenAsyncThrowsPublicError() async throws {
     let provider = FakeProvider()
     provider.limitedUseResult = .failure(NSError(domain: "AppCheckPublicBehaviorTests", code: 1))
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     do {
@@ -221,7 +221,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     let providerError = NSError(domain: "AppCheckPublicBehaviorTests", code: 7)
     let provider = FakeProvider()
     provider.result = .failure(providerError)
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
     let notification = expectation(forNotification: .AppCheckTokenDidChange, object: appCheck)
     notification.isInverted = true
@@ -242,7 +242,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   func testTokenAsyncThrowsPublicError() async throws {
     let provider = FakeProvider()
     provider.result = .failure(NSError(domain: "AppCheckPublicBehaviorTests", code: 1))
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
 
     do {
@@ -259,7 +259,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     let providerError = NSError(domain: "AppCheckPublicBehaviorTests", code: 3)
     let provider = FakeProvider()
     provider.result = .failure(providerError)
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let interop = try XCTUnwrap(interop(for: app))
 
     let completion = expectation(description: "completion")
@@ -274,7 +274,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   func testInteropLimitedUseToken() throws {
     let provider = FakeProvider()
     provider.limitedUseResult = .success("limited")
-    let app = configureApp(factory: FakeProviderFactory(provider: provider))
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
     let interop = try XCTUnwrap(interop(for: app))
 
     let completion = expectation(description: "completion")
@@ -287,7 +287,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   }
 
   func testInteropNotificationNames() throws {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     let interop = try XCTUnwrap(interop(for: app))
 
     XCTAssertEqual(interop.tokenDidChangeNotificationName(),
@@ -299,10 +299,11 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   // MARK: - Auto-refresh setting
 
   func testIsTokenAutoRefreshEnabledFollowsDataCollectionFlag() throws {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
-    userDefaultsKey = "FIRAppCheckTokenAutoRefreshEnabled_" + app.name
-    UserDefaults.standard.removeObject(forKey: userDefaultsKey!)
+    let userDefaultsKey = "FIRAppCheckTokenAutoRefreshEnabled_" + app.name
+    self.userDefaultsKey = userDefaultsKey
+    UserDefaults.standard.removeObject(forKey: userDefaultsKey)
 
     app.isDataCollectionDefaultEnabled = false
     XCTAssertFalse(appCheck.isTokenAutoRefreshEnabled)
@@ -312,46 +313,47 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
   }
 
   func testIsTokenAutoRefreshEnabledIsPersisted() throws {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
-    userDefaultsKey = "FIRAppCheckTokenAutoRefreshEnabled_" + app.name
+    let userDefaultsKey = "FIRAppCheckTokenAutoRefreshEnabled_" + app.name
+    self.userDefaultsKey = userDefaultsKey
 
     appCheck.isTokenAutoRefreshEnabled = true
     XCTAssertTrue(appCheck.isTokenAutoRefreshEnabled)
-    XCTAssertEqual(UserDefaults.standard.object(forKey: userDefaultsKey!) as? Bool, true)
+    XCTAssertEqual(UserDefaults.standard.object(forKey: userDefaultsKey) as? Bool, true)
 
     appCheck.isTokenAutoRefreshEnabled = false
     XCTAssertFalse(appCheck.isTokenAutoRefreshEnabled)
-    XCTAssertEqual(UserDefaults.standard.object(forKey: userDefaultsKey!) as? Bool, false)
+    XCTAssertEqual(UserDefaults.standard.object(forKey: userDefaultsKey) as? Bool, false)
   }
 
   // MARK: - Built-in provider factories
 
   func testDebugProviderFactory() throws {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     let provider = AppCheckDebugProviderFactory().createProvider(with: app)
     let debugProvider = try XCTUnwrap(provider as? AppCheckDebugProvider)
     XCTAssertFalse(debugProvider.currentDebugToken().isEmpty)
     XCTAssertFalse(debugProvider.localDebugToken().isEmpty)
   }
 
-  func testDebugProviderRequiresCompleteOptions() {
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()),
-                           options: Self.incompleteOptions())
+  func testDebugProviderRequiresCompleteOptions() throws {
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()),
+                               options: Self.incompleteOptions())
     XCTAssertNil(AppCheckDebugProvider(app: app))
     XCTAssertNil(AppCheckDebugProviderFactory().createProvider(with: app))
   }
 
   func testDeviceCheckProviderFactory() throws {
     guard #available(watchOS 9.0, *) else { throw XCTSkip("Requires watchOS 9.0") }
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     XCTAssertTrue(DeviceCheckProviderFactory().createProvider(with: app) is DeviceCheckProvider)
   }
 
   func testDeviceCheckProviderRequiresCompleteOptions() throws {
     guard #available(watchOS 9.0, *) else { throw XCTSkip("Requires watchOS 9.0") }
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()),
-                           options: Self.incompleteOptions())
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()),
+                               options: Self.incompleteOptions())
     XCTAssertNil(DeviceCheckProvider(app: app))
     XCTAssertNil(DeviceCheckProviderFactory().createProvider(with: app))
   }
@@ -360,7 +362,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     guard #available(macOS 11.3, watchOS 9.0, *) else {
       throw XCTSkip("Requires macOS 11.3 or watchOS 9.0")
     }
-    let app = configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     XCTAssertTrue(AppAttestProviderFactory().createProvider(with: app) is AppAttestProvider)
   }
 }
