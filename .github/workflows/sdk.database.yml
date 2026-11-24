@@ -37,6 +37,11 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: ${{  matrix.target }}
+      # `FIRDatabase` is deprecated on watchOS 9.0 and later (#10195), and the
+      # SDK and its tests use it internally. Xcode 27 builds for watchOS 9.0 or
+      # later, so every internal use warns there.
+      # TODO: Remove when Database stops warning about its own deprecation.
+      ignore_deprecation_warnings: true
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
