@@ -53,10 +53,10 @@ WARNING = re.compile(r"^(/[^:]+):(\d+):(\d+): warning: (.*)$")
 DEPRECATION = re.compile(r" (is|was) deprecated|\[-Wdeprecated[\w-]*\]")
 
 DEFAULT_LOGS = [
-  "xcodebuild-test.log",
-  "xcodebuild-test-retry.log",
-  "xcodebuild-build.log",
-  "xcodebuild-build-retry.log",
+    "xcodebuild-test.log",
+    "xcodebuild-test-retry.log",
+    "xcodebuild-build.log",
+    "xcodebuild-build-retry.log",
 ]
 
 
@@ -97,12 +97,12 @@ def find_warnings(lines, repo_root, ignore_deprecations):
 def main():
   parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
   parser.add_argument(
-    "logs", nargs="*", metavar="LOG",
-    help="raw xcodebuild logs (default: whichever of "
-    f"{', '.join(DEFAULT_LOGS)} exist)")
+      "logs", nargs="*", metavar="LOG",
+      help="raw xcodebuild logs (default: whichever of "
+      f"{', '.join(DEFAULT_LOGS)} exist)")
   parser.add_argument(
-    "--ignore-deprecations", action="store_true",
-    help="ignore deprecation warnings, for tests of deprecated APIs")
+      "--ignore-deprecations", action="store_true",
+      help="ignore deprecation warnings, for tests of deprecated APIs")
   args = parser.parse_args()
 
   logs = args.logs or [log for log in DEFAULT_LOGS if os.path.exists(log)]
@@ -112,7 +112,7 @@ def main():
     return 1
 
   repo_root = os.path.realpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+      os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
   warnings = []
   for log in logs:
