@@ -170,6 +170,7 @@ final class AppCheckTests: XCTestCase {
     appCheckCore = nil
     settings = nil
     notificationCenter = nil
+    resetAppCheckProviderFactoryForTesting()
     super.tearDown()
   }
 
@@ -224,8 +225,13 @@ final class AppCheckTests: XCTestCase {
     let provider = FakeAppCheckProvider()
     let factory = FakeAppCheckProviderFactory(provider: provider)
     AppCheck.setAppCheckProviderFactory(factory)
+    let loggerLevel = FIRGetLoggerLevel()
+    let appCheckCoreLogLevel = AppCheckCoreLogger.logLevel
     FIRSetLoggerLevel(.debug)
-    defer { FIRSetLoggerLevel(.warning) }
+    defer {
+      FIRSetLoggerLevel(loggerLevel)
+      AppCheckCoreLogger.logLevel = appCheckCoreLogLevel
+    }
 
     XCTAssertNotNil(AppCheck(app: app))
 
@@ -749,8 +755,9 @@ final class AppCheckLoggerTests: XCTestCase {
   }
 
   func testAppCheckCoreLogLevelUsesCurrentFirebaseLogLevel() {
+    let loggerLevel = FIRGetLoggerLevel()
     FIRSetLoggerLevel(.info)
-    defer { FIRSetLoggerLevel(.warning) }
+    defer { FIRSetLoggerLevel(loggerLevel) }
     XCTAssertEqual(AppCheckLogger.appCheckCoreLogLevel(), .info)
   }
 

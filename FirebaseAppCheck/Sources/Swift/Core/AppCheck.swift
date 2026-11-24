@@ -248,4 +248,18 @@ final class ProviderFactoryStorage: @unchecked Sendable {
     defer { lock.unlock() }
     state = .set(factory)
   }
+
+  /// Forgets the factory that was set, so the default factory is used again.
+  func reset() {
+    lock.lock()
+    defer { lock.unlock() }
+    state = .unset
+  }
+}
+
+/// Test hook: forgets the provider factory set with `AppCheck.setAppCheckProviderFactory(_:)`, so
+/// new `AppCheck` instances use the default provider factory again, as in a new process. Swift-only
+/// and internal; not part of the public API.
+func resetAppCheckProviderFactoryForTesting() {
+  providerFactoryStorage.reset()
 }

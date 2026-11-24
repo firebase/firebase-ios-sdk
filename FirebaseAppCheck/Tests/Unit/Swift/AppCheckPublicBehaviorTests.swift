@@ -16,8 +16,9 @@
 
 //
 // These tests only use the public API (and the interop component that other Firebase SDKs use).
-// They were written against the Objective-C implementation of the SDK and must keep passing,
-// without changes, against any other implementation.
+// They were written against the Objective-C implementation of the SDK and must keep passing
+// against any other implementation. The only addition since is the
+// `resetAppCheckProviderFactory()` test hook (`AppCheckTestHooks.swift`) in `tearDown()`.
 //
 // They avoid code paths that store tokens in the keychain, which isn't available to SwiftPM unit
 // tests that run without a host app.
@@ -46,6 +47,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
       wait(for: [deleted], timeout: 5)
     }
     app = nil
+    resetAppCheckProviderFactory()
     super.tearDown()
   }
 
