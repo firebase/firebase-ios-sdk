@@ -163,7 +163,7 @@ generatorConfig:
       tag: ai-enterprise
   # Hand-written Swift files in the output directory that must not be pruned.
   preservedFiles:
-    - ResponseFormatConfig.swift
+    - GenerateContent+ResponseFormatConfig.swift
   typeOverrides: {}
   propertyTypeOverrides:
     GenerationConfig.responseJsonSchema: JSONObject
