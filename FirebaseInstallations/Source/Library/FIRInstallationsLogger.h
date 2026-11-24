@@ -37,6 +37,7 @@ extern NSString *const kFIRInstallationsMessageCodeNewGetAuthTokenOperationCreat
 extern NSString *const kFIRInstallationsMessageCodeNewDeleteInstallationOperationCreated;
 extern NSString *const kFIRInstallationsMessageCodeInvalidFirebaseConfiguration;
 extern NSString *const kFIRInstallationsMessageCodeCorruptedStoredInstallation;
+extern NSString *const kFIRInstallationsMessageCodeStoredInstallationUnavailable;
 
 // FIRInstallationsStoredItem.m
 extern NSString *const kFIRInstallationsMessageCodeInstallationCoderVersionMismatch;
@@ -50,3 +51,8 @@ extern NSString *const kFIRInstallationsMessageCodeIIDCheckinFailedToDecode;
 
 // FIRInstallations.m
 extern NSString *const kFIRInstallationsMessageCodeInvalidFirebaseAppOptions;
+
+// FIRInstallationsStore.m
+extern NSString *const kFIRInstallationsMessageCodeStoreNoInstallationMarker;
+extern NSString *const kFIRInstallationsMessageCodeStoreNoKeychainItem;
+extern NSString *const kFIRInstallationsMessageCodeStoreKeychainReadFailed;

@@ -161,6 +161,11 @@ static NSString *const kKeychainService = @"com.firebase.FIRInstallations.instal
 
   FBLPromise<FIRInstallationsItem *> *installationItemPromise =
       [self getStoredInstallation].recover(^id(NSError *error) {
+        FIRLogDebug(kFIRLoggerInstallations,
+                    kFIRInstallationsMessageCodeStoredInstallationUnavailable,
+                    @"No usable stored installation for appName: %@, so a new installation will be "
+                    @"created. Reason: %@",
+                    self.appName, error);
         return [self createAndSaveFID];
       });
 

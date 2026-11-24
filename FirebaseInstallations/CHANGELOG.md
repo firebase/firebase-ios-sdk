@@ -1,3 +1,9 @@
+# Unreleased
+- [changed] When a stored installation can't be used and a new Firebase
+  installation ID is created, the reason is now logged: a missing user defaults
+  marker or keychain item (debug level), or a keychain read or decoding error
+  (warning level). (#17107)
+
 # 13.2.0
 - [fixed] Delete both legacy Firebase Instance ID keys during IID migration cleanup,
   and skip key deletion when the application tag is unavailable. (#16777)

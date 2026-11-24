@@ -128,6 +128,32 @@
   OCMVerifyAll(self.mockSecureStorage);
 }
 
+- (void)testInstallationID_WhenThereIsUserDefaultsAndKeychainFails_ThenReturnsKeychainError {
+  NSString *appID = @"123";
+  NSString *appName = @"name";
+  NSString *itemID = [self itemIDWithAppID:appID appName:appName];
+
+  [self.userDefaults setObject:@(YES) forKey:itemID];
+
+  NSError *keychainError = [FIRInstallationsErrorUtil keychainErrorWithFunction:@"Get" status:-1];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], keychainError, nil];
+  OCMExpect([self.mockSecureStorage getObjectForKey:itemID
+                                        objectClass:[FIRInstallationsStoredItem class]
+                                        accessGroup:self.accessGroup
+                                  completionHandler:completionArg]);
+
+  FBLPromise<FIRInstallationsItem *> *itemPromise = [self.store installationForAppID:appID
+                                                                             appName:appName];
+  XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
+
+  // The keychain error is passed through after it's logged.
+  XCTAssertTrue(itemPromise.isRejected);
+  XCTAssertEqualObjects(itemPromise.error, keychainError);
+  XCTAssertNil(itemPromise.value);
+
+  OCMVerifyAll(self.mockSecureStorage);
+}
+
 - (void)testSaveInstallationWhenKeychainSucceeds {
   FIRInstallationsItem *item = [FIRInstallationsItem createUnregisteredInstallationItem];
   NSString *itemID = [item identifier];
