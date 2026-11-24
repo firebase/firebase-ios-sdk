@@ -173,10 +173,13 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
       [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:dateComponents repeats:NO];
 
   UNMutableNotificationContent *content = [self contentFromContextualMessage:message];
-  NSString *identifier = message[kFIRMessagingID];
-  if (!identifier) {
-    identifier = [NSUUID UUID].UUIDString;
-  }
+  // gcm.message_id comes from the untrusted push payload, so it is not guaranteed to be a
+  // non-empty string.
+  id rawIdentifier = message[kFIRMessagingID];
+  NSString *identifier =
+      ([rawIdentifier isKindOfClass:[NSString class]] && [(NSString *)rawIdentifier length])
+          ? rawIdentifier
+          : [NSUUID UUID].UUIDString;
 
   UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
                                                                         content:content

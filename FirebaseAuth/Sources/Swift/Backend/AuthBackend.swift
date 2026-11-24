@@ -47,7 +47,20 @@ final class AuthBackend: AuthBackendProtocol {
   /// - Parameter request: The request.
   /// - Returns: The response.
   func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    let response = try await callInternal(with: request)
+    let verifyAssertionRequest = request as? VerifyAssertionRequest
+    if let warning = verifyAssertionRequest?.emptyPostBodyParametersWarning {
+      AuthLog.logWarning(code: "I-AUT000036", message: warning)
+    }
+    let response: T.Response
+    do {
+      response = try await callInternal(with: request)
+    } catch {
+      if let verifyAssertionRequest {
+        AuthLog.logDebug(code: "I-AUT000037",
+                         message: verifyAssertionRequest.failureSummary(for: error))
+      }
+      throw error
+    }
     if let auth = request.requestConfiguration().auth,
        let mfaError = Self.generateMFAError(response: response, auth: auth) {
       throw mfaError
