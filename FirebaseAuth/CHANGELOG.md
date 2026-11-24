@@ -1,4 +1,9 @@
 # Unreleased
+- [added] Auth now logs a warning when a sign-in, link, or reauthentication
+  request for an identity provider credential contains an empty ID token,
+  access token, nonce, or other value, which the server can reject. With
+  debug logging enabled, Auth also logs which of these values a failed
+  request sent, without the values themselves. (#15571)
 - [fixed] `TOTPSecret` (`FIRTOTPSecret`) now has the `hashingAlgorithm`,
   `codeLength`, `codeIntervalSeconds`, and `enrollmentCompletionDeadline`
   properties that the Android and JavaScript SDKs provide. Apps can use them
@@ -12,6 +17,12 @@
   user after a token refresh fails, for example because the account was
   disabled, while the app calls `signOut()` or another refresh fails at the
   same time. (#17085)
+- [fixed] Fixed Sign in with Apple and other OAuth sign-ins failing with an
+  invalid credential error when Objective-C or Objective-C++ code passed `nil`
+  as the `accessToken` or `rawNonce` to `OAuthProvider` (`FIROAuthProvider`)
+  `credentialWithProviderID:IDToken:rawNonce:accessToken:` or
+  `credentialWithProviderID:IDToken:rawNonce:`, a regression in 11.0.0.
+  (#15571)
 
 # 13.2.0
 - [fixed] Fixed a memory leak where removed auth state and ID token listeners,

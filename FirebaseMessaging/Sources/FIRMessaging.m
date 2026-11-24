@@ -347,7 +347,9 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // For downstream messages that go via MCS we should strip out this key before sending
   // the message to the device.
   BOOL isOldMessage = NO;
-  NSString *messageID = message[kFIRMessagingMessageIDKey];
+  // gcm.message_id comes from the untrusted push payload, so it is not necessarily a string.
+  id rawMessageID = message[kFIRMessagingMessageIDKey];
+  NSString *messageID = [rawMessageID isKindOfClass:[NSString class]] ? rawMessageID : nil;
   if (messageID.length) {
     BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {

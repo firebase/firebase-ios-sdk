@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Converts Discovery Document JSON to OpenAPI 3.1.0 specification YAML."""
+"""Converts Discovery or OpenAPI 3.0 JSON to OpenAPI 3.1.0 YAML."""
 
 from __future__ import annotations
 
@@ -111,6 +111,33 @@ def normalize_refs(node: Any) -> None:
     elif isinstance(node, list):
         for item in node:
             normalize_refs(item)
+
+
+def normalize_enum_extensions(node: Any) -> None:
+    """Recursively maps OpenAPI 3.0 enum metadata extensions in-place.
+
+    Translates `x-google-enum-descriptions` and `x-google-enum-deprecated`
+    extensions into `enumDescriptions` and `enumDeprecated` expected by
+    downstream enum processing.
+
+    Args:
+        node: The JSON or schema node to normalize.
+    """
+    if isinstance(node, dict):
+        mappings = (
+            ("x-google-enum-descriptions", "enumDescriptions"),
+            ("x-google-enum-deprecated", "enumDeprecated"),
+        )
+        for ext_key, target_key in mappings:
+            if ext_key in node:
+                ext_val = node.pop(ext_key)
+                if target_key not in node:
+                    node[target_key] = ext_val
+        for v in node.values():
+            normalize_enum_extensions(v)
+    elif isinstance(node, list):
+        for item in node:
+            normalize_enum_extensions(item)
 
 
 def merge_enum_values(
@@ -265,6 +292,19 @@ def extract_standalone_enums(
 
     schemas.update(extracted)
 
+    # OpenAPI 3.0 inputs may already hoist shared enums to top-level schemas
+    # without top-level descriptions; backfill rule descriptions when empty.
+    for rule in STANDALONE_ENUM_RULES:
+        for prefix in (*prefixes, ""):
+            enum_schema_name = rule["name_fn"](prefix)
+            candidate = schemas.get(enum_schema_name)
+            if (
+                isinstance(candidate, dict)
+                and isinstance(candidate.get("enum"), list)
+                and not candidate.get("description")
+            ):
+                candidate["description"] = rule["description"]
+
 
 def infer_required_properties(schemas: dict[str, Any]) -> None:
     """Infers required fields from property descriptions in-place.
@@ -298,7 +338,7 @@ def upgrade_nullables(node: Any) -> None:
         node: The schema object or tree node to convert.
     """
     if isinstance(node, dict):
-        if node.get("nullable"):
+        if node.get("nullable") is True:
             if "type" in node:
                 t = node["type"]
                 if isinstance(t, str):
@@ -310,8 +350,12 @@ def upgrade_nullables(node: Any) -> None:
                 node["oneOf"] = [{"$ref": ref}, {"type": "null"}]
             node.pop("nullable", None)
 
-        for _, v in list(node.items()):
-            upgrade_nullables(v)
+        for key, v in list(node.items()):
+            if key == "properties" and isinstance(v, dict):
+                for prop_schema in v.values():
+                    upgrade_nullables(prop_schema)
+            else:
+                upgrade_nullables(v)
     elif isinstance(node, list):
         for item in node:
             upgrade_nullables(item)
@@ -338,8 +382,12 @@ def simplify_all_of(node: Any) -> None:
                 node.pop("allOf")
                 node["$ref"] = ref
 
-        for _, v in list(node.items()):
-            simplify_all_of(v)
+        for key, v in list(node.items()):
+            if key == "properties" and isinstance(v, dict):
+                for prop_schema in v.values():
+                    simplify_all_of(prop_schema)
+            else:
+                simplify_all_of(v)
     elif isinstance(node, list):
         for item in node:
             simplify_all_of(item)
@@ -380,19 +428,29 @@ def deep_merge(
 
 
 def main(argv: list[str] | None = None) -> None:
-    """CLI entry point for Discovery Document to OpenAPI 3.1.0 conversion."""
+    """CLI entry point for Discovery/OpenAPI 3.0 to OpenAPI 3.1.0 conversion."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
     docs_dir = os.path.join(base_dir, "discovery_documents")
+    default_input_file = os.path.join(
+        docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+    )
+    default_fetched_file = os.path.join(
+        docs_dir, "firebasevertexai_discovery_v1beta.json"
+    )
 
     parser = argparse.ArgumentParser(
-        description="Convert Google Discovery Document to OpenAPI 3.1.0."
+        description=(
+            "Convert Google Discovery or OpenAPI 3.0 JSON to OpenAPI 3.1.0."
+        )
     )
     parser.add_argument(
         "--input-file",
-        default=os.path.join(
-            docs_dir, "firebasevertexai_discovery_v1beta.json"
+        default=None,
+        help=(
+            "Path to a Google Discovery or OpenAPI 3.0 JSON file. Defaults to"
+            f" the checked-in OpenAPI 3.0 spec at {default_input_file} (or"
+            f" {default_fetched_file} when --fetch is passed)."
         ),
-        help="Path to the Google Discovery Document JSON file.",
     )
     parser.add_argument(
         "--output-file",
@@ -407,7 +465,12 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--fetch",
         action="store_true",
-        help="Fetch latest Discovery Document live from Google APIs.",
+        help=(
+            "Fetch the latest live Google REST Discovery Document for upstream"
+            " comparison (not for committing generated models) and save it to"
+            " the input file path. Refuses to overwrite the checked-in OpenAPI"
+            " 3.0 spec."
+        ),
     )
     parser.add_argument(
         "--discovery-url",
@@ -416,12 +479,29 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    if not os.path.exists(args.overrides_file):
-        raise FileNotFoundError(
-            f"Overrides file not found at {args.overrides_file}"
+    if args.input_file is not None:
+        input_file = args.input_file
+    elif args.fetch:
+        input_file = default_fetched_file
+    else:
+        input_file = default_input_file
+    output_file = args.output_file
+    overrides_file = args.overrides_file
+
+    if args.fetch and os.path.realpath(input_file) == os.path.realpath(
+        default_input_file
+    ):
+        raise ValueError(
+            "Refusing to overwrite the checked-in OpenAPI 3.0 spec at"
+            f" {default_input_file} with a fetched REST Discovery Document."
         )
 
-    if args.fetch or not os.path.exists(args.input_file):
+    if not os.path.exists(overrides_file):
+        raise FileNotFoundError(
+            f"Overrides file not found at {overrides_file}"
+        )
+
+    if args.fetch:
         print(
             "Fetching latest Discovery Document from"
             f" {args.discovery_url}..."
@@ -434,60 +514,82 @@ def main(argv: list[str] | None = None) -> None:
             content = resp.read()
         doc_json = json.loads(content.decode("utf-8"))
         os.makedirs(
-            os.path.dirname(os.path.abspath(args.input_file)), exist_ok=True
+            os.path.dirname(os.path.abspath(input_file)), exist_ok=True
         )
-        with open(args.input_file, "w", encoding="utf-8") as f:
+        with open(input_file, "w", encoding="utf-8") as f:
             json.dump(doc_json, f, indent=2, sort_keys=True)
-        print(f"Saved live Discovery Document to {args.input_file}")
+        print(f"Saved live Discovery Document to {input_file}")
+    elif not os.path.exists(input_file):
+        raise FileNotFoundError(
+            f"Input file not found at {input_file} (pass --fetch to download"
+            " the latest Discovery Document)."
+        )
 
-    # 1. Load Discovery Document
-    print(f"Loading Discovery Document from {args.input_file}...")
-    with open(args.input_file, "r", encoding="utf-8") as f:
+    # 1. Load Discovery or OpenAPI 3.0 JSON
+    print(f"Loading specification from {input_file}...")
+    with open(input_file, "r", encoding="utf-8") as f:
         doc = json.load(f)
 
-    raw_schemas = copy.deepcopy(doc.get("schemas", {}))
+    if not isinstance(doc, dict):
+        raise ValueError(
+            f"Specification in {input_file} must be a JSON object."
+        )
+
+    components = doc.get("components")
+    if isinstance(doc.get("schemas"), dict):
+        raw_schemas = copy.deepcopy(doc["schemas"])
+        doc_info = doc
+    elif isinstance(components, dict) and isinstance(
+        components.get("schemas"), dict
+    ):
+        raw_schemas = copy.deepcopy(components["schemas"])
+        doc_info = doc.get("info") if isinstance(doc.get("info"), dict) else {}
+    else:
+        raise ValueError(
+            f"{input_file} is neither a Google Discovery Document (top-level"
+            " 'schemas') nor an OpenAPI 3.0 document ('components.schemas')."
+        )
 
     # 2. Build OpenAPI 3.1 envelope
     spec: dict[str, Any] = {
         "openapi": "3.1.0",
         "info": {
-            "title": doc.get("title", "Firebase AI Logic API"),
-            "description": doc.get(
+            "title": doc_info.get("title", "Firebase AI Logic API"),
+            "description": doc_info.get(
                 "description", "Firebase AI Logic Discovery Document"
             ),
-            "version": doc.get("version", "v1beta"),
+            "version": doc_info.get("version", "v1beta"),
         },
         "components": {"schemas": raw_schemas},
     }
 
     schemas = spec["components"]["schemas"]
 
-    # 3. Normalize references
-    print("Normalizing schema references...")
+    # 3. Normalize references and enum metadata extensions
+    print("Normalizing schema references and enum extensions...")
     normalize_refs(schemas)
+    normalize_enum_extensions(schemas)
 
-    # 4. Extract shared standalone enums, named per configured backend
-    print("Extracting shared standalone enums...")
-    backends = config_lib.GeneratorConfig.from_file(
-        args.overrides_file
-    ).backends
-    extract_standalone_enums(schemas, prefixes=[b.prefix for b in backends])
-
-    # 5. Infer required properties
-    print("Inferring required properties...")
-    infer_required_properties(schemas)
-
-    # 6. Upgrade nullables if any
-    print("Upgrading nullables...")
-    upgrade_nullables(spec)
-
-    # 7. Simplify allOf wrappers if any
+    # 4. Simplify allOf wrappers before nullable / standalone enum handling
     print("Simplifying allOf wrappers...")
     simplify_all_of(spec)
 
+    # 5. Upgrade nullables if any
+    print("Upgrading nullables...")
+    upgrade_nullables(spec)
+
+    # 6. Extract shared standalone enums, named per configured backend
+    print("Extracting shared standalone enums...")
+    backends = config_lib.GeneratorConfig.from_file(overrides_file).backends
+    extract_standalone_enums(schemas, prefixes=[b.prefix for b in backends])
+
+    # 7. Infer required properties
+    print("Inferring required properties...")
+    infer_required_properties(schemas)
+
     # 8. Load and apply overrides
-    print(f"Applying manual overrides from {args.overrides_file}...")
-    with open(args.overrides_file, "r", encoding="utf-8") as f:
+    print(f"Applying manual overrides from {overrides_file}...")
+    with open(overrides_file, "r", encoding="utf-8") as f:
         overrides = yaml.safe_load(f)
 
     if overrides and "schemas" in overrides:
@@ -510,9 +612,12 @@ def main(argv: list[str] | None = None) -> None:
     # 10. Output upgraded spec as YAML
     print(
         "Saving upgraded OpenAPI 3.1.0 specification to"
-        f" {args.output_file}..."
+        f" {output_file}..."
     )
-    with open(args.output_file, "w", encoding="utf-8") as f:
+    os.makedirs(
+        os.path.dirname(os.path.abspath(output_file)), exist_ok=True
+    )
+    with open(output_file, "w", encoding="utf-8") as f:
         yaml.safe_dump(spec, f, sort_keys=False, default_flow_style=False)
 
     print("Upgrade completed successfully.")

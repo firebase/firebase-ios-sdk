@@ -157,6 +157,45 @@ static NSString *const kFakeOAuthResponseURL = @"fakeOAuthResponseURL";
   XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
 }
 
+- (void)testObtainingOAuthCredentialWithRawNonceAndNilAccessToken {
+  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
+                                                                      IDToken:kFakeIDToken
+                                                                     rawNonce:@"fakeRawNonce"
+                                                                  accessToken:nil];
+  XCTAssertEqualObjects(credential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(credential.IDToken, kFakeIDToken);
+  XCTAssertNil(credential.accessToken);
+}
+
+- (void)testObtainingOAuthCredentialWithNilRawNonceAndAccessToken {
+  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
+                                                                      IDToken:kFakeIDToken
+                                                                     rawNonce:nil
+                                                                  accessToken:kFakeAccessToken];
+  XCTAssertEqualObjects(credential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(credential.IDToken, kFakeIDToken);
+  XCTAssertEqualObjects(credential.accessToken, kFakeAccessToken);
+}
+
+- (void)testObtainingOAuthCredentialWithNilRawNonceAndNilAccessToken {
+  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
+                                                                      IDToken:kFakeIDToken
+                                                                     rawNonce:nil
+                                                                  accessToken:nil];
+  XCTAssertEqualObjects(credential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(credential.IDToken, kFakeIDToken);
+  XCTAssertNil(credential.accessToken);
+}
+
+- (void)testObtainingOAuthCredentialWithIDTokenAndNilRawNonce {
+  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
+                                                                      IDToken:kFakeIDToken
+                                                                     rawNonce:nil];
+  XCTAssertEqualObjects(credential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(credential.IDToken, kFakeIDToken);
+  XCTAssertNil(credential.accessToken);
+}
+
 @end
 
 #endif  // TARGET_OS_IOS
