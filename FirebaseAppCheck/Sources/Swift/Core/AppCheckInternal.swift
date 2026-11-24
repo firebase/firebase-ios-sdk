@@ -61,13 +61,18 @@ extension FirebaseApp {
 
   /// Request hooks for App Check Core API requests: adds the heartbeat logging payload header.
   var appCheckRequestHooks: [Any] {
-    let heartbeatLogger: FIRHeartbeatLoggerProtocol = heartbeatLogger
-    let hook: AppCheckCoreAPIRequestHook = { request in
-      if let headerValue = heartbeatLogger.headerValue() {
-        request.setValue(headerValue, forHTTPHeaderField: "X-firebase-client")
-      }
+    [heartbeatRequestHook(heartbeatLogger: heartbeatLogger)]
+  }
+}
+
+/// Returns an App Check Core API request hook that sets the `X-firebase-client` header to the
+/// heartbeat logging payload of `heartbeatLogger`, if there is one.
+func heartbeatRequestHook(heartbeatLogger: FIRHeartbeatLoggerProtocol)
+  -> AppCheckCoreAPIRequestHook {
+  { request in
+    if let headerValue = heartbeatLogger.headerValue() {
+      request.setValue(headerValue, forHTTPHeaderField: "X-firebase-client")
     }
-    return [hook]
   }
 }
 

@@ -371,7 +371,6 @@ final class AppCheckTests: XCTestCase {
     appCheck.token(forcingRefresh: false) { token, error in
       XCTAssertNil(token)
       let error = error as NSError?
-      XCTAssertEqual(error, AppCheckErrorUtil.publicDomainError(serverError))
       XCTAssertEqual(error?.domain, AppCheckErrorDomain)
       XCTAssertEqual(error?.code, AppCheckErrorCode.serverUnreachable.rawValue)
       XCTAssertEqual(error?.userInfo as NSDictionary?, serverError.userInfo as NSDictionary)
@@ -391,7 +390,7 @@ final class AppCheckTests: XCTestCase {
     appCheck.token(forcingRefresh: false) { token, error in
       XCTAssertNil(token)
       let error = error as NSError?
-      XCTAssertEqual(error, AppCheckErrorUtil.publicDomainError(providerError))
+      XCTAssertEqual(error?.domain, AppCheckErrorDomain)
       XCTAssertEqual(error?.code, AppCheckErrorCode.unsupported.rawValue)
       XCTAssertEqual(error?.userInfo as NSDictionary?, providerError.userInfo as NSDictionary)
       completion.fulfill()
@@ -495,7 +494,6 @@ final class AppCheckTests: XCTestCase {
     appCheck.limitedUseToken { token, error in
       XCTAssertNil(token)
       let error = error as NSError?
-      XCTAssertEqual(error, AppCheckErrorUtil.publicDomainError(providerError))
       XCTAssertEqual(error?.domain, AppCheckErrorDomain)
       XCTAssertEqual(error?.code, AppCheckErrorCode.keychain.rawValue)
       XCTAssertEqual(error?.userInfo as NSDictionary?, providerError.userInfo as NSDictionary)
@@ -925,16 +923,47 @@ final class AppCheckTokenInternalTests: XCTestCase {
                    "projects/(null)/apps/app_id")
   }
 
-  func testRequestHookAddsHeartbeatHeader() throws {
+  private final class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol,
+    @unchecked Sendable {
+    let header: String?
+
+    init(header: String?) {
+      self.header = header
+    }
+
+    func log() {}
+
+    func heartbeatCodeForToday() -> FIRDailyHeartbeatCode {
+      header == nil ? .none : .some
+    }
+
+    func asyncHeaderValue(completionHandler: @escaping (String?) -> Void) {
+      completionHandler(header)
+    }
+
+    func headerValue() -> String? {
+      header
+    }
+  }
+
+  func testAppHasOneRequestHook() {
     let hooks = AppCheckTestUtils.app().appCheckRequestHooks
     XCTAssertEqual(hooks.count, 1)
-    let hook = try XCTUnwrap(hooks.first as? AppCheckCoreAPIRequestHook)
+    XCTAssertTrue(hooks.first is AppCheckCoreAPIRequestHook)
+  }
+
+  func testRequestHookAddsHeartbeatHeader() {
+    let hook = heartbeatRequestHook(heartbeatLogger: FakeHeartbeatLogger(header: "heartbeats"))
     let request = NSMutableURLRequest(url: URL(string: "https://example.com")!)
     hook(request)
-    // The heartbeat logger may or may not have a payload; the hook must not crash and must only
-    // set the Firebase client header.
-    let headers = request.allHTTPHeaderFields ?? [:]
-    XCTAssertTrue(headers.keys.allSatisfy { $0 == "X-firebase-client" })
+    XCTAssertEqual(request.allHTTPHeaderFields, ["X-firebase-client": "heartbeats"])
+  }
+
+  func testRequestHookDoesNotAddHeaderWithoutHeartbeats() {
+    let hook = heartbeatRequestHook(heartbeatLogger: FakeHeartbeatLogger(header: nil))
+    let request = NSMutableURLRequest(url: URL(string: "https://example.com")!)
+    hook(request)
+    XCTAssertEqual(request.allHTTPHeaderFields ?? [:], [:])
   }
 }
 

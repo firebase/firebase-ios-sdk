@@ -155,13 +155,17 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
   }
 
   func testCustomProvidersOfEveryShapeCanBeUsed() async throws {
-    let providers: [any AppCheckProvider] = [
-      CompletionProvider(), CompletionProviderWithLimitedUse(),
-      AsyncProvider(), AsyncProviderWithLimitedUse(),
+    // Each provider, with the limited-use token it returns, or `nil` if it doesn't implement the
+    // optional limited-use token requirement.
+    let providers: [(any AppCheckProvider, String?)] = [
+      (CompletionProvider(), nil),
+      (CompletionProviderWithLimitedUse(), "limited"),
+      (AsyncProvider(), nil),
+      (AsyncProviderWithLimitedUse(), "limited"),
     ]
-    for provider in providers {
+    for (provider, expectedLimitedUseToken) in providers {
       let token = try await provider.getToken()
-      XCTAssertEqual(token.token, "token")
+      XCTAssertEqual(token.token, "token", "\(type(of: provider))")
       // Note: `try await provider.getLimitedUseToken?()` crashes the Swift 6.4 compiler, so the
       // optional requirement is called through its completion handler form.
       let limitedUseToken = await withCheckedContinuation { continuation in
@@ -172,9 +176,7 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
           continuation.resume(returning: nil)
         }
       }
-      if let limitedUseToken {
-        XCTAssertEqual(limitedUseToken, "limited")
-      }
+      XCTAssertEqual(limitedUseToken, expectedLimitedUseToken, "\(type(of: provider))")
     }
   }
 
