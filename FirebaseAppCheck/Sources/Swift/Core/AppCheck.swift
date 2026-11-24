@@ -106,9 +106,12 @@ private let providerFactoryStorage = ProviderFactoryStorage()
           + "`application(_:didFinishLaunchingWithOptions:)`."
       )
     }
-    // The Objective-C implementation returned `nil` when App Check isn't available for the app,
-    // for example when no provider factory is set. Keep that behavior: callers get `nil`, and
-    // messages sent to it do nothing.
+    // The public header declares this method nonnull, but the Objective-C implementation returned
+    // `nil` when App Check isn't available for the app, for example when the provider factory is
+    // nil. Keep that behavior, which `testDefaultAppCheckIsNilWithoutProviderFactory` pins.
+    // Callers get `nil`, and Objective-C messages sent to it do nothing. Making the header
+    // nullable, or returning a placeholder instance, would change the public API or its behavior.
+    // `Self?.none` is a null object reference, so the cast only changes the static type.
     return appCheck(app: defaultApp) ?? unsafeBitCast(Self?.none, to: Self.self)
   }
 

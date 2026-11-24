@@ -352,6 +352,35 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   XCTAssertTrue([component respondsToSelector:NSSelectorFromString(@"componentsToRegister")]);
 }
 
+- (void)testDefaultAppCheckIsNilWithoutProviderFactory {
+  // `+appCheck` is declared nonnull, but it has always returned nil when App Check isn't
+  // available for the default app, for example when the provider factory is nil. Callers rely on
+  // messages to it doing nothing, so the behavior must not change.
+  if ([FIRApp defaultApp] != nil) {
+    XCTSkip(@"A default app is configured.");
+  }
+  [FIRAppCheck setAppCheckProviderFactory:nil];
+  FIROptions *options =
+      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
+                                  GCMSenderID:@"sender_id"];
+  options.APIKey = @"api_key";
+  options.projectID = @"project_id";
+  [FIRApp configureWithOptions:options];
+  FIRApp *defaultApp = [FIRApp defaultApp];
+  XCTAssertNotNil(defaultApp);
+
+  FIRAppCheck *appCheck = [FIRAppCheck appCheck];
+  XCTAssertNil(appCheck);
+  XCTAssertNil([FIRAppCheck appCheckWithApp:defaultApp]);
+  XCTAssertFalse(appCheck.isTokenAutoRefreshEnabled);
+
+  XCTestExpectation *deleted = [self expectationWithDescription:@"default app deleted"];
+  [defaultApp deleteApp:^(BOOL success) {
+    [deleted fulfill];
+  }];
+  [self waitForExpectations:@[ deleted ] timeout:5];
+}
+
 - (void)testTokenInitializer {
   NSDate *date = [NSDate dateWithTimeIntervalSince1970:100];
   FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithToken:@"token" expirationDate:date];
