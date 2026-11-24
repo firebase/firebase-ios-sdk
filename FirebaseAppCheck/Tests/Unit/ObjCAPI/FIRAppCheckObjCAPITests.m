@@ -257,17 +257,19 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 /// Selectors and Objective-C type encodings of the public methods. Type encodings are the same
-/// on all 64-bit Apple platforms.
+/// on all 64-bit Apple platforms, except for `BOOL`: it's `bool` (`B`) on arm64 and
+/// `signed char` (`c`) on x86_64, for example in macOS tests that run under Rosetta.
 - (NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *)instanceMethods {
+  NSString *const b = @(@encode(BOOL));
   NSString *const kTokenMethod = @"v24@0:8@?16";
   NSString *const kFactoryMethod = @"@24@0:8@16";
   NSString *const kInitWithApp = @"@24@0:8@16";
   NSMutableDictionary *methods = [@{
     @"FIRAppCheck" : @{
-      @"tokenForcingRefresh:completion:" : @"v28@0:8B16@?20",
+      @"tokenForcingRefresh:completion:" : [NSString stringWithFormat:@"v28@0:8%@16@?20", b],
       @"limitedUseTokenWithCompletion:" : kTokenMethod,
-      @"isTokenAutoRefreshEnabled" : @"B16@0:8",
-      @"setIsTokenAutoRefreshEnabled:" : @"v20@0:8B16",
+      @"isTokenAutoRefreshEnabled" : [NSString stringWithFormat:@"%@16@0:8", b],
+      @"setIsTokenAutoRefreshEnabled:" : [NSString stringWithFormat:@"v20@0:8%@16", b],
     },
     @"FIRAppCheckToken" : @{
       @"initWithToken:expirationDate:" : @"@32@0:8@16@24",
