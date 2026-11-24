@@ -828,6 +828,11 @@ jobs:
         with:
           path: .build
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
+      # Runs after saving the cache, so a rerun after fixing a warning still
+      # reuses the resolved packages. Checks the Firestore source build, which
+      # the other SPM workflows don't load.
+      - name: Check for Swift Package Manager warnings
+        run: scripts/check_spm_warnings.sh
 
   spm-source:
     needs: [check, spm-package-resolved]
