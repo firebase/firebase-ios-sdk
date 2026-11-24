@@ -1,6 +1,9 @@
 # Unreleased
 - [changed] Firebase App Check is now implemented in Swift. The public Swift and
   Objective-C APIs are unchanged. (#17113)
+- [changed] The binary distributions of App Check now include the header
+  `FIRAppCheckInternal.h`, which declares members that the SDK uses internally.
+  They aren't public API and may change at any time. (#17113)
 - [changed] `AppCheck.appCheck()` and `AppCheck.appCheck(app:)` called on a
   subclass of `AppCheck` now return `nil`, because the App Check instance isn't
   an instance of the subclass. They used to return the `AppCheck` instance,

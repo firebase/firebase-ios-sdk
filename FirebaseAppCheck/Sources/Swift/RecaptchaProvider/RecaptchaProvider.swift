@@ -43,8 +43,14 @@ internal import FirebaseCoreExtension
   final var recaptchaProvider: AppCheckCoreProvider
 
   @objc(initWithRecaptchaProvider:)
-  init(recaptchaProvider: Any) {
-    self.recaptchaProvider = recaptchaProvider as! AppCheckCoreProvider
+  init?(recaptchaProvider: Any) {
+    // The parameter is `id` in `FIRAppCheckInternal.h`, which doesn't import App Check Core. The
+    // header is visible to apps that use CocoaPods or the binary distributions, so don't trap on
+    // other objects.
+    guard let recaptchaProvider = recaptchaProvider as? AppCheckCoreProvider else {
+      return nil
+    }
+    self.recaptchaProvider = recaptchaProvider
     super.init()
   }
 

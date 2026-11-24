@@ -22,11 +22,21 @@
   #else
     @testable import FirebaseAppCheck
   #endif // SWIFT_PACKAGE
+  import XCTest
 
   extension RecaptchaProvider {
     /// Test helper that bypasses production validation checks.
     class func testInstance(recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider {
-      RecaptchaProvider(recaptchaProvider: recaptchaProvider)
+      RecaptchaProvider(recaptchaProvider: recaptchaProvider)!
+    }
+  }
+
+  final class RecaptchaProviderTestInitializerTests: XCTestCase {
+    /// `FIRAppCheckInternal.h` is visible to apps that use CocoaPods or the binary distributions.
+    /// Its initializer takes `id`, so it must not trap on other objects.
+    func testInitWithRecaptchaProviderReturnsNilForOtherObjects() {
+      XCTAssertNil(RecaptchaProvider(recaptchaProvider: NSObject()))
+      XCTAssertNil(RecaptchaProvider(recaptchaProvider: "provider"))
     }
   }
 

@@ -20,7 +20,10 @@
 // The classes of the SDK are declared in Objective-C headers and implemented in Swift with
 // `@objc @implementation` extensions, which can only implement members declared in a header. This
 // header declares the members that the SDK uses internally. It is not imported by
-// `FirebaseAppCheck.h`.
+// `FirebaseAppCheck.h`:
+// - SwiftPM: it's only in the explicit submodule `FirebaseAppCheck.Internal`.
+// - CocoaPods and the binary distributions built from the podspec: it's a public header of the
+//   pod, so the generated umbrella header imports it, and apps can see these declarations.
 
 #import <Foundation/Foundation.h>
 
@@ -47,7 +50,8 @@ API_UNAVAILABLE(macos, tvos, watchos, macCatalyst)
 
 /// Creates a provider that wraps an App Check Core provider. For tests.
 /// @param recaptchaProvider A `GACAppCheckProvider` (`AppCheckCoreProvider` in Swift).
-- (instancetype)initWithRecaptchaProvider:(id)recaptchaProvider;
+/// @return `nil` if `recaptchaProvider` isn't a `GACAppCheckProvider`.
+- (nullable instancetype)initWithRecaptchaProvider:(id)recaptchaProvider;
 
 @end
 

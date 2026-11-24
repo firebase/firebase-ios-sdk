@@ -36,7 +36,10 @@ Pod::Spec.new do |s|
 
   # The public API is declared in Objective-C headers and implemented in Swift with
   # `@objc @implementation` extensions. `FIRAppCheckInternal.h` declares internal members that the
-  # Swift implementation uses; it is not imported by `FirebaseAppCheck.h`.
+  # Swift implementation uses; it is not imported by `FirebaseAppCheck.h`. It matches
+  # `public_header_files`, so the generated umbrella header imports it: the Swift sources need
+  # its declarations, and a pod has no other module they can import it from (a separate Clang
+  # module would have to be found by every client of the pod too). It isn't public API.
   s.source_files = [
     base_dir + 'Sources/Swift/**/*.swift',
     base_dir + 'Sources/ObjC/**/*.[mh]',

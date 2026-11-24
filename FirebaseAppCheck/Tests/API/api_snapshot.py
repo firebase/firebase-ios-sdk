@@ -66,7 +66,7 @@ SWIFT_TYPE_RENAMES = {r'\bFIRApp\b': 'FirebaseApp'}
 # Differences from the Objective-C implementation that are approved. There are none: the Swift
 # implementation of the SDK implements the same Objective-C headers. Its internal declarations
 # (`FIRAppCheckInternal.h`) are in the `FirebaseAppCheck.Internal` submodule, which apps don't
-# import.
+# import. See `APPROVED_EXTRA_PUBLIC_HEADERS` for CocoaPods and the binary distributions.
 APPROVED_SWIFT_DIFFERENCES = []
 APPROVED_OBJC_DIFFERENCES = []
 
@@ -655,6 +655,51 @@ def golden_path(kind, platform):
   return os.path.join(API_DIR, '%s_api_%s.txt' % (kind, platform))
 
 
+# Headers in the public headers directory that `FirebaseAppCheck.h` doesn't import. With SwiftPM,
+# `FIRAppCheckInternal.h` is only in the explicit submodule `FirebaseAppCheck.Internal`. CocoaPods
+# (used for internal testing only since Firebase 13) and the binary distributions built from the
+# podspec make it a public header, so apps that use them can see its declarations. They aren't
+# public API.
+APPROVED_EXTRA_PUBLIC_HEADERS = {'FIRAppCheckInternal.h'}
+
+
+def check_public_headers():
+  """Checks that every public header is part of the umbrella header `FirebaseAppCheck.h`.
+
+  The snapshots above cover the SwiftPM module, whose umbrella header is `FirebaseAppCheck.h`.
+  CocoaPods instead generates an umbrella header that imports every header in the public headers
+  directory, and the frameworks built from the podspec also ship all of them. A header there that
+  `FirebaseAppCheck.h` doesn't import, directly or indirectly, adds API with CocoaPods and the
+  binary distributions only.
+  """
+
+  def imports(header):
+    with open(os.path.join(PUBLIC_HEADERS, header), encoding='utf-8') as f:
+      return set(re.findall(r'^\s*#import\s+"([^"]+)"', f.read(), re.MULTILINE))
+
+  reachable, pending = set(), ['FirebaseAppCheck.h']
+  while pending:
+    header = pending.pop()
+    if header in reachable:
+      continue
+    reachable.add(header)
+    pending.extend(imports(header))
+  headers = {os.path.basename(h) for h in glob.glob(os.path.join(PUBLIC_HEADERS, '*.h'))}
+  extra = headers - reachable
+  ok = True
+  if extra - APPROVED_EXTRA_PUBLIC_HEADERS:
+    print('Public headers that FirebaseAppCheck.h does not import: %s' %
+          ', '.join(sorted(extra - APPROVED_EXTRA_PUBLIC_HEADERS)))
+    ok = False
+  if APPROVED_EXTRA_PUBLIC_HEADERS - extra:
+    print('Approved extra public headers that are missing or imported by FirebaseAppCheck.h: %s' %
+          ', '.join(sorted(APPROVED_EXTRA_PUBLIC_HEADERS - extra)))
+    ok = False
+  if ok:
+    print('Public headers: no changes')
+  return ok
+
+
 def diff(kind, platform, actual, approved):
   with open(golden_path(kind, platform)) as f:
     expected = [l.rstrip('\n') for l in f if l.strip()]
@@ -709,6 +754,8 @@ def main():
     print('\n'.join(snapshots[args.print][0]()))
     return 0
   ok = True
+  if args.check:
+    ok = check_public_headers()
   for kind, (snapshot, approved) in snapshots.items():
     lines = snapshot()
     if args.update:
