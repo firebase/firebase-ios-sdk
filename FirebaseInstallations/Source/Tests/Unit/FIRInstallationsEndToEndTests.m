@@ -157,7 +157,7 @@ static NSString *const kTestHeartbeatHeader = @"test-heartbeat-header";
 @property(nonatomic) FIROptions *options;
 @property(nonatomic) FIRInstallationsFakeBackend *backend;
 @property(nonatomic) FIRInstallationsFakeSecureStorage *secureStorage;
-@property(nonatomic) NSString *userDefaultsSuiteName;
+@property(nonatomic, copy) NSString *userDefaultsSuiteName;
 @property(nonatomic) FIRInstallationsFakeIIDStore *IIDStore;
 @property(nonatomic) FIRInstallationsFakeIIDTokenStore *IIDTokenStore;
 @property(nonatomic) FIRInstallationsTestHeartbeatLogger *heartbeatLogger;
