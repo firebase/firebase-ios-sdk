@@ -62,7 +62,7 @@ class IndexEncodingBuffer {
   }
 
   void Seed(const std::string& bytes) {
-    util::AppendBytes<false>(&buffer_, bytes.data(), bytes.size());
+    buffer_.append(bytes);
   }
 
   /** Returns a pointer to the encoder used by the given segment kind. */

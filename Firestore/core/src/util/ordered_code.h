@@ -39,7 +39,6 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_ORDERED_CODE_H_
 #define FIRESTORE_CORE_SRC_UTIL_ORDERED_CODE_H_
 
-#include <cstddef>
 #include <cstdint>
 #include <string>
 
@@ -48,9 +47,6 @@
 namespace firebase {
 namespace firestore {
 namespace util {
-
-template <bool INVERT>
-void AppendBytes(std::string* dest, const char* src, size_t len);
 
 class OrderedCode {
  public:

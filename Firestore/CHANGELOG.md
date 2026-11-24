@@ -1,5 +1,7 @@
 # Unreleased
 
+- [fixed] Fixed a Clang linker error (`undefined symbol: ...
+  AppendBytes<false>`) when building Firestore's C++ core on Linux. (#17105)
 - [changed] On Apple platforms, Firestore now verifies gRPC TLS server
   certificates using `Security.framework` (`SecTrust`) instead of an embedded
   root certificate bundle, enabling automatic OS root store, enterprise MDM,
