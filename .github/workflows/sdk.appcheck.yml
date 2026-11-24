@@ -47,12 +47,21 @@ jobs:
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Build
       run: swift build --target FirebaseAppCheckSwift
+    - name: Build for the iOS Simulator
+      run: |
+        swift build --target FirebaseAppCheckSwift --scratch-path .build-ios \
+          --triple arm64-apple-ios15.0-simulator \
+          --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)"
     - name: Check the API snapshots
       run: |
         python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform macos
-        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform ios
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform ios \
+          --build-dir .build-ios
     - name: Negative compile tests
-      run: python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform macos
+      run: |
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform macos
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform ios \
+          --build-dir .build-ios
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml

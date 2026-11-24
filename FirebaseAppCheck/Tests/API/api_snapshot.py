@@ -167,8 +167,11 @@ def swift_module_supports(swift_module, target):
   platform = target.split('-')[2].rstrip('0123456789.')
   if os.path.isdir(swift_module):
     return any(platform in name for name in os.listdir(swift_module))
-  # A single-file module is built for the host platform of `swift build`.
-  return platform == 'macos'
+  # A single-file module, from the native build system. It records its target triple.
+  with open(swift_module, 'rb') as f:
+    triples = set(re.findall(rb'-apple-([a-z]+?)(?:x)?[\d.]*(-simulator)?\x00', f.read()))
+  wanted = (platform.rstrip('x').encode(), b'-simulator' if target.endswith('-simulator') else b'')
+  return wanted in triples
 
 
 def strip_param_names(signature):
@@ -714,24 +717,30 @@ def diff(kind, platform, actual, approved):
   return False
 
 
-def default_build_dir():
-  """Returns the build directory of `swift build` in the repository, for either build system."""
-  candidates = [
-      os.path.join(REPO_ROOT, '.build', 'out'),
-      os.path.join(REPO_ROOT, '.build', 'debug'),
-      os.path.join(REPO_ROOT, '.build', 'arm64-apple-macosx', 'debug'),
-  ]
+def resolve_build_dir(path):
+  """Returns the build directory in a SwiftPM scratch path (`.build`) or build directory.
+
+  The `swiftbuild` build system builds into `<scratch path>/out`, and the native build system into
+  `<scratch path>/<triple>/debug`, with a `<scratch path>/debug` symlink.
+  """
+  candidates = [os.path.join(path, 'out'), os.path.join(path, 'debug')]
+  candidates += sorted(glob.glob(os.path.join(path, '*-apple-*', 'debug')))
   for candidate in candidates:
     if os.path.isdir(candidate):
       return os.path.realpath(candidate)
-  return candidates[-1]
+  return os.path.realpath(path)
+
+
+def default_build_dir():
+  """Returns the build directory of `swift build` in the repository, for either build system."""
+  return resolve_build_dir(os.path.join(REPO_ROOT, '.build'))
 
 
 def main():
   parser = argparse.ArgumentParser(description=__doc__)
-  parser.add_argument('--build-dir', default=default_build_dir(),
-                      help='The SwiftPM build directory. Build the `FirebaseAppCheckSwift` '
-                      'target first.')
+  parser.add_argument('--build-dir', default=default_build_dir(), type=resolve_build_dir,
+                      help='The SwiftPM scratch path (such as `.build`) or build directory. '
+                      'Build the `FirebaseAppCheckSwift` target first.')
   parser.add_argument('--platform', choices=sorted(PLATFORMS), default='macos')
   group = parser.add_mutually_exclusive_group(required=True)
   group.add_argument('--check', action='store_true')
