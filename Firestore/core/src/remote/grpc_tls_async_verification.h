@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_ASYNC_VERIFICATION_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_ASYNC_VERIFICATION_H_
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -121,9 +122,12 @@ class TlsAsyncVerificationTracker {
 
   /**
    * Registers a new verification for `request`, which must not be null, and
-   * returns its id. `request` is never dereferenced.
+   * returns its id. `request` is never dereferenced. `target_name` is used
+   * only for diagnostic logging.
    */
-  Id Start(const Request* request, TlsVerificationCallback callback);
+  Id Start(const Request* request,
+           TlsVerificationCallback callback,
+           std::string target_name = "");
 
   /**
    * Ends the synchronous part of `Verify()`. If verification `id` was already
@@ -167,6 +171,9 @@ class TlsAsyncVerificationTracker {
   struct Entry {
     const Request* request = nullptr;
     TlsVerificationCallback callback;
+    std::string target_name;
+    std::chrono::steady_clock::time_point started_at =
+        std::chrono::steady_clock::now();
     // True until `FinishStart()` runs, i.e. while `Verify()` is still on the
     // stack and the callback must not be invoked.
     bool starting = true;
