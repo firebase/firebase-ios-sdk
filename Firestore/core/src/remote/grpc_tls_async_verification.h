@@ -17,8 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_ASYNC_VERIFICATION_H_
 #define FIRESTORE_CORE_SRC_REMOTE_GRPC_TLS_ASYNC_VERIFICATION_H_
 
-#include <chrono>
 #include <cstddef>
+
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <memory>
