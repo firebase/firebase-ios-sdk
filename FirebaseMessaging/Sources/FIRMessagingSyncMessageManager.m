@@ -50,10 +50,11 @@ static const int64_t kDefaultSyncMessageTTL = 4 * 7 * 24 * 60 * 60;  // 4 weeks
 }
 
 - (BOOL)didReceiveAPNSSyncMessage:(NSDictionary *)message {
-  NSString *rmqID = message[kFIRMessagingMessageIDKey];
+  id rawRmqID = message[kFIRMessagingMessageIDKey];
+  NSString *rmqID = [rawRmqID isKindOfClass:[NSString class]] ? rawRmqID : nil;
   if (![rmqID length]) {
     FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager002,
-                            @"Invalid nil rmqID for sync message.");
+                            @"Invalid rmqID for sync message.");
     return NO;
   }
 

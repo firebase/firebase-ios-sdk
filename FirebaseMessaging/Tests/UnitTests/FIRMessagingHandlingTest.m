@@ -222,6 +222,39 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   }
 }
 
+- (void)testMalformedMessageIDDoesNotCrash {
+  // "gcm.message_id" comes from the untrusted push payload and is read with -length; a non-string
+  // value does not respond to it.
+  for (id messageID in @[ @1566513591299872, @{}, @[ @"1" ], [NSNull null] ]) {
+    NSDictionary *notificationPayload = @{
+      @"aps" : @{@"content-available" : @1},
+      @"gcm.message_id" : messageID,
+      @"google.c.a.e" : @1,
+    };
+    FIRMessagingMessageInfo *info = nil;
+    XCTAssertNoThrow(info = [_testUtil.messaging appDidReceiveMessage:notificationPayload]);
+    XCTAssertEqual(info.status, FIRMessagingMessageStatusNew);
+  }
+}
+
+- (void)testMalformedSyncMessageIDDoesNotCrash {
+  id mockRmqManager = OCMClassMock([FIRMessagingRmqManager class]);
+  OCMReject([mockRmqManager querySyncMessageWithRmqID:[OCMArg any]]);
+  FIRMessagingSyncMessageManager *syncManager =
+      [[FIRMessagingSyncMessageManager alloc] initWithRmqManager:mockRmqManager];
+  for (id messageID in @[ @1566513591299872, @{}, @[ @"1" ], [NSNull null], @"" ]) {
+    NSDictionary *notificationPayload = @{
+      @"aps" : @{@"content-available" : @1},
+      @"gcm.message_id" : messageID,
+    };
+    BOOL isOld = YES;
+    XCTAssertNoThrow(isOld = [syncManager didReceiveAPNSSyncMessage:notificationPayload]);
+    XCTAssertFalse(isOld);
+  }
+  OCMVerifyAll(mockRmqManager);
+  [mockRmqManager stopMocking];
+}
+
 - (void)testMCSNotification {
   NSDictionary *notificationPayload = @{@"from" : @"35006771263", @"image" : @"bunny.png"};
   OCMExpect([_testUtil.mockMessaging handleContextManagerMessage:notificationPayload]);
