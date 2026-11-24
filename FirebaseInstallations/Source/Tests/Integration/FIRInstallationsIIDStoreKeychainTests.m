@@ -104,8 +104,10 @@ static NSString *const kIIDCreationTimePlistKey = @"|S|cre";
 
 - (void)testExistingIIDIsReadFromLegacyKeyAndPlist {
   [self createLegacyKeyPair];
-  XCTAssertTrue([@{kIIDCreationTimePlistKey : @"1234"} writeToFile:[self.store plistPath]
-                                                        atomically:YES]);
+  NSURL *plistURL = [NSURL fileURLWithPath:[self.store plistPath]];
+  NSError *writeError;
+  XCTAssertTrue([@{kIIDCreationTimePlistKey : @"1234"} writeToURL:plistURL error:&writeError],
+                @"%@", writeError);
 
   FBLPromise<NSString *> *IIDPromise = [self.store existingIID];
   [self waitForPromise:IIDPromise];
