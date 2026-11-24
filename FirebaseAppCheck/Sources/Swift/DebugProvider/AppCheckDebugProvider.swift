@@ -33,9 +33,9 @@ extension AppCheckCoreDebugProvider: AppCheckCoreDebugProviding {}
 
 /// Implements `FIRAppCheckDebugProvider`, declared in `FIRAppCheckDebugProvider.h`.
 @objc @implementation extension AppCheckDebugProvider {
-  final var debugProvider: AppCheckCoreDebugProviding
-  final var projectID: String?
-  final var googleAppID: String
+  private(set) final var debugProvider: AppCheckCoreDebugProviding
+  private final var projectID: String?
+  private final var googleAppID: String
   /// `@implementation` classes can't store values of types that may be resilient, such as the
   /// App Check Core enums in binary distributions, so the raw value is stored.
   private final var debugTokenSourceRawValue: Int
@@ -120,7 +120,7 @@ extension AppCheckCoreDebugProvider: AppCheckCoreDebugProviding {}
 extension AppCheckDebugProvider {
   // MARK: - Logging
 
-  func logDebugTokenSource() {
+  private func logDebugTokenSource() {
     switch debugTokenSource {
     case .local:
       logDebugTokenMessage(code: .debugToken, prefix: "")
@@ -137,7 +137,7 @@ extension AppCheckDebugProvider {
     }
   }
 
-  func logDebugTokenMessage(code: AppCheckMessageCode, prefix: String) {
+  private func logDebugTokenMessage(code: AppCheckMessageCode, prefix: String) {
     guard let projectID, !projectID.isEmpty, !googleAppID.isEmpty else {
       return
     }
@@ -164,7 +164,7 @@ extension AppCheckDebugProvider {
     )
   }
 
-  func logDebugTokenExchangeError(_ error: Error) {
+  private func logDebugTokenExchangeError(_ error: Error) {
     if debugTokenSource == .local {
       logDebugTokenMessage(code: .debugTokenExchangeFailed,
                            prefix: "Failed to exchange debug token. ")

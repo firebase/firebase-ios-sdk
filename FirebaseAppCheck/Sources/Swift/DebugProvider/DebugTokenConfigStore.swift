@@ -74,12 +74,7 @@ enum DebugTokenConfigStore {
         return nil
       }
       guard let tokens = tokensValue as? [String: Any] else {
-        AppCheckLogger.log(
-          .warning,
-          .debugTokenConfigStoreUnreadable,
-          "Failed to parse App Check debug tokens from ~/\(relativePath): `\(tokensKey)` is not a "
-            + "JSON object"
-        )
+        logUnparsableConfigStore("`\(tokensKey)` is not a JSON object")
         return nil
       }
 

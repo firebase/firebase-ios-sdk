@@ -906,13 +906,12 @@ final class AppCheckTokenInternalTests: XCTestCase {
     XCTAssertLessThanOrEqual(token.receivedAtDate, after)
   }
 
-  func testResultWithoutTokenOrError() {
-    let result = AppCheckToken.result(token: nil, error: nil)
-    guard case let .failure(error) = result else {
-      return XCTFail("Expected a failure.")
-    }
-    XCTAssertEqual((error as NSError).domain, AppCheckErrorDomain)
-    XCTAssertEqual((error as NSError).code, AppCheckErrorCode.unknown.rawValue)
+  func testMissingTokenError() {
+    let error = AppCheckToken.missingTokenError()
+    XCTAssertEqual(error.domain, AppCheckErrorDomain)
+    XCTAssertEqual(error.code, AppCheckErrorCode.unknown.rawValue)
+    XCTAssertEqual(error.userInfo as NSDictionary,
+                   [NSLocalizedFailureReasonErrorKey: "No token and no error returned."])
   }
 
   func testResourceName() {

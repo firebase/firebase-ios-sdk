@@ -120,26 +120,18 @@ extension AppCheckToken {
               receivedAtDate: internalToken.receivedAtDate)
   }
 
-  /// Creates a token from an App Check Core token.
-  static func token(internalToken: AppCheckCoreToken) -> AppCheckToken {
-    AppCheckToken(internalToken: internalToken)
-  }
-
   /// The App Check Core token that is equivalent to this token.
   var internalToken: AppCheckCoreToken {
     AppCheckCoreToken(token: token, expirationDate: expirationDate, receivedAt: receivedAtDate)
   }
 
-  /// Converts the arguments of a token completion handler to a `Result`.
-  static func result(token: AppCheckToken?, error: Error?) -> Result<AppCheckToken, Error> {
-    if let token, error == nil {
-      return .success(token)
-    }
-    return .failure(error ?? NSError(
+  /// The error for a provider that returned neither a token nor an error.
+  static func missingTokenError() -> NSError {
+    NSError(
       domain: AppCheckErrorDomain,
       code: AppCheckErrorCode.unknown.rawValue,
       userInfo: [NSLocalizedFailureReasonErrorKey: "No token and no error returned."]
-    ))
+    )
   }
 }
 
@@ -193,19 +185,10 @@ func appCheckTokenCompletion(_ handler: @escaping @Sendable (AppCheckToken?, Err
       return
     }
     guard let internalToken else {
-      handler(nil, AppCheckToken.result(token: nil, error: nil).failureValue)
+      handler(nil, AppCheckToken.missingTokenError())
       return
     }
     handler(AppCheckToken(internalToken: internalToken), nil)
-  }
-}
-
-private extension Result {
-  var failureValue: Failure? {
-    if case let .failure(error) = self {
-      return error
-    }
-    return nil
   }
 }
 

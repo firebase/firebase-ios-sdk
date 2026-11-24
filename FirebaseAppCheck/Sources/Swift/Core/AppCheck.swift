@@ -40,7 +40,7 @@ private let providerFactoryStorage = ProviderFactoryStorage()
 @objc @implementation extension AppCheck {
   // MARK: - Internal
 
-  final var appName: String
+  final let appName: String
   final var appCheckCore: AppCheckCoreProtocol
   final var notificationCenter: NotificationCenter
   final var settings: AppCheckCoreSettingsProtocol
@@ -140,7 +140,7 @@ private let providerFactoryStorage = ProviderFactoryStorage()
         handler(nil, AppCheckErrorUtil.publicDomainError(error))
         return
       }
-      handler(AppCheckToken.token(internalToken: result.token), nil)
+      handler(AppCheckToken(internalToken: result.token), nil)
     }
   }
 
@@ -151,7 +151,7 @@ private let providerFactoryStorage = ProviderFactoryStorage()
         handler(nil, AppCheckErrorUtil.publicDomainError(error))
         return
       }
-      handler(AppCheckToken.token(internalToken: result.token), nil)
+      handler(AppCheckToken(internalToken: result.token), nil)
     }
   }
 

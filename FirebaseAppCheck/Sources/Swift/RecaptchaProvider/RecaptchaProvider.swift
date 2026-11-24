@@ -40,7 +40,7 @@ internal import FirebaseCoreExtension
 @available(macCatalyst, unavailable)
 @objc @implementation extension RecaptchaProvider {
   /// The App Check Core provider that implements reCAPTCHA Enterprise attestation.
-  final var recaptchaProvider: AppCheckCoreProvider
+  private final let recaptchaProvider: AppCheckCoreProvider
 
   @objc(initWithRecaptchaProvider:)
   init?(recaptchaProvider: Any) {
