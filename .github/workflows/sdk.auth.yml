@@ -35,6 +35,8 @@ jobs:
     with:
       target: AuthUnit
       buildonly_platforms: macOS
+      # The unit tests cover deprecated APIs such as `updateEmail(to:)`.
+      ignore_deprecation_warnings: true
 
   spm_app_extension:
     uses: ./.github/workflows/_spm.yml

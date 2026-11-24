@@ -123,6 +123,11 @@ function RunXcodebuild() {
   local xcodebuild_args=("$@")
   local buildaction="${xcodebuild_args[$# - 1]}" # buildaction is the last arg
   local log_filename="xcodebuild-${buildaction}.log"
+  # The retry below writes its own log. An incremental rebuild doesn't recompile
+  # up-to-date files, so the first log keeps any compiler warnings, which
+  # scripts/check_spm_test_warnings.py reads.
+  local retry_log_filename="xcodebuild-${buildaction}-retry.log"
+  rm -f "$retry_log_filename"
 
   local xcbeautify_cmd
   if command -v xcbeautify &> /dev/null; then
@@ -153,8 +158,8 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$log_filename" | \
-      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$log_filename" \
+    NSUnbufferedIO=YES xcodebuild "$@" 2>&1 | tee "$retry_log_filename" | \
+      "${xcbeautify_cmd[@]}" && CheckUnexpectedFailures "$retry_log_filename" \
       || result=$?
   fi
 
