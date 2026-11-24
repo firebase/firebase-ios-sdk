@@ -44,7 +44,6 @@
 - (NSDictionary *)keyQueryForKeyWithTagPrefix:(NSString *)tagPrefix;
 - (NSString *)keychainKeyTagWithPrefix:(NSString *)prefix;
 - (BOOL)deleteKeychainKeyWithTagPrefix:(NSString *)tagPrefix error:(NSError **)outError;
-- (NSString *)plistPath;
 @end
 
 @implementation FIRInstallationsTests
@@ -62,78 +61,6 @@
   XCTAssertNil(error);
   [store stopMocking];
 }
-
-#if !TARGET_OS_OSX
-- (void)testDeleteExistingIIDRemovesBothLegacyKeys {
-  NSString *identifier = NSUUID.UUID.UUIDString;
-  NSString *publicTag = [@"com.google.iid.keypair.public-" stringByAppendingString:identifier];
-  NSString *privateTag = [@"com.google.iid.keypair.private-" stringByAppendingString:identifier];
-  NSDictionary *attributes = @{
-    (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
-    (__bridge id)kSecAttrKeySizeInBits : @2048,
-    (__bridge id)kSecPublicKeyAttrs : @{
-      (__bridge id)kSecAttrIsPermanent : @YES,
-      (__bridge id)kSecAttrApplicationTag : [publicTag dataUsingEncoding:NSUTF8StringEncoding]
-    },
-    (__bridge id)kSecPrivateKeyAttrs : @{
-      (__bridge id)kSecAttrIsPermanent : @YES,
-      (__bridge id)kSecAttrApplicationTag : [privateTag dataUsingEncoding:NSUTF8StringEncoding]
-    }
-  };
-  SecKeyRef publicKey = NULL;
-  SecKeyRef privateKey = NULL;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  OSStatus status =
-      SecKeyGeneratePair((__bridge CFDictionaryRef)attributes, &publicKey, &privateKey);
-#pragma clang diagnostic pop
-  if (publicKey) {
-    CFRelease(publicKey);
-  }
-  if (privateKey) {
-    CFRelease(privateKey);
-  }
-#if TARGET_OS_MACCATALYST
-  if (status == errSecMissingEntitlement) {
-    XCTSkip(@"Catalyst test host lacks keychain entitlements for permanent RSA keys.");
-  }
-#elif SWIFT_PACKAGE
-  if (status == errSecMissingEntitlement) {
-    // SPM test bundles run without a host app, so they have no keychain entitlements. The
-    // CocoaPods unit test spec runs this test in an app host.
-    XCTSkip(@"Swift Package Manager tests have no keychain entitlements for permanent RSA keys.");
-  }
-#endif
-  XCTAssertEqual(status, errSecSuccess);
-
-  id store = OCMPartialMock([[FIRInstallationsIIDStore alloc] init]);
-  OCMStub([store keychainKeyTagWithPrefix:@"com.google.iid.keypair.public-"]).andReturn(publicTag);
-  OCMStub([store keychainKeyTagWithPrefix:@"com.google.iid.keypair.private-"])
-      .andReturn(privateTag);
-  OCMStub([store plistPath])
-      .andReturn([NSTemporaryDirectory() stringByAppendingPathComponent:identifier]);
-  NSDictionary *publicQuery = [store keyQueryForKeyWithTagPrefix:@"com.google.iid.keypair.public-"];
-  NSDictionary *privateQuery =
-      [store keyQueryForKeyWithTagPrefix:@"com.google.iid.keypair.private-"];
-  @try {
-    XCTAssertEqual(SecItemCopyMatching((__bridge CFDictionaryRef)publicQuery, NULL), errSecSuccess);
-    XCTAssertEqual(SecItemCopyMatching((__bridge CFDictionaryRef)privateQuery, NULL),
-                   errSecSuccess);
-    FBLPromise<NSNull *> *promise = [store deleteExistingIID];
-    XCTAssertTrue(FBLWaitForPromisesWithTimeout(5));
-    XCTAssertTrue(promise.isFulfilled);
-    XCTAssertNil(promise.error);
-    XCTAssertEqual(SecItemCopyMatching((__bridge CFDictionaryRef)publicQuery, NULL),
-                   errSecItemNotFound);
-    XCTAssertEqual(SecItemCopyMatching((__bridge CFDictionaryRef)privateQuery, NULL),
-                   errSecItemNotFound);
-  } @finally {
-    SecItemDelete((__bridge CFDictionaryRef)publicQuery);
-    SecItemDelete((__bridge CFDictionaryRef)privateQuery);
-    [store stopMocking];
-  }
-}
-#endif
 
 - (void)testIIDKeyQueryUsesRequestedTagPrefix {
   FIRInstallationsIIDStore *IIDStore = [[FIRInstallationsIIDStore alloc] init];

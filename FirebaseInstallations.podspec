@@ -76,19 +76,4 @@ Pod::Spec.new do |s|
       unit_tests.source_files += base_dir + 'Tests/Unit/IIDStoreTests/*.[mh]'
     end
   end
-
-  s.test_spec 'integration' do |int_tests|
-    int_tests.scheme = { :code_coverage => true }
-    int_tests.platforms = {:ios => ios_deployment_target, :osx => osx_deployment_target, :tvos => tvos_deployment_target}
-    int_tests.source_files = base_dir + 'Tests/Integration/**/*.[mh]'
-    int_tests.resources = base_dir + 'Tests/Resources/**/*'
-    if ENV['FIS_INTEGRATION_TESTS_REQUIRED'] && ENV['FIS_INTEGRATION_TESTS_REQUIRED'] == '1' then
-      int_tests.pod_target_xcconfig = {
-      'GCC_PREPROCESSOR_DEFINITIONS' =>
-        'FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=1'
-      }
-    end
-    int_tests.requires_app_host = true
-    int_tests.dependency 'OCMock'
-  end
 end

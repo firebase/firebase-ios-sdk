@@ -1,0 +1,464 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F15000000000000000000021 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = F15000000000000000000020 /* main.m */; };
+		F15000000000000000000023 /* FIRInstallationsIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F15000000000000000000022 /* FIRInstallationsIntegrationTests.m */; };
+		F15000000000000000000025 /* FIRInstallationsIIDStoreKeychainTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F15000000000000000000024 /* FIRInstallationsIIDStoreKeychainTests.m */; };
+		F15000000000000000000027 /* FIRInstallationsItem+Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = F15000000000000000000026 /* FIRInstallationsItem+Tests.m */; };
+		F15000000000000000000031 /* FirebaseInstallations in Frameworks */ = {isa = PBXBuildFile; productRef = F15000000000000000000030 /* FirebaseInstallations */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F15000000000000000000050 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F15000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F15000000000000000000010;
+			remoteInfo = "FirebaseInstallationsTestApp-SPM";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		F15000000000000000000012 /* FirebaseInstallationsTestApp-SPM.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FirebaseInstallationsTestApp-SPM.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F15000000000000000000013 /* IntegrationTests-SPM.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "IntegrationTests-SPM.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F15000000000000000000020 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		F15000000000000000000022 /* FIRInstallationsIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Integration/FIRInstallationsIntegrationTests.m; sourceTree = "<group>"; };
+		F15000000000000000000024 /* FIRInstallationsIIDStoreKeychainTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Integration/FIRInstallationsIIDStoreKeychainTests.m; sourceTree = "<group>"; };
+		F15000000000000000000026 /* FIRInstallationsItem+Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "Utils/FIRInstallationsItem+Tests.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F15000000000000000000041 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F15000000000000000000044 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F15000000000000000000031 /* FirebaseInstallations in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F15000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				F15000000000000000000004 /* Sources */,
+				F15000000000000000000005 /* Tests */,
+				F15000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F15000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F15000000000000000000012 /* FirebaseInstallationsTestApp-SPM.app */,
+				F15000000000000000000013 /* IntegrationTests-SPM.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F15000000000000000000004 /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				F15000000000000000000020 /* main.m */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		F15000000000000000000005 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				F15000000000000000000022 /* FIRInstallationsIntegrationTests.m */,
+				F15000000000000000000024 /* FIRInstallationsIIDStoreKeychainTests.m */,
+				F15000000000000000000026 /* FIRInstallationsItem+Tests.m */,
+			);
+			name = Tests;
+			path = ..;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F15000000000000000000010 /* FirebaseInstallationsTestApp-SPM */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F15000000000000000000061 /* Build configuration list for PBXNativeTarget "FirebaseInstallationsTestApp-SPM" */;
+			buildPhases = (
+				F15000000000000000000040 /* Sources */,
+				F15000000000000000000041 /* Frameworks */,
+				F15000000000000000000042 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "FirebaseInstallationsTestApp-SPM";
+			productName = FirebaseInstallationsTestApp;
+			productReference = F15000000000000000000012 /* FirebaseInstallationsTestApp-SPM.app */;
+			productType = "com.apple.product-type.application";
+		};
+		F15000000000000000000011 /* IntegrationTests-SPM */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F15000000000000000000062 /* Build configuration list for PBXNativeTarget "IntegrationTests-SPM" */;
+			buildPhases = (
+				F15000000000000000000043 /* Sources */,
+				F15000000000000000000044 /* Frameworks */,
+				F15000000000000000000045 /* Resources */,
+				F15000000000000000000046 /* Copy GoogleService-Info.plist */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F15000000000000000000051 /* PBXTargetDependency */,
+			);
+			name = "IntegrationTests-SPM";
+			packageProductDependencies = (
+				F15000000000000000000030 /* FirebaseInstallations */,
+			);
+			productName = IntegrationTests;
+			productReference = F15000000000000000000013 /* IntegrationTests-SPM.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F15000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2700;
+				ORGANIZATIONNAME = "Google LLC";
+				TargetAttributes = {
+					F15000000000000000000010 = {
+						CreatedOnToolsVersion = 27.2;
+					};
+					F15000000000000000000011 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = F15000000000000000000010;
+					};
+				};
+			};
+			buildConfigurationList = F15000000000000000000060 /* Build configuration list for PBXProject "FirebaseInstallationsTestApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = F15000000000000000000002;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F15000000000000000000080 /* XCLocalSwiftPackageReference "../../../.." */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = F15000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F15000000000000000000010 /* FirebaseInstallationsTestApp-SPM */,
+				F15000000000000000000011 /* IntegrationTests-SPM */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F15000000000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F15000000000000000000045 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F15000000000000000000046 /* Copy GoogleService-Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy GoogleService-Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# The plist is decrypted into this folder by `scripts/repo.sh test --secrets` in CI and\n# isn't checked in. Without it, the tests that need a Firebase project skip themselves, unless\n# FIS_INTEGRATION_TESTS_REQUIRED=1 makes them fail.\nplist=\"${SRCROOT}/GoogleService-Info.plist\"\nif [ -f \"${plist}\" ]; then\n  cp \"${plist}\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F15000000000000000000040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F15000000000000000000021 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F15000000000000000000043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F15000000000000000000023 /* FIRInstallationsIntegrationTests.m in Sources */,
+				F15000000000000000000025 /* FIRInstallationsIIDStoreKeychainTests.m in Sources */,
+				F15000000000000000000027 /* FIRInstallationsItem+Tests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F15000000000000000000051 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F15000000000000000000010 /* FirebaseInstallationsTestApp-SPM */;
+			targetProxy = F15000000000000000000050 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		F15000000000000000000070 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator appletvos appletvsimulator";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+			};
+			name = Debug;
+		};
+		F15000000000000000000071 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator appletvos appletvsimulator";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 17.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		F15000000000000000000072 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseInstallationsTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F15000000000000000000073 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseInstallationsTestApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F15000000000000000000074 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=$(FIS_INTEGRATION_TESTS_REQUIRED:default=0)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../..";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseInstallationsTestAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FirebaseInstallationsTestApp-SPM.app/FirebaseInstallationsTestApp-SPM";
+			};
+			name = Debug;
+		};
+		F15000000000000000000075 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED=$(FIS_INTEGRATION_TESTS_REQUIRED:default=0)",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../../../..";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.FirebaseInstallationsTestAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FirebaseInstallationsTestApp-SPM.app/FirebaseInstallationsTestApp-SPM";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F15000000000000000000060 /* Build configuration list for PBXProject "FirebaseInstallationsTestApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F15000000000000000000070 /* Debug */,
+				F15000000000000000000071 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F15000000000000000000061 /* Build configuration list for PBXNativeTarget "FirebaseInstallationsTestApp-SPM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F15000000000000000000072 /* Debug */,
+				F15000000000000000000073 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F15000000000000000000062 /* Build configuration list for PBXNativeTarget "IntegrationTests-SPM" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F15000000000000000000074 /* Debug */,
+				F15000000000000000000075 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		F15000000000000000000080 /* XCLocalSwiftPackageReference "../../../.." */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../..;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F15000000000000000000030 /* FirebaseInstallations */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseInstallations;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = F15000000000000000000001 /* Project object */;
+}

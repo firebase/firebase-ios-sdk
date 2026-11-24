@@ -679,6 +679,25 @@ case "$product-$platform-$method" in
       test-without-building
     ;;
 
+  FirebaseInstallationsIntegration-*-build-for-testing)
+    RunXcodebuild \
+      -project 'FirebaseInstallations/Source/Tests/TestApp/FirebaseInstallationsTestApp.xcodeproj' \
+      -scheme "FirebaseInstallationsTestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build-for-testing
+    ;;
+
+  FirebaseInstallationsIntegration-*-*)
+    # The tests run in a host app because they need keychain access, which Swift Package Manager
+    # test bundles don't have.
+    RunXcodebuild \
+      -project 'FirebaseInstallations/Source/Tests/TestApp/FirebaseInstallationsTestApp.xcodeproj' \
+      -scheme "FirebaseInstallationsTestApp-SPM" \
+      "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
+      test
+    ;;
+
   Sessions-*-integration)
     # Perform "pod install" to install the relevant dependencies
     # ./FirebaseSessions/generate_testapp.sh
