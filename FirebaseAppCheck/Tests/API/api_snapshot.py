@@ -136,30 +136,36 @@ def module_map_flags(build_dir):
 
 
 def synthesize_swift_interface(build_dir, module, target, sdk):
-  with tempfile.NamedTemporaryFile(suffix='.swift', delete=False) as out:
-    output = out.name
-  cmd = [
-      'xcrun', 'swift-synthesize-interface', '-module-name', module,
-      '-target', target, '-sdk', sdk_path(sdk), '-I',
-      swift_modules_dir(build_dir), '-module-cache-path',
-      os.path.join(tempfile.gettempdir(), 'fac-api-mc'), '-o', output
-  ] + module_map_flags(build_dir) + header_search_flags()
-  result = subprocess.run(cmd, capture_output=True, text=True)
-  if result.returncode != 0:
-    messages = result.stdout + result.stderr
+  """Returns the Swift interface of `module`.
+
+  Returns '' only for a Swift module of the SDK (`SWIFT_MODULES`) that isn't part of the build for
+  `target`: a build of the Objective-C implementation of the SDK has no `FirebaseAppCheckSwift`,
+  and a macOS build has no iOS module. Any other failure is fatal.
+  """
+  if module in SWIFT_MODULES:
     swift_module = os.path.join(swift_modules_dir(build_dir), module + '.swiftmodule')
-    if 'Failed to load the module' in messages and os.path.exists(swift_module):
-      if module in SWIFT_MODULES and not swift_module_supports(swift_module, target):
-        # A Swift module built for another platform. The Objective-C headers, which are the
-        # public API, don't need a build for the target platform.
-        sys.stderr.write('Skipping %s, which was not built for %s.\n' % (module, target))
-        return ''
-      sys.stderr.write(messages)
+    if not os.path.exists(swift_module):
+      sys.stderr.write('Skipping %s, which is not part of the build in %s.\n' % (module, build_dir))
+      return ''
+    if not swift_module_supports(swift_module, target):
+      # The Objective-C headers, which are the public API, don't need a build for the target
+      # platform.
+      sys.stderr.write('Skipping %s, which was not built for %s.\n' % (module, target))
+      return ''
+  with tempfile.TemporaryDirectory() as temp_dir:
+    output = os.path.join(temp_dir, module + '.swift')
+    cmd = [
+        'xcrun', 'swift-synthesize-interface', '-module-name', module,
+        '-target', target, '-sdk', sdk_path(sdk), '-I',
+        swift_modules_dir(build_dir), '-module-cache-path',
+        os.path.join(tempfile.gettempdir(), 'fac-api-mc'), '-o', output
+    ] + module_map_flags(build_dir) + header_search_flags()
+    result = subprocess.run(cmd, capture_output=True, text=True, errors='replace')
+    if result.returncode != 0:
+      sys.stderr.write(' '.join(cmd) + '\n' + result.stdout + result.stderr)
       raise SystemExit('Failed to synthesize the interface of %s' % module)
-    # The module doesn't exist in this build configuration.
-    return ''
-  with open(output) as f:
-    return f.read()
+    with open(output, encoding='utf-8') as f:
+      return f.read()
 
 
 def swift_module_supports(swift_module, target):
@@ -216,30 +222,39 @@ def strip_param_names(signature):
         end = i
         break
       depth -= 1
+  if end is None:
+    # Unbalanced parentheses: leave the signature as is.
+    return signature
   params, tail = text[:end], text[end + 1:]
   return '%s(%s)%s' % (head, fix_params(params), tail)
 
 
-SWIFT_DROPPED_ATTRIBUTES = re.compile(
-    r'@objc(\([^)]*\))?\s*|@nonobjc\s*|@discardableResult\s*|'
-    r'@preconcurrency\s*|@MainActor\s*|dynamic\s+|final\s+(?=class\b)')
+SWIFT_PLATFORMS = ('macOS', 'iOS', 'tvOS', 'watchOS', 'visionOS', 'macCatalyst',
+                   'macOSApplicationExtension', 'iOSApplicationExtension',
+                   'tvOSApplicationExtension', 'watchOSApplicationExtension',
+                   'visionOSApplicationExtension', 'macCatalystApplicationExtension')
 
 
 def platform_availability(attribute, platform):
   """Keeps the parts of an `@available` attribute that apply to `platform`.
 
   The Clang importer only prints the availability for the platform it imports for, while Swift
-  prints all platforms.
+  prints all platforms. The kind of availability (introduced, deprecated, unavailable, ...) is kept.
   """
   m = re.match(r'^@available\((.*)\)$', attribute)
   if not m:
     return attribute
   names = {'macos': ('macOS', 'macOSApplicationExtension'), 'ios': ('iOS',)}[platform]
   parts = [p.strip() for p in m.group(1).split(',')]
-  if parts[0] in ('*',) or parts[0].split(' ')[0] not in [n for n in
-                                                       ['macOS', 'iOS', 'tvOS', 'watchOS',
-                                                        'visionOS', 'macCatalyst']]:
+  first = parts[0].split(' ')[0]
+  if parts[0] == '*' or first not in SWIFT_PLATFORMS:
+    # Applies to all platforms, such as `@available(*, unavailable)`.
     return attribute
+  if ' ' not in parts[0] and '*' not in parts:
+    # The long form, for one platform: `@available(macOS, unavailable)`,
+    # `@available(iOS, introduced: 15.0, deprecated: 16.0, message: "...")`.
+    return attribute if first in names else None
+  # The short form: `@available(macOS 11.3, iOS 14.0, *)`.
   kept = [p for p in parts if p.split(' ')[0] in names]
   if not kept:
     return None
@@ -264,16 +279,18 @@ def normalize_swift(text, platform):
       if stack:
         stack.pop()
       continue
-    decl = SWIFT_DROPPED_ATTRIBUTES.sub('', line).strip()
+    # Access levels (`open`, `public`), `final` and other attributes are part of the API, so they
+    # are kept. Only internal parameter names, which aren't API, are dropped.
+    decl = line
     for pattern, replacement in SWIFT_TYPE_RENAMES.items():
       decl = re.sub(pattern, replacement, decl)
-    decl = re.sub(r'\bopen\b|\bpublic\b', '', decl)
     decl = re.sub(r'\s+', ' ', decl).strip()
     opens_scope = decl.endswith('{')
     decl = decl.rstrip('{').strip()
     decl = strip_param_names(decl)
-    if not decl:
-      # An attribute on its own line, such as `@discardableResult`.
+    if re.match(r'^(@\w+(\([^)]*\))?\s*)+$', decl):
+      # Attributes on their own line, such as `@discardableResult`, apply to the next declaration.
+      pending_attrs.append(decl)
       continue
     attrs = ' '.join(sorted(filter(None, (platform_availability(a, platform)
                                           for a in pending_attrs))))
@@ -338,7 +355,7 @@ def first_quoted(line):
   return clean_type(m.group(1)) if m else ''
 
 
-class Node(object):
+class Node:
 
   def __init__(self, text, depth):
     self.text = text
@@ -375,7 +392,6 @@ def attribute_text(node, include_swift_name):
                   r'(\d+)', text)
     if m:
       platform, introduced, deprecated, obsoleted = m.groups()[:4]
-      unavailable = ' unavailable' in text.split('>', 1)[-1].split('"')[0]
       return 'API_AVAILABLE(%s %s%s)' % (
           platform, introduced, ' deprecated=' + deprecated
           if deprecated not in ('0', '') else '')
@@ -500,10 +516,13 @@ def clang_command(sdk, target, include_dirs, extra):
   return cmd
 
 
-def write_tu(source):
-  with tempfile.NamedTemporaryFile(suffix='.m', mode='w', delete=False) as tu:
-    tu.write(source)
-    return tu.name
+def run_on_source(cmd, source, suffix):
+  """Runs `cmd` with the path of a temporary file that contains `source` appended."""
+  with tempfile.TemporaryDirectory() as temp_dir:
+    path = os.path.join(temp_dir, 'source' + suffix)
+    with open(path, 'w', encoding='utf-8') as f:
+      f.write(source)
+    return run(cmd + [path])
 
 
 def objc_ast(source, include_dirs, sdk, target):
@@ -511,13 +530,13 @@ def objc_ast(source, include_dirs, sdk, target):
       '-fsyntax-only', '-Xclang', '-ast-dump', '-Xclang',
       '-ast-dump-filter=FIR'
   ])
-  return run(cmd + [write_tu(source)])
+  return run_on_source(cmd, source, '.m')
 
 
 def objc_macros(source, include_dirs, sdk, target):
   cmd = clang_command(sdk, target, include_dirs, ['-E', '-dM'])
   macros = set()
-  for line in run(cmd + [write_tu(source)]).splitlines():
+  for line in run_on_source(cmd, source, '.m').splitlines():
     m = re.match(r'#define (FIR_\w+)(.*)$', line)
     if m:
       macros.add('#define %s %s' % (m.group(1), m.group(2).strip()))
@@ -595,23 +614,28 @@ POSITIVE_OBJC_SNIPPET = (
     ' (void)[FIRAppCheck appCheck];')
 
 
+def compiles(cmd, source, suffix):
+  """Whether `cmd`, with the path of a temporary file that contains `source` appended, succeeds."""
+  with tempfile.TemporaryDirectory() as temp_dir:
+    path = os.path.join(temp_dir, 'snippet' + suffix)
+    with open(path, 'w', encoding='utf-8') as f:
+      f.write(source)
+    return subprocess.run(cmd + [path], capture_output=True, text=True).returncode == 0
+
+
 def swift_compiles(build_dir, target, sdk, snippet):
-  with tempfile.NamedTemporaryFile(suffix='.swift', mode='w', delete=False) as f:
-    f.write('import FirebaseAppCheck\nimport FirebaseCore\nimport Foundation\n'
+  source = ('import FirebaseAppCheck\nimport FirebaseCore\nimport Foundation\n'
             'func test() {\n  %s\n}\n' % snippet)
-    path = f.name
   cmd = ['xcrun', 'swiftc', '-typecheck', '-target', target, '-sdk', sdk_path(sdk),
          '-I', swift_modules_dir(build_dir), '-module-cache-path',
-         os.path.join(tempfile.gettempdir(), 'fac-api-mc'), path]
+         os.path.join(tempfile.gettempdir(), 'fac-api-mc')]
   cmd += module_map_flags(build_dir) + header_search_flags()
-  return subprocess.run(cmd, capture_output=True, text=True).returncode == 0
+  return compiles(cmd, source, '.swift')
 
 
 def objc_compiles(build_dir, target, sdk, snippet):
-  with tempfile.NamedTemporaryFile(suffix='.m', mode='w', delete=False) as f:
-    f.write('@import FirebaseAppCheck;\n@import FirebaseCore;\n'
+  source = ('@import FirebaseAppCheck;\n@import FirebaseCore;\n'
             'void test(void) {\n  %s\n}\n' % snippet)
-    path = f.name
   if is_swift_build_layout(build_dir):
     module_maps = glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
                                          'GeneratedModuleMaps*', '*.modulemap'))
@@ -619,10 +643,10 @@ def objc_compiles(build_dir, target, sdk, snippet):
     module_maps = glob.glob(os.path.join(build_dir, '*', 'module.modulemap'))
   cmd = ['xcrun', 'clang', '-x', 'objective-c', '-fobjc-arc', '-fmodules', '-fsyntax-only',
          '-isysroot', sdk_path(sdk), '-target', target, '-fmodules-cache-path=' +
-         os.path.join(tempfile.gettempdir(), 'fac-api-mc'), path]
+         os.path.join(tempfile.gettempdir(), 'fac-api-mc')]
   cmd += ['-fmodule-map-file=' + m for m in module_maps]
   cmd += [flag for flag in header_search_flags() if flag != '-Xcc']
-  return subprocess.run(cmd, capture_output=True, text=True).returncode == 0
+  return compiles(cmd, source, '.m')
 
 
 def negative_compile_tests(build_dir, target, sdk, platform):
@@ -704,7 +728,7 @@ def check_public_headers():
 
 
 def diff(kind, platform, actual, approved):
-  with open(golden_path(kind, platform)) as f:
+  with open(golden_path(kind, platform), encoding='utf-8') as f:
     expected = [l.rstrip('\n') for l in f if l.strip()]
   actual = [l for l in actual if l not in approved]
   if expected == actual:
@@ -768,7 +792,9 @@ def main():
   for kind, (snapshot, approved) in snapshots.items():
     lines = snapshot()
     if args.update:
-      with open(golden_path(kind, args.platform), 'w') as f:
+      if not lines:
+        raise SystemExit('Refusing to write an empty %s snapshot.' % kind)
+      with open(golden_path(kind, args.platform), 'w', encoding='utf-8') as f:
         f.write('\n'.join(lines) + '\n')
       print('Wrote %s' % golden_path(kind, args.platform))
     else:
