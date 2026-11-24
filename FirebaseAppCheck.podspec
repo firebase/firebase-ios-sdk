@@ -34,9 +34,13 @@ Pod::Spec.new do |s|
 
   base_dir = "FirebaseAppCheck/"
 
+  # The public API is declared in Objective-C headers and implemented in Swift with
+  # `@objc @implementation` extensions. `FIRAppCheckInternal.h` declares internal members that the
+  # Swift implementation uses; it is not imported by `FirebaseAppCheck.h`.
   s.source_files = [
-    base_dir + 'Sources/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
+    base_dir + 'Sources/Swift/**/*.swift',
+    base_dir + 'Sources/ObjC/**/*.[mh]',
+    base_dir + 'Sources/Public/FirebaseAppCheck/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
@@ -47,11 +51,12 @@ Pod::Spec.new do |s|
   s.dependency 'AppCheckCore', '~> 12.1'
   s.dependency 'FirebaseAppCheckInterop', '~> 13.3.0'
   s.dependency 'FirebaseCore', '~> 13.3.0'
-  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'FirebaseCoreExtension', '~> 13.3.0'
   s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
 
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
+    'OTHER_SWIFT_FLAGS' => "$(inherited) #{ENV.key?('FIREBASE_CI') ? '-D FIREBASE_CI -warnings-as-errors' : ''}",
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseAppCheck'
   }
 
@@ -100,6 +105,7 @@ Pod::Spec.new do |s|
       'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppCheck/Tests/Unit/Swift/FirebaseAppCheck-unit-Bridging-Header.h'
     }
 
+    swift_unit_tests.dependency 'AppCheckCore', '~> 12.1'
     swift_unit_tests.dependency 'FirebaseCoreExtension', '~> 13.3.0'
   end
 

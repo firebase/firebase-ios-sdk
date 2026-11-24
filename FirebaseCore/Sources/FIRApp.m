@@ -795,6 +795,7 @@ static FIRApp *sDefaultApp;
   NSDictionary<NSString *, NSString *> *swiftComponents = @{
     @"FIRSessions" : @"fire-ses",
     @"FIRAuthComponent" : @"fire-auth",
+    @"FIRAppCheckComponent" : @"fire-app-check",
   };
   for (NSString *className in swiftComponents.allKeys) {
     Class klass = NSClassFromString(className);
