@@ -125,7 +125,7 @@ function RunXcodebuild() {
   local log_filename="xcodebuild-${buildaction}.log"
   # The retry below writes its own log. An incremental rebuild doesn't recompile
   # up-to-date files, so the first log keeps any compiler warnings, which
-  # scripts/check_spm_test_warnings.py reads.
+  # scripts/check_xcodebuild_warnings.py reads.
   local retry_log_filename="xcodebuild-${buildaction}-retry.log"
   rm -f "$retry_log_filename"
 

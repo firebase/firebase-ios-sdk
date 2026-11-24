@@ -74,9 +74,8 @@ on:
         required: false
         default: ""
 
-      # Whether to ignore deprecation warnings in test targets, for SDKs whose
-      # tests cover deprecated APIs. Other compiler warnings in test targets
-      # still fail the job.
+      # Whether to ignore deprecation warnings, for SDKs whose tests cover
+      # deprecated APIs. Other compiler warnings still fail the job.
       ignore_deprecation_warnings:
         type: boolean
         required: false
@@ -209,11 +208,11 @@ jobs:
             "$PLATFORM" \
             ${{ (contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all')) && 'spmbuildonly' || 'spm' }} \
             $EXTRA_FLAGS
-    - name: Check for compiler warnings in test targets
-      if: contains(inputs.platforms, matrix.platform) && !(contains(inputs.buildonly_platforms, matrix.platform) || contains(inputs.buildonly_platforms, 'all'))
+    - name: Check for compiler warnings
+      if: contains(inputs.platforms, matrix.platform)
       env:
         IGNORE_DEPRECATIONS: ${{ inputs.ignore_deprecation_warnings && '--ignore-deprecations' || '' }}
-      run: scripts/check_spm_test_warnings.py $IGNORE_DEPRECATIONS
+      run: scripts/check_xcodebuild_warnings.py $IGNORE_DEPRECATIONS
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ failure() }}
       with:

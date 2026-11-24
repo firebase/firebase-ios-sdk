@@ -14,24 +14,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Fails if an xcodebuild log has compiler warnings from SPM test targets.
+"""Fails if xcodebuild logs have compiler warnings in this repository's files.
 
-The SPM CI jobs build and run test targets with xcodebuild, which doesn't fail
-on warnings. `pod lib lint` does, so a warning in a test file can pass SPM CI
-and break CocoaPods CI later. See #9144.
+The SPM CI jobs build SDK sources and test targets with xcodebuild, which
+doesn't fail on warnings. `pod lib lint` does, so a warning can pass SPM CI and
+break CocoaPods CI later, and code that only SPM builds isn't checked for
+warnings anywhere else. See #9144.
 
-The script reads the raw logs that scripts/build.sh writes
-(xcodebuild-test.log, plus xcodebuild-test-retry.log if xcodebuild was retried)
-and reports warnings that:
-  - were printed while compiling a test target, that is a target that builds an
-    .xctest bundle, and
-  - point to a file in this repository, so warnings in dependencies' headers
-    are ignored.
+The script reads the raw logs that scripts/build.sh writes:
+xcodebuild-test.log or xcodebuild-build.log, plus xcodebuild-*-retry.log if
+xcodebuild was retried. It reports compiler warnings that point to a file in
+this repository, in SDK sources and tests alike. Warnings in dependencies are
+ignored.
 
 Xcode doesn't recompile up-to-date files, so a log only has warnings for files
 that were compiled in that run.
 
-Usage: scripts/check_spm_test_warnings.py [--ignore-deprecations] [LOG ...]
+Usage: scripts/check_xcodebuild_warnings.py [--ignore-deprecations] [LOG ...]
 """
 
 import argparse
@@ -53,21 +52,16 @@ WARNING = re.compile(r"^(/[^:]+):(\d+):(\d+): warning: (.*)$")
 # in iOS 13.0") and Clang ("[-Wdeprecated-declarations]").
 DEPRECATION = re.compile(r" (is|was) deprecated|\[-Wdeprecated[\w-]*\]")
 
-
-def find_test_targets(lines):
-  """Returns the targets whose build tasks write into an .xctest bundle."""
-  targets = set()
-  for line in lines:
-    if ".xctest" not in line:
-      continue
-    match = TASK_HEADER.match(line)
-    if match:
-      targets.add(match.group(1))
-  return targets
+DEFAULT_LOGS = [
+  "xcodebuild-test.log",
+  "xcodebuild-test-retry.log",
+  "xcodebuild-build.log",
+  "xcodebuild-build-retry.log",
+]
 
 
-def find_test_warnings(lines, test_targets, repo_root, ignore_deprecations):
-  """Returns (file, line, column, message, target) for each test warning."""
+def find_warnings(lines, repo_root, ignore_deprecations):
+  """Returns (file, line, column, message, target) for each warning."""
   # Package checkouts, when SwiftPM rather than Xcode resolved them.
   excluded_dirs = [os.path.join(repo_root, ".build") + os.sep]
   warnings = []
@@ -79,7 +73,7 @@ def find_test_warnings(lines, test_targets, repo_root, ignore_deprecations):
       target = header.group(1)
       continue
     match = WARNING.match(line)
-    if not match or target not in test_targets:
+    if not match:
       continue
     if ignore_deprecations and DEPRECATION.search(match.group(4)):
       continue
@@ -104,38 +98,37 @@ def main():
   parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
   parser.add_argument(
     "logs", nargs="*", metavar="LOG",
-    help="raw xcodebuild logs (default: xcodebuild-test.log and, if it "
-    "exists, xcodebuild-test-retry.log)")
+    help="raw xcodebuild logs (default: whichever of "
+    f"{', '.join(DEFAULT_LOGS)} exist)")
   parser.add_argument(
     "--ignore-deprecations", action="store_true",
     help="ignore deprecation warnings, for tests of deprecated APIs")
   args = parser.parse_args()
-  logs = args.logs or ["xcodebuild-test.log"] + [
-    log for log in ["xcodebuild-test-retry.log"] if os.path.exists(log)]
+
+  logs = args.logs or [log for log in DEFAULT_LOGS if os.path.exists(log)]
+  if not logs:
+    print("error: no xcodebuild log found. Run scripts/build.sh first.",
+          file=sys.stderr)
+    return 1
 
   repo_root = os.path.realpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-  test_targets = set()
   warnings = []
   for log in logs:
     try:
       with open(log, encoding="utf-8", errors="replace") as f:
         lines = [line.rstrip("\r\n") for line in f]
     except FileNotFoundError:
-      print(f"error: {log} not found. Run scripts/build.sh first.",
-            file=sys.stderr)
+      print(f"error: {log} not found.", file=sys.stderr)
       return 1
-    log_test_targets = find_test_targets(lines)
-    test_targets |= log_test_targets
-    for warning in find_test_warnings(lines, log_test_targets, repo_root,
-                                      args.ignore_deprecations):
+    for warning in find_warnings(lines, repo_root, args.ignore_deprecations):
       if warning not in warnings:
         warnings.append(warning)
 
   if not warnings:
-    targets = ", ".join(sorted(test_targets)) or "none found in the log"
-    print(f"No compiler warnings in SPM test targets ({targets}).")
+    print("No compiler warnings in this repository's files "
+          f"({', '.join(logs)}).")
     return 0
 
   in_actions = os.environ.get("GITHUB_ACTIONS") == "true"
@@ -148,10 +141,9 @@ def main():
                  .replace("\n", "%0A"))
       print(f"::error file={path},line={line},col={column}::{escaped}")
   print(file=sys.stderr)
-  print(f"error: found {len(warnings)} compiler warning(s) in SPM test "
-        "targets. Fix them, or for tests of deprecated APIs, set "
-        "ignore_deprecation_warnings in the workflow that calls _spm.yml.",
-        file=sys.stderr)
+  print(f"error: found {len(warnings)} compiler warning(s). Fix them, or for "
+        "tests of deprecated APIs, set ignore_deprecation_warnings in the "
+        "workflow that calls _spm.yml.", file=sys.stderr)
   return 1
 
 
