@@ -10,7 +10,7 @@ pipeline used to generate the data models in
 
 ```mermaid
 graph TD
-    A["Google Discovery Document JSON"] -->|Upgraded by| B("upgrade_spec.py")
+    A["firebasevertexai_public_openapi3_0_v1beta.json"] -->|Upgraded by| B("upgrade_spec.py")
     E["firebasevertexai-overrides.yaml"] -->|Merged by| B
     B -->|Produces| F["firebasevertexai-openapi.yaml"]
     F -->|Parsed by| C("generate_types.py")
@@ -33,27 +33,36 @@ pip install -r requirements.txt
 
 ## 1. Upgrading the specification (`upgrade_spec.py`)
 
-Before generating types, convert the Google Discovery Document to an
-OpenAPI 3.1.0 specification and apply manual overrides:
+Before generating types, convert the checked-in OpenAPI 3.0 Discovery
+specification to OpenAPI 3.1.0 and apply manual overrides:
 
 ```bash
 python upgrade_spec.py
 ```
 
-If `discovery_documents/firebasevertexai_discovery_v1beta.json` is not cached
-locally, `upgrade_spec.py` automatically downloads it from Google APIs. To
-force a fresh download of the latest Discovery Document even when cached:
+By default, `upgrade_spec.py` loads the checked-in
+`discovery_documents/firebasevertexai_public_openapi3_0_v1beta.json` without
+making any network requests, normalizes schema references and enum metadata
+extensions, extracts shared standalone enums (such as `HarmCategory`,
+`Modality`, and `DataType`), infers required fields, merges manual overrides
+from `firebasevertexai-overrides.yaml`, and writes
+`discovery_documents/firebasevertexai-openapi.yaml` (gitignored).
+
+Pass `--input-file` to convert an alternate local OpenAPI 3.0 or Google
+Discovery Document JSON file. For **upstream comparison only**, pass `--fetch`
+to download and convert the latest live Google REST Discovery Document (saved to
+the gitignored `discovery_documents/firebasevertexai_discovery_v1beta.json`; the
+script refuses to overwrite the checked-in OpenAPI 3.0 spec):
 
 ```bash
 python upgrade_spec.py --fetch
 ```
 
-This script loads `firebasevertexai_discovery_v1beta.json`, normalizes schema
-references, extracts shared standalone enums (such as `HarmCategory`,
-`Modality`, and `DataType`), infers required fields, merges manual overrides
-from `firebasevertexai-overrides.yaml`, and writes
-`discovery_documents/firebasevertexai-openapi.yaml` (both the fetched `.json`
-and generated `-openapi.yaml` files are gitignored).
+Do not commit Swift models regenerated with `--fetch`: the live REST Discovery
+Document formats doc descriptions differently and omits some OpenAPI 3.0
+metadata (such as `BidiGenerateContent` descriptions and `google-duration`
+formats). See [discovery_documents/README.md](discovery_documents/README.md) for
+details on the checked-in OpenAPI 3.0 spec.
 
 ---
 

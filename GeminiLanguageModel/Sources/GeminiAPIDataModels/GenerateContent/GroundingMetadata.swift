@@ -17,14 +17,16 @@
 
 import Foundation
 
-/// Information about the sources that support the content of a response. When grounding is enabled,
-/// the model returns citations for claims in the response. This object contains the retrieved
-/// sources.
+/// Information about the sources that support the content of a response.
+///
+/// When grounding is enabled, the model returns citations for claims in the response. This object
+/// contains the retrieved sources.
 package struct GroundingMetadata: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Deprecated: The Google Maps contextual widget behavior in Grounding with Google Maps is being
-  /// deprecated; this field is planned for removal and will no longer be populated once removed. A
-  /// token that can be used to render a Google Maps widget with the contextual data. This field is
-  /// populated only when the grounding source is Google Maps.
+  /// deprecated; this field is planned for removal and will no longer be populated once removed.
+  ///
+  /// A token that can be used to render a Google Maps widget with the contextual data. This field
+  /// is populated only when the grounding source is Google Maps.
   package var googleMapsWidgetContextToken: String?
 
   /// A list of supporting references retrieved from the grounding source. This field is populated

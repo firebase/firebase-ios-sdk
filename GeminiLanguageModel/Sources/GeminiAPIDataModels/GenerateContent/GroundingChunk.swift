@@ -17,9 +17,10 @@
 
 import Foundation
 
-/// A piece of evidence that supports a claim made by the model. This is used to show a citation for
-/// a claim made by the model. When grounding is enabled, the model returns a `GroundingChunk` that
-/// contains a reference to the source of the information.
+/// A piece of evidence that supports a claim made by the model.
+///
+/// This is used to show a citation for a claim made by the model. When grounding is enabled, the
+/// model returns a `GroundingChunk` that contains a reference to the source of the information.
 package struct GroundingChunk: Codable, Sendable, Equatable, Hashable, Buildable {
   /// A grounding chunk from an image search result. See the `Image` message for details.
   package var image: ImageChunk?
