@@ -1000,7 +1000,8 @@ TEST_F(GrpcTlsCredentialsProviderWindowsTest,
   std::vector<grpc::Status> statuses = recorder.statuses();
   ASSERT_EQ(statuses.size(), 1u);
   EXPECT_EQ(statuses[0].error_code(), grpc::StatusCode::UNAUTHENTICATED);
-  EXPECT_THAT(logs, HasSubstr("TLS peer certificate verification failed:"));
+  EXPECT_THAT(logs, HasSubstr("TLS peer certificate verification failed"));
+  EXPECT_THAT(logs, HasSubstr("CERT_E_UNTRUSTEDROOT"));
 }
 
 TEST_F(GrpcTlsCredentialsProviderWindowsTest, CancelMidFlight) {
