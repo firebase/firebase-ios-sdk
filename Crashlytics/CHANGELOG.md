@@ -1,3 +1,7 @@
+# Unreleased
+- [fixed] Fixed two Swift concurrency warnings in Firebase Sessions when
+  building for watchOS with Xcode 27. (#17119)
+
 # 13.2.0
 - [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
   `recordError`, `recordExceptionModel`, etc.) hopped onto the main thread instead of flushing
