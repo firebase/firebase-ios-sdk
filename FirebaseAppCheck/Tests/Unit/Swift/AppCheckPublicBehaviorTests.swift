@@ -63,11 +63,9 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     AppCheck.setAppCheckProviderFactory(factory)
     let name = "AppCheckPublicBehaviorTests_" + function
       .replacingOccurrences(of: "()", with: "")
+    AppCheckTestUtils.disableDataCollectionBeforeConfigure(forAppName: name)
     FirebaseApp.configure(name: name, options: options ?? Self.completeOptions())
     let app = try XCTUnwrap(FirebaseApp.app(name: name))
-    // Disables automatic token refresh, which could interfere with the tests.
-    AppCheckTestUtils.recordDataCollectionKey(forAppName: name)
-    app.isDataCollectionDefaultEnabled = false
     self.app = app
     return app
   }
@@ -310,13 +308,12 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     let provider = FakeProvider()
     provider.limitedUseResult = .success("default-token")
     AppCheck.setAppCheckProviderFactory(FakeProviderFactory(provider: provider))
+    AppCheckTestUtils.disableDataCollectionBeforeConfigure(forAppName: "__FIRAPP_DEFAULT")
     FirebaseApp.configure(options: Self.completeOptions())
     addTeardownBlock {
       await FirebaseApp.app()?.delete()
     }
     let defaultApp = try XCTUnwrap(FirebaseApp.app())
-    AppCheckTestUtils.recordDataCollectionKey(forAppName: defaultApp.name)
-    defaultApp.isDataCollectionDefaultEnabled = false
 
     let defaultAppCheck = AppCheck.appCheck()
     XCTAssertTrue(defaultAppCheck === AppCheck.appCheck(app: defaultApp))
@@ -471,10 +468,49 @@ private final class FakeProviderFactory: NSObject, AppCheckProviderFactory {
 }
 
 private final class FakeProvider: NSObject, AppCheckProvider, @unchecked Sendable {
-  var result: Result<String, Error> = .success("regular")
-  var limitedUseResult: Result<String, Error> = .success("limited")
-  private(set) var getTokenCount = 0
-  private(set) var getLimitedUseTokenCount = 0
+  private let lock = NSLock()
+  private var _result: Result<String, Error> = .success("regular")
+  private var _limitedUseResult: Result<String, Error> = .success("limited")
+  private var _getTokenCount = 0
+  private var _getLimitedUseTokenCount = 0
+
+  var result: Result<String, Error> {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      return _result
+    }
+    set {
+      lock.lock()
+      _result = newValue
+      lock.unlock()
+    }
+  }
+
+  var limitedUseResult: Result<String, Error> {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      return _limitedUseResult
+    }
+    set {
+      lock.lock()
+      _limitedUseResult = newValue
+      lock.unlock()
+    }
+  }
+
+  var getTokenCount: Int {
+    lock.lock()
+    defer { lock.unlock() }
+    return _getTokenCount
+  }
+
+  var getLimitedUseTokenCount: Int {
+    lock.lock()
+    defer { lock.unlock() }
+    return _getLimitedUseTokenCount
+  }
 
   private static func complete(_ result: Result<String, Error>,
                                handler: (AppCheckToken?, Error?) -> Void) {
@@ -487,13 +523,23 @@ private final class FakeProvider: NSObject, AppCheckProvider, @unchecked Sendabl
   }
 
   func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
-    getTokenCount += 1
-    Self.complete(result, handler: handler)
+    let currentResult: Result<String, Error> = {
+      lock.lock()
+      defer { lock.unlock() }
+      _getTokenCount += 1
+      return _result
+    }()
+    Self.complete(currentResult, handler: handler)
   }
 
   func getLimitedUseToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
-    getLimitedUseTokenCount += 1
-    Self.complete(limitedUseResult, handler: handler)
+    let currentResult: Result<String, Error> = {
+      lock.lock()
+      defer { lock.unlock() }
+      _getLimitedUseTokenCount += 1
+      return _limitedUseResult
+    }()
+    Self.complete(currentResult, handler: handler)
   }
 }
 

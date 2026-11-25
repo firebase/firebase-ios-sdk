@@ -168,6 +168,7 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
                                   gcmSenderID: "sender_id")
     options.apiKey = "api_key"
     options.projectID = "project_id"
+    AppCheckTestUtils.disableDataCollectionBeforeConfigure(forAppName: appName)
     FirebaseApp.configure(name: appName, options: options)
     addTeardownBlock { [weak self] in
       guard let self, let existing = FirebaseApp.app(name: appName) else { return }
@@ -176,8 +177,6 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
       self.wait(for: [deleted], timeout: 5)
     }
     let app = try XCTUnwrap(FirebaseApp.app(name: appName))
-    AppCheckTestUtils.recordDataCollectionKey(forAppName: appName)
-    app.isDataCollectionDefaultEnabled = false
 
     XCTAssertNotNil(AppCheck.appCheck(app: app))
     XCTAssertNil(AppCheckSubclass.appCheck(app: app))

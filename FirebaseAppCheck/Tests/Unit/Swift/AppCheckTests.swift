@@ -86,6 +86,14 @@ enum AppCheckTestUtils {
     )
   }
 
+  /// Disables automatic data collection in `UserDefaults.standard` before `FirebaseApp.configure`
+  /// runs so eager components don't start background refreshes during configuration.
+  static func disableDataCollectionBeforeConfigure(forAppName name: String) {
+    let key = "/google/firebase/global_data_collection_enabled:" + name
+    TestCaseCleanupObserver.shared.recordUserDefaultsKey(key)
+    UserDefaults.standard.set(false, forKey: key)
+  }
+
   /// Returns an app that isn't registered with Firebase, with complete options for token exchange
   /// and automatic token refresh disabled.
   static func app(name: String = appName, googleAppID: String = appID,
@@ -362,10 +370,9 @@ final class AppCheckTests: XCTestCase {
                                   gcmSenderID: "sender_id")
     options.apiKey = "api_key"
     options.projectID = "project_id"
+    AppCheckTestUtils.disableDataCollectionBeforeConfigure(forAppName: name)
     FirebaseApp.configure(name: name, options: options)
     let app = try XCTUnwrap(FirebaseApp.app(name: name))
-    AppCheckTestUtils.recordDataCollectionKey(forAppName: name)
-    app.isDataCollectionDefaultEnabled = false
     addTeardownBlock { [weak self] in
       guard let self, let existing = FirebaseApp.app(name: name) else { return }
       let deleted = self.expectation(description: "deleted \(name)")
