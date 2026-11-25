@@ -14,9 +14,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
+#import <FirebaseAppCheck/FirebaseAppCheck.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
