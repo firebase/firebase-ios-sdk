@@ -92,7 +92,7 @@ func heartbeatRequestHook(heartbeatLogger: FIRHeartbeatLoggerProtocol)
   }
 
   /// The date the token was received at, in the device's local time.
-  final var receivedAtDate: Date {
+  private(set) final var receivedAtDate: Date {
     get { storedReceivedAtDate as Date }
     set { storedReceivedAtDate = newValue as NSDate }
   }
@@ -227,7 +227,10 @@ final class AppCheckSettings: NSObject, AppCheckCoreSettingsProtocol, @unchecked
   private let mainBundle: AppCheckInfoDictionary
   private let userDefaultsKey: String
 
-  private let lock = NSLock()
+  // Recursive, matching Objective-C `@synchronized(self)`: `userDefaults.setBool(_:forKey:)`
+  // synchronously posts `UserDefaults.didChangeNotification` and KVO callbacks on the calling
+  // thread, and an observer may read or write `isTokenAutoRefreshEnabled`.
+  private let lock = NSRecursiveLock()
   private var cachedIsTokenAutoRefreshEnabled = false
   private var isTokenAutoRefreshConfigured = false
 
@@ -245,8 +248,7 @@ final class AppCheckSettings: NSObject, AppCheckCoreSettingsProtocol, @unchecked
 
       if isTokenAutoRefreshConfigured {
         // Return the value from the in-memory cache to avoid accessing the user default or bundle
-        // when
-        // not required.
+        // when not required.
         return cachedIsTokenAutoRefreshEnabled
       }
 

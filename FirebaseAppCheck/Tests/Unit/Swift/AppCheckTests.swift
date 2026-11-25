@@ -155,6 +155,7 @@ final class AppCheckTests: XCTestCase {
   /// Returns an `AppCheck` instance that uses fakes.
   private func makeAppCheck(appCheckCore: AppCheckCoreProtocol,
                             settings: AppCheckCoreSettingsProtocol,
+                            notificationCenter: NotificationCenter? = nil,
                             file: StaticString = #filePath, line: UInt = #line) -> AppCheck {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
@@ -162,7 +163,7 @@ final class AppCheckTests: XCTestCase {
     XCTAssertEqual(appCheck.appName, appName, file: file, line: line)
     appCheck.appCheckCore = appCheckCore
     appCheck.settings = settings
-    appCheck.notificationCenter = notificationCenter
+    appCheck.notificationCenter = notificationCenter ?? self.notificationCenter
     return appCheck
   }
 
@@ -252,12 +253,8 @@ final class AppCheckTests: XCTestCase {
     XCTAssertNil(AppCheck.make(app: AppCheckTestUtils.app()))
   }
 
-  /// Configures a Firebase app named `name`, whose App Check instance uses a fake provider.
-  ///
-  /// `FirebaseApp(instanceWithName:options:)` isn't enough for tests that need the App Check
-  /// component: FirebaseCore registers `FIRAppCheckComponent` in the first
-  /// `FirebaseApp.configure(name:options:)` call, and an app's component container only has the
-  /// components registered when it was created.
+  /// Configures a Firebase app named `name`, whose App Check instance uses a fake provider, and
+  /// registers teardown cleanup for it.
   private func configureApp(name: String) throws -> FirebaseApp {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
@@ -268,10 +265,24 @@ final class AppCheckTests: XCTestCase {
     FirebaseApp.configure(name: name, options: options)
     let app = try XCTUnwrap(FirebaseApp.app(name: name))
     app.isDataCollectionDefaultEnabled = false
+    addTeardownBlock { [weak self] in
+      guard let self, let existing = FirebaseApp.app(name: name) else { return }
+      let deleted = self.expectation(description: "deleted \(name)")
+      existing.delete { _ in deleted.fulfill() }
+      self.wait(for: [deleted], timeout: 5)
+    }
     return app
   }
 
   func testAppCheckInstanceForApp() async throws {
+    let loggerLevel = FIRGetLoggerLevel()
+    let appCheckCoreLogLevel = AppCheckCoreLogger.logLevel
+    FIRSetLoggerLevel(.notice)
+    defer {
+      FIRSetLoggerLevel(loggerLevel)
+      AppCheckCoreLogger.logLevel = appCheckCoreLogLevel
+    }
+
     let app = try configureApp(name: "testAppCheckInstanceForApp")
 
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
@@ -279,6 +290,21 @@ final class AppCheckTests: XCTestCase {
     // The App Check Core logging level is the default (Warning).
     XCTAssertEqual(AppCheckCoreLogger.logLevel, .warning)
     await app.delete()
+  }
+
+  func testAppCheckInstanceForDirectInstanceWithNameApp() throws {
+    AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
+      FakeAppCheckProvider()))
+    let appName = "testAppCheckInstanceForDirectInstanceWithNameApp"
+    let app = AppCheckTestUtils.app(name: appName)
+    addTeardownBlock {
+      UserDefaults.standard.removeObject(
+        forKey: "FirebaseDataCollectionDefaultEnabled_" + appName
+      )
+    }
+
+    let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
+    XCTAssertTrue(AppCheck.appCheck(app: app) === appCheck)
   }
 
   /// Changed from the Objective-C implementation, which returned the registered `AppCheck`
@@ -304,6 +330,54 @@ final class AppCheckTests: XCTestCase {
     let factory = FakeAppCheckProviderFactory(provider: nil)
     storage.setFactory(factory)
     XCTAssertTrue(storage.factory === factory)
+  }
+
+  func testProviderFactoryStorageReleasesPreviousFactoryOutsideLock() {
+    final class ReentrantDeinitFactory: NSObject, AppCheckProviderFactory {
+      let storage: ProviderFactoryStorage
+      var deinitRan = false
+      let onDeinit: () -> Void
+
+      init(storage: ProviderFactoryStorage, onDeinit: @escaping () -> Void) {
+        self.storage = storage
+        self.onDeinit = onDeinit
+      }
+
+      deinit {
+        // Re-entering `storage` from `deinit` would deadlock if the old factory were released
+        // while `storage.lock` is still held.
+        _ = storage.factory
+        storage.setFactory(nil)
+        onDeinit()
+      }
+
+      func createProvider(with app: FirebaseApp) -> AppCheckProvider? { nil }
+    }
+
+    let storage = ProviderFactoryStorage()
+    var deinitialized = false
+    autoreleasepool {
+      let factory = ReentrantDeinitFactory(storage: storage) {
+        deinitialized = true
+      }
+      storage.setFactory(factory)
+      storage.setFactory(FakeAppCheckProviderFactory(provider: nil))
+    }
+    XCTAssertTrue(deinitialized)
+    XCTAssertNil(storage.factory)
+  }
+
+  func testProviderFactoryStorageConcurrentAccess() {
+    let storage = ProviderFactoryStorage()
+    let factory = FakeAppCheckProviderFactory(provider: nil)
+    DispatchQueue.concurrentPerform(iterations: 200) { i in
+      switch i % 4 {
+      case 0: storage.setFactory(factory)
+      case 1: storage.setFactory(nil)
+      case 2: storage.reset()
+      default: _ = storage.factory
+      }
+    }
   }
 
   // MARK: Public get token
@@ -544,6 +618,60 @@ final class AppCheckTests: XCTestCase {
     }
     XCTAssertNil(weakAppCheck)
     XCTAssertNil(delegate?.appCheck)
+    // Updates arriving after deallocation are dropped rather than buffered indefinitely.
+    delegate?.tokenDidUpdate(validToken().internalToken, serviceName: appName)
+    XCTAssertNil(delegate?.appCheck)
+  }
+
+  func testTokenDelegateBuffersUpdatesBeforeAttachAndFlushesOnAttach() {
+    let delegate = AppCheckTokenDelegate()
+    let firstToken = validToken()
+    let secondToken = validToken()
+    delegate.tokenDidUpdate(firstToken.internalToken, serviceName: appName)
+    delegate.tokenDidUpdate(secondToken.internalToken, serviceName: appName)
+
+    var receivedTokens: [String] = []
+    let observer = notificationCenter.addObserver(
+      forName: .AppCheckTokenDidChange,
+      object: appCheck,
+      queue: nil
+    ) { notification in
+      if let token = notification.userInfo?[AppCheckTokenNotificationKey] as? String {
+        receivedTokens.append(token)
+      }
+    }
+    defer { notificationCenter.removeObserver(observer) }
+
+    delegate.attach(appCheck)
+    XCTAssertEqual(receivedTokens, [firstToken.token, secondToken.token])
+  }
+
+  func testTokenDelegateConcurrentAttachAndUpdates() {
+    for _ in 0 ..< 25 {
+      let delegate = AppCheckTokenDelegate()
+      let token = validToken().internalToken
+      let center = NotificationCenter()
+      let target = makeAppCheck(appCheckCore: FakeAppCheckCore(), settings: FakeSettings(),
+                                notificationCenter: center)
+      let lock = NSLock()
+      var count = 0
+      let observer = center.addObserver(forName: .AppCheckTokenDidChange, object: target,
+                                        queue: nil) { _ in
+        lock.lock()
+        count += 1
+        lock.unlock()
+      }
+      defer { center.removeObserver(observer) }
+
+      DispatchQueue.concurrentPerform(iterations: 8) { index in
+        if index == 0 {
+          delegate.attach(target)
+        } else {
+          delegate.tokenDidUpdate(token, serviceName: appName)
+        }
+      }
+      XCTAssertEqual(count, 7)
+    }
   }
 
   func testInitWithAppSetsUpAppCheckCore() throws {
@@ -619,27 +747,40 @@ final class DefaultProviderFactoryTests: XCTestCase {
 // MARK: - AppCheckSettings
 
 final class AppCheckSettingsTests: XCTestCase {
-  private final class FakeUserDefaults: AppCheckUserDefaults {
+  private final class FakeUserDefaults: AppCheckUserDefaults, @unchecked Sendable {
+    private let lock = NSRecursiveLock()
     var values: [String: Any] = [:]
+    var onSet: (() -> Void)?
     private(set) var readKeys: [String] = []
     private(set) var writes: [(String, Bool)] = []
 
     func object(forKey defaultName: String) -> Any? {
+      lock.lock()
+      defer { lock.unlock() }
       readKeys.append(defaultName)
       return values[defaultName]
     }
 
     func setBool(_ value: Bool, forKey defaultName: String) {
+      lock.lock()
       writes.append((defaultName, value))
       values[defaultName] = value
+      let callback = onSet
+      lock.unlock()
+      // `NSUserDefaults` posts `didChangeNotification` and KVO callbacks synchronously inside
+      // `setBool`.
+      callback?()
     }
   }
 
-  private final class FakeBundle: AppCheckInfoDictionary {
+  private final class FakeBundle: AppCheckInfoDictionary, @unchecked Sendable {
+    private let lock = NSLock()
     var values: [String: Any] = [:]
     private(set) var readKeys: [String] = []
 
     func object(forInfoDictionaryKey key: String) -> Any? {
+      lock.lock()
+      defer { lock.unlock() }
       readKeys.append(key)
       return values[key]
     }
@@ -739,6 +880,39 @@ final class AppCheckSettingsTests: XCTestCase {
 
     XCTAssertEqual(userDefaults.writes.map(\.1), [false, true])
     XCTAssertEqual(userDefaults.writes.map(\.0), [userDefaultsKey, userDefaultsKey])
+  }
+
+  func testUserDefaultsFalseOverridesInfoPlistTrue() {
+    userDefaults.values[userDefaultsKey] = false
+    bundle.values[infoPlistKey] = true
+    app.isDataCollectionDefaultEnabled = true
+
+    XCTAssertFalse(settings.isTokenAutoRefreshEnabled)
+    XCTAssertEqual(userDefaults.readKeys, [userDefaultsKey])
+    XCTAssertEqual(bundle.readKeys, [])
+  }
+
+  func testSetIsTokenAutoRefreshEnabledSupportsSynchronousReentrantRead() {
+    var observedDuringSet: Bool?
+    userDefaults.onSet = { [unowned self] in
+      observedDuringSet = settings.isTokenAutoRefreshEnabled
+    }
+
+    settings.isTokenAutoRefreshEnabled = true
+    XCTAssertEqual(observedDuringSet, true)
+
+    settings.isTokenAutoRefreshEnabled = false
+    XCTAssertEqual(observedDuringSet, false)
+  }
+
+  func testSettingsConcurrentAccess() {
+    DispatchQueue.concurrentPerform(iterations: 200) { index in
+      if index.isMultiple(of: 3) {
+        settings.isTokenAutoRefreshEnabled = index.isMultiple(of: 2)
+      } else {
+        _ = settings.isTokenAutoRefreshEnabled
+      }
+    }
   }
 }
 

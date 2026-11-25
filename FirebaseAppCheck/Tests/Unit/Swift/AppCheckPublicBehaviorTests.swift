@@ -327,6 +327,27 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     XCTAssertEqual(UserDefaults.standard.object(forKey: userDefaultsKey) as? Bool, false)
   }
 
+  func testIsTokenAutoRefreshEnabledReentrantUserDefaultsObserver() throws {
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
+    userDefaultsKey = "FIRAppCheckTokenAutoRefreshEnabled_" + app.name
+
+    var observedValues: [Bool] = []
+    let observer = NotificationCenter.default.addObserver(
+      forName: UserDefaults.didChangeNotification,
+      object: UserDefaults.standard,
+      queue: nil
+    ) { _ in
+      observedValues.append(appCheck.isTokenAutoRefreshEnabled)
+    }
+    defer { NotificationCenter.default.removeObserver(observer) }
+
+    appCheck.isTokenAutoRefreshEnabled = true
+    appCheck.isTokenAutoRefreshEnabled = false
+    XCTAssertTrue(observedValues.contains(true))
+    XCTAssertEqual(observedValues.last, false)
+  }
+
   // MARK: - Built-in provider factories
 
   func testDebugProviderFactory() throws {

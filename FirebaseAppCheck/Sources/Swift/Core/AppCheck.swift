@@ -64,7 +64,7 @@ private let providerFactoryStorage = ProviderFactoryStorage()
     self.settings = settings
     self.tokenDelegate = tokenDelegate
     super.init()
-    tokenDelegate.appCheck = self
+    tokenDelegate.attach(self)
   }
 
   /// Creates the App Check instance of a Firebase app.
@@ -230,12 +230,49 @@ private let providerFactoryStorage = ProviderFactoryStorage()
 /// Forwards token updates from App Check Core to an `AppCheck` instance.
 ///
 /// `AppCheck` doesn't conform to `AppCheckCoreTokenDelegate` itself to keep the App Check Core
-/// types out of its public API.
-final class AppCheckTokenDelegate: NSObject, AppCheckCoreTokenDelegate {
-  weak var appCheck: AppCheck?
+/// types out of its public API. `AppCheckCore.init` can trigger an immediate refresh before
+/// `AppCheck.init` finishes, so updates arriving before `attach(_:)` are buffered under a lock and
+/// delivered when `attach(_:)` runs.
+final class AppCheckTokenDelegate: NSObject, AppCheckCoreTokenDelegate, @unchecked Sendable {
+  private let lock = NSLock()
+  private weak var _appCheck: AppCheck?
+  private var isAttached = false
+  private var pendingUpdates: [(token: AppCheckCoreToken, serviceName: String)] = []
+
+  var appCheck: AppCheck? {
+    lock.lock()
+    defer { lock.unlock() }
+    return _appCheck
+  }
+
+  func attach(_ appCheck: AppCheck) {
+    let buffered: [(token: AppCheckCoreToken, serviceName: String)]
+    lock.lock()
+    _appCheck = appCheck
+    isAttached = true
+    buffered = pendingUpdates
+    pendingUpdates.removeAll()
+    lock.unlock()
+
+    for update in buffered {
+      appCheck.tokenDidUpdate(update.token, serviceName: update.serviceName)
+    }
+  }
 
   func tokenDidUpdate(_ token: AppCheckCoreToken, serviceName: String) {
-    appCheck?.tokenDidUpdate(token, serviceName: serviceName)
+    let target: AppCheck?
+    lock.lock()
+    if let appCheck = _appCheck {
+      target = appCheck
+    } else if !isAttached {
+      pendingUpdates.append((token, serviceName))
+      target = nil
+    } else {
+      target = nil
+    }
+    lock.unlock()
+
+    target?.tokenDidUpdate(token, serviceName: serviceName)
   }
 }
 
@@ -265,16 +302,23 @@ final class ProviderFactoryStorage: @unchecked Sendable {
   }
 
   func setFactory(_ factory: AppCheckProviderFactory?) {
+    let previousState: State
     lock.lock()
-    defer { lock.unlock() }
+    previousState = state
     state = .set(factory)
+    lock.unlock()
+    // Release the previous factory outside the lock so a custom factory's `deinit` can't deadlock.
+    withExtendedLifetime(previousState) {}
   }
 
   /// Forgets the factory that was set, so the default factory is used again.
   func reset() {
+    let previousState: State
     lock.lock()
-    defer { lock.unlock() }
+    previousState = state
     state = .unset
+    lock.unlock()
+    withExtendedLifetime(previousState) {}
   }
 }
 
