@@ -238,9 +238,10 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   return trust;
 }
 
-// gRPC cancels a handshake that has not finished within about 20 seconds, so
-// evaluations this slow are worth a warning.
-constexpr std::chrono::seconds kSlowEvaluationThreshold(5);
+// Throwaway diagnostic branch: log every evaluation at LOG_WARN so
+// xcodetest_prod captures the full latency distribution without enabling global
+// debug logging.
+constexpr std::chrono::seconds kSlowEvaluationThreshold(0);
 
 uint64_t NextEvaluationId() {
   static std::atomic<uint64_t> next_id{1};

@@ -28,7 +28,8 @@ namespace firestore {
 namespace remote {
 namespace {
 
-constexpr std::chrono::seconds kSlowVerificationThreshold(5);
+// Throwaway diagnostic branch: log every cancellation at LOG_WARN.
+constexpr std::chrono::seconds kSlowVerificationThreshold(0);
 
 std::string ToString(grpc::string_ref ref) {
   return ref.empty() ? std::string() : std::string(ref.data(), ref.size());
