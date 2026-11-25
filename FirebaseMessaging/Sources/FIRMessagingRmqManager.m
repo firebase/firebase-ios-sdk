@@ -115,11 +115,20 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 @implementation FIRMessagingRmqManager
 
++ (dispatch_queue_t)sharedDatabaseOperationQueue {
+  static dispatch_queue_t queue;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    queue =
+        dispatch_queue_create("com.google.firebase.messaging.database.rmq", DISPATCH_QUEUE_SERIAL);
+  });
+  return queue;
+}
+
 - (instancetype)initWithDatabaseName:(NSString *)databaseName {
   self = [super init];
   if (self) {
-    _databaseOperationQueue =
-        dispatch_queue_create("com.google.firebase.messaging.database.rmq", DISPATCH_QUEUE_SERIAL);
+    _databaseOperationQueue = [[self class] sharedDatabaseOperationQueue];
     _databaseName = [databaseName copy];
     [self openDatabase];
   }
@@ -127,7 +136,18 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 - (void)dealloc {
-  sqlite3_close(_database);
+  sqlite3 *database = _database;
+  if (database != NULL) {
+    _database = NULL;
+    dispatch_queue_t queue = _databaseOperationQueue;
+    if (queue != nil) {
+      dispatch_async(queue, ^{
+        sqlite3_close(database);
+      });
+    } else {
+      sqlite3_close(database);
+    }
+  }
 }
 
 #pragma mark - Sync Messages
@@ -135,6 +155,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   __block FIRMessagingPersistentSyncMessage *persistentMessage;
   dispatch_sync(_databaseOperationQueue, ^{
+    if (!self->_database) {
+      return;
+    }
     NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = ?";
     NSString *query =
         [NSString stringWithFormat:queryFormat,
@@ -144,7 +167,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                                    kRmqIdColumn           // WHERE rmq_id
     ];
 
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = NULL;
     if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
       [self logError];
       sqlite3_finalize(stmt);
@@ -189,6 +212,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)deleteExpiredOrFinishedSyncMessages {
   dispatch_async(_databaseOperationQueue, ^{
+    if (!self->_database) {
+      return;
+    }
     int64_t now = FIRMessagingCurrentTimestampInSeconds();
     NSString *deleteSQL = @"DELETE FROM %@ "
                           @"WHERE %@ < %lld OR "   // expirationTime < now
@@ -196,7 +222,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     NSString *query = [NSString
         stringWithFormat:deleteSQL, kTableSyncMessages, kSyncMessageExpirationTimestampColumn, now,
                          kSyncMessageAPNSReceivedColumn, kSyncMessageMCSReceivedColumn];
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = NULL;
     if (sqlite3_prepare_v2(self->_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
       FIRMessagingRmqLogAndReturn(stmt);
     }
@@ -218,6 +244,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   BOOL apnsReceived = YES;
   BOOL mcsReceived = NO;
   dispatch_async(_databaseOperationQueue, ^{
+    if (!self->_database) {
+      return;
+    }
     NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
     NSString *insertSQL =
         [NSString stringWithFormat:insertFormat,
@@ -227,7 +256,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                                    kSyncMessageAPNSReceivedColumn,         // apns_recv
                                    kSyncMessageMCSReceivedColumn /* mcs_recv */];
 
-    sqlite3_stmt *stmt;
+    sqlite3_stmt *stmt = NULL;
 
     if (sqlite3_prepare_v2(self->_database, [insertSQL UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
       FIRMessagingRmqLogAndReturn(stmt);
@@ -269,12 +298,15 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (BOOL)updateSyncMessageWithRmqID:(NSString *)rmqID column:(NSString *)column value:(BOOL)value {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
+  if (!_database) {
+    return NO;
+  }
   NSString *queryFormat = @"UPDATE %@ "     // Table name
                           @"SET %@ = %d "   // column=value
                           @"WHERE %@ = ?";  // condition
   NSString *query = [NSString
       stringWithFormat:queryFormat, kTableSyncMessages, column, value ? 1 : 0, kRmqIdColumn];
-  sqlite3_stmt *stmt;
+  sqlite3_stmt *stmt = NULL;
 
   if (sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL) != SQLITE_OK) {
     _FIRMessagingRmqLogAndExit(stmt, NO);
@@ -308,6 +340,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)createTableWithName:(NSString *)tableName command:(NSString *)command {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
+  if (!self->_database) {
+    return;
+  }
   char *error = NULL;
   NSString *createDatabase = [NSString stringWithFormat:command, kTablePrefix, tableName];
   if (sqlite3_exec(self->_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
@@ -322,18 +357,24 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
     }
     NSString *errorMessage =
         [NSString stringWithFormat:@"Couldn't create table: %@ with command: %@ error: %@",
-                                   kCreateTableOutgoingRmqMessages, createDatabase, sqlError];
+                                   tableName, createDatabase, sqlError];
     FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable, @"%@",
                             errorMessage);
-    NSAssert(NO, errorMessage);
+    NSAssert(NO, @"%@", errorMessage);
   }
 }
 
 - (void)dropTableWithName:(NSString *)tableName {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
-  char *error;
+  if (!self->_database) {
+    return;
+  }
+  char *error = NULL;
   NSString *dropTableSQL = [NSString stringWithFormat:kDropTableCommand, kTablePrefix, tableName];
   if (sqlite3_exec(self->_database, [dropTableSQL UTF8String], NULL, NULL, &error) != SQLITE_OK) {
+    if (error != NULL) {
+      sqlite3_free(error);
+    }
     FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore002,
                             @"Failed to remove table %@", tableName);
   }
@@ -342,6 +383,10 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (void)removeDatabase {
   // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
   dispatch_async(_databaseOperationQueue, ^{
+    if (self->_database) {
+      sqlite3_close(self->_database);
+      self->_database = NULL;
+    }
     NSString *path = [self pathForDatabase];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
   });
@@ -367,13 +412,17 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 #endif
       int result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
       if (result != SQLITE_OK) {
+        if (self->_database) {
+          sqlite3_close(self->_database);
+          self->_database = NULL;
+        }
         NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
         NSString *errorMessage = [NSString
             stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@", path,
                              errorString];
         FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
                                 @"%@", errorMessage);
-        NSAssert(NO, errorMessage);
+        NSAssert(NO, @"%@", errorMessage);
         return;
       }
       [self createTable];
@@ -388,6 +437,10 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       // If opening the database failed, it might be corrupt. Try to recover by deleting and
       // recreating it.
       if (result != SQLITE_OK) {
+        if (self->_database) {
+          sqlite3_close(self->_database);
+          self->_database = NULL;
+        }
         if (result == SQLITE_CANTOPEN) {
           FIRMessagingLoggerWarn(
               kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
@@ -403,13 +456,17 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
           result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
           // If it still fails after the recovery attempt, then assert and crash.
           if (result != SQLITE_OK) {
+            if (self->_database) {
+              sqlite3_close(self->_database);
+              self->_database = NULL;
+            }
             NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
             NSString *errorMessage = [NSString
                 stringWithFormat:@"Could not open or create RMQ database at path %@, error: %@",
                                  path, errorString];
             FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
                                     @"%@", errorMessage);
-            NSAssert(NO, errorMessage);
+            NSAssert(NO, @"%@", errorMessage);
             didOpenDatabase = NO;  // Still failed, so indicate database did not open.
           } else {
             // Successfully recreated after an open failure, so treat as a new database for table
@@ -426,7 +483,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
                             path, errorString];
           FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
                                   @"%@", errorMessage);
-          NSAssert(NO, errorMessage);
+          NSAssert(NO, @"%@", errorMessage);
           didOpenDatabase = NO;  // Still failed, so indicate database did not open.
         }
       } else {

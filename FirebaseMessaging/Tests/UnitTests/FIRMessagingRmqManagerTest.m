@@ -236,4 +236,49 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   XCTAssertTrue(didObserveSetupReturned);
 }
 
+- (void)testConcurrentInitOnSameDatabaseDoesNotLockOrAssert {
+  NSString *databaseName = @"rmq-concurrent-init-test";
+  NSString *databasePath = [FIRMessagingRmqManager pathForDatabaseWithName:databaseName];
+  [[NSFileManager defaultManager] removeItemAtPath:databasePath error:nil];
+
+  __block BOOL didAssert = NO;
+#ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
+  [self.testAssertionHandler
+      setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
+                              handler:^(id object, NSString *fileName, NSInteger lineNumber) {
+                                didAssert = YES;
+                              }];
+#endif  // FIR_MESSAGING_ASSERTIONS_BLOCKED
+
+  // Simulate deleting and reconfiguring FirebaseApp rapidly, which creates multiple
+  // FIRMessagingRmqManager instances pointing at the same SQLite database before earlier
+  // asynchronous openDatabase calls have finished.
+  NSMutableArray<FIRMessagingRmqManager *> *managers = [NSMutableArray array];
+  for (NSInteger i = 0; i < 6; i++) {
+    FIRMessagingRmqManager *manager =
+        [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+    [managers addObject:manager];
+  }
+
+  for (FIRMessagingRmqManager *manager in managers) {
+    [self waitForDrainDatabaseQueueForRmqManager:manager];
+  }
+
+  XCTAssertFalse(didAssert,
+                 @"Concurrent FIRMessagingRmqManager init on the same database should not assert.");
+
+  FIRMessagingRmqManager *lastManager = managers.lastObject;
+  NSString *rmqID = @"concurrent-sync-msg";
+  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 60;
+  [lastManager saveSyncMessageWithRmqID:rmqID expirationTime:expirationTime];
+  FIRMessagingPersistentSyncMessage *saved = [lastManager querySyncMessageWithRmqID:rmqID];
+  XCTAssertEqualObjects(saved.rmqID, rmqID);
+
+  // Release all managers so their serialized dealloc closes complete before unlinking the file.
+  [managers removeAllObjects];
+  lastManager = nil;
+  [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
+  [[NSFileManager defaultManager] removeItemAtPath:databasePath error:nil];
+}
+
 @end
