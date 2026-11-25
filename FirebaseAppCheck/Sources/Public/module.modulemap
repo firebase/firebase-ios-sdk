@@ -7,7 +7,7 @@ module FirebaseAppCheck {
   // NOT PUBLIC API: declarations that the Swift implementation of the SDK
   // (`FirebaseAppCheckSwift`) implements internally.
   explicit module Internal {
-    header "../Internal/FIRAppCheckInternal.h"
+    header "../Private/FIRAppCheckInternal.h"
     export *
   }
 }

@@ -45,11 +45,11 @@ Pod::Spec.new do |s|
     base_dir + 'Sources/Swift/**/*.swift',
     base_dir + 'Sources/ObjC/**/*.[mh]',
     base_dir + 'Sources/Public/FirebaseAppCheck/*.h',
-    base_dir + 'Sources/Internal/*.h',
+    base_dir + 'Sources/Private/*.h',
   ]
   s.public_header_files = [
     base_dir + 'Sources/Public/FirebaseAppCheck/*.h',
-    base_dir + 'Sources/Internal/*.h',
+    base_dir + 'Sources/Private/*.h',
   ]
 
   s.ios.weak_framework = 'DeviceCheck'

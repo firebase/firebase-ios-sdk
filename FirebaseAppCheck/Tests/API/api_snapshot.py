@@ -65,7 +65,7 @@ SWIFT_TYPE_RENAMES = {r'\bFIRApp\b': 'FirebaseApp'}
 
 # Differences from the Objective-C implementation that are approved. There are none: the Swift
 # implementation of the SDK implements the same Objective-C headers. Its internal declarations
-# (`Sources/Internal/FIRAppCheckInternal.h`) are in the `FirebaseAppCheck.Internal` submodule, which
+# (`Sources/Private/FIRAppCheckInternal.h`) are in the `FirebaseAppCheck.Internal` submodule, which
 # apps don't import.
 APPROVED_SWIFT_DIFFERENCES = []
 APPROVED_OBJC_DIFFERENCES = []
@@ -747,7 +747,7 @@ def golden_path(kind, platform):
 
 
 # Headers in the public headers directory that `FirebaseAppCheck.h` doesn't import. None are
-# allowed: `Sources/Internal/FIRAppCheckInternal.h` lives outside `Sources/Public/`.
+# allowed: `Sources/Private/FIRAppCheckInternal.h` lives outside `Sources/Public/`.
 APPROVED_EXTRA_PUBLIC_HEADERS = set()
 
 
