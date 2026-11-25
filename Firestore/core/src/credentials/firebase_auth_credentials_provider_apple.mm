@@ -87,10 +87,8 @@ void FirebaseAuthCredentialsProvider::GetTokenInternal(
                   "GetToken cannot be called after listener removed.");
       lock.unlock();
       LOG_DEBUG("GetToken aborted due to listener removal.");
-      if (completion) {
-        completion(util::Status(Error::kErrorAborted,
-                                "GetToken aborted due to listener removal."));
-      }
+      completion(util::Status(Error::kErrorAborted,
+                              "GetToken aborted due to listener removal."));
       return;
     }
 
@@ -106,10 +104,10 @@ void FirebaseAuthCredentialsProvider::GetTokenInternal(
       ^(NSString* _Nullable token, NSError* _Nullable error) {
         std::unique_lock<std::mutex> lock(self->contents_->mutex);
         if (initial_token_counter != self->contents_->token_counter) {
-          // Cancel the request since the user changed (or the listener was
-          // removed) while the request was outstanding.
+          // The user changed (or the listener was removed) while the request
+          // was outstanding, so the token may be stale. Retry.
           lock.unlock();
-          LOG_DEBUG("GetToken aborted due to token change.");
+          LOG_DEBUG("GetToken retrying due to token change.");
           return self->GetTokenInternal(completion, /*is_retry=*/true);
         } else {
           User current_user = self->contents_->current_user;
