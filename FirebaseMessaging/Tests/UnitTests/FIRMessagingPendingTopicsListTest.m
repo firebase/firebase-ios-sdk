@@ -23,10 +23,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
-@interface FIRMessagingPendingTopicsList (Testing)
-- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;
-@end
-
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 
 /// Using this delegate lets us prevent any topic operations from start, making it easy to measure

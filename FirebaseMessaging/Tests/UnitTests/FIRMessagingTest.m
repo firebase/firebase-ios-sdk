@@ -879,6 +879,8 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   XCTAssertEqual(subscriptionCallIndex, 2);
   [topicOperationMock stopMocking];
   [registrationOperationMock stopMocking];
+  [topicURLSessionMock stopMocking];
+  [registrationURLSessionMock stopMocking];
 }
 
 - (void)testUnsubscribeFromTopicWhenInstallationIdEnabled {
@@ -955,6 +957,7 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
   [self waitForExpectationsWithTimeout:30.0 handler:nil];
   [topicOperationMock stopMocking];
+  [URLSessionMock stopMocking];
 }
 
 - (void)testFIDChangeNotificationWhenDefaultFCMTokenIsNil {

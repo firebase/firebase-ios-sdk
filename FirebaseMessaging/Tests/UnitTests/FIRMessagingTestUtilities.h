@@ -19,6 +19,7 @@
 #import "FirebaseMessaging/Sources/Public/FirebaseMessaging/FIRMessaging.h"
 
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
+#import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
 @class GULUserDefaults;
@@ -49,6 +50,18 @@ typedef void (^MockDelegateSubscriptionHandler)(NSString *topic,
 @interface FIRMessaging (TestUtilities)
 // Surface the user defaults instance to clean up after tests.
 @property(nonatomic, strong) NSUserDefaults *messagingUserDefaults;
+
+@end
+
+@interface FIRMessagingPendingTopicsList (TestUtilities)
+
+- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;
+
+@end
+
+@interface FIRMessagingPubSub (TestUtilities) <FIRMessagingPendingTopicsListDelegate>
+
+@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 
 @end
 

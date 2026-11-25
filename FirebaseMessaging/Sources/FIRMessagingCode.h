@@ -106,7 +106,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase = 13008,   // I-FCM013008
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable = 13010,     // I-FCM013010
   // FIRMessagingRmqManager.m
-  kFIRMessagingMessageCodeRmqManager000 = 14000,  // I-FCM014000
+  kFIRMessagingMessageCodeRmqManager000 = 14000,                  // I-FCM014000
+  kFIRMessagingMessageCodeRmqManagerDatabaseUnavailable = 14001,  // I-FCM014001
   // FIRMessagingSyncMessageManager.m
   // DO NOT USE 16000, 16003
   kFIRMessagingMessageCodeSyncMessageManager001 = 16001,  // I-FCM016001

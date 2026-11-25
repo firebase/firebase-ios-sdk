@@ -23,10 +23,10 @@
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
 #import <GoogleUtilities/GULReachabilityChecker.h>
+#import <GoogleUtilities/GULUserDefaults.h>
 
 @interface FIRMessagingPubSub (ExposedForTest)
 
-@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList;
 - (void)restorePendingTopicsList;
 
@@ -108,6 +108,10 @@ static NSString *const kTopicName = @"topic-Name";
 }
 
 - (void)testTopicListArchive {
+  [self addTeardownBlock:^{
+    [[GULUserDefaults standardUserDefaults]
+        removeObjectForKey:@"com.firebase.messaging.pending-subscriptions"];
+  }];
   MockPendingTopicsListDelegate *notReadyDelegate = [[MockPendingTopicsListDelegate alloc] init];
   notReadyDelegate.isReady = NO;
   FIRMessagingPendingTopicsList *topicList = [[FIRMessagingPendingTopicsList alloc] init];
