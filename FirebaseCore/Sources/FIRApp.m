@@ -183,10 +183,7 @@ static FIRApp *sDefaultApp;
   }
 
   // Default instantiation, make sure we populate with Swift SDKs that can't register in time.
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    [self registerSwiftComponents];
-  });
+  [self registerSwiftComponents];
 
   @synchronized(self) {
     FIRApp *app = [[FIRApp alloc] initInstanceWithName:name options:options];
@@ -321,6 +318,10 @@ static FIRApp *sDefaultApp;
 }
 
 - (instancetype)initInstanceWithName:(NSString *)name options:(FIROptions *)options {
+  // Ensure Swift components (such as FIRAppCheckComponent, which no longer uses +load) are
+  // registered before FIRComponentContainer snapshots the registered libraries, including when
+  // tests instantiate FIRApp directly without calling +configureWithName:options:.
+  [FIRApp registerSwiftComponents];
   self = [super init];
   if (self) {
     _name = [name copy];
@@ -788,51 +789,54 @@ static FIRApp *sDefaultApp;
 #pragma mark - Swift Components.
 
 + (void)registerSwiftComponents {
-  SEL componentsToRegisterSEL = @selector(componentsToRegister);
-  // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should only
-  // be SDKs that are written in Swift but still visible to ObjC.
-  // This is only necessary for products that need to do work at launch during configuration.
-  NSDictionary<NSString *, NSString *> *swiftComponents = @{
-    @"FIRSessions" : @"fire-ses",
-    @"FIRAuthComponent" : @"fire-auth",
-    @"FIRAppCheckComponent" : @"fire-app-check",
-  };
-  for (NSString *className in swiftComponents.allKeys) {
-    Class klass = NSClassFromString(className);
-    if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {
-      [FIRApp registerInternalLibrary:klass withName:swiftComponents[className]];
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    SEL componentsToRegisterSEL = @selector(componentsToRegister);
+    // Dictionary of class names that conform to `FIRLibrary` and their user agents. These should
+    // only be SDKs that are written in Swift but still visible to ObjC.
+    // This is only necessary for products that need to do work at launch during configuration.
+    NSDictionary<NSString *, NSString *> *swiftComponents = @{
+      @"FIRSessions" : @"fire-ses",
+      @"FIRAuthComponent" : @"fire-auth",
+      @"FIRAppCheckComponent" : @"fire-app-check",
+    };
+    for (NSString *className in swiftComponents.allKeys) {
+      Class klass = NSClassFromString(className);
+      if (klass && [klass respondsToSelector:componentsToRegisterSEL]) {
+        [FIRApp registerInternalLibrary:klass withName:swiftComponents[className]];
+      }
     }
-  }
 
-  // Swift libraries that don't need component behaviour
-  NSDictionary<NSString *, NSString *> *swiftLibraries = @{
-    @"FIRCombineAuthLibrary" : @"comb-auth",
-    @"FIRCombineFirestoreLibrary" : @"comb-firestore",
-    @"FIRCombineFunctionsLibrary" : @"comb-functions",
-    @"FIRCombineStorageLibrary" : @"comb-storage",
-    @"FIRFunctions" : @"fire-fun",
-    @"FIRStorage" : @"fire-str",
-    @"FIRVertexAIComponent" : @"fire-vertex",
-    @"FIRDataConnectComponent" : @"fire-dc",
-  };
-  for (NSString *className in swiftLibraries.allKeys) {
-    Class klass = NSClassFromString(className);
-    if (klass) {
-      NSString *version = FIRFirebaseVersion();
+    // Swift libraries that don't need component behaviour
+    NSDictionary<NSString *, NSString *> *swiftLibraries = @{
+      @"FIRCombineAuthLibrary" : @"comb-auth",
+      @"FIRCombineFirestoreLibrary" : @"comb-firestore",
+      @"FIRCombineFunctionsLibrary" : @"comb-functions",
+      @"FIRCombineStorageLibrary" : @"comb-storage",
+      @"FIRFunctions" : @"fire-fun",
+      @"FIRStorage" : @"fire-str",
+      @"FIRVertexAIComponent" : @"fire-vertex",
+      @"FIRDataConnectComponent" : @"fire-dc",
+    };
+    for (NSString *className in swiftLibraries.allKeys) {
+      Class klass = NSClassFromString(className);
+      if (klass) {
+        NSString *version = FIRFirebaseVersion();
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wundeclared-selector"
-      SEL sdkVersionSelector = @selector(sdkVersion);
+        SEL sdkVersionSelector = @selector(sdkVersion);
 #pragma clang diagnostic pop
-      if ([klass respondsToSelector:sdkVersionSelector]) {
+        if ([klass respondsToSelector:sdkVersionSelector]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        NSString *sdkVersion = (NSString *)[klass performSelector:sdkVersionSelector];
-        if (sdkVersion) version = sdkVersion;
+          NSString *sdkVersion = (NSString *)[klass performSelector:sdkVersionSelector];
+          if (sdkVersion) version = sdkVersion;
 #pragma clang diagnostic pop
+        }
+        [FIRApp registerLibrary:swiftLibraries[className] withVersion:version];
       }
-      [FIRApp registerLibrary:swiftLibraries[className] withVersion:version];
     }
-  }
+  });
 }
 
 #pragma mark - App Life Cycle
