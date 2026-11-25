@@ -17,20 +17,24 @@
 
 import Foundation
 
-/// A datatype containing media that is part of a `FunctionResponse` message. A
-/// `FunctionResponsePart` consists of data which has an associated datatype. A
+/// A datatype containing media that is part of a `FunctionResponse` message.
+///
+/// A `FunctionResponsePart` consists of data which has an associated datatype. A
 /// `FunctionResponsePart` can only contain one of the accepted types in
-/// `FunctionResponsePart.data`. A `FunctionResponsePart` must have a fixed IANA MIME type
-/// identifying the type and subtype of the media if the `inline_data` field is filled with raw
-/// bytes.
+/// `FunctionResponsePart.data`.
+///
+/// A `FunctionResponsePart` must have a fixed IANA MIME type identifying the type and subtype of
+/// the media if the `inline_data` field is filled with raw bytes.
 package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Buildable {
   /// URI based data.
-  ///
-  /// > Important: This property is not supported in the Gemini Developer API.
   package var fileData: FunctionResponseFileData?
 
   /// Inline media bytes.
   package var inlineData: FunctionResponseBlob?
+
+  /// Processes this part's media for understanding. Only meaningful for video parts (`inline_data`
+  /// or `file_data` with video mime). Non-video parts ignore this field.
+  package var mediaProcessing: MediaProcessing?
 
   /// Initializes a new `FunctionResponsePart`.
   package init() {}
@@ -38,5 +42,6 @@ package struct FunctionResponsePart: Codable, Sendable, Equatable, Hashable, Bui
   enum CodingKeys: String, CodingKey {
     case fileData
     case inlineData
+    case mediaProcessing
   }
 }

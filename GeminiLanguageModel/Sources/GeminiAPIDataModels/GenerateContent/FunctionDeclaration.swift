@@ -36,15 +36,28 @@ package struct FunctionDeclaration: Codable, Sendable, Equatable, Hashable, Buil
   package var name: String?
 
   /// Describes the parameters to the function in JSON Schema format. The schema must describe an
-  /// object where the properties are the parameters to the function. For example: ``` { "type":
-  /// "object", "properties": { "name": { "type": "string" }, "age": { "type": "integer" } },
-  /// "additionalProperties": false, "required": ["name", "age"], "propertyOrdering": ["name",
-  /// "age"] } ``` This field is mutually exclusive with `parameters`.
+  /// object where the properties are the parameters to the function. For example:
+  ///
+  /// ```
+  /// {
+  ///   "type": "object",
+  ///   "properties": {
+  ///     "name": { "type": "string" },
+  ///     "age": { "type": "integer" }
+  ///   },
+  ///   "additionalProperties": false,
+  ///   "required": ["name", "age"],
+  ///   "propertyOrdering": ["name", "age"]
+  /// }
+  /// ```
+  ///
+  /// This field is mutually exclusive with `parameters`.
   package var parametersJSONSchema: JSONObject?
 
   /// Describes the output from this function in JSON Schema format. The value specified by the
-  /// schema is the response value of the function. This field is mutually exclusive with
-  /// `response`.
+  /// schema is the response value of the function.
+  ///
+  /// This field is mutually exclusive with `response`.
   package var responseJSONSchema: JSONObject?
 
   /// Initializes a new `FunctionDeclaration`.

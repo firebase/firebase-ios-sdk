@@ -24,8 +24,6 @@ package struct ToolConfig: Codable, Sendable, Equatable, Hashable, Buildable {
 
   /// If true, the API response will include the server-side tool calls and responses within the
   /// `Content` message. This allows clients to observe the server's tool interactions.
-  ///
-  /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var includeServerSideToolInvocations: Bool?
 
   /// Retrieval config.

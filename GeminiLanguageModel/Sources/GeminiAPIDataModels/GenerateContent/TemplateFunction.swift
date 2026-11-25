@@ -23,10 +23,20 @@ import Foundation
 /// function must be listed in the template frontmatter for the model to be able to call it.
 package struct TemplateFunction: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Describes the parameters to the function in JSON Schema format. The schema must describe an
-  /// object where the properties are the parameters to the function. For example: ``` { "type":
-  /// "object", "properties": { "name": { "type": "string" }, "age": { "type": "integer" } },
-  /// "additionalProperties": false, "required": ["name", "age"], "propertyOrdering": ["name",
-  /// "age"] } ```
+  /// object where the properties are the parameters to the function. For example:
+  ///
+  /// ```
+  /// {
+  ///   "type": "object",
+  ///   "properties": {
+  ///     "name": { "type": "string" },
+  ///     "age": { "type": "integer" }
+  ///   },
+  ///   "additionalProperties": false,
+  ///   "required": ["name", "age"],
+  ///   "propertyOrdering": ["name", "age"]
+  /// }
+  /// ```
   package var inputSchema: JSONObject?
 
   /// Required. The name of the function to call.
