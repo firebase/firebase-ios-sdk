@@ -869,9 +869,10 @@ func packageTargets() -> [Target] {
       ],
       path: "FirebaseInstallations/Source/Tests",
       exclude: [
-        // Requires a GoogleService-Info.plist and network access; run by the CocoaPods
-        // `integration` test spec.
+        // Need keychain entitlements, so they run in the host app in `TestApp` instead. Some also
+        // need a GoogleService-Info.plist and network access.
         "Integration",
+        "TestApp",
         // Swift tests are in the target `InstallationsSwiftUnit` since mixed language targets
         // are not supported.
         "Unit/Swift",

@@ -17,7 +17,7 @@ FirebaseSessions/**/GoogleService-Info.plist
 FirebaseStorage/Tests/Integration/Resources/GoogleService-Info.plist
 
 # FirebaseInstallations integration tests GoogleService-Info.plist
-FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist
+FirebaseInstallations/Source/Tests/TestApp/GoogleService-Info.plist
 
 # FirebaseMessaging integration tests GoogleService-Info.plist
 FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist

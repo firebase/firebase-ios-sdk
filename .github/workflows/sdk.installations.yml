@@ -9,6 +9,9 @@ on:
     paths:
     - 'FirebaseInstallations**'
     - 'scripts/spm_test_schemes/InstallationsUnit.xcscheme'
+    - 'scripts/secrets/Installations.json'
+    - 'scripts/build.sh'
+    - 'Package.swift'
     - '.github/workflows/sdk.installations.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'
@@ -38,18 +41,36 @@ jobs:
       target: FirebaseInstallations-Unit-unit
 
   pod_lib_lint:
-    if: github.event.pull_request.head.repo.fork == false
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseInstallations
-      setup_command: |
-        scripts/configure_test_keychain.sh
-        mkdir -p FirebaseInstallations/Source/Tests/Resources
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
-          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-        echo "FIS_INTEGRATION_TESTS_REQUIRED=1" >> $GITHUB_ENV
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      setup_command: scripts/configure_test_keychain.sh
+
+  testapp-integration:
+    # The tests need the encrypted GoogleService-Info.plist, which isn't available to forks.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false) || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS, tvOS]
+    runs-on: macos-26
+    env:
+      secrets_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      # Fail the tests that need a Firebase project if the plist is missing.
+      FIS_INTEGRATION_TESTS_REQUIRED: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Run integration tests
+      run: scripts/repo.sh test --secrets ./scripts/secrets/Installations.json --platforms ${{ matrix.platform }} --xcode Xcode_26.2 Installations
+    - name: Upload xcodebuild logs
+      if: failure()
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      with:
+        name: xcodebuild-testapp-integration-${{ matrix.platform }}.log
+        path: xcodebuild-*.log
+        retention-days: 2
 
   quickstart:
     uses: ./.github/workflows/_quickstart.yml
@@ -62,7 +83,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
 
   installations-cron-only:
-    if: github.event.pull_request.head.repo.fork == false
     needs: pod_lib_lint
     uses: ./.github/workflows/_cocoapods.cron.yml
     with:
@@ -73,9 +93,3 @@ jobs:
       setup_command: |
         echo "TOOLCHAINS=com.apple.dt.toolchain.XcodeDefault" >> $GITHUB_ENV
         scripts/configure_test_keychain.sh
-        mkdir -p FirebaseInstallations/Source/Tests/Resources
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/Installations/GoogleService-Info.plist.gpg \
-          FirebaseInstallations/Source/Tests/Resources/GoogleService-Info.plist "$plist_secret"
-        echo "FIS_INTEGRATION_TESTS_REQUIRED=1" >> $GITHUB_ENV
-    secrets:
-      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
