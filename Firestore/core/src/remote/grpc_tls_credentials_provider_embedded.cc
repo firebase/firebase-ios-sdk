@@ -19,6 +19,7 @@
 #include <string>
 
 #include "Firestore/core/src/remote/grpc_root_certificate_finder.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,6 +28,10 @@ namespace remote {
 std::shared_ptr<grpc::ChannelCredentials> CreateDefaultTlsCredentials() {
   grpc::SslCredentialsOptions options;
   options.pem_root_certs = LoadGrpcRootCertificate();
+  LOG_DEBUG(
+      "Creating gRPC SSL credentials with embedded root certificates (%s "
+      "bytes)",
+      options.pem_root_certs.size());
   return grpc::SslCredentials(options);
 }
 
