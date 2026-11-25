@@ -390,10 +390,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 - (void)removeDatabase {
   // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
   dispatch_async(_databaseOperationQueue, ^{
-    if (self->_database) {
-      sqlite3_close_v2(self->_database);
-      self->_database = NULL;
-    }
+    [self closeDatabase];
     NSString *path = [self pathForDatabase];
     [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
   });
@@ -419,10 +416,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 #endif
       int result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
       if (result != SQLITE_OK) {
-        if (self->_database) {
-          sqlite3_close_v2(self->_database);
-          self->_database = NULL;
-        }
+        [self closeDatabase];
         NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
         NSString *errorMessage = [NSString
             stringWithFormat:@"Could not open existing RMQ database at path %@, error: %@", path,
@@ -445,10 +439,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
       // If opening the database failed, it might be corrupt. Try to recover by deleting and
       // recreating it.
       if (result != SQLITE_OK) {
-        if (self->_database) {
-          sqlite3_close_v2(self->_database);
-          self->_database = NULL;
-        }
+        [self closeDatabase];
         if (result == SQLITE_CANTOPEN) {
           FIRMessagingLoggerWarn(
               kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase,
@@ -464,10 +455,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
           result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
           // If it still fails after the recovery attempt, then assert and crash.
           if (result != SQLITE_OK) {
-            if (self->_database) {
-              sqlite3_close_v2(self->_database);
-              self->_database = NULL;
-            }
+            [self closeDatabase];
             NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
             NSString *errorMessage = [NSString
                 stringWithFormat:@"Could not open or create RMQ database at path %@, error: %@",
@@ -515,6 +503,14 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 }
 
 #pragma mark - Private
+
+// Must be called on `_databaseOperationQueue`.
+- (void)closeDatabase {
+  if (_database != NULL) {
+    sqlite3_close_v2(_database);
+    _database = NULL;
+  }
+}
 
 // Must be called on `_databaseOperationQueue`.
 - (BOOL)ensureDatabaseAvailable {
