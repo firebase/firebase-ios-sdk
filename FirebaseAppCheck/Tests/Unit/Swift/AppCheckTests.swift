@@ -32,12 +32,59 @@ internal import FirebaseCoreExtension
 /// The App Check token value App Check Core returns when an error occurs.
 let placeholderToken = "eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ=="
 
+private final class TestCaseCleanupObserver: NSObject, XCTestObservation, @unchecked Sendable {
+  static let shared = TestCaseCleanupObserver()
+
+  private let lock = NSLock()
+  private var keysToRemove: Set<String> = []
+  private var isRegistered = false
+
+  func recordUserDefaultsKey(_ key: String) {
+    let shouldRegister: Bool = {
+      lock.lock()
+      defer { lock.unlock() }
+      keysToRemove.insert(key)
+      guard !isRegistered else { return false }
+      isRegistered = true
+      return true
+    }()
+    if shouldRegister {
+      if Thread.isMainThread {
+        XCTestObservationCenter.shared.addTestObserver(self)
+      } else {
+        DispatchQueue.main.sync {
+          XCTestObservationCenter.shared.addTestObserver(self)
+        }
+      }
+    }
+  }
+
+  func testCaseDidFinish(_ testCase: XCTestCase) {
+    let keys: Set<String> = {
+      lock.lock()
+      defer { lock.unlock() }
+      let current = keysToRemove
+      keysToRemove.removeAll()
+      return current
+    }()
+    for key in keys {
+      UserDefaults.standard.removeObject(forKey: key)
+    }
+  }
+}
+
 enum AppCheckTestUtils {
   static let appName = "test_app_name"
   static let appID = "test_app_id"
   static let apiKey = "test_api_key"
   static let projectID = "test_project_id"
   static let projectNumber = "123456789"
+
+  static func recordDataCollectionKey(forAppName name: String) {
+    TestCaseCleanupObserver.shared.recordUserDefaultsKey(
+      "/google/firebase/global_data_collection_enabled:" + name
+    )
+  }
 
   /// Returns an app that isn't registered with Firebase, with complete options for token exchange
   /// and automatic token refresh disabled.
@@ -48,6 +95,7 @@ enum AppCheckTestUtils {
     options.projectID = projectID
     let app = FirebaseApp(instanceWithName: name, options: options)
     // The following disables automatic token refresh, which could interfere with tests.
+    recordDataCollectionKey(forAppName: name)
     app.isDataCollectionDefaultEnabled = false
     return app
   }
@@ -63,7 +111,21 @@ enum AppCheckTestUtils {
 
 /// Records whether a completion handler was called.
 final class CallRecorder: @unchecked Sendable {
-  var called = false
+  private let lock = NSLock()
+  private var _called = false
+
+  var called: Bool {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      return _called
+    }
+    set {
+      lock.lock()
+      _called = newValue
+      lock.unlock()
+    }
+  }
 }
 
 /// A fake App Check Core provider that returns stubbed results.
@@ -86,11 +148,36 @@ class FakeAppCheckCoreProvider: NSObject, AppCheckCoreProvider {
 
 /// A fake public App Check provider.
 final class FakeAppCheckProvider: NSObject, AppCheckProvider, @unchecked Sendable {
-  var token = AppCheckToken(token: "token", expirationDate: .distantFuture)
-  private(set) var getTokenCount = 0
+  private let lock = NSLock()
+  private var _token = AppCheckToken(token: "token", expirationDate: .distantFuture)
+  private var _getTokenCount = 0
+
+  var token: AppCheckToken {
+    get {
+      lock.lock()
+      defer { lock.unlock() }
+      return _token
+    }
+    set {
+      lock.lock()
+      _token = newValue
+      lock.unlock()
+    }
+  }
+
+  var getTokenCount: Int {
+    lock.lock()
+    defer { lock.unlock() }
+    return _getTokenCount
+  }
 
   func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
-    getTokenCount += 1
+    let token: AppCheckToken = {
+      lock.lock()
+      defer { lock.unlock() }
+      _getTokenCount += 1
+      return _token
+    }()
     handler(token, nil)
   }
 }
@@ -125,12 +212,20 @@ final class AppCheckTests: XCTestCase {
     func token(forcingRefresh: Bool, completion: @escaping AppCheckCoreTokenHandler) {
       forcingRefreshValues.append(forcingRefresh)
       onTokenRequest?()
-      completion(tokenResult!)
+      guard let tokenResult else {
+        XCTFail("Missing stubbed tokenResult")
+        return
+      }
+      completion(tokenResult)
     }
 
     func limitedUseToken(completion: @escaping AppCheckCoreTokenHandler) {
       limitedUseTokenCount += 1
-      completion(limitedUseTokenResult!)
+      guard let limitedUseTokenResult else {
+        XCTFail("Missing stubbed limitedUseTokenResult")
+        return
+      }
+      completion(limitedUseTokenResult)
     }
   }
 
@@ -157,13 +252,13 @@ final class AppCheckTests: XCTestCase {
                             settings: AppCheckCoreSettingsProtocol,
                             notificationCenter: NotificationCenter? = nil,
                             file: StaticString = #filePath, line: UInt = #line) -> AppCheck {
-    AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
-      FakeAppCheckProvider()))
-    let appCheck = AppCheck.make(app: AppCheckTestUtils.app(name: appName))!
+    let appCheck = AppCheck.makeForTesting(
+      appName: appName,
+      appCheckCore: appCheckCore,
+      settings: settings,
+      notificationCenter: notificationCenter ?? self.notificationCenter
+    )
     XCTAssertEqual(appCheck.appName, appName, file: file, line: line)
-    appCheck.appCheckCore = appCheckCore
-    appCheck.settings = settings
-    appCheck.notificationCenter = notificationCenter ?? self.notificationCenter
     return appCheck
   }
 
@@ -190,7 +285,8 @@ final class AppCheckTests: XCTestCase {
   private func stubTokenRequest(token: AppCheckToken) {
     let internalToken = token.internalToken
     appCheckCore.tokenResult = AppCheckCoreTokenResult(token: internalToken)
-    appCheckCore.onTokenRequest = { [unowned self] in
+    appCheckCore.onTokenRequest = { [weak self] in
+      guard let self else { return }
       appCheck.tokenDidUpdate(internalToken, serviceName: appName)
     }
   }
@@ -198,7 +294,8 @@ final class AppCheckTests: XCTestCase {
   private func tokenUpdateNotification(expectedToken: String) -> XCTestExpectation {
     expectation(forNotification: .AppCheckTokenDidChange,
                 object: nil,
-                notificationCenter: notificationCenter) { [unowned self] notification in
+                notificationCenter: notificationCenter) { [weak self] notification in
+      guard let self else { return false }
       XCTAssertEqual(notification.userInfo?[AppCheckAppNameNotificationKey] as? String, appName)
       XCTAssertEqual(notification.userInfo?[AppCheckTokenNotificationKey] as? String,
                      expectedToken)
@@ -221,7 +318,9 @@ final class AppCheckTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "testInitWithApp_googleAppID", gcmSenderID: "")
     options.projectID = "testInitWithApp_projectID"
     options.appGroupID = "testInitWithApp_appGroupID"
-    let app = FirebaseApp(instanceWithName: "testInitWithApp_appName", options: options)
+    let name = "testInitWithApp_appName"
+    let app = FirebaseApp(instanceWithName: name, options: options)
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: name)
     app.isDataCollectionDefaultEnabled = false
 
     let provider = FakeAppCheckProvider()
@@ -239,6 +338,7 @@ final class AppCheckTests: XCTestCase {
 
     XCTAssertEqual(factory.requestedApps.count, 1)
     XCTAssertTrue(factory.requestedApps.first === app)
+    XCTAssertEqual(provider.getTokenCount, 0)
     // The App Check Core logging level matches the Firebase logging level.
     XCTAssertEqual(AppCheckCoreLogger.logLevel, .debug)
   }
@@ -264,6 +364,7 @@ final class AppCheckTests: XCTestCase {
     options.projectID = "project_id"
     FirebaseApp.configure(name: name, options: options)
     let app = try XCTUnwrap(FirebaseApp.app(name: name))
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: name)
     app.isDataCollectionDefaultEnabled = false
     addTeardownBlock { [weak self] in
       guard let self, let existing = FirebaseApp.app(name: name) else { return }
@@ -297,11 +398,6 @@ final class AppCheckTests: XCTestCase {
       FakeAppCheckProvider()))
     let appName = "testAppCheckInstanceForDirectInstanceWithNameApp"
     let app = AppCheckTestUtils.app(name: appName)
-    addTeardownBlock {
-      UserDefaults.standard.removeObject(
-        forKey: "FirebaseDataCollectionDefaultEnabled_" + appName
-      )
-    }
 
     let appCheck = try XCTUnwrap(AppCheck.appCheck(app: app))
     XCTAssertTrue(AppCheck.appCheck(app: app) === appCheck)
@@ -460,6 +556,7 @@ final class AppCheckTests: XCTestCase {
       code: .unsupported, failureReason: "AppAttestProvider unsupported", underlyingError: nil
     )
     appCheckCore.tokenResult = AppCheckCoreTokenResult(error: providerError)
+    let notification = tokenUpdateNotificationNotPosted()
     let completion = expectation(description: "getToken")
 
     appCheck.token(forcingRefresh: false) { token, error in
@@ -471,7 +568,7 @@ final class AppCheckTests: XCTestCase {
       completion.fulfill()
     }
 
-    wait(for: [completion], timeout: 0.5)
+    wait(for: [notification, completion], timeout: 0.5)
   }
 
   func testGetToken_AsyncThrows() async {
@@ -527,6 +624,7 @@ final class AppCheckTests: XCTestCase {
     let expectedToken = validToken()
     appCheckCore.limitedUseTokenResult =
       AppCheckCoreTokenResult(token: expectedToken.internalToken)
+    let notification = tokenUpdateNotificationNotPosted()
     let completion = expectation(description: "getLimitedUseToken")
 
     appCheck.getLimitedUseToken { result in
@@ -535,7 +633,22 @@ final class AppCheckTests: XCTestCase {
       completion.fulfill()
     }
 
-    wait(for: [completion], timeout: 0.5)
+    wait(for: [notification, completion], timeout: 0.5)
+  }
+
+  func testInteropGetLimitedUseToken_AppCheckProviderError() {
+    let providerError = NSError(domain: "AppCheckTests", code: -2)
+    appCheckCore.limitedUseTokenResult = AppCheckCoreTokenResult(error: providerError)
+    let notification = tokenUpdateNotificationNotPosted()
+    let completion = expectation(description: "getLimitedUseToken")
+
+    appCheck.getLimitedUseToken { result in
+      XCTAssertEqual(result.token, placeholderToken)
+      XCTAssertEqual(result.error as NSError?, providerError)
+      completion.fulfill()
+    }
+
+    wait(for: [notification, completion], timeout: 0.5)
   }
 
   // MARK: Limited-use token
@@ -813,8 +926,8 @@ final class AppCheckSettingsTests: XCTestCase {
     app.isDataCollectionDefaultEnabled = false
     XCTAssertFalse(settings.isTokenAutoRefreshEnabled)
 
-    XCTAssertEqual(userDefaults.readKeys.first, userDefaultsKey)
-    XCTAssertEqual(bundle.readKeys.first, infoPlistKey)
+    XCTAssertEqual(userDefaults.readKeys, [userDefaultsKey, userDefaultsKey])
+    XCTAssertEqual(bundle.readKeys, [infoPlistKey, infoPlistKey])
   }
 
   func testIsTokenAutoRefreshEnabledWhenSetThisAppRun() {
@@ -833,6 +946,7 @@ final class AppCheckSettingsTests: XCTestCase {
     app.isDataCollectionDefaultEnabled = false
 
     XCTAssertTrue(settings.isTokenAutoRefreshEnabled)
+    XCTAssertEqual(userDefaults.readKeys, [userDefaultsKey])
     XCTAssertEqual(bundle.readKeys, [])
   }
 
@@ -850,6 +964,8 @@ final class AppCheckSettingsTests: XCTestCase {
     app.isDataCollectionDefaultEnabled = true
 
     XCTAssertFalse(settings.isTokenAutoRefreshEnabled)
+    XCTAssertEqual(userDefaults.readKeys, [userDefaultsKey])
+    XCTAssertEqual(bundle.readKeys, [infoPlistKey])
   }
 
   func testIsTokenAutoRefreshEnabledIsCachedOnceConfigured() {
@@ -860,10 +976,11 @@ final class AppCheckSettingsTests: XCTestCase {
     XCTAssertEqual(userDefaults.readKeys, [userDefaultsKey])
   }
 
-  func testIsTokenAutoRefreshEnabledWhenAppDeallocated() {
+  func testIsTokenAutoRefreshEnabledWhenAppDeallocated() throws {
     var app: FirebaseApp? = AppCheckTestUtils.app(name: appName)
     app?.isDataCollectionDefaultEnabled = true
-    let settings = AppCheckSettings(app: app!, userDefaults: userDefaults, mainBundle: bundle)
+    let settings = try AppCheckSettings(app: XCTUnwrap(app), userDefaults: userDefaults,
+                                        mainBundle: bundle)
     XCTAssertTrue(settings.isTokenAutoRefreshEnabled)
 
     weak let weakApp = app
@@ -894,8 +1011,8 @@ final class AppCheckSettingsTests: XCTestCase {
 
   func testSetIsTokenAutoRefreshEnabledSupportsSynchronousReentrantRead() {
     var observedDuringSet: Bool?
-    userDefaults.onSet = { [unowned self] in
-      observedDuringSet = settings.isTokenAutoRefreshEnabled
+    userDefaults.onSet = { [weak self] in
+      observedDuringSet = self?.settings.isTokenAutoRefreshEnabled
     }
 
     settings.isTokenAutoRefreshEnabled = true
@@ -928,10 +1045,20 @@ final class AppCheckLoggerTests: XCTestCase {
   }
 
   func testAppCheckCoreLogLevelUsesCurrentFirebaseLogLevel() {
-    let loggerLevel = FIRGetLoggerLevel()
-    FIRSetLoggerLevel(.info)
-    defer { FIRSetLoggerLevel(loggerLevel) }
-    XCTAssertEqual(AppCheckLogger.appCheckCoreLogLevel(), .info)
+    let savedLevel = FIRGetLoggerLevel()
+    defer { FIRSetLoggerLevel(savedLevel) }
+
+    let expected: [(FirebaseLoggerLevel, AppCheckCoreLogLevel)] = [
+      (.error, .error),
+      (.warning, .warning),
+      (.notice, .warning),
+      (.info, .info),
+      (.debug, .debug),
+    ]
+    for (firebaseLevel, coreLevel) in expected {
+      FIRSetLoggerLevel(firebaseLevel)
+      XCTAssertEqual(AppCheckLogger.appCheckCoreLogLevel(), coreLevel)
+    }
   }
 
   func testServiceAndMessageCodes() {

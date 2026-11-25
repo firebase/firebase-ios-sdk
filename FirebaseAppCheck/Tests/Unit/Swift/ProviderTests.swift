@@ -136,9 +136,7 @@ final class DeviceCheckProviderTests: XCTestCase, WrappingProviderTests {
   override func setUp() {
     super.setUp()
     coreProvider = FakeAppCheckCoreProvider()
-    let provider = DeviceCheckProvider(app: AppCheckTestUtils.app())!
-    provider.deviceCheckProvider = coreProvider
-    self.provider = provider
+    provider = DeviceCheckProvider.makeForTesting(deviceCheckProvider: coreProvider)
   }
 
   func testInitWithValidApp() throws {
@@ -178,9 +176,7 @@ final class AppAttestProviderTests: XCTestCase, WrappingProviderTests {
   override func setUp() {
     super.setUp()
     coreProvider = FakeAppCheckCoreProvider()
-    let provider = AppAttestProvider(app: AppCheckTestUtils.app())!
-    provider.appAttestProvider = coreProvider
-    self.provider = provider
+    provider = AppAttestProvider.makeForTesting(appAttestProvider: coreProvider)
   }
 
   func testInitWithValidApp() throws {

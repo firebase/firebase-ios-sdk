@@ -66,6 +66,7 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     FirebaseApp.configure(name: name, options: options ?? Self.completeOptions())
     let app = try XCTUnwrap(FirebaseApp.app(name: name))
     // Disables automatic token refresh, which could interfere with the tests.
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: name)
     app.isDataCollectionDefaultEnabled = false
     self.app = app
     return app

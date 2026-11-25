@@ -26,7 +26,18 @@ internal import FirebaseCoreExtension
 @available(watchOS 9.0, *)
 @objc @implementation extension DeviceCheckProvider {
   /// The App Check Core provider that implements DeviceCheck attestation.
-  final var deviceCheckProvider: AppCheckCoreProvider
+  final let deviceCheckProvider: AppCheckCoreProvider
+
+  private init(deviceCheckProvider: AppCheckCoreProvider) {
+    self.deviceCheckProvider = deviceCheckProvider
+    super.init()
+  }
+
+  /// Creates a provider that wraps a fake App Check Core provider. For tests.
+  final class func makeForTesting(deviceCheckProvider: AppCheckCoreProvider)
+    -> DeviceCheckProvider {
+    DeviceCheckProvider(deviceCheckProvider: deviceCheckProvider)
+  }
 
   @objc(initWithApp:)
   init?(app: FirebaseApp) {

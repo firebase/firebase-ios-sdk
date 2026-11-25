@@ -47,9 +47,9 @@ private let providerFactoryStorage = ProviderFactoryStorage()
   // MARK: - Internal
 
   final let appName: String
-  final var appCheckCore: AppCheckCoreProtocol
-  final var notificationCenter: NotificationCenter
-  final var settings: AppCheckCoreSettingsProtocol
+  final let appCheckCore: AppCheckCoreProtocol
+  final let notificationCenter: NotificationCenter
+  final let settings: AppCheckCoreSettingsProtocol
   /// Receives token updates from `appCheckCore`, which only keeps a weak reference to it.
   final let tokenDelegate: AppCheckTokenDelegate
 
@@ -65,6 +65,20 @@ private let providerFactoryStorage = ProviderFactoryStorage()
     self.tokenDelegate = tokenDelegate
     super.init()
     tokenDelegate.attach(self)
+  }
+
+  /// Creates an `AppCheck` instance wired to test fakes without running production setup.
+  final class func makeForTesting(appName: String,
+                                  appCheckCore: AppCheckCoreProtocol,
+                                  settings: AppCheckCoreSettingsProtocol,
+                                  notificationCenter: NotificationCenter) -> AppCheck {
+    AppCheck(
+      appName: appName as NSString,
+      appCheckCore: appCheckCore,
+      notificationCenter: notificationCenter,
+      settings: settings,
+      tokenDelegate: AppCheckTokenDelegate()
+    )
   }
 
   /// Creates the App Check instance of a Firebase app.

@@ -23,7 +23,7 @@ internal import AppCheckCore
 internal import FirebaseCoreExtension
 
 /// The subset of the App Check Core debug provider used by `AppCheckDebugProvider`.
-protocol AppCheckCoreDebugProviding: AppCheckCoreProvider {
+@objc protocol AppCheckCoreDebugProviding: AppCheckCoreProvider {
   var debugTokenSource: AppCheckCoreDebugTokenSource { get }
   func localDebugToken() -> String
   func currentDebugToken() -> String
@@ -33,16 +33,32 @@ extension AppCheckCoreDebugProvider: AppCheckCoreDebugProviding {}
 
 /// Implements `FIRAppCheckDebugProvider`, declared in `FIRAppCheckDebugProvider.h`.
 @objc @implementation extension AppCheckDebugProvider {
-  private(set) final var debugProvider: AppCheckCoreDebugProviding
-  private final var projectID: String?
-  private final var googleAppID: String
-  /// `@implementation` classes can't store values of types that may be resilient, such as the
-  /// App Check Core enums in binary distributions, so the raw value is stored.
-  private final var debugTokenSourceRawValue: Int
+  final let debugProvider: AppCheckCoreDebugProviding
+  final let projectID: String?
+  final let googleAppID: String
 
   /// Where the App Check Core debug provider got its debug token from.
   final var debugTokenSource: AppCheckCoreDebugTokenSource {
-    AppCheckCoreDebugTokenSource(rawValue: debugTokenSourceRawValue) ?? .local
+    debugProvider.debugTokenSource
+  }
+
+  private init(debugProvider: AppCheckCoreDebugProviding,
+               projectID: NSString?,
+               googleAppID: NSString) {
+    self.debugProvider = debugProvider
+    self.projectID = projectID as String?
+    self.googleAppID = googleAppID as String
+    super.init()
+    logDebugTokenSource()
+  }
+
+  /// Creates a provider that wraps a fake App Check Core debug provider. For tests.
+  final class func makeForTesting(debugProvider: AppCheckCoreDebugProviding,
+                                  projectID: String?,
+                                  googleAppID: String) -> AppCheckDebugProvider {
+    AppCheckDebugProvider(debugProvider: debugProvider,
+                          projectID: projectID as NSString?,
+                          googleAppID: googleAppID as NSString)
   }
 
   @objc(initWithApp:)
@@ -70,7 +86,6 @@ extension AppCheckCoreDebugProvider: AppCheckCoreDebugProviding {}
     self.debugProvider = debugProvider
     projectID = app.options.projectID
     googleAppID = app.options.googleAppID
-    debugTokenSourceRawValue = debugProvider.debugTokenSource.rawValue
     super.init()
     logDebugTokenSource()
   }
@@ -105,16 +120,6 @@ extension AppCheckCoreDebugProvider: AppCheckCoreDebugProviding {}
       completion(internalToken, error)
     }
   }
-
-  /// Replaces the App Check Core debug provider. For tests.
-  final func configure(debugProvider: AppCheckCoreDebugProviding, projectID: String?,
-                       googleAppID: String) {
-    self.debugProvider = debugProvider
-    self.projectID = projectID
-    self.googleAppID = googleAppID
-    debugTokenSourceRawValue = debugProvider.debugTokenSource.rawValue
-    logDebugTokenSource()
-  }
 }
 
 extension AppCheckDebugProvider {
@@ -142,6 +147,9 @@ extension AppCheckDebugProvider {
       return
     }
     let debugToken = localDebugToken()
+    guard !debugToken.isEmpty else {
+      return
+    }
     AppCheckLogger.log(
       .warning,
       code,
@@ -207,7 +215,9 @@ extension AppCheckDebugProvider {
         + "`FIRAAppCheckDebugToken` environment variable: \(errorDescription)\n\n"
         + "Make sure the token is registered for app \(googleAppID), for example with "
         + "`firebase appcheck:debugtokens:create <token>\(projectArgument) --app \(googleAppID)`."
-    default:
+    case .local:
+      return nil
+    @unknown default:
       return nil
     }
   }

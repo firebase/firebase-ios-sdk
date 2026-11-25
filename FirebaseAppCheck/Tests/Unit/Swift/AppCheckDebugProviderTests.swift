@@ -55,10 +55,9 @@ final class AppCheckDebugProviderTests: XCTestCase {
 
   /// Returns a provider that uses the fake App Check Core debug provider.
   private func makeProvider(projectID: String?) -> AppCheckDebugProvider {
-    let provider = AppCheckDebugProvider(app: AppCheckTestUtils.app())!
-    provider.configure(debugProvider: debugProvider, projectID: projectID,
-                       googleAppID: AppCheckTestUtils.appID)
-    return provider
+    AppCheckDebugProvider.makeForTesting(debugProvider: debugProvider,
+                                         projectID: projectID,
+                                         googleAppID: AppCheckTestUtils.appID)
   }
 
   /// Returns a provider whose core debug provider resolved its debug token from `source`.
@@ -73,6 +72,8 @@ final class AppCheckDebugProviderTests: XCTestCase {
   func testInitWithValidApp() throws {
     let provider = try XCTUnwrap(AppCheckDebugProvider(app: AppCheckTestUtils.app()))
     XCTAssertTrue(provider.debugProvider is AppCheckCoreDebugProvider)
+    XCTAssertEqual(provider.projectID, AppCheckTestUtils.projectID)
+    XCTAssertEqual(provider.googleAppID, AppCheckTestUtils.appID)
     XCTAssertFalse(provider.currentDebugToken().isEmpty)
   }
 
@@ -111,6 +112,33 @@ final class AppCheckDebugProviderTests: XCTestCase {
   func testInitWithLocalDebugTokenWithoutProjectIDDoesNotLogLocalToken() {
     // `setUp` creates a provider without a project ID.
     XCTAssertEqual(debugProvider.localDebugTokenCount, 0)
+  }
+
+  func testInitWithEmptyLocalDebugTokenSkipsRegistrationLog() {
+    debugProvider.localToken = ""
+    let provider = provider(debugTokenSource: .local, projectID: AppCheckTestUtils.projectID)
+    XCTAssertEqual(provider.debugTokenSource, .local)
+    XCTAssertEqual(debugProvider.localDebugTokenCount, 1)
+  }
+
+  func testUnrecognizedDebugTokenSourceIsNotTreatedAsLocal() {
+    let unrecognized = unsafeBitCast(999 as Int, to: AppCheckCoreDebugTokenSource.self)
+    let provider = provider(debugTokenSource: unrecognized, projectID: AppCheckTestUtils.projectID)
+    XCTAssertEqual(provider.debugTokenSource.rawValue, 999)
+    XCTAssertEqual(debugProvider.localDebugTokenCount, 0)
+
+    let expectedError = NSError(domain: "testUnrecognizedDebugTokenSource", code: -1)
+    debugProvider.tokenResult = (nil, expectedError)
+    let handlerCalled = CallRecorder()
+    provider.getToken { token, error in
+      handlerCalled.called = true
+      XCTAssertNil(token)
+      XCTAssertEqual(error as NSError?, expectedError)
+    }
+
+    XCTAssertTrue(handlerCalled.called)
+    XCTAssertEqual(debugProvider.localDebugTokenCount, 0)
+    XCTAssertNil(provider.debugTokenExchangeFailureMessage(for: expectedError))
   }
 
   func testGetTokenAPIErrorWithLocalDebugTokenLogsLocalToken() {
