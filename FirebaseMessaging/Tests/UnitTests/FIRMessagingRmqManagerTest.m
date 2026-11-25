@@ -276,8 +276,8 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
     XCTAssertFalse(
         didAssert,
         @"Concurrent FIRMessagingRmqManager init on the same database should not assert.");
-    // A failed CREATE TABLE unlinks the file via -removeDatabase, so this also catches the
-    // regression when FIR_MESSAGING_ASSERTIONS_BLOCKED is defined.
+    // A failed CREATE TABLE unlinks the file via -removeDatabaseOnOperationQueue, so this also
+    // catches the regression when FIR_MESSAGING_ASSERTIONS_BLOCKED is defined.
     XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
 
     FIRMessagingRmqManager *lastManager = managers.lastObject;
@@ -289,6 +289,49 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   }
 
   // Drain the shared queue so serialized dealloc closes complete before unlinking the file.
+  [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
+  [[NSFileManager defaultManager] removeItemAtPath:databasePath error:nil];
+}
+
+- (void)testBrokenDatabaseRemovalDoesNotDeleteSubsequentInstanceDatabase {
+  NSString *databaseName = @"broken-then-reopened-db";
+  NSString *databasePath = [self createBrokenDatabaseWithName:databaseName];
+  XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+
+  __block NSInteger assertionCount = 0;
+#ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
+  [self.testAssertionHandler
+      setMethodFailureHandlerForClass:[FIRMessagingRmqManager class]
+                              handler:^(id object, NSString *fileName, NSInteger lineNumber) {
+                                assertionCount++;
+                              }];
+#endif  // FIR_MESSAGING_ASSERTIONS_BLOCKED
+
+  @autoreleasepool {
+    // First manager hits the broken DB and removes it synchronously on the shared queue;
+    // second manager is queued immediately behind it and must recreate a valid DB that survives.
+    FIRMessagingRmqManager *firstManager =
+        [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+    FIRMessagingRmqManager *secondManager =
+        [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+
+    [self waitForDrainDatabaseQueueForRmqManager:secondManager];
+
+#ifndef FIR_MESSAGING_ASSERTIONS_BLOCKED
+    // Only the first failing CREATE TABLE should assert (no cascading assertions).
+    XCTAssertEqual(assertionCount, 1);
+#endif  // FIR_MESSAGING_ASSERTIONS_BLOCKED
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+
+    // First manager's handle was closed, while second manager's recreated DB works cleanly.
+    XCTAssertNil([firstManager querySyncMessageWithRmqID:@"recovered-msg"]);
+    int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 60;
+    [secondManager saveSyncMessageWithRmqID:@"recovered-msg" expirationTime:expirationTime];
+    FIRMessagingPersistentSyncMessage *saved =
+        [secondManager querySyncMessageWithRmqID:@"recovered-msg"];
+    XCTAssertEqualObjects(saved.rmqID, @"recovered-msg");
+  }
+
   [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:nil];
 }

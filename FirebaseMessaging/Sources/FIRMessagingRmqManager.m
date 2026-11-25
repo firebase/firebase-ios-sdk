@@ -292,6 +292,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)updateSyncMessageViaAPNSWithRmqID:(NSString *)rmqID {
   dispatch_async(_databaseOperationQueue, ^{
+    if (![self isDatabaseAvailable]) {
+      return;
+    }
     if (![self updateSyncMessageWithRmqID:rmqID column:kSyncMessageAPNSReceivedColumn value:YES]) {
       FIRMessagingLoggerError(kFIRMessagingMessageCodeSyncMessageManager005,
                               @"Failed to update APNS state for sync message %@", rmqID);
@@ -349,8 +352,9 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   char *error = NULL;
   NSString *createDatabase = [NSString stringWithFormat:command, kTablePrefix, tableName];
   if (sqlite3_exec(self->_database, [createDatabase UTF8String], NULL, NULL, &error) != SQLITE_OK) {
-    // remove db before failing
-    [self removeDatabase];
+    // Remove db synchronously on the operation queue before failing so subsequent operations don't
+    // run against the broken handle and a queued instance's new file cannot be unlinked later.
+    [self removeDatabaseOnOperationQueue];
     NSString *sqlError;
     if (error != NULL) {
       sqlError = [NSString stringWithCString:error encoding:NSUTF8StringEncoding];
@@ -383,12 +387,18 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   }
 }
 
+// Must be called on `_databaseOperationQueue`.
+- (void)removeDatabaseOnOperationQueue {
+  FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
+  [self closeDatabase];
+  NSString *path = [self pathForDatabase];
+  [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+}
+
 - (void)removeDatabase {
-  // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
+  // Ensure database is removed on the serial queue to avoid race conditions with queued operations.
   dispatch_async(_databaseOperationQueue, ^{
-    [self closeDatabase];
-    NSString *path = [self pathForDatabase];
-    [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
+    [self removeDatabaseOnOperationQueue];
   });
 }
 
@@ -488,11 +498,11 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   });
 }
 
+// Must be called on `_databaseOperationQueue`.
 - (void)updateDBWithStringRmqID {
-  dispatch_async(_databaseOperationQueue, ^{
-    [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
-    [self dropTableWithName:kOldTableS2DRmqIds];
-  });
+  FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
+  [self createTableWithName:kTableS2DRmqIds command:kCreateTableS2DRmqIds];
+  [self dropTableWithName:kOldTableS2DRmqIds];
 }
 
 #pragma mark - Private
