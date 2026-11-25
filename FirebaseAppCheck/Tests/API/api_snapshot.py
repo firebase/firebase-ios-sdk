@@ -668,7 +668,9 @@ NEGATIVE_OBJC_SNIPPETS_IOS = [
     '(void)[[FIRRecaptchaProvider alloc] initWithRecaptchaProvider:[NSObject new]];',
 ]
 # A snippet that must compile, to verify that the compiler invocations are correct.
-POSITIVE_SWIFT_SNIPPET = '_ = AppCheckToken(token: "", expirationDate: Date())'
+POSITIVE_SWIFT_SNIPPET = (
+    '_ = AppCheckToken(token: "", expirationDate: Date()); '
+    'class FactorySub: AppCheckDebugProviderFactory {}; _ = FactorySub()')
 POSITIVE_OBJC_SNIPPET = (
     '(void)[[FIRAppCheckToken alloc] initWithToken:@"" expirationDate:[NSDate date]];'
     ' (void)[FIRAppCheck appCheck];')

@@ -287,6 +287,71 @@ final class AppCheckPublicBehaviorTests: XCTestCase {
     wait(for: [completion], timeout: 5)
   }
 
+  func testInteropLimitedUseTokenReturnsRawErrorAndPlaceholderToken() throws {
+    let providerError = NSError(domain: "AppCheckPublicBehaviorTests", code: 11)
+    let provider = FakeProvider()
+    provider.limitedUseResult = .failure(providerError)
+    let app = try configureApp(factory: FakeProviderFactory(provider: provider))
+    let interop = try XCTUnwrap(interop(for: app))
+
+    let completion = expectation(description: "completion")
+    interop.getLimitedUseToken?() { result in
+      XCTAssertEqual(result.token, Self.placeholderToken)
+      XCTAssertEqual(result.error as NSError?, providerError)
+      completion.fulfill()
+    }
+    wait(for: [completion], timeout: 5)
+  }
+
+  func testDefaultAppCheckReturnsConfiguredInstance() async throws {
+    if FirebaseApp.app() != nil {
+      throw XCTSkip("A default app is already configured.")
+    }
+    let provider = FakeProvider()
+    provider.limitedUseResult = .success("default-token")
+    AppCheck.setAppCheckProviderFactory(FakeProviderFactory(provider: provider))
+    FirebaseApp.configure(options: Self.completeOptions())
+    addTeardownBlock {
+      await FirebaseApp.app()?.delete()
+    }
+    let defaultApp = try XCTUnwrap(FirebaseApp.app())
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: defaultApp.name)
+    defaultApp.isDataCollectionDefaultEnabled = false
+
+    let defaultAppCheck = AppCheck.appCheck()
+    XCTAssertTrue(defaultAppCheck === AppCheck.appCheck(app: defaultApp))
+    let token = try await defaultAppCheck.limitedUseToken()
+    XCTAssertEqual(token.token, "default-token")
+  }
+
+  func testComponentRegistrationUserAgentAndARCoreExclusion() throws {
+    let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
+    XCTAssertNotNil(AppCheck.appCheck(app: app))
+    XCTAssertTrue(FirebaseApp.firebaseUserAgent().contains("fire-app-check"))
+
+    let arCoreName = "ARCoreFIRApp"
+    let arCoreOptions = FirebaseOptions(
+      googleAppID: "1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
+      gcmSenderID: "480963775968"
+    )
+    arCoreOptions.apiKey = "api_key"
+    arCoreOptions.projectID = "project_id"
+    AppCheck.setAppCheckProviderFactory(FakeProviderFactory(provider: FakeProvider()))
+    FirebaseApp.configure(name: arCoreName, options: arCoreOptions)
+    addTeardownBlock { [weak self] in
+      guard let self, let existing = FirebaseApp.app(name: arCoreName) else { return }
+      let deleted = self.expectation(description: "arcore app deleted")
+      existing.delete { _ in deleted.fulfill() }
+      self.wait(for: [deleted], timeout: 5)
+    }
+    let arCoreApp = try XCTUnwrap(FirebaseApp.app(name: arCoreName))
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: arCoreName)
+    arCoreApp.isDataCollectionDefaultEnabled = false
+
+    XCTAssertNil(AppCheck.appCheck(app: arCoreApp))
+    XCTAssertNil(interop(for: arCoreApp))
+  }
+
   func testInteropNotificationNames() throws {
     let app = try configureApp(factory: FakeProviderFactory(provider: FakeProvider()))
     let interop = try XCTUnwrap(interop(for: app))

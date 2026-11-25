@@ -74,6 +74,10 @@ internal import FirebaseCoreExtension
 /// Implements `FIRDeviceCheckProviderFactory`, declared in `FIRDeviceCheckProviderFactory.h`.
 @available(watchOS 9.0, *)
 @objc @implementation extension DeviceCheckProviderFactory {
+  override init() {
+    super.init()
+  }
+
   @objc(createProviderWithApp:)
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     DeviceCheckProvider(app: app)

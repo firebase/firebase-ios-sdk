@@ -64,6 +64,10 @@ internal import FirebaseCoreExtension
 /// Implements `FIRAppAttestProviderFactory`, declared in `FIRAppAttestProviderFactory.h`.
 @available(macOS 11.3, watchOS 9.0, *)
 @objc @implementation extension AppAttestProviderFactory {
+  override init() {
+    super.init()
+  }
+
   @objc(createProviderWithApp:)
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     AppAttestProvider(app: app)

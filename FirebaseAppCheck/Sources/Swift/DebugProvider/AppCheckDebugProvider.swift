@@ -225,6 +225,10 @@ extension AppCheckDebugProvider {
 
 /// Implements `FIRAppCheckDebugProviderFactory`, declared in `FIRAppCheckDebugProviderFactory.h`.
 @objc @implementation extension AppCheckDebugProviderFactory {
+  override init() {
+    super.init()
+  }
+
   @objc(createProviderWithApp:)
   func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
     AppCheckDebugProvider(app: app)

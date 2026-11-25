@@ -154,6 +154,62 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
     XCTAssertEqual(token.expirationDate, date)
   }
 
+  func testSubclassesCanBeInstantiatedAndInvokedAtRuntime() throws {
+    defer { resetAppCheckProviderFactory() }
+    AppCheck.setAppCheckProviderFactory(CustomFactory())
+
+    let date = Date(timeIntervalSince1970: 250)
+    let tokenSubclass = AppCheckTokenSubclass(token: "raw", expirationDate: date)
+    XCTAssertEqual(tokenSubclass.token, "subclass-raw")
+    XCTAssertEqual(tokenSubclass.expirationDate, date)
+
+    let appName = "AppCheckAPICompatibilityTests_Subclasses"
+    let options = FirebaseOptions(googleAppID: "1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa",
+                                  gcmSenderID: "sender_id")
+    options.apiKey = "api_key"
+    options.projectID = "project_id"
+    FirebaseApp.configure(name: appName, options: options)
+    addTeardownBlock { [weak self] in
+      guard let self, let existing = FirebaseApp.app(name: appName) else { return }
+      let deleted = self.expectation(description: "deleted \(appName)")
+      existing.delete { _ in deleted.fulfill() }
+      self.wait(for: [deleted], timeout: 5)
+    }
+    let app = try XCTUnwrap(FirebaseApp.app(name: appName))
+    AppCheckTestUtils.recordDataCollectionKey(forAppName: appName)
+    app.isDataCollectionDefaultEnabled = false
+
+    XCTAssertNotNil(AppCheck.appCheck(app: app))
+    XCTAssertNil(AppCheckSubclass.appCheck(app: app))
+
+    let debugSubclass = try XCTUnwrap(DebugProviderSubclass(app: app))
+    XCTAssertFalse(debugSubclass.localDebugToken().isEmpty)
+    XCTAssertFalse(debugSubclass.currentDebugToken().isEmpty)
+    XCTAssertNotNil(DebugProviderAsyncSubclass(app: app))
+    XCTAssertTrue(DebugProviderFactorySubclass().createProvider(with: app) is AppCheckDebugProvider)
+
+    if #available(watchOS 9.0, *) {
+      XCTAssertNotNil(DeviceCheckProviderSubclass(app: app))
+      XCTAssertTrue(
+        DeviceCheckProviderFactorySubclass().createProvider(with: app) is DeviceCheckProvider
+      )
+    }
+
+    if #available(macOS 11.3, watchOS 9.0, *) {
+      XCTAssertNotNil(AppAttestProviderSubclass(app: app))
+      XCTAssertTrue(
+        AppAttestProviderFactorySubclass().createProvider(with: app) is AppAttestProvider
+      )
+    }
+
+    #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(visionOS)
+      XCTAssertNotNil(RecaptchaProviderFactorySubclass(siteKey: "site_key"))
+      let incompleteApp = AppCheckTestUtils.app(name: "AppCheckAPICompatibilityTests_Recaptcha",
+                                                apiKey: nil)
+      XCTAssertNil(RecaptchaProviderSubclass(app: incompleteApp, siteKey: "site_key"))
+    #endif
+  }
+
   func testCustomProvidersOfEveryShapeCanBeUsed() async throws {
     // Each provider, with the limited-use token it returns, or `nil` if it doesn't implement the
     // optional limited-use token requirement.
@@ -228,6 +284,20 @@ final class AppCheckAPICompatibilityTests: XCTestCase {
     let _: AppCheckToken = try await debugProvider.getToken()
     let _: AppCheckToken = try await debugProvider.getLimitedUseToken()
     let _: AppCheckToken = try await provider.getToken()
+    if #available(watchOS 9.0, *), let deviceCheckProvider = DeviceCheckProvider(app: app) {
+      let _: AppCheckToken = try await deviceCheckProvider.getToken()
+      let _: AppCheckToken = try await deviceCheckProvider.getLimitedUseToken()
+    }
+    if #available(macOS 11.3, watchOS 9.0, *), let appAttestProvider = AppAttestProvider(app: app) {
+      let _: AppCheckToken = try await appAttestProvider.getToken()
+      let _: AppCheckToken = try await appAttestProvider.getLimitedUseToken()
+    }
+    #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(visionOS)
+      if let recaptchaProvider = RecaptchaProvider(app: app, siteKey: "site_key") {
+        let _: AppCheckToken = try await recaptchaProvider.getToken()
+        let _: AppCheckToken = try await recaptchaProvider.getLimitedUseToken()
+      }
+    #endif
   }
 
   // MARK: Completion handler closures
