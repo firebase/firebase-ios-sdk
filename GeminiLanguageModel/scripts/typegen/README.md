@@ -8,7 +8,12 @@ Hand-written support types used by the generated models (`Buildable`,
 `JSONValue`, `GoogleCloudAPIError`, and `manualOverrideSchemas` implementations
 such as `ResponseFormatConfig`) live in
 `GeminiLanguageModel/Sources/GeminiAPIDataModels/Core`, which the generator
-never writes to or prunes.
+never writes to or prunes. Their files use a `Core+` prefix (for example,
+`Core+JSONValue.swift`) rather than indicating a nested `Core` type, keeping
+file names unique in flat build systems such as CocoaPods (for example,
+alongside `FirebaseAI`'s `JSONValue.swift`); generated files will adopt the
+same `<Directory>+<Type>.swift` convention when output is split across
+directories.
 
 ---
 
