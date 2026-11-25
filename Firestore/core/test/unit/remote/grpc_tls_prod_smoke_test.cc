@@ -29,6 +29,43 @@
 // UNAVAILABLE, which is how gRPC reports a failed TLS handshake) proves that
 // the handshake succeeded.
 
+#if defined(_WIN32)
+// Included before any Win32 headers or `_WIN32_WINNT` overrides so the build
+// verifies that `grpc_tls_credentials_provider_windows.h` is self-contained and
+// does not pull in `<wincrypt.h>`.
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_windows.h"
+
+#if defined(X509_NAME) || defined(X509_EXTENSIONS) || defined(OCSP_REQUEST)
+#error "grpc_tls_credentials_provider_windows.h must not include <wincrypt.h>"
+#endif
+
+// `CERT_CHAIN_ENGINE_CONFIG::hExclusiveRoot` in `<wincrypt.h>` is gated on
+// Windows 7 (`NTDDI_VERSION >= NTDDI_WIN7`), whereas CMake targets Vista
+// (`_WIN32_WINNT=0x600`; see compiler_setup.cmake) and gRPC's
+// `port_platform.h` has already included `<windows.h>` / `<sdkddkver.h>`.
+#if !defined(_WIN32_WINNT) || _WIN32_WINNT < 0x0601
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+#endif
+#if !defined(NTDDI_VERSION) || NTDDI_VERSION < 0x06010000
+#undef NTDDI_VERSION
+#define NTDDI_VERSION 0x06010000
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
+#include <windows.h>  // NOLINT(build/include_order)
+
+#include <wincrypt.h>  // NOLINT(build/include_order)
+#elif !defined(__APPLE__)
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_linux.h"
+#endif
+
 #include <cstdlib>
 
 #include <chrono>
@@ -60,10 +97,6 @@
 #include "absl/strings/match.h"
 #include "absl/types/optional.h"
 #include "gtest/gtest.h"
-
-#if !defined(__APPLE__) && !defined(_WIN32)
-#include "Firestore/core/src/remote/grpc_tls_credentials_provider_linux.h"
-#endif
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
 #include "grpcpp/client_context.h"
@@ -333,6 +366,63 @@ class ProdConnection {
   std::thread polling_thread_;
 };
 
+#if defined(_WIN32)
+
+/**
+ * Returns the number of certificates in the current user's `Root` system
+ * store, which (through its physical stores) includes the machine and
+ * enterprise roots that the default chain engine trusts. Returns -1 if the
+ * store cannot be opened.
+ */
+int CountWindowsRootStoreCertificates() {
+  HCERTSTORE store = CertOpenStore(
+      CERT_STORE_PROV_SYSTEM_W, 0, 0,
+      CERT_SYSTEM_STORE_CURRENT_USER | CERT_STORE_READONLY_FLAG, L"Root");
+  if (store == nullptr) return -1;
+  int count = 0;
+  PCCERT_CONTEXT cert = nullptr;
+  while ((cert = CertEnumCertificatesInStore(store, cert)) != nullptr) {
+    ++count;
+  }
+  CertCloseStore(store, 0);
+  return count;
+}
+
+/**
+ * Returns a config whose chain engine trusts no roots at all (an empty
+ * `hExclusiveRoot` store), or a config with a null engine after reporting a
+ * test failure.
+ */
+WindowsTrustConfig NoRootsConfig() {
+  WindowsTrustConfig config;
+  HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_MEMORY, 0, 0,
+                                   CERT_STORE_CREATE_NEW_FLAG, nullptr);
+  if (store == nullptr) {
+    ADD_FAILURE() << "CertOpenStore failed: " << GetLastError();
+    return config;
+  }
+
+  CERT_CHAIN_ENGINE_CONFIG engine_config = {};
+  engine_config.cbSize = sizeof(engine_config);
+  engine_config.hExclusiveRoot = store;
+  HCERTCHAINENGINE engine = nullptr;
+  if (!CertCreateCertificateChainEngine(&engine_config, &engine)) {
+    ADD_FAILURE() << "CertCreateCertificateChainEngine failed: "
+                  << GetLastError();
+    CertCloseStore(store, 0);
+    return config;
+  }
+  config.chain_engine =
+      std::shared_ptr<void>(engine, [store](void* engine_handle) {
+        CertFreeCertificateChainEngine(
+            static_cast<HCERTCHAINENGINE>(engine_handle));
+        CertCloseStore(store, 0);
+      });
+  return config;
+}
+
+#endif  // defined(_WIN32)
+
 }  // namespace
 
 // (a) The production code path, end to end: `GrpcConnection` creates the
@@ -390,7 +480,14 @@ TEST(GrpcTlsProdSmokeTest, ReportsTrustSource) {
 #if defined(__APPLE__)
   Log("Trust source: Security.framework (Apple system trust store)");
 #elif defined(_WIN32)
-  Log("Trust source: Windows (see grpc_tls_credentials_provider.h)");
+  // `CreateDefaultTlsCredentials()` leaves `WindowsTrustConfig::chain_engine`
+  // null, so CryptoAPI uses the current user's default chain engine, which
+  // trusts the Windows certificate stores.
+  int root_count = CountWindowsRootStoreCertificates();
+  Log("Trust source: CryptoAPI default chain engine (Windows certificate "
+      "stores; CurrentUser\\Root has " +
+      std::to_string(root_count) + " certificates)");
+  EXPECT_GT(root_count, 0);
 #else
   LinuxTrustStore store = LoadLinuxTrustStore();
   Log("Trust source: " + store.anchor_source + " (" +
@@ -431,6 +528,31 @@ TEST(GrpcTlsProdSmokeTest, LinuxWithoutSystemAnchorsDoesNotFallBackToBundle) {
 }
 
 #endif  // !defined(__APPLE__) && !defined(_WIN32)
+
+#if defined(_WIN32)
+
+// (c) No bundled-certificate fallback: with a chain engine that trusts no
+// roots, the Windows provider must fail the handshake with production instead
+// of falling back to an embedded root bundle (which would make it succeed).
+TEST(GrpcTlsProdSmokeTest, WindowsWithoutTrustedRootsDoesNotFallBackToBundle) {
+  SKIP_UNLESS_PROD_SMOKE_ENABLED();
+
+  WindowsTrustConfig config = NoRootsConfig();
+  ASSERT_NE(config.chain_engine, nullptr);
+
+  // As above: show the endpoint is reachable with the system trust store.
+  ExpectDefaultCredentialsReachProduction();
+  if (HasFailure()) return;
+
+  grpc::Status status = DirectCommitCall(CreateWindowsTlsCredentials(config));
+  Log(std::string("Direct Commit to ") + kProdHost +
+      " with no trusted roots -> " + Describe(status));
+  EXPECT_EQ(status.error_code(), grpc::StatusCode::UNAVAILABLE)
+      << "Expected the TLS handshake to fail without trusted roots, but got "
+      << Describe(status);
+}
+
+#endif  // defined(_WIN32)
 
 }  // namespace remote
 }  // namespace firestore

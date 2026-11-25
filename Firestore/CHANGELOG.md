@@ -12,10 +12,18 @@
   Certificates are evaluated asynchronously so verification never blocks gRPC
   threads, and missing intermediate certificates are never fetched over the
   network on behalf of the server.
-- [changed] On Apple platforms and Linux, a custom `host` that is an IP
-  address must be written in canonical form (for IPv6, as RFC 5952 and
-  `inet_ntop` print it), and internationalized host names must be
-  Punycode-encoded.
+- [changed] On Windows, Firestore now verifies gRPC TLS server certificates
+  with CryptoAPI, honoring the Windows certificate stores (including enterprise
+  roots and the `Disallowed` store), instead of an embedded root certificate
+  bundle. Missing intermediate certificates are never fetched over the network
+  on behalf of the server.
+- [removed] Removed the embedded gRPC root certificate bundle (`roots.pem`)
+  from all platforms, reducing binary size.
+- [fixed] Fixed MSVC build errors when building Firestore with CMake on
+  Windows.
+- [changed] On all platforms, a custom `host` that is an IP address must be
+  written in canonical form (for IPv6, as RFC 5952 and `inet_ntop` print it),
+  and internationalized host names must be Punycode-encoded.
 - [fixed] Security Update: Removed untrusted eMudhra root certificate
   (`emSign Root CA - G1`) from embedded trust store.
 

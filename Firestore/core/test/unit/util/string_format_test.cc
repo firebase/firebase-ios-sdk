@@ -32,7 +32,7 @@ namespace util {
 namespace {
 
 using testing::HasSubstr;
-using testing::MatchesRegex;
+using testing::StartsWith;
 
 std::string lowercase(const std::string& str) {
   std::string lower_str = str;
@@ -111,8 +111,16 @@ TEST(StringFormatTest, NonNullPointer) {
 
   const std::string formatted_string = StringFormat("Hello %s", &value);
 
-  const std::string hex_address_regex = "(0x)?[0123456789abcdefABCDEF]+";
-  EXPECT_THAT(formatted_string, MatchesRegex("Hello " + hex_address_regex));
+  // Not checked with `MatchesRegex`: on Windows, GoogleTest's simple regex
+  // engine supports neither groups nor bracket expressions.
+  const std::string prefix = "Hello ";
+  ASSERT_THAT(formatted_string, StartsWith(prefix));
+  std::string address = formatted_string.substr(prefix.size());
+  if (address.rfind("0x", 0) == 0) address = address.substr(2);
+  EXPECT_FALSE(address.empty()) << formatted_string;
+  EXPECT_EQ(address.find_first_not_of("0123456789abcdefABCDEF"),
+            std::string::npos)
+      << formatted_string;
   const std::string expected_hex_address = lowercase(hex_address(&value));
   EXPECT_THAT(lowercase(formatted_string), HasSubstr(expected_hex_address));
 }

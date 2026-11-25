@@ -151,7 +151,7 @@ index 09e3df6..5d9b2f2 100644
    Status GetFileSize(const std::string& fname, uint64_t* size) override {
      WIN32_FILE_ATTRIBUTE_DATA attrs;
 -    if (!::GetFileAttributesExA(fname.c_str(), GetFileExInfoStandard, &attrs)) {
-+    auto wFilename = toUtf16(filename);
++    auto wFilename = toUtf16(fname);
 +    if (!::GetFileAttributesExW(wFilename.c_str(), GetFileExInfoStandard,
 +                                &attrs)) {
        return WindowsError(fname, ::GetLastError());

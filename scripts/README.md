@@ -47,10 +47,6 @@ Run cpplint.
 Used by Firestore to to keep the Xcode project in sync after adding/removing tests.
 
 ## Other Scripts
-### [binary_to_array.py](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/binary_to_array.py)
-
-Firestore script to convert binary data into a C/C++ array.
-
 ### [build.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/build.sh)
 
 Script used by CI jobs to wrap xcodebuild invocations with options.
