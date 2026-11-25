@@ -114,10 +114,10 @@ static NSString *const kFakeSenderID = @"123456789123";
       [(FIRMessaging *)_mockMessaging start];
     }
     // Intentionally replace any pending-topics list restored from standard user defaults with a
-    // fresh instance on a high-priority queue to isolate tests and avoid
+    // fresh instance on a user-initiated queue to isolate tests and avoid
     // DISPATCH_QUEUE_PRIORITY_BACKGROUND starvation on heavily loaded CI runners.
     _messaging.pubsub.pendingTopicUpdates = [[FIRMessagingPendingTopicsList alloc]
-        initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+        initWithCommandQueue:dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0)];
     _messaging.pubsub.pendingTopicUpdates.delegate = _messaging.pubsub;
     _mockPubsub = OCMPartialMock(_messaging.pubsub);
     _mockTokenManager = OCMPartialMock(_messaging.tokenManager);
