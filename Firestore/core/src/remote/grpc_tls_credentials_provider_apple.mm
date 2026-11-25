@@ -146,6 +146,7 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
                        absl::string_view target_name,
                        NSArray* anchors,
                        std::string* out_host,
+                       size_t* out_cert_count,
                        grpc::Status* out_status) {
   util::StatusOr<std::string> parsed_host = ExtractTlsHostName(target_name);
   if (!parsed_host.ok()) {
@@ -234,6 +235,9 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   }
 
   *out_host = std::move(host);
+  if (out_cert_count != nullptr) {
+    *out_cert_count = certs.count;
+  }
   SetStatus(out_status, grpc::Status::OK);
   return trust;
 }
@@ -253,17 +257,44 @@ long long ToMilliseconds(  // NOLINT(runtime/int)
       .count();
 }
 
-// Logs how long each stage of one Apple SecTrust evaluation took: at debug
-// level normally, as a warning when total elapsed time is slow. Logs the host,
-// never the certificate chain.
-void LogEvaluationLatency(
-    uint64_t eval_id,
-    const std::string& host,
-    bool trusted,
-    std::chrono::steady_clock::time_point enqueue_time,
-    std::chrono::steady_clock::time_point dequeue_time,
-    std::chrono::steady_clock::time_point trust_ready_time,
-    std::chrono::steady_clock::time_point finish_time) {
+std::string DescribeTrustResult(SecTrustRef trust) {
+  SecTrustResultType result = kSecTrustResultInvalid;
+  OSStatus status = SecTrustGetTrustResult(trust, &result);
+  if (status != errSecSuccess) {
+    return absl::StrCat("osstatus(", status, ")");
+  }
+  switch (result) {
+    case kSecTrustResultInvalid:
+      return "invalid";
+    case kSecTrustResultProceed:
+      return "proceed";
+    case kSecTrustResultDeny:
+      return "deny";
+    case kSecTrustResultUnspecified:
+      return "unspecified";
+    case kSecTrustResultRecoverableTrustFailure:
+      return "recoverable_trust_failure";
+    case kSecTrustResultFatalTrustFailure:
+      return "fatal_trust_failure";
+    case kSecTrustResultOtherError:
+      return "other_error";
+    default:
+      return absl::StrCat("unknown(", static_cast<uint32_t>(result), ")");
+  }
+}
+
+// Logs the outcome and per-stage latency of one Apple SecTrust evaluation:
+// always at warning level on verification failure or when slow, and at debug
+// level otherwise. Logs the host and chain length, never the certificate chain.
+void LogEvaluationResult(uint64_t eval_id,
+                         const std::string& host,
+                         size_t cert_count,
+                         SecTrustRef trust,
+                         const grpc::Status& status,
+                         std::chrono::steady_clock::time_point enqueue_time,
+                         std::chrono::steady_clock::time_point dequeue_time,
+                         std::chrono::steady_clock::time_point trust_ready_time,
+                         std::chrono::steady_clock::time_point finish_time) {
   auto total = finish_time - enqueue_time;
   long long total_ms = ToMilliseconds(total);  // NOLINT(runtime/int)
   long long queue_wait_ms =                    // NOLINT(runtime/int)
@@ -273,18 +304,27 @@ void LogEvaluationLatency(
   long long trustd_ms =  // NOLINT(runtime/int)
       ToMilliseconds(finish_time - trust_ready_time);
   std::string escaped_host = absl::CHexEscape(host);
-  if (total >= kSlowEvaluationThreshold) {
+  if (!status.ok()) {
+    LOG_WARN(
+        "TLS peer certificate verification failed (eval #%s, host='%s', "
+        "certs=%s, trust_result=%s, total=%s ms, queue_wait=%s ms, setup=%s "
+        "ms, trustd=%s ms): %s",
+        eval_id, escaped_host, cert_count, DescribeTrustResult(trust), total_ms,
+        queue_wait_ms, setup_ms, trustd_ms, status.error_message());
+  } else if (total >= kSlowEvaluationThreshold) {
     LOG_WARN(
         "Apple SecTrust TLS certificate evaluation #%s for '%s' finished "
-        "(trusted=%s) in %s ms (queue_wait=%s ms, setup=%s ms, trustd=%s ms); "
-        "gRPC abandons TLS handshakes that take longer than about 20 seconds",
-        eval_id, escaped_host, trusted, total_ms, queue_wait_ms, setup_ms,
+        "(trusted=true, certs=%s) in %s ms (queue_wait=%s ms, setup=%s ms, "
+        "trustd=%s ms); gRPC abandons TLS handshakes that take longer than "
+        "about 20 seconds",
+        eval_id, escaped_host, cert_count, total_ms, queue_wait_ms, setup_ms,
         trustd_ms);
   } else {
     LOG_DEBUG(
         "Apple SecTrust TLS certificate evaluation #%s for '%s' finished "
-        "(trusted=%s) in %s ms (queue_wait=%s ms, setup=%s ms, trustd=%s ms)",
-        eval_id, escaped_host, trusted, total_ms, queue_wait_ms, setup_ms,
+        "(trusted=true, certs=%s) in %s ms (queue_wait=%s ms, setup=%s ms, "
+        "trustd=%s ms)",
+        eval_id, escaped_host, cert_count, total_ms, queue_wait_ms, setup_ms,
         trustd_ms);
   }
 }
@@ -302,19 +342,11 @@ void LogSetupFailure(uint64_t eval_id,
   long long setup_ms =  // NOLINT(runtime/int)
       ToMilliseconds(finish_time - dequeue_time);
   std::string escaped_target = absl::CHexEscape(target_name);
-  if (total >= kSlowEvaluationThreshold) {
-    LOG_WARN(
-        "Apple SecTrust TLS certificate setup #%s for '%s' failed (%s) in %s "
-        "ms (queue_wait=%s ms, setup=%s ms)",
-        eval_id, escaped_target, status.error_message(), total_ms,
-        queue_wait_ms, setup_ms);
-  } else {
-    LOG_DEBUG(
-        "Apple SecTrust TLS certificate setup #%s for '%s' failed (%s) in %s "
-        "ms (queue_wait=%s ms, setup=%s ms)",
-        eval_id, escaped_target, status.error_message(), total_ms,
-        queue_wait_ms, setup_ms);
-  }
+  LOG_WARN(
+      "Apple SecTrust TLS certificate setup #%s for '%s' failed (%s) in %s "
+      "ms (queue_wait=%s ms, setup=%s ms)",
+      eval_id, escaped_target, status.error_message(), total_ms, queue_wait_ms,
+      setup_ms);
 }
 
 /**
@@ -402,10 +434,11 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
     @autoreleasepool {
       auto dequeue_time = std::chrono::steady_clock::now();
       std::string host;
+      size_t cert_count = 0;
       grpc::Status status;
       id trust =
           CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
-                              anchors, &host, &status);
+                              anchors, &host, &cert_count, &status);
       auto trust_ready_time = std::chrono::steady_clock::now();
       if (trust == nil) {
         LogSetupFailure(eval_id, state->input.target_name, status, enqueue_time,
@@ -420,12 +453,15 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
       // fails to start, until it is discarded).
       OSStatus start_status = SecTrustEvaluateAsyncWithError(
           (__bridge SecTrustRef)trust, queue,
-          ^(SecTrustRef, bool trusted, CFErrorRef error) {
+          ^(SecTrustRef evaluated_trust, bool trusted, CFErrorRef error) {
             (void)trust;
-            LogEvaluationLatency(eval_id, host, trusted, enqueue_time,
-                                 dequeue_time, trust_ready_time,
-                                 std::chrono::steady_clock::now());
-            state->completion(TrustResultToStatus(trusted, error, host));
+            grpc::Status result_status =
+                TrustResultToStatus(trusted, error, host);
+            LogEvaluationResult(eval_id, host, cert_count, evaluated_trust,
+                                result_status, enqueue_time, dequeue_time,
+                                trust_ready_time,
+                                std::chrono::steady_clock::now());
+            state->completion(std::move(result_status));
           });
       if (start_status != errSecSuccess) {
         grpc::Status start_error =
@@ -446,6 +482,8 @@ AppleSecTrustCertificateVerifier::AppleSecTrustCertificateVerifier(
 
 std::shared_ptr<grpc::ChannelCredentials> CreateAppleTlsCredentials(
     CFArrayRef anchor_certs) {
+  LOG_DEBUG("Creating Apple SecTrust TLS credentials (custom_anchors=%s)",
+            anchor_certs != nullptr);
   grpc::experimental::TlsChannelCredentialsOptions options;
 
   // Skip BoringSSL's static `X509_STORE` chain verification (and its default

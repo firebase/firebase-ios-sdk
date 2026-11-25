@@ -116,25 +116,34 @@ bool TlsAsyncVerificationTracker::FinishStart(Id id,
 
 void TlsAsyncVerificationTracker::Complete(Id id, grpc::Status status) {
   TlsVerificationCallback callback;
+  bool ignored = false;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     auto it = entries_.find(id);
     if (it == entries_.end() || it->second.completed_inline) {
-      return;  // Already resolved.
+      ignored = true;
+    } else {
+      Entry& entry = it->second;
+      if (entry.starting) {
+        // `FinishStart()` returns this result synchronously.
+        entry.completed_inline = true;
+        entry.status = std::move(status);
+        return;
+      }
+      auto by_request = ids_by_request_.find(entry.request);
+      if (by_request != ids_by_request_.end() && by_request->second == id) {
+        ids_by_request_.erase(by_request);
+      }
+      callback = std::move(entry.callback);
+      entries_.erase(it);
     }
-    Entry& entry = it->second;
-    if (entry.starting) {
-      // `FinishStart()` returns this result synchronously.
-      entry.completed_inline = true;
-      entry.status = std::move(status);
-      return;
-    }
-    auto by_request = ids_by_request_.find(entry.request);
-    if (by_request != ids_by_request_.end() && by_request->second == id) {
-      ids_by_request_.erase(by_request);
-    }
-    callback = std::move(entry.callback);
-    entries_.erase(it);
+  }
+  if (ignored) {
+    LOG_DEBUG(
+        "Ignoring late or duplicate TLS certificate verification completion "
+        "for #%s (status_code=%s)",
+        id, static_cast<int>(status.error_code()));
+    return;
   }
   if (callback) {
     callback(std::move(status));
@@ -180,6 +189,12 @@ void TlsAsyncVerificationTracker::Abandon() {
     std::lock_guard<std::mutex> lock(mutex_);
     abandoned.swap(entries_);
     ids_by_request_.clear();
+  }
+  if (!abandoned.empty()) {
+    LOG_DEBUG(
+        "Abandoning %s in-flight TLS certificate verification(s) on verifier "
+        "destruction",
+        abandoned.size());
   }
 }
 

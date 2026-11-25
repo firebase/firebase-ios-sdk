@@ -455,7 +455,14 @@ bool IsDirectory(const std::string& path) {
 // cannot be read.
 absl::optional<std::string> ReadRegularFile(const std::string& path) {
   int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOCTTY);
-  if (fd < 0) return absl::nullopt;
+  if (fd < 0) {
+    int err = errno;
+    if (err != ENOENT && err != ENOTDIR) {
+      LOG_DEBUG("Unable to open CA file %s: %s (errno=%s)", path,
+                std::strerror(err), err);
+    }
+    return absl::nullopt;
+  }
 
   struct stat st;
   if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) {
@@ -476,6 +483,9 @@ absl::optional<std::string> ReadRegularFile(const std::string& path) {
     if (n == 0) break;
     if (n < 0) {
       if (errno == EINTR) continue;
+      int err = errno;
+      LOG_DEBUG("Failed reading CA file %s: %s (errno=%s)", path,
+                std::strerror(err), err);
       close(fd);
       return absl::nullopt;
     }
@@ -681,9 +691,14 @@ class LinuxBlocklistCertificateVerifier final
     *sync_status = VerifyLinuxPeerCertificateChain(
         ToStringView(request->peer_cert_full_chain()),
         ToStringView(request->target_name()), *store_);
-    if (!sync_status->ok() && store_->has_anchors()) {
-      LOG_WARN("TLS peer certificate verification failed: %s",
-               sync_status->error_message());
+    if (!sync_status->ok()) {
+      if (store_->has_anchors()) {
+        LOG_WARN("TLS peer certificate verification failed: %s",
+                 sync_status->error_message());
+      }
+    } else {
+      LOG_DEBUG("Linux TLS peer certificate verification succeeded for '%s'",
+                absl::CHexEscape(ToStringView(request->target_name())));
     }
     return true;
   }
