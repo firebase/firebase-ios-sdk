@@ -34,6 +34,8 @@
 
 #include <wincrypt.h>  // NOLINT(build/include_order)
 
+#include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <exception>
@@ -308,6 +310,21 @@ std::string DescribeChainPolicyError(DWORD error) {
 
 constexpr DWORD kMaxEvalThreadPoolThreads = 4;
 
+// gRPC cancels a handshake that has not finished within about 20 seconds, so
+// evaluations this slow are worth a warning.
+constexpr std::chrono::seconds kSlowEvaluationThreshold(5);
+
+uint64_t NextEvaluationId() {
+  static std::atomic<uint64_t> next_id{1};
+  return next_id.fetch_add(1);
+}
+
+long long ToMilliseconds(  // NOLINT(runtime/int)
+    std::chrono::steady_clock::duration duration) {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(duration)
+      .count();
+}
+
 /**
  * A private Win32 thread pool bounded to `max_threads` worker threads.
  *
@@ -429,6 +446,9 @@ void ScheduleOnThreadPool(std::function<void()> task) {
   if (TrySubmitCancelTask(&task)) {
     return;
   }
+  LOG_WARN(
+      "Failed to submit TLS cancellation callback to thread pool; falling "
+      "back to detached thread");
   HMODULE module = PinModuleForCallback(&RunThreadPoolTask);
   try {
     std::thread([task = std::move(task), module]() mutable {
@@ -452,6 +472,8 @@ struct EvalTask {
   WindowsTrustConfig config;
   TlsVerificationInput input;
   TlsVerificationCallback completion;
+  uint64_t eval_id = 0;
+  std::chrono::steady_clock::time_point enqueue_time;
   HMODULE module = nullptr;
 };
 
@@ -461,6 +483,7 @@ VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance,
   CloseThreadpoolWork(work);
   std::unique_ptr<EvalTask> task(static_cast<EvalTask*>(context));
   FreeLibraryWhenCallbackReturns(instance, task->module);
+  auto dequeue_time = std::chrono::steady_clock::now();
   // Chain building may fetch root updates over the network.
   CallbackMayRunLong(instance);
   if (task->config.before_async_evaluation) {
@@ -468,9 +491,31 @@ VOID CALLBACK RunEvalTask(PTP_CALLBACK_INSTANCE instance,
   }
   grpc::Status status = VerifyWindowsTlsCertificateChain(
       task->input.pem_chain, task->input.target_name, task->config);
+  auto finish_time = std::chrono::steady_clock::now();
+  auto total = finish_time - task->enqueue_time;
+  long long total_ms = ToMilliseconds(total);  // NOLINT(runtime/int)
+  long long queue_wait_ms =                    // NOLINT(runtime/int)
+      ToMilliseconds(dequeue_time - task->enqueue_time);
+  long long eval_ms =  // NOLINT(runtime/int)
+      ToMilliseconds(finish_time - dequeue_time);
+  std::string escaped_target = absl::CHexEscape(task->input.target_name);
   if (!status.ok()) {
-    LOG_WARN("TLS peer certificate verification failed: %s",
-             status.error_message());
+    LOG_WARN(
+        "TLS peer certificate verification failed (eval #%s, host='%s', "
+        "total=%s ms, queue_wait=%s ms, eval=%s ms): %s",
+        task->eval_id, escaped_target, total_ms, queue_wait_ms, eval_ms,
+        status.error_message());
+  } else if (total >= kSlowEvaluationThreshold) {
+    LOG_WARN(
+        "Windows TLS certificate evaluation #%s for '%s' finished in %s ms "
+        "(queue_wait=%s ms, eval=%s ms); gRPC abandons TLS handshakes that "
+        "take longer than about 20 seconds",
+        task->eval_id, escaped_target, total_ms, queue_wait_ms, eval_ms);
+  } else {
+    LOG_DEBUG(
+        "Windows TLS certificate evaluation #%s for '%s' finished in %s ms "
+        "(queue_wait=%s ms, eval=%s ms)",
+        task->eval_id, escaped_target, total_ms, queue_wait_ms, eval_ms);
   }
   task->completion(std::move(status));
 }
@@ -483,7 +528,8 @@ void EvaluateOnThreadPool(const WindowsTrustConfig& config,
                           TlsVerificationInput input,
                           TlsVerificationCallback completion) {
   auto task = std::make_unique<EvalTask>(
-      EvalTask{config, std::move(input), std::move(completion), nullptr});
+      EvalTask{config, std::move(input), std::move(completion),
+               NextEvaluationId(), std::chrono::steady_clock::now(), nullptr});
   task->module = PinModuleForCallback(&RunEvalTask);
   if (task->module == nullptr) {
     DWORD error = GetLastError();
@@ -633,8 +679,10 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   // in the `Disallowed` store and Microsoft's distrust lists are still
   // rejected.
   CertChainPtr chain;
+  auto pass1_start = std::chrono::steady_clock::now();
   grpc::Status chain_status = build_chain(
       CERT_CHAIN_DISABLE_AIA | CERT_CHAIN_CACHE_ONLY_URL_RETRIEVAL, &chain);
+  auto pass1_end = std::chrono::steady_clock::now();
   if (!chain_status.ok()) {
     return chain_status;
   }
@@ -650,13 +698,42 @@ grpc::Status VerifyWindowsTlsCertificateChain(
   constexpr DWORD kMissingRootErrors =
       CERT_TRUST_IS_PARTIAL_CHAIN | CERT_TRUST_IS_UNTRUSTED_ROOT;
   const DWORD trust_errors = chain->TrustStatus.dwErrorStatus;
-  if (config.chain_engine == nullptr && !peer_has_ccdp &&
-      !ChainHasCrossCertDistPoints(chain.get()) &&
+  if (config.chain_engine == nullptr &&
       (trust_errors & kMissingRootErrors) != 0 &&
       (trust_errors & CERT_TRUST_IS_EXPLICIT_DISTRUST) == 0) {
-    chain_status = build_chain(CERT_CHAIN_DISABLE_AIA, &chain);
-    if (!chain_status.ok()) {
-      return chain_status;
+    if (peer_has_ccdp || ChainHasCrossCertDistPoints(chain.get())) {
+      LOG_DEBUG(
+          "Skipping Windows AuthRoot network fallback for '%s': certificate "
+          "chain carries Cross-Certificate Distribution Points "
+          "(trust_errors=%s)",
+          absl::CHexEscape(target.host),
+          absl::StrFormat("0x%08X", trust_errors));
+    } else {
+      LOG_DEBUG(
+          "Running Windows AuthRoot network fallback for '%s' (pass1=%s ms, "
+          "trust_errors=%s)",
+          absl::CHexEscape(target.host),
+          ToMilliseconds(pass1_end - pass1_start),
+          absl::StrFormat("0x%08X", trust_errors));
+      auto pass2_start = std::chrono::steady_clock::now();
+      chain_status = build_chain(CERT_CHAIN_DISABLE_AIA, &chain);
+      auto pass2_elapsed = std::chrono::steady_clock::now() - pass2_start;
+      long long pass2_ms =  // NOLINT(runtime/int)
+          ToMilliseconds(pass2_elapsed);
+      if (pass2_elapsed >= kSlowEvaluationThreshold) {
+        LOG_WARN(
+            "Windows AuthRoot network fallback for '%s' finished in %s ms "
+            "(ok=%s)",
+            absl::CHexEscape(target.host), pass2_ms, chain_status.ok());
+      } else {
+        LOG_DEBUG(
+            "Windows AuthRoot network fallback for '%s' finished in %s ms "
+            "(ok=%s)",
+            absl::CHexEscape(target.host), pass2_ms, chain_status.ok());
+      }
+      if (!chain_status.ok()) {
+        return chain_status;
+      }
     }
   }
 
@@ -700,6 +777,9 @@ grpc::Status VerifyWindowsTlsCertificateChain(
 
 std::shared_ptr<grpc::ChannelCredentials> CreateWindowsTlsCredentials(
     const WindowsTrustConfig& config) {
+  LOG_DEBUG(
+      "Creating Windows CryptoAPI TLS credentials (custom_chain_engine=%s)",
+      config.chain_engine != nullptr);
   grpc::experimental::TlsChannelCredentialsOptions options;
 
   // CryptoAPI owns chain building, trust, and hostname checks, so skip the SSL
