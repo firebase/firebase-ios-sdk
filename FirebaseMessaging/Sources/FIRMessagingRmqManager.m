@@ -512,7 +512,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   }
   if (!_didLogUnavailableDatabase) {
     _didLogUnavailableDatabase = YES;
-    FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore006,
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeRmqManagerDatabaseUnavailable,
                             @"RMQ database is unavailable; skipping database operations for %@",
                             _databaseName);
   }

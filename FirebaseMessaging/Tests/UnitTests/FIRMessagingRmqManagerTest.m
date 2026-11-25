@@ -161,6 +161,12 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
 
   // Check that the file was deleted.
   XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+
+  // After the broken database is removed, operations are skipped instead of failing.
+  [manager saveSyncMessageWithRmqID:@"unavailable-db" expirationTime:0];
+  [manager updateSyncMessageViaAPNSWithRmqID:@"unavailable-db"];
+  [manager deleteExpiredOrFinishedSyncMessages];
+  XCTAssertNil([manager querySyncMessageWithRmqID:@"unavailable-db"]);
 }
 
 #pragma mark - Private Helpers
