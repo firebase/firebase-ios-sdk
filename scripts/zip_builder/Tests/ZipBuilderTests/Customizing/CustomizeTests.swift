@@ -176,6 +176,7 @@ struct CustomizeTests {
     "build": { "defineSwiftPackage": false, "defines": ["COCOAPODS=1"],
                "swiftConditions": ["COCOAPODS"], "versionMacro": "Mini_VERSION",
                "swiftVersion": { "*": "5.0", "SwiftLib": "6.0" },
+               "swiftFlags": { "SwiftLib": ["-Xfrontend", "-alias-module-names-in-module-interface"] },
                "architectures": { "watchos": ["arm64", "arm64_32"] },
                "deploymentTargets": { "ios": "16.0" } },
     "frameworks": { "dynamic": ["CoreC"] }
@@ -187,6 +188,8 @@ struct CustomizeTests {
     // Mac Catalyst follows iOS up.
     #expect(plan.settings["IPHONEOS_DEPLOYMENT_TARGET[sdk=macosx*]"] == nil)
     #expect(try plan.framework("SwiftLib").settings["SWIFT_VERSION"] == "6.0")
+    #expect(try plan.framework("SwiftLib").settings["OTHER_SWIFT_FLAGS"] ==
+      ["-Xfrontend", "-alias-module-names-in-module-interface"])
     #expect(try plan.framework("CoreC").settings["SWIFT_VERSION"] == "5.0")
     #expect(try plan.framework("CoreC").isDynamic)
     #expect(try plan.framework("CoreC").settings["MACH_O_TYPE"] == "mh_dylib")

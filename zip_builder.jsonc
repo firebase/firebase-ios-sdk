@@ -138,6 +138,12 @@
       "*": "5.0",
       "FirebaseAILogic": "6.0"
     },
+    // AppCheckCore defines `class AppCheckCore` inside `module AppCheckCore`, which breaks its
+    // `.swiftinterface` on Xcode 26.x without module-name aliasing when Swift dependents link a
+    // cached `AppCheckCore.xcframework`.
+    "swiftFlags": {
+      "AppCheckCore": ["-Xfrontend", "-alias-module-names-in-module-interface"]
+    },
     "versionMacro": "Firebase_VERSION"
   },
 
@@ -225,8 +231,6 @@
   "verify": {
     // Modules the import check skips: none of these import in any released zip, legacy included.
     "skipImports": [
-      // Its module/class name clash breaks its own .swiftinterface.
-      "AppCheckCore",
       // C++ libraries (prebuilt, or built from source for the dynamic zip) whose modules aren't
       // importable from Swift or Objective-C.
       "absl",

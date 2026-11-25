@@ -303,6 +303,8 @@ struct ConfigTests {
     #expect(config.build.architectures["watchos"] == ["arm64", "arm64_32"])
     #expect(!config.build.defineSwiftPackage)
     #expect(config.build.swiftVersion["FirebaseAILogic"] == "6.0")
+    #expect(config.build.swiftFlags["AppCheckCore"] ==
+      ["-Xfrontend", "-alias-module-names-in-module-interface"])
     // The project settings already allow non-modular includes.
     #expect(config.build.settings == XcodeSettings())
     #expect(config.build.versionMacro == "Firebase_VERSION")
@@ -334,7 +336,7 @@ struct ConfigTests {
       #expect(FileManager.default.fileExists(atPath: repoRoot.appendingPathComponent(path).path),
               "\(path)")
     }
-    #expect(config.verify.skipImports == ["AppCheckCore", "absl", "grpc", "grpcpp",
+    #expect(config.verify.skipImports == ["absl", "grpc", "grpcpp",
                                           "openssl_grpc", "leveldb"])
   }
 }

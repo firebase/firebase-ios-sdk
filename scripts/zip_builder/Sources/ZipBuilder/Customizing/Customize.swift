@@ -202,10 +202,15 @@ extension Plan {
                      kind: "a framework in the plan")
     warnAboutUnknown(build.swiftVersion.keys.filter { $0 != "*" }, known: names,
                      key: "build.swiftVersion", kind: "a framework in the plan")
+    warnAboutUnknown(build.swiftFlags.keys.filter { $0 != "*" }, known: names,
+                     key: "build.swiftFlags", kind: "a framework in the plan")
     for index in plan.frameworks.indices {
       let name = plan.frameworks[index].name
       if let swiftVersion = build.swiftVersion[name] ?? build.swiftVersion["*"] {
         plan.frameworks[index].settings["SWIFT_VERSION"] = .string(swiftVersion)
+      }
+      if let swiftFlags = build.swiftFlags[name] ?? build.swiftFlags["*"], !swiftFlags.isEmpty {
+        plan.frameworks[index].settings.append(swiftFlags, to: "OTHER_SWIFT_FLAGS")
       }
       // Each list only departs from the release's linkage: `frameworks.static` from a dynamic
       // release, `frameworks.dynamic` from a static one.
