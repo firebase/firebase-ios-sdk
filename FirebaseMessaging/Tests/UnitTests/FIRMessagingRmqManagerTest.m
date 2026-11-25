@@ -253,30 +253,36 @@ static NSString *const kRmqDatabaseName = @"rmq-test-db";
   // Simulate deleting and reconfiguring FirebaseApp rapidly, which creates multiple
   // FIRMessagingRmqManager instances pointing at the same SQLite database before earlier
   // asynchronous openDatabase calls have finished.
-  NSMutableArray<FIRMessagingRmqManager *> *managers = [NSMutableArray array];
-  for (NSInteger i = 0; i < 6; i++) {
-    FIRMessagingRmqManager *manager =
-        [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
-    [managers addObject:manager];
+  // Wrap in @autoreleasepool so all managers (including autoreleased references like lastObject)
+  // deterministically deallocate and enqueue their serialized close before unlinking the file.
+  @autoreleasepool {
+    NSMutableArray<FIRMessagingRmqManager *> *managers = [NSMutableArray array];
+    for (NSInteger i = 0; i < 6; i++) {
+      FIRMessagingRmqManager *manager =
+          [[FIRMessagingRmqManager alloc] initWithDatabaseName:databaseName];
+      [managers addObject:manager];
+    }
+
+    for (FIRMessagingRmqManager *manager in managers) {
+      [self waitForDrainDatabaseQueueForRmqManager:manager];
+    }
+
+    XCTAssertFalse(
+        didAssert,
+        @"Concurrent FIRMessagingRmqManager init on the same database should not assert.");
+    // A failed CREATE TABLE unlinks the file via -removeDatabase, so this also catches the
+    // regression when FIR_MESSAGING_ASSERTIONS_BLOCKED is defined.
+    XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:databasePath]);
+
+    FIRMessagingRmqManager *lastManager = managers.lastObject;
+    NSString *rmqID = @"concurrent-sync-msg";
+    int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 60;
+    [lastManager saveSyncMessageWithRmqID:rmqID expirationTime:expirationTime];
+    FIRMessagingPersistentSyncMessage *saved = [lastManager querySyncMessageWithRmqID:rmqID];
+    XCTAssertEqualObjects(saved.rmqID, rmqID);
   }
 
-  for (FIRMessagingRmqManager *manager in managers) {
-    [self waitForDrainDatabaseQueueForRmqManager:manager];
-  }
-
-  XCTAssertFalse(didAssert,
-                 @"Concurrent FIRMessagingRmqManager init on the same database should not assert.");
-
-  FIRMessagingRmqManager *lastManager = managers.lastObject;
-  NSString *rmqID = @"concurrent-sync-msg";
-  int64_t expirationTime = FIRMessagingCurrentTimestampInSeconds() + 60;
-  [lastManager saveSyncMessageWithRmqID:rmqID expirationTime:expirationTime];
-  FIRMessagingPersistentSyncMessage *saved = [lastManager querySyncMessageWithRmqID:rmqID];
-  XCTAssertEqualObjects(saved.rmqID, rmqID);
-
-  // Release all managers so their serialized dealloc closes complete before unlinking the file.
-  [managers removeAllObjects];
-  lastManager = nil;
+  // Drain the shared queue so serialized dealloc closes complete before unlinking the file.
   [self waitForDrainDatabaseQueueForRmqManager:self.rmqManager];
   [[NSFileManager defaultManager] removeItemAtPath:databasePath error:nil];
 }

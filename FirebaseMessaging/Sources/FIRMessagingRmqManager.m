@@ -104,10 +104,16 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   return errorString;
 }
 
+// Wait briefly for SQLite locks from external connections (e.g., an app extension) before failing
+// with SQLITE_BUSY.
+static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
+
 @interface FIRMessagingRmqManager () {
   sqlite3 *_database;
-  /// Serial queue for database read/write operations.
+  /// Shared serial queue for database read/write operations across all instances.
   dispatch_queue_t _databaseOperationQueue;
+  /// Tracks whether we have already logged that `_database` is unavailable so we log once.
+  BOOL _didLogUnavailableDatabase;
 }
 
 @property(nonatomic, readwrite, strong) NSString *databaseName;
@@ -115,6 +121,11 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 @implementation FIRMessagingRmqManager
 
+// Serializes SQLite operations across all FIRMessagingRmqManager instances in the process.
+// Multiple instances can coexist briefly on the same database file (for example, when
+// FirebaseApp is deleted and reconfigured before an earlier instance's asynchronous
+// openDatabase completes), so per-instance queues would contend on SQLite locks and hit
+// SQLITE_BUSY.
 + (dispatch_queue_t)sharedDatabaseOperationQueue {
   static dispatch_queue_t queue;
   static dispatch_once_t onceToken;
@@ -137,17 +148,13 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)dealloc {
   sqlite3 *database = _database;
-  if (database != NULL) {
-    _database = NULL;
-    dispatch_queue_t queue = _databaseOperationQueue;
-    if (queue != nil) {
-      dispatch_async(queue, ^{
-        sqlite3_close(database);
-      });
-    } else {
-      sqlite3_close(database);
-    }
+  if (database == NULL) {
+    return;
   }
+  // Close on the shared queue; the block must not capture `self`.
+  dispatch_async(_databaseOperationQueue, ^{
+    sqlite3_close_v2(database);
+  });
 }
 
 #pragma mark - Sync Messages
@@ -155,7 +162,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   __block FIRMessagingPersistentSyncMessage *persistentMessage;
   dispatch_sync(_databaseOperationQueue, ^{
-    if (!self->_database) {
+    if (![self ensureDatabaseAvailable]) {
       return;
     }
     NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = ?";
@@ -212,7 +219,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (void)deleteExpiredOrFinishedSyncMessages {
   dispatch_async(_databaseOperationQueue, ^{
-    if (!self->_database) {
+    if (![self ensureDatabaseAvailable]) {
       return;
     }
     int64_t now = FIRMessagingCurrentTimestampInSeconds();
@@ -244,7 +251,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   BOOL apnsReceived = YES;
   BOOL mcsReceived = NO;
   dispatch_async(_databaseOperationQueue, ^{
-    if (!self->_database) {
+    if (![self ensureDatabaseAvailable]) {
       return;
     }
     NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
@@ -298,7 +305,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 
 - (BOOL)updateSyncMessageWithRmqID:(NSString *)rmqID column:(NSString *)column value:(BOOL)value {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
-  if (!_database) {
+  if (![self ensureDatabaseAvailable]) {
     return NO;
   }
   NSString *queryFormat = @"UPDATE %@ "     // Table name
@@ -384,7 +391,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   // Ensure database is removed in a sync queue as this sometimes makes test have race conditions.
   dispatch_async(_databaseOperationQueue, ^{
     if (self->_database) {
-      sqlite3_close(self->_database);
+      sqlite3_close_v2(self->_database);
       self->_database = NULL;
     }
     NSString *path = [self pathForDatabase];
@@ -413,7 +420,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       int result = sqlite3_open_v2([path UTF8String], &self->_database, flags, NULL);
       if (result != SQLITE_OK) {
         if (self->_database) {
-          sqlite3_close(self->_database);
+          sqlite3_close_v2(self->_database);
           self->_database = NULL;
         }
         NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
@@ -425,6 +432,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
         NSAssert(NO, @"%@", errorMessage);
         return;
       }
+      sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
       [self createTable];
     } else {
       // The file exists, try to open it. If it fails, it might be corrupt.
@@ -438,7 +446,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
       // recreating it.
       if (result != SQLITE_OK) {
         if (self->_database) {
-          sqlite3_close(self->_database);
+          sqlite3_close_v2(self->_database);
           self->_database = NULL;
         }
         if (result == SQLITE_CANTOPEN) {
@@ -457,7 +465,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
           // If it still fails after the recovery attempt, then assert and crash.
           if (result != SQLITE_OK) {
             if (self->_database) {
-              sqlite3_close(self->_database);
+              sqlite3_close_v2(self->_database);
               self->_database = NULL;
             }
             NSString *errorString = FIRMessagingStringFromSQLiteResult(result);
@@ -471,6 +479,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
           } else {
             // Successfully recreated after an open failure, so treat as a new database for table
             // creation.
+            sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
             didOpenDatabase = YES;  // Indicate successful opening after recreation.
             [self createTable];
           }
@@ -487,6 +496,7 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
           didOpenDatabase = NO;  // Still failed, so indicate database did not open.
         }
       } else {
+        sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
         [self updateDBWithStringRmqID];
       }
     }
@@ -505,6 +515,20 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
 }
 
 #pragma mark - Private
+
+// Must be called on `_databaseOperationQueue`.
+- (BOOL)ensureDatabaseAvailable {
+  if (_database != NULL) {
+    return YES;
+  }
+  if (!_didLogUnavailableDatabase) {
+    _didLogUnavailableDatabase = YES;
+    FIRMessagingLoggerError(kFIRMessagingMessageCodeRmq2PersistentStore006,
+                            @"RMQ database is unavailable; skipping database operations for %@",
+                            _databaseName);
+  }
+  return NO;
+}
 
 - (NSString *)lastErrorMessage {
   return [NSString stringWithFormat:@"%s", sqlite3_errmsg(_database)];

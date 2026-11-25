@@ -55,7 +55,6 @@ static NSString *const kFakeSenderID = @"123456789123";
 @interface FIRMessagingPubSub (ExposedForTest)
 
 @property(nonatomic, readonly, strong) NSOperationQueue *topicOperations;
-@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 
 @end
 
@@ -114,6 +113,10 @@ static NSString *const kFakeSenderID = @"123456789123";
       OCMStub([_mockMessaging setupRmqManager]).andDo(nil);
       [(FIRMessaging *)_mockMessaging start];
     }
+    // Avoid DISPATCH_QUEUE_PRIORITY_BACKGROUND starvation on heavily loaded CI runners.
+    _messaging.pubsub.pendingTopicUpdates = [[FIRMessagingPendingTopicsList alloc]
+        initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+    _messaging.pubsub.pendingTopicUpdates.delegate = _messaging.pubsub;
     _mockPubsub = OCMPartialMock(_messaging.pubsub);
     _mockTokenManager = OCMPartialMock(_messaging.tokenManager);
     _mockMessagingClass = OCMClassMock([FIRMessaging class]);

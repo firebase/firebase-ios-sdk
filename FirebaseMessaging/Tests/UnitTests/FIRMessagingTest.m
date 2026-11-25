@@ -21,7 +21,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
-#import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingPubSub.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicOperation.h"
 #import "FirebaseMessaging/Sources/FIRMessagingUtilities.h"
@@ -54,21 +53,12 @@
 - (void)deleteAllTokensLocallyWithHandler:(void (^)(NSError *error))handler;
 @end
 
-@interface FIRMessagingPendingTopicsList (ExposedForTest)
-- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;
-@end
-
-@interface FIRMessagingPubSub (ExposedForTest) <FIRMessagingPendingTopicsListDelegate>
-@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
-@end
-
 extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @interface FIRMessaging ()
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
-@property(nonatomic, readwrite, strong) FIRMessagingPubSub *pubsub;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
 
 // Expose autoInitEnabled static method for IID.
@@ -118,10 +108,6 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
   _mockMessaging = _testUtil.mockMessaging;
   _messaging = _testUtil.messaging;
   _mockTokenManager = _testUtil.mockTokenManager;
-  // Avoid DISPATCH_QUEUE_PRIORITY_BACKGROUND starvation on heavily loaded CI runners.
-  _messaging.pubsub.pendingTopicUpdates = [[FIRMessagingPendingTopicsList alloc]
-      initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
-  _messaging.pubsub.pendingTopicUpdates.delegate = _messaging.pubsub;
 
   _mockFirebaseApp = OCMClassMock([FIRApp class]);
   OCMStub([_mockFirebaseApp defaultApp]).andReturn(_mockFirebaseApp);

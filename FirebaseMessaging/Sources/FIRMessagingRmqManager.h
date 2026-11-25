@@ -24,7 +24,7 @@
  * The store is used to de-duplicate sync messages (APNS messages with `content-available` set)
  * received by the client. Sync messages are deleted from the store once they expire.
  *
- * All database operations run on a serial background queue.
+ * All database operations run on a shared serial background queue across instances.
  */
 @interface FIRMessagingRmqManager : NSObject
 // designated initializer

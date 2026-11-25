@@ -27,7 +27,6 @@
 
 @interface FIRMessagingPubSub (ExposedForTest)
 
-@property(nonatomic, readwrite, strong) FIRMessagingPendingTopicsList *pendingTopicUpdates;
 - (void)archivePendingTopicsList:(FIRMessagingPendingTopicsList *)topicsList;
 - (void)restorePendingTopicsList;
 
