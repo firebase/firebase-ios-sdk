@@ -313,6 +313,18 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                  }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
 }
+
+- (void)testDeleteFCMTokenWithNilCompletionOnInstallationIDError {
+  NSError *installationsError = [NSError errorWithDomain:@"com.firebase.test" code:1 userInfo:nil];
+  id installationIDArg = [OCMArg invokeBlockWithArgs:[NSNull null], installationsError, nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [self.messaging deleteFCMTokenForSenderID:@"123456789123" completion:nil];
+#pragma clang diagnostic pop
+}
 #pragma clang diagnostic pop
 
 - (void)setupV1RegistrationHttpCallWithMethod:(NSString *)httpMethod

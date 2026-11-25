@@ -480,14 +480,27 @@
           }
           return;
         }
+        if (!self) {
+          if (handler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              NSError *lostRefError = [NSError
+                  messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                           failureReason:@"Cannot delete tokens. Lost reference to TokenManager"];
+              handler(lostRefError);
+            });
+          }
+          return;
+        }
         // delete all tokens
         FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
         if (!checkinPreferences) {
           // The checkin is already deleted. No need to trigger the token delete operation as client
           // no longer has the checkin information for server to delete.
-          dispatch_async(dispatch_get_main_queue(), ^{
-            handler(nil);
-          });
+          if (handler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              handler(nil);
+            });
+          }
           return;
         }
         FIRMessagingTokenOperation *operation = [self
@@ -523,15 +536,19 @@
   [self deleteAllTokensWithHandler:^(NSError *_Nullable error) {
     FIRMessaging_STRONGIFY(self);
     if (error) {
-      handler(error);
+      if (handler) {
+        handler(error);
+      }
       return;
     }
 
     if (!self) {
-      NSError *lostRefError =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
-                            failureReason:@"Cannot delete token. Lost reference to TokenManager"];
-      handler(lostRefError);
+      if (handler) {
+        NSError *lostRefError =
+            [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                              failureReason:@"Cannot delete token. Lost reference to TokenManager"];
+        handler(lostRefError);
+      }
       return;
     }
 
@@ -539,11 +556,15 @@
       [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       self->_defaultFCMToken = nil;
       if (localError) {
-        handler(localError);
+        if (handler) {
+          handler(localError);
+        }
         return;
       }
       [self.authService resetCheckinWithHandler:^(NSError *_Nonnull authError) {
-        handler(authError);
+        if (handler) {
+          handler(authError);
+        }
       }];
     }];
   }];

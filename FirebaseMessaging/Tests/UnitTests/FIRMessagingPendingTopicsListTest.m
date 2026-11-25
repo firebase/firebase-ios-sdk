@@ -226,4 +226,85 @@
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+- (void)testDeallocationBeforeCompletionBlockRunsOnCommandQueue {
+  dispatch_queue_t commandQueue =
+      dispatch_queue_create("com.firebase.messaging.test.pendingTopics", DISPATCH_QUEUE_SERIAL);
+
+  __block FIRMessagingTopicOperationCompletion capturedCompletion = nil;
+  XCTestExpectation *requestStarted = [self expectationWithDescription:@"Request started"];
+  self.alwaysReadyDelegate.subscriptionHandler =
+      ^(NSString *topic, FIRMessagingTopicAction action,
+        FIRMessagingTopicOperationCompletion completion) {
+        capturedCompletion = [completion copy];
+        [requestStarted fulfill];
+      };
+
+  __weak FIRMessagingPendingTopicsList *weakPendingTopics = nil;
+  @autoreleasepool {
+    FIRMessagingPendingTopicsList *pendingTopics =
+        [[FIRMessagingPendingTopicsList alloc] initWithCommandQueue:commandQueue];
+    weakPendingTopics = pendingTopics;
+    pendingTopics.delegate = self.alwaysReadyDelegate;
+
+    [pendingTopics addOperationForTopic:@"/topics/0"
+                             withAction:FIRMessagingTopicActionSubscribe
+                             completion:nil];
+    [self waitForExpectations:@[ requestStarted ] timeout:5.0];
+    // Drain commandQueue so the initial resumeOperationsIfNeeded block finishes and releases self.
+    dispatch_sync(commandQueue, ^{
+                  });
+
+    // Freeze commandQueue before invoking completion so the inner block stays queued while self
+    // deallocates.
+    dispatch_suspend(commandQueue);
+    capturedCompletion(nil);
+    capturedCompletion = nil;
+    pendingTopics = nil;
+  }
+
+  XCTAssertNil(weakPendingTopics);
+
+  // Unfreeze and drain: executes the inner block with self == nil.
+  dispatch_resume(commandQueue);
+  dispatch_sync(commandQueue, ^{
+                });
+}
+
+- (void)testDeallocationBeforeCompletionIsInvoked {
+  dispatch_queue_t commandQueue =
+      dispatch_queue_create("com.firebase.messaging.test.pendingTopics", DISPATCH_QUEUE_SERIAL);
+
+  __block FIRMessagingTopicOperationCompletion capturedCompletion = nil;
+  XCTestExpectation *requestStarted = [self expectationWithDescription:@"Request started"];
+  self.alwaysReadyDelegate.subscriptionHandler =
+      ^(NSString *topic, FIRMessagingTopicAction action,
+        FIRMessagingTopicOperationCompletion completion) {
+        capturedCompletion = [completion copy];
+        [requestStarted fulfill];
+      };
+
+  __weak FIRMessagingPendingTopicsList *weakPendingTopics = nil;
+  @autoreleasepool {
+    FIRMessagingPendingTopicsList *pendingTopics =
+        [[FIRMessagingPendingTopicsList alloc] initWithCommandQueue:commandQueue];
+    weakPendingTopics = pendingTopics;
+    pendingTopics.delegate = self.alwaysReadyDelegate;
+
+    [pendingTopics addOperationForTopic:@"/topics/0"
+                             withAction:FIRMessagingTopicActionSubscribe
+                             completion:nil];
+    [self waitForExpectations:@[ requestStarted ] timeout:5.0];
+    dispatch_sync(commandQueue, ^{
+                  });
+    pendingTopics = nil;
+  }
+
+  // The outer completion block should not strongly retain FIRMessagingPendingTopicsList.
+  XCTAssertNil(weakPendingTopics);
+
+  capturedCompletion(nil);
+  dispatch_sync(commandQueue, ^{
+                });
+}
+
 @end

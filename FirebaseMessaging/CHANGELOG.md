@@ -1,4 +1,6 @@
 # Unreleased
+- [fixed] Fixed potential crashes from missing `nil` checks on `self` and
+  completion handlers in topic updates and token/checkin operations. (#17122)
 - [fixed] Serialized RMQ SQLite database operations across instances to prevent
   `database is locked` assertions when `FirebaseApp` is deleted and
   reconfigured rapidly. (#17126)
