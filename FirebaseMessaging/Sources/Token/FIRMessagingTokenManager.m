@@ -466,6 +466,11 @@
   [self.tokenOperations addOperation:operation];
 }
 
++ (NSError *)lostReferenceError {
+  return [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                           failureReason:@"Cannot delete token. Lost reference to TokenManager"];
+}
+
 - (void)deleteAllTokensWithHandler:(void (^)(NSError *))handler {
   FIRMessaging_WEAKIFY(self);
 
@@ -483,10 +488,7 @@
         if (!self) {
           if (handler) {
             dispatch_async(dispatch_get_main_queue(), ^{
-              NSError *lostRefError = [NSError
-                  messagingErrorWithCode:kFIRMessagingErrorCodeInternal
-                           failureReason:@"Cannot delete tokens. Lost reference to TokenManager"];
-              handler(lostRefError);
+              handler([FIRMessagingTokenManager lostReferenceError]);
             });
           }
           return;
@@ -544,10 +546,7 @@
 
     if (!self) {
       if (handler) {
-        NSError *lostRefError =
-            [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
-                              failureReason:@"Cannot delete token. Lost reference to TokenManager"];
-        handler(lostRefError);
+        handler([FIRMessagingTokenManager lostReferenceError]);
       }
       return;
     }

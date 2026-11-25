@@ -249,12 +249,26 @@ static int64_t const kLastCheckinTimestamp = 123456;
   [preferences setHasPreCachedAuthCredentials:YES];
 
   [self.checkinStore saveCheckinPreferences:preferences handler:nil];
+
+  XCTAssertTrue([self.checkinStore hasCheckinPlist]);
+  XCTAssertEqualObjects([self.plist contentAsDictionary][kFIRMessagingDigestStringKey], kDigest);
 }
 
 - (void)testRemoveCheckinPreferencesWithNilHandler {
   self.checkinStore.keychain = [[FIRMessagingFakeKeychain alloc] init];
-  [self.checkinStore removeCheckinPreferencesWithHandler:nil];
+  FIRMessagingCheckinPreferences *preferences =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:kAuthID secretToken:kSecret];
+  [preferences updateWithCheckinPlistContents:[[self class] newCheckinPlistPreferences]];
+  [self.checkinStore saveCheckinPreferences:preferences handler:nil];
+  XCTAssertTrue([self.checkinStore hasCheckinPlist]);
+  XCTAssertNotNil([self.checkinStore cachedCheckinPreferences]);
 
+  [self.checkinStore removeCheckinPreferencesWithHandler:nil];
+  XCTAssertFalse([self.checkinStore hasCheckinPlist]);
+  XCTAssertNil([self.checkinStore cachedCheckinPreferences]);
+
+  [self.checkinStore saveCheckinPreferences:preferences handler:nil];
+  XCTAssertTrue([self.checkinStore hasCheckinPlist]);
   id plistMock = OCMPartialMock(self.plist);
   [self addTeardownBlock:^{
     [plistMock stopMocking];
@@ -262,6 +276,8 @@ static int64_t const kLastCheckinTimestamp = 123456;
   NSError *error = [NSError errorWithDomain:kFakeErrorDomain code:kFakeErrorCode userInfo:nil];
   OCMStub([plistMock deleteFile:[OCMArg setTo:error]]).andReturn(NO);
   [self.checkinStore removeCheckinPreferencesWithHandler:nil];
+  XCTAssertTrue([self.checkinStore hasCheckinPlist]);
+  [plistMock stopMocking];
 }
 
 #pragma mark - Private Helpers

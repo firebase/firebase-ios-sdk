@@ -234,12 +234,7 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
            requestedUpdateForTopic:topic
                             action:self.currentBatch.action
                         completion:^(NSError *error) {
-                          FIRMessaging_STRONGIFY(self);
-                          if (!self) {
-                            return;
-                          }
-                          dispatch_queue_t commandQueue = self.commandQueue;
-                          dispatch_async(commandQueue, ^{
+                          dispatch_async(self.commandQueue, ^{
                             FIRMessaging_STRONGIFY(self);
                             if (!self) {
                               return;
