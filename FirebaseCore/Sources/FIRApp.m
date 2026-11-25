@@ -88,7 +88,7 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 @interface FIRApp ()
 
 #ifdef DEBUG
-@property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
+@property(atomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
 
 @end
