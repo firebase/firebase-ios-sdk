@@ -24,14 +24,10 @@ import Foundation
 #if FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE
   // Internal declarations implemented in this file (`FIRAppCheckInternal.h`).
   internal import FirebaseAppCheck.Internal
-  internal import FirebaseAppCheckInterop
-#else
-  // CocoaPods includes `FIRAppCheckInternal.h` in the pod's generated umbrella header, which
-  // publicly re-exports `FirebaseAppCheckInterop`.
-  public import FirebaseAppCheckInterop
 #endif // FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE
 
 internal import AppCheckCore
+internal import FirebaseAppCheckInterop
 internal import FirebaseCoreExtension
 #if COCOAPODS
   internal import GoogleUtilities
