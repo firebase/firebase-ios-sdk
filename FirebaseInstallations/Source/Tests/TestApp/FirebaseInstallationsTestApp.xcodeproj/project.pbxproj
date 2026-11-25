@@ -208,7 +208,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# The plist is decrypted into this folder by `scripts/repo.sh test --secrets` in CI and\n# isn't checked in. Without it, the tests that need a Firebase project skip themselves, unless\n# FIS_INTEGRATION_TESTS_REQUIRED=1 makes them fail.\nplist=\"${SRCROOT}/GoogleService-Info.plist\"\nif [ -f \"${plist}\" ]; then\n  cp \"${plist}\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\nfi\n";
+			shellScript = "# The plist is decrypted into this folder by `scripts/repo.sh test --secrets` in CI and\n# isn't checked in. Without it, the tests that need a Firebase project skip themselves, unless\n# FIS_INTEGRATION_TESTS_REQUIRED=1 makes them fail. `scripts/repo.sh` deletes the decrypted\n# plist afterwards, so remove any copy left in the test bundle by an earlier build.\nplist=\"${SRCROOT}/GoogleService-Info.plist\"\nbundled_plist=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleService-Info.plist\"\nif [ -f \"${plist}\" ]; then\n  cp \"${plist}\" \"${bundled_plist}\"\nelse\n  rm -f \"${bundled_plist}\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

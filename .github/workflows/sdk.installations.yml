@@ -10,6 +10,8 @@ on:
     - 'FirebaseInstallations**'
     - 'scripts/spm_test_schemes/InstallationsUnit.xcscheme'
     - 'scripts/secrets/Installations.json'
+    - 'scripts/build.sh'
+    - 'Package.swift'
     - '.github/workflows/sdk.installations.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_cocoapods.yml'

@@ -679,6 +679,14 @@ case "$product-$platform-$method" in
       test-without-building
     ;;
 
+  FirebaseInstallationsIntegration-*-build)
+    RunXcodebuild \
+      -project 'FirebaseInstallations/Source/Tests/TestApp/FirebaseInstallationsTestApp.xcodeproj' \
+      -scheme "FirebaseInstallationsTestApp-SPM" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   FirebaseInstallationsIntegration-*-build-for-testing)
     RunXcodebuild \
       -project 'FirebaseInstallations/Source/Tests/TestApp/FirebaseInstallationsTestApp.xcodeproj' \
