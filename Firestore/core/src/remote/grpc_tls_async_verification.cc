@@ -16,17 +16,41 @@
 
 #include "Firestore/core/src/remote/grpc_tls_async_verification.h"
 
+#include <chrono>
 #include <utility>
 
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "absl/strings/escaping.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
 namespace {
 
+// Throwaway diagnostic branch: log every cancellation at LOG_WARN.
+constexpr std::chrono::seconds kSlowVerificationThreshold(0);
+
 std::string ToString(grpc::string_ref ref) {
   return ref.empty() ? std::string() : std::string(ref.data(), ref.size());
+}
+
+void LogCancellation(TlsAsyncVerificationTracker::Id id,
+                     const std::string& target_name,
+                     std::chrono::steady_clock::duration elapsed) {
+  long long ms =  // NOLINT(runtime/int)
+      std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
+  std::string escaped_target = absl::CHexEscape(target_name);
+  if (elapsed >= kSlowVerificationThreshold) {
+    LOG_WARN(
+        "TLS certificate verification #%s for '%s' was cancelled after %s ms "
+        "while still in flight",
+        id, escaped_target, ms);
+  } else {
+    LOG_DEBUG(
+        "TLS certificate verification #%s for '%s' was cancelled after %s ms",
+        id, escaped_target, ms);
+  }
 }
 
 }  // namespace
@@ -48,13 +72,17 @@ grpc::Status TlsVerificationCancelledStatus() {
 // --- TlsAsyncVerificationTracker ---------------------------------------------
 
 TlsAsyncVerificationTracker::Id TlsAsyncVerificationTracker::Start(
-    const Request* request, TlsVerificationCallback callback) {
+    const Request* request,
+    TlsVerificationCallback callback,
+    std::string target_name) {
   HARD_ASSERT(request != nullptr, "TLS verification request must not be null");
   std::lock_guard<std::mutex> lock(mutex_);
   Id id = next_id_++;
   Entry& entry = entries_[id];
   entry.request = request;
   entry.callback = std::move(callback);
+  entry.target_name = std::move(target_name);
+  entry.started_at = std::chrono::steady_clock::now();
   return id;
 }
 
@@ -117,22 +145,30 @@ void TlsAsyncVerificationTracker::Complete(Id id, grpc::Status status) {
 std::function<void()> TlsAsyncVerificationTracker::Cancel(
     const Request* request) {
   TlsVerificationCallback callback;
+  Id id = 0;
+  std::string target_name;
+  std::chrono::steady_clock::duration elapsed{};
   {
     std::lock_guard<std::mutex> lock(mutex_);
     auto by_request = ids_by_request_.find(request);
     if (by_request == ids_by_request_.end()) {
       return {};
     }
-    auto it = entries_.find(by_request->second);
+    id = by_request->second;
+    auto it = entries_.find(id);
     HARD_ASSERT(it != entries_.end(), "Cancel() found a resolved verification");
     callback = std::move(it->second.callback);
+    target_name = std::move(it->second.target_name);
+    elapsed = std::chrono::steady_clock::now() - it->second.started_at;
     entries_.erase(it);
     ids_by_request_.erase(by_request);
   }
   if (!callback) {
     return {};
   }
-  return [callback = std::move(callback)] {
+  return [callback = std::move(callback), id,
+          target_name = std::move(target_name), elapsed] {
+    LogCancellation(id, target_name, elapsed);
     callback(TlsVerificationCancelledStatus());
   };
 }
@@ -189,16 +225,16 @@ bool AsyncTlsVerifier::Verify(
     return true;
   }
 
+  TlsVerificationInput input = CopyVerificationInput(*request);
   TlsAsyncVerificationTracker::Id id =
-      tracker_->Start(request, std::move(callback));
+      tracker_->Start(request, std::move(callback), input.target_name);
 
   // The completion holds the tracker, not the verifier, so it stays safe to
   // call after the verifier is destroyed.
   std::shared_ptr<TlsAsyncVerificationTracker> tracker = tracker_;
-  evaluator_(CopyVerificationInput(*request),
-             [tracker, id](grpc::Status status) {
-               tracker->Complete(id, std::move(status));
-             });
+  evaluator_(std::move(input), [tracker, id](grpc::Status status) {
+    tracker->Complete(id, std::move(status));
+  });
 
   return tracker_->FinishStart(id, sync_status);
 }

@@ -136,10 +136,7 @@ jobs:
 
   cmake:
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    if: false
     strategy:
       matrix:
         os: [macos-26, ubuntu-24.04]
@@ -193,10 +190,7 @@ jobs:
 
   sanitizers-mac:
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    if: false
 
     strategy:
       matrix:
@@ -243,10 +237,7 @@ jobs:
 
   sanitizers-ubuntu:
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    if: false
 
     strategy:
       matrix:
@@ -296,10 +287,7 @@ jobs:
 
   cmake-linux-boringssl:
     needs: [changes, check]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    if: false
     runs-on: ubuntu-24.04
     timeout-minutes: 45
 
@@ -427,7 +415,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [iOS, macOS, tvOS]
+        target: [iOS]
 
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -482,8 +470,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [iOS, macOS, tvOS]
-        scheme: [Firestore, FirestoreEnterprise]
+        target: [iOS]
+        scheme: [Firestore]
+        run: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
@@ -733,6 +722,7 @@ jobs:
 
   pod_lib_lint:
     needs: check
+    if: false
     strategy:
       matrix:
         product: ['FirebaseFirestoreInternal', 'FirebaseFirestore']
@@ -803,6 +793,7 @@ jobs:
 
   spm-package-resolved:
     needs: check
+    if: false
     runs-on: macos-26
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -831,10 +822,7 @@ jobs:
 
   spm-source:
     needs: [check, spm-package-resolved]
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request')
+    if: false
     strategy:
       matrix:
         include:
@@ -877,6 +865,7 @@ jobs:
 
   spm-binary:
     needs: check
+    if: false
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests

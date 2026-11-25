@@ -24,6 +24,8 @@
 #include <arpa/inet.h>  // NOLINT(build/include)
 #include <netinet/in.h>
 
+#include <atomic>
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -35,6 +37,7 @@
 #include "Firestore/core/src/remote/grpc_tls_pem.h"
 #include "Firestore/core/src/remote/grpc_tls_target_host.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
@@ -235,6 +238,86 @@ id CreateAppleSecTrust(absl::string_view pem_chain,
   return trust;
 }
 
+// Throwaway diagnostic branch: log every evaluation at LOG_WARN so
+// xcodetest_prod captures the full latency distribution without enabling global
+// debug logging.
+constexpr std::chrono::seconds kSlowEvaluationThreshold(0);
+
+uint64_t NextEvaluationId() {
+  static std::atomic<uint64_t> next_id{1};
+  return next_id.fetch_add(1);
+}
+
+long long ToMilliseconds(  // NOLINT(runtime/int)
+    std::chrono::steady_clock::duration duration) {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(duration)
+      .count();
+}
+
+// Logs how long each stage of one Apple SecTrust evaluation took: at debug
+// level normally, as a warning when total elapsed time is slow. Logs the host,
+// never the certificate chain.
+void LogEvaluationLatency(
+    uint64_t eval_id,
+    const std::string& host,
+    bool trusted,
+    std::chrono::steady_clock::time_point enqueue_time,
+    std::chrono::steady_clock::time_point dequeue_time,
+    std::chrono::steady_clock::time_point trust_ready_time,
+    std::chrono::steady_clock::time_point finish_time) {
+  auto total = finish_time - enqueue_time;
+  long long total_ms = ToMilliseconds(total);  // NOLINT(runtime/int)
+  long long queue_wait_ms =                    // NOLINT(runtime/int)
+      ToMilliseconds(dequeue_time - enqueue_time);
+  long long setup_ms =  // NOLINT(runtime/int)
+      ToMilliseconds(trust_ready_time - dequeue_time);
+  long long trustd_ms =  // NOLINT(runtime/int)
+      ToMilliseconds(finish_time - trust_ready_time);
+  std::string escaped_host = absl::CHexEscape(host);
+  if (total >= kSlowEvaluationThreshold) {
+    LOG_WARN(
+        "Apple SecTrust TLS certificate evaluation #%s for '%s' finished "
+        "(trusted=%s) in %s ms (queue_wait=%s ms, setup=%s ms, trustd=%s ms); "
+        "gRPC abandons TLS handshakes that take longer than about 20 seconds",
+        eval_id, escaped_host, trusted, total_ms, queue_wait_ms, setup_ms,
+        trustd_ms);
+  } else {
+    LOG_DEBUG(
+        "Apple SecTrust TLS certificate evaluation #%s for '%s' finished "
+        "(trusted=%s) in %s ms (queue_wait=%s ms, setup=%s ms, trustd=%s ms)",
+        eval_id, escaped_host, trusted, total_ms, queue_wait_ms, setup_ms,
+        trustd_ms);
+  }
+}
+
+void LogSetupFailure(uint64_t eval_id,
+                     absl::string_view target_name,
+                     const grpc::Status& status,
+                     std::chrono::steady_clock::time_point enqueue_time,
+                     std::chrono::steady_clock::time_point dequeue_time,
+                     std::chrono::steady_clock::time_point finish_time) {
+  auto total = finish_time - enqueue_time;
+  long long total_ms = ToMilliseconds(total);  // NOLINT(runtime/int)
+  long long queue_wait_ms =                    // NOLINT(runtime/int)
+      ToMilliseconds(dequeue_time - enqueue_time);
+  long long setup_ms =  // NOLINT(runtime/int)
+      ToMilliseconds(finish_time - dequeue_time);
+  std::string escaped_target = absl::CHexEscape(target_name);
+  if (total >= kSlowEvaluationThreshold) {
+    LOG_WARN(
+        "Apple SecTrust TLS certificate setup #%s for '%s' failed (%s) in %s "
+        "ms (queue_wait=%s ms, setup=%s ms)",
+        eval_id, escaped_target, status.error_message(), total_ms,
+        queue_wait_ms, setup_ms);
+  } else {
+    LOG_DEBUG(
+        "Apple SecTrust TLS certificate setup #%s for '%s' failed (%s) in %s "
+        "ms (queue_wait=%s ms, setup=%s ms)",
+        eval_id, escaped_target, status.error_message(), total_ms,
+        queue_wait_ms, setup_ms);
+  }
+}
+
 /**
  * Maps the result of `SecTrustEvaluateAsyncWithError` to a gRPC status. `error`
  * is borrowed (owned by Security.framework).
@@ -313,15 +396,21 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
       std::make_shared<State>(State{std::move(input), std::move(completion)});
   // Borrowed from the caller; the block below retains it.
   NSArray* anchors = (__bridge NSArray*)anchor_certs;
+  uint64_t eval_id = NextEvaluationId();
+  auto enqueue_time = std::chrono::steady_clock::now();
 
   dispatch_async(queue, ^{
     @autoreleasepool {
+      auto dequeue_time = std::chrono::steady_clock::now();
       std::string host;
       grpc::Status status;
       id trust =
           CreateAppleSecTrust(state->input.pem_chain, state->input.target_name,
                               anchors, &host, &status);
+      auto trust_ready_time = std::chrono::steady_clock::now();
       if (trust == nil) {
+        LogSetupFailure(eval_id, state->input.target_name, status, enqueue_time,
+                        dequeue_time, trust_ready_time);
         state->completion(status);
         return;
       }
@@ -334,11 +423,17 @@ void VerifyAppleTlsCertificateChainAsync(TlsVerificationInput input,
           (__bridge SecTrustRef)trust, queue,
           ^(SecTrustRef, bool trusted, CFErrorRef error) {
             (void)trust;
+            LogEvaluationLatency(eval_id, host, trusted, enqueue_time,
+                                 dequeue_time, trust_ready_time,
+                                 std::chrono::steady_clock::now());
             state->completion(TrustResultToStatus(trusted, error, host));
           });
       if (start_status != errSecSuccess) {
-        state->completion(
-            OSStatusError("SecTrustEvaluateAsyncWithError", start_status));
+        grpc::Status start_error =
+            OSStatusError("SecTrustEvaluateAsyncWithError", start_status);
+        LogSetupFailure(eval_id, host, start_error, enqueue_time, dequeue_time,
+                        std::chrono::steady_clock::now());
+        state->completion(start_error);
       }
     }
   });
