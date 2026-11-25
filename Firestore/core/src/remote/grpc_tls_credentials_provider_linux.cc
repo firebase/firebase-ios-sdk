@@ -38,6 +38,7 @@
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/strerror.h"
 #include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
@@ -459,7 +460,7 @@ absl::optional<std::string> ReadRegularFile(const std::string& path) {
     int err = errno;
     if (err != ENOENT && err != ENOTDIR) {
       LOG_DEBUG("Unable to open CA file %s: %s (errno=%s)", path,
-                std::strerror(err), err);
+                util::StrError(err), err);
     }
     return absl::nullopt;
   }
@@ -485,7 +486,7 @@ absl::optional<std::string> ReadRegularFile(const std::string& path) {
       if (errno == EINTR) continue;
       int err = errno;
       LOG_DEBUG("Failed reading CA file %s: %s (errno=%s)", path,
-                std::strerror(err), err);
+                util::StrError(err), err);
       close(fd);
       return absl::nullopt;
     }
