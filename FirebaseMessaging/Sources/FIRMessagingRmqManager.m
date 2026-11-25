@@ -104,10 +104,6 @@ NSString *_Nonnull FIRMessagingStringFromSQLiteResult(int result) {
   return errorString;
 }
 
-// Wait briefly for SQLite locks from external connections (e.g., an app extension) before failing
-// with SQLITE_BUSY.
-static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
-
 @interface FIRMessagingRmqManager () {
   sqlite3 *_database;
   /// Shared serial queue for database read/write operations across all instances.
@@ -162,7 +158,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 - (FIRMessagingPersistentSyncMessage *)querySyncMessageWithRmqID:(NSString *)rmqID {
   __block FIRMessagingPersistentSyncMessage *persistentMessage;
   dispatch_sync(_databaseOperationQueue, ^{
-    if (![self ensureDatabaseAvailable]) {
+    if (![self isDatabaseAvailable]) {
       return;
     }
     NSString *queryFormat = @"SELECT %@ FROM %@ WHERE %@ = ?";
@@ -219,7 +215,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 
 - (void)deleteExpiredOrFinishedSyncMessages {
   dispatch_async(_databaseOperationQueue, ^{
-    if (![self ensureDatabaseAvailable]) {
+    if (![self isDatabaseAvailable]) {
       return;
     }
     int64_t now = FIRMessagingCurrentTimestampInSeconds();
@@ -251,7 +247,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
   BOOL apnsReceived = YES;
   BOOL mcsReceived = NO;
   dispatch_async(_databaseOperationQueue, ^{
-    if (![self ensureDatabaseAvailable]) {
+    if (![self isDatabaseAvailable]) {
       return;
     }
     NSString *insertFormat = @"INSERT INTO %@ (%@, %@, %@, %@) VALUES (?, ?, ?, ?)";
@@ -305,7 +301,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 
 - (BOOL)updateSyncMessageWithRmqID:(NSString *)rmqID column:(NSString *)column value:(BOOL)value {
   FIRMessaging_MUST_NOT_BE_MAIN_THREAD();
-  if (![self ensureDatabaseAvailable]) {
+  if (![self isDatabaseAvailable]) {
     return NO;
   }
   NSString *queryFormat = @"UPDATE %@ "     // Table name
@@ -426,7 +422,6 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
         NSAssert(NO, @"%@", errorMessage);
         return;
       }
-      sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
       [self createTable];
     } else {
       // The file exists, try to open it. If it fails, it might be corrupt.
@@ -467,7 +462,6 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
           } else {
             // Successfully recreated after an open failure, so treat as a new database for table
             // creation.
-            sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
             didOpenDatabase = YES;  // Indicate successful opening after recreation.
             [self createTable];
           }
@@ -484,7 +478,6 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
           didOpenDatabase = NO;  // Still failed, so indicate database did not open.
         }
       } else {
-        sqlite3_busy_timeout(self->_database, kFIRMessagingRmqBusyTimeoutMs);
         [self updateDBWithStringRmqID];
       }
     }
@@ -513,7 +506,7 @@ static const int kFIRMessagingRmqBusyTimeoutMs = 2000;
 }
 
 // Must be called on `_databaseOperationQueue`.
-- (BOOL)ensureDatabaseAvailable {
+- (BOOL)isDatabaseAvailable {
   if (_database != NULL) {
     return YES;
   }

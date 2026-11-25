@@ -113,7 +113,9 @@ static NSString *const kFakeSenderID = @"123456789123";
       OCMStub([_mockMessaging setupRmqManager]).andDo(nil);
       [(FIRMessaging *)_mockMessaging start];
     }
-    // Avoid DISPATCH_QUEUE_PRIORITY_BACKGROUND starvation on heavily loaded CI runners.
+    // Intentionally replace any pending-topics list restored from standard user defaults with a
+    // fresh instance on a high-priority queue to isolate tests and avoid
+    // DISPATCH_QUEUE_PRIORITY_BACKGROUND starvation on heavily loaded CI runners.
     _messaging.pubsub.pendingTopicUpdates = [[FIRMessagingPendingTopicsList alloc]
         initWithCommandQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
     _messaging.pubsub.pendingTopicUpdates.delegate = _messaging.pubsub;
