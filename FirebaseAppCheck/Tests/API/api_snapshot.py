@@ -112,10 +112,16 @@ def header_search_flags():
   return flags
 
 
-def module_map_flags(build_dir):
+def generated_module_maps_dir(build_dir, sdk):
+  suffix = '' if sdk == 'macosx' else '-' + sdk
+  return os.path.join(build_dir, 'Intermediates.noindex',
+                      'GeneratedModuleMaps' + suffix)
+
+
+def module_map_flags(build_dir, sdk):
   if is_swift_build_layout(build_dir):
-    module_maps = glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
-                                         'GeneratedModuleMaps*', '*.modulemap'))
+    module_maps = glob.glob(os.path.join(generated_module_maps_dir(build_dir, sdk),
+                                         '*.modulemap'))
   else:
     module_maps = glob.glob(os.path.join(build_dir, '*', 'module.modulemap'))
   # Module maps of SwiftPM targets that provide their own.
@@ -135,21 +141,28 @@ def module_map_flags(build_dir):
 # MARK: - Swift
 
 
-def synthesize_swift_interface(build_dir, module, target, sdk):
+def synthesize_swift_interface(build_dir, module, target, sdk, require_swift_modules=True):
   """Returns the Swift interface of `module`.
 
-  Returns '' only for a Swift module of the SDK (`SWIFT_MODULES`) that isn't part of the build for
-  `target`: a build of the Objective-C implementation of the SDK has no `FirebaseAppCheckSwift`,
-  and a macOS build has no iOS module. Any other failure is fatal.
+  When `require_swift_modules` is false (`--update` on the Objective-C baseline), returns '' if a
+  Swift module of the SDK (`SWIFT_MODULES`) isn't part of the build for `target`. During `--check`
+  and `--print`, a missing or wrong-platform `FirebaseAppCheckSwift` module is fatal so an
+  unmatched build directory cannot silently pass.
   """
   if module in SWIFT_MODULES:
     swift_module = os.path.join(swift_modules_dir(build_dir), module + '.swiftmodule')
     if not os.path.exists(swift_module):
+      if require_swift_modules:
+        raise SystemExit(
+            'Missing %s in %s; build `%s` for %s first.' % (
+                module + '.swiftmodule', build_dir, module, target))
       sys.stderr.write('Skipping %s, which is not part of the build in %s.\n' % (module, build_dir))
       return ''
     if not swift_module_supports(swift_module, target):
-      # The Objective-C headers, which are the public API, don't need a build for the target
-      # platform.
+      if require_swift_modules:
+        raise SystemExit(
+            '%s in %s was not built for %s; pass `--build-dir` for that target.' % (
+                module + '.swiftmodule', build_dir, target))
       sys.stderr.write('Skipping %s, which was not built for %s.\n' % (module, target))
       return ''
   with tempfile.TemporaryDirectory() as temp_dir:
@@ -159,7 +172,7 @@ def synthesize_swift_interface(build_dir, module, target, sdk):
         '-target', target, '-sdk', sdk_path(sdk), '-I',
         swift_modules_dir(build_dir), '-module-cache-path',
         os.path.join(tempfile.gettempdir(), 'fac-api-mc'), '-o', output
-    ] + module_map_flags(build_dir) + header_search_flags()
+    ] + module_map_flags(build_dir, sdk) + header_search_flags()
     result = subprocess.run(cmd, capture_output=True, text=True, errors='replace')
     if result.returncode != 0:
       sys.stderr.write(' '.join(cmd) + '\n' + result.stdout + result.stderr)
@@ -326,21 +339,24 @@ def normalize_swift(text, platform):
   return sorted(set(lines))
 
 
-def swift_snapshot(build_dir, target, sdk, platform):
+def swift_snapshot(build_dir, target, sdk, platform, require_swift_modules=True):
   text = ''
   for module in API_MODULES:
-    text += synthesize_swift_interface(build_dir, module, target, sdk) + '\n'
+    text += synthesize_swift_interface(build_dir, module, target, sdk,
+                                       require_swift_modules) + '\n'
   return normalize_swift(text, platform)
 
 
 # MARK: - Objective-C
 
+
 OBJC_API_NAME = re.compile(
-    r'^k?FIR(AppCheck|AppAttest|DeviceCheck|Recaptcha)\w*$')
+    r'\bk?FIR(AppCheck|AppAttest|DeviceCheck|Recaptcha)\w*\b')
 
 
-def is_api_name(name):
-  return bool(OBJC_API_NAME.match(name)) and not name.endswith('Interop')
+def is_excluded_objc_name(name):
+  """Forward-declared or imported dependency symbols that aren't part of FirebaseAppCheck's API."""
+  return name == 'FIRApp' or name.endswith('Interop')
 
 
 def clean_type(text):
@@ -388,16 +404,17 @@ def attribute_text(node, include_swift_name):
   text = node.text
   kind = text.split(' ', 1)[0]
   if kind == 'AvailabilityAttr':
+    m = re.search(r'> (\w+) ([\d.]+) ([\d.]+) ([\d.]+) Unavailable', text)
+    if m:
+      return 'API_UNAVAILABLE(%s)' % m.group(1)
     m = re.search(r'> (\w+) ([\d.]+) ([\d.]+) ([\d.]+) "([^"]*)" "([^"]*)" '
                   r'(\d+)', text)
     if m:
       platform, introduced, deprecated, obsoleted = m.groups()[:4]
-      return 'API_AVAILABLE(%s %s%s)' % (
-          platform, introduced, ' deprecated=' + deprecated
-          if deprecated not in ('0', '') else '')
-    m = re.search(r'> (\w+) 0 0 0 Unavailable', text)
-    if m:
-      return 'API_UNAVAILABLE(%s)' % m.group(1)
+      return 'API_AVAILABLE(%s %s%s%s)' % (
+          platform, introduced,
+          ' deprecated=' + deprecated if deprecated not in ('0', '') else '',
+          ' obsoleted=' + obsoleted if obsoleted not in ('0', '') else '')
     return 'AVAILABILITY(%s)' % text.split('>', 1)[-1].strip()
   if kind == 'UnavailableAttr':
     return 'UNAVAILABLE'
@@ -458,12 +475,18 @@ def objc_container_lines(node, container, lines):
     lines.add('%s %s' % (container, attr))
 
 
+def node_is_in_paths(node, paths):
+  if any(path in node.text for path in paths):
+    return True
+  return any(node_is_in_paths(child, paths) for child in node.children)
+
+
 def objc_decl_lines(node, lines):
   text = node.text
   kind = text.split(' ', 1)[0]
   if kind in ('ObjCInterfaceDecl', 'ObjCProtocolDecl'):
     name = text.rsplit(' ', 1)[-1]
-    if not is_api_name(name) or not node.children:
+    if is_excluded_objc_name(name) or not node.children:
       return
     keyword = '@interface' if kind == 'ObjCInterfaceDecl' else '@protocol'
     objc_container_lines(node, '%s %s' % (keyword, name), lines)
@@ -471,20 +494,25 @@ def objc_decl_lines(node, lines):
     for child in node.children:
       if child.text.startswith('ObjCInterface '):
         name = first_quoted(child.text)
-        if is_api_name(name):
+        if not is_excluded_objc_name(name):
           objc_container_lines(node, '@interface %s' % name, lines)
   elif kind == 'VarDecl':
     m = re.search(r" (\w+) '", text)
-    if m and is_api_name(m.group(1)):
+    if m and not is_excluded_objc_name(m.group(1)):
       lines.add(' '.join(['extern %s %s' % (first_quoted(text), m.group(1))] +
+                         attributes(node, include_swift_name=True)))
+  elif kind == 'FunctionDecl':
+    m = re.search(r" (\w+) '", text)
+    if m and not is_excluded_objc_name(m.group(1)):
+      lines.add(' '.join(['func %s %s' % (first_quoted(text), m.group(1))] +
                          attributes(node, include_swift_name=True)))
   elif kind == 'TypedefDecl':
     m = re.search(r" (\w+) '", text)
-    if m and is_api_name(m.group(1)):
+    if m and not is_excluded_objc_name(m.group(1)):
       lines.add('typedef %s %s' % (first_quoted(text), m.group(1)))
   elif kind == 'EnumDecl':
     m = re.search(r" (\w+) '", text)
-    if not m or not is_api_name(m.group(1)):
+    if not m or is_excluded_objc_name(m.group(1)):
       return
     name = m.group(1)
     for attr in attributes(node, include_swift_name=True):
@@ -526,10 +554,7 @@ def run_on_source(cmd, source, suffix):
 
 
 def objc_ast(source, include_dirs, sdk, target):
-  cmd = clang_command(sdk, target, include_dirs, [
-      '-fsyntax-only', '-Xclang', '-ast-dump', '-Xclang',
-      '-ast-dump-filter=FIR'
-  ])
+  cmd = clang_command(sdk, target, include_dirs, ['-fsyntax-only', '-Xclang', '-ast-dump'])
   return run_on_source(cmd, source, '.m')
 
 
@@ -543,33 +568,54 @@ def objc_macros(source, include_dirs, sdk, target):
   return macros
 
 
-def generated_swift_headers(build_dir):
+def generated_swift_headers(build_dir, target, sdk, require_swift_modules=True):
   """Returns the generated Objective-C headers of the Swift modules of the SDK."""
   headers = []
   for module in SWIFT_MODULES:
-    candidates = glob.glob(os.path.join(build_dir, module + '.build', 'include',
-                                        module + '-Swift.h'))
-    candidates += glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
-                                         'GeneratedModuleMaps*', module + '-Swift.h'))
+    swift_module = os.path.join(swift_modules_dir(build_dir), module + '.swiftmodule')
+    if os.path.exists(swift_module) and not swift_module_supports(swift_module, target):
+      if require_swift_modules:
+        raise SystemExit(
+            '%s in %s was not built for %s; pass `--build-dir` for that target.' % (
+                module + '.swiftmodule', build_dir, target))
+      continue
+    if is_swift_build_layout(build_dir):
+      candidates = glob.glob(os.path.join(generated_module_maps_dir(build_dir, sdk),
+                                          module + '-Swift.h'))
+    else:
+      candidates = glob.glob(os.path.join(build_dir, module + '.build', 'include',
+                                          module + '-Swift.h'))
+    if not candidates and require_swift_modules:
+      raise SystemExit(
+          'Missing %s-Swift.h in %s for %s; build `%s` for %s first.' % (
+              module, build_dir, sdk, module, target))
     headers += candidates[:1]
   return headers
 
 
-def objc_snapshot(build_dir, target, sdk):
+def objc_snapshot(build_dir, target, sdk, require_swift_modules=True):
   include_dirs = [
       os.path.join(REPO_ROOT, 'FirebaseCore', 'Sources', 'Public'),
       os.path.join(REPO_ROOT, 'FirebaseAppCheck', 'Interop', 'Public'),
       os.path.join(REPO_ROOT, 'FirebaseAppCheck', 'Sources', 'Public'),
   ]
+  swift_headers = generated_swift_headers(build_dir, target, sdk,
+                                          require_swift_modules)
   source = ('#import <Foundation/Foundation.h>\n'
             '#import <FirebaseCore/FirebaseCore.h>\n'
             '#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>\n'
-            '#import <FirebaseAppCheck/FirebaseAppCheck.h>\n')
-  for swift_header in generated_swift_headers(build_dir):
+            '#import <FirebaseAppCheck/FirebaseAppCheck.h>\n'
+            '#define SWIFT_TYPEDEFS 1\n')
+  for swift_header in swift_headers:
     source += '#import "%s"\n' % swift_header
+  tracked_paths = [os.path.realpath(PUBLIC_HEADERS)] + [
+      os.path.realpath(h) for h in swift_headers
+  ] + [PUBLIC_HEADERS] + list(swift_headers)
   lines = set()
   for root in parse_ast_dump(objc_ast(source, include_dirs, sdk, target)):
-    objc_decl_lines(root, lines)
+    for top in root.children:
+      if node_is_in_paths(top, tracked_paths) or OBJC_API_NAME.search(top.text):
+        objc_decl_lines(top, lines)
   lines |= objc_macros(source, include_dirs, sdk, target)
   # Clang makes `+new` unavailable when `-init` is unavailable, so the explicit declaration in
   # the generated Swift header doesn't change the API.
@@ -589,16 +635,29 @@ NEGATIVE_SWIFT_SNIPPETS = [
     '_ = AppCheckDebugProvider()',
     '_ = AppCheck(app: FirebaseApp.app()!)',
     'AppCheck.appCheck().tokenDidUpdate',
+    'AppCheck.appCheck().getToken(forcingRefresh: false) { _ in }',
+    'AppCheck.appCheck().getLimitedUseToken { _ in }',
+    '_ = AppCheck.appCheck().tokenDidChangeNotificationName()',
+    '_ = AppCheck.appCheck().notificationTokenKey()',
+    '_ = AppCheck.appCheck().notificationAppNameKey()',
+    '_ = AppCheck.appCheck() as Any as? any AppCheckInterop',
     'if #available(watchOS 9.0, *) { _ = DeviceCheckProvider() }',
     'if #available(macOS 11.3, watchOS 9.0, *) { _ = AppAttestProvider() }',
 ]
 NEGATIVE_SWIFT_SNIPPETS_IOS = [
     '_ = RecaptchaProvider()',
+    '_ = RecaptchaProvider(recaptchaProvider: NSObject())',
     '_ = RecaptchaProviderFactory()',
 ]
 NEGATIVE_OBJC_SNIPPETS = [
     '(void)[[FIRAppCheck alloc] init];',
     '(void)[FIRAppCheck new];',
+    '(void)[[FIRAppCheck alloc] initWithApp:(FIRApp *_Nonnull)nil];',
+    '[[FIRAppCheck appCheck] getTokenForcingRefresh:NO completion:^(id r) {}];',
+    '[[FIRAppCheck appCheck] getLimitedUseTokenWithCompletion:^(id r) {}];',
+    '(void)[[FIRAppCheck appCheck] tokenDidChangeNotificationName];',
+    '(void)[[FIRAppCheck appCheck] notificationTokenKey];',
+    '(void)[[FIRAppCheck appCheck] notificationAppNameKey];',
     '(void)[[FIRAppCheckToken alloc] init];',
     '(void)[[FIRAppCheckDebugProvider alloc] init];',
     '(void)[FIRAppCheckDebugProvider new];',
@@ -606,6 +665,7 @@ NEGATIVE_OBJC_SNIPPETS = [
 NEGATIVE_OBJC_SNIPPETS_IOS = [
     '(void)[[FIRRecaptchaProviderFactory alloc] init];',
     '(void)[[FIRRecaptchaProvider alloc] init];',
+    '(void)[[FIRRecaptchaProvider alloc] initWithRecaptchaProvider:[NSObject new]];',
 ]
 # A snippet that must compile, to verify that the compiler invocations are correct.
 POSITIVE_SWIFT_SNIPPET = '_ = AppCheckToken(token: "", expirationDate: Date())'
@@ -629,7 +689,7 @@ def swift_compiles(build_dir, target, sdk, snippet):
   cmd = ['xcrun', 'swiftc', '-typecheck', '-target', target, '-sdk', sdk_path(sdk),
          '-I', swift_modules_dir(build_dir), '-module-cache-path',
          os.path.join(tempfile.gettempdir(), 'fac-api-mc')]
-  cmd += module_map_flags(build_dir) + header_search_flags()
+  cmd += module_map_flags(build_dir, sdk) + header_search_flags()
   return compiles(cmd, source, '.swift')
 
 
@@ -637,10 +697,12 @@ def objc_compiles(build_dir, target, sdk, snippet):
   source = ('@import FirebaseAppCheck;\n@import FirebaseCore;\n'
             'void test(void) {\n  %s\n}\n' % snippet)
   if is_swift_build_layout(build_dir):
-    module_maps = glob.glob(os.path.join(build_dir, 'Intermediates.noindex',
-                                         'GeneratedModuleMaps*', '*.modulemap'))
+    module_maps = glob.glob(os.path.join(generated_module_maps_dir(build_dir, sdk),
+                                         '*.modulemap'))
   else:
     module_maps = glob.glob(os.path.join(build_dir, '*', 'module.modulemap'))
+  module_maps += glob.glob(os.path.join(REPO_ROOT, 'FirebaseAppCheck', 'Sources', 'Public',
+                                        'module.modulemap'))
   cmd = ['xcrun', 'clang', '-x', 'objective-c', '-fobjc-arc', '-fmodules', '-fsyntax-only',
          '-isysroot', sdk_path(sdk), '-target', target, '-fmodules-cache-path=' +
          os.path.join(tempfile.gettempdir(), 'fac-api-mc')]
@@ -772,10 +834,13 @@ def main():
   args = parser.parse_args()
 
   target, sdk = PLATFORMS[args.platform]
+  require_swift_modules = not args.update
   snapshots = {
-      'swift': (lambda: swift_snapshot(args.build_dir, target, sdk, args.platform),
+      'swift': (lambda: swift_snapshot(args.build_dir, target, sdk, args.platform,
+                                       require_swift_modules),
                 APPROVED_SWIFT_DIFFERENCES),
-      'objc': (lambda: objc_snapshot(args.build_dir, target, sdk),
+      'objc': (lambda: objc_snapshot(args.build_dir, target, sdk,
+                                     require_swift_modules),
                APPROVED_OBJC_DIFFERENCES),
   }
   if args.negative:

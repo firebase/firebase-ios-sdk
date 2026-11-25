@@ -36,7 +36,15 @@ jobs:
     # Checks the public Swift and Objective-C APIs against the snapshots in
     # FirebaseAppCheck/Tests/API, which were generated from the Objective-C
     # implementation of the SDK, and runs the negative compile tests.
-    runs-on: macos-26
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_26.4
+    runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
@@ -44,7 +52,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Build
       run: swift build --target FirebaseAppCheckSwift
     - name: Build for the iOS Simulator
@@ -64,10 +72,14 @@ jobs:
           --build-dir .build-ios
 
   catalyst:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [FirebaseAppCheck-Unit-unit, FirebaseAppCheck-Unit-swift-unit]
     uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseAppCheck
-      target: FirebaseAppCheck-Unit-unit
+      target: ${{ matrix.target }}
 
   pod_lib_lint:
     strategy:
@@ -77,14 +89,17 @@ jobs:
     with:
       product: ${{ matrix.product }}
       buildonly_platforms: macOS
+      setup_command: echo "FIREBASE_CI=true" >> "$GITHUB_ENV"
 
   diagnostics:
     strategy:
+      fail-fast: false
       matrix:
+        target: [FirebaseAppCheckUnit, FirebaseAppCheckUnitSwift]
         diagnostic: [tsan, asan, ubsan]
     uses: ./.github/workflows/_build.yml
     with:
-      product: FirebaseAppCheckUnit
+      product: ${{ matrix.target }}
       platform: iOS
       method: spm
       sanitizers: ${{ matrix.diagnostic }}
