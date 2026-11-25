@@ -96,11 +96,48 @@ struct ModuleMapsTests {
     #expect(error?.description == "m: has a second top level declaration `link \"z\"`.")
   }
 
+  @Test func explicitSubmoduleAndPrivateHeaderAreTranslated() throws {
+    let text = """
+    module Old {
+      umbrella header "Old/Old.h"
+      export *
+
+      explicit module Internal {
+        header "../Internal/OldInternal.h"
+        export *
+      }
+    }
+    """
+    let translated = try frameworkModuleMap(
+      rewriting: text, at: "m", moduleName: "New",
+      publicHeaders: ["Old.h"], privateHeaders: ["OldInternal.h"], hasSwift: true
+    )
+    #expect(translated == """
+    framework module New {
+      umbrella header "Old.h"
+      export *
+      explicit module Internal {
+        private header "OldInternal.h"
+        export *
+      }
+    }
+
+    module New.Swift {
+      header "New-Swift.h"
+      requires objc
+    }
+
+    """)
+  }
+
   @Test func untranslatableModuleMapsFail() {
-    let bodies = [#"link "z""#, #"umbrella "dir""#, "explicit module Sub {", "requires objc",
-                  #"header "NotPublic.h""#]
+    let bodies = [#"link "z""#, #"umbrella "dir""#, "module Sub {\n  }", "requires objc",
+                  #"header "NotPublic.h""#, #"private header "A.h""#,
+                  "explicit module Sub {\n    explicit module Nested {\n    }\n  }",
+                  "explicit module Sub {\n    umbrella header \"A.h\"\n  }"]
     let texts = bodies.map { "module A {\n  \($0)\n}\n" }
-      + ["module A {\n}\nmodule B {\n}\n", "module A {\n  header \"A.h\"\n", "module A\n{\n}\n"]
+      + ["module A {\n}\nmodule B {\n}\n", "module A {\n  header \"A.h\"\n",
+         "module A {\n  explicit module Sub {\n    header \"A.h\"\n}\n", "module A\n{\n}\n"]
     for text in texts {
       #expect(throws: ZipBuilderError.self) {
         try frameworkModuleMap(rewriting: text, at: "m", moduleName: "A", publicHeaders: ["A.h"],

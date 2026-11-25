@@ -34,17 +34,27 @@ func frameworkModuleMap(_ moduleName: String, umbrella: String, hasSwift: Bool) 
 }
 
 /// SwiftPM's custom module map (`at`, for errors) as a framework module map: `module Foo` becomes
-/// `framework module <moduleName>`, header paths become file names, since `Headers/` is flat, and
-/// Swift sources add the Swift submodule. Lines it can't translate (submodules, umbrella
-/// directories, `link`, `requires`, …) throw.
+/// `framework module <moduleName>`, header paths become file names (`private header` for headers in
+/// `privateHeaders`, since Xcode copies those to `PrivateHeaders/`), `explicit module` submodules
+/// are kept, and Swift sources add the Swift submodule. Lines it can't translate (un-explicit or
+/// nested submodules, umbrella directories, `link`, `requires`, …) throw.
 func frameworkModuleMap(rewriting text: String, at path: Path, moduleName: String,
-                        publicHeaders: Set<String>, hasSwift: Bool) throws -> String {
+                        publicHeaders: Set<String>, privateHeaders: Set<String> = [],
+                        hasSwift: Bool) throws -> String {
   // The line shapes a framework module map can keep, matched after `normalizedModuleMapLine`.
   let opening = Regex { // `module foo [system] {`, or `framework module foo {`
     Optionally { "framework " }
     "module "
     OneOrMore(.word) // the original module name
     Capture { // the attributes, e.g. ` [system] [extern_c]`
+      ZeroOrMore { " ["; OneOrMore(.word); "]" }
+    }
+    " {"
+  }
+  let explicitSubmodule = Regex { // `explicit module Internal {`
+    "explicit module "
+    Capture { OneOrMore(.word) }
+    Capture {
       ZeroOrMore { " ["; OneOrMore(.word); "]" }
     }
     " {"
@@ -56,10 +66,10 @@ func frameworkModuleMap(rewriting text: String, at path: Path, moduleName: Strin
     }
     "module * { export * }"
   }
-  // `header "A.h"`, `umbrella header "A.h"`, `exclude header "A.h"`
+  // `header "A.h"`, `private header "A.h"`, `umbrella header "A.h"`, `exclude header "A.h"`
   let header = Regex {
     Optionally {
-      Capture { ChoiceOf { "umbrella"; "exclude" } }
+      Capture { ChoiceOf { "umbrella"; "exclude"; "private" } }
       " "
     }
     "header \""
@@ -68,6 +78,7 @@ func frameworkModuleMap(rewriting text: String, at path: Path, moduleName: Strin
   }
 
   var lines: [String] = []
+  var inSubmodule = false
   var isClosed = false
   for rawLine in text.components(separatedBy: .newlines) {
     let line = normalizedModuleMapLine(rawLine)
@@ -82,6 +93,7 @@ func frameworkModuleMap(rewriting text: String, at path: Path, moduleName: Strin
     let unsupported = ZipBuilderError(
       "\(path): can't translate `\(line)` into a framework module map."
     )
+    let indent = inSubmodule ? "    " : "  "
     if lines.isEmpty {
       guard let (_, attributes) = line.wholeMatch(of: opening)?.output else {
         throw unsupported
@@ -89,18 +101,39 @@ func frameworkModuleMap(rewriting text: String, at path: Path, moduleName: Strin
 
       lines.append("framework module \(moduleName)\(attributes) {")
     } else if line == "}" {
-      lines.append("}")
-      isClosed = true
+      if inSubmodule {
+        lines.append("  }")
+        inSubmodule = false
+      } else {
+        lines.append("}")
+        isClosed = true
+      }
+    } else if !inSubmodule,
+              let (_, name, attributes) = line.wholeMatch(of: explicitSubmodule)?.output {
+      lines.append("  explicit module \(name)\(attributes) {")
+      inSubmodule = true
     } else if line.wholeMatch(of: export) != nil {
-      lines.append("  " + line)
+      lines.append(indent + line)
     } else if let (_, modifier, headerPath) = line.wholeMatch(of: header)?.output {
       let name = fileName(String(headerPath))
-      guard modifier == "exclude" || publicHeaders.contains(name) else {
-        throw ZipBuilderError("\(path): \(headerPath) isn't a public header of \(moduleName).")
+      let kind: String
+      if modifier == "exclude" {
+        kind = "exclude header"
+      } else if modifier == "umbrella" {
+        guard !inSubmodule, publicHeaders.contains(name) else {
+          throw ZipBuilderError("\(path): \(headerPath) isn't a public header of \(moduleName).")
+        }
+        kind = "umbrella header"
+      } else if modifier != "private", publicHeaders.contains(name) {
+        kind = "header"
+      } else if privateHeaders.contains(name) {
+        kind = "private header"
+      } else {
+        throw ZipBuilderError(
+          "\(path): \(headerPath) isn't a public or private header of \(moduleName)."
+        )
       }
-
-      let kind = modifier.map { "\($0) header" } ?? "header"
-      lines.append("  \(kind) \"\(name)\"")
+      lines.append("\(indent)\(kind) \"\(name)\"")
     } else {
       throw unsupported
     }

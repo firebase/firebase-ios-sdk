@@ -184,10 +184,11 @@ Only a code-free `<Module>.h` is an umbrella, since real umbrellas only import. 
 - declares `<Module>VersionNumber` and `<Module>VersionString`.
 
 A custom module map is translated line by line: `module X` becomes `framework module <Module>`,
-header paths become file names, `export` lines stay, `//` comments go, and Swift sources add the
-`<Module>.Swift` submodule. Anything else (submodules, umbrella directories, `link`, `requires`, a
-header that isn't public) is an error rather than a guess. (`Building/GeneratedFiles.swift`,
-`addUmbrellaHeader`; `Building/ModuleMaps.swift`)
+header paths become file names (`private header` for `PrivateHeaders/`), `explicit module`
+submodules and `export` lines stay, `//` comments go, and Swift sources add the `<Module>.Swift`
+submodule. Anything else (other or nested submodules, umbrella directories, `link`, `requires`, a
+header that isn't public or private) is an error rather than a guess.
+(`Building/GeneratedFiles.swift`, `addUmbrellaHeader`; `Building/ModuleMaps.swift`)
 
 ### Resources and privacy manifests
 
