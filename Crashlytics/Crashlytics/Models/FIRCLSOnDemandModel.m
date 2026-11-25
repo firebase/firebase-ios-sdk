@@ -40,7 +40,7 @@
 @property(nonatomic) double currentStep;
 
 @property(nonatomic, strong) FIRCLSFileManager *fileManager;
-@property(nonatomic, strong) NSMutableArray *storedActiveReportPaths;
+@property(nonatomic, strong, readonly) NSMutableArray<NSString *> *storedActiveReportPaths;
 
 @end
 
@@ -78,7 +78,7 @@ static const double SEC_PER_MINUTE = 60;
   _lastUpdated = [NSDate timeIntervalSinceReferenceDate];
   _currentStep = -1;
 
-  self.storedActiveReportPaths = [NSMutableArray array];
+  _storedActiveReportPaths = [NSMutableArray array];
 
   return self;
 }
@@ -88,7 +88,7 @@ static const double SEC_PER_MINUTE = 60;
  * rate limiting and exponential backoff.
  */
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
-             withDataCollectionEnabled:(BOOL)dataCollectionEnabled
+                       withDataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager {
   // Record the exception model into a new report if there is unused on-demand quota. Otherwise,
   // log the occurrence but drop the event.
@@ -118,16 +118,15 @@ static const double SEC_PER_MINUTE = 60;
     [self.operationQueue addOperationWithBlock:^{
       double uploadDelay = [self calculateUploadDelay];
 
-      if (dataCollectionEnabled) {
+      if ([dataArbiter isCrashlyticsCollectionEnabled]) {
         [existingReportManager handleOnDemandReportUpload:activeReportPath
                                       dataCollectionToken:dataCollectionToken
                                                  asUrgent:YES];
         FIRCLSDebugLog(@"Submitted an on-demand exception, starting delay %.20f", uploadDelay);
       } else {
-        [self.storedActiveReportPaths insertObject:activeReportPath atIndex:0];
-        if ([self.storedActiveReportPaths count] > FIRCLSMaxUnsentReports) {
-          [self.fileManager removeItemAtPath:[self.storedActiveReportPaths lastObject]];
-          [self.storedActiveReportPaths removeLastObject];
+        NSString *evictedPath = [self storeActiveReportPath:activeReportPath];
+        if (evictedPath) {
+          [self.fileManager removeItemAtPath:evictedPath];
           [self decrementRecordedExceptionCount];
           [self incrementDroppedExceptionCount];
         }
@@ -137,6 +136,32 @@ static const double SEC_PER_MINUTE = 60;
       [self decrementQueuedOperationCount];
     }];
     return YES;  // Recorded and submitted the exception.
+  }
+}
+
+- (NSArray<NSString *> *)takeStoredActiveReportPaths {
+  @synchronized(_storedActiveReportPaths) {
+    NSArray<NSString *> *paths = [_storedActiveReportPaths copy];
+    [_storedActiveReportPaths removeAllObjects];
+    return paths;
+  }
+}
+
+- (NSArray<NSString *> *)storedActiveReportPathsSnapshot {
+  @synchronized(_storedActiveReportPaths) {
+    return [_storedActiveReportPaths copy];
+  }
+}
+
+- (NSString *)storeActiveReportPath:(NSString *)activeReportPath {
+  @synchronized(_storedActiveReportPaths) {
+    [_storedActiveReportPaths insertObject:activeReportPath atIndex:0];
+    if ([_storedActiveReportPaths count] > FIRCLSMaxUnsentReports) {
+      NSString *evictedPath = [_storedActiveReportPaths lastObject];
+      [_storedActiveReportPaths removeLastObject];
+      return evictedPath;
+    }
+    return nil;
   }
 }
 

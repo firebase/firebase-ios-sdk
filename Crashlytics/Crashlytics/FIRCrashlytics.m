@@ -497,8 +497,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                        callback:^{
                          [self.managerData.onDemandModel
                              recordOnDemandExceptionIfQuota:copiedModel
-                                  withDataCollectionEnabled:[self.dataArbiter
-                                                                    isCrashlyticsCollectionEnabled]
+                                            withDataArbiter:self.dataArbiter
                                  usingExistingReportManager:self.existingReportManager];
                        }];
 }

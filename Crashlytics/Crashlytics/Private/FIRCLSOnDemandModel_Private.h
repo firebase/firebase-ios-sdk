@@ -22,22 +22,25 @@
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
 
+@class FIRCLSDataCollectionArbiter;
+
 @interface FIRCLSOnDemandModel (Private)
 
 - (instancetype)initWithFIRCLSSettings:(FIRCLSSettings *)settings
                            fileManager:(FIRCLSFileManager *)fileManager;
 
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
-             withDataCollectionEnabled:(BOOL)dataCollectionEnabled
+                       withDataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager;
 
 - (int)getQueuedOperationsCount;
 - (void)setQueuedOperationsCount:(int)count;
 
-// When data collection is off, stores active paths that have been recorded but not dispatched for
-// upload. Kept sorted (newest at front) so that we can limit on-device reports to the newest
-// `FIRCLSMaxUnsentReports` reports.
-@property(nonatomic, strong) NSMutableArray *storedActiveReportPaths;
+// Returns a copy of the stored active report paths and removes the original.
+- (NSArray<NSString *> *)takeStoredActiveReportPaths;
+
+// Returns a copy of the currently stored active report paths without removing them.
+- (NSArray<NSString *> *)storedActiveReportPathsSnapshot;
 
 @property(nonatomic, readonly) int recordedOnDemandExceptionCount;
 @property(nonatomic, readonly) int droppedOnDemandExceptionCount;

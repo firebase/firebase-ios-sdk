@@ -38,6 +38,7 @@
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportUploader.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
@@ -430,6 +431,65 @@
   XCTAssertEqual([[self contentsOfActivePath] count], 1, @"should contain only the current report");
 
   // Should not call report manager for that report.
+  XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
+}
+
+- (void)testDeleteUnsentReportsDeletesStoredOnDemandReportsFromReportManager {
+  FIRCLSMockOnDemandModel *onDemandModel =
+      [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:self.mockSettings
+                                                  fileManager:self.fileManager
+                                                   sleepBlock:^(int delay){
+                                                   }];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+  FIRMockGDTCORTransport *mockGoogleTransport =
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:mockGoogleTransport
+                                       installations:iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:self.dataArbiter
+                                            settings:self.mockSettings
+                                       onDemandModel:onDemandModel];
+#pragma clang diagnostic pop
+  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+  self.existingReportManager =
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:managerData
+                                                    reportUploader:self.mockReportUploader];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+  self.reportManager =
+      [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                     existingReportManager:self.existingReportManager
+                                          analyticsManager:analyticsManager];
+
+  FIRCLSInternalReport *report = [self createActiveReport];
+  XCTAssertTrue([self createFileWithContents:@"signal"
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1);
+
+  [self startReportManagerWithDataCollectionEnabled:NO];
+  XCTAssertEqual([[self contentsOfActivePath] count], 2,
+                 @"should contain the current and old reports");
+
+  FIRExceptionModel *exceptionModel =
+      [FIRExceptionModel exceptionModelWithName:@"PreConsentException" reason:@"OptOutTest"];
+  XCTAssertTrue([onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                              withDataArbiter:self.dataArbiter
+                                   usingExistingReportManager:self.existingReportManager]);
+  [onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual([onDemandModel storedActiveReportPathsSnapshot].count, 1);
+  XCTAssertEqual([[self contentsOfActivePath] count], 3,
+                 @"should contain old, current, and stored on-demand reports");
+
+  [self processReports:NO];
+
+  XCTAssertEqual([onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1,
+                 @"should contain only the current report after deleteUnsentReports");
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
 }
 

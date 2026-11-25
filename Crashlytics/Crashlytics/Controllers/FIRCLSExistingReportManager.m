@@ -176,12 +176,12 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
                                  asUrgent:urgent];
   }
 
-  for (NSString *path in self.onDemandModel.storedActiveReportPaths) {
+  NSArray<NSString *> *storedOnDemandPaths = [self.onDemandModel takeStoredActiveReportPaths];
+  for (NSString *path in storedOnDemandPaths) {
     [self processExistingActiveReportPath:path
                       dataCollectionToken:dataCollectionToken
                                  asUrgent:urgent];
   }
-  [self.onDemandModel.storedActiveReportPaths removeAllObjects];
 
   // deal with stuff in processing more carefully - do not process again
   [self.operationQueue addOperationWithBlock:^{
@@ -241,8 +241,11 @@ NSInteger compareNewer(FIRCLSInternalReport *reportA,
 }
 
 - (void)deleteUnsentReports {
+  NSArray<NSString *> *storedOnDemandPaths =
+      [self.onDemandModel takeStoredActiveReportPaths] ?: @[];
   NSArray<NSString *> *reportPaths = @[];
   reportPaths = [reportPaths arrayByAddingObjectsFromArray:self.existingUnemptyActiveReportPaths];
+  reportPaths = [reportPaths arrayByAddingObjectsFromArray:storedOnDemandPaths];
   reportPaths = [reportPaths arrayByAddingObjectsFromArray:self.processingReportPaths];
   reportPaths = [reportPaths arrayByAddingObjectsFromArray:self.preparedReportPaths];
 

@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a thread-safety issue where stored on-demand exception paths
+  could be accessed concurrently from multiple queues when data collection is
+  disabled, and ensured queued on-demand exceptions re-check consent after
+  rate-limiting delays and are cleaned up by `deleteUnsentReports()`. (#16805)
+
 # 13.2.0
 - [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
   `recordError`, `recordExceptionModel`, etc.) hopped onto the main thread instead of flushing

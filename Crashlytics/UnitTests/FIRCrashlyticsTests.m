@@ -96,6 +96,7 @@
 @property(nonatomic, assign) BOOL lastCallWasOnMainThread;
 @property(nonatomic, strong, nullable) NSThread *lastCallThread;
 @property(nonatomic, strong, nullable) FIRExceptionModel *lastRecordedExceptionModel;
+@property(nonatomic, strong, nullable) FIRCLSDataCollectionArbiter *lastDataArbiter;
 @property(nonatomic, assign) NSUInteger callCount;
 @property(nonatomic, strong, nullable) NSException *exceptionToThrow;
 
@@ -104,11 +105,12 @@
 @implementation FIRCLSThreadTrackingOnDemandModel
 
 - (BOOL)recordOnDemandExceptionIfQuota:(FIRExceptionModel *)exceptionModel
-             withDataCollectionEnabled:(BOOL)dataCollectionEnabled
+                       withDataArbiter:(FIRCLSDataCollectionArbiter *)dataArbiter
             usingExistingReportManager:(FIRCLSExistingReportManager *)existingReportManager {
   self.lastCallWasOnMainThread = [NSThread isMainThread];
   self.lastCallThread = [NSThread currentThread];
   self.lastRecordedExceptionModel = exceptionModel;
+  self.lastDataArbiter = dataArbiter;
   self.callCount += 1;
   if (self.exceptionToThrow) {
     NSException *exception = self.exceptionToThrow;
@@ -190,18 +192,13 @@
       @(dispatch_queue_get_label(self.crashlytics.preInitAPIDispatchQueue)),
       [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".pre-init-api"]);
 
-  __block BOOL initSettled = NO;
+  XCTestExpectation *initSettled = [self expectationWithDescription:@"contextInitPromise settled"];
   [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
                                           then:^id _Nullable(id _Nullable value) {
-                                            initSettled = YES;
+                                            [initSettled fulfill];
                                             return nil;
                                           }];
-  NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:5.0];
-  while (!initSettled && [deadline timeIntervalSinceNow] > 0) {
-    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode
-                             beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.005]];
-  }
-  XCTAssertTrue(initSettled);
+  [self waitForExpectations:@[ initSettled ] timeout:5.0];
 
   self.onDemandModel =
       [[FIRCLSThreadTrackingOnDemandModel alloc] initWithFIRCLSSettings:self.mockSettings
@@ -453,6 +450,7 @@
   XCTAssertEqual([self customExceptionAContents].count, 1);
   XCTAssertEqual(self.onDemandModel.callCount, 1);
   XCTAssertFalse(self.onDemandModel.lastCallWasOnMainThread);
+  XCTAssertNotNil(self.onDemandModel.lastDataArbiter);
 }
 
 - (void)testRejectedInitPromiseDiscardsPreInitAndSubsequentCallsOffMainThread {

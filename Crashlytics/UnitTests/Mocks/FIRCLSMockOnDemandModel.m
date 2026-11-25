@@ -53,11 +53,11 @@
 }
 
 - (NSString *)recordOnDemandExceptionWithModel:(FIRExceptionModel *)exceptionModel {
-  int randomSuffix = arc4random_uniform(10000);
+  NSString *uniqueSuffix = [[NSUUID UUID] UUIDString];
   NSString *activePath = [_fileManager activePath];
   NSString *exceptionName =
-      [activePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test_exception_%d",
-                                                                            randomSuffix]];
+      [activePath stringByAppendingPathComponent:[NSString stringWithFormat:@"test_exception_%@",
+                                                                            uniqueSuffix]];
   NSData *data = [exceptionName dataUsingEncoding:NSUTF8StringEncoding];
   [self.fileManager createFileAtPath:exceptionName contents:data attributes:nil];
   return exceptionName;

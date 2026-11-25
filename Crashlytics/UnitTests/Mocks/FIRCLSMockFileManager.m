@@ -34,48 +34,64 @@
 }
 
 - (BOOL)removeItemAtPath:(NSString *)path {
-  [self.fileSystemDict removeObjectForKey:path];
+  XCTestExpectation *expectationToFulfill = nil;
+  @synchronized(self) {
+    [self.fileSystemDict removeObjectForKey:path];
 
-  self.removeCount += 1;
+    self.removeCount += 1;
 
-  // If we set up the expectation, and we went over the expected count or removes, fulfill the
-  // expectation
-  if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
-    [self.removeExpectation fulfill];
+    // If we set up the expectation, and we went over the expected count or removes, fulfill the
+    // expectation
+    if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
+      expectationToFulfill = self.removeExpectation;
+    }
   }
+  [expectationToFulfill fulfill];
 
   return YES;
 }
 
 - (BOOL)fileExistsAtPath:(NSString *)path {
-  return self.fileSystemDict[path] != nil;
+  @synchronized(self) {
+    return self.fileSystemDict[path] != nil;
+  }
 }
 
 - (BOOL)createFileAtPath:(NSString *)path
                 contents:(NSData *)data
               attributes:(NSDictionary<NSFileAttributeKey, id> *)attr {
-  self.fileSystemDict[path] = data;
+  @synchronized(self) {
+    self.fileSystemDict[path] = data;
+  }
   return YES;
 }
 
 - (NSArray *)activePathContents {
-  NSMutableArray *pathsWithActive = [[NSMutableArray alloc] init];
-  for (NSString *path in [_fileSystemDict allKeys]) {
-    if ([path containsString:@"v5/reports/active"]) {
-      [pathsWithActive addObject:path];
+  @synchronized(self) {
+    NSMutableArray *pathsWithActive = [[NSMutableArray alloc] init];
+    for (NSString *path in [_fileSystemDict allKeys]) {
+      if ([path containsString:@"v5/reports/active"]) {
+        [pathsWithActive addObject:path];
+      }
     }
-  }
 
-  return pathsWithActive;
+    return pathsWithActive;
+  }
 }
 
 - (NSData *)dataWithContentsOfFile:(NSString *)path {
-  return self.fileSystemDict[path];
+  @synchronized(self) {
+    return self.fileSystemDict[path];
+  }
 }
 
 - (void)enumerateFilesInDirectory:(NSString *)directory
                        usingBlock:(void (^)(NSString *filePath, NSString *extension))block {
-  NSArray<NSString *> *filteredPaths = [self.fileSystemDict.allKeys
+  NSArray<NSString *> *allKeysSnapshot = nil;
+  @synchronized(self) {
+    allKeysSnapshot = [self.fileSystemDict.allKeys copy];
+  }
+  NSArray<NSString *> *filteredPaths = [allKeysSnapshot
       filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSString *path,
                                                                         NSDictionary *bindings) {
         return [path hasPrefix:directory];

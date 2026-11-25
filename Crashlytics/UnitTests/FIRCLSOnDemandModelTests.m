@@ -15,10 +15,8 @@
 #import <XCTest/XCTest.h>
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
-#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
-#import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
@@ -31,6 +29,7 @@
 
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionToken.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
 
 #define TEST_GOOGLE_APP_ID (@"1:632950151350:ios:d5b0d08d4f00f4b1")
@@ -52,6 +51,9 @@
 - (void)setUp {
   [super setUp];
   FIRSetLoggerLevel(FIRLoggerLevelMax);
+
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
 
   FIRCLSContextBaseInit();
 
@@ -89,24 +91,17 @@
   [self.fileManager createReportDirectories];
   [self.fileManager
       setupNewPathForExecutionIdentifier:self.managerData.executionIDModel.executionID];
-
-  NSString *name = @"exception_model_report";
-  NSString *reportPath = [self.fileManager.rootPath stringByAppendingPathComponent:name];
-  [self.fileManager createDirectoryAtPath:reportPath];
-
-  FIRCLSInternalReport *report =
-      [[FIRCLSInternalReport alloc] initWithPath:reportPath
-                             executionIdentifier:@"TEST_EXECUTION_IDENTIFIER"];
-
-  FIRCLSContextManager *contextManager = [[FIRCLSContextManager alloc] init];
-  FBLPromiseAwait([contextManager setupContextWithReport:report
-                                                settings:self.mockSettings
-                                             fileManager:self.fileManager],
-                  nil);
 }
 
 - (void)tearDown {
+  [self.managerData.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+  dispatch_sync(self.managerData.dispatchQueue, ^{
+                });
+  [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
   self.onDemandModel = nil;
+  FIRCLSContextBaseDeinit();
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
   [super tearDown];
 }
@@ -116,6 +111,7 @@
 }
 
 - (void)testIncrementsQueueWhenEventRecorded {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:YES];
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
   XCTestExpectation *testComplete =
       [[XCTestExpectation alloc] initWithDescription:@"complete test"];
@@ -128,9 +124,9 @@
   }];
 
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                          withDataCollectionEnabled:YES
+                                                    withDataArbiter:self.dataArbiter
                                          usingExistingReportManager:self.existingReportManager];
-  // Should record but not submit a report.
+  // Should record and submit a report.
   XCTAssertTrue(success);
   XCTAssertEqual([self.onDemandModel recordedOnDemandExceptionCount], 1);
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 1);
@@ -140,6 +136,7 @@
 }
 
 - (void)testCompliesWithDataCollectionOff {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
   XCTestExpectation *sleepComplete =
       [[XCTestExpectation alloc] initWithDescription:@"complete test"];
@@ -152,7 +149,7 @@
   }];
 
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                          withDataCollectionEnabled:NO
+                                                    withDataArbiter:self.dataArbiter
                                          usingExistingReportManager:self.existingReportManager];
 
   // Should record but not submit a report.
@@ -168,16 +165,17 @@
 
   XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 0);
   XCTAssertEqual([self contentsOfActivePath].count, 1);
-  XCTAssertEqual([self.onDemandModel.storedActiveReportPaths count], 1);
+  XCTAssertEqual([[self.onDemandModel storedActiveReportPathsSnapshot] count], 1);
 }
 
 - (void)testQuotaWithDataCollectionOff {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
 
   for (int i = 0; i < 10; i++) {
     BOOL success =
         [self.managerData.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                             withDataCollectionEnabled:NO
+                                                       withDataArbiter:self.dataArbiter
                                             usingExistingReportManager:self.existingReportManager];
 
     XCTAssertTrue(success);
@@ -192,7 +190,7 @@
   XCTAssertEqual([self.managerData.onDemandModel recordedOnDemandExceptionCount],
                  FIRCLSMaxUnsentReports);
   XCTAssertEqual([self contentsOfActivePath].count, FIRCLSMaxUnsentReports);
-  XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count],
+  XCTAssertEqual([[self.managerData.onDemandModel storedActiveReportPathsSnapshot] count],
                  FIRCLSMaxUnsentReports);
 
   // Once we call sendUnsentReports, stored reports should be sent immediately.
@@ -202,14 +200,15 @@
                  FIRCLSMaxUnsentReports);
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
   XCTAssertEqual([self contentsOfActivePath].count, 0);
-  XCTAssertEqual([self.managerData.onDemandModel.storedActiveReportPaths count], 0);
+  XCTAssertEqual([[self.managerData.onDemandModel storedActiveReportPathsSnapshot] count], 0);
 }
 
 - (void)testDropsEventIfNoQuota {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
   [self.onDemandModel setQueueToFull];
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                          withDataCollectionEnabled:NO
+                                                    withDataArbiter:self.dataArbiter
                                          usingExistingReportManager:self.existingReportManager];
 
   // Should return false when attempting to record an event and increment the count of dropped
@@ -220,11 +219,12 @@
 }
 
 - (void)testDroppedEventCountResets {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
   [self.onDemandModel setQueueToFull];
 
   FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
   BOOL success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                          withDataCollectionEnabled:NO
+                                                    withDataArbiter:self.dataArbiter
                                          usingExistingReportManager:self.existingReportManager];
 
   // Should return false when attempting to record an event and increment the count of dropped
@@ -236,13 +236,149 @@
   // Reset the queue to empty
   [self.onDemandModel setQueuedOperationsCount:0];
   success = [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
-                                     withDataCollectionEnabled:NO
+                                               withDataArbiter:self.dataArbiter
                                     usingExistingReportManager:self.existingReportManager];
 
   // Now have room in the queue to record the event
   XCTAssertTrue(success);
   // droppedOnDemandExceptionCount should be reset once we record the event
   XCTAssertEqual([self.onDemandModel droppedOnDemandExceptionCount], 0);
+}
+
+- (void)testTakeStoredActiveReportPathsAtomicallyClaimsAndClearsPaths {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  for (int i = 0; i < 3; i++) {
+    XCTAssertTrue([self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                                     withDataArbiter:self.dataArbiter
+                                          usingExistingReportManager:self.existingReportManager]);
+  }
+  [self.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  NSArray<NSString *> *snapshotBeforeTake = [self.onDemandModel storedActiveReportPathsSnapshot];
+  XCTAssertEqual(snapshotBeforeTake.count, 3);
+
+  NSArray<NSString *> *claimedPaths = [self.onDemandModel takeStoredActiveReportPaths];
+  XCTAssertEqualObjects(claimedPaths, snapshotBeforeTake);
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([self.onDemandModel takeStoredActiveReportPaths].count, 0);
+}
+
+- (void)testDeleteUnsentReportsDeletesStoredOnDemandReports {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  for (int i = 0; i < 3; i++) {
+    XCTAssertTrue([self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                                     withDataArbiter:self.dataArbiter
+                                          usingExistingReportManager:self.existingReportManager]);
+  }
+  [self.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 3);
+  XCTAssertEqual([self contentsOfActivePath].count, 3);
+
+  [self.existingReportManager deleteUnsentReports];
+  [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([self contentsOfActivePath].count, 0);
+}
+
+- (void)testQueuedOperationsUploadImmediatelyWhenConsentEnabledDuringSleep {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  XCTestExpectation *firstOpEnteredSleep =
+      [[XCTestExpectation alloc] initWithDescription:@"first on-demand op entered sleep"];
+  dispatch_semaphore_t releaseFirstSleep = dispatch_semaphore_create(0);
+  __block BOOL didPauseFirstSleep = NO;
+
+  [self setSleepBlock:^(int delay) {
+    if (!didPauseFirstSleep) {
+      didPauseFirstSleep = YES;
+      [firstOpEnteredSleep fulfill];
+      dispatch_semaphore_wait(releaseFirstSleep,
+                              dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    }
+  }];
+
+  // 1. Record Operation #1 while collection is disabled; wait until it stores its path and enters
+  // sleep.
+  XCTAssertTrue([self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                                   withDataArbiter:self.dataArbiter
+                                        usingExistingReportManager:self.existingReportManager]);
+  [self waitForExpectations:@[ firstOpEnteredSleep ] timeout:2.0];
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 1);
+
+  // 2. Enqueue Operations #2 and #3 while Operation #1 is asleep and collection is still disabled.
+  XCTAssertTrue([self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                                   withDataArbiter:self.dataArbiter
+                                        usingExistingReportManager:self.existingReportManager]);
+  XCTAssertTrue([self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                                   withDataArbiter:self.dataArbiter
+                                        usingExistingReportManager:self.existingReportManager]);
+  XCTAssertEqual(self.onDemandModel.getQueuedOperationsCount, 3);
+
+  // 3. Enable consent mid-sleep and drain the already-stored Operation #1 report.
+  [self.dataArbiter setCrashlyticsCollectionEnabled:YES];
+  [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
+                                                asUrgent:YES];
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 0);
+
+  // 4. Wake Operation #1 so Operations #2 and #3 run; they must see live consent == YES and upload
+  // immediately instead of stranding in storedActiveReportPaths.
+  dispatch_semaphore_signal(releaseFirstSleep);
+  [self.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+  dispatch_sync(self.managerData.dispatchQueue, ^{
+                });
+  [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([self contentsOfActivePath].count, 0);
+}
+
+- (void)testConcurrentRecordAndSendUnsentReportsDoesNotCrashOrCorruptPaths {
+  [self.dataArbiter setCrashlyticsCollectionEnabled:NO];
+  FIRExceptionModel *exceptionModel = [self getTestExceptionModel];
+
+  dispatch_group_t group = dispatch_group_create();
+  dispatch_queue_t producerQueue = dispatch_queue_create(
+      "com.google.firebase.crashlytics.test.producers", DISPATCH_QUEUE_CONCURRENT);
+
+  // Hammer on-demand recording from multiple threads (exceeding FIRCLSMaxUnsentReports repeatedly)
+  // while concurrently draining via sendUnsentReportsWithToken: on the startup queue (#16805).
+  for (int t = 0; t < 4; t++) {
+    dispatch_group_async(group, producerQueue, ^{
+      for (int i = 0; i < 60; i++) {
+        [self.onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                           withDataArbiter:self.dataArbiter
+                                usingExistingReportManager:self.existingReportManager];
+      }
+    });
+  }
+
+  for (int i = 0; i < 60; i++) {
+    dispatch_group_async(group, self.managerData.dispatchQueue, ^{
+      [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
+                                                    asUrgent:NO];
+    });
+  }
+
+  XCTAssertEqual(dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC)),
+                 0);
+  [self.onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+
+  // Perform a final drain and verify stored paths and active files are completely clean.
+  dispatch_sync(self.managerData.dispatchQueue, ^{
+    [self.existingReportManager sendUnsentReportsWithToken:[FIRCLSDataCollectionToken validToken]
+                                                  asUrgent:NO];
+  });
+  [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
+
+  XCTAssertEqual([self.onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([self contentsOfActivePath].count, 0);
 }
 
 #pragma mark - Helpers
