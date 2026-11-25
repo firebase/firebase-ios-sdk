@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
 import FirebaseCore
 import Foundation
 
@@ -20,10 +19,17 @@ import Foundation
   // The public API is declared in the Objective-C headers of the `FirebaseAppCheck` target, and
   // implemented in this target.
   import FirebaseAppCheck
-
-  // Internal declarations implemented in this file.
-  import FirebaseAppCheck.Internal
 #endif // SWIFT_PACKAGE
+
+#if FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE
+  // Internal declarations implemented in this file (`FIRAppCheckInternal.h`).
+  internal import FirebaseAppCheck.Internal
+  internal import FirebaseAppCheckInterop
+#else
+  // CocoaPods includes `FIRAppCheckInternal.h` in the pod's generated umbrella header, which
+  // publicly re-exports `FirebaseAppCheckInterop`.
+  import FirebaseAppCheckInterop
+#endif // FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE
 
 internal import AppCheckCore
 internal import FirebaseCoreExtension
@@ -47,8 +53,22 @@ private let providerFactoryStorage = ProviderFactoryStorage()
   /// Receives token updates from `appCheckCore`, which only keeps a weak reference to it.
   final let tokenDelegate: AppCheckTokenDelegate
 
-  @objc(initWithApp:)
-  init?(app: FirebaseApp) {
+  private init(appName: NSString,
+               appCheckCore: AppCheckCoreProtocol,
+               notificationCenter: NotificationCenter,
+               settings: AppCheckCoreSettingsProtocol,
+               tokenDelegate: AppCheckTokenDelegate) {
+    self.appName = appName as String
+    self.appCheckCore = appCheckCore
+    self.notificationCenter = notificationCenter
+    self.settings = settings
+    self.tokenDelegate = tokenDelegate
+    super.init()
+    tokenDelegate.appCheck = self
+  }
+
+  /// Creates the App Check instance of a Firebase app.
+  final class func make(app: FirebaseApp) -> AppCheck? {
     // Set the App Check Core logging level to the current equivalent Firebase logging level.
     AppCheckCoreLogger.logLevel = AppCheckLogger.appCheckCoreLogLevel()
 
@@ -77,8 +97,7 @@ private let providerFactoryStorage = ProviderFactoryStorage()
                                     userDefaults: GULUserDefaults.standard(),
                                     mainBundle: Bundle.main)
     let tokenDelegate = AppCheckTokenDelegate()
-    appName = app.name
-    appCheckCore = AppCheckCore(
+    let appCheckCore = AppCheckCore(
       serviceName: "FirebaseApp:\(app.name)",
       resourceName: app.resourceName,
       appCheckProvider: InternalAppCheckProvider(appCheckProvider: appCheckProvider),
@@ -86,11 +105,13 @@ private let providerFactoryStorage = ProviderFactoryStorage()
       tokenDelegate: tokenDelegate,
       keychainAccessGroup: app.options.appGroupID
     )
-    notificationCenter = NotificationCenter.default
-    self.settings = settings
-    self.tokenDelegate = tokenDelegate
-    super.init()
-    tokenDelegate.appCheck = self
+    return AppCheck(
+      appName: app.name as NSString,
+      appCheckCore: appCheckCore,
+      notificationCenter: NotificationCenter.default,
+      settings: settings,
+      tokenDelegate: tokenDelegate
+    )
   }
 
   // MARK: - Public

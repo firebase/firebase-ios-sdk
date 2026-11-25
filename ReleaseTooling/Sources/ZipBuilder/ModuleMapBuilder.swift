@@ -47,6 +47,15 @@ struct ModuleMapBuilder {
 
       """
 
+      if module == "FirebaseAppCheck" {
+        content += """
+          explicit module Internal {
+            header "FIRAppCheckInternal.h"
+            export *
+          }
+        """
+      }
+
       if module == "FirebaseFirestoreInternal" {
         content += """
           link framework "openssl_grpc"

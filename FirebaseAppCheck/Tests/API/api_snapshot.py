@@ -65,8 +65,8 @@ SWIFT_TYPE_RENAMES = {r'\bFIRApp\b': 'FirebaseApp'}
 
 # Differences from the Objective-C implementation that are approved. There are none: the Swift
 # implementation of the SDK implements the same Objective-C headers. Its internal declarations
-# (`FIRAppCheckInternal.h`) are in the `FirebaseAppCheck.Internal` submodule, which apps don't
-# import. See `APPROVED_EXTRA_PUBLIC_HEADERS` for CocoaPods and the binary distributions.
+# (`Sources/Internal/FIRAppCheckInternal.h`) are in the `FirebaseAppCheck.Internal` submodule, which
+# apps don't import.
 APPROVED_SWIFT_DIFFERENCES = []
 APPROVED_OBJC_DIFFERENCES = []
 
@@ -682,12 +682,9 @@ def golden_path(kind, platform):
   return os.path.join(API_DIR, '%s_api_%s.txt' % (kind, platform))
 
 
-# Headers in the public headers directory that `FirebaseAppCheck.h` doesn't import. With SwiftPM,
-# `FIRAppCheckInternal.h` is only in the explicit submodule `FirebaseAppCheck.Internal`. CocoaPods
-# (used for internal testing only since Firebase 13) and the binary distributions built from the
-# podspec make it a public header, so apps that use them can see its declarations. They aren't
-# public API.
-APPROVED_EXTRA_PUBLIC_HEADERS = {'FIRAppCheckInternal.h'}
+# Headers in the public headers directory that `FirebaseAppCheck.h` doesn't import. None are
+# allowed: `Sources/Internal/FIRAppCheckInternal.h` lives outside `Sources/Public/`.
+APPROVED_EXTRA_PUBLIC_HEADERS = set()
 
 
 def check_public_headers():

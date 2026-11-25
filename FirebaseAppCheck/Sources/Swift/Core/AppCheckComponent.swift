@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
 import FirebaseCore
 import Foundation
 
@@ -20,6 +19,7 @@ import Foundation
   import FirebaseAppCheck
 #endif // SWIFT_PACKAGE
 
+internal import FirebaseAppCheckInterop
 internal import FirebaseCoreExtension
 
 /// Registers App Check with Firebase Core.
@@ -32,7 +32,7 @@ final class AppCheckComponent: NSObject, Library {
     let creationBlock: ComponentCreationBlock = { container, isCacheable in
       isCacheable.pointee = true
       guard let app = container.app else { return nil }
-      return AppCheck(app: app)
+      return AppCheck.make(app: app)
     }
     // Use eager instantiation timing to give a chance for FAC token to be requested before it is
     // actually needed to avoid extra delaying dependent requests.

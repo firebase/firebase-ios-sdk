@@ -17,9 +17,6 @@ import Foundation
 
 #if SWIFT_PACKAGE
   import FirebaseAppCheck
-
-  // Internal declarations implemented in this file.
-  import FirebaseAppCheck.Internal
 #endif // SWIFT_PACKAGE
 
 internal import AppCheckCore
@@ -31,8 +28,7 @@ internal import FirebaseCoreExtension
   internal import AppCheckRecaptchaProvider
 #endif
 
-/// Implements `FIRRecaptchaProvider`, declared in `FIRRecaptchaProvider.h` and
-/// `FIRAppCheckInternal.h`.
+/// Implements `FIRRecaptchaProvider`, declared in `FIRRecaptchaProvider.h`.
 @available(iOS 15.0, visionOS 1.0, *)
 @available(macOS, unavailable)
 @available(tvOS, unavailable)
@@ -42,16 +38,14 @@ internal import FirebaseCoreExtension
   /// The App Check Core provider that implements reCAPTCHA Enterprise attestation.
   private final let recaptchaProvider: AppCheckCoreProvider
 
-  @objc(initWithRecaptchaProvider:)
-  init?(recaptchaProvider: Any) {
-    // The parameter is `id` in `FIRAppCheckInternal.h`, which doesn't import App Check Core. The
-    // header is visible to apps that use CocoaPods or the binary distributions, so don't trap on
-    // other objects.
-    guard let recaptchaProvider = recaptchaProvider as? AppCheckCoreProvider else {
-      return nil
-    }
+  private init(recaptchaProvider: AppCheckCoreProvider) {
     self.recaptchaProvider = recaptchaProvider
     super.init()
+  }
+
+  /// Creates a provider that wraps an App Check Core provider. For tests.
+  final class func makeForTesting(recaptchaProvider: AppCheckCoreProvider) -> RecaptchaProvider {
+    RecaptchaProvider(recaptchaProvider: recaptchaProvider)
   }
 
   @objc(initWithApp:siteKey:)

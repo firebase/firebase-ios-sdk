@@ -158,7 +158,7 @@ final class AppCheckTests: XCTestCase {
                             file: StaticString = #filePath, line: UInt = #line) -> AppCheck {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
-    let appCheck = AppCheck(app: AppCheckTestUtils.app(name: appName))!
+    let appCheck = AppCheck.make(app: AppCheckTestUtils.app(name: appName))!
     XCTAssertEqual(appCheck.appName, appName, file: file, line: line)
     appCheck.appCheckCore = appCheckCore
     appCheck.settings = settings
@@ -234,7 +234,7 @@ final class AppCheckTests: XCTestCase {
       AppCheckCoreLogger.logLevel = appCheckCoreLogLevel
     }
 
-    XCTAssertNotNil(AppCheck(app: app))
+    XCTAssertNotNil(AppCheck.make(app: app))
 
     XCTAssertEqual(factory.requestedApps.count, 1)
     XCTAssertTrue(factory.requestedApps.first === app)
@@ -244,12 +244,12 @@ final class AppCheckTests: XCTestCase {
 
   func testInitWithAppWithoutProviderFactory() {
     AppCheck.setAppCheckProviderFactory(nil)
-    XCTAssertNil(AppCheck(app: AppCheckTestUtils.app()))
+    XCTAssertNil(AppCheck.make(app: AppCheckTestUtils.app()))
   }
 
   func testInitWithAppWithoutProvider() {
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider: nil))
-    XCTAssertNil(AppCheck(app: AppCheckTestUtils.app()))
+    XCTAssertNil(AppCheck.make(app: AppCheckTestUtils.app()))
   }
 
   /// Configures a Firebase app named `name`, whose App Check instance uses a fake provider.
@@ -551,7 +551,7 @@ final class AppCheckTests: XCTestCase {
     // `makeAppCheck` replaced the dependencies; check the ones created by `init?(app:)`.
     AppCheck.setAppCheckProviderFactory(FakeAppCheckProviderFactory(provider:
       FakeAppCheckProvider()))
-    let realAppCheck = try XCTUnwrap(AppCheck(app: AppCheckTestUtils.app(name: appName)))
+    let realAppCheck = try XCTUnwrap(AppCheck.make(app: AppCheckTestUtils.app(name: appName)))
     XCTAssertTrue(realAppCheck.appCheckCore is AppCheckCore)
     XCTAssertTrue(realAppCheck.settings is AppCheckSettings)
     XCTAssertTrue(realAppCheck.notificationCenter === NotificationCenter.default)

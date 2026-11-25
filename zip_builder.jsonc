@@ -79,6 +79,7 @@
     // Each pod packages its SwiftPM companion targets into one framework.
     "merge": {
       "AppCheckCore": ["AppCheckRecaptchaProvider"],
+      "FirebaseAppCheck": ["FirebaseAppCheckSwift"],
       "FirebaseAuth": ["FirebaseAuthInternal"],
       "FirebaseCrashlytics": ["FirebaseCrashlyticsSwift"],
       "FirebaseDatabase": ["FirebaseDatabaseInternal"],
@@ -102,8 +103,9 @@
       "FirebaseFirestore": ["FirebaseFirestoreInternal/FirebaseFirestore"],
       "FirebaseStorage": ["FirebaseStorage/Typedefs"]
     },
-    // CocoaPods ships these in PrivateHeaders/ (podspec `private_header_files`).
-    "privateHeaders": ["FBLPromisePrivate.h"],
+    // Shipped in PrivateHeaders/ rather than Headers/ (`private_header_files`, or internal
+    // explicit submodules).
+    "privateHeaders": ["FBLPromisePrivate.h", "FIRAppCheckInternal.h"],
     // GoogleUtilities' vendored IsAppEncrypted.h is private in its podspec.
     "hiddenHeaders": ["IsAppEncrypted.h"],
     // Restrict frameworks to the platforms of their podspecs.

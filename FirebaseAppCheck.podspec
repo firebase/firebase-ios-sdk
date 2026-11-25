@@ -35,17 +35,22 @@ Pod::Spec.new do |s|
   base_dir = "FirebaseAppCheck/"
 
   # The public API is declared in Objective-C headers and implemented in Swift with
-  # `@objc @implementation` extensions. `FIRAppCheckInternal.h` declares internal members that the
-  # Swift implementation uses; it is not imported by `FirebaseAppCheck.h`. It matches
-  # `public_header_files`, so the generated umbrella header imports it: the Swift sources need
-  # its declarations, and a pod has no other module they can import it from (a separate Clang
-  # module would have to be found by every client of the pod too). It isn't public API.
+  # `@objc @implementation` extensions. `FIRAppCheckInternal.h` declares the internal
+  # `FIRAppCheckInterop` conformance that `FIRAppCheck` implements; it is not imported by
+  # `FirebaseAppCheck.h`. SwiftPM and binary distributions keep it in the explicit submodule
+  # `FirebaseAppCheck.Internal`; CocoaPods (internal testing only) includes it in
+  # `public_header_files` so both framework and `--use-modular-headers` static-library builds see
+  # the conformance through the generated umbrella header.
   s.source_files = [
     base_dir + 'Sources/Swift/**/*.swift',
     base_dir + 'Sources/ObjC/**/*.[mh]',
     base_dir + 'Sources/Public/FirebaseAppCheck/*.h',
+    base_dir + 'Sources/Internal/*.h',
   ]
-  s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
+  s.public_header_files = [
+    base_dir + 'Sources/Public/FirebaseAppCheck/*.h',
+    base_dir + 'Sources/Internal/*.h',
+  ]
 
   s.ios.weak_framework = 'DeviceCheck'
   s.osx.weak_framework = 'DeviceCheck'
@@ -70,15 +75,10 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [
-      base_dir + 'Tests/Unit/**/*.[mh]',
-      'SharedTestUtilities/AppCheckFake/*',
-      'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
-      'SharedTestUtilities/Date/*',
-      'SharedTestUtilities/URLSession/*',
+      base_dir + 'Tests/Unit/ObjCAPI/*.[mh]',
+      base_dir + 'Tests/Unit/DebugProvider/*.[mh]',
+      base_dir + 'Tests/Unit/DeviceCheckProvider/*.[mh]',
     ]
-
-    unit_tests.resources = base_dir + 'Tests/Unit/Fixture/**/*'
-    unit_tests.dependency 'OCMock'
     unit_tests.requires_app_host = true
   end
 

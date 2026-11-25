@@ -1333,6 +1333,7 @@ func packageTargets() -> [Target] {
       path: "FirebaseAppCheck/Sources/Swift",
       swiftSettings: [
         .swiftLanguageMode(SwiftLanguageMode.v5),
+        .define("FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE"),
       ]
     ),
     // Internal headers only for consuming from Swift.

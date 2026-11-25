@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAppCheckInterop
 import FirebaseCore
 import Foundation
 
@@ -21,6 +20,7 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 internal import AppCheckCore
+internal import FirebaseAppCheckInterop
 internal import FirebaseCoreExtension
 #if COCOAPODS
   internal import GoogleUtilities
