@@ -17,10 +17,13 @@
 @interface FIRCLSMockFileManager ()
 
 @property(nonatomic) NSMutableDictionary<NSString *, NSData *> *fileSystemDict;
+@property(nonatomic) BOOL didFulfillRemoveExpectation;
 
 @end
 
 @implementation FIRCLSMockFileManager
+
+@synthesize removeExpectation = _removeExpectation;
 
 - (instancetype)init {
   self = [super init];
@@ -33,6 +36,19 @@
   return self;
 }
 
+- (void)setRemoveExpectation:(XCTestExpectation *)removeExpectation {
+  @synchronized(self) {
+    _removeExpectation = removeExpectation;
+    _didFulfillRemoveExpectation = NO;
+  }
+}
+
+- (XCTestExpectation *)removeExpectation {
+  @synchronized(self) {
+    return _removeExpectation;
+  }
+}
+
 - (BOOL)removeItemAtPath:(NSString *)path {
   XCTestExpectation *expectationToFulfill = nil;
   @synchronized(self) {
@@ -40,10 +56,13 @@
 
     self.removeCount += 1;
 
-    // If we set up the expectation, and we went over the expected count or removes, fulfill the
-    // expectation
-    if (self.removeExpectation && self.removeCount >= self.expectedRemoveCount) {
-      expectationToFulfill = self.removeExpectation;
+    // Fulfill the expectation at most once when we reach the expected remove count, without
+    // clearing `_removeExpectation` since tests such as `FIRCLSSettingsTests` read
+    // `self.fileManager.removeExpectation` when calling `waitForExpectations:`.
+    if (_removeExpectation && !_didFulfillRemoveExpectation &&
+        self.removeCount >= self.expectedRemoveCount) {
+      expectationToFulfill = _removeExpectation;
+      _didFulfillRemoveExpectation = YES;
     }
   }
   [expectationToFulfill fulfill];
