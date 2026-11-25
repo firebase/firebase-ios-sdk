@@ -130,7 +130,11 @@ static NSString *const kTestHeartbeatHeader = @"test-heartbeat-header";
 @implementation FIRInstallationsTestHeartbeatLogger
 
 - (void)log {
-  self.pendingHeaderValue = kTestHeartbeatHeader;
+  // Synchronized with `headerValue`, so a heartbeat logged concurrently isn't lost between its read
+  // and clear of `pendingHeaderValue`.
+  @synchronized(self) {
+    self.pendingHeaderValue = kTestHeartbeatHeader;
+  }
 }
 
 - (FIRDailyHeartbeatCode)heartbeatCodeForToday {
