@@ -28,7 +28,7 @@ import Foundation
 #else
   // CocoaPods includes `FIRAppCheckInternal.h` in the pod's generated umbrella header, which
   // publicly re-exports `FirebaseAppCheckInterop`.
-  import FirebaseAppCheckInterop
+  public import FirebaseAppCheckInterop
 #endif // FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE
 
 internal import AppCheckCore
