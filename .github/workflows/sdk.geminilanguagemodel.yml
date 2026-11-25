@@ -41,34 +41,30 @@ jobs:
     - name: Run typegen unit tests
       run: .venv/bin/python -m unittest discover -s tests -t . -v
 
-    - name: Check for Discovery Document and data model updates
-      # Drift is reported as a warning and doesn't fail the step. Unexpected
-      # failures (e.g. fetching the Discovery Document) fail the job so that
-      # they're noticed and re-run.
+    - name: Check generated data models are up to date
+      # Regeneration from the checked-in OpenAPI 3.0 spec is deterministic, so
+      # fail on any drift between committed sources and generated output.
       run: |
-        .venv/bin/python upgrade_spec.py --fetch
+        .venv/bin/python upgrade_spec.py
         .venv/bin/python generate_types.py
-
-        REVISION=$(.venv/bin/python -c 'import json; print(json.load(open("discovery_documents/firebasevertexai_discovery_v1beta.json")).get("revision", "unknown"))')
-        echo "Discovery Document revision: $REVISION"
 
         TARGET_DIR="../../Sources/GeminiAPIDataModels/GenerateContent"
         if [[ -z "$(git status --porcelain "$TARGET_DIR")" ]]; then
-          echo "GeminiAPIDataModels is up to date with Discovery Document revision $REVISION."
+          echo "GeminiAPIDataModels is up to date with the checked-in OpenAPI 3.0 spec."
           exit 0
         fi
 
-        echo "::warning title=GeminiAPIDataModels update available::Generated data models differ from committed sources (Discovery Document revision: $REVISION). Run upgrade_spec.py --fetch and generate_types.py to update."
+        echo "::error title=GeminiAPIDataModels out of date::Generated data models differ from committed sources. Run upgrade_spec.py and generate_types.py to update."
 
         {
-          echo "### ⚠️ \`GeminiAPIDataModels\` Update Available"
+          echo "### ❌ \`GeminiAPIDataModels\` Out of Date"
           echo ""
-          echo "Regenerating data models from the latest Discovery Document (**revision \`$REVISION\`**) produced changes in \`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent\`."
+          echo "Regenerating data models from the checked-in OpenAPI 3.0 spec produced changes in \`GeminiLanguageModel/Sources/GeminiAPIDataModels/GenerateContent\`."
           echo ""
           echo "To update the models locally:"
           echo "\`\`\`bash"
           echo "cd GeminiLanguageModel/scripts/typegen"
-          echo "python upgrade_spec.py --fetch"
+          echo "python upgrade_spec.py"
           echo "python generate_types.py"
           echo "\`\`\`"
           echo ""
@@ -91,6 +87,8 @@ jobs:
           echo ""
           echo "</details>"
         } >> "$GITHUB_STEP_SUMMARY"
+
+        exit 1
 
   unit-tests:
     name: unit-tests
