@@ -8,6 +8,30 @@ permissions:
 
 on:
   workflow_call:
+    # Re-usable workflows do not automatically inherit the caller's secrets.
+    #
+    # If the calling workflow uses a secret in the `setup_command` input, then
+    # it also must pass the secret to the re-usable workflow. The secret is
+    # only exposed to the setup command, as the `plist_secret` env var.
+    #
+    # Example:
+    #
+    #   spm:
+    #     uses: ./.github/workflows/_spm.yml
+    #     with:
+    #       target: FooIntegration
+    #       requires_secrets: true
+    #       setup_command: |
+    #         scripts/decrypt_gha_secret.sh \
+    #           /path/to/GoogleService-Info.plist.gpg \
+    #           /path/to/dest/GoogleService-Info.plist "$plist_secret"
+    #     secrets:
+    #       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+    #
+    secrets:
+      plist_secret:
+        required: false
+
     inputs:
       # The target scheme to be tested.
       target:
@@ -48,6 +72,10 @@ on:
       # This is useful for additional set up, like starting an emulator or
       # downloading test data.
       #
+      # Note, this step has an env var set to decrypt plists. Use
+      # "$plist_secret" in the given command. See `secrets` documentation
+      # at top of this file.
+      #
       # Example: `FirebaseFunctions/Backend/start.sh synchronous`
       setup_command:
         type: string
@@ -56,6 +84,35 @@ on:
 
       # Whether the job is scheduled. Defaults to false.
       is_nightly:
+        type: boolean
+        required: false
+        default: false
+
+      # Whether the tests need the `plist_secret` secret. Defaults to false.
+      #
+      # When true and the secret is unavailable (e.g. pull requests from
+      # forks), the `spm` jobs are skipped and a notice explains why.
+      requires_secrets:
+        type: boolean
+        required: false
+        default: false
+
+      # The backend that integration tests run against. Defaults to "".
+      #
+      # Options: "" (unset), "emulator", or "real". When set, the build/test
+      # step exports `TEST_RUNNER_FIREBASE_BACKEND`, which xcodebuild forwards
+      # to the test process as `FIREBASE_BACKEND`.
+      #
+      # Typical value, emulator on PRs and the real backend nightly:
+      # `${{ github.event_name == 'schedule' && 'real' || 'emulator' }}`
+      backend:
+        type: string
+        required: false
+        default: ""
+
+      # Whether the Xcode 27 lane must pass. Defaults to false, which keeps
+      # the lane `continue-on-error`.
+      xcode27_required:
         type: boolean
         required: false
         default: false
@@ -84,7 +141,34 @@ jobs:
     runs-on: macos-26
     outputs:
       cache_key: ${{ steps.generate_cache_key.outputs.cache_key }}
+      run_tests: ${{ steps.check_secrets.outputs.run_tests }}
     steps:
+      - name: Validate inputs
+        env:
+          BACKEND: ${{ inputs.backend }}
+        run: |
+          case "$BACKEND" in
+            ""|emulator|real) ;;
+            *)
+              echo "::error::Invalid backend input '$BACKEND'. Expected '', 'emulator', or 'real'."
+              exit 1
+              ;;
+          esac
+      - name: Check secrets
+        id: check_secrets
+        env:
+          REQUIRES_SECRETS: ${{ inputs.requires_secrets }}
+          # Only whether the secret is set, never its value.
+          HAS_SECRETS: ${{ secrets.plist_secret != '' }}
+        run: |
+          if [[ "$REQUIRES_SECRETS" == "true" && "$HAS_SECRETS" != "true" ]]; then
+            message="Skipping spm tests: secrets are unavailable (e.g. a pull request from a fork)."
+            echo "::notice title=spm tests skipped::$message"
+            echo "$message" >> "$GITHUB_STEP_SUMMARY"
+            echo "run_tests=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_tests=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
           persist-credentials: false
@@ -124,11 +208,17 @@ jobs:
 
   spm:
     # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
-    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    # Skip if the tests require secrets that are unavailable.
+    if: |
+      needs.spm-package-resolved.outputs.run_tests == 'true' &&
+      (
+        (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+        contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+      )
     needs: [spm-package-resolved]
     env:
         FIREBASE_IS_NIGHTLY_TESTING: ${{ inputs.is_nightly && '1' || '' }}
-    continue-on-error: ${{ matrix.os == 'xcode-27' }}
+    continue-on-error: ${{ matrix.os == 'xcode-27' && !inputs.xcode27_required }}
     strategy:
       fail-fast: false
       matrix:
@@ -180,9 +270,10 @@ jobs:
       # hacky workaround for zizmor
       # TODO: make this an enum and remove script injection
       run: |
-        echo $INPUTS_SETUP_COMMAND > setup_script.sh && bash setup_script.sh
+        printf '%s\n' "$INPUTS_SETUP_COMMAND" > setup_script.sh && bash setup_script.sh
       env:
         INPUTS_SETUP_COMMAND: ${{ inputs.setup_command }}
+        plist_secret: ${{ secrets.plist_secret }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
@@ -191,11 +282,15 @@ jobs:
         TARGET: ${{ inputs.target }}
         PLATFORM: ${{ matrix.platform }}
         EXTRA_FLAGS: ${{ inputs.extra_flags }}
+        BACKEND: ${{ inputs.backend }}
       with:
         timeout_minutes: 15
         max_attempts: 3
         retry_wait_seconds: 120
         command: |
+          if [ -n "$BACKEND" ]; then
+            export TEST_RUNNER_FIREBASE_BACKEND="$BACKEND"
+          fi
           ./scripts/build.sh \
             "$TARGET" \
             "$PLATFORM" \
