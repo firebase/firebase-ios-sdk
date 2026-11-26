@@ -59,7 +59,15 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
 
 @property(nonatomic, readwrite, strong) NSString *defaultFcmToken;
 @property(nonatomic, readwrite, strong) NSData *apnsTokenData;
+@property(nonatomic, readwrite, strong) FIRInstallations *installations;
 @property(nonatomic, readwrite, strong) FIRMessagingTokenManager *tokenManager;
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (instancetype)initWithAnalytics:(nullable id<FIRAnalyticsInterop>)analytics
+                     userDefaults:(GULUserDefaults *)defaults
+                  heartbeatLogger:(nullable FIRHeartbeatLogger *)heartbeatLogger;
+#pragma clang diagnostic pop
 
 // Expose autoInitEnabled static method for IID.
 + (BOOL)isAutoInitEnabledWithUserDefaults:(NSUserDefaults *)userDefaults;
@@ -312,6 +320,55 @@ extern NSString *const kFIRMessagingFCMTokenFetchAPNSOption;
                                    }
                                  }];
   [self waitForExpectationsWithTimeout:0.1 handler:nil];
+}
+
+- (void)testDeleteFCMTokenWithNilCompletionOnInstallationIDError {
+  NSError *installationsError = [NSError errorWithDomain:@"com.firebase.test" code:1 userInfo:nil];
+  id installationIDArg = [OCMArg invokeBlockWithArgs:[NSNull null], installationsError, nil];
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [self.messaging deleteFCMTokenForSenderID:@"123456789123" completion:nil];
+#pragma clang diagnostic pop
+}
+
+- (void)testDeleteFCMTokenWhenMessagingDeallocatedReportsInternalError {
+  __block FIRInstallationsIDHandler installationIDHandler = nil;
+  OCMStub([(FIRInstallations *)self.testUtil.mockInstallations
+      installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(id handler) {
+        installationIDHandler = [handler copy];
+        return YES;
+      }]]);
+
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Completion called with internal error"];
+  __block NSError *receivedError = nil;
+  __weak FIRMessaging *weakMessaging = nil;
+  @autoreleasepool {
+    GULUserDefaults *defaults =
+        [[GULUserDefaults alloc] initWithSuiteName:kFIRMessagingDefaultsTestDomain];
+    FIRMessaging *messaging = [[FIRMessaging alloc] initWithAnalytics:nil
+                                                         userDefaults:defaults
+                                                      heartbeatLogger:nil];
+    messaging.installations = self.testUtil.mockInstallations;
+    weakMessaging = messaging;
+    [messaging deleteFCMTokenForSenderID:@"123456789123"
+                              completion:^(NSError *_Nullable error) {
+                                receivedError = error;
+                                [expectation fulfill];
+                              }];
+    messaging = nil;
+  }
+
+  XCTAssertNil(weakMessaging);
+  XCTAssertNotNil(installationIDHandler);
+  installationIDHandler(@"fake-fid", nil);
+
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  XCTAssertEqualObjects(receivedError.domain, FIRMessagingErrorDomain);
+  XCTAssertEqual(receivedError.code, kFIRMessagingErrorCodeInternal);
 }
 #pragma clang diagnostic pop
 
