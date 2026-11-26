@@ -9,7 +9,8 @@ A host app gives tests what Swift Package Manager test bundles don't have:
 
 - Keychain access. Without a host, `SecItemAdd` can fail with
   `errSecMissingEntitlement` (-34018).
-- `UIApplication.sharedApplication` with an app delegate.
+- `UIApplication.shared` (`[UIApplication sharedApplication]` in Objective-C)
+  with an app delegate.
 - A main bundle.
 
 The `HostSmokeTests` target checks that the host provides these, and shows the
@@ -37,7 +38,8 @@ scripts/build.sh HostedTests-<scheme> tvOS
 
 For example, `scripts/build.sh HostedTests-HostSmokeTests iOS`. The optional
 third argument is `build` or `build-for-testing` to build without running the
-tests.
+tests, or `test-without-building` to run tests built by an earlier
+`build-for-testing`.
 
 ## Add an SDK's tests
 

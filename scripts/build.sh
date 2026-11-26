@@ -690,6 +690,15 @@ case "$product-$platform-$method" in
       "$method"
     ;;
 
+  HostedTests-*-test-without-building)
+    RunXcodebuild \
+      -project 'IntegrationTesting/HostedTests/HostedTests.xcodeproj' \
+      -scheme "${product#HostedTests-}" \
+      "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
+      test-without-building
+    ;;
+
   HostedTests-*-*)
     RunXcodebuild \
       -project 'IntegrationTesting/HostedTests/HostedTests.xcodeproj' \
