@@ -650,24 +650,32 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
-                                                failureReason:@"Failed to get installation ID."];
-          completion(newError);
-        } else {
-          [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
-                                                       scope:kFIRMessagingDefaultTokenScope
-                                                  instanceID:identifier
-                                                     handler:^(NSError *_Nullable error) {
-                                                       if (completion) {
-                                                         completion(error);
-                                                       }
-                                                     }];
-        }
-      }];
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                     NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      if (completion) {
+        NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
+                                              failureReason:@"Failed to get installation ID."];
+        completion(newError);
+      }
+    } else if (!self) {
+      if (completion) {
+        NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                                                  failureReason:@"Lost reference to FIRMessaging."];
+        completion(lostRefError);
+      }
+    } else {
+      [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
+                                                   scope:kFIRMessagingDefaultTokenScope
+                                              instanceID:identifier
+                                                 handler:^(NSError *_Nullable error) {
+                                                   if (completion) {
+                                                     completion(error);
+                                                   }
+                                                 }];
+    }
+  }];
 }
 
 - (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {

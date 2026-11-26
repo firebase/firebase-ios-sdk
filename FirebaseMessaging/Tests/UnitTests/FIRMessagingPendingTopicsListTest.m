@@ -23,10 +23,6 @@
 #import "FirebaseMessaging/Sources/FIRMessagingPendingTopicsList.h"
 #import "FirebaseMessaging/Sources/FIRMessagingTopicsCommon.h"
 
-@interface FIRMessagingPendingTopicsList (Testing)
-- (instancetype)initWithCommandQueue:(dispatch_queue_t)queue;
-@end
-
 @interface FIRMessagingPendingTopicsListTest : XCTestCase
 
 /// Using this delegate lets us prevent any topic operations from start, making it easy to measure
@@ -228,6 +224,50 @@
                  });
 
   [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
+
+- (void)testDeallocationBeforeCompletionBlockRunsOnCommandQueue {
+  dispatch_queue_t commandQueue =
+      dispatch_queue_create("com.firebase.messaging.test.pendingTopics", DISPATCH_QUEUE_SERIAL);
+
+  __block FIRMessagingTopicOperationCompletion capturedCompletion = nil;
+  XCTestExpectation *requestStarted = [self expectationWithDescription:@"Request started"];
+  self.alwaysReadyDelegate.subscriptionHandler =
+      ^(NSString *topic, FIRMessagingTopicAction action,
+        FIRMessagingTopicOperationCompletion completion) {
+        capturedCompletion = [completion copy];
+        [requestStarted fulfill];
+      };
+
+  __weak FIRMessagingPendingTopicsList *weakPendingTopics = nil;
+  @autoreleasepool {
+    FIRMessagingPendingTopicsList *pendingTopics =
+        [[FIRMessagingPendingTopicsList alloc] initWithCommandQueue:commandQueue];
+    weakPendingTopics = pendingTopics;
+    pendingTopics.delegate = self.alwaysReadyDelegate;
+
+    [pendingTopics addOperationForTopic:@"/topics/0"
+                             withAction:FIRMessagingTopicActionSubscribe
+                             completion:nil];
+    [self waitForExpectations:@[ requestStarted ] timeout:5.0];
+    // Drain commandQueue so the initial resumeOperationsIfNeeded block finishes and releases self.
+    dispatch_sync(commandQueue, ^{
+                  });
+
+    // Freeze commandQueue before invoking completion so the inner block stays queued while self
+    // deallocates.
+    dispatch_suspend(commandQueue);
+    capturedCompletion(nil);
+    capturedCompletion = nil;
+    pendingTopics = nil;
+  }
+
+  XCTAssertNil(weakPendingTopics);
+
+  // Unfreeze and drain: executes the inner block with self == nil.
+  dispatch_resume(commandQueue);
+  dispatch_sync(commandQueue, ^{
+                });
 }
 
 @end

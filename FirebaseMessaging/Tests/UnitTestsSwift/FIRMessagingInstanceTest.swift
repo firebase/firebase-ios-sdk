@@ -19,6 +19,18 @@ import FirebaseMessaging
 import XCTest
 
 class FIRMessagingInstanceTest: XCTestCase {
+  override func tearDown() {
+    if let defaultApp = FirebaseApp.app() {
+      let expectation = self.expectation(description: "Delete default FirebaseApp")
+      defaultApp.delete { success in
+        XCTAssertTrue(success, "FirebaseApp deletion should be successful")
+        expectation.fulfill()
+      }
+      wait(for: [expectation], timeout: 5.0)
+    }
+    super.tearDown()
+  }
+
   func testSingleton_worksAfterDelete() {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.

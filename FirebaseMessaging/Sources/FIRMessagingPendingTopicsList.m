@@ -236,6 +236,9 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
                         completion:^(NSError *error) {
                           dispatch_async(self.commandQueue, ^{
                             FIRMessaging_STRONGIFY(self);
+                            if (!self) {
+                              return;
+                            }
                             @synchronized(self) {
                               [self.topicsInFlight removeObject:topic];
 
@@ -260,7 +263,6 @@ NSString *const kPendingTopicsTimestampEncodingKey = @"ts";
                                   self.currentBatch = nil;
                                 }
                                 [self.delegate pendingTopicsListDidUpdate:self];
-                                FIRMessaging_WEAKIFY(self);
                                 dispatch_async(self.commandQueue, ^{
                                   FIRMessaging_STRONGIFY(self);
                                   [self resumeOperationsIfNeeded];

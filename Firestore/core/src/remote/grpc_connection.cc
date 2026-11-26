@@ -37,6 +37,7 @@
 #include "Firestore/core/src/util/string_format.h"
 #include "Firestore/core/src/util/warnings.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 #include "absl/strings/str_cat.h"
 
 SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
@@ -248,10 +249,12 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
 
   // For the case when `Settings.set_ssl_enabled(false)`.
   if (InsecureHostsConfig().Contains(host)) {
+    LOG_DEBUG("Creating insecure gRPC channel to '%s'", absl::CHexEscape(host));
     return grpc::CreateCustomChannel(host, grpc::InsecureChannelCredentials(),
                                      args);
   }
 
+  LOG_DEBUG("Creating TLS gRPC channel to '%s'", absl::CHexEscape(host));
   return grpc::CreateCustomChannel(host, CreateDefaultTlsCredentials(), args);
 }
 
@@ -302,6 +305,10 @@ void GrpcConnection::RegisterConnectivityMonitor() {
       [this](ConnectivityMonitor::NetworkStatus /*ignored*/) {
         // Calls may unregister themselves on finish, so make a protective copy.
         auto calls = active_calls_;
+        LOG_DEBUG(
+            "Network connectivity changed; cancelling %s active gRPC call(s) "
+            "and resetting channel",
+            calls.size());
         for (GrpcCall* call : calls) {
           // This will trigger the observers.
           call->FinishAndNotify(
