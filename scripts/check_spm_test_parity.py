@@ -104,7 +104,7 @@ def main():
   os.chdir(git_top_level())
 
   if package_json:
-    with open(package_json) as fd:
+    with open(package_json, encoding='utf-8') as fd:
       package = json.load(fd)
   else:
     package = dump_package()
@@ -174,6 +174,8 @@ def target_root(target):
 
 
 def is_within(path, directory):
+  if directory == '.':
+    return True
   return path == directory or path.startswith(directory + '/')
 
 
@@ -214,7 +216,7 @@ def compiled_files(package, candidates):
   return result
 
 
-class Entry(object):
+class Entry:
   """An allowlist entry."""
 
   def __init__(self, pattern, category, reason, line_number):
@@ -277,7 +279,7 @@ def read_allowlist(filename):
   """
   entries = []
   problems = []
-  with open(filename) as fd:
+  with open(filename, encoding='utf-8') as fd:
     for line_number, line in enumerate(fd, 1):
       line = line.strip()
       if not line or line.startswith('#'):
