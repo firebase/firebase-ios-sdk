@@ -646,7 +646,8 @@ std::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     if (!reader.reader_status().ok()) {
       LOG_WARN("Failed to GetNextElement() from bundle with error %s",
                reader.reader_status().error_message());
-      result_task.SetError(reader.reader_status());
+      result_task.SetError(
+          Status(reader.reader_status().code(), "Bundle failed to load"));
       return std::nullopt;
     }
 
@@ -662,7 +663,8 @@ std::optional<BundleLoader> SyncEngine::ReadIntoLoader(
     if (!maybe_progress.ok()) {
       LOG_WARN("Failed to AddElement() to bundle loader with error %s",
                maybe_progress.status().error_message());
-      result_task.SetError(maybe_progress.status());
+      result_task.SetError(
+          Status(maybe_progress.status().code(), "Bundle failed to load"));
       return std::nullopt;
     }
 
@@ -680,7 +682,8 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   if (!reader->reader_status().ok()) {
     LOG_WARN("Failed to GetBundleMetadata() for bundle with error %s",
              reader->reader_status().error_message());
-    result_task->SetError(reader->reader_status());
+    result_task->SetError(
+        Status(reader->reader_status().code(), "Bundle failed to load"));
     return;
   }
 
@@ -702,7 +705,8 @@ void SyncEngine::LoadBundle(std::shared_ptr<bundle::BundleReader> reader,
   if (!changes.ok()) {
     LOG_WARN("Failed to ApplyChanges() for bundle elements with error %s",
              changes.status().error_message());
-    result_task->SetError(changes.status());
+    result_task->SetError(
+        Status(changes.status().code(), "Bundle failed to load"));
     return;
   }
 

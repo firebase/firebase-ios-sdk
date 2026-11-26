@@ -276,7 +276,12 @@ pb_bytes_array_t* Serializer::EncodeResourceName(
 
 ResourcePath Serializer::DecodeResourceName(ReadContext* context,
                                             absl::string_view encoded) const {
-  auto resource = ResourcePath::FromStringView(encoded);
+  auto maybe_resource = ResourcePath::FromStringStatus(encoded);
+  if (!maybe_resource.ok()) {
+    context->Fail(maybe_resource.status().error_message());
+    return {};
+  }
+  auto resource = std::move(maybe_resource).ConsumeValueOrDie();
   if (!IsValidResourceName(resource)) {
     context->Fail(StringFormat("Tried to deserialize an invalid key: %s",
                                resource.CanonicalString()));
@@ -1565,7 +1570,11 @@ bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
 }
 
 bool Serializer::IsLocalDocumentKey(absl::string_view path) const {
-  auto resource = ResourcePath::FromStringView(path);
+  auto maybe_resource = ResourcePath::FromStringStatus(path);
+  if (!maybe_resource.ok()) {
+    return false;
+  }
+  const auto& resource = maybe_resource.ValueOrDie();
   return IsLocalResourceName(resource) && (resource.size() - 5) % 2 == 0;
 }
 
