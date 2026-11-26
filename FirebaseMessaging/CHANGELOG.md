@@ -3,8 +3,8 @@
   delegate now receives
   `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` and the
   other remote notification callbacks when Messaging's method swizzling is
-  enabled. Messaging now requires GoogleUtilities 8.1.5 or later, which forwards
-  these callbacks to the app's delegate. (#13566)
+  enabled. Firebase now requires GoogleUtilities 8.1.5 or later, which includes
+  this fix. (#13566)
 - [fixed] Serialized RMQ SQLite database operations across instances to prevent
   `database is locked` assertions when `FirebaseApp` is deleted and
   reconfigured rapidly. (#17126)

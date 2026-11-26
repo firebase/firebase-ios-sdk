@@ -217,7 +217,7 @@
 #endif  // !TARGET_OS_WATCH
 
 #if !SWIFT_PACKAGE
-// The next 3 tests depend on a sharedApplication which is not available in the Swift PM test env.
+// The tests below depend on a sharedApplication, which isn't available in the Swift PM test env.
 
 #if !TARGET_OS_OSX
 - (void)testSwizzledIncompleteAppDelegateRemoteNotificationMethod {
