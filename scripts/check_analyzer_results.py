@@ -66,7 +66,11 @@ def main():
     return 2
 
   result_bundle = sys.argv[1]
-  prefixes = [p.rstrip('/') + '/' for p in sys.argv[2:]]
+  prefixes = []
+  for arg in sys.argv[2:]:
+    prefix = os.path.normpath(arg)
+    if prefix not in ('.', ''):
+      prefixes.append(prefix + '/')
   repo_root = os.path.realpath(os.getcwd()) + '/'
 
   results = load_build_results(result_bundle)

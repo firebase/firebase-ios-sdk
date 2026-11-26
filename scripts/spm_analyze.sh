@@ -72,7 +72,11 @@ case "$platform" in
 esac
 
 # Match the deployment targets that scripts/build.sh uses for SPM.
-xcode_major=$(xcodebuild -version | grep Xcode | sed -E 's/Xcode ([0-9]+).*/\1/')
+xcode_major=$(xcodebuild -version | sed -nE 's/^Xcode ([0-9]+).*/\1/p')
+if [[ -z "$xcode_major" ]]; then
+  echo "Couldn't determine the Xcode version from 'xcodebuild -version'." 1>&2
+  exit 1
+fi
 if [[ "$xcode_major" -ge 27 ]]; then
   macosx_deployment_target="12.0"
   watchos_deployment_target="9.0"
@@ -91,8 +95,10 @@ echo "Analyzing $scheme for $platform"
 
 # Don't pass CLANG_ANALYZER_OUTPUT=html: with it, analyzer results are written
 # to HTML files only and are missing from the result bundle.
+# `clean` first, as `pod lib lint` does: an incremental analyze can report
+# stale results for files that changed since the last run.
 xcodebuild_status=0
-xcodebuild analyze \
+xcodebuild clean analyze \
   -scheme "$scheme" \
   -destination "$destination" \
   -configuration Release \
