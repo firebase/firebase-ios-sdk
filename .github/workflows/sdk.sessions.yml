@@ -11,6 +11,7 @@ on:
     - 'FirebaseSessions.podspec'
     - '.github/workflows/sdk.sessions.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - 'Gemfile*'
@@ -34,6 +35,17 @@ jobs:
     with:
       product: FirebaseSessions
       target: FirebaseSessions-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  # FirebaseSessions isn't a library product, so analyze its Objective-C
+  # target through the FirebaseCrashlytics product, which depends on it. The
+  # FirebaseSessionsUnit test scheme can't be used: it uses `@testable import`,
+  # which doesn't build in the Release configuration.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseCrashlytics
+      source_paths: FirebaseSessions/SourcesObjC
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml

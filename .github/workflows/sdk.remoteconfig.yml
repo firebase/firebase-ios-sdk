@@ -11,6 +11,7 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/sdk.remoteconfig.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -71,6 +72,13 @@ jobs:
         fi
     secrets:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseRemoteConfig
+      source_paths: FirebaseRemoteConfig/Sources FirebaseRemoteConfig/Interop
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml

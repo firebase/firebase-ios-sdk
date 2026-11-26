@@ -10,6 +10,7 @@ on:
     - 'FirebaseAppCheck**'
     - '.github/workflows/sdk.appcheck.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_cocoapods.cron.yml'
@@ -37,6 +38,13 @@ jobs:
     with:
       product: FirebaseAppCheck
       target: FirebaseAppCheck-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseAppCheck
+      source_paths: FirebaseAppCheck/Sources FirebaseAppCheck/Interop
 
   pod_lib_lint:
     strategy:
