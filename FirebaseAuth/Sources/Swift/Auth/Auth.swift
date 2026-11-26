@@ -52,7 +52,7 @@ import FirebaseCoreExtension
     open func application(_ application: UIApplication,
                           didFailToRegisterForRemoteNotificationsWithError error: Error) {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.cancel(withError: error)
+        self.tokenManager?.cancel(withError: error)
       }
     }
 
@@ -1592,7 +1592,8 @@ extension Auth: AuthInterop {
     /// by either setting this property or by calling `setAPNSToken(_:type:)`.
     @objc(APNSToken) open var apnsToken: Data? {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.token?.data
+        // Phone number auth may not be set up yet. See `protectedDataInitialization()`.
+        self.tokenManager?.token?.data ?? self.pendingAPNSToken?.data
       }
     }
 
@@ -1604,7 +1605,13 @@ extension Auth: AuthInterop {
     /// by either setting calling this method or by setting the `APNSToken` property.
     @objc open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+        let apnsToken = AuthAPNSToken(withData: token, type: type)
+        if let tokenManager = self.tokenManager {
+          tokenManager.token = apnsToken
+        } else {
+          // Phone number auth isn't set up yet. Keep the token until it is.
+          self.pendingAPNSToken = apnsToken
+        }
       }
     }
 
@@ -1622,7 +1629,8 @@ extension Auth: AuthInterop {
     /// the caller should continue handling this notification as usual.
     @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
       kAuthGlobalWorkQueue.sync {
-        self.notificationManager.canHandle(notification: userInfo)
+        // Before phone number auth is set up, no notification can be for Auth.
+        self.notificationManager?.canHandle(notification: userInfo) ?? false
       }
     }
 
@@ -1751,7 +1759,12 @@ extension Auth: AuthInterop {
               return
             }
             kAuthGlobalWorkQueue.async { [weak self] in
-              self?.initializePhoneAuth(application: application)
+              // `protectedDataInitialization()` may have run again and set up phone auth in the
+              // meantime. Don't replace those managers and lose their state.
+              guard let self, self.tokenManager == nil else {
+                return
+              }
+              self.initializePhoneAuth(application: application)
             }
           }
           return
@@ -1765,6 +1778,10 @@ extension Auth: AuthInterop {
     /// Sets up phone number auth. Must be called on `kAuthGlobalWorkQueue`.
     private func initializePhoneAuth(application: UIApplication) {
       tokenManager = AuthAPNSTokenManager(withApplication: application)
+      if let pendingAPNSToken {
+        tokenManager.token = pendingAPNSToken
+        self.pendingAPNSToken = nil
+      }
       appCredentialManager = AuthAppCredentialManager(withKeychain: keychainServices)
       notificationManager = AuthNotificationManager(
         withApplication: application,
@@ -2414,6 +2431,9 @@ extension Auth: AuthInterop {
 
     /// The manager for remote notifications used by phone number auth.
     var notificationManager: AuthNotificationManager!
+
+    /// An APNs token set before phone number auth was set up. Accessed on `kAuthGlobalWorkQueue`.
+    private var pendingAPNSToken: AuthAPNSToken?
 
     /// An object that takes care of presenting URLs via the auth instance.
     var authURLPresenter: AuthWebViewControllerDelegate

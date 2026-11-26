@@ -3059,6 +3059,9 @@ class AuthTests: RPCBaseTests {
         XCTAssertNil(testAuth.appCredentialManager)
         XCTAssertNil(testAuth.notificationManager)
       }
+      // An APNs token set before phone number auth is set up is kept.
+      let apnsToken = Data([1, 2, 3])
+      testAuth.setAPNSToken(apnsToken, type: .sandbox)
 
       // The application now exists. The setup retries from the main queue and then runs on the
       // work queue.
@@ -3075,6 +3078,61 @@ class AuthTests: RPCBaseTests {
         XCTAssertNotNil(testAuth.tokenManager)
         XCTAssertNotNil(testAuth.appCredentialManager)
         XCTAssertNotNil(testAuth.notificationManager)
+        XCTAssertEqual(testAuth.tokenManager.token?.data, apnsToken)
+        XCTAssertEqual(testAuth.tokenManager.token?.type, .sandbox)
+      }
+    }
+
+    /// The APNs methods don't crash before phone number auth is set up.
+    func testAPNSMethodsBeforePhoneAuthSetUp() throws {
+      Auth.applicationProvider = { nil }
+      defer { Auth.applicationProvider = Auth.sharedApplication }
+
+      let app = try XCTUnwrap(auth.app)
+      let testAuth = Auth(app: app,
+                          keychainStorageProvider: FakeAuthKeychainStorage(),
+                          backend: authBackend)
+      waitForAuthGlobalWorkQueueDrain()
+
+      XCTAssertNil(testAuth.apnsToken)
+      XCTAssertFalse(testAuth.canHandleNotification(["test": ""]))
+      let apnsToken = Data([1, 2, 3])
+      testAuth.setAPNSToken(apnsToken, type: .prod)
+      XCTAssertEqual(testAuth.apnsToken, apnsToken)
+    }
+
+    /// If phone number auth is set up before the deferred setup runs, for example when protected
+    /// data becomes available, the deferred setup keeps those managers.
+    func testDeferredPhoneAuthSetUpKeepsExistingManagers() throws {
+      // Swift Package Manager runs these tests without a host application.
+      guard let sharedApplication = Auth.sharedApplication() else {
+        throw XCTSkip("Needs a test host application, as in the CocoaPods unit tests.")
+      }
+      var application: UIApplication?
+      Auth.applicationProvider = { application }
+      defer { Auth.applicationProvider = Auth.sharedApplication }
+
+      let app = try XCTUnwrap(auth.app)
+      let testAuth = Auth(app: app,
+                          keychainStorageProvider: FakeAuthKeychainStorage(),
+                          backend: authBackend)
+      waitForAuthGlobalWorkQueueDrain()
+      let existingTokenManager = AuthAPNSTokenManager(withApplication: UIApplication.shared)
+      kAuthGlobalWorkQueue.sync {
+        testAuth.tokenManager = existingTokenManager
+      }
+
+      application = sharedApplication
+      let expectation = self.expectation(description: #function)
+      DispatchQueue.main.async {
+        kAuthGlobalWorkQueue.async {
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+
+      kAuthGlobalWorkQueue.sync {
+        XCTAssertIdentical(testAuth.tokenManager, existingTokenManager)
       }
     }
   #endif // os(iOS)
