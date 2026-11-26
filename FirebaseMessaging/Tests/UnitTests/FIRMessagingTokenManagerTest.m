@@ -19,11 +19,14 @@
 
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingConstants.h"
+#import "FirebaseMessaging/Sources/NSError+FIRMessaging.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingAuthService.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinPreferences.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingCheckinStore.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingKeychain.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenInfo.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenManager.h"
+#import "FirebaseMessaging/Sources/Token/FIRMessagingTokenOperation.h"
 #import "FirebaseMessaging/Sources/Token/FIRMessagingTokenStore.h"
 #import "FirebaseMessaging/Tests/UnitTests/FIRMessagingTestUtilities.h"
 
@@ -35,9 +38,18 @@
 
 @interface FIRMessagingTokenManager (ExposedForTest)
 
+@property(nonatomic, readonly, strong) NSOperationQueue *tokenOperations;
+
 - (void)didDeleteFCMScopedTokensForCheckin:(FIRMessagingCheckinPreferences *)checkin;
 
 - (void)resetCredentialsIfNeeded;
+
+- (FIRMessagingTokenOperation *)
+    createDeleteOperationWithAuthorizedEntity:(NSString *)authorizedEntity
+                                        scope:(NSString *)scope
+                           checkinPreferences:(FIRMessagingCheckinPreferences *)checkinPreferences
+                                   instanceID:(NSString *)instanceID
+                                       action:(FIRMessagingTokenAction)action;
 
 @end
 
@@ -379,6 +391,168 @@
   OCMVerifyAll(_mockTokenManager);
   // The callback reads the cached tokens again, since they may have changed by then.
   OCMVerify(times(2), [_mockTokenStore cachedTokenInfos]);
+}
+
+- (void)testDeleteAllTokensWithNilHandlerWhenCheckinMissing {
+  OCMStub([_mockAuthService checkinPreferences]).andReturn(nil);
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [_messaging.tokenManager deleteAllTokensWithHandler:nil];
+#pragma clang diagnostic pop
+
+  XCTestExpectation *mainQueueDrained = [self expectationWithDescription:@"Main queue drained"];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [mainQueueDrained fulfill];
+  });
+  [self waitForExpectations:@[ mainQueueDrained ] timeout:5.0];
+}
+
+- (void)testDeleteAllTokensWithDeallocatedTokenManagerAndNilHandler {
+  id mockKeychain = OCMClassMock([FIRMessagingKeychain class]);
+  OCMStub([mockKeychain sharedInstance]).andReturn(mockKeychain);
+  OCMStub([mockKeychain itemWithQuery:OCMOCK_ANY]).andReturn((CFTypeRef)NULL);
+  OCMStub([mockKeychain removeItemWithQuery:OCMOCK_ANY handler:OCMOCK_ANY]);
+  [self addTeardownBlock:^{
+    [mockKeychain stopMocking];
+  }];
+
+  __block FIRInstallationsIDHandler installationIDHandler = nil;
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(id handler) {
+        installationIDHandler = [handler copy];
+        return YES;
+      }]]);
+
+  __weak FIRMessagingTokenManager *weakTokenManager = nil;
+  @autoreleasepool {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    FIRMessagingTokenManager *tokenManager =
+        [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:nil];
+    weakTokenManager = tokenManager;
+    [tokenManager deleteAllTokensWithHandler:nil];
+#pragma clang diagnostic pop
+    tokenManager = nil;
+  }
+
+  XCTAssertNil(weakTokenManager);
+  XCTAssertNotNil(installationIDHandler);
+  installationIDHandler(@"fake-fid", nil);
+
+  XCTestExpectation *mainQueueDrained = [self expectationWithDescription:@"Main queue drained"];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [mainQueueDrained fulfill];
+  });
+  [self waitForExpectations:@[ mainQueueDrained ] timeout:5.0];
+}
+
+- (void)testDeleteAllTokensWhenTokenManagerDeallocatedReportsError {
+  id mockKeychain = OCMClassMock([FIRMessagingKeychain class]);
+  OCMStub([mockKeychain sharedInstance]).andReturn(mockKeychain);
+  OCMStub([mockKeychain itemWithQuery:OCMOCK_ANY]).andReturn((CFTypeRef)NULL);
+  OCMStub([mockKeychain removeItemWithQuery:OCMOCK_ANY handler:OCMOCK_ANY]);
+  [self addTeardownBlock:^{
+    [mockKeychain stopMocking];
+  }];
+
+  __block FIRInstallationsIDHandler installationIDHandler = nil;
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:[OCMArg checkWithBlock:^BOOL(id handler) {
+        installationIDHandler = [handler copy];
+        return YES;
+      }]]);
+
+  XCTestExpectation *handlerCalled = [self expectationWithDescription:@"Handler called with error"];
+  __block NSError *receivedError = nil;
+  __weak FIRMessagingTokenManager *weakTokenManager = nil;
+  @autoreleasepool {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+    FIRMessagingTokenManager *tokenManager =
+        [[FIRMessagingTokenManager alloc] initWithHeartbeatLogger:nil];
+#pragma clang diagnostic pop
+    weakTokenManager = tokenManager;
+    [tokenManager deleteAllTokensWithHandler:^(NSError *_Nullable error) {
+      receivedError = error;
+      [handlerCalled fulfill];
+    }];
+    tokenManager = nil;
+  }
+
+  XCTAssertNil(weakTokenManager);
+  XCTAssertNotNil(installationIDHandler);
+  installationIDHandler(@"fake-fid", nil);
+
+  [self waitForExpectations:@[ handlerCalled ] timeout:5.0];
+  XCTAssertEqualObjects(receivedError.domain, FIRMessagingErrorDomain);
+  XCTAssertEqual(receivedError.code, kFIRMessagingErrorCodeInternal);
+}
+
+- (void)testDeleteAllTokensWithNilHandlerClearsDefaultFCMToken {
+  FIRMessagingCheckinPreferences *checkinPreferences =
+      [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:@"test-auth-id"
+                                                   secretToken:@"test-secret"];
+  OCMStub([_mockAuthService checkinPreferences]).andReturn(checkinPreferences);
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+  [_messaging.tokenManager setValue:@"cached-default-token" forKey:@"defaultFCMToken"];
+  XCTAssertEqualObjects(_messaging.tokenManager.defaultFCMToken, @"cached-default-token");
+
+  __block FIRMessagingTokenOperationCompletion operationCompletion = nil;
+  id mockOperation = OCMClassMock([FIRMessagingTokenOperation class]);
+  OCMStub([mockOperation addCompletionHandler:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
+    __unsafe_unretained FIRMessagingTokenOperationCompletion completion = nil;
+    [invocation getArgument:&completion atIndex:2];
+    operationCompletion = [completion copy];
+  });
+  OCMStub([_mockTokenManager
+              createDeleteOperationWithAuthorizedEntity:OCMOCK_ANY
+                                                  scope:OCMOCK_ANY
+                                     checkinPreferences:OCMOCK_ANY
+                                             instanceID:OCMOCK_ANY
+                                                 action:FIRMessagingTokenActionDeleteTokenAndIID])
+      .andReturn(mockOperation);
+  id mockOperationQueue = OCMClassMock([NSOperationQueue class]);
+  OCMExpect([mockOperationQueue addOperation:mockOperation]);
+  OCMStub([_mockTokenManager tokenOperations]).andReturn(mockOperationQueue);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [_messaging.tokenManager deleteAllTokensWithHandler:nil];
+#pragma clang diagnostic pop
+
+  OCMVerifyAll(mockOperationQueue);
+  XCTAssertNotNil(operationCompletion);
+  operationCompletion(FIRMessagingTokenOperationSucceeded, nil, nil);
+  XCTAssertNil(_messaging.tokenManager.defaultFCMToken);
+}
+
+- (void)testDeleteWithNilHandlerDoesNotCrash {
+  OCMStub([_mockAuthService checkinPreferences]).andReturn(nil);
+  XCTestExpectation *checkinResetExpectation =
+      [self expectationWithDescription:@"Checkin reset completed"];
+  OCMStub([_mockAuthService resetCheckinWithHandler:OCMOCK_ANY]).andDo(^(NSInvocation *invocation) {
+    __unsafe_unretained void (^resetHandler)(NSError *error) = nil;
+    [invocation getArgument:&resetHandler atIndex:2];
+    resetHandler(nil);
+    [checkinResetExpectation fulfill];
+  });
+  id installationIDArg = [OCMArg invokeBlockWithArgs:@"fake-fid", [NSNull null], nil];
+  OCMStub([(FIRInstallations *)_testUtil.mockInstallations
+      installationIDWithCompletion:installationIDArg]);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  [_messaging.tokenManager deleteWithHandler:nil];
+#pragma clang diagnostic pop
+
+  [self waitForExpectations:@[ checkinResetExpectation ] timeout:5.0];
 }
 
 @end
