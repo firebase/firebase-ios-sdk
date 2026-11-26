@@ -3037,6 +3037,46 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(auth.application(UIApplication.shared, open: url, options: [:]))
       XCTAssertTrue(fakeURLPresenter.canHandled)
     }
+
+    /// A SwiftUI app can configure Firebase in its `App` initializer, before the application
+    /// object exists. Phone number auth should be set up once the application exists.
+    func testPhoneAuthSetUpWaitsForApplication() throws {
+      // Swift Package Manager runs these tests without a host application.
+      guard let sharedApplication = Auth.sharedApplication() else {
+        throw XCTSkip("Needs a test host application, as in the CocoaPods unit tests.")
+      }
+      var application: UIApplication?
+      Auth.applicationProvider = { application }
+      defer { Auth.applicationProvider = Auth.sharedApplication }
+
+      let app = try XCTUnwrap(auth.app)
+      let testAuth = Auth(app: app,
+                          keychainStorageProvider: FakeAuthKeychainStorage(),
+                          backend: authBackend)
+      waitForAuthGlobalWorkQueueDrain()
+      kAuthGlobalWorkQueue.sync {
+        XCTAssertNil(testAuth.tokenManager)
+        XCTAssertNil(testAuth.appCredentialManager)
+        XCTAssertNil(testAuth.notificationManager)
+      }
+
+      // The application now exists. The setup retries from the main queue and then runs on the
+      // work queue.
+      application = sharedApplication
+      let expectation = self.expectation(description: #function)
+      DispatchQueue.main.async {
+        kAuthGlobalWorkQueue.async {
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+
+      kAuthGlobalWorkQueue.sync {
+        XCTAssertNotNil(testAuth.tokenManager)
+        XCTAssertNotNil(testAuth.appCredentialManager)
+        XCTAssertNotNil(testAuth.notificationManager)
+      }
+    }
   #endif // os(iOS)
 
   // MARK: Interoperability Tests

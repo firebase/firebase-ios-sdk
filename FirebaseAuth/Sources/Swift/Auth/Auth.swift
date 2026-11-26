@@ -1742,27 +1742,50 @@ extension Auth: AuthInterop {
           return
         }
 
-        // Using reflection here to avoid build errors in extensions.
-        let sel = NSSelectorFromString("sharedApplication")
-        guard UIApplication.responds(to: sel),
-              let rawApplication = UIApplication.perform(sel),
-              let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+        guard let application = Auth.applicationProvider() else {
+          // A SwiftUI app can configure Firebase in its `App` initializer, which runs before the
+          // application object exists. The main queue runs only once `UIApplicationMain` is
+          // running, when the application object exists, so try again from there.
+          DispatchQueue.main.async { [weak self] in
+            guard let self, let application = Auth.applicationProvider() else {
+              return
+            }
+            kAuthGlobalWorkQueue.async { [weak self] in
+              self?.initializePhoneAuth(application: application)
+            }
+          }
           return
         }
-
-        // Initialize for phone number auth.
-        self.tokenManager = AuthAPNSTokenManager(withApplication: application)
-        self.appCredentialManager = AuthAppCredentialManager(withKeychain: self.keychainServices)
-        self.notificationManager = AuthNotificationManager(
-          withApplication: application,
-          appCredentialManager: self.appCredentialManager
-        )
-
-        GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
-        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
+        self.initializePhoneAuth(application: application)
       #endif
     }
   }
+
+  #if os(iOS)
+    /// Sets up phone number auth. Must be called on `kAuthGlobalWorkQueue`.
+    private func initializePhoneAuth(application: UIApplication) {
+      tokenManager = AuthAPNSTokenManager(withApplication: application)
+      appCredentialManager = AuthAppCredentialManager(withKeychain: keychainServices)
+      notificationManager = AuthNotificationManager(
+        withApplication: application,
+        appCredentialManager: appCredentialManager
+      )
+
+      GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
+      GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
+    }
+
+    /// Returns the shared application, or `nil` if it doesn't exist yet.
+    static func sharedApplication() -> UIApplication? {
+      // Using reflection here to avoid build errors in extensions.
+      let sel = NSSelectorFromString("sharedApplication")
+      guard UIApplication.responds(to: sel),
+            let rawApplication = UIApplication.perform(sel) else {
+        return nil
+      }
+      return rawApplication.takeUnretainedValue() as? UIApplication
+    }
+  #endif
 
   #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func addProtectedDataDidBecomeAvailableObserver() {
@@ -2394,6 +2417,10 @@ extension Auth: AuthInterop {
 
     /// An object that takes care of presenting URLs via the auth instance.
     var authURLPresenter: AuthWebViewControllerDelegate
+
+    /// Returns the shared application, or `nil` if it doesn't exist yet. Replaced in tests.
+    nonisolated(unsafe) static var applicationProvider: () -> UIApplication? =
+      Auth.sharedApplication
 
   #endif // TARGET_OS_IOS
 
