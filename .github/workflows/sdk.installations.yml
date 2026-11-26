@@ -10,6 +10,7 @@ on:
     - 'FirebaseInstallations**'
     - '.github/workflows/sdk.installations.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -36,6 +37,13 @@ jobs:
     with:
       product: FirebaseInstallations
       target: FirebaseInstallations-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseInstallations
+      source_paths: FirebaseInstallations/Source/Library
 
   pod_lib_lint:
     if: github.event.pull_request.head.repo.fork == false

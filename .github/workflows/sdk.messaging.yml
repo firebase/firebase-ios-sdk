@@ -17,6 +17,7 @@ on:
     - '.github/workflows/sdk.messaging.yml'
     # Re-usable workflows being used by this file.
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
@@ -44,6 +45,13 @@ jobs:
     with:
       product: FirebaseMessaging
       target: FirebaseMessaging-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseMessaging
+      source_paths: FirebaseMessaging/Sources FirebaseMessaging/Interop
 
   pod_lib_lint:
     strategy:

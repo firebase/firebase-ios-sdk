@@ -11,6 +11,7 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/sdk.inappmessaging.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_quickstart.yml'
     - '.github/workflows/_cocoapods.cron.yml'
@@ -31,6 +32,14 @@ jobs:
       target: FirebaseInAppMessaging-Beta
       platforms: '["iOS"]'
       buildonly_platforms: iOS
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseInAppMessaging-Beta
+      platforms: '["iOS", "tvOS"]'
+      source_paths: FirebaseInAppMessaging/Sources
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml
