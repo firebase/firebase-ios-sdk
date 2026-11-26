@@ -403,6 +403,20 @@ static NSString *const kVersionInfo = @"1.0";
   XCTAssertEqual(checkinServiceInvocationCount, 1);
 }
 
+- (void)testFetchCheckinInfoWithNilHandler {
+  FIRMessagingCheckinPreferences *checkinPreferences = [self validCheckinPreferences];
+  OCMStub([self.mockCheckinService
+      checkinWithExistingCheckin:[OCMArg any]
+                      completion:([OCMArg
+                                     invokeBlockWithArgs:checkinPreferences, [NSNull null], nil])]);
+  OCMStub([self.mockStore
+      saveCheckinPreferences:checkinPreferences
+                     handler:([OCMArg invokeBlockWithArgs:[NSNull null], nil])]);
+
+  XCTAssertNoThrow([self.authService fetchCheckinInfoWithHandler:nil]);
+  XCTAssertTrue([self.authService hasValidCheckinInfo]);
+}
+
 #pragma mark - Helper Methods
 
 - (FIRMessagingCheckinPreferences *)validCheckinPreferences {
