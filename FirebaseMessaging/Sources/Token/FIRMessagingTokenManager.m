@@ -511,15 +511,15 @@
                                    checkinPreferences:checkinPreferences
                                            instanceID:identifier
                                                action:FIRMessagingTokenActionDeleteTokenAndIID];
-        if (handler) {
-          [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
-                                            NSString *_Nullable token, NSError *_Nullable error) {
-            self->_defaultFCMToken = nil;
+        [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                          NSString *_Nullable token, NSError *_Nullable error) {
+          self->_defaultFCMToken = nil;
+          if (handler) {
             dispatch_async(dispatch_get_main_queue(), ^{
               handler(error);
             });
-          }];
-        }
+          }
+        }];
         [self.tokenOperations addOperation:operation];
       }];
 }
