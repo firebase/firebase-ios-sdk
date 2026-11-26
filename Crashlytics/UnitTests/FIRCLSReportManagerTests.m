@@ -27,9 +27,11 @@
 
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSCrashedMarkerFile.h"
+#include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
@@ -75,6 +77,9 @@
   FIRSetLoggerLevel(FIRLoggerLevelMax);
 
   FIRCLSContextBaseInit();
+
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
 
   id fakeApp = [[FIRAppFake alloc] init];
   self.dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:fakeApp withAppInfo:@{}];
@@ -128,9 +133,15 @@
 - (void)tearDown {
   self.reportManager = nil;
 
+  FIRCLSExecuteOnLoggingQueue(^{
+  });
+
   if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
     assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
   }
+
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
 
   FIRCLSContextBaseDeinit();
 
@@ -688,6 +699,153 @@
 
   NSString *json = FIRCLSFIRAEventDictionaryToJSON(eventAsDict);
   XCTAssertEqualObjects(json, nil);
+}
+
+#pragma mark - Context Init Promise
+
+- (void)testContextInitPromiseResolvesImmediatelyWhileStartupWaitsForConsentWhenCollectionDisabled {
+  FIRCLSMockOnDemandModel *onDemandModel =
+      [[FIRCLSMockOnDemandModel alloc] initWithFIRCLSSettings:self.mockSettings
+                                                  fileManager:self.fileManager
+                                                   sleepBlock:^(int delay){
+                                                   }];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+  FIRMockGDTCORTransport *mockGoogleTransport =
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:mockGoogleTransport
+                                       installations:iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:self.dataArbiter
+                                            settings:self.mockSettings
+                                       onDemandModel:onDemandModel];
+#pragma clang diagnostic pop
+  self.mockReportUploader = [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+  self.existingReportManager =
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:managerData
+                                                    reportUploader:self.mockReportUploader];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+  self.reportManager =
+      [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                     existingReportManager:self.existingReportManager
+                                          analyticsManager:analyticsManager];
+
+  XCTAssertNil(self.reportManager.contextInitPromise);
+
+  FIRCLSInternalReport *report = [self createActiveReport];
+  XCTAssertTrue([self createFileWithContents:@"signal"
+                                      atPath:[report pathForContentFile:FIRCLSReportSignalFile]]);
+  XCTAssertEqual([[self contentsOfActivePath] count], 1);
+
+  FBLPromise<NSNumber *> *reportHandlingPromise =
+      [self startReportManagerWithDataCollectionEnabled:NO];
+  XCTAssertNotNil(self.reportManager.contextInitPromise);
+
+  // Local session/context initialization resolves immediately without waiting for user consent.
+  [self waitForPromise:self.reportManager.contextInitPromise];
+  XCTAssertTrue(reportHandlingPromise.isPending,
+                @"reportHandlingPromise must remain pending while waiting for consent");
+  XCTAssertEqual([self.prepareAndSubmitReportArray count], 0,
+                 @"No reports may be uploaded before consent");
+
+  // Pre-consent on-demand exceptions recorded after contextInitPromise resolves are stored locally.
+  FIRExceptionModel *exceptionModel =
+      [FIRExceptionModel exceptionModelWithName:@"PreConsentException" reason:@"OptInTest"];
+  XCTAssertTrue([onDemandModel recordOnDemandExceptionIfQuota:exceptionModel
+                                              withDataArbiter:self.dataArbiter
+                                   usingExistingReportManager:self.existingReportManager]);
+  [onDemandModel.operationQueue waitUntilAllOperationsAreFinished];
+  XCTAssertEqual([onDemandModel storedActiveReportPathsSnapshot].count, 1);
+
+  // Once collection is enabled, report handling finishes, drains stored on-demand paths, and
+  // uploads unsent reports.
+  [self.dataArbiter setCrashlyticsCollectionEnabled:YES];
+  [self waitForPromise:reportHandlingPromise];
+  XCTAssertEqual([onDemandModel storedActiveReportPathsSnapshot].count, 0);
+  XCTAssertEqual([self.prepareAndSubmitReportArray count], 1);
+}
+
+- (void)testContextInitPromiseResolvesFalseWhenValidateAppIdentifiersFails {
+  id fakeApp = [[FIRAppFake alloc] init];
+  FIRCLSDataCollectionArbiter *legacyArbiter = [[FIRCLSDataCollectionArbiter alloc]
+      initWithApp:fakeApp
+      withAppInfo:@{@"firebase_crashlytics_collection_enabled" : @NO}];
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
+  FIRMockGDTCORTransport *mockGoogleTransport =
+      [[FIRMockGDTCORTransport alloc] initWithMappingID:@"id" transformers:nil target:0];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:mockGoogleTransport
+                                       installations:iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:legacyArbiter
+                                            settings:self.mockSettings
+                                       onDemandModel:nil];
+#pragma clang diagnostic pop
+  FIRCLSMockReportUploader *uploader =
+      [[FIRCLSMockReportUploader alloc] initWithManagerData:managerData];
+  FIRCLSMockExistingReportManager *existingManager =
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:managerData
+                                                    reportUploader:uploader];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+  FIRCLSMockReportManager *reportManager =
+      [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                     existingReportManager:existingManager
+                                          analyticsManager:analyticsManager];
+
+  FBLPromise<NSNumber *> *startupPromise = [reportManager startWithProfiling];
+  XCTAssertNotNil(reportManager.contextInitPromise);
+  XCTAssertFalse(reportManager.contextInitPromise.isPending);
+  XCTAssertEqualObjects(reportManager.contextInitPromise.value, @NO);
+  XCTAssertFalse(startupPromise.isPending);
+  XCTAssertEqualObjects(startupPromise.value, @NO);
+}
+
+- (void)testContextInitPromiseResolvesFalseWhenCreateReportDirectoriesFails {
+  self.fileManager.createReportDirectoriesResult = @NO;
+
+  FBLPromise<NSNumber *> *startupPromise = [self.reportManager startWithProfiling];
+  XCTAssertNotNil(self.reportManager.contextInitPromise);
+  XCTAssertFalse(self.reportManager.contextInitPromise.isPending);
+  XCTAssertEqualObjects(self.reportManager.contextInitPromise.value, @NO);
+  XCTAssertFalse(startupPromise.isPending);
+  XCTAssertEqualObjects(startupPromise.value, @NO);
+}
+
+- (void)testContextInitPromiseResolvesFalseImmediatelyWhenStartCrashReporterFails {
+  self.reportManager.startCrashReporterPromise = [FBLPromise resolvedWith:@NO];
+
+  FBLPromise<NSNumber *> *startupPromise = [self startReportManagerWithDataCollectionEnabled:NO];
+  XCTAssertNotNil(self.reportManager.contextInitPromise);
+
+  XCTestExpectation *contextInitExpectation =
+      [self expectationWithDescription:@"contextInitPromise resolved @NO"];
+  [self.reportManager.contextInitPromise then:^id _Nullable(NSNumber *_Nullable value) {
+    XCTAssertEqualObjects(value, @NO);
+    [contextInitExpectation fulfill];
+    return nil;
+  }];
+  [self waitForExpectations:@[ contextInitExpectation ] timeout:1.0];
+  XCTAssertTrue(startupPromise.isPending);
+
+  XCTestExpectation *startupExpectation =
+      [self expectationWithDescription:@"startupPromise settled after deleteUnsentReports"];
+  [[self.reportManager deleteUnsentReports] then:^id _Nullable(id _Nullable ignored) {
+    return startupPromise;
+  }];
+  [startupPromise then:^id _Nullable(NSNumber *_Nullable value) {
+    XCTAssertEqualObjects(value, @NO);
+    [startupExpectation fulfill];
+    return nil;
+  }];
+  [self waitForExpectations:@[ startupExpectation ] timeout:1.0];
 }
 
 @end

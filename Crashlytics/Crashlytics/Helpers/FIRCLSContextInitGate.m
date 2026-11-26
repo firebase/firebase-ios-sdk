@@ -28,8 +28,6 @@ typedef NS_ENUM(NSInteger, FIRCLSContextInitGateState) {
 @implementation FIRCLSContextInitGate {
   FIRCLSContextInitGateState _state;
   NSMutableArray<dispatch_block_t> *_pendingBlocks;
-  // TODO(#16837): Remove `_didLogMaxPendingBlocksError` once a fix for #16837 is implemented.
-  BOOL _didLogMaxPendingBlocksError;
 }
 
 - (instancetype)init {
@@ -37,7 +35,6 @@ typedef NS_ENUM(NSInteger, FIRCLSContextInitGateState) {
   if (self) {
     _state = FIRCLSContextInitGateStatePending;
     _pendingBlocks = [NSMutableArray array];
-    _didLogMaxPendingBlocksError = NO;
   }
   return self;
 }
@@ -134,12 +131,8 @@ typedef NS_ENUM(NSInteger, FIRCLSContextInitGateState) {
     return;
   }
   if (_pendingBlocks.count >= FIRCLSContextInitGateMaxPendingBlocks) {
-    // TODO(#16837): Remove `_didLogMaxPendingBlocksError` once a fix for #16837 is implemented.
-    if (!_didLogMaxPendingBlocksError) {
-      _didLogMaxPendingBlocksError = YES;
-      FIRCLSErrorLog(@"Maximum pending pre-init API calls (%lu) reached; dropping call: %@",
-                     (unsigned long)FIRCLSContextInitGateMaxPendingBlocks, contextLog);
-    }
+    FIRCLSErrorLog(@"Maximum pending pre-init API calls (%lu) reached; dropping call: %@",
+                   (unsigned long)FIRCLSContextInitGateMaxPendingBlocks, contextLog);
     return;
   }
   [_pendingBlocks addObject:[block copy]];

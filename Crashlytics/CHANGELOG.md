@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Fixed an issue where logs, custom keys, user IDs, non-fatal errors,
+  and on-demand exceptions were not recorded to disk before user consent when
+  automatic Crashlytics data collection was disabled. (#16837)
 - [fixed] Fixed a thread-safety issue where stored on-demand exception paths
   could be accessed concurrently from multiple queues when data collection is
   disabled, and ensured queued on-demand exceptions re-check consent after
