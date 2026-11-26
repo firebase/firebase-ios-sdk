@@ -72,4 +72,12 @@
   return [super moveItemAtPath:path toDirectory:destDir];
 }
 
+- (BOOL)createReportDirectories {
+  if (self.createReportDirectoriesResult != nil) {
+    return self.createReportDirectoriesResult.boolValue;
+  }
+
+  return [super createReportDirectories];
+}
+
 @end

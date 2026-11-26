@@ -45,4 +45,7 @@
 
 - (BOOL)moveItemAtPath:(NSString *)path toDirectory:(NSString *)destDir;
 
+// Overrides createReportDirectories if set
+@property(nonatomic, nullable) NSNumber *createReportDirectoriesResult;
+
 @end

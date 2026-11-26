@@ -31,6 +31,9 @@
 - (FBLPromise<NSNumber *> *)startCrashReporterWithProfilingReport:(FIRCLSInternalReport *)report {
   NSLog(@"Crash Reporting system disabled for testing");
 
+  if (self.startCrashReporterPromise) {
+    return self.startCrashReporterPromise;
+  }
   return [FBLPromise resolvedWith:@YES];
 }
 

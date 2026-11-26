@@ -141,6 +141,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
 @property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
 @property(nonatomic, strong) FIRCLSNotificationManager *notificationManager;
 
+@property(nonatomic, strong, readwrite, nullable) FBLPromise<NSNumber *> *contextInitPromise;
+
 @end
 
 @implementation FIRCLSReportManager
@@ -242,7 +244,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
   [self.existingReportManager collectExistingReports];
 
   if (![self validateAppIdentifiers]) {
-    return [FBLPromise resolvedWith:@NO];
+    _contextInitPromise = [FBLPromise resolvedWith:@NO];
+    return _contextInitPromise;
   }
 
 #if DEBUG
@@ -250,7 +253,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
 #endif
 
   if (![_fileManager createReportDirectories]) {
-    return [FBLPromise resolvedWith:@NO];
+    _contextInitPromise = [FBLPromise resolvedWith:@NO];
+    return _contextInitPromise;
   }
 
   BOOL launchFailure = [self.launchMarker checkForAndCreateLaunchMarker];
@@ -275,6 +279,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
         });
         return [FBLPromise resolvedWith:@YES];
       }];
+  _contextInitPromise = reportProfilingPromise;
 
   FBLPromise<NSNumber *> *promise;
 

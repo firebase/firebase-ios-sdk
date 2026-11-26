@@ -19,6 +19,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRCLSMockReportManager : FIRCLSReportManager
 
+/// Overrides the promise returned by `-startCrashReporterWithProfilingReport:` when non-nil.
+@property(nonatomic, strong, nullable) FBLPromise<NSNumber *> *startCrashReporterPromise;
+
 @end
 
 NS_ASSUME_NONNULL_END

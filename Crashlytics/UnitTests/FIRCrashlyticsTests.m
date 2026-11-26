@@ -26,7 +26,10 @@
 #include "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSGlobals.h"
 #include "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
+#import "Crashlytics/Crashlytics/DataCollection/FIRCLSDataCollectionArbiter.h"
+#import "Crashlytics/Crashlytics/FIRCLSUserDefaults/FIRCLSUserDefaults.h"
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSContextInitGate.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInternalReport.h"
@@ -37,8 +40,10 @@
 
 #import "Crashlytics/UnitTests/Mocks/FABMockApplicationIdentifierModel.h"
 #import "Crashlytics/UnitTests/Mocks/FIRAppFake.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockExistingReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockFileManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockOnDemandModel.h"
+#import "Crashlytics/UnitTests/Mocks/FIRCLSMockReportManager.h"
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockSettings.h"
 #import "Crashlytics/UnitTests/Mocks/FIRMockInstallations.h"
 
@@ -52,9 +57,13 @@
 
 @interface FIRCrashlytics (Testing)
 
+@property(nonatomic) FIRCLSDataCollectionArbiter *dataArbiter;
+@property(nonatomic) FIRCLSReportManager *reportManager;
+@property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 @property(nonatomic, strong) dispatch_queue_t preInitAPIDispatchQueue;
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
+@property(nonatomic, nullable) FBLPromise *reportHandlingPromise;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app
                              appInfo:(NSDictionary *)appInfo
@@ -167,11 +176,15 @@
 - (void)setUp {
   [super setUp];
 
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
+
   self.fileManager = [[FIRCLSMockFileManager alloc] init];
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
   [self.fileManager createReportDirectories];
 
   FABMockApplicationIdentifierModel *appIDModel = [[FABMockApplicationIdentifierModel alloc] init];
+  appIDModel.bundleID = @"com.crashlytics.test";
   self.mockSettings = [[FIRCLSMockSettings alloc] initWithFileManager:self.fileManager
                                                            appIDModel:appIDModel
                                                               appInfo:@{}];
@@ -187,18 +200,27 @@
                                  sessions:nil
                              remoteConfig:nil];
   XCTAssertNotNil(self.crashlytics);
+  XCTAssertNotNil(self.crashlytics.reportHandlingPromise);
+  XCTAssertEqual(self.crashlytics.contextInitPromise,
+                 self.crashlytics.reportManager.contextInitPromise);
   XCTAssertNotNil(self.crashlytics.preInitAPIDispatchQueue);
   XCTAssertEqualObjects(
       @(dispatch_queue_get_label(self.crashlytics.preInitAPIDispatchQueue)),
       [FIRCLSApplicationGetSDKBundleID() stringByAppendingString:@".pre-init-api"]);
 
+  XCTestExpectation *startupSettled =
+      [self expectationWithDescription:@"reportHandlingPromise settled"];
+  [self.crashlytics.reportHandlingPromise then:^id _Nullable(id _Nullable value) {
+    [startupSettled fulfill];
+    return nil;
+  }];
   XCTestExpectation *initSettled = [self expectationWithDescription:@"contextInitPromise settled"];
   [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
                                           then:^id _Nullable(id _Nullable value) {
                                             [initSettled fulfill];
                                             return nil;
                                           }];
-  [self waitForExpectations:@[ initSettled ] timeout:5.0];
+  [self waitForExpectations:@[ startupSettled, initSettled ] timeout:5.0];
 
   self.onDemandModel =
       [[FIRCLSThreadTrackingOnDemandModel alloc] initWithFIRCLSSettings:self.mockSettings
@@ -212,6 +234,7 @@
 }
 
 - (void)tearDown {
+  [self.crashlytics.managerData.operationQueue waitUntilAllOperationsAreFinished];
   [self.crashlytics resetContextInitPromiseForTesting:nil];
   FIRCLSExecuteOnLoggingQueue(^{
   });
@@ -224,6 +247,8 @@
   FIRCLSContextBaseDeinit();
   self.allocatedPathBuffers = nil;
   [[NSFileManager defaultManager] removeItemAtPath:self.fileManager.rootPath error:nil];
+  [[FIRCLSUserDefaults standardUserDefaults] removeAllObjects];
+  [[FIRCLSUserDefaults standardUserDefaults] synchronize];
 
   [super tearDown];
 }
@@ -342,6 +367,56 @@
 - (void)markContextReady {
   [self.crashlytics resetContextInitPromiseForTesting:[FBLPromise resolvedWith:@YES]];
   [self drainQueuesBlockingCurrentThread];
+}
+
+- (void)configureDisabledCollectionWithStartPromise:(FBLPromise<NSNumber *> *)startPromise {
+  FIRCLSDataCollectionArbiter *disabledArbiter = [[FIRCLSDataCollectionArbiter alloc]
+      initWithApp:(id)[[FIRCLSAppWithOptionsFake alloc] init]
+      withAppInfo:@{@"FirebaseCrashlyticsCollectionEnabled" : @NO}];
+  XCTAssertFalse([disabledArbiter isCrashlyticsCollectionEnabled]);
+
+  FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_fid"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnonnull"
+  FIRCLSManagerData *managerData =
+      [[FIRCLSManagerData alloc] initWithGoogleAppID:TEST_GOOGLE_APP_ID
+                                     googleTransport:nil
+                                       installations:(id)iid
+                                           analytics:nil
+                                         fileManager:self.fileManager
+                                         dataArbiter:disabledArbiter
+                                            settings:self.mockSettings
+                                       onDemandModel:self.onDemandModel];
+  FIRCLSMockExistingReportManager *existingManager =
+      [[FIRCLSMockExistingReportManager alloc] initWithManagerData:managerData reportUploader:nil];
+  FIRCLSAnalyticsManager *analyticsManager = [[FIRCLSAnalyticsManager alloc] initWithAnalytics:nil];
+  FIRCLSMockReportManager *mockReportManager =
+      [[FIRCLSMockReportManager alloc] initWithManagerData:managerData
+                                     existingReportManager:existingManager
+                                          analyticsManager:analyticsManager];
+#pragma clang diagnostic pop
+  mockReportManager.startCrashReporterPromise = startPromise;
+
+  self.crashlytics.dataArbiter = disabledArbiter;
+  self.crashlytics.existingReportManager = existingManager;
+  self.crashlytics.managerData = managerData;
+  self.crashlytics.reportManager = mockReportManager;
+  self.crashlytics.reportHandlingPromise = [mockReportManager startWithProfiling];
+  [self.crashlytics resetContextInitPromiseForTesting:mockReportManager.contextInitPromise];
+}
+
+- (void)waitForContextInitAndDrainQueues {
+  XCTestExpectation *contextSettled =
+      [self expectationWithDescription:@"contextInitPromise settled on preInitAPIDispatchQueue"];
+  [self.crashlytics.contextInitPromise onQueue:self.crashlytics.preInitAPIDispatchQueue
+                                        always:^{
+                                          [contextSettled fulfill];
+                                        }];
+  [self waitForExpectations:@[ contextSettled ] timeout:5.0];
+  dispatch_sync(self.crashlytics.preInitAPIDispatchQueue, ^{
+                });
+  FIRCLSExecuteOnLoggingQueue(^{
+  });
 }
 
 - (void)performOnBackgroundThread:(void (^)(NSThread *bgThread))block {
@@ -857,6 +932,120 @@
   XCTAssertEqual(self.onDemandModel.callCount, 0);
   XCTAssertNil([self userKeyValues][@"dropped-key"]);
   XCTAssertNil([self internalKeyValues][FIRCLSUserIdentifierKey]);
+}
+
+#pragma mark - Pre-Consent Local Recording
+
+- (void)testDisabledCollectionFlushesPreInitAndRecordsPreConsentCallsBeforeUserOptIn {
+  FBLPromise<NSNumber *> *startCrashReporterPromise = [FBLPromise pendingPromise];
+  [self configureDisabledCollectionWithStartPromise:startCrashReporterPromise];
+
+  XCTAssertFalse([self.crashlytics isCrashlyticsCollectionEnabled]);
+  XCTAssertTrue(self.crashlytics.contextInitPromise.isPending);
+  XCTAssertTrue(self.crashlytics.reportHandlingPromise.isPending);
+
+  // 1. Pre-init calls made while local crash reporter setup is still in flight are buffered.
+  [self.crashlytics log:@"pre-init-pre-consent log"];
+  [self.crashlytics setUserID:@"pre-consent-user"];
+  [self.crashlytics setCustomValue:@"val-1" forKey:@"key-1"];
+  [self.crashlytics recordError:[NSError errorWithDomain:@"com.test.preconsent"
+                                                    code:401
+                                                userInfo:nil]];
+  FIRExceptionModel *customEx = [FIRExceptionModel exceptionModelWithName:@"PreConsentCustomEx"
+                                                                   reason:@"Before consent"];
+  customEx.stackTrace = @[ [FIRStackFrame stackFrameWithSymbol:@"fn" file:@"f.swift" line:12] ];
+  [self.crashlytics recordExceptionModel:customEx];
+
+  FIRExceptionModel *onDemandEx1 = [FIRExceptionModel exceptionModelWithName:@"PreConsentOnDemand1"
+                                                                      reason:@"Managed crash 1"];
+  onDemandEx1.stackTrace = @[ [FIRStackFrame stackFrameWithSymbol:@"m1" file:@"p.cs" line:20] ];
+  [self.crashlytics recordOnDemandExceptionModel:onDemandEx1];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+  XCTAssertEqual([self errorAContents].count, 0);
+  XCTAssertEqual([self customExceptionAContents].count, 0);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+
+  // 2. Local context setup finishes while automatic collection is STILL disabled.
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [startCrashReporterPromise fulfill:@YES];
+  });
+  [self waitForContextInitAndDrainQueues];
+
+  XCTAssertFalse([self.crashlytics isCrashlyticsCollectionEnabled]);
+  XCTAssertEqualObjects(self.crashlytics.contextInitPromise.value, @YES);
+  XCTAssertTrue(self.crashlytics.reportHandlingPromise.isPending,
+                @"reportHandlingPromise must remain pending while waiting for consent");
+
+  // Buffered pre-init calls have already flushed to disk before user consent!
+  XCTAssertEqualObjects([self decodedLogMessages], @[ @"pre-init-pre-consent log" ]);
+  XCTAssertEqualObjects([self internalKeyValues][FIRCLSUserIdentifierKey], @"pre-consent-user");
+  XCTAssertEqualObjects([self userKeyValues][@"key-1"], @"val-1");
+  XCTAssertEqual([self errorAContents].count, 1);
+  XCTAssertEqual([self customExceptionAContents].count, 1);
+  XCTAssertEqual(self.onDemandModel.callCount, 1);
+
+  // 3. Subsequent pre-consent calls execute inline and also persist to disk immediately.
+  [self.crashlytics log:@"post-init-pre-consent log"];
+  [self.crashlytics setCustomValue:@"val-2" forKey:@"key-2"];
+  FIRExceptionModel *onDemandEx2 = [FIRExceptionModel exceptionModelWithName:@"PreConsentOnDemand2"
+                                                                      reason:@"Managed crash 2"];
+  [self.crashlytics recordOnDemandExceptionModel:onDemandEx2];
+
+  NSArray<NSString *> *expectedLogs =
+      @[ @"pre-init-pre-consent log", @"post-init-pre-consent log" ];
+  XCTAssertEqualObjects([self decodedLogMessages], expectedLogs);
+  XCTAssertEqualObjects([self userKeyValues][@"key-2"], @"val-2");
+  XCTAssertEqual(self.onDemandModel.callCount, 2);
+
+  // 4. User grants consent -> reportHandlingPromise resolves.
+  XCTestExpectation *reportHandlingCompleted =
+      [self expectationWithDescription:@"reportHandlingPromise resolved after enabling collection"];
+  [self.crashlytics.reportHandlingPromise then:^id _Nullable(NSNumber *_Nullable value) {
+    XCTAssertEqualObjects(value, @YES);
+    [reportHandlingCompleted fulfill];
+    return nil;
+  }];
+  [self.crashlytics setCrashlyticsCollectionEnabled:YES];
+  [self waitForExpectations:@[ reportHandlingCompleted ] timeout:5.0];
+}
+
+- (void)testDisabledCollectionFailedContextInitDiscardsCallsWithoutWaitingForConsent {
+  FBLPromise<NSNumber *> *startCrashReporterPromise = [FBLPromise pendingPromise];
+  [self configureDisabledCollectionWithStartPromise:startCrashReporterPromise];
+
+  [self.crashlytics log:@"discarded-pre-init"];
+  [self.crashlytics setCustomValue:@"discarded-val" forKey:@"discarded-key"];
+  FIRExceptionModel *onDemandEx = [FIRExceptionModel exceptionModelWithName:@"DiscardedOnDemand"
+                                                                     reason:@"Should discard"];
+  [self.crashlytics recordOnDemandExceptionModel:onDemandEx];
+
+  dispatch_async(dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0), ^{
+    [startCrashReporterPromise fulfill:@NO];
+  });
+  [self waitForContextInitAndDrainQueues];
+
+  // Context init failed immediately without waiting on consent, discarding buffered & future calls.
+  XCTAssertEqualObjects(self.crashlytics.contextInitPromise.value, @NO);
+  XCTAssertTrue(self.crashlytics.reportHandlingPromise.isPending);
+
+  [self.crashlytics log:@"discarded-post-failure"];
+  [self.crashlytics recordOnDemandExceptionModel:onDemandEx];
+
+  XCTAssertEqual([self decodedLogMessages].count, 0);
+  XCTAssertNil([self userKeyValues][@"discarded-key"]);
+  XCTAssertEqual(self.onDemandModel.callCount, 0);
+
+  // Settle reportHandlingPromise cleanly via deleteUnsentReports before tearDown.
+  XCTestExpectation *reportHandlingSettled =
+      [self expectationWithDescription:@"reportHandlingPromise settled after deleteUnsentReports"];
+  [self.crashlytics.reportHandlingPromise then:^id _Nullable(NSNumber *_Nullable value) {
+    XCTAssertEqualObjects(value, @NO);
+    [reportHandlingSettled fulfill];
+    return nil;
+  }];
+  [self.crashlytics deleteUnsentReports];
+  [self waitForExpectations:@[ reportHandlingSettled ] timeout:5.0];
 }
 
 @end

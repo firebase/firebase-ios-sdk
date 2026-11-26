@@ -117,6 +117,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 @property(nonatomic, strong, nullable) FIRCLSContextInitGate *contextInitGate;
 @property(nonatomic, strong) dispatch_queue_t preInitAPIDispatchQueue;
 @property(nonatomic, nullable) FBLPromise *contextInitPromise;
+@property(nonatomic, nullable) FBLPromise *reportHandlingPromise;
 
 @end
 
@@ -210,7 +211,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _contextInitGate = contextInitGate;
     _preInitAPIDispatchQueue = [self createPreInitAPIDispatchQueue];
 
-    _contextInitPromise =
+    _reportHandlingPromise =
         [[[_reportManager startWithProfiling] then:^id _Nullable(NSNumber *_Nullable value) {
           if (![value boolValue]) {
             FIRCLSErrorLog(@"Crash reporting could not be initialized");
@@ -219,6 +220,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
         }] catch:^void(NSError *error) {
           FIRCLSErrorLog(@"Crash reporting failed to initialize with error: %@", error);
         }];
+    _contextInitPromise = _reportManager.contextInitPromise;
 
     // Flush the queue of API calls once context has initialized
     [[_contextInitPromise onQueue:_preInitAPIDispatchQueue
@@ -563,6 +565,9 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   if (_preInitAPIDispatchQueue) {
     dispatch_sync(_preInitAPIDispatchQueue, ^{
                   });
+  }
+  if (!promise) {
+    _reportHandlingPromise = nil;
   }
   _contextInitPromise = promise;
   FIRCLSContextInitGate *contextInitGate = promise ? [[FIRCLSContextInitGate alloc] init] : nil;
