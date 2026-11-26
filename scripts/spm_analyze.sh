@@ -95,10 +95,12 @@ echo "Analyzing $scheme for $platform"
 
 # Don't pass CLANG_ANALYZER_OUTPUT=html: with it, analyzer results are written
 # to HTML files only and are missing from the result bundle.
-# `clean` first, as `pod lib lint` does: an incremental analyze can report
-# stale results for files that changed since the last run.
+# There's no `clean` action, unlike `pod lib lint`: `xcodebuild clean` fails
+# with a generic destination for test schemes such as ABTestingUnit, whose
+# targets aren't built for running. CI always starts from a fresh checkout.
+# Locally, delete the DerivedData folder to force a full re-analysis.
 xcodebuild_status=0
-xcodebuild clean analyze \
+xcodebuild analyze \
   -scheme "$scheme" \
   -destination "$destination" \
   -configuration Release \
