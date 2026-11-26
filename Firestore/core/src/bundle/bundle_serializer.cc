@@ -23,6 +23,7 @@
 #include "Firestore/core/src/core/direction.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/filter.h"
+#include "Firestore/core/src/core/operator.h"
 #include "Firestore/core/src/core/order_by.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/core/target.h"
@@ -158,6 +159,14 @@ void DecodeCollectionSource(JsonReader& reader,
   const auto& collection_selector = from.at(0);
   const auto& collection_id =
       reader.RequiredString("collectionId", collection_selector);
+  if (!reader.ok()) {
+    return;
+  }
+  auto parsed_collection_id = ResourcePath::FromStringStatus(collection_id);
+  if (!parsed_collection_id.ok() || parsed_collection_id.ValueOrDie().empty()) {
+    reader.Fail("Invalid 'collectionId' in 'from' clause: " + collection_id);
+    return;
+  }
   bool all_descendants =
       reader.OptionalBool("allDescendants", collection_selector);
 
@@ -220,6 +229,30 @@ Filter InvalidFilter() {
                              MakeSharedMessage(google_firestore_v1_Value{}));
 }
 
+bool IsValidFieldFilter(const FieldPath& path,
+                        Operator op,
+                        const google_firestore_v1_Value& value) {
+  if (core::IsDisjunctiveOperator(op) && !model::IsArray(value)) {
+    return false;
+  }
+  if (!path.IsKeyFieldPath()) {
+    return true;
+  }
+  if (core::IsArrayOperator(op)) {
+    return false;
+  }
+  if (op == Operator::In || op == Operator::NotIn) {
+    for (pb_size_t i = 0; i < value.array_value.values_count; ++i) {
+      if (model::GetTypeOrder(value.array_value.values[i]) !=
+          model::TypeOrder::kReference) {
+        return false;
+      }
+    }
+    return true;
+  }
+  return model::GetTypeOrder(value) == model::TypeOrder::kReference;
+}
+
 Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   FieldPath path =
       DecodeFieldReference(reader, reader.RequiredObject("field", filter));
@@ -228,6 +261,10 @@ Filter DecodeUnaryFilter(JsonReader& reader, const json& filter) {
   // Return early if !ok(), because `FieldFilter::Create` will abort with
   // invalid inputs.
   if (!reader.ok()) {
+    return InvalidFilter();
+  }
+  if (path.IsKeyFieldPath()) {
+    reader.Fail("Invalid unary filter");
     return InvalidFilter();
   }
 
@@ -356,6 +393,15 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   ResourcePath parent =
       DecodeName(reader, reader.RequiredObject("parent", query));
+  if (!reader.ok()) {
+    return {};
+  }
+  if (!DocumentKey::IsDocumentKey(parent)) {
+    reader.Fail("Query 'parent' must be a document or root path: " +
+                parent.CanonicalString());
+    return {};
+  }
+
   std::string collection_group_string;
   DecodeCollectionSource(reader, structured_query.at("from"), parent,
                          collection_group_string);
@@ -403,8 +449,13 @@ ResourcePath BundleSerializer::DecodeName(JsonReader& reader,
     reader.Fail("Document name is not a string.");
     return {};
   }
-  auto path =
-      ResourcePath::FromString(document_name.get_ref<const std::string&>());
+  auto maybe_path = ResourcePath::FromStringStatus(
+      document_name.get_ref<const std::string&>());
+  if (!maybe_path.ok()) {
+    reader.Fail(maybe_path.status().error_message());
+    return {};
+  }
+  auto path = std::move(maybe_path).ConsumeValueOrDie();
   if (!rpc_serializer_.IsLocalResourceName(path)) {
     reader.Fail("Resource name is not valid for current instance: " +
                 path.CanonicalString());
@@ -452,6 +503,11 @@ Filter BundleSerializer::DecodeFieldFilter(JsonReader& reader,
   // Return early if !ok(), because `FieldFilter::Create` will abort with
   // invalid inputs.
   if (!reader.ok()) {
+    return InvalidFilter();
+  }
+
+  if (!IsValidFieldFilter(path, op, *value)) {
+    reader.Fail("Invalid field filter");
     return InvalidFilter();
   }
 

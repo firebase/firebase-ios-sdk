@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/model/base_path.h"
 #include "Firestore/core/src/util/comparison.h"
+#include "Firestore/core/src/util/status_fwd.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -51,10 +52,17 @@ class ResourcePath : public impl::BasePath<ResourcePath>,
   }
   /**
    * Creates and returns a new path from the given resource-path string, where
-   * the path segments are separated by a slash "/".
+   * the path segments are separated by a slash "/". Throws an InvalidArgument
+   * exception if the path contains "//".
    */
   static ResourcePath FromString(const std::string& path);
   static ResourcePath FromStringView(absl::string_view path);
+
+  /**
+   * Non-throwing variant of `FromStringView` for untrusted/serialized inputs;
+   * returns an InvalidArgument `Status` if the path contains "//".
+   */
+  static util::StatusOr<ResourcePath> FromStringStatus(absl::string_view path);
 
  private:
   // TODO(b/146372592): Make this public once we can use Abseil across

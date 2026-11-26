@@ -1,5 +1,9 @@
 # Unreleased
 
+- [fixed] Fixed crashes when `loadBundle` parses malformed bundles containing
+  `"//"` in resource paths or incompatible filter operator/value types, and
+  fixed `loadBundle` error reporting to propagate the underlying error code
+  instead of `unknown`.
 - [changed] On Linux, Firestore now verifies gRPC TLS server certificates
   against the system CA store and honors distro distrust lists instead of an
   embedded root certificate bundle. `SSL_CERT_FILE`/`SSL_CERT_DIR` override

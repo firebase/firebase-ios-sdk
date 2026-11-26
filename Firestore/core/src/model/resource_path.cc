@@ -21,6 +21,9 @@
 #include <vector>
 
 #include "Firestore/core/src/util/exception.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "absl/strings/match.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
@@ -34,13 +37,24 @@ ResourcePath ResourcePath::FromString(const std::string& path) {
 }
 
 ResourcePath ResourcePath::FromStringView(absl::string_view path) {
+  auto result = FromStringStatus(path);
+  if (!result.ok()) {
+    util::ThrowInvalidArgument("%s", result.status().error_message());
+  }
+  return std::move(result).ConsumeValueOrDie();
+}
+
+util::StatusOr<ResourcePath> ResourcePath::FromStringStatus(
+    absl::string_view path) {
   // NOTE: The client is ignorant of any path segments containing escape
   // sequences (e.g. __id123__) and just passes them through raw (they exist
   // for legacy reasons and should not be used frequently).
 
   if (absl::StrContains(path, "//")) {
-    util::ThrowInvalidArgument(
-        "Invalid path (%s). Paths must not contain // in them.", path);
+    return util::Status{
+        Error::kErrorInvalidArgument,
+        util::StringFormat(
+            "Invalid path (%s). Paths must not contain // in them.", path)};
   }
 
   // SkipEmpty because we may still have an empty segment at the beginning or

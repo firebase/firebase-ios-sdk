@@ -51,8 +51,73 @@ class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
       _ = try await db.loadBundle(Data())
       XCTFail("Bundle loading should have failed")
     } catch {
-      XCTAssertEqual((error as NSError).domain, FirestoreErrorDomain)
-      XCTAssertEqual((error as NSError).code, FirestoreErrorCode.unknown.rawValue)
+      let nsError = error as NSError
+      XCTAssertEqual(nsError.domain, FirestoreErrorDomain)
+      XCTAssertEqual(nsError.code, FirestoreErrorCode.dataLoss.rawValue)
+      XCTAssertEqual(nsError.localizedDescription, "Bundle failed to load")
+    }
+  }
+
+  func testLoadMalformedBundleFailsGracefully() async throws {
+    let root =
+      "projects/\(FSTIntegrationTestCase.projectID())/databases/\(FSTIntegrationTestCase.databaseID())/documents"
+    func makeNamedQueryElem(parent: String = root,
+                            collectionId: String = "c",
+                            whereClause: String? = nil) -> String {
+      let whereFragment = whereClause.map { ",\"where\":\($0)" } ?? ""
+      return """
+      {"namedQuery":{"name":"q","readTime":{"seconds":1,"nanos":0},"bundledQuery":{"parent":"\(
+        parent
+      )","structuredQuery":{"from":[{"collectionId":"\(
+        collectionId
+      )"}]\(whereFragment)},"limitType":"FIRST"}}}
+      """
+    }
+
+    let malformedElements: [String] = [
+      makeNamedQueryElem(parent: "\(root)//bad"),
+      makeNamedQueryElem(parent: "\(root)/colls"),
+      makeNamedQueryElem(collectionId: "foo//bar"),
+      makeNamedQueryElem(
+        whereClause:
+        #"{"fieldFilter":{"field":{"fieldPath":"f"},"op":"EQUAL","value":{"referenceValue":"\#(root)/c//d"}}}"#
+      ),
+      makeNamedQueryElem(
+        whereClause: #"{"unaryFilter":{"field":{"fieldPath":"__name__"},"op":"IS_NULL"}}"#
+      ),
+      makeNamedQueryElem(
+        whereClause:
+        #"{"fieldFilter":{"field":{"fieldPath":"__name__"},"op":"ARRAY_CONTAINS","value":{"referenceValue":"\#(root)/c/d"}}}"#
+      ),
+      makeNamedQueryElem(
+        whereClause:
+        #"{"fieldFilter":{"field":{"fieldPath":"__name__"},"op":"EQUAL","value":{"stringValue":"c/d"}}}"#
+      ),
+      makeNamedQueryElem(
+        whereClause:
+        #"{"fieldFilter":{"field":{"fieldPath":"__name__"},"op":"IN","value":{"arrayValue":{"values":[{"stringValue":"c/d"}]}}}}"#
+      ),
+      makeNamedQueryElem(
+        whereClause:
+        #"{"fieldFilter":{"field":{"fieldPath":"f"},"op":"IN","value":{"stringValue":"not-array"}}}"#
+      ),
+    ]
+
+    for (index, elem) in malformedElements.enumerated() {
+      let metadata = """
+      {"metadata":{"id":"malformed-\(index)-\(UUID()
+        .uuidString)","createTime":{"seconds":1,"nanos":0},"version":1,"totalDocuments":0,"totalBytes":0}}
+      """
+      let bundle = "\(metadata.utf8.count)\(metadata)\(elem.utf8.count)\(elem)"
+      do {
+        _ = try await db.loadBundle(Data(bundle.utf8))
+        XCTFail("Malformed bundle should have failed to load")
+      } catch {
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.domain, FirestoreErrorDomain)
+        XCTAssertEqual(nsError.code, FirestoreErrorCode.dataLoss.rawValue)
+        XCTAssertEqual(nsError.localizedDescription, "Bundle failed to load")
+      }
     }
   }
 

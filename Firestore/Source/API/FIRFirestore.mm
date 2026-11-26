@@ -495,7 +495,7 @@ NS_ASSUME_NONNULL_BEGIN
       completion([[FIRLoadBundleTaskProgress alloc] initWithInternal:progress], nil);
     } else if (progress.state() == api::LoadBundleTaskState::kError) {
       NSError *error = nil;
-      if (!progress.error_status().ok()) {
+      if (progress.error_status().ok()) {
         LOG_WARN("Progress set to Error, but error_status() is ok()");
         error = MakeNSError(firebase::firestore::Error::kErrorUnknown,
                             "Loading bundle failed with unknown error");
