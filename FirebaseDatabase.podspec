@@ -51,7 +51,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'FirebaseCore', '~> 13.3.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 13.3.0'
   s.dependency 'FirebaseSharedSwift', '~> 13.3.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.5', '< 9.0'
   s.pod_target_xcconfig = {
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseDatabase'

@@ -92,6 +92,29 @@
 
 @end
 
+#pragma mark - Forwarding AppDelegate
+
+// Shaped like the App Delegate that SwiftUI installs for `UIApplicationDelegateAdaptor`: it doesn't
+// implement the remote notification methods itself and forwards them to the app's own delegate
+// with `forwardingTargetForSelector:`.
+@interface ForwardingAppDelegate : NSObject <GULApplicationDelegate>
+@property(nonatomic, strong) id<GULApplicationDelegate> fallbackDelegate;
+@end
+@implementation ForwardingAppDelegate
+
+- (BOOL)respondsToSelector:(SEL)selector {
+  return [super respondsToSelector:selector] || [self.fallbackDelegate respondsToSelector:selector];
+}
+
+- (id)forwardingTargetForSelector:(SEL)selector {
+  if ([self.fallbackDelegate respondsToSelector:selector]) {
+    return self.fallbackDelegate;
+  }
+  return [super forwardingTargetForSelector:selector];
+}
+
+@end
+
 #if TARGET_OS_WATCH
 #pragma clang diagnostic pop
 #endif  // TARGET_OS_WATCH
@@ -275,6 +298,54 @@
       didFailToRegisterForRemoteNotificationsWithError:error];
 
   XCTAssertEqual(appDelegate.registerForRemoteNotificationsError, error);
+}
+
+// Regression test for https://github.com/firebase/firebase-ios-sdk/issues/13566: with a SwiftUI
+// `UIApplicationDelegateAdaptor`, the app's own delegate stopped receiving the remote notification
+// callbacks once Messaging swizzled the App Delegate.
+- (void)testSwizzledForwardingAppDelegateRemoteNotificationMethods {
+  FakeAppDelegate *fallbackDelegate = [[FakeAppDelegate alloc] init];
+  ForwardingAppDelegate *appDelegate = [[ForwardingAppDelegate alloc] init];
+  appDelegate.fallbackDelegate = fallbackDelegate;
+  [[GULAppDelegateSwizzler sharedApplication] setDelegate:appDelegate];
+  [self.proxy swizzleMethodsIfPossible];
+
+  // Test application:didReceiveRemoteNotification:fetchCompletionHandler:
+#if TARGET_OS_IOS || TARGET_OS_TV
+  NSDictionary *notification = @{@"test" : @""};
+  OCMExpect([self.mockMessaging appDidReceiveMessage:notification]);
+  XCTestExpectation *fetchCompletion = [self expectationWithDescription:@"fetch completion"];
+
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+      didReceiveRemoteNotification:notification
+            fetchCompletionHandler:^(UIBackgroundFetchResult result) {
+              // The app's delegate reports new data and Messaging reports none.
+              XCTAssertEqual(result, UIBackgroundFetchResultNewData);
+              [fetchCompletion fulfill];
+            }];
+
+  XCTAssertTrue(fallbackDelegate.remoteNotificationWithFetchHandlerWasCalled);
+  [self.mockMessaging verify];
+  [self waitForExpectations:@[ fetchCompletion ] timeout:1];
+#endif  // TARGET_OS_IOS || TARGET_OS_TV
+
+  // Test application:didRegisterForRemoteNotificationsWithDeviceToken:
+  NSData *deviceToken = [@"token" dataUsingEncoding:NSUTF8StringEncoding];
+  OCMExpect([self.mockMessaging setAPNSToken:deviceToken]);
+
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+      didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+
+  XCTAssertEqual(fallbackDelegate.deviceToken, deviceToken);
+  [self.mockMessaging verify];
+
+  // Test application:didFailToRegisterForRemoteNotificationsWithError:
+  NSError *error = [NSError errorWithDomain:@"tests" code:-1 userInfo:nil];
+
+  [appDelegate application:[GULAppDelegateSwizzler sharedApplication]
+      didFailToRegisterForRemoteNotificationsWithError:error];
+
+  XCTAssertEqual(fallbackDelegate.registerForRemoteNotificationsError, error);
 }
 #endif  // !SWIFT_PACKAGE
 

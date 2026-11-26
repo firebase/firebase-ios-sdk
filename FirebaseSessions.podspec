@@ -43,8 +43,8 @@ Pod::Spec.new do |s|
   s.dependency 'FirebaseCoreExtension', '~> 13.3.0'
   s.dependency 'FirebaseInstallations', '~> 13.3.0'
   s.dependency 'GoogleDataTransport', '>= 10.1.1', '< 11.0'
-  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.5', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.5', '< 9.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.pod_target_xcconfig = {
