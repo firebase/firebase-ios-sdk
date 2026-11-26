@@ -21,7 +21,10 @@
 #import <TargetConditionals.h>
 #if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST && \
                   !TARGET_OS_OSX && !TARGET_OS_TV
+#if !TARGET_OS_SIMULATOR
 #define TARGET_HAS_MOBILE_CONNECTIVITY
+#endif
+// SessionStartEvent and its tests still need the CoreTelephony constants on simulator.
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif

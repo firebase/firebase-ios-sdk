@@ -13,7 +13,8 @@
 // limitations under the License.
 
 #import <TargetConditionals.h>
-#if __has_include("CoreTelephony/CTTelephonyNetworkInfo.h") && !TARGET_OS_MACCATALYST
+#if !TARGET_OS_SIMULATOR && !TARGET_OS_MACCATALYST && \
+    __has_include("CoreTelephony/CTTelephonyNetworkInfo.h")
 #define TARGET_HAS_MOBILE_CONNECTIVITY
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
