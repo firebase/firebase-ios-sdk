@@ -77,7 +77,7 @@ NSString *reportId = @"1234567";
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[ expectation ] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:10];
 
   XCTAssertTrue([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
 
@@ -98,21 +98,32 @@ NSString *reportId = @"1234567";
       @"\"636f6e74726f6c\"}]}";
 
   NSData *data = [encodedStateString dataUsingEncoding:NSUTF8StringEncoding];
+  NSString *rolloutsFilePath =
+      [[[self.fileManager activePath] stringByAppendingPathComponent:reportId]
+          stringByAppendingPathComponent:FIRCLSReportRolloutsFile];
 
-  // Clog up the queue with a long running operation. This sleep time
-  // must be longer than the expectation timeout.
+  // Block the logging queue until the test verifies that calling
+  // updateRolloutsStateToPersistenceWithRollouts:reportID: returns without hanging.
+  dispatch_semaphore_t queueBlockedSemaphore = dispatch_semaphore_create(0);
   dispatch_async(self.loggingQueue, ^{
-    sleep(10);
+    dispatch_semaphore_wait(queueBlockedSemaphore,
+                            dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15.0 * NSEC_PER_SEC)));
   });
 
   dispatch_async(testQueue, ^{
-    // Ensure that calling this returns quickly so we don't hang
+    // Ensure that calling this returns quickly and does not perform synchronous file creation on
+    // the calling thread while the logging queue is blocked.
     [self.rolloutsPersistenceManager updateRolloutsStateToPersistenceWithRollouts:data
                                                                          reportID:reportId];
+    XCTAssertFalse([[NSFileManager defaultManager] fileExistsAtPath:rolloutsFilePath]);
     [expectation fulfill];
   });
 
-  [self waitForExpectations:@[ expectation ] timeout:3];
+  [self waitForExpectations:@[ expectation ] timeout:10];
+  dispatch_semaphore_signal(queueBlockedSemaphore);
+  // Let the pending write finish before tearDown removes the report directory.
+  dispatch_sync(self.loggingQueue, ^{
+                });
 }
 
 @end
