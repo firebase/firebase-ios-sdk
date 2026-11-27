@@ -120,10 +120,11 @@ static NSString *_Nullable FIRCoreMethodEncoding(Class klass, NSString *selector
   SEL selector = NSSelectorFromString([selectorKey substringFromIndex:1]);
   Method method = isClassMethod ? class_getClassMethod(klass, selector)
                                 : class_getInstanceMethod(klass, selector);
-  if (!method) {
+  const char *typeEncoding = method ? method_getTypeEncoding(method) : NULL;
+  if (!typeEncoding) {
     return nil;
   }
-  NSString *encoding = @(method_getTypeEncoding(method));
+  NSString *encoding = @(typeEncoding);
   NSCharacterSet *digits = [NSCharacterSet decimalDigitCharacterSet];
   encoding = [[encoding componentsSeparatedByCharactersInSet:digits] componentsJoinedByString:@""];
   return [encoding stringByReplacingOccurrencesOfString:@"c" withString:@"B"];

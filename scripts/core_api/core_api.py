@@ -119,13 +119,13 @@ def sdk_path(sdk):
 
 def write_json(path, value):
   os.makedirs(os.path.dirname(path), exist_ok=True)
-  with open(path, "w") as f:
+  with open(path, "w", encoding="utf-8") as f:
     json.dump(value, f, indent=2, sort_keys=True)
     f.write("\n")
 
 
 def read_json(path):
-  with open(path) as f:
+  with open(path, encoding="utf-8") as f:
     return json.load(f)
 
 
@@ -137,7 +137,8 @@ def header_module_dir(work_dir, umbrella):
   """Creates a module map for the Objective-C public headers."""
   module_dir = os.path.join(work_dir, "modulemap")
   os.makedirs(module_dir, exist_ok=True)
-  with open(os.path.join(module_dir, "module.modulemap"), "w") as f:
+  module_map = os.path.join(module_dir, "module.modulemap")
+  with open(module_map, "w", encoding="utf-8") as f:
     f.write(
         'module %s {\n  umbrella header "%s"\n  export *\n}\n'
         % (MODULE, umbrella)
@@ -397,11 +398,11 @@ def cmd_check(args):
     )
   current_dir = args.current
   temp_dir = None
-  if not current_dir:
-    temp_dir = tempfile.mkdtemp(prefix="core_api_current_")
-    current_dir = temp_dir
-    dump(current_dir, args)
   try:
+    if not current_dir:
+      temp_dir = tempfile.mkdtemp(prefix="core_api_current_")
+      current_dir = temp_dir
+      dump(current_dir, args)
     allow = load_allowlist()
     problems = check_swift(BASELINE_DIR, current_dir, allow)
     problems += check_objc(BASELINE_DIR, current_dir, allow)
