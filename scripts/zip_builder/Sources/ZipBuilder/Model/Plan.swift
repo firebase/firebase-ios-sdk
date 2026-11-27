@@ -112,6 +112,11 @@ struct Framework: Codable, Equatable, Sendable {
     headers.filter { $0.visibility == .public }.map(\.path)
   }
 
+  /// The paths of its private headers (`PrivateHeaders/`).
+  var privateHeaders: [Path] {
+    headers.filter { $0.visibility == .private }.map(\.path)
+  }
+
   /// Whether any of its sources is Swift (so its module has a `-Swift.h` submodule).
   var hasSwiftSources: Bool {
     sources.contains { $0.path.hasSuffix(".swift") }

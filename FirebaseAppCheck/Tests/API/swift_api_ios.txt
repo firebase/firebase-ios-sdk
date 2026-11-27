@@ -1,0 +1,97 @@
+@available(iOS 15.0, *) open class RecaptchaProvider
+@available(iOS 15.0, *) open class RecaptchaProviderFactory
+class AppAttestProvider : AppCheckProvider
+class AppAttestProvider : NSObject
+class AppAttestProvider :: open func getLimitedUseToken() async throws -> AppCheckToken
+class AppAttestProvider :: open func getLimitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppAttestProvider :: open func getToken() async throws -> AppCheckToken
+class AppAttestProvider :: open func getToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppAttestProvider :: public init?(app: FirebaseApp)
+class AppAttestProviderFactory : AppCheckProviderFactory
+class AppAttestProviderFactory : NSObject
+class AppCheck : NSObject
+class AppCheck :: open class func appCheck() -> Self
+class AppCheck :: open class func appCheck(app: FirebaseApp) -> Self?
+class AppCheck :: open class func setAppCheckProviderFactory(_: (any AppCheckProviderFactory)?)
+class AppCheck :: open func limitedUseToken() async throws -> AppCheckToken
+class AppCheck :: open func limitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppCheck :: open func token(forcingRefresh: Bool) async throws -> AppCheckToken
+class AppCheck :: open func token(forcingRefresh: Bool, completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppCheck :: open var isTokenAutoRefreshEnabled: Bool
+class AppCheckDebugProvider : AppCheckProvider
+class AppCheckDebugProvider : NSObject
+class AppCheckDebugProvider :: open func currentDebugToken() -> String
+class AppCheckDebugProvider :: open func getLimitedUseToken() async throws -> AppCheckToken
+class AppCheckDebugProvider :: open func getLimitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppCheckDebugProvider :: open func getToken() async throws -> AppCheckToken
+class AppCheckDebugProvider :: open func getToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class AppCheckDebugProvider :: open func localDebugToken() -> String
+class AppCheckDebugProvider :: public init?(app: FirebaseApp)
+class AppCheckDebugProviderFactory : AppCheckProviderFactory
+class AppCheckDebugProviderFactory : NSObject
+class AppCheckToken : NSObject
+class AppCheckToken :: open var expirationDate: Date { get }
+class AppCheckToken :: open var token: String { get }
+class AppCheckToken :: public init(token: String, expirationDate: Date)
+class DeviceCheckProvider : AppCheckProvider
+class DeviceCheckProvider : NSObject
+class DeviceCheckProvider :: open func getLimitedUseToken() async throws -> AppCheckToken
+class DeviceCheckProvider :: open func getLimitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class DeviceCheckProvider :: open func getToken() async throws -> AppCheckToken
+class DeviceCheckProvider :: open func getToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class DeviceCheckProvider :: public init?(app: FirebaseApp)
+class DeviceCheckProviderFactory : AppCheckProviderFactory
+class DeviceCheckProviderFactory : NSObject
+class RecaptchaProvider : AppCheckProvider
+class RecaptchaProvider : NSObject
+class RecaptchaProvider :: open func getLimitedUseToken() async throws -> AppCheckToken
+class RecaptchaProvider :: open func getLimitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class RecaptchaProvider :: open func getToken() async throws -> AppCheckToken
+class RecaptchaProvider :: open func getToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+class RecaptchaProvider :: public init?(app: FirebaseApp, siteKey: String)
+class RecaptchaProviderFactory : AppCheckProviderFactory
+class RecaptchaProviderFactory : NSObject
+class RecaptchaProviderFactory :: public init(siteKey: String)
+enum AppCheckErrorCode.Code : @unchecked Sendable
+enum AppCheckErrorCode.Code : Equatable
+enum AppCheckErrorCode.Code : Int
+enum AppCheckErrorCode.Code :: case invalidConfiguration = 2
+enum AppCheckErrorCode.Code :: case keychain = 3
+enum AppCheckErrorCode.Code :: case serverUnreachable = 1
+enum AppCheckErrorCode.Code :: case unknown = 0
+enum AppCheckErrorCode.Code :: case unsupported = 4
+enum AppCheckErrorCode.Code :: public typealias _ErrorType = AppCheckErrorCode
+open class AppAttestProvider
+open class AppAttestProviderFactory
+open class AppCheck
+open class AppCheckDebugProvider
+open class AppCheckDebugProviderFactory
+open class AppCheckToken
+open class DeviceCheckProvider
+open class DeviceCheckProviderFactory
+protocol AppCheckProvider : NSObjectProtocol
+protocol AppCheckProvider :: func getToken() async throws -> AppCheckToken
+protocol AppCheckProvider :: func getToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+protocol AppCheckProvider :: optional func getLimitedUseToken() async throws -> AppCheckToken
+protocol AppCheckProvider :: optional func getLimitedUseToken(completion: @escaping @Sendable (AppCheckToken?, (any Error)?) -> Void)
+protocol AppCheckProviderFactory : NSObjectProtocol
+protocol AppCheckProviderFactory :: func createProvider(with: FirebaseApp) -> (any AppCheckProvider)?
+public enum AppCheckErrorCode.Code
+public let AppCheckAppNameNotificationKey: String
+public let AppCheckErrorDomain: String
+public let AppCheckTokenNotificationKey: String
+public protocol AppCheckProvider
+public protocol AppCheckProviderFactory
+public struct AppCheckErrorCode
+struct AppCheckErrorCode : CustomNSError
+struct AppCheckErrorCode : Error
+struct AppCheckErrorCode : Hashable
+struct AppCheckErrorCode :: public init(_nsError: NSError)
+struct AppCheckErrorCode :: public static var errorDomain: String { get }
+struct AppCheckErrorCode :: public static var invalidConfiguration: AppCheckErrorCode.Code { get }
+struct AppCheckErrorCode :: public static var keychain: AppCheckErrorCode.Code { get }
+struct AppCheckErrorCode :: public static var serverUnreachable: AppCheckErrorCode.Code { get }
+struct AppCheckErrorCode :: public static var unknown: AppCheckErrorCode.Code { get }
+struct AppCheckErrorCode :: public static var unsupported: AppCheckErrorCode.Code { get }
+type NSNotification.Name
+type NSNotification.Name :: public static let AppCheckTokenDidChange: NSNotification.Name

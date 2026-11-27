@@ -1,0 +1,13 @@
+// The module map of the `FirebaseAppCheck` SwiftPM target (and translated by `zip-builder` for
+// binary XCFramework distributions). CocoaPods generates its own module map from the podspec.
+module FirebaseAppCheck {
+  umbrella header "FirebaseAppCheck/FirebaseAppCheck.h"
+  export *
+
+  // NOT PUBLIC API: declarations that the Swift implementation of the SDK
+  // (`FirebaseAppCheckSwift`) implements internally.
+  explicit module Internal {
+    header "../Private/FIRAppCheckInternal.h"
+    export *
+  }
+}

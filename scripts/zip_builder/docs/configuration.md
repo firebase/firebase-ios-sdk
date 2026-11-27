@@ -240,6 +240,10 @@ affected frameworks (see [Fingerprints](how-it-works.md#fingerprints)).
 - **`swiftVersion`** (framework or `"*"` → version, default `{}`). Sets `SWIFT_VERSION`; a
   framework's own entry beats `"*"`. Firebase: `{ "*": "5.0", "FirebaseAILogic": "6.0" }`, the
   language modes of the podspecs.
+- **`swiftFlags`** (framework or `"*"` → list of flags, default `{}`). Appends flags to a
+  framework's `OTHER_SWIFT_FLAGS`; a framework's own entry beats `"*"`. Firebase: passes
+  `["-Xfrontend", "-alias-module-names-in-module-interface"]` to `AppCheckCore`, whose `AppCheckCore`
+  class otherwise shadows its module name in `.swiftinterface`.
 - **`settings`** (setting → string or list of strings, default `{}`). Any Xcode build setting, set
   on the project after everything else. It replaces the setting and all its variants
   (`KEY[sdk=…]` and the like) in the project and every framework. Firebase sets none; for example,

@@ -351,6 +351,15 @@ if [[ -n "${SANITIZERS:-}" ]]; then
         xcb_flags+=(
           -enableUndefinedBehaviorSanitizer YES
         )
+        if [[ "$method" == "spm" || "$method" == "spmbuildonly" ]]; then
+          # Xcode compiles C/ObjC SwiftPM dependencies with -fsanitize=undefined
+          # under -enableUndefinedBehaviorSanitizer YES, but omits
+          # -fsanitize=undefined when linking pure-Swift test targets.
+          # shellcheck disable=SC2016
+          xcb_flags+=(
+            'OTHER_LDFLAGS=$(inherited) -fsanitize=undefined'
+          )
+        fi
         cmake_options+=(
           -DWITH_UBSAN=ON
         )

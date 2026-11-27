@@ -79,6 +79,7 @@
     // Each pod packages its SwiftPM companion targets into one framework.
     "merge": {
       "AppCheckCore": ["AppCheckRecaptchaProvider"],
+      "FirebaseAppCheck": ["FirebaseAppCheckSwift"],
       "FirebaseAuth": ["FirebaseAuthInternal"],
       "FirebaseCrashlytics": ["FirebaseCrashlyticsSwift"],
       "FirebaseDatabase": ["FirebaseDatabaseInternal"],
@@ -102,8 +103,9 @@
       "FirebaseFirestore": ["FirebaseFirestoreInternal/FirebaseFirestore"],
       "FirebaseStorage": ["FirebaseStorage/Typedefs"]
     },
-    // CocoaPods ships these in PrivateHeaders/ (podspec `private_header_files`).
-    "privateHeaders": ["FBLPromisePrivate.h"],
+    // Shipped in PrivateHeaders/ rather than Headers/ (`private_header_files`, or internal
+    // explicit submodules).
+    "privateHeaders": ["FBLPromisePrivate.h", "FIRAppCheckInternal.h"],
     // GoogleUtilities' vendored IsAppEncrypted.h is private in its podspec.
     "hiddenHeaders": ["IsAppEncrypted.h"],
     // Restrict frameworks to the platforms of their podspecs.
@@ -135,6 +137,12 @@
     "swiftVersion": {
       "*": "5.0",
       "FirebaseAILogic": "6.0"
+    },
+    // AppCheckCore defines `class AppCheckCore` inside `module AppCheckCore`, which breaks its
+    // `.swiftinterface` on Xcode 26.x without module-name aliasing when Swift dependents link a
+    // cached `AppCheckCore.xcframework`.
+    "swiftFlags": {
+      "AppCheckCore": ["-Xfrontend", "-alias-module-names-in-module-interface"]
     },
     "versionMacro": "Firebase_VERSION"
   },
@@ -223,8 +231,6 @@
   "verify": {
     // Modules the import check skips: none of these import in any released zip, legacy included.
     "skipImports": [
-      // Its module/class name clash breaks its own .swiftinterface.
-      "AppCheckCore",
       // C++ libraries (prebuilt, or built from source for the dynamic zip) whose modules aren't
       // importable from Swift or Objective-C.
       "absl",

@@ -136,7 +136,7 @@ func packageProducts() -> [Product] {
     ),
     .library(
       name: "FirebaseAppCheck",
-      targets: ["FirebaseAppCheck"]
+      targets: ["FirebaseAppCheck", "FirebaseAppCheckSwift"]
     ),
     .library(
       name: "FirebaseAppDistribution-Beta",
@@ -1210,6 +1210,7 @@ func packageTargets() -> [Target] {
         "Firebase",
         "FirebaseAuth",
         "FirebaseAppCheck",
+        "FirebaseAppCheckSwift",
         "FirebaseABTesting",
         "FirebaseAnalytics",
         .target(name: "FirebaseAppDistribution",
@@ -1259,6 +1260,7 @@ func packageTargets() -> [Target] {
         "FirebaseAuth",
         "FirebaseABTesting",
         "FirebaseAppCheck",
+        "FirebaseAppCheckSwift",
         .target(name: "FirebaseAppDistribution",
                 condition: .when(platforms: [.iOS])),
         "FirebaseCrashlytics",
@@ -1292,26 +1294,48 @@ func packageTargets() -> [Target] {
 
     // MARK: - Firebase App Check
 
-    .target(name: "FirebaseAppCheck",
-            dependencies: [
-              "FirebaseAppCheckInterop",
-              "FirebaseCore",
-              .product(name: "AppCheckCore", package: "app-check"),
-              .product(name: "AppCheckRecaptchaProvider", package: "app-check"),
-              .product(name: "GULEnvironment", package: "GoogleUtilities"),
-              .product(name: "GULUserDefaults", package: "GoogleUtilities"),
-            ],
-            path: "FirebaseAppCheck/Sources",
-            publicHeadersPath: "Public",
-            cSettings: [
-              .headerSearchPath("../.."),
-            ],
-            linkerSettings: [
-              .linkedFramework(
-                "DeviceCheck",
-                .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
-              ),
-            ]),
+    // The public API of App Check is declared in Objective-C headers, so that it's the same for
+    // Swift and Objective-C apps, and implemented in Swift in `FirebaseAppCheckSwift`.
+    .target(
+      name: "FirebaseAppCheck",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+      ],
+      path: "FirebaseAppCheck/Sources",
+      exclude: [
+        "Swift",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ],
+      linkerSettings: [
+        .linkedFramework(
+          "DeviceCheck",
+          .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+        ),
+      ]
+    ),
+    // Implements the classes declared by `FirebaseAppCheck` with `@objc @implementation`
+    // extensions. Has no public API of its own.
+    .target(
+      name: "FirebaseAppCheckSwift",
+      dependencies: [
+        "FirebaseAppCheck",
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        .product(name: "AppCheckCore", package: "app-check"),
+        .product(name: "AppCheckRecaptchaProvider", package: "app-check"),
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
+      ],
+      path: "FirebaseAppCheck/Sources/Swift",
+      swiftSettings: [
+        .swiftLanguageMode(SwiftLanguageMode.v5),
+        .define("FIREBASE_APP_CHECK_EXPLICIT_INTERNAL_MODULE"),
+      ]
+    ),
     // Internal headers only for consuming from Swift.
     .target(
       name: "FirebaseAppCheckInterop",
@@ -1328,6 +1352,7 @@ func packageTargets() -> [Target] {
       name: "FirebaseAppCheckUnit",
       dependencies: [
         "FirebaseAppCheck",
+        "FirebaseAppCheckSwift",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
@@ -1345,6 +1370,7 @@ func packageTargets() -> [Target] {
       name: "FirebaseAppCheckUnitSwift",
       dependencies: [
         "FirebaseAppCheck",
+        "FirebaseAppCheckSwift",
         "FirebaseCoreExtension",
         "SharedTestUtilities",
         .product(name: "AppCheckCore", package: "app-check"),
@@ -1767,6 +1793,7 @@ func firebaseAILogicDependencies() -> [Target.Dependency] {
     // Direct dependency on AppCheck for automatic token acquisition and
     // management.
     "FirebaseAppCheck",
+    "FirebaseAppCheckSwift",
     // Despite the direct dependency on App Check, the AI Logic SDK still
     // uses AppCheck through the interop.
     "FirebaseAppCheckInterop",

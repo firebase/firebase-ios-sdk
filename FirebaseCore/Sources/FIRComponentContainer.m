@@ -237,10 +237,8 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
     // named `ARCoreFIRApp`.
     const char *p1 = "406756";
     const char *p2 = "893798";
-    const char gcmSenderIDKey[27] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2], p1[3],
-                                     p2[3],  p1[4],  p2[4],  p1[5],  p2[5],  p1[6], p2[6],
-                                     p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9], p1[10],
-                                     p2[10], p1[11], p2[11], p1[12], p2[12], '\0'};
+    const char gcmSenderIDKey[13] = {p1[0], p2[0], p1[1], p2[1], p1[2], p2[2], p1[3],
+                                     p2[3], p1[4], p2[4], p1[5], p2[5], '\0'};
     NSString *gcmSenderID = [NSString stringWithUTF8String:gcmSenderIDKey];
     return [app.options.GCMSenderID isEqualToString:gcmSenderID];
   }

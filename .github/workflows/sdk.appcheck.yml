@@ -33,11 +33,54 @@ jobs:
     with:
       target: ${{  matrix.target }}
 
+  api_compatibility:
+    # Checks the public Swift and Objective-C APIs against the snapshots in
+    # FirebaseAppCheck/Tests/API, which were generated from the Objective-C
+    # implementation of the SDK, and runs the negative compile tests.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-15
+            xcode: Xcode_26.2
+          - os: macos-26
+            xcode: Xcode_26.4
+    runs-on: ${{ matrix.os }}
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
+    - name: Build
+      run: swift build --target FirebaseAppCheckSwift
+    - name: Build for the iOS Simulator
+      run: |
+        swift build --target FirebaseAppCheckSwift --scratch-path .build-ios \
+          --triple arm64-apple-ios15.0-simulator \
+          --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)"
+    - name: Check the API snapshots
+      run: |
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform macos
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --check --platform ios \
+          --build-dir .build-ios
+    - name: Negative compile tests
+      run: |
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform macos
+        python3 FirebaseAppCheck/Tests/API/api_snapshot.py --negative --platform ios \
+          --build-dir .build-ios
+
   catalyst:
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [FirebaseAppCheck-Unit-unit, FirebaseAppCheck-Unit-swift-unit]
     uses: ./.github/workflows/_catalyst.yml
     with:
       product: FirebaseAppCheck
-      target: FirebaseAppCheck-Unit-unit
+      target: ${{ matrix.target }}
 
   # Replaces the `--analyze` step of `pod lib lint`.
   spm-analyze:
@@ -54,14 +97,17 @@ jobs:
     with:
       product: ${{ matrix.product }}
       buildonly_platforms: macOS
+      setup_command: echo "FIREBASE_CI=true" >> "$GITHUB_ENV"
 
   diagnostics:
     strategy:
+      fail-fast: false
       matrix:
+        target: [FirebaseAppCheckUnit, FirebaseAppCheckUnitSwift]
         diagnostic: [tsan, asan, ubsan]
     uses: ./.github/workflows/_build.yml
     with:
-      product: FirebaseAppCheckUnit
+      product: ${{ matrix.target }}
       platform: iOS
       method: spm
       sanitizers: ${{ matrix.diagnostic }}

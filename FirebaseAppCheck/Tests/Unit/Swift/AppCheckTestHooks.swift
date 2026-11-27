@@ -1,0 +1,29 @@
+// Copyright 2026 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#if SWIFT_PACKAGE
+  @testable import FirebaseAppCheckSwift
+#else
+  @testable import FirebaseAppCheck
+#endif // SWIFT_PACKAGE
+
+// Test hooks for test files that only import the public API. A `@testable` import there would make
+// some public types ambiguous with SwiftPM, where they are declared in `FirebaseAppCheck` and
+// implemented in `FirebaseAppCheckSwift`.
+
+/// Undoes `AppCheck.setAppCheckProviderFactory(_:)`, so the default provider factory is used
+/// again. Call it from `tearDown()` in tests that set a provider factory.
+func resetAppCheckProviderFactory() {
+  resetAppCheckProviderFactoryForTesting()
+}

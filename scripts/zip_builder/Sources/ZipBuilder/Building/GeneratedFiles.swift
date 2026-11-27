@@ -70,10 +70,12 @@ func resolvingHeaderCollisions(_ framework: Framework, packageRoot: Path) -> [He
 private func translateCustomModuleMap(_ custom: Path, of framework: inout Framework,
                                       packageRoot: Path, directory: URL) throws {
   let text = try String(contentsOfFile: fullPath(custom, packageRoot), encoding: .utf8)
-  let moduleMap = try frameworkModuleMap(rewriting: text, at: custom,
-                                         moduleName: framework.moduleName,
-                                         publicHeaders: Set(framework.publicHeaders.map(fileName)),
-                                         hasSwift: framework.hasSwiftSources)
+  let moduleMap = try frameworkModuleMap(
+    rewriting: text, at: custom, moduleName: framework.moduleName,
+    publicHeaders: Set(framework.publicHeaders.map(fileName)),
+    privateHeaders: Set(framework.privateHeaders.map(fileName)),
+    hasSwift: framework.hasSwiftSources
+  )
   try useModuleMap(moduleMap, for: &framework, in: directory)
 }
 
