@@ -15,7 +15,8 @@
 #import <Foundation/Foundation.h>
 
 /**
- * Returns a SHA1 Hash of the input `Data`
+ * Returns a SHA1 Hash of the input `Data`.
+ * Only for non-security identifiers, such as the build instance ID (see FIRCLSByteUtility.m).
  */
 NSString *FIRCLSHashNSData(NSData *data);
 /**
@@ -23,7 +24,8 @@ NSString *FIRCLSHashNSData(NSData *data);
  */
 NSString *FIRCLS256HashNSData(NSData *data);
 /**
- * Returns a SHA1 Hash of the input bytes
+ * Returns a SHA1 Hash of the input bytes.
+ * Only for non-security identifiers, such as the build instance ID (see FIRCLSByteUtility.m).
  */
 NSString *FIRCLSHashBytes(const void *bytes, size_t length);
 /**

@@ -75,6 +75,12 @@ NSString *FIRCLSNSDataPrettyDescription(NSData *data) {
 
 #pragma mark Public functions
 
+// SHA-1 is used only to derive non-secret identifiers, such as the build instance ID, which is a
+// fingerprint of the app executable's Mach-O LC_UUIDs (see FIRCLSApplicationIdentifierModel). The
+// input is public build metadata and the digest is not used for integrity verification,
+// signatures, authentication, or password storage, so SHA-1 collision attacks do not apply. These
+// identifiers are part of the Crashlytics backend contract, so changing the algorithm would change
+// the values the backend receives. Use the SHA-256 functions below for any new hashing needs.
 NSString *FIRCLSHashBytes(const void *bytes, size_t length) {
   uint8_t digest[CC_SHA1_DIGEST_LENGTH] = {0};
   CC_SHA1(bytes, (CC_LONG)length, digest);
