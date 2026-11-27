@@ -88,7 +88,8 @@ FOUNDATION_EXPORT const NSTimeInterval kFIRMessagingDefaultCheckinInterval;
 /**
  *  Update checkin preferences from the preferences dict persisted as a plist. The dict contains
  *  all the checkin preferences retrieved from the server except the deviceID and secret which
- *  are stored in the Keychain.
+ *  are stored in the Keychain. Values of an unexpected type are ignored, and the matching
+ *  preference is set to nil or 0.
  *
  *  @param checkinPlistContent The checkin preferences saved in a plist on the disk.
  */

@@ -147,6 +147,7 @@ public final class TemplateGenerativeModel: Sendable {
   func templateGenerateContentRequest(template: String, inputs: [String: TemplateInput],
                                       history: [ModelContent],
                                       stream: Bool) throws -> TemplateGenerateContentRequest {
+    try history.throwIfError()
     // Normalize an empty tools array to `nil` so that an empty `"tools"` array is not sent.
     let internalTools = try tools?.map { try $0.toInternal() }
     return TemplateGenerateContentRequest(

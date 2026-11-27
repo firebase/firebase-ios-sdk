@@ -318,7 +318,6 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 
 - (void)setupRmqManager {
   self.rmq2Manager = [[FIRMessagingRmqManager alloc] initWithDatabaseName:@"rmq2"];
-  [self.rmq2Manager loadRmqId];
 }
 
 - (void)setupTopics {
@@ -348,10 +347,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   // For downstream messages that go via MCS we should strip out this key before sending
   // the message to the device.
   BOOL isOldMessage = NO;
-  NSString *messageID = message[kFIRMessagingMessageIDKey];
+  // gcm.message_id comes from the untrusted push payload, so it is not necessarily a string.
+  id rawMessageID = message[kFIRMessagingMessageIDKey];
+  NSString *messageID = [rawMessageID isKindOfClass:[NSString class]] ? rawMessageID : nil;
   if (messageID.length) {
-    [self.rmq2Manager saveS2dMessageWithRmqId:messageID];
-
     BOOL isSyncMessage = FIRMessagingIsAPNSSyncMessage(message);
     if (isSyncMessage) {
       isOldMessage = [self.syncMessageManager didReceiveAPNSSyncMessage:message];
@@ -442,6 +441,24 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     return nil;
   }
   NSURL *url = [NSURL URLWithString:urlString];
+  if (!url) {
+    // Don't log the link itself, since it may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeInvalidLinkURL,
+                           @"Ignoring message link because it is not a valid URL.");
+    return nil;
+  }
+  // The link is delivered as an NSUserActivity webpageURL, which raises for any scheme other than
+  // http or https.
+  NSString *scheme = url.scheme;
+  if (!scheme || ([scheme caseInsensitiveCompare:@"http"] != NSOrderedSame &&
+                  [scheme caseInsensitiveCompare:@"https"] != NSOrderedSame)) {
+    // Log only the scheme, since the rest of the link may contain user data.
+    FIRMessagingLoggerWarn(kFIRMessagingMessageCodeUnsupportedLinkScheme,
+                           @"Ignoring message link with unsupported scheme '%@'. Only http and "
+                           @"https links are supported.",
+                           scheme ?: @"(none)");
+    return nil;
+  }
   return url;
 }
 
@@ -633,24 +650,32 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   }
 
   FIRMessaging_WEAKIFY(self);
-  [self.installations
-      installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
-                                                failureReason:@"Failed to get installation ID."];
-          completion(newError);
-        } else {
-          [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
-                                                       scope:kFIRMessagingDefaultTokenScope
-                                                  instanceID:identifier
-                                                     handler:^(NSError *_Nullable error) {
-                                                       if (completion) {
-                                                         completion(error);
-                                                       }
-                                                     }];
-        }
-      }];
+  [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
+                                                     NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      if (completion) {
+        NSError *newError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInvalidIdentity
+                                              failureReason:@"Failed to get installation ID."];
+        completion(newError);
+      }
+    } else if (!self) {
+      if (completion) {
+        NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                                                  failureReason:@"Lost reference to FIRMessaging."];
+        completion(lostRefError);
+      }
+    } else {
+      [self.tokenManager deleteTokenWithAuthorizedEntity:senderID
+                                                   scope:kFIRMessagingDefaultTokenScope
+                                              instanceID:identifier
+                                                 handler:^(NSError *_Nullable error) {
+                                                   if (completion) {
+                                                     completion(error);
+                                                   }
+                                                 }];
+    }
+  }];
 }
 
 - (void)deleteDataWithCompletion:(void (^)(NSError *_Nullable))completion {

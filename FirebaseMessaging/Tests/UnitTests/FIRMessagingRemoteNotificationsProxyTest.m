@@ -25,6 +25,14 @@
 
 #pragma mark - Invalid App Delegate or UNNotificationCenter
 
+// On watchOS, `GULApplication` and `GULApplicationDelegate` are `WKExtension`
+// and `WKExtensionDelegate`, which are deprecated in watchOS 9.2. These fakes
+// must use the same types as the app delegate swizzler.
+#if TARGET_OS_WATCH
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif  // TARGET_OS_WATCH
+
 @interface RandomObject : NSObject
 @property(nonatomic, weak) id delegate;
 @end
@@ -83,6 +91,10 @@
 }
 
 @end
+
+#if TARGET_OS_WATCH
+#pragma clang diagnostic pop
+#endif  // TARGET_OS_WATCH
 
 #pragma mark - Incomplete UNUserNotificationCenterDelegate
 @interface IncompleteUserNotificationCenterDelegate : NSObject <UNUserNotificationCenterDelegate>

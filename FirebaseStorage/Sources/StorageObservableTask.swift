@@ -37,9 +37,17 @@ import Foundation
     let uuidString = UUID().uuidString
 
     let snapshot = stateLock.withLock { () -> StorageTaskSnapshot in
-      handlerDictionaries[status]?[uuidString] = callback
-      handleToStatusMap[uuidString] = status
-      return snapshotUnderLock()
+      let snapshot = snapshotUnderLock()
+      // A task that already succeeded or failed won't raise that event again, but it may still
+      // be notifying its existing observers. Don't register the handler in that case, so that it
+      // gets the event only once, from the immediate callback below.
+      let alreadyTerminal = (status == .success && snapshot.state == .success) ||
+        (status == .failure && (snapshot.state == .failed || snapshot.state == .failing))
+      if !alreadyTerminal {
+        handlerDictionaries[status]?[uuidString] = callback
+        handleToStatusMap[uuidString] = status
+      }
+      return snapshot
     }
 
     var shouldFire = false

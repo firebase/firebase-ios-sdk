@@ -1,0 +1,90 @@
+public struct Person: Equatable {
+  public var name: String
+  public var nickname: String?
+  public var age: Int?
+  public var tags: [String]
+  public var scores: [Double]?
+  public var address: Address
+  public var previousAddresses: [Address]
+  public var optionalAddress: Address?
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            description: "A person with optionals, arrays and nested types",
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "name", description: "The person's full name", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "nickname", type: String?.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "age", type: Int?.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "tags", type: [String].self),
+                FoundationModelsFake.GenerationSchema.Property(name: "scores", type: [Double]?.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "address", type: Address.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "previousAddresses", type: [Address].self),
+                FoundationModelsFake.GenerationSchema.Property(name: "optionalAddress", type: Address?.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "name", value: self.name)
+        addProperty(name: "nickname", value: self.nickname)
+        addProperty(name: "age", value: self.age)
+        addProperty(name: "tags", value: self.tags)
+        addProperty(name: "scores", value: self.scores)
+        addProperty(name: "address", value: self.address)
+        addProperty(name: "previousAddresses", value: self.previousAddresses)
+        addProperty(name: "optionalAddress", value: self.optionalAddress)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Equatable {
+        public var id: FoundationModelsFake.GenerationID
+        public var name: String.PartiallyGenerated?
+        public var nickname: String?.PartiallyGenerated?
+        public var age: Int?.PartiallyGenerated?
+        public var tags: [String].PartiallyGenerated?
+        public var scores: [Double]?.PartiallyGenerated?
+        public var address: Address.PartiallyGenerated?
+        public var previousAddresses: [Address].PartiallyGenerated?
+        public var optionalAddress: Address?.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.name = try content.value(forProperty: "name")
+            self.nickname = try content.value(forProperty: "nickname")
+            self.age = try content.value(forProperty: "age")
+            self.tags = try content.value(forProperty: "tags")
+            self.scores = try content.value(forProperty: "scores")
+            self.address = try content.value(forProperty: "address")
+            self.previousAddresses = try content.value(forProperty: "previousAddresses")
+            self.optionalAddress = try content.value(forProperty: "optionalAddress")
+        }
+    }
+}
+
+extension Person: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.name = try content.value(forProperty: "name")
+        self.nickname = try content.value(forProperty: "nickname")
+        self.age = try content.value(forProperty: "age")
+        self.tags = try content.value(forProperty: "tags")
+        self.scores = try content.value(forProperty: "scores")
+        self.address = try content.value(forProperty: "address")
+        self.previousAddresses = try content.value(forProperty: "previousAddresses")
+        self.optionalAddress = try content.value(forProperty: "optionalAddress")
+    }
+}

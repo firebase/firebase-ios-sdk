@@ -28,11 +28,25 @@ public final class LiveSession: Sendable {
 
   /// An asynchronous stream of messages from the server.
   ///
-  /// These messages from the incremental updates from the model, for the current conversation.
+  /// These messages are the incremental updates from the model for the current conversation.
+  ///
+  /// The stream throws if the connection closes unexpectedly, and finishes, at the latest, shortly
+  /// after the session is deinitialized, so keep a reference to the ``LiveSession`` for as long as
+  /// you're consuming this stream.
   public var responses: AsyncThrowingStream<LiveServerMessage, Error> { service.responses }
 
   init(service: LiveSessionService) {
     self.service = service
+  }
+
+  deinit {
+    // `LiveSessionService`'s tasks keep it alive until they're cancelled, so it can't close itself
+    // once it's no longer referenced. Close it here to cancel those tasks and disconnect the
+    // WebSocket; once the tasks end, the service deinitializes, which finishes `responses`. A
+    // `Task` is needed because `deinit` can't `await`, and it must capture `service`, not `self`.
+    Task { [service] in
+      await service.close()
+    }
   }
 
   /// Response to a ``LiveServerToolCall`` received from the server.
@@ -165,13 +179,15 @@ public final class LiveSession: Sendable {
     await sendContent([ModelContent(parts: parts)], turnComplete: turnComplete)
   }
 
-  /// Permanently stop the conversation with the model, and close the connection to the server
+  /// Stops the conversation with the model and closes the connection to the server.
   ///
-  /// This method will be called automatically when the ``LiveSession`` is deinitialized, but this
-  /// method can be called manually to explicitly end the session.
+  /// The session is closed automatically when the ``LiveSession`` is deinitialized; call this
+  /// method to end the session explicitly, without waiting for it to be released.
   ///
-  /// Attempting to receive content from a closed session will cause a
-  /// ``LiveSessionUnexpectedClosureError`` error to be thrown.
+  /// After the session is closed, ``LiveSession/responses`` doesn't receive any new messages from
+  /// the server unless the session is resumed with
+  /// ``LiveSession/resumeSession(sessionResumption:)``. The stream finishes shortly after the
+  /// session is deinitialized.
   public func close() async {
     await service.close()
   }

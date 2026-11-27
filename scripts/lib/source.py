@@ -27,6 +27,10 @@ IGNORE = frozenset([
     'Firestore/Protos/cpp',
     'Firestore/Protos/objc',
     'Firestore/third_party/abseil-cpp',
+    # The zip builder's test package stands in for third-party SwiftPM
+    # packages, including a prebuilt .xcframework, so it isn't held to the
+    # repo's style.
+    'scripts/zip_builder/Fixtures',
 ])
 
 FIRESTORE_CORE = ['Firestore/core']

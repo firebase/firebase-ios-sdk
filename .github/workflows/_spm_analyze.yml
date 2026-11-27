@@ -1,0 +1,83 @@
+name: _spm_analyze
+
+# Runs the Clang static analyzer on a library product with Swift Package
+# Manager, replacing the `--analyze` step of `pod lib lint`. The job fails if
+# the analyzer reports a warning in the given source paths.
+#
+# Example:
+#
+#   spm-analyze:
+#     uses: ./.github/workflows/_spm_analyze.yml
+#     with:
+#       scheme: FirebaseMessaging
+#       source_paths: FirebaseMessaging/Sources FirebaseMessaging/Interop
+
+env:
+  FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+
+permissions:
+  contents: read
+
+on:
+  workflow_call:
+    inputs:
+      # The scheme to analyze: a library product (for example
+      # `FirebaseMessaging`), or a test scheme from scripts/spm_test_schemes
+      # whose build action analyzes a library that isn't a product.
+      scheme:
+        type: string
+        required: true
+
+      # The platforms to analyze on, as a JSON array. Defaults to the platforms
+      # that `pod lib lint` analyzed.
+      #
+      # Platform options: [iOS, tvOS, macOS, watchOS, catalyst, visionOS]
+      platforms:
+        type: string
+        required: false
+        default: '["iOS", "tvOS", "macOS", "watchOS"]'
+
+      # Space-separated repository paths. Only analyzer warnings in files under
+      # these paths fail the job, for example the SDK's own sources. Warnings
+      # in other Firebase targets that the scheme builds are reported by those
+      # SDKs' own jobs. Defaults to the whole repository.
+      source_paths:
+        type: string
+        required: false
+        default: ""
+
+jobs:
+  analyze:
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(inputs.platforms) }}
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Analyze
+      env:
+        SCHEME: ${{ inputs.scheme }}
+        PLATFORM: ${{ matrix.platform }}
+        SOURCE_PATHS: ${{ inputs.source_paths }}
+      run: |
+        # SOURCE_PATHS is intentionally split into separate arguments.
+        # shellcheck disable=SC2086
+        scripts/spm_analyze.sh "$SCHEME" "$PLATFORM" $SOURCE_PATHS
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ failure() }}
+      with:
+        name: analyze-${{ inputs.scheme }}-${{ matrix.platform }}
+        path: |
+          xcodebuild-analyze-*.log
+          xcresults/*
+        if-no-files-found: warn

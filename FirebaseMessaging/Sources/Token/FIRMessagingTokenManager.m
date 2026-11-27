@@ -466,6 +466,11 @@
   [self.tokenOperations addOperation:operation];
 }
 
++ (NSError *)lostReferenceError {
+  return [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                           failureReason:@"Cannot delete token. Lost reference to TokenManager"];
+}
+
 - (void)deleteAllTokensWithHandler:(void (^)(NSError *))handler {
   FIRMessaging_WEAKIFY(self);
 
@@ -480,14 +485,24 @@
           }
           return;
         }
+        if (!self) {
+          if (handler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              handler([FIRMessagingTokenManager lostReferenceError]);
+            });
+          }
+          return;
+        }
         // delete all tokens
         FIRMessagingCheckinPreferences *checkinPreferences = self.authService.checkinPreferences;
         if (!checkinPreferences) {
           // The checkin is already deleted. No need to trigger the token delete operation as client
           // no longer has the checkin information for server to delete.
-          dispatch_async(dispatch_get_main_queue(), ^{
-            handler(nil);
-          });
+          if (handler) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+              handler(nil);
+            });
+          }
           return;
         }
         FIRMessagingTokenOperation *operation = [self
@@ -496,15 +511,15 @@
                                    checkinPreferences:checkinPreferences
                                            instanceID:identifier
                                                action:FIRMessagingTokenActionDeleteTokenAndIID];
-        if (handler) {
-          [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
-                                            NSString *_Nullable token, NSError *_Nullable error) {
-            self->_defaultFCMToken = nil;
+        [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
+                                          NSString *_Nullable token, NSError *_Nullable error) {
+          self->_defaultFCMToken = nil;
+          if (handler) {
             dispatch_async(dispatch_get_main_queue(), ^{
               handler(error);
             });
-          }];
-        }
+          }
+        }];
         [self.tokenOperations addOperation:operation];
       }];
 }
@@ -523,15 +538,16 @@
   [self deleteAllTokensWithHandler:^(NSError *_Nullable error) {
     FIRMessaging_STRONGIFY(self);
     if (error) {
-      handler(error);
+      if (handler) {
+        handler(error);
+      }
       return;
     }
 
     if (!self) {
-      NSError *lostRefError =
-          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
-                            failureReason:@"Cannot delete token. Lost reference to TokenManager"];
-      handler(lostRefError);
+      if (handler) {
+        handler([FIRMessagingTokenManager lostReferenceError]);
+      }
       return;
     }
 
@@ -539,11 +555,15 @@
       [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       self->_defaultFCMToken = nil;
       if (localError) {
-        handler(localError);
+        if (handler) {
+          handler(localError);
+        }
         return;
       }
       [self.authService resetCheckinWithHandler:^(NSError *_Nonnull authError) {
-        handler(authError);
+        if (handler) {
+          handler(authError);
+        }
       }];
     }];
   }];
@@ -701,8 +721,10 @@
   return shouldFetchDefaultToken;
 }
 
-- (NSArray<FIRMessagingTokenInfo *> *)updateTokensToAPNSDeviceToken:(NSData *)deviceToken
-                                                          isSandbox:(BOOL)isSandbox {
+- (NSArray<FIRMessagingTokenInfo *> *)
+    updateTokensToAPNSDeviceToken:(NSData *)deviceToken
+                        isSandbox:(BOOL)isSandbox
+                 cachedTokenInfos:(NSArray<FIRMessagingTokenInfo *> *)tokenInfos {
   // Each cached IID token that is missing an APNSInfo, or has an APNSInfo associated should be
   // checked and invalidated if needed.
   FIRMessagingAPNSInfo *APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:deviceToken
@@ -712,7 +734,6 @@
   }
   self.currentAPNSInfo = APNSInfo;
 
-  NSArray<FIRMessagingTokenInfo *> *tokenInfos = [_tokenStore cachedTokenInfos];
   NSMutableArray<FIRMessagingTokenInfo *> *tokenInfosToDelete =
       [NSMutableArray arrayWithCapacity:tokenInfos.count];
   for (FIRMessagingTokenInfo *cachedTokenInfo in tokenInfos) {
@@ -764,17 +785,25 @@
   }
 #endif  // TARGET_OS_SIMULATOR
 
+  // Reading the cached tokens is a synchronous keychain query, and this method is usually called on
+  // the main thread, so only read them once.
+  NSArray<FIRMessagingTokenInfo *> *cachedTokenInfos = [_tokenStore cachedTokenInfos];
+
   // Pro-actively invalidate the default token, if the APNs change makes it
   // invalid. Previously, we invalidated just before fetching the token.
   NSArray<FIRMessagingTokenInfo *> *invalidatedTokens =
-      [self updateTokensToAPNSDeviceToken:APNSToken isSandbox:isSandboxApp];
+      [self updateTokensToAPNSDeviceToken:APNSToken
+                                isSandbox:isSandboxApp
+                         cachedTokenInfos:cachedTokenInfos];
 
   self.currentAPNSInfo = [[FIRMessagingAPNSInfo alloc] initWithDeviceToken:[APNSToken copy]
                                                                  isSandbox:isSandboxApp];
 
   // Re-fetch any invalidated tokens automatically, this time with the current APNs token, so that
   // they are up-to-date. Or this is a fresh install and no apns token stored yet.
-  if (invalidatedTokens.count > 0 || [_tokenStore cachedTokenInfos].count == 0) {
+  // `cachedTokenInfos` was read before the invalidation, but it's only checked when no tokens were
+  // invalidated, in which case the store is unchanged.
+  if (invalidatedTokens.count > 0 || cachedTokenInfos.count == 0) {
     FIRMessaging_WEAKIFY(self);
 
     [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,

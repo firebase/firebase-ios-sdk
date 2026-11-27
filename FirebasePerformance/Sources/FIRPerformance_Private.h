@@ -24,7 +24,7 @@
 /** Custom attribute managed internally. */
 @property(nonatomic) NSMutableDictionary<NSString *, NSString *> *customAttributes;
 
-/** Serial queue to manage mutation of attributes. */
+/** Serial queue to synchronize access to custom attributes. */
 @property(nonatomic, readwrite) dispatch_queue_t customAttributesSerialQueue;
 
 /** Client object used for checking the status of the performance SDK before generating events. */

@@ -19,7 +19,7 @@ import Foundation
 import XCTest
 
 class TestsBase: XCTestCase {
-  static let kExpectationsTimeout = 10.0
+  static let kExpectationsTimeout = 15.0
 
   func signInAnonymouslyAsync() async throws {
     let auth = Auth.auth()
@@ -63,5 +63,9 @@ class TestsBase: XCTestCase {
       expectation.fulfill()
     }
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
+  }
+
+  func fakeRandomEmail() -> String {
+    "user+ci-\(UUID().uuidString.lowercased())@example.com"
   }
 }

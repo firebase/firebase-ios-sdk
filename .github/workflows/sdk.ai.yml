@@ -14,6 +14,8 @@ on:
     - 'Gemfile*'
     # Do not run for documentation-only PRs.
     - '!**.md'
+    # Do not run for FoundationModelsFake-only changes; FirebaseAI doesn't depend on it.
+    - '!GeminiLanguageModel/FoundationModelsFake/**'
   schedule:
     # Run every day at 12am (PDT) / 3am (EDT) - cron uses UTC times
     - cron:  '0 7 * * *'

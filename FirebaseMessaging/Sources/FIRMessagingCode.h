@@ -52,6 +52,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeInstallationIdDisabled = 2028,
   kFIRMessagingMessageCodeDebug = 2029,
   kFIRMessagingMessageCodeInstallationIdRotation = 2030,
+  kFIRMessagingMessageCodeUnsupportedLinkScheme = 2031,
+  kFIRMessagingMessageCodeInvalidLinkURL = 2032,
 
   // DO NOT USE 4000, 4004 - 4013
   kFIRMessagingMessageCodeClient001 = 4001,  // I-FCM004000
@@ -104,7 +106,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorOpeningDatabase = 13008,   // I-FCM013008
   kFIRMessagingMessageCodeRmq2PersistentStoreErrorCreatingTable = 13010,     // I-FCM013010
   // FIRMessagingRmqManager.m
-  kFIRMessagingMessageCodeRmqManager000 = 14000,  // I-FCM014000
+  kFIRMessagingMessageCodeRmqManager000 = 14000,                  // I-FCM014000
+  kFIRMessagingMessageCodeRmqManagerDatabaseUnavailable = 14001,  // I-FCM014001
   // FIRMessagingSyncMessageManager.m
   // DO NOT USE 16000, 16003
   kFIRMessagingMessageCodeSyncMessageManager001 = 16001,  // I-FCM016001
@@ -191,6 +194,8 @@ typedef NS_ENUM(NSInteger, FIRMessagingMessageCode) {
   kFIRMessagingMessageCodeService005 = 27005,
   kFIRMessagingMessageCodeService006 = 27006,
   kFIRMessagingInvalidSettingResponse = 27008,
+  kFIRMessagingMessageCodeService009 = 27009,
+  kFIRMessagingMessageCodeService010 = 27010,
   // FIRMessagingCheckinStore.m
   // DO NOT USE 8002, 8004 - 8008
   kFIRMessagingMessageCodeCheckinStore000 = 28000,

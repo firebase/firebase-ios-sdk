@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(FoundationModels) && compiler(>=6.4)
+#if compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))
   import Foundation
-  import FoundationModels
+  #if FoundationModelsFake
+    import FoundationModelsFake
+  #else
+    import FoundationModels
+  #endif
   import GeminiAPIDataModels
   import GeminiTestUtilities
   import Testing
@@ -154,21 +158,19 @@
       )
       let schema = try GenerationSchema(root: rootSchema, dependencies: [])
 
-      let textFormat = TextResponseFormat(
-        mimeType: .applicationJson,
-        schema: try schema.toGeminiJSONValue()
-      )
+      let schemaObject = try schema.toGeminiJSONSchema()
+      let textFormat = TextResponseFormat {
+        $0.mimeType = .applicationJSON
+        $0.schema = schemaObject
+      }
       let config = ResponseFormatConfig(text: textFormat)
       let data = try JSONEncoder().encode(config)
       let decoded = try JSONDecoder().decode(ResponseFormatConfig.self, from: data)
 
-      #expect(decoded.text?.mimeType == .applicationJson)
-      guard case .object(let schemaObject) = decoded.text?.schema else {
-        Issue.record("Expected decoded schema to be a JSON object.")
-        return
-      }
-      #expect(schemaObject["x-order"] == nil)
-      #expect(schemaObject["propertyOrdering"] == .array([.string("message")]))
+      #expect(decoded.text?.mimeType == .applicationJSON)
+      let decodedSchema = try #require(decoded.text?.schema)
+      #expect(decodedSchema["x-order"] == nil)
+      #expect(decodedSchema["propertyOrdering"] == .array([.string("message")]))
     }
 
     @Generable(description: "A priority level")
@@ -355,4 +357,4 @@
       #expect(childProps["pattern"] != nil)
     }
   }
-#endif  // canImport(FoundationModels) && compiler(>=6.4)
+#endif  // compiler(>=6.4) && (FoundationModelsFake || canImport(FoundationModels))

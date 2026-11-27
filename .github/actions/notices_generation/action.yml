@@ -25,7 +25,7 @@ outputs:
 runs:
   using: 'composite'
   steps:
-  - uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252 # v1
+  - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     with:
       ruby-version: "3.4"
   - name: Generate a NOTICES file

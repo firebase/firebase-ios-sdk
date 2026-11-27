@@ -127,7 +127,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
                        handler(nil);
                      }
                    }];
-  } else {
+  } else if (handler) {
     handler(nil);
   }
 }
@@ -136,7 +136,9 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   // Delete the checkin preferences plist first to avoid delay.
   NSError *deletePlistError;
   if (![self.plist deleteFile:&deletePlistError]) {
-    handler(deletePlistError);
+    if (handler) {
+      handler(deletePlistError);
+    }
     return;
   }
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStoreCheckinPlistDeleted,
@@ -145,7 +147,9 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   [self.keychain removeItemsMatchingService:kFIRMessagingCheckinKeychainService
                                     account:self.bundleIdentifierForKeychainAccount
                                     handler:^(NSError *error) {
-                                      handler(error);
+                                      if (handler) {
+                                        handler(error);
+                                      }
                                     }];
 }
 
@@ -162,13 +166,14 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
 
   NSDictionary *checkinPlistContents = [self.plist contentAsDictionary];
 
-  NSString *plistDeviceAuthID = checkinPlistContents[kFIRMessagingDeviceAuthIdKey];
-  NSString *plistSecretToken = checkinPlistContents[kFIRMessagingSecretTokenKey];
+  id plistDeviceAuthID = checkinPlistContents[kFIRMessagingDeviceAuthIdKey];
+  id plistSecretToken = checkinPlistContents[kFIRMessagingSecretTokenKey];
 
   // If deviceID and secret not found in the keychain verify that we don't have them in the
   // checkin preferences plist.
   if (![checkinPreferences.deviceID length] && ![checkinPreferences.secretToken length]) {
-    if ([plistDeviceAuthID length] && [plistSecretToken length]) {
+    if ([plistDeviceAuthID isKindOfClass:[NSString class]] && [plistDeviceAuthID length] &&
+        [plistSecretToken isKindOfClass:[NSString class]] && [plistSecretToken length]) {
       // Couldn't find checkin credentials in keychain but found them in the plist.
       checkinPreferences =
           [[FIRMessagingCheckinPreferences alloc] initWithDeviceID:plistDeviceAuthID

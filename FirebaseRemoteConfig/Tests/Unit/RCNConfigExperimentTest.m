@@ -134,6 +134,24 @@
   }
 }
 
+- (void)testUpdateExperimentWithMalformedResponse {
+  // A non-array experimentDescriptions field is ignored.
+  NSArray *malformedResponses = @[ @"experiments", @1, [NSNull null], @{@"experimentId" : @"e"} ];
+  for (id response in malformedResponses) {
+    XCTAssertNoThrow([_configExperiment updateExperimentsWithResponse:response]);
+    XCTAssertEqual(_configExperiment.experimentPayloads.count, 0);
+  }
+
+  // Non-dictionary entries are skipped and valid ones are kept.
+  NSDictionary<NSString *, id> *validPayload = @{@"experimentId" : @"exp1"};
+  NSArray *response = @[ @"experiment", @1, [NSNull null], @[ @"exp" ], validPayload ];
+  XCTAssertNoThrow([_configExperiment updateExperimentsWithResponse:response]);
+  XCTAssertEqual(_configExperiment.experimentPayloads.count, 1);
+  ABTExperimentPayload *experimentPayload =
+      [self deserializeABTData:_configExperiment.experimentPayloads[0]];
+  XCTAssertEqualObjects(experimentPayload.experimentId, @"exp1");
+}
+
 - (void)testUpdateLastExperimentStartTime {
   [_configExperiment updateExperimentStartTime];
   XCTAssertEqualObjects(_configExperiment.experimentMetadata[@"last_experiment_start_time"], @(0));

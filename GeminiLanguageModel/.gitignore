@@ -7,3 +7,10 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
 .swiftpm
+
+# Type generation scripts (scripts/typegen)
+.venv/
+__pycache__/
+*.py[cod]
+scripts/typegen/discovery_documents/firebasevertexai_discovery_v1beta.json
+scripts/typegen/discovery_documents/firebasevertexai-openapi.yaml

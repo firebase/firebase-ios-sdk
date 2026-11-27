@@ -554,6 +554,10 @@ message ExecutePipelineRequest {
     // minute timestamp within the past 7 days.
     google.protobuf.Timestamp read_time = 7;
   }
+
+  // Automatically commits the transaction after the pipeline has been executed.
+  // Only permitted in combination with `transaction` or `new_transaction`.
+  bool auto_commit_transaction = 9 [(google.api.field_behavior) = OPTIONAL];
 }
 
 // The response for [Firestore.Execute][].

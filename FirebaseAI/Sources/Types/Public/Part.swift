@@ -31,18 +31,50 @@ public struct TextPart: Part {
   /// Text value.
   public let text: String
 
+  /// Optional speech metadata configuring the speaker and delivery style for speech synthesis.
+  let speechMetadata: SpeechMetadata?
+
   public var isThought: Bool { _isThought ?? false }
 
   let thoughtSignature: String?
 
   let _isThought: Bool?
 
+  /// Creates a text part with a string value.
+  ///
+  /// - Parameter text: The text string. For speech generation, this represents the verbatim
+  ///   transcript to be synthesized.
   public init(_ text: String) {
-    self.init(text, isThought: nil, thoughtSignature: nil)
+    self.init(text, speechMetadata: nil, isThought: nil, thoughtSignature: nil)
   }
 
-  init(_ text: String, isThought: Bool?, thoughtSignature: String?) {
+  /// **[Public Preview]** Creates a text part with a string value and optional speech metadata.
+  ///
+  /// > Warning: The `speechMetadata` parameter is in public preview and may be subject to change.
+  ///
+  /// When using a Gemini text-to-speech model, `speechMetadata` controls the delivery style of
+  /// this turn and, in multi-speaker requests, which speaker voices it.
+  ///
+  /// > Important: When using a multi-speaker configuration, `speechMetadata` with a matching
+  /// > `speaker` is required on every ``TextPart``. Omitting `speaker` in a multi-speaker request
+  /// > causes the request to fail.
+  ///
+  /// For more details, see the
+  /// [Text-to-speech guide](https://firebase.google.com/docs/ai-logic/generate-speech).
+  ///
+  /// - Parameters:
+  ///   - text: The text string. For speech generation, this represents the verbatim transcript
+  ///     to be synthesized.
+  ///   - speechMetadata: Optional ``SpeechMetadata`` configuring the speaker and delivery style for
+  ///     text-to-speech generation. Defaults to `nil`.
+  public init(_ text: String, speechMetadata: SpeechMetadata? = nil) {
+    self.init(text, speechMetadata: speechMetadata, isThought: nil, thoughtSignature: nil)
+  }
+
+  init(_ text: String, speechMetadata: SpeechMetadata? = nil, isThought: Bool?,
+       thoughtSignature: String?) {
     self.text = text
+    self.speechMetadata = speechMetadata
     _isThought = isThought
     self.thoughtSignature = thoughtSignature
   }

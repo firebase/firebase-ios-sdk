@@ -26,6 +26,9 @@ class APITestBase: XCTestCase {
   static var mockedFetch: Bool!
   static var mockedRealtime: Bool!
   var app: FirebaseApp!
+  /// Reset to `nil` in `tearDown()`. A completion handler can still run after its test times out,
+  /// so handlers should use a local reference captured at the start of the test instead of
+  /// reading `self.config`.
   var config: RemoteConfig!
   var console: RemoteConfigConsole!
   var fakeConsole: FakeConsole!

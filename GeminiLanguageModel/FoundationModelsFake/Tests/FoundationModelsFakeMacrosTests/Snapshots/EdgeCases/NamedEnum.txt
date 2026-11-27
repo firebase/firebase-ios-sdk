@@ -1,0 +1,31 @@
+public enum NamedMood {
+  case happy
+  case sad
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(__name: "Mood", anyOf: ["happy", "sad"])
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        switch self {
+        case .happy:
+            "happy".generatedContent
+        case .sad:
+            "sad".generatedContent
+        }
+    }
+}
+
+extension NamedMood: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let rawValue = try content.value(String.self)
+        switch rawValue {
+        case "happy":
+            self = .happy
+        case "sad":
+            self = .sad
+        default:
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "\"\(rawValue)\" isn't a case of \(Self.self)")
+        }
+    }
+}
