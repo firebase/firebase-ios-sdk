@@ -59,8 +59,13 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
       @"+defaultOptionsDictionary", @"+resetDefaultOptions", @"+plistFilePathWithName:",
       @"-initInternalWithOptionsDictionary:", @"-isAnalyticsCollectionExplicitlySet",
       @"-isAnalyticsCollectionEnabled", @"-isAnalyticsCollectionDeactivated", @"-libraryVersionID",
-      @"-isEditingLocked", @"-setEditingLocked:"
+      @"-isEditingLocked", @"-setEditingLocked:",
+      // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks.
+      @"-analyticsOptionsDictionaryWithInfoDictionary:", @"-isMeasurementEnabled",
+      @"-usingOptionsFromDefaultPlist", @"-setUsingOptionsFromDefaultPlist:"
     ],
+    // Test seam used by FirebaseCoreTestHooks.
+    @"FIRBundleUtil" : @[ @"+relevantBundles", @"+setRelevantBundlesForTesting:" ],
     @"FIRConfiguration" : @[
       @"+sharedInstance", @"-setLoggerLevel:", @"-loggerLevel", @"-analyticsConfiguration",
       @"-setAnalyticsConfiguration:"

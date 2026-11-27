@@ -345,6 +345,23 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../../Sources/Public/FirebaseCore"),
       ]
     ),
+    // Internal FirebaseCore API and helpers for the Swift unit tests. Test-only.
+    .target(
+      name: "FirebaseCoreTestHooks",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseCore/Tests/TestHooks",
+      publicHeadersPath: "include",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    // Swift unit tests that don't use OCMock, so they run against both the Objective-C and the
+    // Swift implementations of FirebaseCore.
+    .testTarget(
+      name: "CoreSwiftUnit",
+      dependencies: ["FirebaseCore", "FirebaseCoreTestHooks"],
+      path: "FirebaseCore/Tests/SwiftSuite"
+    ),
     // Checks the Objective-C runtime contract (classes, selectors, type encodings) that other
     // products, closed-source binaries and wrapper SDKs depend on.
     .testTarget(

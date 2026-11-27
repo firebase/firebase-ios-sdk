@@ -18,8 +18,23 @@
 
 @implementation FIRBundleUtil
 
+/// Bundles that replace `relevantBundles` in tests. Set only by tests, through
+/// `+setRelevantBundlesForTesting:`.
+static NSArray<NSBundle *> *sRelevantBundlesForTesting;
+
 + (NSArray *)relevantBundles {
+  @synchronized(self) {
+    if (sRelevantBundlesForTesting) {
+      return sRelevantBundlesForTesting;
+    }
+  }
   return @[ [NSBundle mainBundle], [NSBundle bundleForClass:[self class]] ];
+}
+
++ (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles {
+  @synchronized(self) {
+    sRelevantBundlesForTesting = [bundles copy];
+  }
 }
 
 + (NSString *)optionsDictionaryPathWithResourceName:(NSString *)resourceName

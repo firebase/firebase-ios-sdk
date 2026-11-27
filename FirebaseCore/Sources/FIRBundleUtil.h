@@ -27,6 +27,12 @@
 + (NSArray *)relevantBundles;
 
 /**
+ * For tests only. Replaces the bundles returned by `relevantBundles`, or restores the default
+ * bundles when `bundles` is nil.
+ */
++ (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles;
+
+/**
  * Reads the options dictionary from one of the provided bundles.
  *
  * @param resourceName The resource name, e.g. @"GoogleService-Info".
