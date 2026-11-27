@@ -45,8 +45,8 @@ class LevelDbPersistence;
 class LocalSerializer;
 
 /**
- * Returns one larger than the largest batch ID that has been stored. If there
- * are no mutations returns 0. Note that batch IDs are global.
+ * Returns one larger than the largest batch ID stored in the mutation table.
+ * Returns 1 if there are no mutations. Batch IDs are global.
  */
 model::BatchId LoadNextBatchIdFromDb(leveldb::DB* db);
 
@@ -54,7 +54,7 @@ class LevelDbMutationQueue : public MutationQueue {
  public:
   LevelDbMutationQueue(const credentials::User& user,
                        LevelDbPersistence* db,
-                       IndexManager* index_manager,
+                       LevelDbIndexManager* index_manager,
                        LocalSerializer* serializer);
 
   void Start() override;
@@ -116,7 +116,7 @@ class LevelDbMutationQueue : public MutationQueue {
 
   // The LevelDbMutationQueue instance is owned by LevelDbPersistence.
   LevelDbPersistence* db_;
-  IndexManager* index_manager_;
+  LevelDbIndexManager* index_manager_;
 
   // Owned by LevelDbPersistence.
   LocalSerializer* serializer_ = nullptr;

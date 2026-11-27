@@ -18,6 +18,8 @@
   Punycode-encoded.
 - [fixed] Security Update: Removed untrusted eMudhra root certificate
   (`emSign Root CA - G1`) from embedded trust store.
+- [fixed] Preserve pending document overlays for indexed queries after the
+  mutation queue becomes empty and is recreated. (#16751)
 
 # 13.2.0
 - [feature] Pipeline Search is now Generally Available (GA). (#16945)
