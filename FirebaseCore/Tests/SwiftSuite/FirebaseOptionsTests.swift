@@ -202,22 +202,25 @@ final class FirebaseOptionsTests: XCTestCase {
   func testPropertiesCopyTheirValues() {
     let options = FirebaseOptions(googleAppID: TestValues.googleAppID,
                                   gcmSenderID: TestValues.gcmSenderID)
-    let setters: [(String, (NSMutableString) -> Void, () -> String?)] = [
-      ("apiKey", { options.apiKey = $0 as String }, { options.apiKey }),
-      ("bundleID", { options.bundleID = $0 as String }, { options.bundleID }),
-      ("clientID", { options.clientID = $0 as String }, { options.clientID }),
-      ("gcmSenderID", { options.gcmSenderID = $0 as String }, { options.gcmSenderID }),
-      ("projectID", { options.projectID = $0 as String }, { options.projectID }),
-      ("googleAppID", { options.googleAppID = $0 as String }, { options.googleAppID }),
-      ("databaseURL", { options.databaseURL = $0 as String }, { options.databaseURL }),
-      ("storageBucket", { options.storageBucket = $0 as String }, { options.storageBucket }),
-      ("appGroupID", { options.appGroupID = $0 as String }, { options.appGroupID }),
+    // Bridging an NSMutableString to String copies it, so assigning through the Swift setters
+    // can't tell `copy` from `strong`. Key-value coding passes the mutable string to the
+    // Objective-C setter as is.
+    let properties: [(String, () -> String?)] = [
+      ("APIKey", { options.apiKey }),
+      ("bundleID", { options.bundleID }),
+      ("clientID", { options.clientID }),
+      ("GCMSenderID", { options.gcmSenderID }),
+      ("projectID", { options.projectID }),
+      ("googleAppID", { options.googleAppID }),
+      ("databaseURL", { options.databaseURL }),
+      ("storageBucket", { options.storageBucket }),
+      ("appGroupID", { options.appGroupID }),
     ]
-    for (name, set, get) in setters {
+    for (key, get) in properties {
       let value = NSMutableString(string: "1")
-      set(value)
+      options.setValue(value, forKey: key)
       value.append("2")
-      XCTAssertEqual(get(), "1", name)
+      XCTAssertEqual(get(), "1", key)
     }
   }
 
@@ -407,8 +410,9 @@ final class FirebaseOptionsTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: TestValues.googleAppID,
                                   gcmSenderID: TestValues.gcmSenderID)
     let versionID = options.libraryVersionID
-    XCTAssertNotNil(versionID.range(of: "^[0-9]{8,}$", options: .regularExpression),
-                    "Unexpected library version ID format: \(versionID)")
+    // Stop here if the format is wrong, since the index math below assumes at least six digits.
+    _ = try XCTUnwrap(versionID.range(of: "^[0-9]{8,}$", options: .regularExpression),
+                      "Unexpected library version ID format: \(versionID)")
 
     // The first six digits are the major, minor and patch versions, two digits each.
     func number(_ offset: Int) throws -> Int {
