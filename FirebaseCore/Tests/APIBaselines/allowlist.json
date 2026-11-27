@@ -1,0 +1,5 @@
+{
+  "_comment": "Reviewed, intentional differences from the FirebaseCore API baselines. Each entry's `pattern` is a regular expression matched against a line reported by `scripts/core_api/core_api.py check`. Every entry needs a `reason`, ideally linking the approval and the CHANGELOG entry.",
+  "objc": [],
+  "swift": []
+}

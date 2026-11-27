@@ -1,0 +1,293 @@
+import Foundation
+
+/**
+ * The entry point of Firebase SDKs.
+ *
+ * Initialize and configure `FirebaseApp` using `FirebaseApp.configure()`
+ * or other customized ways as shown below.
+ *
+ * The logging system has two modes: default mode and debug mode. In default mode, only logs with
+ * log level Notice, Warning and Error will be sent to device. In debug mode, all logs will be sent
+ * to device. The log levels that Firebase uses are consistent with the ASL log levels.
+ *
+ * Enable debug mode by passing the `-FIRDebugEnabled` argument to the application. You can add this
+ * argument in the application's Xcode scheme. When debug mode is enabled via `-FIRDebugEnabled`,
+ * further executions of the application will also be in debug mode. In order to return to default
+ * mode, you must explicitly disable the debug mode with the application argument
+ * `-FIRDebugDisabled`.
+ *
+ * It is also possible to change the default logging level in code by calling
+ * `FirebaseConfiguration.shared.setLoggerLevel(_:)` with the desired level.
+ */
+open class FirebaseApp : NSObject {
+
+    /**
+     * Configures a default Firebase app. Raises an exception if any configuration step fails. The
+     * default app is named "__FIRAPP_DEFAULT". This method should be called after the app is launched
+     * and before using Firebase services. This method should be called from the main thread and
+     * contains synchronous file I/O (reading GoogleService-Info.plist from disk).
+     */
+    open class func configure()
+
+    /**
+     * Configures the default Firebase app with the provided options. The default app is named
+     * "__FIRAPP_DEFAULT". Raises an exception if any configuration step fails. This method should be
+     * called from the main thread.
+     *
+     * @param options The Firebase application options used to configure the service.
+     */
+    open class func configure(options: FirebaseOptions)
+
+    /**
+     * Configures a Firebase app with the given name and options. Raises an exception if any
+     * configuration step fails. This method should be called from the main thread.
+     *
+     * @param name The application's name given by the developer. The name should should only contain
+                   Letters, Numbers and Underscore.
+     * @param options The Firebase application options used to configure the services.
+     */
+    open class func configure(name: String, options: FirebaseOptions)
+
+    /**
+     * Returns the default app, or `nil` if the default app does not exist.
+     */
+    open class func app() -> FirebaseApp?
+
+    /**
+     * Returns a previously created `FirebaseApp` instance with the given name, or `nil` if no such app
+     * exists. This method is thread safe.
+     */
+    open class func app(name: String) -> FirebaseApp?
+
+    /**
+     * Returns the set of all extant `FirebaseApp` instances, or `nil` if there are no `FirebaseApp`
+     * instances. This method is thread safe.
+     */
+    open class var allApps: [String : FirebaseApp]? { get }
+
+    /**
+     * Cleans up the current `FirebaseApp`, freeing associated data and returning its name to the pool
+     * for future use. This method is thread safe.
+     */
+    open func delete(_ completion: @escaping @Sendable (Bool) -> Void)
+
+    /**
+     * Cleans up the current `FirebaseApp`, freeing associated data and returning its name to the pool
+     * for future use. This method is thread safe.
+     */
+    open func delete() async -> Bool
+
+    /**
+     * Gets the name of this app.
+     */
+    open var name: String { get }
+
+    /**
+     * Gets a copy of the options for this app. These are non-modifiable.
+     */
+    @NSCopying open var options: FirebaseOptions { get }
+
+    /**
+     * Gets or sets whether automatic data collection is enabled for all products. Defaults to `true`
+     * unless `FirebaseDataCollectionDefaultEnabled` is set to `NO` in your app's Info.plist. This value
+     * is persisted across runs of the app so that it can be set once when users have consented to
+     * collection.
+     */
+    open var isDataCollectionDefaultEnabled: Bool
+}
+
+/**
+ * The log levels used by internal logging.
+ */
+public enum FirebaseLoggerLevel : Int, @unchecked Sendable {
+
+    /** Error level, matches ASL_LEVEL_ERR. */
+    case error = 3
+
+    /** Warning level, matches ASL_LEVEL_WARNING. */
+    case warning = 4
+
+    /** Notice level, matches ASL_LEVEL_NOTICE. */
+    case notice = 5
+
+    /** Info level, matches ASL_LEVEL_INFO. */
+    case info = 6
+
+    /** Debug level, matches ASL_LEVEL_DEBUG. */
+    case debug = 7
+
+    /** Minimum log level. */
+    public static var min: FirebaseLoggerLevel { get }
+
+    /** Maximum log level. */
+    public static var max: FirebaseLoggerLevel { get }
+}
+
+/**
+ * This interface provides global level properties that the developer can tweak.
+ */
+open class FirebaseConfiguration : NSObject {
+
+    /** Returns the shared configuration object. */
+    open class var shared: FirebaseConfiguration { get }
+
+    /**
+     * Sets the logging level for internal Firebase logging. Firebase will only log messages
+     * that are logged at or below `loggerLevel`. The messages are logged both to the Xcode
+     * console and to the device's log. Note that if an app is running from AppStore, it will
+     * never log above `.notice` even if `loggerLevel` is set to a higher (more verbose)
+     * setting.
+     *
+     * @param loggerLevel The maximum logging level. The default level is set to FIRLoggerLevelNotice.
+     */
+    open func setLoggerLevel(_ loggerLevel: FirebaseLoggerLevel)
+
+    /// Returns the logging level for internal Firebase logging.
+    open func loggerLevel() -> FirebaseLoggerLevel
+}
+
+/**
+ * This class provides constant fields of Google APIs.
+ */
+open class FirebaseOptions : NSObject, NSCopying {
+
+    /**
+     * Returns the default options. The first time this is called it synchronously reads
+     * GoogleService-Info.plist from disk.
+     */
+    open class func defaultOptions() -> FirebaseOptions?
+
+    /**
+     * An API key used for authenticating requests from your Apple app, e.g.
+     * The key must begin with "A" and contain exactly 39 alphanumeric characters, used to identify your
+     * app to Google servers.
+     */
+    open var apiKey: String?
+
+    /**
+     * The bundle ID for the application. Defaults to `Bundle.main.bundleIdentifier` when not set
+     * manually or in a plist.
+     */
+    open var bundleID: String
+
+    /**
+     * The OAuth2 client ID for Apple applications used to authenticate Google users, for example
+     * @"12345.apps.googleusercontent.com", used for signing in with Google.
+     */
+    open var clientID: String?
+
+    /**
+     * The Project Number from the Google Developer's console, for example @"012345678901", used to
+     * configure Firebase Cloud Messaging.
+     */
+    open var gcmSenderID: String
+
+    /**
+     * The Project ID from the Firebase console, for example @"abc-xyz-123".
+     */
+    open var projectID: String?
+
+    /**
+     * The Google App ID that is used to uniquely identify an instance of an app.
+     */
+    open var googleAppID: String
+
+    /**
+     * The database root URL, e.g. @"http://abc-xyz-123.firebaseio.com".
+     */
+    open var databaseURL: String?
+
+    /**
+     * The Google Cloud Storage bucket name, e.g. @"abc-xyz-123.storage.firebase.com".
+     */
+    open var storageBucket: String?
+
+    /**
+     * The App Group identifier to share data between the application and the application extensions.
+     * The App Group must be configured in the application and on the Apple Developer Portal. Default
+     * value `nil`.
+     */
+    open var appGroupID: String?
+
+    /**
+     * Initializes a customized instance of FirebaseOptions from the file at the given plist file path.
+     * This will read the file synchronously from disk.
+     * For example:
+     * ```swift
+     *   if let path = Bundle.main.path(forResource:"GoogleService-Info", ofType:"plist") {
+     *       let options = FirebaseOptions(contentsOfFile: path)
+     *   }
+     * ```
+     * Note that it is not possible to customize `FirebaseOptions` for Firebase Analytics which expects
+     * a static file named `GoogleService-Info.plist` -
+     * https://github.com/firebase/firebase-ios-sdk/issues/230.
+     * Returns `nil` if the plist file does not exist or is invalid.
+     */
+    public init?(contentsOfFile plistPath: String)
+
+    /**
+     * Initializes a customized instance of `FirebaseOptions` with required fields. Use the mutable
+     * properties to modify fields for configuring specific services. Note that it is not possible to
+     * customize `FirebaseOptions` for Firebase Analytics which expects a static file named
+     * `GoogleServices-Info.plist` - https://github.com/firebase/firebase-ios-sdk/issues/230.
+     */
+    public init(googleAppID: String, gcmSenderID GCMSenderID: String)
+}
+
+/**
+ * A Timestamp represents a point in time independent of any time zone or calendar, represented as
+ * seconds and fractions of seconds at nanosecond resolution in UTC Epoch time. It is encoded using
+ * the Proleptic Gregorian Calendar which extends the Gregorian calendar backwards to year one. It
+ * is encoded assuming all minutes are 60 seconds long, i.e. leap seconds are "smeared" so that no
+ * leap second table is needed for interpretation. Range is from 0001-01-01T00:00:00Z to
+ * 9999-12-31T23:59:59.999999999Z. By restricting to that range, we ensure that we can convert to
+ * and from  RFC 3339 date strings.
+ *
+ * @see https://github.com/google/protobuf/blob/main/src/google/protobuf/timestamp.proto for the
+ * reference timestamp definition.
+ */
+open class Timestamp : NSObject, NSCopying, @unchecked Sendable {
+
+    /**
+     * Creates a new timestamp.
+     *
+     * @param seconds the number of seconds since epoch.
+     * @param nanoseconds the number of nanoseconds after the seconds.
+     */
+    public init(seconds: Int64, nanoseconds: Int32)
+
+    /** Creates a new timestamp from the given date. */
+    public convenience init(date: Date)
+
+    /** Creates a new timestamp with the current date / time. */
+    public convenience init()
+
+    /** Returns a new `Date` corresponding to this timestamp. This may lose precision. */
+    open func dateValue() -> Date
+
+    /**
+     * Returns the result of comparing the receiver with another timestamp.
+     * @param other the other timestamp to compare.
+     * @return `orderedAscending` if `other` is chronologically following self,
+     *     `orderedDescending` if `other` is chronologically preceding self,
+     *     `orderedSame` otherwise.
+     */
+    open func compare(_ other: Timestamp) -> ComparisonResult
+
+    /**
+     * Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z.
+     * Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.
+     */
+    open var seconds: Int64 { get }
+
+    /**
+     * Non-negative fractions of a second at nanosecond resolution. Negative second values with
+     * fractions must still have non-negative nanos values that count forward in time.
+     * Must be from 0 to 999,999,999 inclusive.
+     */
+    open var nanoseconds: Int32 { get }
+}
+
+/** Returns the current version of Firebase. */
+public func FirebaseVersion() -> String
+

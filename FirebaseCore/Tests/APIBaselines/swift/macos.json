@@ -1,0 +1,2744 @@
+{
+  "ABIRoot": {
+    "children": [
+      {
+        "declAttributes": [
+          "Exported"
+        ],
+        "declKind": "Import",
+        "kind": "Import",
+        "moduleName": "FirebaseCore",
+        "name": "Foundation",
+        "printedName": "Foundation"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "configure",
+            "objc_name": "configure",
+            "printedName": "configure()",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cm)configure"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseOptions",
+                "printedName": "FirebaseCore.FirebaseOptions",
+                "usr": "c:objc(cs)FIROptions"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "configure",
+            "objc_name": "configureWithOptions:",
+            "printedName": "configure(options:)",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cm)configureWithOptions:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseOptions",
+                "printedName": "FirebaseCore.FirebaseOptions",
+                "usr": "c:objc(cs)FIROptions"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "configure",
+            "objc_name": "configureWithName:options:",
+            "printedName": "configure(name:options:)",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cm)configureWithName:options:"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseApp",
+                    "printedName": "FirebaseCore.FirebaseApp",
+                    "usr": "c:objc(cs)FIRApp"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "FirebaseCore.FirebaseApp?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "app",
+            "objc_name": "defaultApp",
+            "printedName": "app()",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cm)defaultApp"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseApp",
+                    "printedName": "FirebaseCore.FirebaseApp",
+                    "usr": "c:objc(cs)FIRApp"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "FirebaseCore.FirebaseApp?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "app",
+            "objc_name": "appNamed:",
+            "printedName": "app(name:)",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cm)appNamed:"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "FirebaseApp",
+                            "printedName": "FirebaseCore.FirebaseApp",
+                            "usr": "c:objc(cs)FIRApp"
+                          }
+                        ],
+                        "kind": "TypeNominal",
+                        "name": "Dictionary",
+                        "printedName": "[Swift.String : FirebaseCore.FirebaseApp]",
+                        "usr": "s:SD"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "[Swift.String : FirebaseCore.FirebaseApp]?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "allApps",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "c:objc(cs)FIRApp(cm)allApps"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseApp",
+                        "printedName": "FirebaseCore.FirebaseApp",
+                        "usr": "c:objc(cs)FIRApp"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Dictionary",
+                    "printedName": "[Swift.String : FirebaseCore.FirebaseApp]",
+                    "usr": "s:SD"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "[Swift.String : FirebaseCore.FirebaseApp]?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "allApps",
+            "objc_name": "allApps",
+            "printedName": "allApps",
+            "static": true,
+            "usr": "c:objc(cs)FIRApp(cpy)allApps"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.Bool) -> Swift.Void"
+              }
+            ],
+            "declAttributes": [
+              "Available",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "delete",
+            "objc_name": "deleteApp:",
+            "printedName": "delete(_:)",
+            "usr": "c:objc(cs)FIRApp(im)deleteApp:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "delete",
+            "objc_name": "deleteApp:",
+            "printedName": "delete()",
+            "usr": "c:objc(cs)FIRApp(im)deleteApp:"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "name",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIRApp(im)name"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "name",
+            "objc_name": "name",
+            "printedName": "name",
+            "usr": "c:objc(cs)FIRApp(py)name"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseOptions",
+                    "printedName": "FirebaseCore.FirebaseOptions",
+                    "usr": "c:objc(cs)FIROptions"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "options",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIRApp(im)options"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseOptions",
+                "printedName": "FirebaseCore.FirebaseOptions",
+                "usr": "c:objc(cs)FIROptions"
+              }
+            ],
+            "declAttributes": [
+              "NSCopying",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "options",
+            "objc_name": "options",
+            "printedName": "options",
+            "usr": "c:objc(cs)FIRApp(py)options"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "isDataCollectionDefaultEnabled",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIRApp(im)isDataCollectionDefaultEnabled"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setDataCollectionDefaultEnabled:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIRApp(im)setDataCollectionDefaultEnabled:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "isDataCollectionDefaultEnabled",
+            "objc_name": "dataCollectionDefaultEnabled",
+            "printedName": "isDataCollectionDefaultEnabled",
+            "usr": "c:objc(cs)FIRApp(py)dataCollectionDefaultEnabled"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          }
+        ],
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "isOpen": true,
+        "kind": "TypeDecl",
+        "moduleName": "FirebaseCore",
+        "name": "FirebaseApp",
+        "objc_name": "FIRApp",
+        "printedName": "FirebaseApp",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "usr": "c:objc(cs)FIRApp"
+      },
+      {
+        "children": [
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseConfiguration",
+                    "printedName": "FirebaseCore.FirebaseConfiguration",
+                    "usr": "c:objc(cs)FIRConfiguration"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "sharedInstance",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "c:objc(cs)FIRConfiguration(cm)sharedInstance"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseConfiguration",
+                "printedName": "FirebaseCore.FirebaseConfiguration",
+                "usr": "c:objc(cs)FIRConfiguration"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "shared",
+            "objc_name": "sharedInstance",
+            "printedName": "shared",
+            "static": true,
+            "usr": "c:objc(cs)FIRConfiguration(cpy)sharedInstance"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "kind": "TypeNameAlias",
+                "name": "Void",
+                "printedName": "Swift.Void"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseLoggerLevel",
+                "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                "usr": "c:@E@FIRLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "setLoggerLevel",
+            "objc_name": "setLoggerLevel:",
+            "printedName": "setLoggerLevel(_:)",
+            "usr": "c:objc(cs)FIRConfiguration(im)setLoggerLevel:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseLoggerLevel",
+                "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                "usr": "c:@E@FIRLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "loggerLevel",
+            "objc_name": "loggerLevel",
+            "printedName": "loggerLevel()",
+            "usr": "c:objc(cs)FIRConfiguration(im)loggerLevel"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseConfiguration",
+                "printedName": "FirebaseCore.FirebaseConfiguration",
+                "usr": "c:objc(cs)FIRConfiguration"
+              }
+            ],
+            "declAttributes": [
+              "Override",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "init",
+            "overriding": true,
+            "printedName": "init()",
+            "usr": "c:objc(cs)NSObject(im)init"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          }
+        ],
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "isOpen": true,
+        "kind": "TypeDecl",
+        "moduleName": "FirebaseCore",
+        "name": "FirebaseConfiguration",
+        "objc_name": "FIRConfiguration",
+        "printedName": "FirebaseConfiguration",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "usr": "c:objc(cs)FIRConfiguration"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "FirebaseCore.FirebaseLoggerLevel?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Constructor",
+            "implicit": true,
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "mangledName": "$sSo14FIRLoggerLevelV8rawValueABSgSi_tcfc",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "usr": "s:So14FIRLoggerLevelV8rawValueABSgSi_tcfc"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "implicit": true,
+                "kind": "Accessor",
+                "mangledName": "$sSo14FIRLoggerLevelV8rawValueSivg",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "printedName": "Get()",
+                "usr": "s:So14FIRLoggerLevelV8rawValueSivg"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "implicit": true,
+            "kind": "Var",
+            "mangledName": "$sSo14FIRLoggerLevelV8rawValueSivp",
+            "moduleName": "FirebaseCore",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "usr": "s:So14FIRLoggerLevelV8rawValueSivp"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "TypeAlias",
+            "implicit": true,
+            "kind": "TypeAlias",
+            "mangledName": "$sSo14FIRLoggerLevelV8RawValuea",
+            "moduleName": "FirebaseCore",
+            "name": "RawValue",
+            "printedName": "RawValue",
+            "usr": "s:So14FIRLoggerLevelV8RawValuea"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseLoggerLevel",
+                        "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                        "usr": "c:@E@FIRLoggerLevel"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.Type"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(FirebaseCore.FirebaseLoggerLevel.Type) -> FirebaseCore.FirebaseLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "error",
+            "printedName": "error",
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelError"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseLoggerLevel",
+                        "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                        "usr": "c:@E@FIRLoggerLevel"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.Type"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(FirebaseCore.FirebaseLoggerLevel.Type) -> FirebaseCore.FirebaseLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "warning",
+            "printedName": "warning",
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelWarning"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseLoggerLevel",
+                        "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                        "usr": "c:@E@FIRLoggerLevel"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.Type"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(FirebaseCore.FirebaseLoggerLevel.Type) -> FirebaseCore.FirebaseLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "notice",
+            "printedName": "notice",
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelNotice"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseLoggerLevel",
+                        "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                        "usr": "c:@E@FIRLoggerLevel"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.Type"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(FirebaseCore.FirebaseLoggerLevel.Type) -> FirebaseCore.FirebaseLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "info",
+            "printedName": "info",
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelInfo"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "FirebaseLoggerLevel",
+                        "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                        "usr": "c:@E@FIRLoggerLevel"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.Type"
+                  }
+                ],
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(FirebaseCore.FirebaseLoggerLevel.Type) -> FirebaseCore.FirebaseLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "ObjC"
+            ],
+            "declKind": "EnumElement",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "debug",
+            "printedName": "debug",
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelDebug"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  }
+                ],
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$sSo14FIRLoggerLevelV3minABvgZ",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So14FIRLoggerLevelV3minABvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseLoggerLevel",
+                "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                "usr": "c:@E@FIRLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "min",
+            "printedName": "min",
+            "static": true,
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelMin"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseLoggerLevel",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                    "usr": "c:@E@FIRLoggerLevel"
+                  }
+                ],
+                "declAttributes": [
+                  "Transparent"
+                ],
+                "declKind": "Accessor",
+                "kind": "Accessor",
+                "mangledName": "$sSo14FIRLoggerLevelV3maxABvgZ",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "printedName": "Get()",
+                "static": true,
+                "usr": "s:So14FIRLoggerLevelV3maxABvgZ"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseLoggerLevel",
+                "printedName": "FirebaseCore.FirebaseLoggerLevel",
+                "usr": "c:@E@FIRLoggerLevel"
+              }
+            ],
+            "declAttributes": [
+              "Nonisolated"
+            ],
+            "declKind": "Var",
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "max",
+            "printedName": "max",
+            "static": true,
+            "usr": "c:@E@FIRLoggerLevel@FIRLoggerLevelMax"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Int",
+                        "printedName": "Swift.Int",
+                        "usr": "s:Si"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "RawValue",
+                    "printedName": "FirebaseCore.FirebaseLoggerLevel.RawValue"
+                  }
+                ],
+                "kind": "TypeWitness",
+                "name": "RawValue",
+                "printedName": "RawValue"
+              }
+            ],
+            "kind": "Conformance",
+            "mangledName": "$sSY",
+            "name": "RawRepresentable",
+            "printedName": "RawRepresentable",
+            "usr": "s:SY"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss16SendableMetatypeP",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP"
+          }
+        ],
+        "declAttributes": [
+          "SynthesizedProtocol",
+          "ObjC",
+          "SynthesizedProtocol",
+          "Sendable",
+          "Dynamic"
+        ],
+        "declKind": "Enum",
+        "enumRawTypeName": "Int",
+        "kind": "TypeDecl",
+        "moduleName": "FirebaseCore",
+        "name": "FirebaseLoggerLevel",
+        "objc_name": "FIRLoggerLevel",
+        "printedName": "FirebaseLoggerLevel",
+        "usr": "c:@E@FIRLoggerLevel"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseOptions",
+                    "printedName": "FirebaseCore.FirebaseOptions",
+                    "usr": "c:objc(cs)FIROptions"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "FirebaseCore.FirebaseOptions?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "defaultOptions",
+            "objc_name": "defaultOptions",
+            "printedName": "defaultOptions()",
+            "static": true,
+            "usr": "c:objc(cs)FIROptions(cm)defaultOptions"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "APIKey",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)APIKey"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setAPIKey:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setAPIKey:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "apiKey",
+            "objc_name": "APIKey",
+            "printedName": "apiKey",
+            "usr": "c:objc(cs)FIROptions(py)APIKey"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "bundleID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)bundleID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setBundleID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setBundleID:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "bundleID",
+            "objc_name": "bundleID",
+            "printedName": "bundleID",
+            "usr": "c:objc(cs)FIROptions(py)bundleID"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "clientID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)clientID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setClientID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setClientID:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "clientID",
+            "objc_name": "clientID",
+            "printedName": "clientID",
+            "usr": "c:objc(cs)FIROptions(py)clientID"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "GCMSenderID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)GCMSenderID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setGCMSenderID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setGCMSenderID:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "gcmSenderID",
+            "objc_name": "GCMSenderID",
+            "printedName": "gcmSenderID",
+            "usr": "c:objc(cs)FIROptions(py)GCMSenderID"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "projectID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)projectID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setProjectID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setProjectID:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "projectID",
+            "objc_name": "projectID",
+            "printedName": "projectID",
+            "usr": "c:objc(cs)FIROptions(py)projectID"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "googleAppID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)googleAppID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setGoogleAppID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setGoogleAppID:"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "googleAppID",
+            "objc_name": "googleAppID",
+            "printedName": "googleAppID",
+            "usr": "c:objc(cs)FIROptions(py)googleAppID"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "databaseURL",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)databaseURL"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setDatabaseURL:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setDatabaseURL:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "databaseURL",
+            "objc_name": "databaseURL",
+            "printedName": "databaseURL",
+            "usr": "c:objc(cs)FIROptions(py)databaseURL"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "storageBucket",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)storageBucket"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setStorageBucket:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setStorageBucket:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "storageBucket",
+            "objc_name": "storageBucket",
+            "printedName": "storageBucket",
+            "usr": "c:objc(cs)FIROptions(py)storageBucket"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "appGroupID",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIROptions(im)appGroupID"
+              },
+              {
+                "accessorKind": "set",
+                "children": [
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ],
+                    "kind": "TypeNameAlias",
+                    "name": "Void",
+                    "printedName": "Swift.Void"
+                  },
+                  {
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declAttributes": [
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Set",
+                "objc_name": "setAppGroupID:",
+                "printedName": "Set()",
+                "usr": "c:objc(cs)FIROptions(im)setAppGroupID:"
+              }
+            ],
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "usr": "s:Sq"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "appGroupID",
+            "objc_name": "appGroupID",
+            "printedName": "appGroupID",
+            "usr": "c:objc(cs)FIROptions(py)appGroupID"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "FirebaseOptions",
+                    "printedName": "FirebaseCore.FirebaseOptions",
+                    "usr": "c:objc(cs)FIROptions"
+                  }
+                ],
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "FirebaseCore.FirebaseOptions?",
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "initWithContentsOfFile:",
+            "printedName": "init(contentsOfFile:)",
+            "usr": "c:objc(cs)FIROptions(im)initWithContentsOfFile:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "FirebaseOptions",
+                "printedName": "FirebaseCore.FirebaseOptions",
+                "usr": "c:objc(cs)FIROptions"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "initWithGoogleAppID:GCMSenderID:",
+            "printedName": "init(googleAppID:gcmSenderID:)",
+            "usr": "c:objc(cs)FIROptions(im)initWithGoogleAppID:GCMSenderID:"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "NSCopying",
+            "printedName": "NSCopying",
+            "usr": "c:objc(pl)NSCopying"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          }
+        ],
+        "declAttributes": [
+          "ObjC",
+          "Dynamic"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "isOpen": true,
+        "kind": "TypeDecl",
+        "moduleName": "FirebaseCore",
+        "name": "FirebaseOptions",
+        "objc_name": "FIROptions",
+        "printedName": "FirebaseOptions",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "usr": "c:objc(cs)FIROptions"
+      },
+      {
+        "children": [
+          {
+            "kind": "TypeNominal",
+            "name": "String",
+            "printedName": "Swift.String",
+            "usr": "s:SS"
+          }
+        ],
+        "declAttributes": [
+          "DiscardableResult"
+        ],
+        "declKind": "Func",
+        "funcSelfKind": "NonMutating",
+        "kind": "Function",
+        "moduleName": "FirebaseCore",
+        "name": "FirebaseVersion",
+        "printedName": "FirebaseVersion()",
+        "usr": "c:@F@FIRFirebaseVersion"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Timestamp",
+                "printedName": "FirebaseCore.Timestamp",
+                "usr": "c:objc(cs)FIRTimestamp"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "Designated",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "initWithSeconds:nanoseconds:",
+            "printedName": "init(seconds:nanoseconds:)",
+            "usr": "c:objc(cs)FIRTimestamp(im)initWithSeconds:nanoseconds:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Timestamp",
+                "printedName": "FirebaseCore.Timestamp",
+                "usr": "c:objc(cs)FIRTimestamp"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "ConvenienceFactory",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "timestampWithDate:",
+            "printedName": "init(date:)",
+            "usr": "c:objc(cs)FIRTimestamp(cm)timestampWithDate:"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Timestamp",
+                "printedName": "FirebaseCore.Timestamp",
+                "usr": "c:objc(cs)FIRTimestamp"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Constructor",
+            "init_kind": "ConvenienceFactory",
+            "kind": "Constructor",
+            "moduleName": "FirebaseCore",
+            "name": "init",
+            "objc_name": "timestamp",
+            "printedName": "init()",
+            "usr": "c:objc(cs)FIRTimestamp(cm)timestamp"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Date",
+                "printedName": "Foundation.Date",
+                "usr": "s:10Foundation4DateV"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "dateValue",
+            "objc_name": "dateValue",
+            "printedName": "dateValue()",
+            "usr": "c:objc(cs)FIRTimestamp(im)dateValue"
+          },
+          {
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "ComparisonResult",
+                "printedName": "Foundation.ComparisonResult",
+                "usr": "c:@E@NSComparisonResult"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Timestamp",
+                "printedName": "FirebaseCore.Timestamp",
+                "usr": "c:objc(cs)FIRTimestamp"
+              }
+            ],
+            "declAttributes": [
+              "DiscardableResult",
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Func",
+            "funcSelfKind": "NonMutating",
+            "isOpen": true,
+            "kind": "Function",
+            "moduleName": "FirebaseCore",
+            "name": "compare",
+            "objc_name": "compare:",
+            "printedName": "compare(_:)",
+            "usr": "c:objc(cs)FIRTimestamp(im)compare:"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int64",
+                    "printedName": "Swift.Int64",
+                    "usr": "s:s5Int64V"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "seconds",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIRTimestamp(im)seconds"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int64",
+                "printedName": "Swift.Int64",
+                "usr": "s:s5Int64V"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "seconds",
+            "objc_name": "seconds",
+            "printedName": "seconds",
+            "usr": "c:objc(cs)FIRTimestamp(py)seconds"
+          },
+          {
+            "accessors": [
+              {
+                "accessorKind": "get",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int32",
+                    "printedName": "Swift.Int32",
+                    "usr": "s:s5Int32V"
+                  }
+                ],
+                "declAttributes": [
+                  "DiscardableResult",
+                  "ObjC",
+                  "Dynamic"
+                ],
+                "declKind": "Accessor",
+                "isOpen": true,
+                "kind": "Accessor",
+                "moduleName": "FirebaseCore",
+                "name": "Get",
+                "objc_name": "nanoseconds",
+                "printedName": "Get()",
+                "usr": "c:objc(cs)FIRTimestamp(im)nanoseconds"
+              }
+            ],
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int32",
+                "printedName": "Swift.Int32",
+                "usr": "s:s5Int32V"
+              }
+            ],
+            "declAttributes": [
+              "ObjC",
+              "Dynamic"
+            ],
+            "declKind": "Var",
+            "isOpen": true,
+            "kind": "Var",
+            "moduleName": "FirebaseCore",
+            "name": "nanoseconds",
+            "objc_name": "nanoseconds",
+            "printedName": "nanoseconds",
+            "usr": "c:objc(cs)FIRTimestamp(py)nanoseconds"
+          }
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "NSObjectProtocol",
+            "printedName": "NSObjectProtocol",
+            "usr": "c:objc(pl)NSObject"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss7CVarArgP",
+            "name": "CVarArg",
+            "printedName": "CVarArg",
+            "usr": "s:s7CVarArgP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8CopyableP",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss28CustomDebugStringConvertibleP",
+            "name": "CustomDebugStringConvertible",
+            "printedName": "CustomDebugStringConvertible",
+            "usr": "s:s28CustomDebugStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss23CustomStringConvertibleP",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSQ",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss9EscapableP",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$sSH",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss16SendableMetatypeP",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "NSCopying",
+            "printedName": "NSCopying",
+            "usr": "c:objc(pl)NSCopying"
+          },
+          {
+            "kind": "Conformance",
+            "mangledName": "$ss8SendableP",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP"
+          }
+        ],
+        "declAttributes": [
+          "ObjC",
+          "SynthesizedProtocol",
+          "Sendable",
+          "Dynamic"
+        ],
+        "declKind": "Class",
+        "inheritsConvenienceInitializers": true,
+        "isOpen": true,
+        "kind": "TypeDecl",
+        "moduleName": "FirebaseCore",
+        "name": "Timestamp",
+        "objc_name": "FIRTimestamp",
+        "printedName": "Timestamp",
+        "superclassNames": [
+          "ObjectiveC.NSObject"
+        ],
+        "superclassUsr": "c:objc(cs)NSObject",
+        "usr": "c:objc(cs)FIRTimestamp"
+      }
+    ],
+    "json_format_version": 8,
+    "kind": "Root",
+    "name": "FirebaseCore",
+    "printedName": "FirebaseCore"
+  }
+}
