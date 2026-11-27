@@ -1,0 +1,122 @@
+# SPM test parity allowlist, read by scripts/check_spm_test_parity.py.
+#
+# Lists test source files that no target in the root Package.swift compiles,
+# and why. Each entry is one line:
+#
+#   <glob>  # <category>: <reason>
+#
+# `**` matches any number of directories, `*` matches within one path
+# component, and a trailing `/` matches everything under a directory.
+#
+# Categories:
+#   xcodeproj         Compiled by a checked-in Xcode project that uses the
+#                     local package.
+#   cmake             Firestore C++ built by CMake.
+#   separate-package  Compiled by another Package.swift in this repo.
+#   cocoapods         Tests CocoaPods packaging itself; removed with CocoaPods.
+#   gap               Compiled only by CocoaPods today; must be ported to SPM
+#                     before CocoaPods CI is removed for the product.
+#   dead              Compiled by nothing; pending deletion or revival.
+#   phase6            Firestore tests built by the CocoaPods Firestore
+#                     workspace; ported in Phase 6.
+#
+# The check fails if an entry matches no file, or if it matches a file that
+# SPM compiles. When you add a file to an SPM target, delete or narrow its
+# entry here.
+
+# ABTesting
+FirebaseABTesting/Tests/Integration/ABTQA/  # dead: manual Podfile QA app with no CI
+
+# AI Logic
+FirebaseAI/Tests/TestApp/  # xcodeproj: FirebaseAITestApp.xcodeproj (FirebaseAITestApp-SPM scheme in scripts/build.sh)
+
+# App Check
+FirebaseAppCheck/Tests/Integration/  # gap: AppCheck E2E tests (CocoaPods integration test spec)
+FirebaseAppCheck/Tests/Interop/  # gap: FirebaseAppCheckInterop ObjC and Swift API test specs
+
+# App Distribution
+FirebaseAppDistributionInternal/Tests/  # dead: no podspec, Package.swift target, or Xcode project references FirebaseAppDistributionInternal
+
+# Auth
+FirebaseAuth/Tests/SampleSwift/  # xcodeproj: AuthenticationExample.xcodeproj (sdk.auth.yml integration tests)
+FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m  # gap: excluded from AuthUnit; needs an ObjC test target
+FirebaseAuth/Tests/Unit/ObjCAPITests.m  # gap: excluded from AuthUnit; needs an ObjC test target
+FirebaseAuth/Tests/Unit/ObjCGlobalTests.m  # gap: excluded from AuthUnit; needs an ObjC test target
+FirebaseTestingSupport/Auth/Tests/  # gap: FirebaseAuthTestingSupport test spec
+
+# Combine
+FirebaseCombineSwift/Tests/Unit/Auth/  # dead: Combine Auth tests compiled by no build; pending deletion
+FirebaseCombineSwift/Tests/Unit/AuthBackend+Combine.swift  # dead: Combine Auth test helper; pending deletion
+FirebaseCombineSwift/Tests/Unit/Bundle+Tests.swift  # dead: Combine Auth test helper; pending deletion
+FirebaseCombineSwift/Tests/Unit/GKLocalPlayer+Tests.swift  # dead: Combine Auth test helper; pending deletion
+FirebaseCombineSwift/Tests/Unit/Credentials.swift  # gap: FirebaseCombineSwift unit test spec (Storage)
+FirebaseCombineSwift/Tests/Unit/FirebaseApp+Tests.swift  # gap: FirebaseCombineSwift unit test spec (Storage)
+FirebaseCombineSwift/Tests/Unit/Storage/  # gap: FirebaseCombineSwift unit test spec
+FirebaseCombineSwift/Tests/Unit/Firestore/  # phase6: FirebaseCombineSwift unit test spec (Firestore)
+FirebaseCombineSwift/Tests/Integration/  # gap: StorageCombine integration test spec
+
+# Core
+FirebaseCore/Tests/SwiftUnit/  # gap: FirebaseCore swift-unit test spec; no SPM target
+
+# Database
+FirebaseDatabase/Tests/Integration/  # gap: FirebaseDatabase integration test spec (emulator)
+
+# Functions
+FirebaseFunctions/Tests/ObjCIntegration/ObjCPPAPITests.mm  # gap: excluded from FirebaseFunctionsObjCIntegration; compile-only ObjC++ API test
+
+# In-App Messaging
+FirebaseInAppMessaging/Tests/Unit/  # gap: FirebaseInAppMessaging unit test spec; no SPM test target
+FirebaseInAppMessaging/Swift/Tests/Unit/  # gap: FirebaseInAppMessaging unit test spec; no SPM test target
+FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/  # gap: Podfile UI test app; to be revived on the local package
+FirebaseInAppMessaging/Tests/Integration/FunctionalTestApp/  # dead: Podfile app with no CI; pending owner confirmation to delete
+FirebaseInAppMessaging/Swift/Tests/Integration/FIAMSwiftUI/  # dead: Podfile sample with no CI; pending owner confirmation to delete
+
+# Installations
+FirebaseInstallations/Source/Tests/  # gap: FirebaseInstallations unit and integration test specs; no SPM test target
+
+# Messaging
+FirebaseMessaging/Tests/IntegrationTests/  # gap: FirebaseMessaging integration test spec
+FirebaseMessaging/Tests/UnitTestsSwift/  # gap: FirebaseMessaging unit test spec (Swift); needs a Swift test target
+
+# Performance
+FirebasePerformance/Tests/FIRPerfE2E/  # gap: FIRPerfE2E Podfile app (sdk.performance.integration.yml)
+FirebasePerformance/Tests/TestApp/Source/  # gap: FirebasePerformance TestApp app spec (FirebasePerformance-TestApp in scripts/build.sh)
+FirebasePerformance/Tests/TestApp/Tests/PerfControllerTests.m  # dead: not in the TestApp app spec or any other target
+
+# Remote Config
+FirebaseRemoteConfig/Tests/FeatureRolloutsTestApp/  # dead: manual Podfile app with no CI
+FirebaseRemoteConfig/Tests/Sample/  # gap: RemoteConfigSampleApp Podfile app (scripts/build.sh)
+FirebaseRemoteConfig/Tests/Unit/RCNConfigAnalyticsTest.m  # dead: legacy test that no longer compiles; pending deletion
+FirebaseRemoteConfig/Tests/Unit/RCNConfigSettingsTest.m  # dead: legacy test that no longer compiles; pending deletion
+FirebaseRemoteConfig/Tests/Unit/RCNConfigTest.m  # dead: legacy test that no longer compiles; pending deletion
+FirebaseRemoteConfig/Tests/Unit/RCNRemoteConfig+FIRAppTest.m  # dead: legacy test that no longer compiles; pending deletion
+FirebaseRemoteConfig/Tests/Unit/RCNThrottlingTests.m  # dead: legacy test that no longer compiles; pending deletion and rewrite
+
+# Sessions
+FirebaseSessions/Tests/TestApp/  # gap: AppQualityDevApp Podfile app (sdk.sessions.integration.yml)
+
+# Storage
+FirebaseStorage/Tests/Integration/  # gap: FirebaseStorage integration test spec
+FirebaseStorage/Tests/ObjCIntegration/FIRStorageIntegrationTests.m  # gap: excluded from StorageObjCIntegration; FirebaseStorage ObjC integration test spec
+FirebaseStorage/Tests/ObjCIntegration/ObjCPPAPITests.mm  # gap: excluded from StorageObjCIntegration; compile-only ObjC++ API test
+
+# Firestore
+Firestore/Example/  # phase6: Firestore/Example/Firestore.xcodeproj via CocoaPods; scripts/check_test_inclusion.py checks Tests membership
+Firestore/Swift/Tests/API/  # phase6: Firestore.xcodeproj via CocoaPods
+Firestore/Swift/Tests/Codable/  # phase6: Firestore.xcodeproj via CocoaPods
+Firestore/Swift/Tests/Integration/  # phase6: Firestore.xcodeproj via CocoaPods
+Firestore/Swift/Tests/TestHelper/  # phase6: Firestore.xcodeproj via CocoaPods
+Firestore/core/test/  # cmake: Firestore/core/test CMakeLists.txt; also Firestore.xcodeproj (scripts/check_test_inclusion.py)
+Firestore/fuzzing/  # cmake: Firestore/fuzzing/CMakeLists.txt
+
+# Gemini Language Model
+# The root Package.swift adds these targets only for Swift 6.4+ with
+# FoundationModels, so the root package may or may not compile them.
+GeminiLanguageModel/Tests/  # separate-package: GeminiLanguageModel/Package.swift (sdk.geminilanguagemodel.yml)
+GeminiLanguageModel/FoundationModelsFake/Tests/  # separate-package: GeminiLanguageModel/FoundationModelsFake/Package.swift (sdk.geminilanguagemodel.yml)
+
+# Packaging and cross-product apps
+CoreOnly/Tests/FirebasePodTest/  # cocoapods: builds every pod through the Firebase podspec (sdk.firebasepod.yml)
+IntegrationTesting/ClientApp/  # xcodeproj: ClientApp.xcodeproj (infra.samples.client_app.yml)
+IntegrationTesting/CocoapodsIntegrationTest/  # cocoapods: CocoaPods integration app (infra.cocoapods.integration.yml)
+SymbolCollisionTest/  # gap: SymbolCollisionTest Podfile app (infra.samples.symbolcollision.yml)
