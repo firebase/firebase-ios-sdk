@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import FirebaseRemoteConfig
+@testable import FirebaseRemoteConfig
 
 import XCTest
 
@@ -282,5 +282,40 @@ class PropertyWrapperTests: APITestBase {
     XCTAssertEqual(recipeValue?.recipeName, "muffin")
     XCTAssertEqual(recipeValue?.ingredients, ["flour", "sugar"])
     XCTAssertEqual(recipeValue?.cookTime, 45)
+  }
+
+  /// When an activated template no longer contains a key, the property should use the key's
+  /// in-app default, or its fallback if the key has no default.
+  @MainActor
+  func testActivationThatRemovesKeyUsesDefaultOrFallback() async throws {
+    let keyWithDefault = "PropertyWrapperRemovedKeyWithDefault"
+    let keyWithoutDefault = "PropertyWrapperRemovedKeyWithoutDefault"
+    config.setDefaults([keyWithDefault: "default" as NSObject])
+    fakeConsole.config[keyWithDefault] = "remote1"
+    fakeConsole.config[keyWithoutDefault] = "remote2"
+    var status = try await config.fetchAndActivate()
+    XCTAssertEqual(status, .successFetchedFromRemote)
+
+    // Create the observables the same way `RemoteConfigProperty.init(key:fallback:)` does.
+    let withDefault = RemoteConfigValueObservable<String>(
+      key: keyWithDefault, fallbackValue: "fallback"
+    )
+    let withoutDefault = RemoteConfigValueObservable<String>(
+      key: keyWithoutDefault, fallbackValue: "fallback"
+    )
+    XCTAssertEqual(withDefault.configValue, "remote1")
+    XCTAssertEqual(withoutDefault.configValue, "remote2")
+
+    // Publish and activate a template without the keys. The observables update on the main
+    // thread when the activation notification is posted, before this test resumes.
+    fakeConsole.config[keyWithDefault] = nil
+    fakeConsole.config[keyWithoutDefault] = nil
+    let activated = expectation(forNotification: .onRemoteConfigActivated, object: nil)
+    status = try await config.fetchAndActivate()
+    XCTAssertEqual(status, .successFetchedFromRemote)
+    await fulfillment(of: [activated], timeout: 10)
+
+    XCTAssertEqual(withDefault.configValue, "default")
+    XCTAssertEqual(withoutDefault.configValue, "fallback")
   }
 }

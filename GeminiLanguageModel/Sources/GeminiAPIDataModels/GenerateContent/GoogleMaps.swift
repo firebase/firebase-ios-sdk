@@ -20,11 +20,14 @@ import Foundation
 /// Tool to retrieve public maps data for grounding, powered by Google.
 package struct GoogleMaps: Codable, Sendable, Equatable, Hashable, Buildable {
   /// Deprecated: The Google Maps contextual widget behavior in Grounding with Google Maps is being
-  /// deprecated; this field is planned for removal and no longer has any effect once removed. If
-  /// true, include the widget context token in the response.
+  /// deprecated; this field is planned for removal and no longer has any effect once removed.
+  ///
+  /// If true, include the widget context token in the response.
   package var enableWidget: Bool?
 
-  /// Specifies the types of Google Maps grounding to enable. Defaults to `places` when unset.
+  /// Specifies the types of Google Maps grounding to enable. Defaults to `places` when unset, and
+  /// to `places` and `routing` for Gemini 4 and later models. When set, only the listed types are
+  /// enabled; for example, setting only `places` disables routing.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   package var groundingTypes: GoogleMapsGroundingTypes?

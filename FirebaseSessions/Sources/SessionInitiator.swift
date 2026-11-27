@@ -89,16 +89,22 @@ class SessionInitiator {
     #elseif os(watchOS)
       // Versions below WatchOS 7 do not support lifecycle events
       if #available(watchOSApplicationExtension 7.0, *) {
+        // Use the raw names of WatchKit's `WKApplicationDidEnterBackgroundNotification` and
+        // `WKApplicationDidBecomeActiveNotification` constants. Their Swift names are main
+        // actor-isolated (`WKExtension.application*Notification` in the watchOS 27 SDK,
+        // `WKApplication.*Notification` in earlier SDKs), and this method isn't.
+        let didEnterBackground = Notification.Name("WKApplicationDidEnterBackgroundNotification")
+        let didBecomeActive = Notification.Name("WKApplicationDidBecomeActiveNotification")
         notificationCenter.addObserver(
           self,
           selector: #selector(appBackgrounded),
-          name: WKExtension.applicationDidEnterBackgroundNotification,
+          name: didEnterBackground,
           object: nil
         )
         notificationCenter.addObserver(
           self,
           selector: #selector(appForegrounded),
-          name: WKExtension.applicationDidBecomeActiveNotification,
+          name: didBecomeActive,
           object: nil
         )
       }

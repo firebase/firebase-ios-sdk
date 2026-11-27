@@ -1,0 +1,892 @@
+/*
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "Firestore/core/src/remote/grpc_tls_credentials_provider_linux.h"
+
+#if !defined(__APPLE__) && !defined(_WIN32)
+
+#include <dirent.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+#include <algorithm>
+#include <cerrno>
+#include <cstdint>
+#include <cstring>
+#include <set>
+#include <utility>
+
+#include "Firestore/core/src/remote/grpc_tls_pem.h"
+#include "Firestore/core/src/remote/grpc_tls_target_host.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/status.h"
+#include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/strerror.h"
+#include "absl/strings/escaping.h"
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
+#include "absl/strings/str_split.h"
+#include "absl/types/optional.h"
+#include "openssl/bio.h"
+#include "openssl/err.h"
+#include "openssl/pem.h"
+#include "openssl/sha.h"
+#include "openssl/x509.h"
+#include "openssl/x509v3.h"
+
+SUPPRESS_DOCUMENTATION_WARNINGS_BEGIN()
+#include "grpcpp/security/credentials.h"
+#include "grpcpp/security/tls_certificate_provider.h"
+#include "grpcpp/security/tls_certificate_verifier.h"
+#include "grpcpp/security/tls_credentials_options.h"
+SUPPRESS_END()
+
+namespace firebase {
+namespace firestore {
+namespace remote {
+namespace {
+
+// ---------------------------------------------------------------------------
+// Default system locations
+// ---------------------------------------------------------------------------
+
+// CA bundle files, tried in order; the first one that yields an anchor wins.
+// This is the list used by Go's crypto/x509 (root_linux.go, root_bsd.go) plus
+// a few BSD locations.
+const char* const kDefaultBundleFiles[] = {
+    "/etc/ssl/certs/ca-certificates.crt",  // Debian, Ubuntu, Gentoo, Arch
+    "/etc/pki/tls/certs/ca-bundle.crt",    // Fedora, RHEL 6
+    "/etc/ssl/ca-bundle.pem",              // openSUSE
+    "/etc/pki/tls/cacert.pem",             // OpenELEC
+    "/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem",  // CentOS, RHEL 7+
+    "/etc/ssl/cert.pem",                       // Alpine, OpenBSD, FreeBSD
+    "/usr/local/etc/ssl/cert.pem",             // FreeBSD
+    "/usr/local/share/certs/ca-root-nss.crt",  // DragonFly BSD
+};
+
+// CA directories, used (all of them) if no bundle file yields an anchor.
+const char* const kDefaultCertDirs[] = {
+    "/etc/ssl/certs",                       // SLES, Debian (hash links)
+    "/etc/pki/tls/certs",                   // Fedora, RHEL
+    "/system/etc/security/cacerts",         // Android
+    "/apex/com.android.conscrypt/cacerts",  // Android 14+
+};
+
+// p11-kit distrust directories: everything in them is blocklisted.
+const char* const kDefaultBlocklistDirs[] = {
+    "/etc/ca-certificates/trust-source/blacklist",  // Arch
+    "/etc/ca-certificates/trust-source/blocklist",
+    "/usr/share/ca-certificates/trust-source/blacklist",
+    "/usr/share/ca-certificates/trust-source/blocklist",
+    "/etc/pki/ca-trust/source/blacklist",  // Fedora, RHEL
+    "/etc/pki/ca-trust/source/blocklist",
+    "/usr/share/pki/ca-trust-source/blacklist",
+    "/usr/share/pki/ca-trust-source/blocklist",
+    "/etc/pki/trust/blacklist",  // openSUSE, SLES
+    "/etc/pki/trust/blocklist",
+    "/usr/share/pki/trust/blacklist",
+    "/usr/share/pki/trust/blocklist",
+};
+
+// p11-kit "openssl-bundle" extracts: `TRUSTED CERTIFICATE` entries carrying
+// explicit distrust are blocklisted.
+const char* const kDefaultTrustBundleFiles[] = {
+    "/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt",  // Fedora, RHEL
+    "/etc/pki/tls/certs/ca-bundle.trust.crt",
+    "/etc/ca-certificates/extracted/ca-bundle.trust.crt",  // Arch
+};
+
+// Anything larger is certainly not a CA bundle (Mozilla's is ~250 KiB).
+constexpr off_t kMaxFileSize = 16 * 1024 * 1024;
+
+template <size_t N>
+std::vector<std::string> ToVector(const char* const (&paths)[N]) {
+  return std::vector<std::string>(std::begin(paths), std::end(paths));
+}
+
+// ---------------------------------------------------------------------------
+// OpenSSL / BoringSSL helpers
+//
+// These helpers live here rather than in a cross-platform utility because only
+// the Linux / POSIX build links `OpenSSL::Crypto` into `firestore_core`. Apple
+// (`Security.framework`) and Windows (`CryptoAPI`) delegate X.509 parsing,
+// chain building, distrust, and hostname checks to native OS frameworks
+// without taking a direct OpenSSL / BoringSSL dependency.
+// ---------------------------------------------------------------------------
+
+struct X509Deleter {
+  void operator()(X509* cert) const {
+    X509_free(cert);
+  }
+};
+using UniqueX509 = std::unique_ptr<X509, X509Deleter>;
+
+struct BioDeleter {
+  void operator()(BIO* bio) const {
+    BIO_free(bio);
+  }
+};
+using UniqueBio = std::unique_ptr<BIO, BioDeleter>;
+
+std::string Sha256(const uint8_t* data, size_t size) {
+  uint8_t digest[SHA256_DIGEST_LENGTH];
+  SHA256(data, size, digest);
+  return std::string(reinterpret_cast<const char*>(digest), sizeof(digest));
+}
+
+std::string Sha256(absl::string_view data) {
+  return Sha256(reinterpret_cast<const uint8_t*>(data.data()), data.size());
+}
+
+std::string CertDer(X509* cert) {
+  uint8_t* der = nullptr;
+  int len = i2d_X509(cert, &der);
+  if (len <= 0) return "";
+  std::string result(reinterpret_cast<const char*>(der),
+                     static_cast<size_t>(len));
+  OPENSSL_free(der);
+  return result;
+}
+
+std::string SpkiDer(X509* cert) {
+  uint8_t* der = nullptr;
+  int len = i2d_X509_PUBKEY(X509_get_X509_PUBKEY(cert), &der);
+  if (len <= 0) return "";
+  std::string result(reinterpret_cast<const char*>(der),
+                     static_cast<size_t>(len));
+  OPENSSL_free(der);
+  return result;
+}
+
+// Returns the certificate's subject for error messages. The subject is
+// peer-controlled, so it is C-escaped (like the target name) to keep quotes,
+// control characters and terminal escape sequences out of statuses and logs.
+std::string SubjectName(X509* cert) {
+  char buf[256] = {};
+  if (X509_NAME_oneline(X509_get_subject_name(cert), buf, sizeof(buf)) ==
+      nullptr) {
+    ERR_clear_error();
+    return "<unreadable subject>";
+  }
+  return absl::CHexEscape(buf);
+}
+
+// Parses exactly `size` bytes of DER as a certificate. Returns null if the
+// bytes are not a certificate or have trailing data.
+UniqueX509 ParseCertDer(const uint8_t* data, size_t size, size_t* consumed) {
+  const uint8_t* p = data;
+  UniqueX509 cert(d2i_X509(nullptr, &p, static_cast<long>(size)));  // NOLINT
+  if (cert == nullptr) return nullptr;
+  *consumed = static_cast<size_t>(p - data);
+  return cert;
+}
+
+// ---------------------------------------------------------------------------
+// TRUSTED CERTIFICATE auxiliary trust settings
+//
+// `-----BEGIN TRUSTED CERTIFICATE-----` (`X509_CERT_AUX`) is an OpenSSL- and
+// `p11-kit`-specific on-disk trust-store PEM format used in Linux system
+// bundles (such as `ca-bundle.trust.crt` or a custom `SSL_CERT_FILE`) to attach
+// EKU trust and distrust OIDs after a certificate's DER payload. It never
+// appears on the wire in TLS handshakes (`SSL_get_peer_cert_chain` only emits
+// plain X.509 `CERTIFICATE` blocks) nor in Apple Keychain or Windows CryptoAPI
+// stores, so only the Linux trust-store loader parses it.
+// ---------------------------------------------------------------------------
+
+// The DER contents of the OBJECT IDENTIFIERs we look for.
+constexpr uint8_t kServerAuthOid[] = {0x2b, 0x06, 0x01, 0x05, 0x05,
+                                      0x07, 0x03, 0x01};    // 1.3.6.1.5.5.7.3.1
+constexpr uint8_t kAnyEkuOid[] = {0x55, 0x1d, 0x25, 0x00};  // 2.5.29.37.0
+
+struct AuxTrust {
+  bool has_trust_list = false;
+  bool trusts_server_auth = false;
+  bool rejects_server_auth = false;
+};
+
+// Reads one DER TLV (definite length only) from `*data`.
+bool ReadTlv(absl::string_view* data,
+             uint8_t* tag,
+             absl::string_view* contents) {
+  if (data->size() < 2) return false;
+  *tag = static_cast<uint8_t>((*data)[0]);
+  if ((*tag & 0x1f) == 0x1f) return false;  // High tag numbers: unsupported.
+  size_t len = static_cast<uint8_t>((*data)[1]);
+  size_t header = 2;
+  if (len & 0x80) {
+    size_t num_bytes = len & 0x7f;
+    if (num_bytes == 0 || num_bytes > 4 || data->size() < 2 + num_bytes) {
+      return false;
+    }
+    len = 0;
+    for (size_t i = 0; i < num_bytes; ++i) {
+      len = (len << 8) | static_cast<uint8_t>((*data)[2 + i]);
+    }
+    header += num_bytes;
+  }
+  if (data->size() - header < len) return false;
+  *contents = data->substr(header, len);
+  data->remove_prefix(header + len);
+  return true;
+}
+
+// Scans a SEQUENCE OF OBJECT IDENTIFIER body for serverAuth or
+// anyExtendedKeyUsage.
+bool ContainsServerAuth(absl::string_view oids, bool* found) {
+  *found = false;
+  while (!oids.empty()) {
+    uint8_t tag = 0;
+    absl::string_view oid;
+    if (!ReadTlv(&oids, &tag, &oid) || tag != 0x06) return false;
+    auto equals = [&](const uint8_t* expected, size_t size) {
+      return oid.size() == size && std::memcmp(oid.data(), expected, size) == 0;
+    };
+    if (equals(kServerAuthOid, sizeof(kServerAuthOid)) ||
+        equals(kAnyEkuOid, sizeof(kAnyEkuOid))) {
+      *found = true;
+    }
+  }
+  return true;
+}
+
+// Parses the OpenSSL `X509_CERT_AUX` structure that follows the certificate in
+// a `TRUSTED CERTIFICATE` block:
+//
+//   X509_CERT_AUX ::= SEQUENCE {
+//     trust  SEQUENCE OF OBJECT IDENTIFIER OPTIONAL,
+//     reject [0] IMPLICIT SEQUENCE OF OBJECT IDENTIFIER OPTIONAL,
+//     alias  UTF8String OPTIONAL,
+//     keyid  OCTET STRING OPTIONAL,
+//     other  [1] IMPLICIT SEQUENCE OF AlgorithmIdentifier OPTIONAL }
+//
+// This is parsed directly rather than with `X509_check_trust` because OpenSSL
+// and BoringSSL interpret trust lists differently (OpenSSL rejects any purpose
+// missing from a non-empty trust list; BoringSSL does not), and BoringSSL has
+// no accessors for the lists themselves.
+bool ParseAuxTrust(absl::string_view aux, AuxTrust* out) {
+  *out = AuxTrust{};
+  if (aux.empty()) return true;  // No auxiliary data at all.
+  uint8_t tag = 0;
+  absl::string_view body;
+  if (!ReadTlv(&aux, &tag, &body) || tag != 0x30 || !aux.empty()) return false;
+  while (!body.empty()) {
+    absl::string_view field;
+    if (!ReadTlv(&body, &tag, &field)) return false;
+    if (tag == 0x30) {
+      out->has_trust_list = true;
+      if (!ContainsServerAuth(field, &out->trusts_server_auth)) return false;
+    } else if (tag == 0xa0) {
+      if (!ContainsServerAuth(field, &out->rejects_server_auth)) return false;
+    }
+    // alias, keyid and other are irrelevant.
+  }
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Certificate file parsing
+// ---------------------------------------------------------------------------
+
+enum class Classification {
+  kAnchor,     // Usable as a trust anchor for TLS server authentication.
+  kExclude,    // Trusted for other purposes only: not an anchor.
+  kBlocklist,  // Explicitly distrusted for TLS server authentication.
+};
+
+struct ParsedEntry {
+  UniqueX509 cert;       // Null for bare public keys.
+  std::string spki_der;  // Set for bare public keys.
+  Classification classification = Classification::kAnchor;
+};
+
+Classification Classify(const AuxTrust& aux) {
+  if (aux.rejects_server_auth) return Classification::kBlocklist;
+  if (aux.has_trust_list && !aux.trusts_server_auth) {
+    return Classification::kExclude;
+  }
+  return Classification::kAnchor;
+}
+
+// Parses every `CERTIFICATE`, `TRUSTED CERTIFICATE` and `PUBLIC KEY` PEM block
+// in `data`. If there are none and `allow_der` is set, tries to parse `data` as
+// a single DER certificate.
+std::vector<ParsedEntry> ParseCertificates(const std::string& data,
+                                           const std::string& path,
+                                           bool allow_der) {
+  std::vector<ParsedEntry> entries;
+  UniqueBio bio(BIO_new_mem_buf(data.data(), static_cast<int>(data.size())));
+  if (bio == nullptr) {
+    ERR_clear_error();
+    return entries;
+  }
+
+  ERR_clear_error();
+  bool saw_pem = false;
+  while (true) {
+    char* name = nullptr;
+    char* header = nullptr;
+    uint8_t* body = nullptr;
+    long len = 0;  // NOLINT(runtime/int)
+    size_t before = BIO_ctrl_pending(bio.get());
+    if (!PEM_read_bio(bio.get(), &name, &header, &body, &len)) {
+      auto err = ERR_peek_last_error();
+      bool no_start_line = ERR_GET_LIB(err) == ERR_LIB_PEM &&
+                           ERR_GET_REASON(err) == PEM_R_NO_START_LINE;
+      ERR_clear_error();
+      if (no_start_line) break;  // Clean end of input.
+      saw_pem = true;
+      LOG_WARN("Ignoring malformed PEM block in %s", path);
+      // Both OpenSSL and BoringSSL return 0 with an empty error queue on
+      // empty-body PEM blocks after advancing `bio`, whereas an allocation
+      // failure can fail before consuming any input; check `BIO_ctrl_pending`
+      // directly so continuing always makes forward progress.
+      if (BIO_ctrl_pending(bio.get()) >= before) break;
+      continue;
+    }
+    saw_pem = true;
+    std::string block_name = name;
+    absl::string_view block(reinterpret_cast<const char*>(body),
+                            static_cast<size_t>(len));
+    OPENSSL_free(name);
+    OPENSSL_free(header);
+
+    if (block_name == "CERTIFICATE" || block_name == "X509 CERTIFICATE" ||
+        block_name == "TRUSTED CERTIFICATE") {
+      size_t consumed = 0;
+      UniqueX509 cert = ParseCertDer(body, static_cast<size_t>(len), &consumed);
+      if (cert == nullptr) {
+        ERR_clear_error();
+      }
+      AuxTrust aux;
+      bool trusted_block = block_name == "TRUSTED CERTIFICATE";
+      if (cert == nullptr ||
+          (!trusted_block && consumed != static_cast<size_t>(len)) ||
+          (trusted_block && !ParseAuxTrust(block.substr(consumed), &aux))) {
+        LOG_WARN("Ignoring malformed %s in %s", block_name, path);
+      } else {
+        ParsedEntry entry;
+        entry.cert = std::move(cert);
+        entry.classification = Classify(aux);
+        entries.push_back(std::move(entry));
+      }
+    } else if (block_name == "PUBLIC KEY") {
+      ParsedEntry entry;
+      entry.spki_der = std::string(block);
+      entries.push_back(std::move(entry));
+    }
+    OPENSSL_free(body);
+  }
+
+  if (!saw_pem && allow_der && !data.empty()) {
+    size_t consumed = 0;
+    UniqueX509 cert = ParseCertDer(
+        reinterpret_cast<const uint8_t*>(data.data()), data.size(), &consumed);
+    ERR_clear_error();
+    if (cert != nullptr && consumed == data.size()) {
+      ParsedEntry entry;
+      entry.cert = std::move(cert);
+      entries.push_back(std::move(entry));
+    }
+  }
+  return entries;
+}
+
+// Strictly parses a peer certificate chain: every PEM block must be a
+// well-formed `CERTIFICATE` separated only by ASCII whitespace (via
+// `SplitPemCertificates`). Unlike `ParseCertificates`, which skips malformed
+// entries in system files, any malformed block or stray text fails the whole
+// chain, so that a skipped leaf or intermediate can never weaken the hostname
+// or blocklist checks.
+grpc::Status ParsePeerChain(absl::string_view pem_chain,
+                            std::vector<UniqueX509>* out) {
+  out->clear();
+  util::StatusOr<std::vector<std::string>> der_certs =
+      SplitPemCertificates(pem_chain);
+  if (!der_certs.ok()) {
+    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                        der_certs.status().error_message());
+  }
+
+  out->reserve(der_certs.ValueOrDie().size());
+  for (const std::string& der : der_certs.ValueOrDie()) {
+    size_t consumed = 0;
+    UniqueX509 cert = ParseCertDer(reinterpret_cast<const uint8_t*>(der.data()),
+                                   der.size(), &consumed);
+    if (cert == nullptr || consumed != der.size()) {
+      ERR_clear_error();
+      out->clear();
+      return grpc::Status(
+          grpc::StatusCode::UNAUTHENTICATED,
+          "Failed to parse DER X.509 certificate in peer chain");
+    }
+    out->push_back(std::move(cert));
+  }
+  return grpc::Status::OK;
+}
+
+// ---------------------------------------------------------------------------
+// File system helpers
+// ---------------------------------------------------------------------------
+
+bool IsDirectory(const std::string& path) {
+  struct stat st;
+  return stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode);
+}
+
+// Reads a regular file (following symlinks) via a single descriptor, capping
+// the bytes read at `kMaxFileSize`. Returns nullopt if it does not exist, is
+// not a regular file (e.g. a directory or FIFO), exceeds `kMaxFileSize`, or
+// cannot be read.
+absl::optional<std::string> ReadRegularFile(const std::string& path) {
+  int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOCTTY);
+  if (fd < 0) {
+    int err = errno;
+    if (err != ENOENT && err != ENOTDIR) {
+      LOG_DEBUG("Unable to open CA file %s: %s (errno=%s)", path,
+                util::StrError(err), err);
+    }
+    return absl::nullopt;
+  }
+
+  struct stat st;
+  if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) {
+    close(fd);
+    return absl::nullopt;
+  }
+  if (st.st_size > kMaxFileSize) {
+    close(fd);
+    LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
+    return absl::nullopt;
+  }
+
+  std::string out;
+  if (st.st_size > 0) out.reserve(static_cast<size_t>(st.st_size));
+  char buf[8192];
+  while (true) {
+    ssize_t n = read(fd, buf, sizeof(buf));
+    if (n == 0) break;
+    if (n < 0) {
+      if (errno == EINTR) continue;
+      int err = errno;
+      LOG_DEBUG("Failed reading CA file %s: %s (errno=%s)", path,
+                util::StrError(err), err);
+      close(fd);
+      return absl::nullopt;
+    }
+    if (out.size() + static_cast<size_t>(n) >
+        static_cast<size_t>(kMaxFileSize)) {
+      close(fd);
+      LOG_WARN("Ignoring %s: too large to be a CA bundle", path);
+      return absl::nullopt;
+    }
+    out.append(buf, static_cast<size_t>(n));
+  }
+  close(fd);
+  return out;
+}
+
+// Returns the paths of the regular files (following symlinks) in `dir`, sorted
+// by name. Hidden files are skipped.
+std::vector<std::string> ListRegularFiles(const std::string& dir) {
+  std::vector<std::string> names;
+  DIR* d = opendir(dir.c_str());
+  if (d == nullptr) return {};
+  while (struct dirent* entry = readdir(d)) {
+    if (entry->d_name[0] == '.') continue;
+    names.emplace_back(entry->d_name);
+  }
+  closedir(d);
+  std::sort(names.begin(), names.end());
+
+  std::vector<std::string> paths;
+  for (const std::string& name : names) {
+    std::string path = absl::StrCat(dir, "/", name);
+    struct stat st;
+    if (stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
+      paths.push_back(std::move(path));
+    }
+  }
+  return paths;
+}
+
+absl::optional<std::string> SecureGetEnv(const char* name) {
+#if defined(__GLIBC__)
+  const char* value = secure_getenv(name);
+#else
+  // Ignore the environment in set-uid / set-gid processes, like secure_getenv.
+  const char* value =
+      (getuid() == geteuid() && getgid() == getegid()) ? getenv(name) : nullptr;
+#endif
+  if (value == nullptr) return absl::nullopt;
+  return std::string(value);
+}
+
+// ---------------------------------------------------------------------------
+// Trust store builder
+// ---------------------------------------------------------------------------
+
+class TrustStoreBuilder {
+ public:
+  void Block(X509* cert) {
+    store_.blocked_cert_sha256.insert(Sha256(CertDer(cert)));
+    BlockSpki(SpkiDer(cert));
+  }
+
+  void BlockSpki(const std::string& spki_der) {
+    if (!spki_der.empty()) {
+      store_.blocked_spki_sha256.insert(Sha256(spki_der));
+    }
+  }
+
+  // Adds every entry in `path` to the blocklist.
+  void LoadBlocklistFile(const std::string& path) {
+    absl::optional<std::string> data = ReadRegularFile(path);
+    if (!data) return;
+    for (ParsedEntry& entry :
+         ParseCertificates(*data, path, /*allow_der=*/true)) {
+      if (entry.cert != nullptr) {
+        Block(entry.cert.get());
+      } else {
+        BlockSpki(entry.spki_der);
+      }
+    }
+  }
+
+  // Adds the explicitly distrusted entries in `path` to the blocklist.
+  void LoadTrustBundleFile(const std::string& path) {
+    struct stat st;
+    if (stat(path.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) return;
+    std::pair<dev_t, ino_t> file_id(st.st_dev, st.st_ino);
+    if (seen_trust_bundles_.count(file_id) > 0) return;
+    absl::optional<std::string> data = ReadRegularFile(path);
+    if (!data) return;
+    seen_trust_bundles_.insert(file_id);
+    for (ParsedEntry& entry :
+         ParseCertificates(*data, path, /*allow_der=*/false)) {
+      if (entry.cert != nullptr &&
+          entry.classification == Classification::kBlocklist) {
+        Block(entry.cert.get());
+      }
+    }
+  }
+
+  // Adds the anchors in a bundle file (or every file in a directory) as
+  // candidates. Returns the number of anchor candidates found.
+  size_t LoadAnchors(const std::string& path) {
+    std::vector<std::string> files;
+    if (IsDirectory(path)) {
+      files = ListRegularFiles(path);
+    } else {
+      files.push_back(path);
+    }
+    size_t found = 0;
+    for (const std::string& file : files) {
+      absl::optional<std::string> data = ReadRegularFile(file);
+      if (!data) continue;
+      for (ParsedEntry& entry :
+           ParseCertificates(*data, file, /*allow_der=*/false)) {
+        if (entry.cert == nullptr) continue;
+        switch (entry.classification) {
+          case Classification::kAnchor:
+            candidates_.push_back(std::move(entry.cert));
+            ++found;
+            break;
+          case Classification::kBlocklist:
+            Block(entry.cert.get());
+            break;
+          case Classification::kExclude:
+            break;
+        }
+      }
+    }
+    if (found > 0) sources_.push_back(path);
+    return found;
+  }
+
+  // Re-emits the non-blocklisted, de-duplicated anchor candidates as plain
+  // PEM `CERTIFICATE` blocks.
+  LinuxTrustStore Finish() && {
+    std::unordered_set<std::string> seen;
+    UniqueBio bio(BIO_new(BIO_s_mem()));
+    for (const UniqueX509& cert : candidates_) {
+      std::string der = CertDer(cert.get());
+      if (der.empty() || store_.IsBlocked(der, SpkiDer(cert.get()))) continue;
+      if (!seen.insert(Sha256(der)).second) continue;
+      if (PEM_write_bio_X509(bio.get(), cert.get()) != 1) continue;
+      ++store_.anchor_count;
+    }
+    char* data = nullptr;
+    long len = BIO_get_mem_data(bio.get(), &data);  // NOLINT(runtime/int)
+    if (len > 0) store_.anchors_pem.assign(data, static_cast<size_t>(len));
+    store_.anchor_source = absl::StrJoin(sources_, ", ");
+    ERR_clear_error();
+    return std::move(store_);
+  }
+
+ private:
+  LinuxTrustStore store_;
+  std::vector<UniqueX509> candidates_;
+  std::vector<std::string> sources_;
+  std::set<std::pair<dev_t, ino_t>> seen_trust_bundles_;
+};
+
+// ---------------------------------------------------------------------------
+// Verifier
+// ---------------------------------------------------------------------------
+
+constexpr const char* kNoAnchorsMessage =
+    "No trusted CA certificates were found on this system, so Firestore "
+    "cannot verify TLS connections. Install the system CA certificates "
+    "package (for example `ca-certificates`), or set SSL_CERT_FILE or "
+    "SSL_CERT_DIR to a PEM bundle of trusted CA certificates.";
+
+absl::string_view ToStringView(grpc::string_ref ref) {
+  return ref.empty() ? absl::string_view{}
+                     : absl::string_view(ref.data(), ref.size());
+}
+
+/**
+ * Rejects blocklisted certificates and hostname mismatches. Chain validation
+ * against the system anchors is done by the TLS library beforehand
+ * (`verify_server_certs(true)`).
+ *
+ * Verification is synchronous: it only parses the (short) peer chain and
+ * computes a few digests, with no I/O.
+ */
+class LinuxBlocklistCertificateVerifier final
+    : public grpc::experimental::ExternalCertificateVerifier {
+ public:
+  explicit LinuxBlocklistCertificateVerifier(
+      std::shared_ptr<const LinuxTrustStore> store)
+      : store_(std::move(store)) {
+  }
+
+  bool Verify(grpc::experimental::TlsCustomVerificationCheckRequest* request,
+              std::function<void(grpc::Status)>,
+              grpc::Status* sync_status) override {
+    HARD_ASSERT(sync_status != nullptr,
+                "TLS synchronous verification status output must not be null");
+    if (request == nullptr) {
+      *sync_status = grpc::Status(
+          grpc::StatusCode::UNAUTHENTICATED,
+          "TLS custom verification check request must not be null");
+      return true;
+    }
+    *sync_status = VerifyLinuxPeerCertificateChain(
+        ToStringView(request->peer_cert_full_chain()),
+        ToStringView(request->target_name()), *store_);
+    if (!sync_status->ok()) {
+      if (store_->has_anchors()) {
+        LOG_WARN("TLS peer certificate verification failed: %s",
+                 sync_status->error_message());
+      }
+    } else {
+      LOG_DEBUG("Linux TLS peer certificate verification succeeded for '%s'",
+                absl::CHexEscape(ToStringView(request->target_name())));
+    }
+    return true;
+  }
+
+  void Cancel(grpc::experimental::TlsCustomVerificationCheckRequest*) override {
+    // Nothing to cancel: `Verify()` always completes synchronously.
+  }
+
+ private:
+  std::shared_ptr<const LinuxTrustStore> store_;
+};
+
+}  // namespace
+
+bool LinuxTrustStore::IsBlocked(absl::string_view cert_der,
+                                absl::string_view spki_der) const {
+  return blocked_cert_sha256.count(Sha256(cert_der)) > 0 ||
+         blocked_spki_sha256.count(Sha256(spki_der)) > 0;
+}
+
+LinuxTrustStore LoadLinuxTrustStore(const LinuxTrustConfig& config) {
+  TrustStoreBuilder builder;
+
+  for (const std::string& dir :
+       config.blocklist_dirs.value_or(ToVector(kDefaultBlocklistDirs))) {
+    for (const std::string& file : ListRegularFiles(dir)) {
+      builder.LoadBlocklistFile(file);
+    }
+  }
+  for (const std::string& file :
+       config.trust_bundle_files.value_or(ToVector(kDefaultTrustBundleFiles))) {
+    builder.LoadTrustBundleFile(file);
+  }
+
+  std::function<absl::optional<std::string>(const char*)> get_env =
+      config.get_env ? config.get_env : SecureGetEnv;
+  auto env = [&](const char* name) -> std::string {
+    return get_env(name).value_or("");
+  };
+
+  // Environment overrides: single files first, then directory lists.
+  for (const char* var :
+       {"GRPC_DEFAULT_SSL_ROOTS_FILE_PATH", "SSL_CERT_FILE"}) {
+    std::string path = env(var);
+    if (path.empty()) continue;
+    if (builder.LoadAnchors(path) > 0) return std::move(builder).Finish();
+    LOG_WARN("Ignoring %s=%s: no CA certificates found there", var, path);
+  }
+  for (const char* var : {"GRPC_SYSTEM_SSL_ROOTS_DIR", "SSL_CERT_DIR"}) {
+    std::string dirs = env(var);
+    if (dirs.empty()) continue;
+    size_t found = 0;
+    for (absl::string_view dir : absl::StrSplit(dirs, ':', absl::SkipEmpty())) {
+      found += builder.LoadAnchors(std::string(dir));
+    }
+    if (found > 0) return std::move(builder).Finish();
+    LOG_WARN("Ignoring %s=%s: no CA certificates found there", var, dirs);
+  }
+
+  for (const std::string& file :
+       config.bundle_files.value_or(ToVector(kDefaultBundleFiles))) {
+    if (builder.LoadAnchors(file) > 0) return std::move(builder).Finish();
+  }
+
+  for (const std::string& dir :
+       config.cert_dirs.value_or(ToVector(kDefaultCertDirs))) {
+    builder.LoadAnchors(dir);
+  }
+  return std::move(builder).Finish();
+}
+
+grpc::Status VerifyLinuxPeerCertificateChain(absl::string_view pem_chain,
+                                             absl::string_view target_name,
+                                             const LinuxTrustStore& store) {
+  if (!store.has_anchors()) {
+    return grpc::Status(grpc::StatusCode::UNAVAILABLE, kNoAnchorsMessage);
+  }
+
+  util::StatusOr<TlsTargetHost> parsed = ParseTlsTargetHost(target_name);
+  if (!parsed.ok()) {
+    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                        absl::StrCat(parsed.status().error_message(), ": '",
+                                     absl::CHexEscape(target_name), "'"));
+  }
+  const TlsTargetHost& host = parsed.ValueOrDie();
+
+  std::vector<UniqueX509> chain;
+  grpc::Status chain_status = ParsePeerChain(pem_chain, &chain);
+  if (!chain_status.ok()) {
+    return chain_status;
+  }
+
+  for (const UniqueX509& entry : chain) {
+    X509* cert = entry.get();
+    std::string cert_der = CertDer(cert);
+    std::string spki_der = SpkiDer(cert);
+    if (cert_der.empty() || spki_der.empty()) {
+      ERR_clear_error();
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          "Failed to encode TLS peer certificate");
+    }
+    if (store.IsBlocked(cert_der, spki_der)) {
+      std::string subject = SubjectName(cert);
+      ERR_clear_error();
+      return grpc::Status(
+          grpc::StatusCode::UNAUTHENTICATED,
+          absl::StrCat("TLS peer certificate '", subject,
+                       "' is distrusted by the system CA blocklist"));
+    }
+  }
+
+  // Match subjectAltNames only (RFC 9525, as on Apple platforms): no fallback
+  // to the subject common name, and wildcards only as a whole leftmost label.
+  X509* leaf = chain.front().get();
+  int match = 0;
+  if (host.kind == TlsTargetHost::Kind::kDns) {
+    // OpenSSL's `X509_check_host` treats a leading '.' as a suffix match for
+    // any subdomain; BoringSSL and RFC 9525 do not.
+    if (!host.host.empty() && host.host.front() == '.') {
+      return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                          absl::StrCat("Invalid TLS target host name: '",
+                                       absl::CHexEscape(target_name), "'"));
+    }
+    match = X509_check_host(leaf, host.host.data(), host.host.size(),
+                            X509_CHECK_FLAG_NO_PARTIAL_WILDCARDS |
+                                X509_CHECK_FLAG_NEVER_CHECK_SUBJECT,
+                            nullptr);
+  } else {
+    match = X509_check_ip_asc(leaf, host.host.c_str(), 0);
+  }
+  ERR_clear_error();
+  if (match != 1) {
+    return grpc::Status(
+        grpc::StatusCode::UNAUTHENTICATED,
+        absl::StrCat("TLS peer certificate '", SubjectName(leaf),
+                     "' does not match host '", absl::CHexEscape(host.host),
+                     "'"));
+  }
+  return grpc::Status::OK;
+}
+
+std::shared_ptr<grpc::ChannelCredentials> CreateLinuxTlsCredentials(
+    const LinuxTrustConfig& config) {
+  auto store =
+      std::make_shared<const LinuxTrustStore>(LoadLinuxTrustStore(config));
+
+  grpc::experimental::TlsChannelCredentialsOptions options;
+  if (store->has_anchors()) {
+    LOG_DEBUG(
+        "Loaded %s TLS trust anchors from %s; %s certificates and %s "
+        "keys blocklisted",
+        store->anchor_count, store->anchor_source,
+        store->blocked_cert_sha256.size(), store->blocked_spki_sha256.size());
+    // gRPC 1.83 deprecates these in favor of `InMemoryCertificateProvider` and
+    // `set_root_certificate_provider`, which gRPC 1.69 (used by CMake builds)
+    // does not have.
+    SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
+    options.set_certificate_provider(
+        std::make_shared<grpc::experimental::StaticDataCertificateProvider>(
+            store->anchors_pem));
+    options.watch_root_certs();
+    SUPPRESS_END()
+    options.set_verify_server_certs(true);
+  } else {
+    // Constructing `StaticDataCertificateProvider` with no roots aborts, so
+    // skip chain validation and let the verifier fail every handshake.
+    LOG_ERROR("%s", kNoAnchorsMessage);
+    options.set_verify_server_certs(false);
+  }
+
+  // A fresh verifier per credentials object, as on Apple platforms: gRPC
+  // compares TLS credentials by verifier identity, so each channel gets its own
+  // subchannel.
+  options.set_certificate_verifier(
+      grpc::experimental::ExternalCertificateVerifier::Create<
+          LinuxBlocklistCertificateVerifier>(std::move(store)));
+  // gRPC's per-call `check_call_host` stays enabled (the default); see
+  // grpc_tls_credentials_provider.h for why IP-literal hosts must be canonical.
+  return grpc::experimental::TlsCredentials(options);
+}
+
+std::shared_ptr<grpc::ChannelCredentials> CreateDefaultTlsCredentials() {
+  return CreateLinuxTlsCredentials();
+}
+
+}  // namespace remote
+}  // namespace firestore
+}  // namespace firebase
+
+#endif  // !defined(__APPLE__) && !defined(_WIN32)

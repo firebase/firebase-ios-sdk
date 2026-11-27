@@ -110,19 +110,22 @@ enum Helper {
     return (exprMap, nil)
   }
 
-  static func aliasedAggregatesToMap(accumulators: [AliasedAggregate])
-    -> ([String: AggregateFunction], Error?) {
-    var accumulatorMap = [String: AggregateFunction]()
+  static func windowFieldsToMap(fields: [WindowField])
+    -> ([String: __AggregateFunctionBridge], Error?) {
+    var map = [String: __AggregateFunctionBridge]()
     var errors = [String]()
-    for aliasedAggregate in accumulators {
-      let alias = aliasedAggregate.alias
-      if let errorMessage = aliasedAggregate.aggregate.errorMessage {
+    for field in fields {
+      guard let value = field as? WindowFieldWrapper else {
+        fatalError("WindowField type must conform to WindowFieldWrapper.")
+      }
+      let alias = value.alias
+      if let errorMessage = value.errorMessage {
         errors.append(errorMessage)
       }
-      if accumulatorMap[alias] != nil {
-        errors.append("Duplicate alias '\(alias)' found in accumulators.")
+      if map[alias] != nil {
+        errors.append("Duplicate alias '\(alias)' found in fields.")
       }
-      accumulatorMap[alias] = aliasedAggregate.aggregate
+      map[alias] = value.bridge
     }
     if !errors.isEmpty {
       return (
@@ -134,7 +137,7 @@ enum Helper {
         )
       )
     }
-    return (accumulatorMap, nil)
+    return (map, nil)
   }
 
   static func map(_ elements: [String: Sendable?]) -> FunctionExpression {

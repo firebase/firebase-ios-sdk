@@ -29,9 +29,12 @@ NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
 // FIRAppCheckDebugProvider.m
 NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I-FAA004001";
 NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenExchangeFailed = @"I-FAA004002";
-
-// FIRAppCheckDebugProviderFactory.m
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenFromConfigStore = @"I-FAA004003";
+NSString *const kFIRLoggerAppCheckMessageCodeConfigStoreDebugTokenExchangeFailed = @"I-FAA004004";
 NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
+
+// FIRAppCheckDebugTokenConfigStore.m
+NSString *const kFIRLoggerAppCheckMessageCodeDebugTokenConfigStoreUnreadable = @"I-FAA004005";
 
 // FIRDeviceCheckProvider.m
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";

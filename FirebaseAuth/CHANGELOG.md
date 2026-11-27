@@ -1,3 +1,49 @@
+# Unreleased
+- [added] Auth now logs a warning when a sign-in, link, or reauthentication
+  request for an identity provider credential contains an empty ID token,
+  access token, nonce, or other value, which the server can reject. With
+  debug logging enabled, Auth also logs which of these values a failed
+  request sent, without the values themselves. (#15571)
+- [fixed] `TOTPSecret` (`FIRTOTPSecret`) now has the `hashingAlgorithm`,
+  `codeLength`, `codeIntervalSeconds`, and `enrollmentCompletionDeadline`
+  properties that the Android and JavaScript SDKs provide. Apps can use them
+  to show the settings for entering the secret into an authenticator app by
+  hand, and a countdown to the enrollment deadline. (#17032)
+- [fixed] Fixed `MultiFactorInfo.enrollmentDate` being the current time instead
+  of the enrollment time when the server's timestamp has no fractional
+  seconds, and being in the wrong year on devices set to a non-Gregorian
+  calendar, such as Buddhist or Japanese. (#17039)
+- [fixed] Fixed a data race that could crash an app when Auth signs out the
+  user after a token refresh fails, for example because the account was
+  disabled, while the app calls `signOut()` or another refresh fails at the
+  same time. (#17085)
+- [fixed] Fixed Sign in with Apple and other OAuth sign-ins failing with an
+  invalid credential error when Objective-C or Objective-C++ code passed `nil`
+  as the `accessToken` or `rawNonce` to `OAuthProvider` (`FIROAuthProvider`)
+  `credentialWithProviderID:IDToken:rawNonce:accessToken:` or
+  `credentialWithProviderID:IDToken:rawNonce:`, a regression in 11.0.0.
+  (#15571)
+
+# 13.2.0
+- [fixed] Fixed a memory leak where removed auth state and ID token listeners,
+  and the objects they captured, stayed in memory for as long as the `Auth`
+  instance existed. This also affected the `authStateChanges` and
+  `idTokenChanges` sequences. (#16938)
+- [fixed] Preserve newer in-flight token refreshes when an older refresh completes. (#16765)
+- [fixed] Fixed `checkActionCode` returning an `ActionCodeInfo` whose
+  `operation` was always `.unknown`, a regression in 11.12.0. (#16950)
+- [fixed] Fixed a crash in `checkActionCode` for email sign-in codes, a
+  regression in 11.0.0. `ActionCodeInfo.email` is empty for these codes,
+  because the server doesn't return their email address. (#16963)
+- [fixed] Fixed a data race that could crash an app that reads `User.metadata`
+  or `User.multiFactor` while a reload, link, or profile update finishes on
+  another thread. (#16975)
+- [fixed] Fixed `User.multiFactor` still listing enrolled factors after a
+  reload when all of them were unenrolled on another device, a regression in
+  11.0.0. (#16976)
+- [fixed] Fixed a crash when enrolling or unenrolling a second factor on macOS
+  for a user saved by a version earlier than 12.2.0. (#16976)
+
 # 13.1.0
 - [fixed] Fixed a bug in URL domain validation and improved keychain logging safety.
 - [changed] Strengthened the randomness and length of generated OAuth and reCAPTCHA session identifiers.

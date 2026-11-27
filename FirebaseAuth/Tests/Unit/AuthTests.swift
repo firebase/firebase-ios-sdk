@@ -75,6 +75,15 @@ class AuthTests: RPCBaseTests {
     _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
+  /// Waits for the work queue and then the main queue to run what is queued so far, such as the
+  /// initial call of a listener, which goes through both queues.
+  private func waitForAuthGlobalWorkQueueAndMainQueueDrain() {
+    waitForAuthGlobalWorkQueueDrain()
+    let mainQueueDrained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { mainQueueDrained.fulfill() }
+    wait(for: [mainQueueDrained], timeout: 5)
+  }
+
   /** @fn testFetchSignInMethodsForEmailSuccess
       @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
    */
@@ -542,7 +551,7 @@ class AuthTests: RPCBaseTests {
    */
   func testCheckActionCodeSuccess() throws {
     let kNewEmail = "newEmail@example.com"
-    let verifyEmailRequestType = "verifyEmail"
+    let verifyEmailRequestType = "VERIFY_EMAIL"
     let expectation = self.expectation(description: #function)
 
     // 1. Setup respond block to test and fake send request.
@@ -564,6 +573,57 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(error)
       XCTAssertEqual(info?.email, kNewEmail)
       XCTAssertEqual(info?.operation, ActionCodeOperation.verifyEmail)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testCheckActionCodeOperations
+      @brief Tests that each @c requestType returned by the backend maps to the expected
+          @c ActionCodeOperation. The backend uses SCREAMING_SNAKE_CASE values, unlike the
+          camelCase @c mode parameter of out of band links.
+   */
+  @MainActor func testCheckActionCodeOperations() async throws {
+    let cases: [(requestType: String, email: String?, operation: ActionCodeOperation)] = [
+      ("PASSWORD_RESET", kEmail, .passwordReset),
+      ("VERIFY_EMAIL", kEmail, .verifyEmail),
+      ("RECOVER_EMAIL", kEmail, .recoverEmail),
+      // The backend doesn't return an email address for email sign-in codes.
+      ("EMAIL_SIGNIN", nil, .emailLink),
+      ("VERIFY_AND_CHANGE_EMAIL", kEmail, .verifyAndChangeEmail),
+      ("REVERT_SECOND_FACTOR_ADDITION", kEmail, .revertSecondFactorAddition),
+      ("OOB_REQ_TYPE_UNSPECIFIED", kEmail, .unknown),
+    ]
+    for (requestType, email, operation) in cases {
+      var response: [String: Any] = ["requestType": requestType]
+      if let email {
+        response["email"] = email
+      }
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer.respond(withJSON: response)
+      }
+      let info = try await auth.checkActionCode(kFakeOobCode)
+      XCTAssertEqual(info.operation, operation, "requestType: \(requestType)")
+      XCTAssertEqual(info.email, email ?? "", "requestType: \(requestType)")
+    }
+  }
+
+  /** @fn testCheckActionCodeWithoutEmailFails
+      @brief Tests that @c checkActionCode fails with an internal error, rather than crashing, if
+          the response for a code other than an email sign-in code has no email address.
+   */
+  func testCheckActionCodeWithoutEmailFails() throws {
+    let expectation = self.expectation(description: #function)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: ["requestType": "VERIFY_EMAIL"])
+    }
+    auth?.checkActionCode(kFakeOobCode) { info, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(info)
+      let nsError = error as? NSError
+      XCTAssertEqual(nsError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = nsError?.userInfo[NSUnderlyingErrorKey] as? NSError
+      XCTAssertEqual(underlyingError?.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
@@ -2354,6 +2414,77 @@ class AuthTests: RPCBaseTests {
     restoringAuth.removeStateDidChangeListener(handle)
   }
 
+  /** @fn testRemoveStateDidChangeListenerReleasesListener
+      @brief Tests that @c removeStateDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveStateDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeStateDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testRemoveIDTokenDidChangeListenerReleasesListener
+      @brief Tests that @c removeIDTokenDidChangeListener: releases the listener, along with the
+          objects it captures.
+   */
+  func testRemoveIDTokenDidChangeListenerReleasesListener() throws {
+    let auth = try XCTUnwrap(auth)
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      let handle = auth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      auth.removeIDTokenDidChangeListener(handle)
+    }
+    // The initial call holds the listener until it runs. Let it run.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakCapturedObject)
+  }
+
+  /** @fn testDeallocatingAuthRemovesListeners
+      @brief Tests that listeners that are still registered when an @c Auth instance is deallocated
+          are removed from the notification center and released.
+   */
+  func testDeallocatingAuthRemovesListeners() throws {
+    let app = try XCTUnwrap(auth.app)
+    weak var weakAuth: Auth?
+    weak var weakCapturedObject: NSObject?
+    autoreleasepool {
+      let listeningAuth = Auth(app: app,
+                               keychainStorageProvider: FakeAuthKeychainStorage(),
+                               backend: authBackend)
+      weakAuth = listeningAuth
+      let capturedObject = NSObject()
+      weakCapturedObject = capturedObject
+      _ = listeningAuth.addStateDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+      _ = listeningAuth.addIDTokenDidChangeListener { _, _ in
+        withExtendedLifetime(capturedObject) {}
+      }
+    }
+    // Let queued work that holds the instance or the listeners finish.
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+
+    XCTAssertNil(weakAuth)
+    XCTAssertNil(weakCapturedObject)
+  }
+
   /** @fn testUseEmulator
       @brief Tests the @c useEmulatorWithHost:port: method.
    */
@@ -2456,6 +2587,167 @@ class AuthTests: RPCBaseTests {
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
     RPCBaseTests.waitSleep()
+    XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testTokenRefreshFailureSignsOutOnWorkQueue
+      @brief Tests that a token refresh that fails with an error that signs out the user does so on
+          `kAuthGlobalWorkQueue`, like `signOut()`, so that it can't race with other reads and
+          writes of the current user. See #17085.
+   */
+  func testTokenRefreshFailureSignsOutOnWorkQueue() throws {
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let backend = try XCTUnwrap(authBackend)
+    rpcIssuer.secureTokenErrorString = "USER_DISABLED"
+
+    // Hold the work queue.
+    let workQueueHeld = DispatchSemaphore(value: 0)
+    let releaseWorkQueue = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workQueueHeld.signal()
+      releaseWorkQueue.wait()
+    }
+    workQueueHeld.wait()
+
+    // The refresh signs out before it throws, so it can't finish while the work queue is held.
+    let refreshFinished = DispatchSemaphore(value: 0)
+    Task {
+      do {
+        _ = try await user.internalGetTokenAsync(forceRefresh: true, backend: backend)
+        XCTFail("The token refresh should fail")
+      } catch {
+        XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
+      }
+      refreshFinished.signal()
+    }
+    let finishedWhileHeld = refreshFinished.wait(timeout: .now() + 0.5) == .success
+    releaseWorkQueue.signal()
+    XCTAssertFalse(finishedWhileHeld, "The user was signed out off the work queue")
+    if !finishedWhileHeld {
+      XCTAssertEqual(refreshFinished.wait(timeout: .now() + 5), .success)
+    }
+    XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testConcurrentForcedSignOutsAndSignOut
+      @brief Tests that forced sign-outs on two threads, while a third thread calls `signOut()` and a
+          fourth reads `currentUser`, sign out the user. Run with Thread Sanitizer to check that they
+          don't race on the current user. See #17085.
+   */
+  func testConcurrentForcedSignOutsAndSignOut() throws {
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(self.auth)
+    let user = try XCTUnwrap(auth.currentUser)
+    let userID = user.uid
+
+    // Repeat, because the threads don't always overlap in a single round.
+    for _ in 0 ..< 25 {
+      try kAuthGlobalWorkQueue.sync {
+        try auth.updateCurrentUser(user, byForce: true, savingToDisk: false)
+      }
+      DispatchQueue.concurrentPerform(iterations: 4) { index in
+        // Only call `XCTFail` when there's an error. XCTest assertions take a lock, which Thread
+        // Sanitizer treats as synchronization between the threads, so it could hide a race.
+        do {
+          switch index {
+          case 0:
+            try auth.signOut()
+          case 1, 2:
+            try auth.signOutByForce(withUserID: userID)
+          default:
+            _ = auth.currentUser
+          }
+        } catch {
+          XCTFail("Unexpected sign-out error: \(error)")
+        }
+      }
+      XCTAssertNil(auth.currentUser)
+    }
+    waitForAuthGlobalWorkQueueAndMainQueueDrain()
+  }
+
+  /** @fn testSignOutByForceWithMismatchedUserIDKeepsCurrentUser
+      @brief Tests that a forced sign-out for a user who is no longer the current user doesn't sign
+          out the current user.
+   */
+  func testSignOutByForceWithMismatchedUserIDKeepsCurrentUser() throws {
+    try waitForSignInWithAccessToken()
+    let currentUser = try XCTUnwrap(auth.currentUser)
+
+    try auth.signOutByForce(withUserID: "other-\(currentUser.uid)")
+
+    XCTAssertIdentical(auth.currentUser, currentUser)
+  }
+
+  /** @fn testSignOutByForceWhenKeychainDeleteFailsSignsOutAndThrows
+      @brief Tests that when removing the stored user from the keychain fails, a forced sign-out
+          still signs out the user and then throws the keychain error, while `signOut()` throws and
+          keeps the user signed in.
+   */
+  func testSignOutByForceWhenKeychainDeleteFailsSignsOutAndThrows() throws {
+    final class FailableDeleteKeychainStorage: AuthKeychainStorage, @unchecked Sendable {
+      private let backing = FakeAuthKeychainStorage()
+      var failDelete = false
+
+      func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
+        backing.get(query: query, result: &result)
+      }
+
+      func add(query: [String: Any]) -> OSStatus {
+        backing.add(query: query)
+      }
+
+      func update(query: [String: Any], attributes: [String: Any]) -> OSStatus {
+        backing.update(query: query, attributes: attributes)
+      }
+
+      func delete(query: [String: Any]) -> OSStatus {
+        failDelete ? errSecInteractionNotAllowed : backing.delete(query: query)
+      }
+    }
+
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    let app = try XCTUnwrap(auth.app)
+    let storage = FailableDeleteKeychainStorage()
+    let testAuth = Auth(app: app, keychainStorageProvider: storage, backend: authBackend)
+    try kAuthGlobalWorkQueue.sync {
+      try testAuth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+    }
+
+    storage.failDelete = true
+
+    XCTAssertThrowsError(try testAuth.signOut()) { error in
+      XCTAssertEqual((error as NSError).code, AuthErrorCode.keychainError.rawValue)
+    }
+    XCTAssertIdentical(testAuth.currentUser, user)
+
+    XCTAssertThrowsError(try testAuth.signOutByForce(withUserID: user.uid)) { error in
+      XCTAssertEqual((error as NSError).code, AuthErrorCode.keychainError.rawValue)
+    }
+    XCTAssertNil(testAuth.currentUser)
+  }
+
+  /** @fn testDeleteUserSignsOutCurrentUser
+      @brief Tests that deleting the current user's account signs out the user, through
+          `signOutByForce(withUserID:)`.
+   */
+  func testDeleteUserSignsOutCurrentUser() throws {
+    try waitForSignInWithAccessToken()
+    let user = try XCTUnwrap(auth.currentUser)
+    rpcIssuer.respondBlock = {
+      XCTAssertTrue(self.rpcIssuer.request is DeleteAccountRequest)
+      return try self.rpcIssuer.respond(withJSON: [:])
+    }
+
+    let deleted = expectation(description: "delete finished")
+    user.delete { error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(error)
+      deleted.fulfill()
+    }
+    wait(for: [deleted], timeout: 5)
     XCTAssertNil(auth.currentUser)
   }
 

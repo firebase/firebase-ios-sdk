@@ -10,11 +10,13 @@ on:
     - 'FirebaseCore**'
     - '.github/workflows/sdk.core.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'scripts/**' # Smoke test changes in `scripts/`.
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
     - cron:  '0 10 * * *'
@@ -34,6 +36,13 @@ jobs:
     with:
       product: FirebaseCore
       target: FirebaseCore-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseCore
+      source_paths: FirebaseCore/Sources FirebaseCore/Extension
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml

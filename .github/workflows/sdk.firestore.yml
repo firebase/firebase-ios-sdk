@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   changes:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       changed: ${{ steps.firestore_src_changes.outputs.sources == 'true' || steps.related_changes.outputs.other_changes == 'true' }}
     steps:
@@ -103,7 +103,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MINT_PATH: ${{ github.workspace }}/mint
     steps:
@@ -142,11 +142,16 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     strategy:
       matrix:
-        os: [macos-26, ubuntu-latest]
+        os: [macos-26, ubuntu-24.04]
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
       USE_LATEST_CMAKE: false
+      # Runs GrpcTlsProdSmokeTest (grpc_tls_prod_smoke_test.cc), which performs
+      # real TLS handshakes with firestore.googleapis.com through the platform
+      # TLS credentials provider. With this set, an unreachable network fails
+      # the job instead of skipping the test.
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -203,6 +208,7 @@ jobs:
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
       USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -244,7 +250,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-24.04]
         # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
         # This could be due to Apple Clang provide additional support for synchronization
         # on Apple platforms, which is what we primarily care about.
@@ -256,6 +262,7 @@ jobs:
       SANITIZERS: ${{ matrix.sanitizer }}
       ASAN_OPTIONS: detect_leaks=0
       USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
 
     steps:
     - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -287,6 +294,128 @@ jobs:
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
+  cmake-linux-boringssl:
+    needs: [changes, check]
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    env:
+      USE_LATEST_CMAKE: false
+      FIRESTORE_TLS_PROD_SMOKE: 1
+
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+
+    - name: Prepare ccache
+      uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: boringssl-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          boringssl-firestore-ccache-${{ runner.os }}-
+
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+      with:
+        python-version: '3.11'
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@802fa1a2c4e212495c05bf94dba2704a92a472be
+      with:
+        cmake-version: '3.31.2'
+
+    - name: Setup build
+      run: scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    # The default Ubuntu CMake jobs pick up system OpenSSL 3 (`libssl-dev`).
+    # Disable OpenSSL package discovery here so `grpc_tls_credentials_provider_linux`
+    # is compiled and tested against the bundled BoringSSL target as well.
+    - name: Configure and build (bundled BoringSSL)
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        cmake -S . -B build -G Ninja \
+          -Wdeprecated \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DFIREBASE_IOS_BUILD_TESTS=ON \
+          -DCMAKE_DISABLE_FIND_PACKAGE_OpenSSL=TRUE
+        cmake --build build --target firestore_remote_test
+
+    - name: Verify linked against bundled BoringSSL
+      run: |
+        set -euo pipefail
+        exe=build/Firestore/core/test/unit/remote/firestore_remote_test
+        ldd "$exe"
+        if ldd "$exe" | grep -E 'lib(ssl|crypto)\.so'; then
+          echo "::error::$exe dynamically linked system OpenSSL instead of bundled BoringSSL"
+          exit 1
+        fi
+
+    - name: Test on Ubuntu 24.04 (BoringSSL + production TLS smoke)
+      run: |
+        set -euo pipefail
+        exe=build/Firestore/core/test/unit/remote/firestore_remote_test
+        scripts/third_party/travis/retry.sh \
+          ctest --test-dir build --output-on-failure -R '^firestore_remote_test$'
+        scripts/third_party/travis/retry.sh \
+          "$exe" --gtest_filter='GrpcTlsProdSmokeTest.*' | tee smoke-ubuntu.log
+        if grep -q '\[  SKIPPED \]' smoke-ubuntu.log; then
+          echo "::error::GrpcTlsProdSmokeTest was skipped on Ubuntu"
+          exit 1
+        fi
+        if ! grep -q '\[       OK \] GrpcTlsProdSmokeTest\.' smoke-ubuntu.log; then
+          echo "::error::GrpcTlsProdSmokeTest did not run on Ubuntu"
+          exit 1
+        fi
+
+    # Because the BoringSSL test binary statically links BoringSSL, run the
+    # compiled executable inside non-Debian distro containers (pulled from
+    # first-party registries to avoid Docker Hub rate limits) to exercise
+    # p11-kit trust bundles, `TRUSTED CERTIFICATE` transcoding, and SUSE CA
+    # store layouts against firestore.googleapis.com without rebuilding.
+    - name: Test across Fedora and openSUSE CA stores
+      run: |
+        set -euo pipefail
+        exe="$PWD/build/Firestore/core/test/unit/remote/firestore_remote_test"
+        fedora_img="quay.io/fedora/fedora:42@sha256:e78cd1a688cd079c23864f289a89a49a3f4ad66d817864e325e1d058310ee95c"
+        opensuse_img="registry.opensuse.org/opensuse/leap:16.0@sha256:9c88da273b41600dfd12790849dfb198ddefed3a109eaf42ada944afb4282a9d"
+
+        scripts/third_party/travis/retry.sh docker pull "$fedora_img"
+        scripts/third_party/travis/retry.sh docker pull "$opensuse_img"
+
+        run_distro_smoke() {
+          local label="$1"
+          local image="$2"
+          shift 2
+          local log="smoke-${label}.log"
+          echo "=== ${label} (${image}) ==="
+          scripts/third_party/travis/retry.sh \
+            docker run --rm \
+              -e FIRESTORE_TLS_PROD_SMOKE=1 \
+              "$@" \
+              -v "${exe}:/tmp/firestore_remote_test:ro" \
+              "$image" \
+              /tmp/firestore_remote_test --gtest_filter='*Linux*:GrpcTlsProdSmokeTest.*' \
+            | tee "$log"
+          if grep -q '\[  SKIPPED \]' "$log"; then
+            echo "::error::GrpcTlsProdSmokeTest was skipped in ${label}"
+            exit 1
+          fi
+          if ! grep -q '\[       OK \] GrpcTlsProdSmokeTest\.' "$log"; then
+            echo "::error::GrpcTlsProdSmokeTest did not run in ${label}"
+            exit 1
+          fi
+        }
+
+        run_distro_smoke fedora-default "$fedora_img"
+        run_distro_smoke fedora-trust-bundle "$fedora_img" \
+          -e SSL_CERT_FILE=/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+        run_distro_smoke opensuse-leap "$opensuse_img"
+
   build_xcodetest:
     needs: check
     if: |
@@ -305,7 +434,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
@@ -387,7 +516,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -410,8 +539,12 @@ jobs:
           timeout_minutes: 60
           command: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodebuild
 
+      # Fail a hung test after 5 minutes (XCTest attaches a spindump to the
+      # xcresult) instead of hanging until the job timeout.
       - name: Test
-        run: scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest
+        run: |
+          scripts/build.sh ${{ matrix.scheme }} ${{ matrix.target }} xcodetest \
+            -test-timeouts-enabled YES -maximum-test-execution-time-allowance 300
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: ${{ failure() }}
         with:
@@ -421,10 +554,14 @@ jobs:
 
   xcodetest_nightly:
     needs: [check, build_xcodetest]
+    # TODO(b/577081204): Re-enable nightly tests once backend connectivity issues are resolved.
+    # To re-enable: uncomment the original `if:` block below, remove `if: false`,
+    # and re-add `xcodetest_nightly` to `check-required-tests.needs` below.
     # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    # if: |
+    #   (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+    #   (github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false)
+    if: false
     runs-on: macos-26
     timeout-minutes: 60
 
@@ -464,7 +601,7 @@ jobs:
           key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
       - if: steps.cache-products.outputs.cache-hit != 'true'
-        uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+        uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
       - name: Cache Pods
         if: steps.cache-products.outputs.cache-hit != 'true'
@@ -561,7 +698,7 @@ jobs:
         key: ${{ runner.os }}-xctest-products-${{ matrix.target }}-${{ github.sha }}
 
     - if: steps.cache-products.outputs.cache-hit != 'true'
-      uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+      uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
 
     - name: Cache Pods
       if: steps.cache-products.outputs.cache-hit != 'true'
@@ -602,7 +739,7 @@ jobs:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: ${{ matrix.product }}
-      platforms: iOS
+      platforms: '["iOS"]'
       allow_warnings: true
       analyze: false # TODO(#9565, b/227461966): Remove when absl is fixed.
       timeout_minutes: 40
@@ -643,7 +780,7 @@ jobs:
       with:
         persist-credentials: false
 
-    - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
+    - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f # v1.335.0
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
@@ -743,7 +880,7 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseFirestoreTests
-      platforms: iOS
+      platforms: '["iOS"]'
 
   spm-source-cron:
     # Don't run on private repo.
@@ -796,11 +933,12 @@ jobs:
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
   check-required-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Check all required Firestore tests results
     if: always()
     needs:
       - cmake
+      - cmake-linux-boringssl
       # - xcodetest_emulator
       - spm-source
       - spm-binary
@@ -808,7 +946,8 @@ jobs:
       - sanitizers-ubuntu
       - pod_lib_lint
       - xcodetest_prod
-      - xcodetest_nightly
+      # TODO(b/577081204): Uncomment when xcodetest_nightly is re-enabled.
+      # - xcodetest_nightly
     steps:
       - name: Check test matrix
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

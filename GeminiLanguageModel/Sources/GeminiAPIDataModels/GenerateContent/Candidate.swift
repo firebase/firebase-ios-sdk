@@ -30,6 +30,10 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
   /// The content of the candidate.
   package var content: Content?
 
+  /// An optional opaque continuation token returned when `finish_reason` is `CONTINUATION`. Clients
+  /// can pass this token in a subsequent `GenerateContentRequest` to continue generation.
+  package var continuationToken: String?
+
   /// Describes the reason the model stopped generating tokens in more detail. This field is
   /// returned only when `finish_reason` is set.
   package var finishMessage: String?
@@ -50,8 +54,9 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
   /// debugging, understanding model uncertainty, and identifying potential "hallucinations".
   package var logprobsResult: LogprobsResult?
 
-  /// A list of ratings for the safety of a response candidate. There is at most one rating per
-  /// category.
+  /// A list of ratings for the safety of a response candidate.
+  ///
+  /// There is at most one rating per category.
   package var safetyRatings: [SafetyRating]?
 
   /// Token count for this candidate.
@@ -70,6 +75,7 @@ package struct Candidate: Codable, Sendable, Equatable, Hashable, Buildable {
     case avgLogprobs
     case citationMetadata
     case content
+    case continuationToken
     case finishMessage
     case finishReason
     case groundingMetadata

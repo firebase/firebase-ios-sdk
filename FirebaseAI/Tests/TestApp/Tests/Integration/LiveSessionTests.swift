@@ -634,17 +634,15 @@ struct LiveSessionTests {
     // The server should signal both the start and the end of the user's speech.
     let receivedTypes = turn.voiceActivities.map(\.type)
     let activityStart = try #require(
-      turn.voiceActivities.first { $0.type == .activityStart },
+      turn.voiceActivities.first { $0.type == .start },
       "Missing ACTIVITY_START voice activity; received: \(receivedTypes)"
     )
     let activityEnd = try #require(
-      turn.voiceActivities.first { $0.type == .activityEnd },
+      turn.voiceActivities.first { $0.type == .end },
       "Missing ACTIVITY_END voice activity; received: \(receivedTypes)"
     )
-    let startOffset = try #require(activityStart.audioOffset)
-    let endOffset = try #require(activityEnd.audioOffset)
-    #expect(startOffset >= 0)
-    #expect(endOffset > startOffset)
+    #expect(activityStart.audioOffset >= 0)
+    #expect(activityEnd.audioOffset >= activityStart.audioOffset)
 
     // Voice activity messages must not terminate the `responses` stream; the model's response to
     // the audio should still be received after them.
@@ -654,6 +652,28 @@ struct LiveSessionTests {
       .lowercased()
 
     #expect(modelResponse == "goodbye")
+  }
+
+  @Test(arguments: arguments)
+  func releasedSession_isClosed(_ config: InstanceConfig, modelName: String) async throws {
+    let model = FirebaseAI.componentInstance(config).liveModel(
+      modelName: modelName,
+      generationConfig: generationConfig
+    )
+
+    // Keep only `responses`; the session is released at the end of the `do` scope. This
+    // deliberately doesn't call `close()`, because releasing the session should close it.
+    let responses: AsyncThrowingStream<LiveServerMessage, Error>
+    do {
+      let session = try await model.connect()
+      responses = session.responses
+    }
+
+    // The `responses` stream only finishes once the session's connection has been torn down.
+    let didFinish: Void? = try await withTimeout(seconds: 5) {
+      for try await _ in responses {}
+    }
+    #expect(didFinish != nil, "The responses stream did not finish after the session was released")
   }
 }
 

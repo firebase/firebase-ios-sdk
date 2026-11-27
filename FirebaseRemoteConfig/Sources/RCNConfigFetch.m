@@ -574,24 +574,25 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (fetchedConfig && fetchedConfig.count == 1 && fetchedConfig[RCNFetchResponseKeyError]) {
         NSString *errStr = [NSString stringWithFormat:@"RCN Fetch Failure: Server returned error:"];
         NSDictionary *errDict = fetchedConfig[RCNFetchResponseKeyError];
-        if ([errDict isKindOfClass:[NSDictionary class]]) {
-          if (errDict[RCNFetchResponseKeyErrorCode]) {
-            errStr = [errStr
-                stringByAppendingString:
-                    [NSString stringWithFormat:@"code: %@", errDict[RCNFetchResponseKeyErrorCode]]];
-          }
-          if (errDict[RCNFetchResponseKeyErrorStatus]) {
-            errStr =
-                [errStr stringByAppendingString:
-                            [NSString stringWithFormat:@". Status: %@",
-                                                       errDict[RCNFetchResponseKeyErrorStatus]]];
-          }
-          if (errDict[RCNFetchResponseKeyErrorMessage]) {
-            errStr =
-                [errStr stringByAppendingString:
-                            [NSString stringWithFormat:@". Message: %@",
-                                                       errDict[RCNFetchResponseKeyErrorMessage]]];
-          }
+        if (![errDict isKindOfClass:[NSDictionary class]]) {
+          errDict = nil;
+        }
+        if (errDict[RCNFetchResponseKeyErrorCode]) {
+          errStr = [errStr
+              stringByAppendingString:[NSString
+                                          stringWithFormat:@"code: %@",
+                                                           errDict[RCNFetchResponseKeyErrorCode]]];
+        }
+        if (errDict[RCNFetchResponseKeyErrorStatus]) {
+          errStr = [errStr stringByAppendingString:
+                               [NSString stringWithFormat:@". Status: %@",
+                                                          errDict[RCNFetchResponseKeyErrorStatus]]];
+        }
+        if (errDict[RCNFetchResponseKeyErrorMessage]) {
+          errStr =
+              [errStr stringByAppendingString:
+                          [NSString stringWithFormat:@". Message: %@",
+                                                     errDict[RCNFetchResponseKeyErrorMessage]]];
         }
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000044", @"%@.", errStr);
         NSError *error = [NSError errorWithDomain:FIRRemoteConfigErrorDomain
@@ -625,10 +626,13 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                     @"Empty response with no fetched config.");
       }
 
-      // We had a successful fetch. Update the current eTag in settings if different.
+      // We had a successful fetch. Update the current eTag in settings if different, or if the
+      // server sent a full UPDATE, so that activate applies the new values (#15764).
       NSString *latestETag = ((NSHTTPURLResponse *)response).allHeaderFields[kETagHeaderName];
+      BOOL isUpdate =
+          [fetchedConfig[RCNFetchResponseKeyState] isEqualToString:RCNFetchResponseKeyStateUpdate];
       if (!strongSelf->_settings.lastETag ||
-          !([strongSelf->_settings.lastETag isEqualToString:latestETag])) {
+          !([strongSelf->_settings.lastETag isEqualToString:latestETag]) || isUpdate) {
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
@@ -715,8 +719,11 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kContentEncodingHeaderName];
   [URLRequest setValue:@"gzip" forHTTPHeaderField:kAcceptEncodingHeaderName];
   [URLRequest setValue:fetchTypeHeader forHTTPHeaderField:kFetchTypeHeaderName];
-  // Set the eTag from the last successful fetch, if available.
-  if (_settings.lastETag) {
+  // Set the eTag from the last successful fetch, if available. Skip it when there is
+  // no fetched config locally (e.g. after a device restore the DB can be empty while
+  // the ETag survives in user defaults), so the server returns the full template (#15764).
+  NSDictionary *fetchedForNamespace = _content.fetchedConfig[_FIRNamespace];
+  if (_settings.lastETag && fetchedForNamespace != nil) {
     [URLRequest setValue:_settings.lastETag forHTTPHeaderField:kIfNoneMatchETagHeaderName];
   }
   [URLRequest setHTTPBody:content];
@@ -735,9 +742,21 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 }
 
 /// Returns the key of the first nested field in the fetch response whose value doesn't have the
-/// JSON type that the personalization, rollout and experiment parsers expect, or nil if every
-/// field that is present is well-formed. Missing fields are allowed.
+/// JSON type that the config, personalization, rollout and experiment parsers expect, or nil if
+/// every field that is present is well-formed. Missing fields are allowed.
 - (nullable NSString *)fieldWithUnexpectedTypeInFetchResponse:(NSDictionary *)fetchedConfig {
+  // Checking `state` and `entries` here, rather than only in RCNConfigContent, rejects the whole
+  // response. Otherwise the fetch would still be reported as a success, the ETag and template
+  // version would advance, and the other metadata in the response would be applied without the
+  // config values.
+  id state = fetchedConfig[RCNFetchResponseKeyState];
+  if (state && ![state isKindOfClass:[NSString class]]) {
+    return RCNFetchResponseKeyState;
+  }
+  id entries = fetchedConfig[RCNFetchResponseKeyEntries];
+  if (entries && ![entries isKindOfClass:[NSDictionary class]]) {
+    return RCNFetchResponseKeyEntries;
+  }
   id personalizationMetadata = fetchedConfig[RCNFetchResponseKeyPersonalizationMetadata];
   if (personalizationMetadata && ![personalizationMetadata isKindOfClass:[NSDictionary class]]) {
     return RCNFetchResponseKeyPersonalizationMetadata;

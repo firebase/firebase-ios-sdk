@@ -48,5 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 // records are removed from the book of this local storage object.
 // @param upTo the cap on how many records to be popped.
 - (NSArray<FIRIAMClearcutLogRecord *> *)popStillValidRecordsForUpTo:(NSInteger)upTo;
+
+// Returns YES if the storage has at least one record that has not expired yet.
+// Unlike popStillValidRecordsForUpTo:, this does not remove any records.
+- (BOOL)hasStillValidRecords;
 @end
 NS_ASSUME_NONNULL_END

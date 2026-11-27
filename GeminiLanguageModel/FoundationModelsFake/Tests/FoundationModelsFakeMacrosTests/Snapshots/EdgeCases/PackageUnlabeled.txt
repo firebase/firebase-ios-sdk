@@ -1,0 +1,152 @@
+package enum Payload {
+  case pair(Int, Int)
+  case single(Int)
+
+    nonisolated package enum PartiallyGenerated: nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        case pair(Int.PartiallyGenerated?, Int.PartiallyGenerated?)
+        case single(Int.PartiallyGenerated?)
+        nonisolated package init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            let type: String = try content.value(forProperty: "type")
+            switch type {
+            case "pair":
+                self = .pair(
+                    try content.value(forProperty: "value"),
+                    try content.value(forProperty: "value1")
+                )
+            case "single":
+                self = .single(try content.value(forProperty: "value"))
+            default:
+                throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+            }
+        }
+    }
+
+    nonisolated package static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            anyOf: [
+                DiscriminatedPair.self,
+                DiscriminatedSingle.self
+            ]
+        )
+    }
+
+    private nonisolated struct DiscriminatedPair: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("pair"))
+        let type: String
+        let value: Int
+        let value1: Int
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.value = try content.value(forProperty: "value")
+            self.value1 = try content.value(forProperty: "value1")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("pair")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int.self),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value1", type: Int.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "value", value: self.value)
+            addProperty(name: "value1", value: self.value1)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    private nonisolated struct DiscriminatedSingle: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("single"))
+        let type: String
+        let value: Int
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.value = try content.value(forProperty: "value")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("single")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "value", type: Int.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "value", value: self.value)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    nonisolated package var generatedContent: FoundationModelsFake.GeneratedContent {
+        switch self {
+        case .pair(let value, let value1):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "pair",
+                    "value": value,
+                    "value1": value1
+                ]
+            )
+        case .single(let value):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "single",
+                    "value": value
+                ]
+            )
+        }
+    }
+}
+
+extension Payload: nonisolated FoundationModelsFake.Generable {
+    nonisolated package init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let type: String = try content.value(forProperty: "type")
+        switch type {
+        case "pair":
+            self = .pair(
+                try content.value(forProperty: "value"),
+                try content.value(forProperty: "value1")
+            )
+        case "single":
+            self = .single(try content.value(forProperty: "value"))
+        default:
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+        }
+    }
+}

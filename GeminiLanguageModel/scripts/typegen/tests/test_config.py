@@ -138,4 +138,6 @@ class TestGeneratorConfig(unittest.TestCase):
         self.assertEqual(
             [b.tag for b in config.backends], ["gl-developer", "ai-enterprise"]
         )
-        self.assertIn("ResponseFormatConfig.swift", config.preserved_files)
+        # Hand-written sources live in Sources/GeminiAPIDataModels/Core, outside
+        # the generator's output directory, so nothing needs preserving.
+        self.assertEqual(config.preserved_files, set())

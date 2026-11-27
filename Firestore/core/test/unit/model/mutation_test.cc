@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/model/mutation.h"
 
+#include <cstdint>
 #include <type_traits>
 #include <utility>
 
@@ -402,30 +403,30 @@ TEST(MutationTest, AppliesIncrementTransformsConsecutively) {
 }
 
 TEST(MutationTest, AppliesIncrementWithoutOverflow) {
-  auto base_data =
-      Map("a", LONG_MAX - 1, "b", LONG_MAX - 1, "c", LONG_MAX, "d", LONG_MAX);
+  auto base_data = Map("a", INT64_MAX - 1, "b", INT64_MAX - 1, "c", INT64_MAX,
+                       "d", INT64_MAX);
   TransformPairs transforms = {
       {"a", Increment(1)},
-      {"b", Increment(LONG_MAX)},
+      {"b", Increment(INT64_MAX)},
       {"c", Increment(1)},
-      {"d", Increment(LONG_MAX)},
+      {"d", Increment(INT64_MAX)},
   };
   auto expected =
-      Map("a", LONG_MAX, "b", LONG_MAX, "c", LONG_MAX, "d", LONG_MAX);
+      Map("a", INT64_MAX, "b", INT64_MAX, "c", INT64_MAX, "d", INT64_MAX);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 
 TEST(MutationTest, AppliesIncrementWithoutUnderflow) {
-  auto base_data =
-      Map("a", LONG_MIN + 1, "b", LONG_MIN + 1, "c", LONG_MIN, "d", LONG_MIN);
+  auto base_data = Map("a", INT64_MIN + 1, "b", INT64_MIN + 1, "c", INT64_MIN,
+                       "d", INT64_MIN);
   TransformPairs transforms = {
       {"a", Increment(-1)},
-      {"b", Increment(LONG_MIN)},
+      {"b", Increment(INT64_MIN)},
       {"c", Increment(-1)},
-      {"d", Increment(LONG_MIN)},
+      {"d", Increment(INT64_MIN)},
   };
   auto expected =
-      Map("a", LONG_MIN, "b", LONG_MIN, "c", LONG_MIN, "d", LONG_MIN);
+      Map("a", INT64_MIN, "b", INT64_MIN, "c", INT64_MIN, "d", INT64_MIN);
   TransformBaseDoc(std::move(base_data), transforms, std::move(expected));
 }
 

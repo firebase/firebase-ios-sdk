@@ -24,10 +24,11 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable, Build
 
   /// The overall input given to the `Model`. This includes the prompt as well as other model
   /// steering information like [system
-  /// instructions](https://ai.google.dev/gemini-api/docs/system-instructions), and/or function
-  /// declarations for [function calling](https://ai.google.dev/gemini-api/docs/function-calling).
-  /// `Model`s/`Content`s and `generate_content_request`s are mutually exclusive. You can either
-  /// send `Model` + `Content`s or a `generate_content_request`, but never both.
+  /// instructions](https://aistudio.google.com/docs/text-generation#system-instructions), and/or
+  /// function declarations for [function
+  /// calling](https://aistudio.google.com/docs/function-calling). `Model`s/`Content`s and
+  /// `generate_content_request`s are mutually exclusive. You can either send `Model` + `Content`s
+  /// or a `generate_content_request`, but never both.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var generateContentRequest: GenerateContentRequest?
@@ -55,9 +56,10 @@ package struct CountTokensRequest: Codable, Sendable, Equatable, Hashable, Build
   /// > Important: This property is not supported in the Gemini Developer API.
   package var systemInstruction: Content?
 
-  /// A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code
-  /// that enables the system to interact with external systems to perform an action, or set of
-  /// actions, outside of knowledge and scope of the model.
+  /// A list of `Tools` the model may use to generate the next response.
+  ///
+  /// A `Tool` is a piece of code that enables the system to interact with external systems to
+  /// perform an action, or set of actions, outside of knowledge and scope of the model.
   ///
   /// > Important: This property is not supported in the Gemini Developer API.
   package var tools: [Tool]?

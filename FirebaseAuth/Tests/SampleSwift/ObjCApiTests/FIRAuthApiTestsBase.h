@@ -39,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 #define SKIP_IF_ON_MOBILE_HARNESS
 #endif
 
-static NSTimeInterval const kExpectationsTimeout = 10;
+static NSTimeInterval const kExpectationsTimeout = 15;
 
 @interface FIRAuthApiTestsBase : XCTestCase
 

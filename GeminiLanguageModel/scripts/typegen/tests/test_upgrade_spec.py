@@ -31,6 +31,23 @@ PREFIXES = (
 )
 
 
+def _fake_discovery_response() -> mock.MagicMock:
+    """Returns a fake `urlopen` response serving a minimal Discovery Doc."""
+    fake_discovery = {
+        "title": "Test API",
+        "version": "v1beta",
+        "schemas": {
+            "Sample": {
+                "type": "object",
+                "properties": {"name": {"type": "string"}},
+            }
+        },
+    }
+    resp = mock.MagicMock()
+    resp.read.return_value = json.dumps(fake_discovery).encode("utf-8")
+    return resp
+
+
 class TestUpgradeSpec(unittest.TestCase):
     """Test suite covering Discovery transformations in upgrade_spec."""
 
@@ -385,6 +402,30 @@ class TestUpgradeSpec(unittest.TestCase):
             [{"$ref": "#/components/schemas/MyType"}, {"type": "null"}],
         )
 
+    def test_upgrade_nullables_preserves_nullable_property(self):
+        data = {
+            "type": "object",
+            "properties": {
+                "nullable": {
+                    "type": "boolean",
+                    "description": "Indicates if the value may be null.",
+                },
+                "other": {"type": "string", "nullable": True},
+            },
+        }
+        upgrade_spec.upgrade_nullables(data)
+        self.assertEqual(
+            data["properties"]["nullable"],
+            {
+                "type": "boolean",
+                "description": "Indicates if the value may be null.",
+            },
+        )
+        self.assertEqual(
+            data["properties"]["other"]["type"], ["string", "null"]
+        )
+        self.assertNotIn("nullable", data["properties"]["other"])
+
     def test_simplify_all_of(self):
         data = {
             "allOf": [{"$ref": "#/components/schemas/MyType"}],
@@ -394,6 +435,25 @@ class TestUpgradeSpec(unittest.TestCase):
         self.assertNotIn("allOf", data)
         self.assertEqual(data["$ref"], "#/components/schemas/MyType")
         self.assertEqual(data["description"], "Sibling description")
+
+    def test_simplify_all_of_preserves_all_of_property(self):
+        data = {
+            "type": "object",
+            "properties": {
+                "allOf": {
+                    "allOf": [{"$ref": "#/components/schemas/MyType"}],
+                    "description": "Nested allOf property.",
+                }
+            },
+        }
+        upgrade_spec.simplify_all_of(data)
+        self.assertEqual(
+            data["properties"]["allOf"],
+            {
+                "$ref": "#/components/schemas/MyType",
+                "description": "Nested allOf property.",
+            },
+        )
 
     def test_deep_merge(self):
         source = {
@@ -448,20 +508,204 @@ class TestUpgradeSpec(unittest.TestCase):
         self.assertEqual(destination["description"], "Original array")
 
     @mock.patch("urllib.request.urlopen")
-    def test_main_auto_fetches_when_input_file_missing(self, mock_urlopen):
-        fake_discovery = {
-            "title": "Test API",
-            "version": "v1beta",
-            "schemas": {
-                "Sample": {
-                    "type": "object",
-                    "properties": {"name": {"type": "string"}},
-                }
-            },
-        }
-        resp = mock.MagicMock()
-        resp.read.return_value = json.dumps(fake_discovery).encode("utf-8")
-        mock_urlopen.return_value.__enter__.return_value = resp
+    def test_main_uses_checked_in_openapi3_by_default(self, mock_urlopen):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_file = os.path.join(tmp, "openapi.yaml")
+            with contextlib.redirect_stdout(io.StringIO()):
+                upgrade_spec.main(["--output-file", output_file])
+
+            mock_urlopen.assert_not_called()
+            self.assertTrue(os.path.isfile(output_file))
+            with open(output_file, "r", encoding="utf-8") as f:
+                spec = yaml.safe_load(f)
+            self.assertEqual(spec["openapi"], "3.1.0")
+            self.assertTrue(spec["components"]["schemas"])
+            self.assertIn(
+                "nullable",
+                spec["components"]["schemas"][
+                    "GoogleAiGenerativelanguageV1betaSchema"
+                ]["properties"],
+            )
+
+    def test_checked_in_spec_contains_all_override_schemas(self):
+        docs_dir = os.path.join(
+            os.path.dirname(os.path.abspath(upgrade_spec.__file__)),
+            "discovery_documents",
+        )
+        spec_path = os.path.join(
+            docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+        )
+        overrides_path = os.path.join(
+            docs_dir, "firebasevertexai-overrides.yaml"
+        )
+        with open(spec_path, "r", encoding="utf-8") as f:
+            raw_spec = json.load(f)
+        with open(overrides_path, "r", encoding="utf-8") as f:
+            overrides = yaml.safe_load(f)
+
+        raw_schemas = raw_spec["components"]["schemas"]
+        missing = [
+            name
+            for name in overrides.get("schemas", {})
+            if name not in raw_schemas
+        ]
+        self.assertEqual(missing, [])
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_raises_when_default_input_file_missing(self, mock_urlopen):
+        with tempfile.TemporaryDirectory() as tmp:
+            docs_dir = os.path.join(tmp, "discovery_documents")
+            os.makedirs(docs_dir)
+            overrides_file = os.path.join(
+                docs_dir, "firebasevertexai-overrides.yaml"
+            )
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                mock.patch.object(
+                    upgrade_spec,
+                    "__file__",
+                    os.path.join(tmp, "upgrade_spec.py"),
+                ),
+                self.assertRaisesRegex(
+                    FileNotFoundError,
+                    "firebasevertexai_public_openapi3_0_v1beta.json",
+                ),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    ["--output-file", os.path.join(tmp, "openapi.yaml")]
+                )
+
+            mock_urlopen.assert_not_called()
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_fetches_without_overwriting_checked_in_spec(
+        self, mock_urlopen
+    ):
+        mock_urlopen.return_value.__enter__.return_value = (
+            _fake_discovery_response()
+        )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            docs_dir = os.path.join(tmp, "discovery_documents")
+            os.makedirs(docs_dir)
+            checked_in_spec = os.path.join(
+                docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+            )
+            with open(checked_in_spec, "w", encoding="utf-8") as f:
+                f.write('{"sentinel": true}\n')
+            fetched_file = os.path.join(
+                docs_dir, "firebasevertexai_discovery_v1beta.json"
+            )
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(
+                docs_dir, "firebasevertexai-overrides.yaml"
+            )
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                mock.patch.object(
+                    upgrade_spec,
+                    "__file__",
+                    os.path.join(tmp, "upgrade_spec.py"),
+                ),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    [
+                        "--fetch",
+                        "--output-file",
+                        output_file,
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_called_once()
+            self.assertTrue(os.path.isfile(fetched_file))
+            self.assertTrue(os.path.isfile(output_file))
+            with open(checked_in_spec, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), '{"sentinel": true}\n')
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_fetch_refuses_to_overwrite_checked_in_spec(
+        self, mock_urlopen
+    ):
+        with tempfile.TemporaryDirectory() as tmp:
+            docs_dir = os.path.join(tmp, "discovery_documents")
+            os.makedirs(docs_dir)
+            checked_in_spec = os.path.join(
+                docs_dir, "firebasevertexai_public_openapi3_0_v1beta.json"
+            )
+            with open(checked_in_spec, "w", encoding="utf-8") as f:
+                f.write('{"sentinel": true}\n')
+            overrides_file = os.path.join(
+                docs_dir, "firebasevertexai-overrides.yaml"
+            )
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                mock.patch.object(
+                    upgrade_spec,
+                    "__file__",
+                    os.path.join(tmp, "upgrade_spec.py"),
+                ),
+                self.assertRaisesRegex(ValueError, "Refusing to overwrite"),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    [
+                        "--fetch",
+                        "--input-file",
+                        checked_in_spec,
+                        "--output-file",
+                        os.path.join(tmp, "openapi.yaml"),
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_not_called()
+            with open(checked_in_spec, "r", encoding="utf-8") as f:
+                self.assertEqual(f.read(), '{"sentinel": true}\n')
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_raises_when_explicit_input_file_missing(self, mock_urlopen):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "openapi3.json")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                self.assertRaisesRegex(FileNotFoundError, "openapi3.json"),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    [
+                        "--input-file",
+                        input_file,
+                        "--output-file",
+                        os.path.join(tmp, "openapi.yaml"),
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_not_called()
+            self.assertFalse(os.path.exists(input_file))
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_fetches_to_explicit_input_file_with_fetch_flag(
+        self, mock_urlopen
+    ):
+        mock_urlopen.return_value.__enter__.return_value = (
+            _fake_discovery_response()
+        )
 
         with tempfile.TemporaryDirectory() as tmp:
             input_file = os.path.join(tmp, "discovery.json")
@@ -473,6 +717,7 @@ class TestUpgradeSpec(unittest.TestCase):
             with contextlib.redirect_stdout(io.StringIO()):
                 upgrade_spec.main(
                     [
+                        "--fetch",
                         "--input-file",
                         input_file,
                         "--output-file",
@@ -485,6 +730,63 @@ class TestUpgradeSpec(unittest.TestCase):
             mock_urlopen.assert_called_once()
             self.assertTrue(os.path.isfile(input_file))
             self.assertTrue(os.path.isfile(output_file))
+
+    def test_main_rejects_unrecognized_input_document(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "swagger2.json")
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(input_file, "w", encoding="utf-8") as f:
+                json.dump({"swagger": "2.0", "definitions": {}}, f)
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            with (
+                self.assertRaisesRegex(ValueError, "components.schemas"),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                upgrade_spec.main(
+                    [
+                        "--input-file",
+                        input_file,
+                        "--output-file",
+                        output_file,
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            self.assertFalse(os.path.exists(output_file))
+
+    def test_main_rejects_non_object_input_document(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "invalid.json")
+            output_file = os.path.join(tmp, "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump({"schemas": {}}, f)
+
+            for payload in ([], "scalar", 42, None):
+                with self.subTest(payload=payload):
+                    with open(input_file, "w", encoding="utf-8") as f:
+                        json.dump(payload, f)
+
+                    with (
+                        self.assertRaisesRegex(ValueError, "JSON object"),
+                        contextlib.redirect_stdout(io.StringIO()),
+                    ):
+                        upgrade_spec.main(
+                            [
+                                "--input-file",
+                                input_file,
+                                "--output-file",
+                                output_file,
+                                "--overrides-file",
+                                overrides_file,
+                            ]
+                        )
+
+                    self.assertFalse(os.path.exists(output_file))
 
     @mock.patch("urllib.request.urlopen")
     def test_main_uses_cached_input_file_without_fetch_flag(self, mock_urlopen):
@@ -511,6 +813,171 @@ class TestUpgradeSpec(unittest.TestCase):
 
             mock_urlopen.assert_not_called()
             self.assertTrue(os.path.isfile(output_file))
+
+    def test_normalize_enum_extensions(self):
+        data = {
+            "enum": ["A", "B"],
+            "x-google-enum-descriptions": ["First", "Second"],
+            "x-google-enum-deprecated": [False, True],
+            "nested": [
+                {
+                    "enum": ["X"],
+                    "enumDescriptions": ["Existing"],
+                    "x-google-enum-descriptions": ["Should not overwrite"],
+                }
+            ],
+        }
+        upgrade_spec.normalize_enum_extensions(data)
+        self.assertEqual(data["enumDescriptions"], ["First", "Second"])
+        self.assertEqual(data["enumDeprecated"], [False, True])
+        self.assertNotIn("x-google-enum-descriptions", data)
+        self.assertNotIn("x-google-enum-deprecated", data)
+        self.assertEqual(data["nested"][0]["enumDescriptions"], ["Existing"])
+
+    def test_extract_standalone_enums_backfills_preextracted_descriptions(self):
+        schemas = {
+            "GoogleAiGenerativelanguageV1betaHarmCategory": {
+                "type": "string",
+                "enum": [
+                    "HARM_CATEGORY_UNSPECIFIED",
+                    "HARM_CATEGORY_HARASSMENT",
+                ],
+            },
+            "GoogleAiGenerativelanguageV1betaModality": {
+                "type": "string",
+                "description": "Custom existing description.",
+                "enum": ["MODALITY_UNSPECIFIED", "TEXT"],
+            },
+            "ToolType": {
+                "type": "string",
+                "enum": ["TOOL_TYPE_UNSPECIFIED", "GOOGLE_SEARCH_WEB"],
+            },
+        }
+        upgrade_spec.extract_standalone_enums(schemas, prefixes=PREFIXES)
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaHarmCategory"][
+                "description"
+            ],
+            "Harm categories for safety settings and ratings.",
+        )
+        self.assertEqual(
+            schemas["GoogleAiGenerativelanguageV1betaModality"]["description"],
+            "Custom existing description.",
+        )
+        self.assertEqual(
+            schemas["ToolType"]["description"],
+            "Tool types for function calling and tools.",
+        )
+
+    @mock.patch("urllib.request.urlopen")
+    def test_main_converts_openapi3_input(self, mock_urlopen):
+        fake_openapi3 = {
+            "openapi": "3.0.3",
+            "info": {
+                "title": "Custom API Title",
+                "description": "Custom OpenAPI 3.0 Description",
+                "version": "v1beta",
+            },
+            "components": {
+                "schemas": {
+                    "ToolType": {
+                        "type": "string",
+                        "enum": [
+                            "TOOL_TYPE_UNSPECIFIED",
+                            "GOOGLE_SEARCH_WEB",
+                        ],
+                        "x-google-enum-descriptions": [
+                            "Unspecified.",
+                            "Web search.",
+                        ],
+                    },
+                    "GoogleAiGenerativelanguageV1betaSample": {
+                        "type": "object",
+                        "properties": {
+                            "toolType": {
+                                "description": "Required. Tool type.",
+                                "allOf": [
+                                    {"$ref": "#/components/schemas/ToolType"}
+                                ],
+                            },
+                            "nullableRef": {
+                                "allOf": [
+                                    {"$ref": "#/components/schemas/ToolType"}
+                                ],
+                                "nullable": True,
+                            },
+                        },
+                    },
+                }
+            },
+        }
+
+        overrides_data = {
+            "generatorConfig": {
+                "backends": [
+                    {
+                        "prefix": "GoogleAiGenerativelanguageV1beta",
+                        "tag": "gl-developer",
+                    }
+                ]
+            },
+            "schemas": {},
+        }
+
+        with tempfile.TemporaryDirectory() as tmp:
+            input_file = os.path.join(tmp, "openapi3.json")
+            output_file = os.path.join(tmp, "nested", "openapi.yaml")
+            overrides_file = os.path.join(tmp, "overrides.yaml")
+            with open(input_file, "w", encoding="utf-8") as f:
+                json.dump(fake_openapi3, f)
+            with open(overrides_file, "w", encoding="utf-8") as f:
+                yaml.safe_dump(overrides_data, f)
+
+            with contextlib.redirect_stdout(io.StringIO()):
+                upgrade_spec.main(
+                    [
+                        "--input-file",
+                        input_file,
+                        "--output-file",
+                        output_file,
+                        "--overrides-file",
+                        overrides_file,
+                    ]
+                )
+
+            mock_urlopen.assert_not_called()
+            with open(output_file, "r", encoding="utf-8") as f:
+                spec = yaml.safe_load(f)
+
+        self.assertEqual(spec["openapi"], "3.1.0")
+        self.assertEqual(spec["info"]["title"], "Custom API Title")
+        self.assertEqual(
+            spec["info"]["description"], "Custom OpenAPI 3.0 Description"
+        )
+        out_schemas = spec["components"]["schemas"]
+        self.assertEqual(
+            out_schemas["ToolType"]["description"],
+            "Tool types for function calling and tools.",
+        )
+        self.assertEqual(
+            out_schemas["ToolType"]["enumDescriptions"],
+            ["Unspecified.", "Web search."],
+        )
+        sample = out_schemas["GoogleAiGenerativelanguageV1betaSample"]
+        self.assertEqual(sample["required"], ["toolType"])
+        self.assertEqual(
+            sample["properties"]["toolType"]["$ref"],
+            "#/components/schemas/ToolType",
+        )
+        self.assertEqual(
+            sample["properties"]["nullableRef"],
+            {
+                "oneOf": [
+                    {"$ref": "#/components/schemas/ToolType"},
+                    {"type": "null"},
+                ]
+            },
+        )
 
 
 if __name__ == "__main__":

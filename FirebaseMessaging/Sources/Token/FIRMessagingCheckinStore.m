@@ -127,7 +127,7 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
                        handler(nil);
                      }
                    }];
-  } else {
+  } else if (handler) {
     handler(nil);
   }
 }
@@ -136,7 +136,9 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   // Delete the checkin preferences plist first to avoid delay.
   NSError *deletePlistError;
   if (![self.plist deleteFile:&deletePlistError]) {
-    handler(deletePlistError);
+    if (handler) {
+      handler(deletePlistError);
+    }
     return;
   }
   FIRMessagingLoggerDebug(kFIRMessagingMessageCodeCheckinStoreCheckinPlistDeleted,
@@ -145,7 +147,9 @@ NSString *const kFIRMessagingCheckinKeychainService = @"com.google.iid.checkin";
   [self.keychain removeItemsMatchingService:kFIRMessagingCheckinKeychainService
                                     account:self.bundleIdentifierForKeychainAccount
                                     handler:^(NSError *error) {
-                                      handler(error);
+                                      if (handler) {
+                                        handler(error);
+                                      }
                                     }];
 }
 

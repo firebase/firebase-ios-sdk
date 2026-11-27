@@ -88,13 +88,8 @@
 }
 
 - (NSString *)fakeRandomEmail {
-  NSMutableString *fakeEmail = [[NSMutableString alloc] init];
-  for (int i = 0; i < 10; i++) {
-    [fakeEmail
-        appendString:[NSString stringWithFormat:@"%c", 'a' + arc4random_uniform('z' - 'a' + 1)]];
-  }
-  [fakeEmail appendString:@"@gmail.com"];
-  return fakeEmail;
+  return [NSString
+      stringWithFormat:@"user+ci-%@@example.com", [NSUUID UUID].UUIDString.lowercaseString];
 }
 
 @end

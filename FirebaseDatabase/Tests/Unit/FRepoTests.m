@@ -96,6 +96,34 @@
   XCTAssertEqualObjects(error.localizedFailureReason, kFWPResponseForActionStatusFailed);
 }
 
+// A get that the server rejects, e.g. because of security rules, should not be described as the
+// client being offline. https://github.com/firebase/firebase-ios-sdk/issues/11835
+- (void)testGetDataRejectedByServerDescribesReason {
+  NSError *error = [self getDataErrorWithStatus:@"permission_denied" reason:@"Permission denied"];
+  NSString *description = error.localizedDescription;
+  XCTAssertTrue([description hasPrefix:@"Unable to get latest value for query "], @"%@",
+                description);
+  XCTAssertTrue([description hasSuffix:@": Permission denied"], @"%@", description);
+  XCTAssertFalse([description containsString:@"offline"], @"%@", description);
+}
+
+- (void)testGetDataRejectedByServerWithoutReasonDescribesStatus {
+  NSError *error = [self getDataErrorWithStatus:@"permission_denied" reason:nil];
+  NSString *description = error.localizedDescription;
+  XCTAssertTrue([description hasSuffix:@": permission_denied"], @"%@", description);
+  XCTAssertFalse([description containsString:@"offline"], @"%@", description);
+}
+
+- (void)testGetDataTimedOutOfflineDescribesOffline {
+  NSError *error = [self getDataErrorWithStatus:kFWPResponseForActionStatusFailed
+                                         reason:kPersistentConnectionOffline];
+  NSString *description = error.localizedDescription;
+  XCTAssertEqualObjects(error.localizedFailureReason, kPersistentConnectionOffline);
+  XCTAssertTrue([description hasSuffix:@", client offline with no active listeners and no "
+                                       @"matching disk cache entries"],
+                @"%@", description);
+}
+
 /** Calls getData on the repo while its connection fails gets with `status` and `reason`. */
 - (NSError *)getDataErrorWithStatus:(NSString *)status reason:(id)reason {
   self.connection.status = status;

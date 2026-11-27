@@ -1006,8 +1006,14 @@ extension Auth: AuthInterop {
           let response = try await self.backend.call(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
-          guard let email = response.email else {
-            fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
+          let email: String
+          if let responseEmail = response.email {
+            email = responseEmail
+          } else if operation == .emailLink {
+            // The backend doesn't return an email address for email sign-in codes.
+            email = ""
+          } else {
+            throw AuthErrorUtils.unexpectedResponse(deserializedResponse: response)
           }
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
@@ -1381,7 +1387,7 @@ extension Auth: AuthInterop {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    listenerHandles.remove(listenerHandle)
+    listenerHandles.removeAll { $0 === listenerHandle }
   }
 
   /// Registers a block as an "ID token did change" listener.
@@ -1414,9 +1420,11 @@ extension Auth: AuthInterop {
         listener(auth, auth._currentUser)
       }
     }
-    objc_sync_enter(Auth.self)
-    listenerHandles.add(listener)
-    objc_sync_exit(Auth.self)
+    do {
+      objc_sync_enter(Auth.self)
+      defer { objc_sync_exit(Auth.self) }
+      listenerHandles.append(handle)
+    }
     // Go through the serial work queue first, so the initial call runs after work that is
     // already queued, such as loading the persisted user at startup. Otherwise a listener added
     // right after `FirebaseApp.configure()` could get `nil` before the signed-in user is loaded.
@@ -1438,8 +1446,8 @@ extension Auth: AuthInterop {
   @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
-    listenerHandles.remove(listenerHandle)
-    objc_sync_exit(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    listenerHandles.removeAll { $0 === listenerHandle }
   }
 
   /// Sets `languageCode` to the app's current language.
@@ -1779,13 +1787,11 @@ extension Auth: AuthInterop {
 
   deinit {
     let defaultCenter = NotificationCenter.default
-    while listenerHandles.count > 0 {
-      let handleToRemove = listenerHandles.lastObject
-      defaultCenter.removeObserver(handleToRemove as Any)
-      listenerHandles.removeLastObject()
+    for listenerHandle in listenerHandles {
+      defaultCenter.removeObserver(listenerHandle)
     }
 
-    #if os(iOS)
+    #if os(iOS) || os(tvOS)
       defaultCenter.removeObserver(applicationDidBecomeActiveObserver as Any,
                                    name: UIApplication.didBecomeActiveNotification,
                                    object: nil)
@@ -1876,11 +1882,20 @@ extension Auth: AuthInterop {
     return serviceName
   }
 
+  /// Signs out the user with the given ID if they're still the current user.
+  ///
+  /// Unlike `signOut()`, this signs out even if removing the stored user from the keychain fails,
+  /// and then throws that error. Like `signOut()`, it runs synchronously on
+  /// `kAuthGlobalWorkQueue`, so it doesn't race with `signOut()`, `currentUser`, or other work on
+  /// that queue. Don't call it on that queue.
+  /// - Parameter userID: The ID of the user to sign out.
   func signOutByForce(withUserID userID: String) throws {
-    guard _currentUser?.uid == userID else {
-      return
+    try kAuthGlobalWorkQueue.sync {
+      guard self._currentUser?.uid == userID else {
+        return
+      }
+      try self.updateCurrentUser(nil, byForce: true, savingToDisk: true)
     }
-    try updateCurrentUser(nil, byForce: true, savingToDisk: true)
   }
 
   // MARK: Private methods
@@ -2437,5 +2452,5 @@ extension Auth: AuthInterop {
   /// change" notification listeners.
   ///
   /// Mutations should occur within a @synchronized(self) context.
-  private var listenerHandles: NSMutableArray = []
+  private var listenerHandles: [NSObjectProtocol] = []
 }

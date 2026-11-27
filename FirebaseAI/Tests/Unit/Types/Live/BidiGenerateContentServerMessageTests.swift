@@ -205,7 +205,7 @@ final class BidiGenerateContentServerMessageTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(voiceActivity.type, .activityStart)
+    XCTAssertEqual(voiceActivity.type, .start)
     XCTAssertEqual(voiceActivity.audioOffset?.seconds, 2)
     XCTAssertEqual(voiceActivity.audioOffset?.nanos, 520_000_000)
   }
@@ -227,7 +227,7 @@ final class BidiGenerateContentServerMessageTests: XCTestCase {
       return
     }
 
-    XCTAssertEqual(voiceActivity.type, .activityEnd)
+    XCTAssertEqual(voiceActivity.type, .end)
     XCTAssertEqual(voiceActivity.audioOffset?.seconds, 3)
     XCTAssertEqual(voiceActivity.audioOffset?.nanos, 640_000_000)
   }

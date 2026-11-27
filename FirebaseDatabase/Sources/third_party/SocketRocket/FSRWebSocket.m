@@ -300,11 +300,7 @@ static __strong NSData *CRLFCRLF;
 {
     self = [super init];
     if (self) {
-        // Return nil rather than assert on an invalid URL, since asserts are
-        // compiled into release builds.
-        if (!request.URL) {
-            return nil;
-        }
+        assert(request.URL);
         _url = request.URL;
         NSString *scheme = [_url scheme];
 
@@ -312,9 +308,7 @@ static __strong NSData *CRLFCRLF;
         _googleAppID = googleAppID;
         _userAgent = userAgent;
 
-        if (!([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"])) {
-            return nil;
-        }
+        assert([scheme isEqualToString:@"ws"] || [scheme isEqualToString:@"http"] || [scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]);
         _urlRequest = request;
 
         if ([scheme isEqualToString:@"wss"] || [scheme isEqualToString:@"https"]) {
@@ -680,6 +674,13 @@ static __strong NSData *CRLFCRLF;
         SRFastLog(@"Closing with code %d reason %@", code, reason);
 
         if (wasConnecting) {
+            // The connection never opened, so drop the unsent handshake
+            // request, if any. _disconnect only closes the streams once all
+            // queued data is written, which may not happen for hours if the
+            // connection is stuck, e.g. in the TLS handshake.
+            // https://github.com/firebase/firebase-ios-sdk/issues/9682
+            self->_outputBuffer = [[NSMutableData alloc] init];
+            self->_outputBufferOffset = 0;
             [self _disconnect];
             return;
         }

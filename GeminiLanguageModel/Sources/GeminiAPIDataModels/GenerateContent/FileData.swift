@@ -17,11 +17,14 @@
 
 import Foundation
 
-/// URI-based data. A FileData message contains a URI pointing to data of a specific media type. It
-/// is used to represent images, audio, and video stored in Google Cloud Storage.
+/// URI-based data.
+///
+/// A FileData message contains a URI pointing to data of a specific media type. It is used to
+/// represent images, audio, and video stored in Google Cloud Storage.
 package struct FileData: Codable, Sendable, Equatable, Hashable, Buildable {
-  /// The display name of the file. Used to provide a label or filename to distinguish files. This
-  /// field is only returned in `PromptMessage` for prompt management. It is used in the Gemini
+  /// The display name of the file. Used to provide a label or filename to distinguish files.
+  ///
+  /// This field is only returned in `PromptMessage` for prompt management. It is used in the Gemini
   /// calls only when server side tools (`code_execution`, `google_search`, and `url_context`) are
   /// enabled.
   package var displayName: String?

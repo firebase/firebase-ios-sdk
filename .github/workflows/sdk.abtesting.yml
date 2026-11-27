@@ -11,11 +11,13 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/sdk.abtesting.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 2am (PDT) / 5am (EDT) - cron uses UTC times
     - cron: '0 9 * * *'
@@ -35,6 +37,15 @@ jobs:
     with:
       product: FirebaseABTesting
       target: FirebaseABTesting-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  # FirebaseABTesting isn't a library product, so analyze it through the
+  # ABTestingUnit test scheme, whose build action analyzes it.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: ABTestingUnit
+      source_paths: FirebaseABTesting/Sources
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml

@@ -25,25 +25,40 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   /// `projects/{project}/locations/{location}/cachedContents/{cachedContent}`
   package var cachedContent: String?
 
-  /// Required. The content of the current conversation with the model. For single-turn queries,
-  /// this is a single instance. For multi-turn queries, this is a repeated field that contains
-  /// conversation history + latest request.
+  /// Required. The content of the current conversation with the model.
+  ///
+  /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated
+  /// field that contains conversation history + latest request.
   package var contents: [Content]?
+
+  /// An opaque continuation token used to resume generation from a previous `GenerateContent` or
+  /// `StreamGenerateContent` response that stopped with `finish_reason` set to `CONTINUATION`. When
+  /// a continuation token is provided, `contents` is required and must identically replicate the
+  /// prompt and conversation history from the initial request.
+  package var continuationToken: String?
 
   /// Generation config.
   package var generationConfig: GenerationConfig?
 
   /// The labels with user-defined metadata for the request. It is used for billing and reporting
-  /// only. Label keys and values can be no longer than 63 characters (Unicode codepoints) and can
-  /// only contain lowercase letters, numeric characters, underscores, and dashes. International
+  /// only.
+  ///
+  /// Label keys and values can be no longer than 63 characters (Unicode codepoints) and can only
+  /// contain lowercase letters, numeric characters, underscores, and dashes. International
   /// characters are allowed. Label values are optional. Label keys must start with a letter.
   package var labels: [String: String]?
 
-  /// Required. The name of the `Model` to use for generating the completion. Format:
-  /// `models/{model}`.
+  /// Required. The name of the `Model` to use for generating the completion.
+  ///
+  /// Format: `models/{model}`.
   ///
   /// > Important: This property is not supported in the Gemini Enterprise Agent Platform.
   package var model: String?
+
+  /// Configuration for persisting output assets to external storage.
+  ///
+  /// > Important: This property is not supported in the Gemini Developer API.
+  package var outputConfig: GenerateContentRequestOutputConfig?
 
   /// Per request settings for blocking unsafe content. Enforced on
   /// GenerateContentResponse.candidates.
@@ -67,9 +82,10 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   /// Tool config. This config is shared for all tools provided in the request.
   package var toolConfig: ToolConfig?
 
-  /// A list of `Tools` the model may use to generate the next response. A `Tool` is a piece of code
-  /// that enables the system to interact with external systems to perform an action, or set of
-  /// actions, outside of knowledge and scope of the model.
+  /// A list of `Tools` the model may use to generate the next response.
+  ///
+  /// A `Tool` is a piece of code that enables the system to interact with external systems to
+  /// perform an action, or set of actions, outside of knowledge and scope of the model.
   package var tools: [Tool]?
 
   /// Initializes a new `GenerateContentRequest`.
@@ -78,9 +94,11 @@ package struct GenerateContentRequest: Codable, Sendable, Equatable, Hashable, B
   enum CodingKeys: String, CodingKey {
     case cachedContent
     case contents
+    case continuationToken
     case generationConfig
     case labels
     case model
+    case outputConfig
     case safetySettings
     case serviceTier
     case store

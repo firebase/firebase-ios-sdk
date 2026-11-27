@@ -11,12 +11,14 @@ on:
     - 'FirebaseCrashlytics.podspec'
     - '.github/workflows/sdk.crashlytics.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_catalyst.yml'
     - '.github/workflows/_quickstart.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Interop/Analytics/Public/*.h'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'
@@ -37,6 +39,13 @@ jobs:
     with:
       product: FirebaseCrashlytics
       target: FirebaseCrashlytics-Unit-unit
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseCrashlytics
+      source_paths: Crashlytics
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml

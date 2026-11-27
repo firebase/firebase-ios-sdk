@@ -52,6 +52,11 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
   /// self-corrections). Timestamps and diarization are incompatible with mode `SMART`.
   package var mode: Mode?
 
+  /// The source text to be edited or rewritten via voice instructions. When provided in `SMART`
+  /// mode, the model evaluates the audio input against this text and emits the complete replacement
+  /// text in the candidate response rather than appending to it.
+  package var sourceText: String?
+
   /// Configures word-level timestamp generation.
   package var wordTimestamp: Bool?
 
@@ -66,6 +71,7 @@ package struct AudioTranscriptionConfig: Codable, Sendable, Equatable, Hashable,
     case languageCodes
     case languageHints
     case mode
+    case sourceText
     case wordTimestamp
   }
 }
