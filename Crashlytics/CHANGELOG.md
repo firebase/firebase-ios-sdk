@@ -1,6 +1,7 @@
 # Unreleased
 - [fixed] Fixed two Swift concurrency warnings in Firebase Sessions when
   building for watchOS with Xcode 27. (#17119)
+- [fixed] Avoid signed integer overflow when serializing `INT64_MIN`. (#16773)
 
 # 13.2.0
 - [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,

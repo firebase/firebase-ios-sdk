@@ -257,6 +257,33 @@
   [self signedIntegerWithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
 }
 
+- (void)testMinInt64 {
+  [self minInt64WithFile:&_unbufferedFile filePath:self.unbufferedPath buffered:NO];
+  [self minInt64WithFile:&_bufferedFile filePath:self.bufferedPath buffered:YES];
+}
+
+- (void)minInt64WithFile:(FIRCLSFile *)file filePath:(NSString *)filePath buffered:(BOOL)buffered {
+  FIRCLSFileWriteSectionStart(file, "signed");
+  FIRCLSFileWriteHashStart(file);
+  FIRCLSFileWriteHashEntryInt64(file, "value", INT64_MIN);
+  FIRCLSFileWriteHashEnd(file);
+  FIRCLSFileWriteSectionEnd(file);
+
+  NSString *contents = [self contentsOfFileAtPath:filePath];
+  if (buffered) {
+    XCTAssertEqualObjects(
+        contents, @"",
+        @"Expected empty file contents for buffered case: buffer has not yet been flushed to file");
+    FIRCLSFileFlushWriteBuffer(file);
+    contents = [self contentsOfFileAtPath:filePath];
+  }
+  XCTAssertEqualObjects(contents, @"{\"signed\":{\"value\":-9223372036854775808}}\n");
+
+  NSData *data = [contents dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+  XCTAssertEqualObjects(json[@"signed"][@"value"], @(-9223372036854775807LL - 1));
+}
+
 - (void)signedIntegerWithFile:(FIRCLSFile *)file
                      filePath:(NSString *)filePath
                      buffered:(BOOL)buffered {
