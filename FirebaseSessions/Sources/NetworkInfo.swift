@@ -38,7 +38,7 @@ final class NetworkInfo: NetworkInfoProtocol {
 
   var mobileSubtype: String {
     #if targetEnvironment(simulator)
-      // Skip the cellular radio query. Sessions encodes an empty subtype as unknown.
+      // Simulator has no cellular radio. The session event encodes an empty subtype as unknown.
       return ""
     #else
       return GULNetworkInfo.getNetworkRadioType()
