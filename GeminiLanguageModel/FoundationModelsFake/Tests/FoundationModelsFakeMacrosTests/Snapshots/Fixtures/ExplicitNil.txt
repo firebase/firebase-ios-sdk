@@ -1,0 +1,60 @@
+public struct ExplicitNil {
+  public var present: Int
+  public var missing: String?
+  public var missingArray: [Int]?
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            representNilExplicitlyInGeneratedContent: true,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "present", type: Int.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "missing", type: String?.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "missingArray", type: [Int]?.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = true
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "present", value: self.present)
+        addProperty(name: "missing", value: self.missing)
+        addProperty(name: "missingArray", value: self.missingArray)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        public var id: FoundationModelsFake.GenerationID
+        public var present: Int.PartiallyGenerated?
+        public var missing: String?.PartiallyGenerated?
+        public var missingArray: [Int]?.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.present = try content.value(forProperty: "present")
+            self.missing = try content.value(forProperty: "missing")
+            self.missingArray = try content.value(forProperty: "missingArray")
+        }
+    }
+}
+
+extension ExplicitNil: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.present = try content.value(forProperty: "present")
+        self.missing = try content.value(forProperty: "missing")
+        self.missingArray = try content.value(forProperty: "missingArray")
+    }
+}

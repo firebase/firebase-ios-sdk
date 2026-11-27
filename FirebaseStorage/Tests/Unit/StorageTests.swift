@@ -228,6 +228,27 @@ class StorageTests: XCTestCase {
     XCTAssertEqual(storage.app.name, copy.app.name)
   }
 
+  func testHashIsIndependentOfCallbackQueue() throws {
+    let app = try getApp(bucket: "bucket")
+    // Use an uncached instance so that changing its callback queue doesn't affect other tests.
+    let storage = Storage(app: app, bucket: "bucket")
+    let ref = storage.reference(withPath: "path/to/object")
+    let storageHash = storage.hash
+    let refHash = ref.hash
+
+    let copy = try XCTUnwrap(storage.copy() as? Storage)
+    copy.callbackQueue = DispatchQueue(label: "com.google.firebase.storage.tests.callbackQueue1")
+    let copyRef = copy.reference(withPath: "path/to/object")
+    XCTAssertEqual(storage, copy)
+    XCTAssertEqual(storage.hash, copy.hash)
+    XCTAssertEqual(ref, copyRef)
+    XCTAssertEqual(ref.hash, copyRef.hash)
+
+    storage.callbackQueue = DispatchQueue(label: "com.google.firebase.storage.tests.callbackQueue2")
+    XCTAssertEqual(storage.hash, storageHash)
+    XCTAssertEqual(ref.hash, refHash)
+  }
+
   func testTranslateRetryTime() {
     // The 1st retry attempt runs after 1 second.
     // The 2nd retry attempt is delayed by 2 seconds (3s total)

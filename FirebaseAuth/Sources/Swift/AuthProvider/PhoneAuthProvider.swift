@@ -540,7 +540,7 @@ import Foundation
     /// Continues the flow to verify the client via silent push notification.
     private func reCAPTCHAFlowWithUIDelegate(withUIDelegate uiDelegate: AuthUIDelegate?) async throws
       -> String {
-      let eventID = AuthWebUtils.randomString(withLength: 10)
+      let eventID = AuthWebUtils.randomString(withLength: 43)
       guard let url = try await reCAPTCHAURL(withEventID: eventID) else {
         fatalError(
           "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"

@@ -93,6 +93,151 @@ import FirebaseCore
       XCTAssertEqual(credential.idToken, kFakeIDToken)
     }
 
+    func testObjCCredentialWithRawNonceAndNilAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: "fakeRawNonce",
+        accessToken: nil
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertEqual(credential.rawNonce, "fakeRawNonce")
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertEqual(request.providerIDToken, kFakeIDToken)
+      XCTAssertEqual(request.providerRawNonce, "fakeRawNonce")
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)&nonce=fakeRawNonce")
+    }
+
+    func testObjCCredentialWithNilRawNonceAndAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: nil,
+        accessToken: kFakeAccessToken
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertEqual(credential.accessToken, kFakeAccessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertEqual(request.providerAccessToken, kFakeAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(
+        postBody,
+        "providerId=apple.com&id_token=\(kFakeIDToken)&access_token=\(kFakeAccessToken)"
+      )
+    }
+
+    func testObjCCredentialWithNilRawNonceAndNilAccessToken() throws {
+      let credential = try invokeObjCCredential(
+        providerID: AuthProviderID.apple.rawValue,
+        idToken: kFakeIDToken,
+        rawNonce: nil,
+        accessToken: nil
+      )
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)")
+    }
+
+    func testObjCCredentialWithIDTokenAndNilRawNonce() throws {
+      let (selector, imp) =
+        try objCClassMethod("credentialWithProviderID:IDToken:rawNonce:")
+      typealias ThreeArgIMP = @convention(c) (AnyClass,
+                                              Selector,
+                                              NSString,
+                                              NSString,
+                                              NSString?) -> Unmanaged<OAuthCredential>
+      let fn = unsafeBitCast(imp, to: ThreeArgIMP.self)
+      let credential = fn(
+        OAuthProvider.self,
+        selector,
+        AuthProviderID.apple.rawValue as NSString,
+        kFakeIDToken as NSString,
+        nil
+      ).takeUnretainedValue()
+
+      XCTAssertEqual(credential.provider, AuthProviderID.apple.rawValue)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.rawNonce)
+      XCTAssertNil(credential.accessToken)
+
+      let request = VerifyAssertionRequest(providerID: credential.provider,
+                                           requestConfiguration: makeRequestConfiguration())
+      credential.prepare(request)
+      XCTAssertNil(request.providerRawNonce)
+      XCTAssertNil(request.providerAccessToken)
+
+      let body = try XCTUnwrap(request.unencodedHTTPRequestBody)
+      let postBody = try XCTUnwrap(body["postBody"] as? String)
+      XCTAssertEqual(postBody, "providerId=apple.com&id_token=\(kFakeIDToken)")
+    }
+
+    /// Looks up an Objective-C class method on `OAuthProvider`.
+    ///
+    /// The `credentialWithProviderID:IDToken:rawNonce:...` methods are Objective-C only
+    /// (`@available(swift 1000.0)`), so Swift can't call them directly, and the SPM `AuthUnit`
+    /// target excludes the Objective-C test files. These tests call the methods through the
+    /// Objective-C runtime instead, so that `nil` arguments reach them the way they do from
+    /// Objective-C, without being bridged to Swift strings first.
+    private func objCClassMethod(_ name: String) throws -> (Selector, IMP) {
+      let selector = NSSelectorFromString(name)
+      // `class_getClassMethod` returns nil for a missing method, so a renamed selector fails
+      // here. (`class_getMethodImplementation` would return a forwarding IMP and crash.)
+      let method = try XCTUnwrap(class_getClassMethod(OAuthProvider.self, selector),
+                                 "OAuthProvider has no class method +\(name)")
+      return (selector, method_getImplementation(method))
+    }
+
+    private func invokeObjCCredential(providerID: String,
+                                      idToken: String,
+                                      rawNonce: String?,
+                                      accessToken: String?) throws -> OAuthCredential {
+      let (selector, imp) =
+        try objCClassMethod("credentialWithProviderID:IDToken:rawNonce:accessToken:")
+      typealias FourArgIMP = @convention(c) (AnyClass,
+                                             Selector,
+                                             NSString,
+                                             NSString,
+                                             NSString?,
+                                             NSString?) -> Unmanaged<OAuthCredential>
+      let fn = unsafeBitCast(imp, to: FourArgIMP.self)
+      return fn(
+        OAuthProvider.self,
+        selector,
+        providerID as NSString,
+        idToken as NSString,
+        rawNonce as NSString?,
+        accessToken as NSString?
+      ).takeUnretainedValue()
+    }
+
     /** @fn testObtainingOAuthProvider
         @brief Tests the correct creation of an FIROAuthProvider instance.
      */

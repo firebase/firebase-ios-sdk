@@ -39,11 +39,16 @@ firebase_ios_glob(
   EXCLUDE ${remote_testing_sources}
 )
 
+if(APPLE)
+  firebase_ios_glob(sources APPEND *.mm)
+endif()
+
 firebase_ios_add_test(firestore_remote_test ${sources})
 
 target_link_libraries(
   firestore_remote_test PRIVATE
   GMock::GMock
+  OpenSSL::Crypto
   absl_base
   firestore_core
   firestore_protos_protobuf

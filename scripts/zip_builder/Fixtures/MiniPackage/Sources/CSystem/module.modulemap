@@ -1,0 +1,4 @@
+module CSystem [system] {
+  header "shim.h"
+  export *
+}

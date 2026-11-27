@@ -43,6 +43,7 @@ API_AVAILABLE(macos(10.14))
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;
 @property(nonatomic, readwrite, strong) NSMutableArray *scheduledLocalNotifications;
 @property(nonatomic, readwrite, strong) NSMutableArray<UNNotificationRequest *> *requests;
+@property(nonatomic, readwrite, strong) id mockNotificationCenter;
 
 @end
 
@@ -62,6 +63,8 @@ API_AVAILABLE(macos(10.14))
 }
 
 - (void)tearDown {
+  [self.mockNotificationCenter stopMocking];
+  self.mockNotificationCenter = nil;
   [super tearDown];
 }
 
@@ -84,6 +87,177 @@ API_AVAILABLE(macos(10.14))
     @"hello" : @"world",
   };
   XCTAssertTrue([FIRMessagingContextManagerService isContextManagerMessage:message]);
+}
+
+/**
+ *  A start time that is not a string (a sender can put any JSON type there) must
+ *  not be treated as a contextual message, and must not crash the type check.
+ */
+- (void)testContextManagerMessage_nonStringStartTime {
+  NSDictionary *numberMessage = @{
+    kFIRMessagingContextManagerLocalTimeStart : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService isContextManagerMessage:numberMessage]);
+
+  NSDictionary *arrayMessage = @{
+    kFIRMessagingContextManagerLocalTimeStart : @[ @"2015-12-12 00:00:00" ],
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService isContextManagerMessage:arrayMessage]);
+}
+
+/**
+ *  handleContextManagerMessage: is public and can be called directly, so a
+ *  non-string start or end time must be dropped rather than crash on -length or
+ *  -[NSDateFormatter dateFromString:].
+ */
+- (void)testHandleContextManagerMessage_nonStringTimes {
+  NSDictionary *numberStart = @{
+    kFIRMessagingContextManagerLocalTimeStart : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:numberStart]);
+
+  // Elapsed start time with a non-string end time must also be dropped safely.
+  NSString *pastStart = [self.dateFormatter stringFromDate:[NSDate distantPast]];
+  NSDictionary *numberEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : pastStart,
+    kFIRMessagingContextManagerLocalTimeEnd : @1623702615599207,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:numberEnd]);
+}
+
+/**
+ *  A string start/end time that does not parse yields a nil date. That must be
+ *  dropped rather than scheduled, or crash on -[NSDate compare:] with a nil
+ *  argument.
+ */
+- (void)testHandleContextManagerMessage_unparseableTimes {
+  NSDictionary *badStart = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"not-a-date",
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badStart]);
+
+  // Elapsed start time with an unparseable end time must also be dropped safely.
+  NSString *pastStart = [self.dateFormatter stringFromDate:[NSDate distantPast]];
+  NSDictionary *badEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : pastStart,
+    kFIRMessagingContextManagerLocalTimeEnd : @"not-a-date",
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badEnd]);
+
+  // An unparseable start time with an end time still in the future must be
+  // dropped as well, not scheduled through the elapsed-start path.
+  NSDate *futureEndDate = [NSDate dateWithTimeIntervalSinceNow:1000];
+  NSString *futureEnd = [self.dateFormatter stringFromDate:futureEndDate];
+  NSDictionary *badStartFutureEnd = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"not-a-date",
+    kFIRMessagingContextManagerLocalTimeEnd : futureEnd,
+  };
+  XCTAssertFalse([FIRMessagingContextManagerService handleContextManagerMessage:badStartFutureEnd]);
+
+  // None of the malformed messages above may end up scheduled.
+  XCTAssertEqual(self.requests.count, 0);
+}
+
+/**
+ *  A gcm.message_id that is empty or not a string must not be passed to
+ *  UNNotificationRequest; scheduleLocalNotificationForMessage:atDate: should
+ *  fall back to a generated UUID string instead.
+ */
+- (void)testScheduleLocalNotification_invalidMessageIDFallsBackToUUID {
+  NSString *startTimeString = [self.dateFormatter stringFromDate:[NSDate distantFuture]];
+  NSArray *invalidIdentifiers = @[
+    @1623702615599207,
+    @[ @"1584748495200141" ],
+    @{@"id" : @"1584748495200141"},
+    [NSNull null],
+    @"",
+  ];
+  for (id badID in invalidIdentifiers) {
+    [self.requests removeAllObjects];
+    NSDictionary *message = @{
+      kFIRMessagingContextManagerLocalTimeStart : startTimeString,
+      kMessageIdentifierKey : badID,
+    };
+    XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message],
+                  @"message ID: %@", badID);
+    XCTAssertEqual(self.requests.count, 1u, @"message ID: %@", badID);
+    UNNotificationRequest *request = self.requests.firstObject;
+    id identifier = request.identifier;
+    XCTAssertTrue([identifier isKindOfClass:[NSString class]],
+                  @"Expected NSString identifier for %@, got %@", badID, [identifier class]);
+    if ([identifier isKindOfClass:[NSString class]]) {
+      NSString *identifierString = identifier;
+      XCTAssertGreaterThan(identifierString.length, 0u, @"message ID: %@", badID);
+      XCTAssertNotNil([[NSUUID alloc] initWithUUIDString:identifierString],
+                      @"Expected UUID fallback for %@, got %@", badID, identifierString);
+    }
+  }
+}
+
+/**
+ *  Notification content fields also come from the untrusted payload. Non-string
+ *  body/title/sound/category and a non-number badge must be ignored, not crash.
+ */
+- (void)testContentFromContextualMessage_nonStringFields {
+  NSDictionary *message = @{
+    @"gcm.notification.badge" : @"not-a-number",
+    @"gcm.notification.body" : @42,
+    @"gcm.notification.title" : @[ @"array-title" ],
+    @"gcm.notification.sound" : @1,
+    @"gcm.notification.click_action" : @{@"k" : @"v"},
+    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+  };
+  UNMutableNotificationContent *content =
+      [FIRMessagingContextManagerService contentFromContextualMessage:message];
+  XCTAssertNil(content.badge);
+#if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
+  // The non-string fields are ignored, so these stay at their unset default,
+  // which is nil on some platforms and @"" on others. Either way they are empty.
+  XCTAssertEqual(content.body.length, 0u);
+  XCTAssertEqual(content.title.length, 0u);
+  XCTAssertNil(content.sound);
+  XCTAssertEqual(content.categoryIdentifier.length, 0u);
+#endif
+}
+
+/**
+ *  A badge that arrives as a numeric string is still applied.
+ */
+- (void)testContentFromContextualMessage_numericStringBadge {
+  NSDictionary *message = @{
+    @"gcm.notification.badge" : @"5",
+    @"google.c.cm.lt_start" : @"2021-06-15 10:30:00",
+  };
+  UNMutableNotificationContent *content =
+      [FIRMessagingContextManagerService contentFromContextualMessage:message];
+  XCTAssertEqualObjects(content.badge, @5);
+}
+
+/**
+ *  lt_start is a wall-clock time. The trigger must fire at that wall-clock time even when the
+ *  app has overridden the default time zone (for example, to UTC).
+ */
+- (void)testFutureStartTimeKeepsWallClockWithDefaultTimeZoneOverride {
+  NSTimeZone *originalDefault = [NSTimeZone defaultTimeZone];
+  // Override with a zone that differs from the system time zone.
+  NSString *overrideName = @"Pacific/Kiritimati";
+  if ([[NSTimeZone systemTimeZone].name isEqualToString:overrideName]) {
+    overrideName = @"America/Los_Angeles";
+  }
+  [NSTimeZone setDefaultTimeZone:[NSTimeZone timeZoneWithName:overrideName]];
+  NSDictionary *message = @{
+    kFIRMessagingContextManagerLocalTimeStart : @"2999-01-15 09:00:00",
+    kMessageIdentifierKey : kMessageIdentifierValue,
+  };
+  BOOL handled = [FIRMessagingContextManagerService handleContextManagerMessage:message];
+  [NSTimeZone setDefaultTimeZone:originalDefault];
+
+  XCTAssertTrue(handled);
+  XCTAssertEqual(self.requests.count, 1);
+  UNCalendarNotificationTrigger *trigger =
+      (UNCalendarNotificationTrigger *)self.requests.firstObject.trigger;
+  XCTAssertEqual(trigger.dateComponents.hour, 9);
+  XCTAssertEqual(trigger.dateComponents.minute, 0);
 }
 
 /**
@@ -191,20 +365,18 @@ API_AVAILABLE(macos(10.14))
 #pragma mark - Private Helpers
 
 - (void)mockSchedulingLocalNotifications {
-  id mockNotificationCenter = OCMPartialMock([UNUserNotificationCenter currentNotificationCenter]);
-  __block UNNotificationRequest *request;
-  [[[mockNotificationCenter stub] andDo:^(NSInvocation *invocation) {
-    [self.requests addObject:request];
-  }] addNotificationRequest:[OCMArg checkWithBlock:^BOOL(id obj) {
-       if ([obj isKindOfClass:[UNNotificationRequest class]]) {
-         request = obj;
-         [self.requests addObject:request];
-         return YES;
-       }
-       return NO;
-     }]
-      withCompletionHandler:^(NSError *_Nullable error){
-      }];
+  // Mock the whole notification center rather than the real one: the real
+  // +currentNotificationCenter throws in test bundles without an app host (like SwiftPM's).
+  self.mockNotificationCenter = OCMClassMock([UNUserNotificationCenter class]);
+  OCMStub(ClassMethod([self.mockNotificationCenter currentNotificationCenter]))
+      .andReturn(self.mockNotificationCenter);
+  OCMStub([self.mockNotificationCenter addNotificationRequest:[OCMArg any]
+                                        withCompletionHandler:[OCMArg any]])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained UNNotificationRequest *request;
+        [invocation getArgument:&request atIndex:2];
+        [self.requests addObject:request];
+      });
 }
 
 - (void)testScheduleLocalNotification {

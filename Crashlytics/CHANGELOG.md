@@ -1,6 +1,25 @@
 # Unreleased
+- [fixed] Fixed two Swift concurrency warnings in Firebase Sessions when
+  building for watchOS with Xcode 27. (#17119)
 - [fixed] Escape quotes, backslashes, and control characters when writing strings to
   Crashlytics JSON records for thread names, queue labels, and binary image paths. (#16772)
+
+# 13.2.0
+- [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
+  `recordError`, `recordExceptionModel`, etc.) hopped onto the main thread instead of flushing
+  off the main thread during initialization and executing on the caller's thread afterwards.
+  (#16926)
+- [fixed] Fixed a crash when processing a report whose binary image records
+  contain a non-numeric `base` or `size`. (#16519)
+- [fixed] Fixed a potential crash in the x86_64 crash handler's stack-scanning fallback when
+  the captured stack pointer is unreadable. (#16799)
+- [fixed] Improved robustness when parsing malformed settings from the server
+  or from the on-disk settings cache. (#16728)
+- [fixed] Improved robustness in Firebase Sessions when parsing malformed
+  settings from the server, including `null` values that could cause a crash
+  when caching settings. (#16728)
+- [fixed] Fixed the app executable's minimum OS and SDK versions being recorded as `0.0.0` in
+  report metadata for apps targeting iOS 12, macOS 10.14, tvOS 12, watchOS 5, or later. (#16810)
 
 # 13.0.0
 - [fixed] Safely validate memory reads when executing `DW_OP_deref_size`

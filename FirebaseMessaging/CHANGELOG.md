@@ -1,3 +1,35 @@
+# Unreleased
+- [fixed] Fixed potential crashes when `nil` completion handlers are passed to
+  token APIs or when `FirebaseMessaging` is torn down while topic updates or
+  token deletions are in flight. (#17122)
+- [fixed] Serialized RMQ SQLite database operations across instances to prevent
+  `database is locked` assertions when `FirebaseApp` is deleted and
+  reconfigured rapidly. (#17126)
+- [fixed] Fixed a potential crash when an incoming push payload contains a
+  non-string `gcm.message_id`. Non-string message IDs are now ignored when
+  handling messages, and local-time notifications fall back to a generated UUID
+  identifier when `gcm.message_id` is empty or not a string. (#17095)
+- [fixed] Fixed a potential crash when a contextual (local time) message
+  payload contains fields of an unexpected type. Messages whose local start
+  or end time can't be parsed are now dropped instead of being scheduled.
+  (#16520)
+- [fixed] Fixed a crash when a message's link (`gcm.app_link`) is not an `http`
+  or `https` URL. `NSUserActivity.webpageURL` only accepts web URLs, so such
+  links are now ignored and a warning is logged. (#17061)
+
+# 13.1.0
+- [fixed] Reduced main-thread work when setting the APNs token: the APNs
+  environment check no longer queries the App Store receipt, and the keychain is
+  read once instead of up to twice. (#16726)
+- [fixed] Fixed a potential main-thread hang during `FirebaseApp.configure()`
+  caused by unused synchronous SQLite queries for outgoing RMQ IDs. (#16736)
+- [fixed] Stopped writing the ID of each received message to an unused database
+  table that grew without bound. (#16870)
+- [fixed] Fixed a crash in token fetches and topic subscriptions, for up to
+  seven days, after a malformed device checkin response. Checkin responses are
+  now validated before they're saved, and saved values of an unexpected type
+  are ignored. (#16867)
+
 # 13.0.0
 - [fixed] Fixed an issue where deep links were not correctly routed in apps utilizing scene
   delegates. (#15987)

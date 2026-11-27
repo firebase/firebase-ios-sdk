@@ -28,11 +28,7 @@ struct SignUpNewUserResponse: AuthRPCResponse {
 
   init(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
-    if let approximateExpirationDate = dictionary["expiresIn"] as? String {
-      self
-        .approximateExpirationDate =
-        Date(timeIntervalSinceNow: (approximateExpirationDate as NSString).doubleValue)
-    }
+    approximateExpirationDate = AuthTokenLifetime.expirationDate(expiresIn: dictionary["expiresIn"])
     refreshToken = dictionary["refreshToken"] as? String
   }
 }

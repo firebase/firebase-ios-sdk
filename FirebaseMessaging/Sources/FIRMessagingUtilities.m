@@ -308,10 +308,6 @@ BOOL FIRMessagingIsProductionApp(void) {
     return defaultAppTypeProd;
   }
 
-  if ([GULAppEnvironmentUtil isFromAppStore]) {
-    // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
-    return defaultAppTypeProd;
-  }
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
@@ -320,8 +316,9 @@ BOOL FIRMessagingIsProductionApp(void) {
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif  // TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
-  if ([GULAppEnvironmentUtil isAppStoreReceiptSandbox] && !path.length) {
-    // Distributed via TestFlight
+  if (path.length == 0 || ![[NSFileManager defaultManager] fileExistsAtPath:path]) {
+    // There's no profile to read the APNs environment from. This is expected for App Store and
+    // TestFlight builds, which strip the profile, and for macOS apps signed without one.
     return defaultAppTypeProd;
   }
 

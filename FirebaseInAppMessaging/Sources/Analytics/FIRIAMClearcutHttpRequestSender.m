@@ -112,13 +112,18 @@
                 @"Sending clearcut logging request was successful");
 
     NSError *errorJson = nil;
-    NSDictionary *responseDict = [NSJSONSerialization JSONObjectWithData:data
-                                                                 options:kNilOptions
-                                                                   error:&errorJson];
+    NSDictionary *responseDict = data ? [NSJSONSerialization JSONObjectWithData:data
+                                                                        options:kNilOptions
+                                                                          error:&errorJson]
+                                      : nil;
 
     int64_t waitTimeFromClearcutServer = 0;
-    if (!errorJson && responseDict[@"next_request_wait_millis"]) {
-      waitTimeFromClearcutServer = [responseDict[@"next_request_wait_millis"] longLongValue];
+    id waitTimeNode = [responseDict isKindOfClass:[NSDictionary class]]
+                          ? responseDict[@"next_request_wait_millis"]
+                          : nil;
+    if (!errorJson && ([waitTimeNode isKindOfClass:[NSNumber class]] ||
+                       [waitTimeNode isKindOfClass:[NSString class]])) {
+      waitTimeFromClearcutServer = [waitTimeNode longLongValue];
       FIRLogDebug(kFIRLoggerInAppMessaging, @"I-IAM250007",
                   @"Wait time from clearcut server response is %d seconds",
                   (int)waitTimeFromClearcutServer / 1000);

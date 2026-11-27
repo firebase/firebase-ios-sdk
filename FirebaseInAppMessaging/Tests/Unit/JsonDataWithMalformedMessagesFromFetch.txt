@@ -1,0 +1,246 @@
+{
+  "expirationEpochTimestampMillis": "not a number",
+  "messages": [
+    "not a message",
+    null,
+    42,
+    {
+      "vanillaPayload": {
+        "campaignId": "valid_banner",
+        "campaignStartTimeMillis": "1519934825000",
+        "campaignEndTimeMillis": "9223372036854775807",
+        "campaignName": "Valid banner"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Valid title",
+            "hexColor": "#000000"
+          },
+          "imageUrl": "https://image.com/valid.png",
+          "action": {
+            "actionUrl": "https://www.google.com"
+          },
+          "backgroundHexColor": "#ffffff"
+        }
+      },
+      "triggeringConditions": [
+        {
+          "event": {
+            "name": "valid_event"
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": 12345,
+        "campaignName": "Campaign id is a number"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "",
+        "campaignName": "Campaign id is empty"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "campaign_name_is_a_number",
+        "campaignName": 999
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "title_is_a_number",
+        "campaignName": "Title is a number"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": 123
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": "ON_FOREGROUND"
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "event_name_is_a_number",
+        "campaignName": "Event name is a number"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "event": {
+            "name": 7
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "event_name_is_null",
+        "campaignName": "Event name is null"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "event": {
+            "name": null
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "event_name_is_empty",
+        "campaignName": "Event name is empty"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        {
+          "event": {
+            "name": ""
+          }
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "triggering_conditions_is_a_string",
+        "campaignName": "Triggering conditions is a string"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": "ON_FOREGROUND"
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "triggering_conditions_have_wrong_types",
+        "campaignName": "Triggering conditions have wrong types"
+      },
+      "content": {
+        "banner": {
+          "title": {
+            "text": "Title"
+          }
+        }
+      },
+      "triggeringConditions": [
+        7,
+        {
+          "fiamTrigger": 1
+        }
+      ]
+    },
+    {
+      "vanillaPayload": {
+        "campaignId": "optional_fields_have_wrong_types",
+        "campaignStartTimeMillis": 1519934825000,
+        "campaignEndTimeMillis": ["9223372036854775807"],
+        "campaignName": "Optional fields have wrong types",
+        "experimentPayload": "not a dictionary"
+      },
+      "content": {
+        "modal": {
+          "title": {
+            "text": "Valid title",
+            "hexColor": 1
+          },
+          "body": {
+            "text": 5
+          },
+          "imageUrl": 5,
+          "actionButton": {
+            "text": {
+              "text": ["not a string"],
+              "hexColor": {}
+            },
+            "buttonHexColor": null
+          },
+          "action": {
+            "actionUrl": 3
+          },
+          "backgroundHexColor": true
+        }
+      },
+      "triggeringConditions": [
+        {
+          "fiamTrigger": 5
+        },
+        "not a trigger",
+        {
+          "event": {
+            "name": "valid_event_2"
+          }
+        }
+      ],
+      "isTestCampaign": "yes",
+      "dataBundle": "not a dictionary"
+    }
+  ]
+}

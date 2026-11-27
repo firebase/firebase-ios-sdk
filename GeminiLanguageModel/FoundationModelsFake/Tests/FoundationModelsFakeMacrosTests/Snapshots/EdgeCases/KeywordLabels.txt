@@ -1,0 +1,147 @@
+enum Keyword {
+  case range(default: Int, in: String)
+  case plain
+
+    nonisolated enum PartiallyGenerated: nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent {
+        case range(default: Int.PartiallyGenerated?, in: String.PartiallyGenerated?)
+        case plain
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            let type: String = try content.value(forProperty: "type")
+            switch type {
+            case "range":
+                self = .range(
+                    default: try content.value(forProperty: "default"),
+                    in: try content.value(forProperty: "in")
+                )
+            case "plain":
+                self = .plain
+            default:
+                throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+            }
+        }
+    }
+
+    nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            anyOf: [
+                DiscriminatedRange.self,
+                DiscriminatedPlain.self
+            ]
+        )
+    }
+
+    private nonisolated struct DiscriminatedRange: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("range"))
+        let type: String
+        let `default`: Int
+        let `in`: String
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+            self.`default` = try content.value(forProperty: "default")
+            self.`in` = try content.value(forProperty: "in")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("range")]),
+                    FoundationModelsFake.GenerationSchema.Property(name: "default", type: Int.self),
+                    FoundationModelsFake.GenerationSchema.Property(name: "in", type: String.self)
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            addProperty(name: "default", value: self.`default`)
+            addProperty(name: "in", value: self.`in`)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    private nonisolated struct DiscriminatedPlain: nonisolated FoundationModelsFake.Generable {
+        @FoundationModelsFake.Guide(.constant("plain"))
+        let type: String
+        nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.type = try content.value(forProperty: "type")
+        }
+        nonisolated static var generationSchema: FoundationModelsFake.GenerationSchema {
+            FoundationModelsFake.GenerationSchema(
+                type: Self.self,
+                properties: [
+                    FoundationModelsFake.GenerationSchema.Property(name: "type", type: String.self, guides: [.constant("plain")])
+                ]
+            )
+        }
+        nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+            let explicitNil = false
+            var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+            addProperty(name: "type", value: self.type)
+            return FoundationModelsFake.GeneratedContent(
+                properties: properties,
+                uniquingKeysWith: { _, second in
+                    second
+                }
+            )
+            func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+                properties.append((name: name, value: value))
+            }
+            func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+                if explicitNil || value != nil {
+                    properties.append((name: name, value: value))
+                }
+            }
+        }
+    }
+
+    nonisolated var generatedContent: FoundationModelsFake.GeneratedContent {
+        switch self {
+        case .range(let `default`, let `in`):
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "range",
+                    "default": `default`,
+                    "in": `in`
+                ]
+            )
+        case .plain:
+            FoundationModelsFake.GeneratedContent(
+                properties: [
+                    "type": "plain"
+                ]
+            )
+        }
+    }
+}
+
+extension Keyword: nonisolated FoundationModelsFake.Generable {
+    nonisolated init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        let type: String = try content.value(forProperty: "type")
+        switch type {
+        case "range":
+            self = .range(
+                default: try content.value(forProperty: "default"),
+                in: try content.value(forProperty: "in")
+            )
+        case "plain":
+            self = .plain
+        default:
+            throw FoundationModelsFake.GeneratedContent.ParsingError(rawContent: content.jsonString, debugDescription: "The type \"\(type)\" isn't a case of \(Self.self)")
+        }
+    }
+}

@@ -33,6 +33,7 @@ git grep "${options[@]}" -- \
     ':(exclude)Crashlytics/ProtoSupport' \
     ':(exclude)Crashlytics/UnitTests/Data' \
     ':(exclude)CoreOnly/NOTICES' \
+    ':(exclude)CoreOnly/licenses' \
     ':(exclude)Firebase/Firebase/NOTICES' \
     ':(exclude)Firebase/InAppMessaging/ProtoSupport' \
     ':(exclude)Firestore/Protos/nanopb' \
@@ -41,6 +42,7 @@ git grep "${options[@]}" -- \
     ':(exclude)Firestore/third_party/abseil-cpp' \
     ':(exclude)GoogleDataTransport/ProtoSupport' \
     ':(exclude)ReleaseTooling/Template/NOTICES' \
+    ':(exclude)scripts/zip_builder/Templates/NOTICES' \
     ':(exclude)Carthage/**'
 
 if [[ $? == 0 ]]; then

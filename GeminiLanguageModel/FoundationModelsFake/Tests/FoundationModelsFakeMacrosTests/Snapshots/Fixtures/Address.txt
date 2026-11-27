@@ -1,0 +1,53 @@
+public struct Address: Equatable {
+  public var street: String
+  public var city: String
+
+    nonisolated public static var generationSchema: FoundationModelsFake.GenerationSchema {
+        FoundationModelsFake.GenerationSchema(
+            type: Self.self,
+            properties: [
+                FoundationModelsFake.GenerationSchema.Property(name: "street", type: String.self),
+                FoundationModelsFake.GenerationSchema.Property(name: "city", type: String.self)
+            ]
+        )
+    }
+
+    nonisolated public var generatedContent: FoundationModelsFake.GeneratedContent {
+        let explicitNil = false
+        var properties = [(name: String, value: any FoundationModelsFake.ConvertibleToGeneratedContent)]()
+        addProperty(name: "street", value: self.street)
+        addProperty(name: "city", value: self.city)
+        return FoundationModelsFake.GeneratedContent(
+            properties: properties,
+            uniquingKeysWith: { _, second in
+                second
+            }
+        )
+        func addProperty(name: String, value: some FoundationModelsFake.Generable) {
+            properties.append((name: name, value: value))
+        }
+        func addProperty(name: String, value: (some FoundationModelsFake.Generable)?) {
+            if explicitNil || value != nil {
+                properties.append((name: name, value: value))
+            }
+        }
+    }
+
+    nonisolated public struct PartiallyGenerated: Identifiable, nonisolated FoundationModelsFake.ConvertibleFromGeneratedContent, Equatable {
+        public var id: FoundationModelsFake.GenerationID
+        public var street: String.PartiallyGenerated?
+        public var city: String.PartiallyGenerated?
+        nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+            self.id = content.id ?? FoundationModelsFake.GenerationID()
+            self.street = try content.value(forProperty: "street")
+            self.city = try content.value(forProperty: "city")
+        }
+    }
+}
+
+extension Address: nonisolated FoundationModelsFake.Generable {
+    nonisolated public init(_ content: FoundationModelsFake.GeneratedContent) throws {
+        self.street = try content.value(forProperty: "street")
+        self.city = try content.value(forProperty: "city")
+    }
+}

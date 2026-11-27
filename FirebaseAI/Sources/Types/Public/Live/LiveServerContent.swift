@@ -20,6 +20,7 @@
 @available(watchOS, unavailable)
 public struct LiveServerContent: Sendable {
   let serverContent: BidiGenerateContentServerContent
+  let bidiVoiceActivity: BidiVoiceActivity?
 
   /// The content that the model has generated as part of the current
   /// conversation with the user.
@@ -77,7 +78,32 @@ public struct LiveServerContent: Sendable {
     serverContent.outputTranscription.map { LiveAudioTranscription($0) }
   }
 
+  /// Voice activity detected in the input audio stream.
+  ///
+  /// This is set when the server's automatic activity detection (enabled by default, see
+  /// ``ActivityDetectionConfig``) detects that the user started or stopped speaking.
+  ///
+  /// Voice activity signals are sent as separate messages, so when this is set, the other
+  /// properties of this ``LiveServerContent`` are empty.
+  public var voiceActivity: LiveServerVoiceActivity? {
+    bidiVoiceActivity.map { LiveServerVoiceActivity($0) }
+  }
+
   init(_ serverContent: BidiGenerateContentServerContent) {
     self.serverContent = serverContent
+    bidiVoiceActivity = nil
+  }
+
+  init(voiceActivity: BidiVoiceActivity) {
+    serverContent = BidiGenerateContentServerContent(
+      modelTurn: nil,
+      turnComplete: nil,
+      interrupted: nil,
+      generationComplete: nil,
+      groundingMetadata: nil,
+      inputTranscription: nil,
+      outputTranscription: nil
+    )
+    bidiVoiceActivity = voiceActivity
   }
 }

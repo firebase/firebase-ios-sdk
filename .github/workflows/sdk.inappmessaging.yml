@@ -11,10 +11,12 @@ on:
     - 'Interop/Analytics/Public/*.h'
     - '.github/workflows/sdk.inappmessaging.yml'
     - '.github/workflows/_spm.yml'
+    - '.github/workflows/_spm_analyze.yml'
     - '.github/workflows/_cocoapods.yml'
     - '.github/workflows/_quickstart.yml'
     - '.github/workflows/_cocoapods.cron.yml'
     - 'Gemfile*'
+    - '!**/CHANGELOG.md'
   schedule:
     # Run every day at 11pm (PDT) / 2am (EDT) - cron uses UTC times
     - cron:  '0 6 * * *'
@@ -28,14 +30,22 @@ jobs:
     uses: ./.github/workflows/_spm.yml
     with:
       target: FirebaseInAppMessaging-Beta
-      platforms: iOS
+      platforms: '["iOS"]'
       buildonly_platforms: iOS
+
+  # Replaces the `--analyze` step of `pod lib lint`.
+  spm-analyze:
+    uses: ./.github/workflows/_spm_analyze.yml
+    with:
+      scheme: FirebaseInAppMessaging-Beta
+      platforms: '["iOS", "tvOS"]'
+      source_paths: FirebaseInAppMessaging/Sources
 
   pod_lib_lint:
     uses: ./.github/workflows/_cocoapods.yml
     with:
       product: FirebaseInAppMessaging
-      platforms: iOS, tvOS
+      platforms: '["iOS", "tvOS"]'
       timeout_minutes: 30
 
   tests:

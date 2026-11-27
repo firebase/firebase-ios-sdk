@@ -1,0 +1,74 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: infra.pr_comment
+
+# Tests the pr_comment action whenever it changes: its unit tests, then a real comment on the
+# pull request, posted and then edited in place.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/actions/pr_comment/**'
+      - '.github/workflows/infra.pr_comment.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  pr_comment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Unit tests
+        run: python3 -m unittest discover -s .github/actions/pr_comment -v
+
+      # Pull requests from forks get a read-only token, so these only warn there.
+      - name: Post a comment
+        id: post
+        uses: ./.github/actions/pr_comment
+        with:
+          marker: pr-comment-action-test
+          body: "⏳ Testing the `pr_comment` action…"
+
+      - name: Edit the comment
+        id: edit
+        uses: ./.github/actions/pr_comment
+        with:
+          marker: pr-comment-action-test
+          create: 'false'
+          body: >-
+            ✅ The `pr_comment` action posted and then edited this comment.
+            [Workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+      - name: Check the comment was edited, not posted again
+        if: github.event_name == 'pull_request' && steps.post.outputs.result != 'failed'
+        env:
+          POSTED: ${{ steps.post.outputs.comment-id }}
+          EDITED: ${{ steps.edit.outputs.comment-id }}
+          RESULT: ${{ steps.edit.outputs.result }}
+        run: |
+          if [[ "$RESULT" != "updated" || "$POSTED" != "$EDITED" ]]; then
+            echo "::error::Expected comment $POSTED to be updated; got '$RESULT' for '$EDITED'."
+            exit 1
+          fi
