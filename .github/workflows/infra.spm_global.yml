@@ -54,6 +54,10 @@ jobs:
         with:
           path: .build
           key: ${{ steps.generate_cache_key.outputs.cache_key }}
+      # Runs after saving the cache, so a rerun after fixing a warning still
+      # reuses the resolved packages.
+      - name: Check for Swift Package Manager warnings
+        run: scripts/check_spm_warnings.sh
 
   swift-build-run:
     # Don't run on private repo unless it is a PR.
