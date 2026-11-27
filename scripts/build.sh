@@ -45,6 +45,7 @@ product can be one of:
   GoogleDataTransport
   Performance
   FirebaseAIIntegration
+  HostedTests-<scheme> (see IntegrationTesting/HostedTests/README.md)
   ClientApp
 platform can be one of:
   iOS (default)
@@ -677,6 +678,34 @@ case "$product-$platform-$method" in
       -retry-tests-on-failure \
       -test-iterations 3 \
       test-without-building
+    ;;
+
+  # Test suites that need a host app, in IntegrationTesting/HostedTests. The product is
+  # "HostedTests-<scheme>", for example `scripts/build.sh HostedTests-HostSmokeTests tvOS`.
+  HostedTests-*-build | HostedTests-*-build-for-testing)
+    RunXcodebuild \
+      -project 'IntegrationTesting/HostedTests/HostedTests.xcodeproj' \
+      -scheme "${product#HostedTests-}" \
+      "${xcb_flags[@]}" \
+      "$method"
+    ;;
+
+  HostedTests-*-test-without-building)
+    RunXcodebuild \
+      -project 'IntegrationTesting/HostedTests/HostedTests.xcodeproj' \
+      -scheme "${product#HostedTests-}" \
+      "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
+      test-without-building
+    ;;
+
+  HostedTests-*-*)
+    RunXcodebuild \
+      -project 'IntegrationTesting/HostedTests/HostedTests.xcodeproj' \
+      -scheme "${product#HostedTests-}" \
+      "${xcb_flags[@]}" \
+      "${spm_test_flags[@]}" \
+      test
     ;;
 
   Sessions-*-integration)

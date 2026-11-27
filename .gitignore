@@ -34,6 +34,11 @@ FirebaseStorage/Tests/Integration/Credentials.swift
 # FirebasePerformance dev test App and integration tests GoogleService-Info.plist
 FirebasePerformance/**/GoogleService-Info.plist
 
+# Hosted tests GoogleService-Info.plist files, decrypted by CI. HostSmokeTests's
+# has fake values and is checked in.
+IntegrationTesting/HostedTests/TestConfig/*/GoogleService-Info.plist
+!IntegrationTesting/HostedTests/TestConfig/HostSmokeTests/GoogleService-Info.plist
+
 Secrets.tar
 
 # OS X

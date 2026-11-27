@@ -1,0 +1,78 @@
+# Copyright 2026 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: infra.hosted_tests
+
+# Runs the smoke test of the shared test host app in IntegrationTesting/HostedTests. SDK test suites
+# that run in the host are tested by their own sdk.*.yml workflows.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/infra.hosted_tests.yml"
+      - "IntegrationTesting/HostedTests/**"
+      - "scripts/build.sh"
+  schedule:
+    # Run every day at 1am (PDT) / 4am (EDT) - cron uses UTC times
+    - cron: "0 8 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  host-smoke-tests:
+    # Run on the main repo's scheduled jobs or pull requests and manual workflow invocations.
+    if: (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') || contains(fromJSON('["pull_request", "workflow_dispatch"]'), github.event_name)
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [iOS, tvOS]
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+      - name: Xcode
+        run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+      - name: Setup simulator
+        uses: ./.github/actions/setup_simulator
+        with:
+          platform: ${{ matrix.platform }}
+      - name: Run HostSmokeTests
+        uses: nick-fields/retry@ad984534de44a9489a53aefd81eb77f87c70dc60 # v4.0.0
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          retry_wait_seconds: 120
+          command: scripts/build.sh HostedTests-HostSmokeTests "$PLATFORM"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcodebuild-logs-HostSmokeTests-${{ matrix.platform }}
+          path: xcodebuild-*.log
+          if-no-files-found: error
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        if: ${{ failure() }}
+        with:
+          name: xcresults-HostSmokeTests-${{ matrix.platform }}
+          path: xcresults/*
+          # If the build failed, there is no xcresult. Warn for visibility.
+          if-no-files-found: warn
