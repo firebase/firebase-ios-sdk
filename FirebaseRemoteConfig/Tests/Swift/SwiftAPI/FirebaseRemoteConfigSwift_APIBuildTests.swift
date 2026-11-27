@@ -144,7 +144,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
 
     config.activate()
 
-    Task {
+    _ = Task {
       let _: Void = try await config.ensureInitialized()
       let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config.fetch()
       let _: FirebaseRemoteConfig.RemoteConfigFetchStatus = try await config
@@ -222,7 +222,7 @@ final class FirebaseRemoteConfig_APIBuildTests: XCTestCase {
     struct MyEncodableValue: Encodable {}
     let _: Void = try config.setDefaults(from: MyEncodableValue())
 
-    Task {
+    _ = Task {
       let signals: [String: CustomSignalValue?] = [
         "signal_1": .integer(5),
         "signal_2": .string("enable_feature"),

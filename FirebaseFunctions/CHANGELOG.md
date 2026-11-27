@@ -1,3 +1,8 @@
+# Unreleased
+- [fixed] Fixed two Swift concurrency warnings, introduced in 13.2.0, about
+  `Callable` storing a non-`Sendable` `FirebaseDataEncoder` and
+  `FirebaseDataDecoder`. (#17116)
+
 # 13.1.0
 - [fixed] Fixed callable streams failing with "Unexpected format for streamed
   response." when the server sends SSE comment lines, such as the `: ping`

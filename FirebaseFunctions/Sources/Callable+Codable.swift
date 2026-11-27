@@ -36,8 +36,12 @@ public struct Callable<Request: Encodable, Response: Decodable>: Sendable {
   }
 
   private let callable: HTTPSCallable
-  private let encoder: FirebaseDataEncoder
-  private let decoder: FirebaseDataDecoder
+  // `FirebaseDataEncoder` and `FirebaseDataDecoder` aren't `Sendable` because their
+  // strategy properties are mutable. `encode` and `decode` only read those properties, so
+  // sharing them across concurrent calls is safe as long as the caller doesn't change them
+  // after creating the `Callable`.
+  private nonisolated(unsafe) let encoder: FirebaseDataEncoder
+  private nonisolated(unsafe) let decoder: FirebaseDataDecoder
 
   init(callable: HTTPSCallable, encoder: FirebaseDataEncoder, decoder: FirebaseDataDecoder) {
     self.callable = callable
