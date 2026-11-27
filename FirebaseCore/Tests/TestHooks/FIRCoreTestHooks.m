@@ -25,6 +25,7 @@
 @interface FIRHeartbeatLogger : NSObject
 - (instancetype)initWithAppID:(NSString *)appID
             userAgentProvider:(NSString * (^)(void))userAgentProvider;
+- (id)flushHeartbeatsIntoPayload;
 @end
 
 @interface FIRApp (CoreTestSeams)
@@ -53,7 +54,21 @@
   [FIRApp setInfoDictionaryForTesting:infoDictionary];
 }
 
+/// The heartbeat loggers created through `+setHeartbeatLogHandler:`, so their stored heartbeats can
+/// be removed when recording stops.
+static NSMutableArray<FIRHeartbeatLogger *> *sRecordingHeartbeatLoggers;
+
 + (void)setHeartbeatLogHandler:(nullable void (^)(NSString *appID))handler {
+  // Remove the heartbeats that the previous loggers stored. Flushing empties a logger's storage.
+  NSArray<FIRHeartbeatLogger *> *previousLoggers;
+  @synchronized(self) {
+    previousLoggers = sRecordingHeartbeatLoggers;
+    sRecordingHeartbeatLoggers = [NSMutableArray array];
+  }
+  for (FIRHeartbeatLogger *logger in previousLoggers) {
+    [logger flushHeartbeatsIntoPayload];
+  }
+
   if (!handler) {
     [FIRApp setHeartbeatLoggerFactoryForTesting:nil];
     return;
@@ -63,11 +78,15 @@
     // FIRHeartbeatLogger asks for the user agent each time it logs, which is when the handler is
     // called. A separate storage ID keeps test heartbeats apart from a real app's.
     NSString *storageID = [@"FIRCoreTestHooks-" stringByAppendingString:appID];
-    return [[FIRHeartbeatLogger alloc] initWithAppID:storageID
-                                   userAgentProvider:^NSString * {
-                                     handler(appID);
-                                     return @"FIRCoreTestHooks";
-                                   }];
+    FIRHeartbeatLogger *logger = [[FIRHeartbeatLogger alloc] initWithAppID:storageID
+                                                         userAgentProvider:^NSString * {
+                                                           handler(appID);
+                                                           return @"FIRCoreTestHooks";
+                                                         }];
+    @synchronized(self) {
+      [sRecordingHeartbeatLoggers addObject:logger];
+    }
+    return logger;
   }];
 }
 

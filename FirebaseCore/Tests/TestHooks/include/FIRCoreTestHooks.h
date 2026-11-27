@@ -100,6 +100,9 @@ NS_SWIFT_NAME(CoreTestHooks)
 
 /// Calls `handler` with the app's GOOGLE_APP_ID whenever an app initialized from now on logs a
 /// heartbeat. Pass nil to stop recording for apps initialized afterwards.
+///
+/// The apps use real heartbeat loggers with a test-only storage ID. Each call removes the
+/// heartbeats that the loggers created by the previous call stored.
 + (void)setHeartbeatLogHandler:(nullable void (^)(NSString *appID))handler;
 
 /// Calls `+[FIRApp configureWithOptions:]`, which can't be passed nil from Swift.
