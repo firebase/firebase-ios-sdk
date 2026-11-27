@@ -1,6 +1,8 @@
 # Unreleased
 - [fixed] Fixed two Swift concurrency warnings in Firebase Sessions when
   building for watchOS with Xcode 27. (#17119)
+- [fixed] Escape quotes, backslashes, and control characters when writing strings to
+  Crashlytics JSON records for thread names, queue labels, and binary image paths. (#16772)
 
 # 13.2.0
 - [fixed] Fixed an issue where Crashlytics API calls (`log`, `setCustomValue`, `setUserID`,
