@@ -138,7 +138,7 @@ static BOOL FIRAppIsAppExtension(void) {
   os_unfair_lock_lock(&sTestOverridesLock);
   NSNumber *isAppExtension = sIsAppExtensionForTesting;
   os_unfair_lock_unlock(&sTestOverridesLock);
-  return isAppExtension ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
+  return isAppExtension != nil ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
 }
 
 static FIRHeartbeatLogger *FIRAppMakeHeartbeatLogger(NSString *appID) {
