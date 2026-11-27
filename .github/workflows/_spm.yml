@@ -169,10 +169,13 @@ jobs:
           else
             echo "run_tests=true" >> "$GITHUB_OUTPUT"
           fi
+      # The remaining steps are skipped when the tests are skipped.
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        if: steps.check_secrets.outputs.run_tests == 'true'
         with:
           persist-credentials: false
       - name: Set Custom Environment Variables
+        if: steps.check_secrets.outputs.run_tests == 'true'
         run: |
           python3 -c '
           import os, json
@@ -191,16 +194,20 @@ jobs:
         env:
           CUSTOM_ENV_VARS: ${{ inputs.env_vars }}
       - name: Xcode
+        if: steps.check_secrets.outputs.run_tests == 'true'
         run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
       - name: Generate Swift Package.resolved
+        if: steps.check_secrets.outputs.run_tests == 'true'
         id: swift_package_resolve
         run: swift package resolve
       - name: Generate cache key
+        if: steps.check_secrets.outputs.run_tests == 'true'
         id: generate_cache_key
         run: |
           cache_key="${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}"
           echo "cache_key=${cache_key}" >> "$GITHUB_OUTPUT"
       - uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        if: steps.check_secrets.outputs.run_tests == 'true'
         id: cache
         with:
           path: .build
@@ -270,7 +277,7 @@ jobs:
       # hacky workaround for zizmor
       # TODO: make this an enum and remove script injection
       run: |
-        printf '%s\n' "$INPUTS_SETUP_COMMAND" > setup_script.sh && bash setup_script.sh
+        printf '%s\n' "$INPUTS_SETUP_COMMAND" > setup_script.sh && bash -eo pipefail setup_script.sh
       env:
         INPUTS_SETUP_COMMAND: ${{ inputs.setup_command }}
         plist_secret: ${{ secrets.plist_secret }}
