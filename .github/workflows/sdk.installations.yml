@@ -8,6 +8,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseInstallations**'
+    - 'scripts/spm_test_schemes/InstallationsUnit.xcscheme'
     - '.github/workflows/sdk.installations.yml'
     - '.github/workflows/_spm.yml'
     - '.github/workflows/_spm_analyze.yml'
@@ -29,8 +30,7 @@ jobs:
   spm:
     uses: ./.github/workflows/_spm.yml
     with:
-      target: FirebaseInstallations
-      buildonly_platforms: all
+      target: InstallationsUnit
 
   catalyst:
     uses: ./.github/workflows/_catalyst.yml

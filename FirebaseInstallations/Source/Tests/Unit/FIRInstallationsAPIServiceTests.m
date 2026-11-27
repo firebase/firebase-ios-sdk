@@ -605,8 +605,12 @@ typedef FBLPromise * (^FIRInstallationsAPIServiceTask)(void);
 }
 
 - (NSData *)loadFixtureNamed:(NSString *)fileName {
-  NSURL *fileURL = [[NSBundle bundleForClass:[self class]] URLForResource:fileName
-                                                            withExtension:nil];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+#endif  // SWIFT_PACKAGE
+  NSURL *fileURL = [bundle URLForResource:fileName withExtension:nil];
   XCTAssertNotNil(fileURL);
 
   NSError *error;
