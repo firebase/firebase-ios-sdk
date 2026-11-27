@@ -47,6 +47,10 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"-setContainer:" : @"v@:@",
       @"-setDataCollectionDefaultEnabled:" : @"v@:B",
     },
+    @"FIRBundleUtil" : @{
+      @"+relevantBundles" : @"@@:",
+      @"+setRelevantBundlesForTesting:" : @"v@:@",
+    },
     @"FIRComponent" : @{
       @"+componentWithProtocol:creationBlock:" : @"@@:@@?",
       @"+componentWithProtocol:instantiationTiming:creationBlock:" : @"@@:@q@?",
@@ -98,6 +102,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"+resetDefaultOptions" : @"v@:",
       @"-APIKey" : @"@@:",
       @"-GCMSenderID" : @"@@:",
+      @"-analyticsOptionsDictionaryWithInfoDictionary:" : @"@@:@",
       @"-appGroupID" : @"@@:",
       @"-bundleID" : @"@@:",
       @"-clientID" : @"@@:",
@@ -113,6 +118,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"-isAnalyticsCollectionExplicitlySet" : @"B@:",
       @"-isEditingLocked" : @"B@:",
       @"-isEqual:" : @"B@:@",
+      @"-isMeasurementEnabled" : @"B@:",
       @"-libraryVersionID" : @"@@:",
       @"-projectID" : @"@@:",
       @"-setAPIKey:" : @"v@:@",
@@ -125,7 +131,9 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"-setGoogleAppID:" : @"v@:@",
       @"-setProjectID:" : @"v@:@",
       @"-setStorageBucket:" : @"v@:@",
+      @"-setUsingOptionsFromDefaultPlist:" : @"v@:B",
       @"-storageBucket" : @"@@:",
+      @"-usingOptionsFromDefaultPlist" : @"B@:",
     },
     @"FIRTimestamp" : @{
       @"+timestamp" : @"@@:",

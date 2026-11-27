@@ -30,6 +30,12 @@ jobs:
     with:
       target: CoreUnit
 
+  # Swift unit tests that don't use OCMock. See FirebaseCore/Tests/SwiftSuite.
+  spm-swift-unit:
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: CoreSwiftUnit
+
   # Compile-time and runtime checks that FirebaseCore's public API and Objective-C runtime
   # contract don't change. See FirebaseCore/Tests/APIBaselines/README.md.
   spm-api:
