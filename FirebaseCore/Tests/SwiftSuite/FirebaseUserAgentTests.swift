@@ -36,19 +36,23 @@ final class FirebaseUserAgentTests: CoreTestCase {
   // MARK: - Environment components
 
   func testApplePlatform() {
+    let expected: String
     #if targetEnvironment(macCatalyst)
       // In a Catalyst app, both `os(iOS)` and `targetEnvironment(macCatalyst)` are true.
-      let expected = "maccatalyst"
+      expected = "maccatalyst"
     #elseif os(visionOS)
-      let expected = "visionos"
+      expected = "visionos"
     #elseif os(iOS)
-      let expected = "ios"
+      expected = "ios"
     #elseif os(tvOS)
-      let expected = "tvos"
+      expected = "tvos"
     #elseif os(macOS)
-      let expected = "macos"
+      expected = "macos"
     #elseif os(watchOS)
-      let expected = "watchos"
+      expected = "watchos"
+    #else
+      // What GoogleUtilities reports for other platforms.
+      expected = "unknown"
     #endif
     let agent = FirebaseApp.firebaseUserAgent()
     for platform in platforms {

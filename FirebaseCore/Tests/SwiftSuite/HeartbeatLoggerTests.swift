@@ -161,6 +161,33 @@ final class HeartbeatLoggerTests: XCTestCase {
     XCTAssertEqual(code, FIRDailyHeartbeatCode.none)
   }
 
+  // MARK: - Header decoding
+
+  /// The helper that decodes header values fails, rather than crashing, on malformed gzip data.
+  func testHeaderDecoderRejectsMalformedGzip() {
+    let header: [UInt8] = [0x1F, 0x8B, 8, 0, 0, 0, 0, 0, 0, 0]
+    func withFlags(_ flags: UInt8) -> [UInt8] {
+      var bytes = header
+      bytes[3] = flags
+      return bytes
+    }
+    let malformed: [(String, [UInt8])] = [
+      ("shorter than a header and trailer", header + [0x41, 0x42]),
+      ("FNAME without a terminator", withFlags(0x08) + [UInt8](repeating: 0x41, count: 20)),
+      (
+        "FEXTRA longer than the data",
+        withFlags(0x04) + [0xFF, 0xFF] + [UInt8](repeating: 0, count: 8)
+      ),
+    ]
+    for (name, bytes) in malformed {
+      let base64url = Data(bytes).base64EncodedString()
+        .replacingOccurrences(of: "+", with: "-")
+        .replacingOccurrences(of: "/", with: "_")
+        .replacingOccurrences(of: "=", with: "")
+      XCTAssertThrowsError(try decodeHeartbeatsHeader(base64url), name)
+    }
+  }
+
   // MARK: - Helpers
 
   private func makeLogger() -> FIRHeartbeatLogger {
@@ -283,25 +310,46 @@ func decodeHeartbeatsHeader(_ header: String) throws -> NSDictionary {
   return try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? NSDictionary)
 }
 
-/// Decompresses gzip data (RFC 1952).
+/// Why a heartbeats header couldn't be decoded.
+private struct HeartbeatsHeaderError: Error, CustomStringConvertible {
+  let description: String
+}
+
+/// Decompresses gzip data (RFC 1952). Throws instead of reading out of bounds when `data` is
+/// malformed or truncated.
 private func gunzip(_ data: Data) throws -> Data {
   let bytes = [UInt8](data)
-  XCTAssertGreaterThan(bytes.count, 18, "Not gzip data")
-  let flags = bytes[3]
-  var offset = 10
-  if flags & 0x04 != 0 { // FEXTRA
-    offset += 2 + Int(bytes[offset]) + Int(bytes[offset + 1]) << 8
+  // A 10-byte header and an 8-byte trailer (CRC-32 and size) surround the DEFLATE data.
+  let headerSize = 10, trailerSize = 8
+  guard bytes.count >= headerSize + trailerSize,
+        bytes[0] == 0x1F, bytes[1] == 0x8B, bytes[2] == 8 /* DEFLATE */ else {
+    throw HeartbeatsHeaderError(description: "Not gzip data: \(bytes.count) bytes")
   }
-  for flag in [UInt8(0x08), 0x10] where flags & flag != 0 { // FNAME, FCOMMENT
-    while bytes[offset] != 0 {
-      offset += 1
+  let end = bytes.count - trailerSize
+  let flags = bytes[3]
+  var offset = headerSize
+
+  /// Moves past `count` bytes of the optional header fields.
+  func skip(_ count: Int) throws {
+    guard count <= end - offset else {
+      throw HeartbeatsHeaderError(description: "Truncated gzip header")
     }
-    offset += 1
+    offset += count
+  }
+
+  if flags & 0x04 != 0 { // FEXTRA: a 2-byte little-endian length, then that many bytes.
+    try skip(2)
+    try skip(Int(bytes[offset - 2]) | Int(bytes[offset - 1]) << 8)
+  }
+  for flag in [UInt8(0x08), 0x10] where flags & flag != 0 { // FNAME, FCOMMENT: zero-terminated.
+    guard let terminator = bytes[offset ..< end].firstIndex(of: 0) else {
+      throw HeartbeatsHeaderError(description: "Truncated gzip header")
+    }
+    offset = terminator + 1
   }
   if flags & 0x02 != 0 { // FHCRC
-    offset += 2
+    try skip(2)
   }
-  // The rest is raw DEFLATE data and an 8-byte trailer.
-  let deflated = Data(bytes[offset ..< bytes.count - 8])
+  let deflated = Data(bytes[offset ..< end])
   return try (deflated as NSData).decompressed(using: .zlib) as Data
 }
