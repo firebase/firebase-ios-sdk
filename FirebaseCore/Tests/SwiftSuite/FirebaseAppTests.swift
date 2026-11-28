@@ -44,7 +44,7 @@ final class FirebaseAppTests: CoreTestCase {
 
   func testConfigure() throws {
     registerTestLibraries()
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
     let notifications = NotificationRecorder(name: CoreContract.appReadyToConfigureSDKNotification)
@@ -71,7 +71,7 @@ final class FirebaseAppTests: CoreTestCase {
   }
 
   func testConfigureWithoutServiceInfoRaises() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.install()
 
     assertRaisesCoreException { FirebaseApp.configure() }
@@ -232,7 +232,7 @@ final class FirebaseAppTests: CoreTestCase {
   func testDefaultApp() throws {
     XCTAssertNil(FirebaseApp.app())
 
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
     assertNoException { FirebaseApp.configure() }

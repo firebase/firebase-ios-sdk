@@ -16,10 +16,42 @@
 
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
 
+#import <os/lock.h>
+
+@interface FIRAnalyticsConfiguration ()
+
+/// For tests only. Replaces `+[NSUserDefaults standardUserDefaults]` for the persisted setting, or
+/// restores it when `userDefaults` is nil. Production code never calls this, and behavior is
+/// unchanged while it's unset. FirebaseCore's Swift unit tests reach it through
+/// FirebaseCoreTestHooks.
++ (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
+
+@end
+
+/// Guards `sUserDefaultsForTesting`.
+static os_unfair_lock sTestOverridesLock = OS_UNFAIR_LOCK_INIT;
+
+/// Set only by tests, through `+setUserDefaultsForTesting:`.
+static NSUserDefaults *sUserDefaultsForTesting;
+
+/// The user defaults that store the persisted setting.
+static NSUserDefaults *FIRAnalyticsConfigurationUserDefaults(void) {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  NSUserDefaults *userDefaults = sUserDefaultsForTesting;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+  return userDefaults ?: [NSUserDefaults standardUserDefaults];
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-implementations"
 @implementation FIRAnalyticsConfiguration
 #pragma clang diagnostic pop
+
++ (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  sUserDefaultsForTesting = userDefaults;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+}
 
 + (FIRAnalyticsConfiguration *)sharedInstance {
   static FIRAnalyticsConfiguration *sharedInstance = nil;
@@ -45,7 +77,7 @@
   FIRAnalyticsEnabledState analyticsEnabledState =
       analyticsCollectionEnabled ? kFIRAnalyticsEnabledStateSetYes : kFIRAnalyticsEnabledStateSetNo;
   if (shouldPersist) {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    NSUserDefaults *userDefaults = FIRAnalyticsConfigurationUserDefaults();
     [userDefaults setObject:@(analyticsEnabledState)
                      forKey:kFIRAPersistedConfigMeasurementEnabledStateKey];
     [userDefaults synchronize];

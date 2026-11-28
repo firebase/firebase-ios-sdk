@@ -42,8 +42,6 @@
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIROptions.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
-
 #import <objc/runtime.h>
 #import <os/lock.h>
 
@@ -101,8 +99,9 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 /// when `userDefaults` is nil.
 + (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
 
-/// Replaces `+[GULAppEnvironmentUtil isAppExtension]` when deciding whether a duplicate
-/// `configure` call is allowed, or restores it when `isAppExtension` is nil.
+/// Makes FirebaseCore behave as if it were (or weren't) running in an app extension, or restores
+/// the real environment when `isAppExtension` is nil. Forwards to `+[FIRBundleUtil
+/// setIsAppExtensionForTesting:]`, which holds the override for all of FirebaseCore.
 + (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
 
 /// Replaces the main bundle's Info.plist contents when reading the data collection flag, or
@@ -122,7 +121,6 @@ static os_unfair_lock sTestOverridesLock = OS_UNFAIR_LOCK_INIT;
 
 // Set only by tests, through the `+set…ForTesting:` methods.
 static NSUserDefaults *sUserDefaultsForTesting;
-static NSNumber *sIsAppExtensionForTesting;
 static NSDictionary<NSString *, id> *sInfoDictionaryForTesting;
 static FIRHeartbeatLogger * (^sHeartbeatLoggerFactoryForTesting)(NSString *);
 
@@ -132,13 +130,6 @@ static NSUserDefaults *FIRAppUserDefaults(void) {
   NSUserDefaults *userDefaults = sUserDefaultsForTesting;
   os_unfair_lock_unlock(&sTestOverridesLock);
   return userDefaults ?: [NSUserDefaults standardUserDefaults];
-}
-
-static BOOL FIRAppIsAppExtension(void) {
-  os_unfair_lock_lock(&sTestOverridesLock);
-  NSNumber *isAppExtension = sIsAppExtensionForTesting;
-  os_unfair_lock_unlock(&sTestOverridesLock);
-  return isAppExtension != nil ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
 }
 
 static FIRHeartbeatLogger *FIRAppMakeHeartbeatLogger(NSString *appID) {
@@ -263,7 +254,7 @@ static FIRApp *sDefaultApp;
 /// like an extension.
 + (void)appWasConfiguredTwice:(FIRApp *)app usingOptions:(FIROptions *)options {
   // Only extensions should potentially be able to call `configure` more than once.
-  if (!FIRAppIsAppExtension()) {
+  if (![FIRBundleUtil isAppExtension]) {
     // Throw an exception since this is now an invalid state.
     if (app.isDefaultApp) {
       [NSException raise:kFirebaseCoreErrorDomain
@@ -857,9 +848,7 @@ static FIRApp *sDefaultApp;
 }
 
 + (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension {
-  os_unfair_lock_lock(&sTestOverridesLock);
-  sIsAppExtensionForTesting = [isAppExtension copy];
-  os_unfair_lock_unlock(&sTestOverridesLock);
+  [FIRBundleUtil setIsAppExtensionForTesting:isAppExtension];
 }
 
 + (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary {

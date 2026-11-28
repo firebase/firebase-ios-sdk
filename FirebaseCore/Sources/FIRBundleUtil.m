@@ -22,6 +22,9 @@
 /// `+setRelevantBundlesForTesting:`.
 static NSArray<NSBundle *> *sRelevantBundlesForTesting;
 
+/// Overrides `isAppExtension` in tests. Set only by tests, through `+setIsAppExtensionForTesting:`.
+static NSNumber *sIsAppExtensionForTesting;
+
 + (NSArray *)relevantBundles {
   @synchronized(self) {
     if (sRelevantBundlesForTesting) {
@@ -31,9 +34,23 @@ static NSArray<NSBundle *> *sRelevantBundlesForTesting;
   return @[ [NSBundle mainBundle], [NSBundle bundleForClass:[self class]] ];
 }
 
-+ (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles {
++ (void)setRelevantBundlesForTesting:(nullable NSArray<NSBundle *> *)bundles {
   @synchronized(self) {
     sRelevantBundlesForTesting = [bundles copy];
+  }
+}
+
++ (BOOL)isAppExtension {
+  NSNumber *isAppExtension;
+  @synchronized(self) {
+    isAppExtension = sIsAppExtensionForTesting;
+  }
+  return isAppExtension != nil ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
+}
+
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension {
+  @synchronized(self) {
+    sIsAppExtensionForTesting = [isAppExtension copy];
   }
 }
 
@@ -68,7 +85,7 @@ static NSArray<NSBundle *> *sRelevantBundlesForTesting;
       return YES;
     }
 
-    if ([GULAppEnvironmentUtil isAppExtension]) {
+    if ([self isAppExtension]) {
       // A developer could be using the same `FIROptions` for both their app and extension. Since
       // extensions have a suffix added to the bundleID, we consider a matching prefix as valid.
       NSString *appBundleIDFromExtension =

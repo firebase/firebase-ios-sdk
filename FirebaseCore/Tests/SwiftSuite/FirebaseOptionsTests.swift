@@ -37,7 +37,7 @@ final class FirebaseOptionsTests: XCTestCase {
   // MARK: - Default options
 
   func testDefaultOptionsDictionaryReadsServiceInfo() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
 
@@ -50,7 +50,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptionsDictionaryWithMissingFile() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.install()
 
     XCTAssertNil(FirebaseOptions.defaultOptionsDictionary())
@@ -58,7 +58,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptionsDictionaryWithInvalidFile() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeInvalidServiceInfo()
     try bundle.install()
 
@@ -67,7 +67,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptions() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
 
@@ -77,7 +77,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptionsAreReadOnce() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
     let first = try XCTUnwrap(FirebaseOptions.defaultOptions())
@@ -93,7 +93,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptionsDictionaryIsReadOnce() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
     XCTAssertNotNil(FirebaseOptions.defaultOptionsDictionary())
@@ -103,14 +103,14 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testResetDefaultOptionsRereadsTheFile() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
     XCTAssertEqual(FirebaseOptions.defaultOptions()?.projectID, TestValues.projectID)
 
     var changed = TestValues.serviceInfo
     changed["PROJECT_ID"] = "changed-project"
-    let otherBundle = try TemporaryServiceInfoBundle()
+    let otherBundle = try makeServiceInfoBundle()
     try otherBundle.writeServiceInfo(changed)
     try otherBundle.install()
     FirebaseOptions.resetDefaultOptions()
@@ -119,7 +119,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testDefaultOptionsAreEqual() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
     try bundle.install()
 
@@ -136,7 +136,7 @@ final class FirebaseOptionsTests: XCTestCase {
   // MARK: - Initializers
 
   func testInitWithContentsOfFile() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeServiceInfo()
 
     let options = try XCTUnwrap(FirebaseOptions(contentsOfFile: bundle.plistURL.path))
@@ -149,7 +149,7 @@ final class FirebaseOptionsTests: XCTestCase {
   }
 
   func testInitWithContentsOfInvalidFile() throws {
-    let bundle = try TemporaryServiceInfoBundle()
+    let bundle = try makeServiceInfoBundle()
     try bundle.writeInvalidServiceInfo()
     XCTAssertNil(FirebaseOptions(contentsOfFile: bundle.plistURL.path))
   }

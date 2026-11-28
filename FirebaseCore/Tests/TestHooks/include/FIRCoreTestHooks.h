@@ -79,6 +79,50 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// Internal FirebaseCore class that finds GoogleService-Info.plist and checks bundle IDs.
+@interface FIRBundleUtil : NSObject
+
+/// The bundles that FirebaseCore searches, starting with the main bundle.
++ (NSArray<NSBundle *> *)relevantBundles NS_SWIFT_NAME(relevantBundles());
+
+/// The URL schemes in the Info.plist of the relevant bundles.
++ (NSArray<NSString *> *)relevantURLSchemes NS_SWIFT_NAME(relevantURLSchemes());
+
+/// The path of the first resource with the given name and type in `bundles`.
++ (nullable NSString *)optionsDictionaryPathWithResourceName:(NSString *)resourceName
+                                                 andFileType:(NSString *)fileType
+                                                   inBundles:(NSArray<NSBundle *> *)bundles
+    NS_SWIFT_NAME(optionsDictionaryPath(resourceName:fileType:bundles:));
+
+/// Whether a bundle in `bundles` has the given bundle ID, or, in an app extension, has it with an
+/// extension suffix.
++ (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier
+                        inBundles:(NSArray<NSBundle *> *)bundles
+    NS_SWIFT_NAME(hasBundleIdentifierPrefix(_:in:));
+
+/// Whether FirebaseCore considers itself to run in an app extension.
++ (BOOL)isAppExtension NS_SWIFT_NAME(isAppExtension());
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
+/// Internal FirebaseCore class that forwards the Analytics collection flag to Analytics. Found by
+/// name by GoogleAppMeasurement.
+@interface FIRAnalyticsConfiguration : NSObject
+
++ (FIRAnalyticsConfiguration *)sharedInstance NS_SWIFT_NAME(sharedInstance());
+
+/// Posts FIRAnalyticsConfigurationSetEnabledNotification, and persists the flag in user defaults
+/// when `shouldPersist` is true.
+- (void)setAnalyticsCollectionEnabled:(BOOL)analyticsCollectionEnabled
+                       persistSetting:(BOOL)shouldPersist
+    NS_SWIFT_NAME(setAnalyticsCollectionEnabled(_:persistSetting:));
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
 NS_SWIFT_NAME(CoreTestHooks)
 @interface FIRCoreTestHooks : NSObject
 
@@ -86,13 +130,18 @@ NS_SWIFT_NAME(CoreTestHooks)
 /// bundle ID against. Pass nil to restore the default bundles.
 + (void)setRelevantBundles:(nullable NSArray<NSBundle *> *)bundles;
 
-/// Makes FIRApp store the data collection flag in `userDefaults` instead of the standard user
-/// defaults. Pass nil to restore the standard user defaults.
+/// Makes FirebaseCore use `userDefaults` instead of the standard user defaults: FIRApp for the data
+/// collection flag, and FIRAnalyticsConfiguration for the persisted Analytics flag. Pass nil to
+/// restore the standard user defaults.
 + (void)setUserDefaults:(nullable NSUserDefaults *)userDefaults;
 
-/// Makes FIRApp behave as if it were (or weren't) running in an app extension. Pass nil to restore
-/// the real environment.
+/// Makes FirebaseCore (FIRApp and FIRBundleUtil) behave as if it were (or weren't) running in an
+/// app extension. Pass nil to restore the real environment.
 + (void)setIsAppExtension:(nullable NSNumber *)isAppExtension;
+
+/// Sets the same override through `+[FIRApp setIsAppExtensionForTesting:]`, which FIRAppTest.m
+/// uses, to check that FIRApp forwards it to FIRBundleUtil.
++ (void)setIsAppExtensionThroughFirebaseApp:(nullable NSNumber *)isAppExtension;
 
 /// Makes FIRApp read the data collection flag from `infoDictionary` instead of the main bundle's
 /// Info.plist. Pass nil to restore the main bundle's Info.plist.

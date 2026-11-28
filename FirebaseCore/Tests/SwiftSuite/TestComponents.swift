@@ -25,6 +25,9 @@ import Foundation
 /// A component that's created eagerly, when an app is configured, and cached.
 @objc protocol CoreTestEagerComponent {}
 
+/// A lazily created component that isn't cached, so each request creates a new instance.
+@objc protocol CoreTestUncachedComponent {}
+
 /// A component that no library registers.
 @objc protocol CoreTestUnregisteredComponent {}
 
@@ -50,6 +53,8 @@ final class CoreTestCachedInstance: NSObject, CoreTestCachedComponent {}
 
 final class CoreTestEagerInstance: NSObject, CoreTestEagerComponent {}
 
+final class CoreTestUncachedInstance: NSObject, CoreTestUncachedComponent {}
+
 final class CoreTestCachedLibrary: NSObject, Library {
   static func componentsToRegister() -> [Component] {
     [Component(CoreTestCachedComponent.self) { _, isCacheable in
@@ -72,6 +77,18 @@ final class CoreTestEagerLibrary: NSObject, Library {
   }
 }
 
+final class CoreTestUncachedLibrary: NSObject, Library {
+  /// The number of instances created, across all apps.
+  static let creations = CreationCounter()
+
+  static func componentsToRegister() -> [Component] {
+    [Component(CoreTestUncachedComponent.self) { _, _ in
+      creations.increment()
+      return CoreTestUncachedInstance()
+    }]
+  }
+}
+
 /// Registers the test libraries. Registration is global and can't be undone, so apps configured
 /// afterwards, in any test, also get these components.
 func registerTestLibraries() {
@@ -80,6 +97,9 @@ func registerTestLibraries() {
                                       withVersion: "1.0")
   FirebaseApp.registerInternalLibrary(CoreTestEagerLibrary.self,
                                       withName: "core-swift-unit-eager",
+                                      withVersion: "1.0")
+  FirebaseApp.registerInternalLibrary(CoreTestUncachedLibrary.self,
+                                      withName: "core-swift-unit-uncached",
                                       withVersion: "1.0")
 }
 
@@ -92,6 +112,11 @@ extension FirebaseApp {
   var eagerTestComponent: CoreTestEagerComponent? {
     ComponentType<CoreTestEagerComponent>.instance(for: CoreTestEagerComponent.self,
                                                    in: container)
+  }
+
+  var uncachedTestComponent: CoreTestUncachedComponent? {
+    ComponentType<CoreTestUncachedComponent>.instance(for: CoreTestUncachedComponent.self,
+                                                      in: container)
   }
 
   var unregisteredTestComponent: CoreTestUnregisteredComponent? {

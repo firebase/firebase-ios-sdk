@@ -14,7 +14,6 @@
 
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Sources/FIRBundleUtil.h"
 #import "SharedTestUtilities/FIROptionsMock.h"
 
@@ -33,6 +32,14 @@ static NSString *const kFileType = @"fileType";
 - (void)setUp {
   [super setUp];
   self.mockBundle = OCMClassMock([NSBundle class]);
+  // `+[GULAppEnvironmentUtil isAppExtension]` doesn't return a value on visionOS, so don't depend
+  // on it.
+  [FIRBundleUtil setIsAppExtensionForTesting:@NO];
+}
+
+- (void)tearDown {
+  [FIRBundleUtil setIsAppExtensionForTesting:nil];
+  [super tearDown];
 }
 
 - (void)testRelevantBundles_mainIsFirst {
@@ -85,32 +92,25 @@ static NSString *const kFileType = @"fileType";
 }
 
 - (void)testBundleIdentifierHasPrefixInBundlesForExtension {
-  id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
-  [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
+  [FIRBundleUtil setIsAppExtensionForTesting:@YES];
 
   // Mock bundle should have what app extension has, the extension bundle ID.
   OCMStub([self.mockBundle bundleIdentifier]).andReturn(@"com.google.test.someextension");
   XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
                                                inBundles:@[ self.mockBundle ]]);
-
-  [environmentUtilsMock stopMocking];
 }
 
 - (void)testBundleIdentifierExistsInBundlesForExtensions_exactMatch {
-  id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
-  [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
+  [FIRBundleUtil setIsAppExtensionForTesting:@YES];
 
   // Mock bundle should have what app extension has, the extension bundle ID.
   OCMStub([self.mockBundle bundleIdentifier]).andReturn(@"com.google.test.someextension");
   XCTAssertTrue([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test.someextension"
                                                inBundles:@[ self.mockBundle ]]);
-
-  [environmentUtilsMock stopMocking];
 }
 
 - (void)testBundleIdentifierHasPrefixInBundlesNotValidExtension {
-  id environmentUtilsMock = [OCMockObject mockForClass:[GULAppEnvironmentUtil class]];
-  [[[environmentUtilsMock stub] andReturnValue:@(YES)] isAppExtension];
+  [FIRBundleUtil setIsAppExtensionForTesting:@YES];
 
   OCMExpect([self.mockBundle bundleIdentifier]).andReturn(@"com.google.test.someextension.some");
   XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.test"
@@ -132,8 +132,6 @@ static NSString *const kFileType = @"fileType";
   // identifier is @"com.google"
   XCTAssertFalse([FIRBundleUtil hasBundleIdentifierPrefix:@"com.google.tests"
                                                 inBundles:@[ self.mockBundle ]]);
-
-  [environmentUtilsMock stopMocking];
 }
 
 @end
