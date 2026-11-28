@@ -52,7 +52,7 @@ import FirebaseCoreExtension
     open func application(_ application: UIApplication,
                           didFailToRegisterForRemoteNotificationsWithError error: Error) {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.cancel(withError: error)
+        self.tokenManager?.cancel(withError: error)
       }
     }
 
@@ -1592,7 +1592,8 @@ extension Auth: AuthInterop {
     /// by either setting this property or by calling `setAPNSToken(_:type:)`.
     @objc(APNSToken) open var apnsToken: Data? {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.token?.data
+        // Phone number auth may not be set up yet. See `protectedDataInitialization()`.
+        self.tokenManager?.token?.data ?? self.pendingAPNSToken?.data
       }
     }
 
@@ -1604,7 +1605,13 @@ extension Auth: AuthInterop {
     /// by either setting calling this method or by setting the `APNSToken` property.
     @objc open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
-        self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+        let apnsToken = AuthAPNSToken(withData: token, type: type)
+        if let tokenManager = self.tokenManager {
+          tokenManager.token = apnsToken
+        } else {
+          // Phone number auth isn't set up yet. Keep the token until it is.
+          self.pendingAPNSToken = apnsToken
+        }
       }
     }
 
@@ -1622,7 +1629,8 @@ extension Auth: AuthInterop {
     /// the caller should continue handling this notification as usual.
     @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
       kAuthGlobalWorkQueue.sync {
-        self.notificationManager.canHandle(notification: userInfo)
+        // Before phone number auth is set up, no notification can be for Auth.
+        self.notificationManager?.canHandle(notification: userInfo) ?? false
       }
     }
 
@@ -1742,27 +1750,59 @@ extension Auth: AuthInterop {
           return
         }
 
-        // Using reflection here to avoid build errors in extensions.
-        let sel = NSSelectorFromString("sharedApplication")
-        guard UIApplication.responds(to: sel),
-              let rawApplication = UIApplication.perform(sel),
-              let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+        guard let application = Auth.applicationProvider() else {
+          // A SwiftUI app can configure Firebase in its `App` initializer, which runs before the
+          // application object exists. The main queue runs only once `UIApplicationMain` is
+          // running, when the application object exists, so try again from there.
+          DispatchQueue.main.async { [weak self] in
+            guard let self, let application = Auth.applicationProvider() else {
+              return
+            }
+            kAuthGlobalWorkQueue.async { [weak self] in
+              // `protectedDataInitialization()` may have run again and set up phone auth in the
+              // meantime. Don't replace those managers and lose their state.
+              guard let self, self.tokenManager == nil else {
+                return
+              }
+              self.initializePhoneAuth(application: application)
+            }
+          }
           return
         }
-
-        // Initialize for phone number auth.
-        self.tokenManager = AuthAPNSTokenManager(withApplication: application)
-        self.appCredentialManager = AuthAppCredentialManager(withKeychain: self.keychainServices)
-        self.notificationManager = AuthNotificationManager(
-          withApplication: application,
-          appCredentialManager: self.appCredentialManager
-        )
-
-        GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
-        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
+        self.initializePhoneAuth(application: application)
       #endif
     }
   }
+
+  #if os(iOS)
+    /// Sets up phone number auth. Must be called on `kAuthGlobalWorkQueue`.
+    private func initializePhoneAuth(application: UIApplication) {
+      tokenManager = AuthAPNSTokenManager(withApplication: application)
+      if let pendingAPNSToken {
+        tokenManager.token = pendingAPNSToken
+        self.pendingAPNSToken = nil
+      }
+      appCredentialManager = AuthAppCredentialManager(withKeychain: keychainServices)
+      notificationManager = AuthNotificationManager(
+        withApplication: application,
+        appCredentialManager: appCredentialManager
+      )
+
+      GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
+      GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
+    }
+
+    /// Returns the shared application, or `nil` if it doesn't exist yet.
+    static func sharedApplication() -> UIApplication? {
+      // Using reflection here to avoid build errors in extensions.
+      let sel = NSSelectorFromString("sharedApplication")
+      guard UIApplication.responds(to: sel),
+            let rawApplication = UIApplication.perform(sel) else {
+        return nil
+      }
+      return rawApplication.takeUnretainedValue() as? UIApplication
+    }
+  #endif
 
   #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
     private func addProtectedDataDidBecomeAvailableObserver() {
@@ -2392,8 +2432,15 @@ extension Auth: AuthInterop {
     /// The manager for remote notifications used by phone number auth.
     var notificationManager: AuthNotificationManager!
 
+    /// An APNs token set before phone number auth was set up. Accessed on `kAuthGlobalWorkQueue`.
+    private var pendingAPNSToken: AuthAPNSToken?
+
     /// An object that takes care of presenting URLs via the auth instance.
     var authURLPresenter: AuthWebViewControllerDelegate
+
+    /// Returns the shared application, or `nil` if it doesn't exist yet. Replaced in tests.
+    nonisolated(unsafe) static var applicationProvider: () -> UIApplication? =
+      Auth.sharedApplication
 
   #endif // TARGET_OS_IOS
 

@@ -1,4 +1,9 @@
 # Unreleased
+- [fixed] Phone number auth now works in SwiftUI apps that call
+  `FirebaseApp.configure()` in their `App` initializer. Previously,
+  `PhoneAuthProvider.verifyPhoneNumber(_:uiDelegate:)` could fail with
+  `AuthErrorCode.notificationNotForwarded`, and `Auth.setAPNSToken(_:type:)`
+  and `Auth.canHandleNotification(_:)` could crash. (#10417)
 - [added] Auth now logs a warning when a sign-in, link, or reauthentication
   request for an identity provider credential contains an empty ID token,
   access token, nonce, or other value, which the server can reject. With
