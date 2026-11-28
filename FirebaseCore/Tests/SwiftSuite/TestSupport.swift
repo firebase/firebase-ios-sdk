@@ -53,12 +53,13 @@ enum AnalyticsKeys {
 }
 
 /// A temporary directory that FirebaseCore searches for GoogleService-Info.plist instead of the
-/// app's bundles. This replaces mocking `FIRBundleUtil` with OCMock.
+/// app's bundles. This replaces mocking `FIRBundleUtil` with OCMock. Create it with
+/// `XCTestCase.makeServiceInfoBundle()`, which removes it after the test.
 final class TemporaryServiceInfoBundle {
   let directory: URL
 
   /// Creates an empty bundle directory.
-  init() throws {
+  fileprivate init() throws {
     directory = FileManager.default.temporaryDirectory
       .appendingPathComponent("FirebaseCoreTests-\(UUID().uuidString)", isDirectory: true)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -84,22 +85,19 @@ final class TemporaryServiceInfoBundle {
     let bundle = try XCTUnwrap(Bundle(path: directory.path))
     CoreTestHooks.setRelevantBundles([bundle])
   }
-
-  deinit {
-    try? FileManager.default.removeItem(at: directory)
-  }
 }
 
 /// A real bundle in a temporary directory, with an optional Info.plist and empty resource files.
-/// This replaces mocking `NSBundle`.
+/// This replaces mocking `NSBundle`. Create it with `XCTestCase.makeTemporaryBundle(...)`, which
+/// removes it after the test.
 final class TemporaryBundle {
   let directory: URL
   let bundle: Bundle
 
   /// Creates the bundle. `resources` are file names, such as "GoogleService-Info.plist".
-  init(bundleIdentifier: String? = nil,
-       infoDictionary: [String: Any] = [:],
-       resources: [String] = []) throws {
+  fileprivate init(bundleIdentifier: String?,
+                   infoDictionary: [String: Any],
+                   resources: [String]) throws {
     directory = FileManager.default.temporaryDirectory
       .appendingPathComponent("FirebaseCoreTests-\(UUID().uuidString)", isDirectory: true)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -122,9 +120,35 @@ final class TemporaryBundle {
   func resolvedPath(of resource: String) -> String {
     directory.appendingPathComponent(resource).resolvingSymlinksInPath().path
   }
+}
 
-  deinit {
-    try? FileManager.default.removeItem(at: directory)
+extension XCTestCase {
+  /// Creates a GoogleService-Info.plist directory that's removed after the test.
+  func makeServiceInfoBundle() throws -> TemporaryServiceInfoBundle {
+    let serviceInfoBundle = try TemporaryServiceInfoBundle()
+    removeAfterTest(serviceInfoBundle.directory)
+    return serviceInfoBundle
+  }
+
+  /// Creates a bundle that's removed after the test. `resources` are file names, such as
+  /// "GoogleService-Info.plist".
+  func makeTemporaryBundle(bundleIdentifier: String? = nil,
+                           infoDictionary: [String: Any] = [:],
+                           resources: [String] = []) throws -> TemporaryBundle {
+    let temporaryBundle = try TemporaryBundle(bundleIdentifier: bundleIdentifier,
+                                              infoDictionary: infoDictionary,
+                                              resources: resources)
+    removeAfterTest(temporaryBundle.directory)
+    return temporaryBundle
+  }
+
+  /// Removes `directory` when the test ends. Tying the removal to the test rather than to a
+  /// `deinit` keeps the files for the whole test: Swift can release a local variable right after
+  /// its last use, which may come before FirebaseCore reads the files.
+  private func removeAfterTest(_ directory: URL) {
+    addTeardownBlock {
+      try? FileManager.default.removeItem(at: directory)
+    }
   }
 }
 

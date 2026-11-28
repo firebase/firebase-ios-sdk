@@ -34,7 +34,7 @@ static NSNumber *sIsAppExtensionForTesting;
   return @[ [NSBundle mainBundle], [NSBundle bundleForClass:[self class]] ];
 }
 
-+ (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles {
++ (void)setRelevantBundlesForTesting:(nullable NSArray<NSBundle *> *)bundles {
   @synchronized(self) {
     sRelevantBundlesForTesting = [bundles copy];
   }
@@ -48,7 +48,7 @@ static NSNumber *sIsAppExtensionForTesting;
   return isAppExtension != nil ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
 }
 
-+ (void)setIsAppExtensionForTesting:(NSNumber *)isAppExtension {
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension {
   @synchronized(self) {
     sIsAppExtensionForTesting = [isAppExtension copy];
   }

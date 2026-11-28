@@ -35,6 +35,7 @@
 
 @interface FIRApp (CoreTestSeams)
 + (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
 + (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary;
 + (void)setHeartbeatLoggerFactoryForTesting:
     (nullable FIRHeartbeatLogger * (^)(NSString *appID))factory;
@@ -55,6 +56,10 @@
   // FIRBundleUtil holds the override for all of FirebaseCore. `+[FIRApp
   // setIsAppExtensionForTesting:]` forwards to it.
   [FIRBundleUtil setIsAppExtensionForTesting:isAppExtension];
+}
+
++ (void)setIsAppExtensionThroughFirebaseApp:(nullable NSNumber *)isAppExtension {
+  [FIRApp setIsAppExtensionForTesting:isAppExtension];
 }
 
 + (void)setInfoDictionary:(nullable NSDictionary<NSString *, id> *)infoDictionary {

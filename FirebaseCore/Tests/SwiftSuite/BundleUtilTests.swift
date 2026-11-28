@@ -40,7 +40,7 @@ final class BundleUtilTests: CoreTestCase {
   }
 
   func testRelevantBundlesCanBeReplacedForTesting() throws {
-    let temporaryBundle = try TemporaryBundle()
+    let temporaryBundle = try makeTemporaryBundle()
     CoreTestHooks.setRelevantBundles([temporaryBundle.bundle])
     XCTAssertEqual(FIRBundleUtil.relevantBundles().count, 1)
     XCTAssertTrue(FIRBundleUtil.relevantBundles().first === temporaryBundle.bundle)
@@ -51,14 +51,14 @@ final class BundleUtilTests: CoreTestCase {
 
   func testRelevantURLSchemes() throws {
     // New: FIRBundleUtilTest.m didn't cover URL schemes.
-    let first = try TemporaryBundle(infoDictionary: ["CFBundleURLTypes": [
+    let first = try makeTemporaryBundle(infoDictionary: ["CFBundleURLTypes": [
       ["CFBundleURLSchemes": ["scheme-a", "scheme-b"]],
       ["CFBundleURLSchemes": ["scheme-c"]],
     ]])
-    let second = try TemporaryBundle(infoDictionary: ["CFBundleURLTypes": [
+    let second = try makeTemporaryBundle(infoDictionary: ["CFBundleURLTypes": [
       ["CFBundleURLSchemes": ["scheme-d"]],
     ]])
-    let withoutSchemes = try TemporaryBundle(bundleIdentifier: "com.google.test")
+    let withoutSchemes = try makeTemporaryBundle(bundleIdentifier: "com.google.test")
     CoreTestHooks.setRelevantBundles([first.bundle, withoutSchemes.bundle, second.bundle])
 
     XCTAssertEqual(FIRBundleUtil.relevantURLSchemes(),
@@ -68,7 +68,7 @@ final class BundleUtilTests: CoreTestCase {
   // MARK: - Finding GoogleService-Info.plist
 
   func testFindOptionsDictionaryPath() throws {
-    let temporaryBundle = try TemporaryBundle(resources: [resourceFile])
+    let temporaryBundle = try makeTemporaryBundle(resources: [resourceFile])
     let path = FIRBundleUtil.optionsDictionaryPath(resourceName: resourceName,
                                                    fileType: fileType,
                                                    bundles: [temporaryBundle.bundle])
@@ -76,7 +76,7 @@ final class BundleUtilTests: CoreTestCase {
   }
 
   func testFindOptionsDictionaryPathNotFound() throws {
-    let temporaryBundle = try TemporaryBundle(resources: ["otherName.\(fileType)"])
+    let temporaryBundle = try makeTemporaryBundle(resources: ["otherName.\(fileType)"])
     XCTAssertNil(FIRBundleUtil.optionsDictionaryPath(resourceName: resourceName,
                                                      fileType: fileType,
                                                      bundles: [temporaryBundle.bundle]))
@@ -86,8 +86,8 @@ final class BundleUtilTests: CoreTestCase {
   }
 
   func testFindOptionsDictionaryPathInSecondBundle() throws {
-    let emptyBundle = try TemporaryBundle()
-    let temporaryBundle = try TemporaryBundle(resources: [resourceFile])
+    let emptyBundle = try makeTemporaryBundle()
+    let temporaryBundle = try makeTemporaryBundle(resources: [resourceFile])
     let path = FIRBundleUtil.optionsDictionaryPath(resourceName: resourceName,
                                                    fileType: fileType,
                                                    bundles: [emptyBundle.bundle,
@@ -97,8 +97,8 @@ final class BundleUtilTests: CoreTestCase {
 
   func testFindOptionsDictionaryPathPrefersFirstBundle() throws {
     // New: the bundles are searched in order.
-    let first = try TemporaryBundle(resources: [resourceFile])
-    let second = try TemporaryBundle(resources: [resourceFile])
+    let first = try makeTemporaryBundle(resources: [resourceFile])
+    let second = try makeTemporaryBundle(resources: [resourceFile])
     let path = FIRBundleUtil.optionsDictionaryPath(resourceName: resourceName,
                                                    fileType: fileType,
                                                    bundles: [first.bundle, second.bundle])
@@ -108,8 +108,8 @@ final class BundleUtilTests: CoreTestCase {
   // MARK: - Bundle IDs
 
   func testBundleIdentifierExistsInBundles() throws {
-    let other = try TemporaryBundle(bundleIdentifier: "com.google.other")
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test")
+    let other = try makeTemporaryBundle(bundleIdentifier: "com.google.other")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test")
     XCTAssertEqual(temporaryBundle.bundle.bundleIdentifier, "com.google.test")
     XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
                                                           in: [other.bundle,
@@ -117,7 +117,7 @@ final class BundleUtilTests: CoreTestCase {
   }
 
   func testBundleIdentifierDoesNotExistInBundles() throws {
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test")
     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("not-exist",
                                                            in: [temporaryBundle.bundle]))
   }
@@ -129,14 +129,14 @@ final class BundleUtilTests: CoreTestCase {
   func testExtensionBundleIdentifierMatchesAppBundleIdentifier() throws {
     CoreTestHooks.setIsAppExtension(true)
     // The bundle has what an app extension has: the extension's bundle ID.
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test.someextension")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test.someextension")
     XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
                                                           in: [temporaryBundle.bundle]))
   }
 
   func testExtensionBundleIdentifierMatchesExactly() throws {
     CoreTestHooks.setIsAppExtension(true)
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test.someextension")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test.someextension")
     XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test.someextension",
                                                           in: [temporaryBundle.bundle]))
   }
@@ -146,7 +146,7 @@ final class BundleUtilTests: CoreTestCase {
     // Only the last component of an extension's bundle ID is removed.
     for bundleID in ["com.google.test.someextension.some", "com.google.testsomeextension",
                      "com.google.testsomeextension.some", "not-exist"] {
-      let temporaryBundle = try TemporaryBundle(bundleIdentifier: bundleID)
+      let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: bundleID)
       XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
                                                              in: [temporaryBundle.bundle]),
                      bundleID)
@@ -154,7 +154,7 @@ final class BundleUtilTests: CoreTestCase {
 
     // If "com.google.tests" were an extension's bundle ID, the app's would be "com.google", so it
     // doesn't match "com.google.test.someextension".
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test.someextension")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test.someextension")
     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.tests",
                                                            in: [temporaryBundle.bundle]))
   }
@@ -162,7 +162,7 @@ final class BundleUtilTests: CoreTestCase {
   func testBundleIdentifierSuffixIsIgnoredOutsideExtensions() throws {
     // New: FIRBundleUtilTest.m only checked the extension case.
     CoreTestHooks.setIsAppExtension(false)
-    let temporaryBundle = try TemporaryBundle(bundleIdentifier: "com.google.test.someextension")
+    let temporaryBundle = try makeTemporaryBundle(bundleIdentifier: "com.google.test.someextension")
     XCTAssertFalse(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test",
                                                            in: [temporaryBundle.bundle]))
     XCTAssertTrue(FIRBundleUtil.hasBundleIdentifierPrefix("com.google.test.someextension",
@@ -178,12 +178,9 @@ final class BundleUtilTests: CoreTestCase {
     XCTAssertFalse(FIRBundleUtil.isAppExtension())
 
     // FIRAppTest.m sets the override through FIRApp, which forwards to FIRBundleUtil.
-    let setOnApp = NSSelectorFromString("setIsAppExtensionForTesting:")
-    let appClass: AnyObject = FirebaseApp.self
-    XCTAssertTrue(appClass.responds(to: setOnApp))
-    _ = appClass.perform(setOnApp, with: NSNumber(value: true))
+    CoreTestHooks.setIsAppExtensionThroughFirebaseApp(true)
     XCTAssertTrue(FIRBundleUtil.isAppExtension())
-    _ = appClass.perform(setOnApp, with: NSNumber(value: false))
+    CoreTestHooks.setIsAppExtensionThroughFirebaseApp(false)
     XCTAssertFalse(FIRBundleUtil.isAppExtension())
   }
 }

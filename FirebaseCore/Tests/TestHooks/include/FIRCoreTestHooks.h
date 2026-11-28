@@ -139,6 +139,10 @@ NS_SWIFT_NAME(CoreTestHooks)
 /// app extension. Pass nil to restore the real environment.
 + (void)setIsAppExtension:(nullable NSNumber *)isAppExtension;
 
+/// Sets the same override through `+[FIRApp setIsAppExtensionForTesting:]`, which FIRAppTest.m
+/// uses, to check that FIRApp forwards it to FIRBundleUtil.
++ (void)setIsAppExtensionThroughFirebaseApp:(nullable NSNumber *)isAppExtension;
+
 /// Makes FIRApp read the data collection flag from `infoDictionary` instead of the main bundle's
 /// Info.plist. Pass nil to restore the main bundle's Info.plist.
 + (void)setInfoDictionary:(nullable NSDictionary<NSString *, id> *)infoDictionary;
