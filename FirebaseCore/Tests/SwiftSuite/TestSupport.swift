@@ -90,6 +90,49 @@ final class TemporaryServiceInfoBundle {
   }
 }
 
+/// A real bundle in a temporary directory, with an optional Info.plist and empty resource files.
+/// This replaces mocking `NSBundle`.
+final class TemporaryBundle {
+  let directory: URL
+  let bundle: Bundle
+
+  /// Creates the bundle. `resources` are file names, such as "GoogleService-Info.plist".
+  init(bundleIdentifier: String? = nil,
+       infoDictionary: [String: Any] = [:],
+       resources: [String] = []) throws {
+    directory = FileManager.default.temporaryDirectory
+      .appendingPathComponent("FirebaseCoreTests-\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    var info = infoDictionary
+    info["CFBundleIdentifier"] = bundleIdentifier
+    if !info.isEmpty {
+      let data = try PropertyListSerialization.data(fromPropertyList: info,
+                                                    format: .xml,
+                                                    options: 0)
+      try data.write(to: directory.appendingPathComponent("Info.plist"))
+    }
+    for resource in resources {
+      try Data().write(to: directory.appendingPathComponent(resource))
+    }
+    // Bundles are cached by path, so the files must exist before the bundle is created.
+    bundle = try XCTUnwrap(Bundle(path: directory.path))
+  }
+
+  /// The resolved path of a resource in the bundle.
+  func resolvedPath(of resource: String) -> String {
+    directory.appendingPathComponent(resource).resolvingSymlinksInPath().path
+  }
+
+  deinit {
+    try? FileManager.default.removeItem(at: directory)
+  }
+}
+
+/// Resolves symbolic links in `path`, such as /var -> /private/var on Apple platforms.
+func resolvedPath(_ path: String?) -> String? {
+  path.map { URL(fileURLWithPath: $0).resolvingSymlinksInPath().path }
+}
+
 /// Names and keys that FirebaseCore shares with other code. They must never change.
 enum CoreContract {
   static let defaultAppName = "__FIRAPP_DEFAULT"
@@ -131,8 +174,9 @@ func makeAppOptions(googleAppID: String = TestValues.googleAppID) -> FirebaseOpt
   FirebaseOptions(googleAppID: googleAppID, gcmSenderID: TestValues.gcmSenderID)
 }
 
-/// User defaults that FirebaseApp stores the data collection flag in instead of the standard user
-/// defaults. This replaces partial mocks of `NSUserDefaults`.
+/// User defaults that FirebaseCore uses instead of the standard user defaults: FirebaseApp for the
+/// data collection flag, and FIRAnalyticsConfiguration for the persisted Analytics flag. This
+/// replaces partial mocks of `NSUserDefaults`.
 final class TemporaryUserDefaults {
   let suiteName = "com.google.firebase.CoreSwiftUnit-\(UUID().uuidString)"
   let userDefaults: UserDefaults
@@ -141,7 +185,7 @@ final class TemporaryUserDefaults {
     userDefaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
   }
 
-  /// Makes FirebaseApp use these user defaults.
+  /// Makes FirebaseCore use these user defaults.
   func install() {
     CoreTestHooks.setUserDefaults(userDefaults)
   }
@@ -249,11 +293,11 @@ final class HeartbeatLogRecorder: @unchecked Sendable {
 }
 
 /// Base class for tests that configure apps. It resets FirebaseCore's global state around each
-/// test, and makes FirebaseApp store data collection flags in temporary user defaults.
+/// test, and makes FirebaseCore use temporary user defaults.
 class CoreTestCase: XCTestCase {
   private var temporaryUserDefaults: TemporaryUserDefaults?
 
-  /// The user defaults that FirebaseApp stores data collection flags in during the test.
+  /// The user defaults that FirebaseCore uses during the test.
   var userDefaults: UserDefaults {
     guard let temporaryUserDefaults else {
       preconditionFailure("userDefaults is only available while a test runs")
@@ -264,6 +308,9 @@ class CoreTestCase: XCTestCase {
   override func setUpWithError() throws {
     try super.setUpWithError()
     resetCoreTestState()
+    // Never depend on the real environment: `+[GULAppEnvironmentUtil isAppExtension]` returns an
+    // undefined value on visionOS. Tests of extension behavior set this to true.
+    CoreTestHooks.setIsAppExtension(false)
     let temporaryUserDefaults = try TemporaryUserDefaults()
     temporaryUserDefaults.install()
     self.temporaryUserDefaults = temporaryUserDefaults

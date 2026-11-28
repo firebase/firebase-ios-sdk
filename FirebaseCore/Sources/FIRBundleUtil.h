@@ -33,6 +33,19 @@
 + (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles;
 
 /**
+ * Whether the code runs in an app extension. Returns `+[GULAppEnvironmentUtil isAppExtension]`
+ * unless a test overrode it with `setIsAppExtensionForTesting:`. FIRApp uses this too, so tests
+ * override the environment in one place.
+ */
++ (BOOL)isAppExtension;
+
+/**
+ * For tests only. Overrides `isAppExtension` with a boolean `NSNumber`, or restores the real
+ * environment when `isAppExtension` is nil.
+ */
++ (void)setIsAppExtensionForTesting:(NSNumber *)isAppExtension;
+
+/**
  * Reads the options dictionary from one of the provided bundles.
  *
  * @param resourceName The resource name, e.g. @"GoogleService-Info".

@@ -20,6 +20,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
   // clang-format off
   return @{
     @"FIRAnalyticsConfiguration" : @{
+      @"+setUserDefaultsForTesting:" : @"v@:@",
       @"+sharedInstance" : @"@@:",
       @"-setAnalyticsCollectionEnabled:persistSetting:" : @"v@:BB",
     },
@@ -56,7 +57,12 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"-setDataCollectionDefaultEnabled:" : @"v@:B",
     },
     @"FIRBundleUtil" : @{
+      @"+hasBundleIdentifierPrefix:inBundles:" : @"B@:@@",
+      @"+isAppExtension" : @"B@:",
+      @"+optionsDictionaryPathWithResourceName:andFileType:inBundles:" : @"@@:@@@",
       @"+relevantBundles" : @"@@:",
+      @"+relevantURLSchemes" : @"@@:",
+      @"+setIsAppExtensionForTesting:" : @"v@:@",
       @"+setRelevantBundlesForTesting:" : @"v@:@",
     },
     @"FIRComponent" : @{

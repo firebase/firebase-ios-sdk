@@ -116,7 +116,6 @@ final class FirebaseAppDataCollectionTests: CoreTestCase {
     let app = FirebaseApp(instanceWithName: CoreContract.defaultAppName, options: makeAppOptions())
     XCTAssertTrue(app.isDefaultApp)
     XCTAssertFalse(app.options.isAnalyticsCollectionExplicitlySet)
-    let persistedState = persistedAnalyticsState()
 
     let analyticsFlags = recordAnalyticsFlags {
       app.isDataCollectionDefaultEnabled = true
@@ -125,7 +124,7 @@ final class FirebaseAppDataCollectionTests: CoreTestCase {
 
     XCTAssertEqual(analyticsFlags, [true, false])
     // The Analytics flag isn't persisted.
-    XCTAssertEqual(persistedAnalyticsState(), persistedState)
+    XCTAssertNil(userDefaults.object(forKey: CoreContract.analyticsPersistedEnabledStateKey))
   }
 
   func testDataCollectionFlagDoesNotOverrideExplicitAnalyticsFlag() {
@@ -228,11 +227,5 @@ final class FirebaseAppDataCollectionTests: CoreTestCase {
     block()
     recorder.stop()
     return recorder.records.map { ($0.userInfo[name] as? NSNumber)?.boolValue }
-  }
-
-  /// The Analytics flag that FIRAnalyticsConfiguration persisted, if any.
-  private func persistedAnalyticsState() -> NSNumber? {
-    UserDefaults.standard.object(forKey: CoreContract.analyticsPersistedEnabledStateKey)
-      as? NSNumber
   }
 }

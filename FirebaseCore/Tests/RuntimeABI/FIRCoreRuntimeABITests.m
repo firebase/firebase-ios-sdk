@@ -70,15 +70,22 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
       @"-analyticsOptionsDictionaryWithInfoDictionary:", @"-isMeasurementEnabled",
       @"-usingOptionsFromDefaultPlist", @"-setUsingOptionsFromDefaultPlist:"
     ],
-    // Test seam used by FirebaseCoreTestHooks.
-    @"FIRBundleUtil" : @[ @"+relevantBundles", @"+setRelevantBundlesForTesting:" ],
+    // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks, including test seams.
+    @"FIRBundleUtil" : @[
+      @"+relevantBundles", @"+relevantURLSchemes",
+      @"+optionsDictionaryPathWithResourceName:andFileType:inBundles:",
+      @"+hasBundleIdentifierPrefix:inBundles:", @"+isAppExtension",
+      @"+setRelevantBundlesForTesting:", @"+setIsAppExtensionForTesting:"
+    ],
     @"FIRConfiguration" : @[
       @"+sharedInstance", @"-setLoggerLevel:", @"-loggerLevel", @"-analyticsConfiguration",
       @"-setAnalyticsConfiguration:"
     ],
-    // Found by name by GoogleAppMeasurement.
-    @"FIRAnalyticsConfiguration" :
-        @[ @"+sharedInstance", @"-setAnalyticsCollectionEnabled:persistSetting:" ],
+    // Found by name by GoogleAppMeasurement. The test seam is used by FirebaseCoreTestHooks.
+    @"FIRAnalyticsConfiguration" : @[
+      @"+sharedInstance",
+      @"-setAnalyticsCollectionEnabled:persistSetting:", @"+setUserDefaultsForTesting:"
+    ],
     @"FIRTimestamp" : @[
       @"+timestamp", @"+timestampWithDate:", @"+timestampWithSeconds:nanoseconds:",
       @"-initWithSeconds:nanoseconds:", @"-dateValue", @"-compare:", @"-seconds", @"-nanoseconds",

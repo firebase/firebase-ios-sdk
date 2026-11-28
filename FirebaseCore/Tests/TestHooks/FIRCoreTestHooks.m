@@ -18,8 +18,13 @@
 
 // Internal FirebaseCore classes and test seams. Declared here so the hooks don't depend on
 // FirebaseCore's private headers, which go away when FirebaseCore is implemented in Swift.
-@interface FIRBundleUtil : NSObject
+@interface FIRBundleUtil (CoreTestSeams)
 + (void)setRelevantBundlesForTesting:(nullable NSArray<NSBundle *> *)bundles;
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
+@end
+
+@interface FIRAnalyticsConfiguration (CoreTestSeams)
++ (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
 @end
 
 @interface FIRHeartbeatLogger : NSObject
@@ -30,7 +35,6 @@
 
 @interface FIRApp (CoreTestSeams)
 + (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
-+ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
 + (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary;
 + (void)setHeartbeatLoggerFactoryForTesting:
     (nullable FIRHeartbeatLogger * (^)(NSString *appID))factory;
@@ -44,10 +48,13 @@
 
 + (void)setUserDefaults:(nullable NSUserDefaults *)userDefaults {
   [FIRApp setUserDefaultsForTesting:userDefaults];
+  [FIRAnalyticsConfiguration setUserDefaultsForTesting:userDefaults];
 }
 
 + (void)setIsAppExtension:(nullable NSNumber *)isAppExtension {
-  [FIRApp setIsAppExtensionForTesting:isAppExtension];
+  // FIRBundleUtil holds the override for all of FirebaseCore. `+[FIRApp
+  // setIsAppExtensionForTesting:]` forwards to it.
+  [FIRBundleUtil setIsAppExtensionForTesting:isAppExtension];
 }
 
 + (void)setInfoDictionary:(nullable NSDictionary<NSString *, id> *)infoDictionary {
