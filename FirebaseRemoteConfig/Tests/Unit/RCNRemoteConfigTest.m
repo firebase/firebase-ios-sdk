@@ -325,22 +325,26 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSMutableArray<XCTestExpectation *> *expectations =
       [[NSMutableArray alloc] initWithCapacity:RCNTestRCNumTotalInstances];
   for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
-    expectations[i] = [self
-        expectationWithDescription:
-            [NSString stringWithFormat:@"Set defaults no callback expectation - instance %d", i]];
-    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
+    FIRRemoteConfig *config = _configInstances[i];
+    XCTAssertEqual(config.lastFetchStatus, FIRRemoteConfigFetchStatusNoFetchYet);
 
-    [_configInstances[i] fetchWithExpirationDuration:43200 completionHandler:nil];
+    [config fetchWithExpirationDuration:43200 completionHandler:nil];
 
-    dispatch_after(
-        dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
-        dispatch_get_main_queue(), ^{
-          XCTAssertEqual(self->_configInstances[i].lastFetchStatus,
-                         FIRRemoteConfigFetchStatusSuccess);
-          [expectations[i] fulfill];
-        });
+    // There's no completion handler to wait for, so wait until the fetch status changes instead
+    // of checking it after a fixed delay, which fails when the fetch is slow.
+    NSPredicate *fetchFinished = [NSPredicate
+        predicateWithBlock:^BOOL(id _Nullable object, NSDictionary *_Nullable bindings) {
+          FIRRemoteConfig *evaluatedConfig = (FIRRemoteConfig *)object;
+          return evaluatedConfig.lastFetchStatus != FIRRemoteConfigFetchStatusNoFetchYet;
+        }];
+    expectations[i] = [self expectationForPredicate:fetchFinished
+                                evaluatedWithObject:config
+                                            handler:nil];
   }
-  [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
+  [self waitForExpectations:expectations timeout:_expectationTimeout];
+  for (int i = 0; i < RCNTestRCNumTotalInstances; i++) {
+    XCTAssertEqual(_configInstances[i].lastFetchStatus, FIRRemoteConfigFetchStatusSuccess);
+  }
 }
 
 - (void)testFetchConfigsSuccessfully {
