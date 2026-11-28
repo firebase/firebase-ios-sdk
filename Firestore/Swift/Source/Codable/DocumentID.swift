@@ -108,8 +108,8 @@ protocol DocumentIDProtocol {
 ///   its value is ignored. This allows you to read a document from one path and
 ///   write it into another without adjusting the value here.
 @propertyWrapper
-public struct DocumentID<Value: DocumentIDWrappable & Codable>:
-  StructureCodingUncodedUnkeyed {
+public struct DocumentID<Value: DocumentIDWrappable & Codable & Sendable>:
+  StructureCodingUncodedUnkeyed, Sendable {
   private var value: Value? = nil
 
   public init(wrappedValue value: Value?) {
