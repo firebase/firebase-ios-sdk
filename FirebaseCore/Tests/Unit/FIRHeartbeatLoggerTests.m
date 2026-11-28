@@ -245,6 +245,35 @@
   [self assertHeartbeatLoggerFlushesEmptyPayload:heartbeatLogger];
 }
 
+- (void)testUserAgentProviderIsCalledOffTheMainThreadAndOnlyOncePerDay {
+  // Given
+  XCTAssertTrue([NSThread isMainThread]);
+  __block NSInteger providerCallCount = 0;
+  __block BOOL providerWasCalledOnMainThread = NO;
+  __auto_type userAgentProvider = ^NSString * {
+    providerCallCount += 1;
+    providerWasCalledOnMainThread = providerWasCalledOnMainThread || [NSThread isMainThread];
+    return @"lazy_agent";
+  };
+  FIRHeartbeatLogger *heartbeatLogger = [[FIRHeartbeatLogger alloc]
+          initWithAppID:@"testUserAgentProviderIsCalledOffTheMainThreadAndOnlyOncePerDay"
+      userAgentProvider:userAgentProvider];
+  NSString *expectedDate = [[self class] formattedStringForDate:[NSDate date]];
+  // When
+  [heartbeatLogger log];
+  [heartbeatLogger log];
+  // The synchronous flush runs on the heartbeat storage queue after the pending `log` operations.
+  FIRHeartbeatsPayload *heartbeatsPayload = [heartbeatLogger flushHeartbeatsIntoPayload];
+  // Then
+  XCTAssertEqual(providerCallCount, 1);
+  XCTAssertFalse(providerWasCalledOnMainThread);
+  [self assertEncodedPayloadHeader:FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload)
+              isEqualToPayloadJSON:@{
+                @"version" : @2,
+                @"heartbeats" : @[ @{@"agent" : @"lazy_agent", @"dates" : @[ expectedDate ]} ]
+              }];
+}
+
 #pragma mark - Assertions
 
 - (void)assertEncodedPayloadHeader:(NSString *)payloadHeader
