@@ -432,6 +432,33 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(mainSizeCount[3], 8);
 }
 
+- (void)testAnalyticsOptionsAreCreatedOnceAcrossThreads {
+  // The analytics options are created lazily. When several threads read them for the first time
+  // at once, every thread must get the same dictionary. Previously each thread could create and
+  // store its own, and storing one released another that a different thread was returning.
+  NSDictionary *infoDictionary = @{kFIRIsMeasurementEnabled : @YES};
+  const size_t threadCount = 8;
+  for (int round = 0; round < 1000; round++) {
+    FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
+                                                      GCMSenderID:kGCMSenderID];
+    NSMutableArray<NSDictionary *> *results = [NSMutableArray arrayWithCapacity:threadCount];
+    NSLock *lock = [[NSLock alloc] init];
+    dispatch_apply(threadCount, DISPATCH_APPLY_AUTO, ^(size_t iteration) {
+      NSDictionary *dictionary =
+          [options analyticsOptionsDictionaryWithInfoDictionary:infoDictionary];
+      [lock lock];
+      [results addObject:dictionary];
+      [lock unlock];
+    });
+    XCTAssertEqual(results.count, threadCount);
+    for (NSDictionary *dictionary in results) {
+      XCTAssertTrue(dictionary == results.firstObject,
+                    @"Round %d returned different dictionaries to different threads.", round);
+    }
+    XCTAssertEqualObjects(results.firstObject, infoDictionary);
+  }
+}
+
 - (void)testAnalyticsCollectionGlobalSwitchEnabled {
   // Stub the default app, and set the global switch to YES.
   id appMock = OCMClassMock([FIRApp class]);
