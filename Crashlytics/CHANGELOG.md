@@ -1,4 +1,7 @@
 # Unreleased
+- [fixed] Crash reports include the message of a system `abort()` or `assert()` again on
+  iOS 26, macOS 26 and later, where system libraries write it in a version 7 crash info record.
+  (#17123)
 - [fixed] Fixed two Swift concurrency warnings in Firebase Sessions when
   building for watchOS with Xcode 27. (#17119)
 

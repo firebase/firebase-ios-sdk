@@ -781,10 +781,12 @@ static void FIRCLSProcessRecordCrashInfo(FIRCLSFile *file) {
 
     FIRCLSSDKLogDebug("Found crash info with version %d\n", info.version);
 
-    // Currently support versions 0 through 5.
+    // Currently support versions 0 through 7.
     // 4 was in use for a long time, but it appears that with iOS 9 / swift 2.0, the version has
-    // been bumped.
-    if (info.version > 5) {
+    // been bumped. Since iOS 26 / macOS 26, system libraries (libsystem_c, libdispatch, libobjc,
+    // CoreFoundation) use version 7, which keeps the fields read here at the same offsets and only
+    // appends new ones.
+    if (info.version > 7) {
       continue;
     }
 
