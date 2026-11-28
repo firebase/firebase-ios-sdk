@@ -1,3 +1,8 @@
+# Unreleased
+- [feature] `GeminiLanguageModel` now sends image attachment labels to the
+  model, so tools that take an `ImageReference`, such as Vision's
+  `BarcodeReaderTool` and `OCRTool`, can refer to labeled images. (#16919)
+
 # 13.2.0
 - [feature] `GeminiLanguageModel` now supports image input (the `vision`
   capability). Prompts can include image attachments created from a `CGImage`,
