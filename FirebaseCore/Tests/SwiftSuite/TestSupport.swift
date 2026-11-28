@@ -404,3 +404,66 @@ class LoggerTestCase: XCTestCase {
                               launchArguments: launchArguments)
   }
 }
+
+/// A message that FirebaseCore logged.
+struct LogRecord: CustomStringConvertible, Sendable {
+  let level: FirebaseLoggerLevel
+  let service: String
+  let code: String
+  let message: String
+
+  var description: String { "\(code) (level \(level.rawValue), \(service)): \(message)" }
+}
+
+/// Records the messages that FirebaseCore logs while it's installed, through the DEBUG-only log
+/// handler seam.
+final class LogRecorder: @unchecked Sendable {
+  private let lock = NSLock()
+  private var _records: [LogRecord] = []
+
+  var records: [LogRecord] {
+    lock.lock()
+    defer { lock.unlock() }
+    return _records
+  }
+
+  /// Starts recording. Returns false if the seam isn't available.
+  func install() -> Bool {
+    CoreTestHooks.setLogHandler { [weak self] level, service, code, message in
+      self?.append(LogRecord(level: level, service: service, code: code, message: message))
+    }
+  }
+
+  /// Stops recording.
+  func uninstall() {
+    CoreTestHooks.setLogHandler(nil)
+  }
+
+  /// Forgets the messages recorded so far.
+  func clear() {
+    lock.lock()
+    defer { lock.unlock() }
+    _records.removeAll()
+  }
+
+  /// The recorded messages with the given code.
+  func records(withCode code: String) -> [LogRecord] {
+    records.filter { $0.code == code }
+  }
+
+  private func append(_ record: LogRecord) {
+    lock.lock()
+    defer { lock.unlock() }
+    _records.append(record)
+  }
+}
+
+/// Shares a value that isn't `Sendable`, such as a `FirebaseApp`, across threads. The concurrency
+/// tests do this on purpose, to check that FirebaseCore's classes are thread safe.
+struct UncheckedSendable<Value>: @unchecked Sendable {
+  let value: Value
+
+  init(_ value: Value) {
+    self.value = value
+  }
+}

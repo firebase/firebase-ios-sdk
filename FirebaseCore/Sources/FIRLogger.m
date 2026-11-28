@@ -58,12 +58,20 @@ static BOOL sFIRAnalyticsDebugMode;
 static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
 
-/// Guards `sFIRLoggerLaunchArgumentsForTesting`.
+/// Guards `sFIRLoggerLaunchArgumentsForTesting` and `sFIRLogHandlerForTesting`.
 static os_unfair_lock sFIRLoggerTestOverridesLock = OS_UNFAIR_LOCK_INIT;
 
 /// Replaces the process's launch arguments in tests. Set only by tests, through
 /// `+[FIRConfiguration resetLoggerForTestingWithUserDefaults:launchArguments:]`.
 static NSArray<NSString *> *sFIRLoggerLaunchArgumentsForTesting;
+
+/// Receives the messages that pass level filtering, in tests. Set only by tests, through
+/// `+[FIRConfiguration setLogHandlerForTesting:]`.
+typedef void (^FIRLogHandlerForTesting)(FIRLoggerLevel level,
+                                        NSString *service,
+                                        NSString *messageCode,
+                                        NSString *message);
+static FIRLogHandlerForTesting sFIRLogHandlerForTesting;
 #endif
 
 void FIRLoggerInitialize(void) {
@@ -165,6 +173,14 @@ void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
 + (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
                               launchArguments:(nullable NSArray<NSString *> *)launchArguments;
 
+/// For tests only, and only in DEBUG builds. Calls `handler` for each message that passes level
+/// filtering, with the formatted message, before the message is logged. Pass nil to stop. The
+/// handler can be called on any thread.
++ (void)setLogHandlerForTesting:(nullable void (^)(FIRLoggerLevel level,
+                                                   NSString *service,
+                                                   NSString *messageCode,
+                                                   NSString *message))handler;
+
 @end
 
 @implementation FIRConfiguration (FIRLoggerTesting)
@@ -172,6 +188,17 @@ void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
 + (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
                               launchArguments:(nullable NSArray<NSString *> *)launchArguments {
   extern void GULResetLogger(void);
+  extern dispatch_queue_t getGULClientQueue(void);
+  // Messages are written asynchronously on GoogleUtilities' client queue, and resetting the logger
+  // makes its next initialization replace the state those writes read. Wait for pending writes,
+  // so a reset between tests doesn't race with messages from the previous test.
+  dispatch_queue_t clientQueue = getGULClientQueue();
+  if (clientQueue != nil) {
+    // The queue is serial, so an empty block runs after the writes queued before it.
+    dispatch_block_t waitForPendingWrites = ^{
+    };
+    dispatch_sync(clientQueue, waitForPendingWrites);
+  }
   os_unfair_lock_lock(&sFIRLoggerTestOverridesLock);
   sFIRLoggerLaunchArgumentsForTesting = [launchArguments copy];
   os_unfair_lock_unlock(&sFIRLoggerTestOverridesLock);
@@ -179,6 +206,15 @@ void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
   sFIRAnalyticsDebugMode = NO;
   sFIRLoggerOnceToken = 0;
   GULResetLogger();
+}
+
++ (void)setLogHandlerForTesting:(nullable void (^)(FIRLoggerLevel level,
+                                                   NSString *service,
+                                                   NSString *messageCode,
+                                                   NSString *message))handler {
+  os_unfair_lock_lock(&sFIRLoggerTestOverridesLock);
+  sFIRLogHandlerForTesting = [handler copy];
+  os_unfair_lock_unlock(&sFIRLoggerTestOverridesLock);
 }
 
 @end
@@ -221,6 +257,22 @@ void FIRLogBasic(FIRLoggerLevel level,
                  NSString *message,
                  va_list args_ptr) {
   FIRLoggerInitialize();
+#ifdef DEBUG
+  os_unfair_lock_lock(&sFIRLoggerTestOverridesLock);
+  FIRLogHandlerForTesting handler = sFIRLogHandlerForTesting;
+  os_unfair_lock_unlock(&sFIRLoggerTestOverridesLock);
+  if (handler != nil && FIRIsLoggableLevel(level, [kFIRLoggerAnalytics isEqualToString:category])) {
+    NSString *formattedMessage = message;
+    if (args_ptr != NULL) {
+      // Format a copy of the arguments, since GULOSLogBasic formats them again below.
+      va_list arguments;
+      va_copy(arguments, args_ptr);
+      formattedMessage = [[NSString alloc] initWithFormat:message arguments:arguments];
+      va_end(arguments);
+    }
+    handler(level, category, messageCode, formattedMessage);
+  }
+#endif  // DEBUG
   GULOSLogBasic((GULLoggerLevel)level, kFIRLoggerSubsystem, category,
                 sFIRAnalyticsDebugMode && [kFIRLoggerAnalytics isEqualToString:category],
                 messageCode, message, args_ptr);

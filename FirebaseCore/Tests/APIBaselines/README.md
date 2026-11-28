@@ -11,6 +11,7 @@ keep the public Swift and Objective-C APIs unchanged.
 | `objc/FirebaseCore.symbols.json` | Normalized `clang -extract-api` symbol graph of the Objective-C public headers. |
 | `metadata.json` | The toolchain that generated the baselines. |
 | `allowlist.json` | Reviewed, intentional differences. |
+| `coverage.json` | Line coverage of FirebaseCore by the Swift unit tests (`CoreSwiftUnit`), per file and in total. |
 
 ## Checking
 
@@ -40,3 +41,40 @@ approved:
   `pattern` that matches the reported line and a `reason`.
 * Otherwise regenerate the baselines with `scripts/core_api/core_api.py update`
   and include the regenerated files in the same pull request.
+
+## Line coverage
+
+The Swift unit tests in `FirebaseCore/Tests/SwiftSuite` (the `CoreSwiftUnit`
+target) are the oracle for the Swift reimplementation, so they must keep
+covering FirebaseCore at least as well as they cover the Objective-C
+implementation. `coverage.json` records their line coverage on macOS of
+`FirebaseCore/Sources` and `FirebaseCore/Internal/Sources`, per file and in
+total, and the toolchain that measured it.
+
+```sh
+scripts/core_api/coverage.py check
+```
+
+`check` builds `CoreSwiftUnit` with coverage, runs it, and fails if total line
+coverage dropped by more than 0.5 points. The `swift-unit-tsan-coverage` job in
+`.github/workflows/sdk.core.yml` runs it, and uploads the measured coverage as
+the `core-coverage-current` artifact. After an approved change, update the
+baseline with `scripts/core_api/coverage.py update`, or replace
+`coverage.json` with that artifact.
+
+The first baseline was recorded locally with Xcode 27.2. It's to be replaced
+with the `core-coverage-current` artifact from the first CI run, which uses
+the Xcode 26.4 that the job selects, as was done for the API baselines.
+Coverage can differ slightly between toolchains, and `check` notes when the
+toolchains differ. Measure with heartbeat storage writable,
+as on CI; in a sandbox the heartbeat tests are skipped, so coverage is lower.
+
+The gate compares total coverage only. When Swift files replace the
+Objective-C files, the per-file numbers stop being comparable: the files have
+different names and line counts. Add the Swift implementation's source
+directories to `SOURCE_DIRS` in `coverage.py`, and check that the total doesn't
+drop. The per-file differences are printed for reference.
+
+For comparison, the Objective-C unit tests (`CoreUnit`, without
+`FIRHeartbeatLoggerTests`) covered 77.9% of the lines in `FirebaseCore/Sources`
+when the baseline was recorded. That number isn't gated.
