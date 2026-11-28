@@ -73,9 +73,9 @@ artifact. After an approved change, update the baseline with
 `scripts/core_api/coverage.py update`, or replace `coverage.json` with that
 artifact.
 
-The current baseline was recorded locally with Xcode 26.5. It's to be replaced
-with the `core-coverage-current` artifact from the next CI run, which uses
-the Xcode 26.4 that the job selects, as was done for the API baselines.
+The current baseline is the `core-coverage-current` artifact from CI, with the
+Xcode 26.4 that the job selects. It matched the earlier local measurements with
+Xcode 26.5 and 27.2 exactly.
 Coverage can differ slightly between toolchains, and `check` notes when the
 toolchains differ. Measure with heartbeat storage writable,
 as on CI; in a sandbox the heartbeat tests are skipped, so coverage is lower.
