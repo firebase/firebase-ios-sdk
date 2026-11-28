@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 /**
  * This class provides utilities for accessing resources in bundles.
  */
@@ -30,7 +32,7 @@
  * For tests only. Replaces the bundles returned by `relevantBundles`, or restores the default
  * bundles when `bundles` is nil.
  */
-+ (void)setRelevantBundlesForTesting:(NSArray<NSBundle *> *)bundles;
++ (void)setRelevantBundlesForTesting:(nullable NSArray<NSBundle *> *)bundles;
 
 /**
  * Whether the code runs in an app extension. Returns `+[GULAppEnvironmentUtil isAppExtension]`
@@ -43,7 +45,7 @@
  * For tests only. Overrides `isAppExtension` with a boolean `NSNumber`, or restores the real
  * environment when `isAppExtension` is nil.
  */
-+ (void)setIsAppExtensionForTesting:(NSNumber *)isAppExtension;
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
 
 /**
  * Reads the options dictionary from one of the provided bundles.
@@ -53,9 +55,9 @@
  * @param bundles The bundles to expect, in priority order. See also
  * +[FIRBundleUtil relevantBundles].
  */
-+ (NSString *)optionsDictionaryPathWithResourceName:(NSString *)resourceName
-                                        andFileType:(NSString *)fileType
-                                          inBundles:(NSArray *)bundles;
++ (nullable NSString *)optionsDictionaryPathWithResourceName:(NSString *)resourceName
+                                                 andFileType:(NSString *)fileType
+                                                   inBundles:(NSArray *)bundles;
 
 /**
  * Finds URL schemes defined in all relevant bundles, starting with those from
@@ -70,3 +72,5 @@
 + (BOOL)hasBundleIdentifierPrefix:(NSString *)bundleIdentifier inBundles:(NSArray *)bundles;
 
 @end
+
+NS_ASSUME_NONNULL_END
