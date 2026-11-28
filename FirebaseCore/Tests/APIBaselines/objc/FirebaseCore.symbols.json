@@ -1,0 +1,284 @@
+{
+  "c:@E@FIRLoggerLevel": {
+    "declaration": "enum FIRLoggerLevel : NSInteger;",
+    "deprecated": false,
+    "kind": "objective-c.enum",
+    "path": "FIRLoggerLevel"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelDebug": {
+    "declaration": "FIRLoggerLevelDebug",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelDebug"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelError": {
+    "declaration": "FIRLoggerLevelError",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelError"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelInfo": {
+    "declaration": "FIRLoggerLevelInfo",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelInfo"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelMax": {
+    "declaration": "FIRLoggerLevelMax",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelMax"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelMin": {
+    "declaration": "FIRLoggerLevelMin",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelMin"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelNotice": {
+    "declaration": "FIRLoggerLevelNotice",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelNotice"
+  },
+  "c:@E@FIRLoggerLevel@FIRLoggerLevelWarning": {
+    "declaration": "FIRLoggerLevelWarning",
+    "deprecated": false,
+    "kind": "objective-c.enum.case",
+    "path": "FIRLoggerLevel.FIRLoggerLevelWarning"
+  },
+  "c:@F@FIRFirebaseVersion": {
+    "declaration": "NSString *FIRFirebaseVersion();",
+    "deprecated": false,
+    "kind": "objective-c.func",
+    "path": "FIRFirebaseVersion"
+  },
+  "c:FIRApp.h@T@FIRAppVoidBoolCallback": {
+    "declaration": "typedef void (^)(_Bool) FIRAppVoidBoolCallback;",
+    "deprecated": false,
+    "kind": "objective-c.typealias",
+    "path": "FIRAppVoidBoolCallback"
+  },
+  "c:objc(cs)FIRApp": {
+    "declaration": "@interface FIRApp : NSObject",
+    "deprecated": false,
+    "kind": "objective-c.class",
+    "path": "FIRApp"
+  },
+  "c:objc(cs)FIRApp(cm)appNamed:": {
+    "declaration": "+ (FIRApp *) appNamed:(NSString *) name;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRApp.appNamed:"
+  },
+  "c:objc(cs)FIRApp(cm)configure": {
+    "declaration": "+ (void) configure;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRApp.configure"
+  },
+  "c:objc(cs)FIRApp(cm)configureWithName:options:": {
+    "declaration": "+ (void) configureWithName:(NSString *) name options:(FIROptions *) options;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRApp.configureWithName:options:"
+  },
+  "c:objc(cs)FIRApp(cm)configureWithOptions:": {
+    "declaration": "+ (void) configureWithOptions:(FIROptions *) options;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRApp.configureWithOptions:"
+  },
+  "c:objc(cs)FIRApp(cm)defaultApp": {
+    "declaration": "+ (FIRApp *) defaultApp;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRApp.defaultApp"
+  },
+  "c:objc(cs)FIRApp(cpy)allApps": {
+    "declaration": "@property (class, readonly) NSDictionary<NSString *,FIRApp *> *allApps;",
+    "deprecated": false,
+    "kind": "objective-c.type.property",
+    "path": "FIRApp.allApps"
+  },
+  "c:objc(cs)FIRApp(im)deleteApp:": {
+    "declaration": "- (void) deleteApp:(void (^)(BOOL success)) completion;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRApp.deleteApp:"
+  },
+  "c:objc(cs)FIRApp(py)dataCollectionDefaultEnabled": {
+    "declaration": "@property (getter=isDataCollectionDefaultEnabled, nonatomic) BOOL dataCollectionDefaultEnabled;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIRApp.dataCollectionDefaultEnabled"
+  },
+  "c:objc(cs)FIRApp(py)name": {
+    "declaration": "@property (copy, nonatomic, readonly) NSString *name;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIRApp.name"
+  },
+  "c:objc(cs)FIRApp(py)options": {
+    "declaration": "@property (copy, nonatomic, readonly) FIROptions *options;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIRApp.options"
+  },
+  "c:objc(cs)FIRConfiguration": {
+    "declaration": "@interface FIRConfiguration : NSObject",
+    "deprecated": false,
+    "kind": "objective-c.class",
+    "path": "FIRConfiguration"
+  },
+  "c:objc(cs)FIRConfiguration(cpy)sharedInstance": {
+    "declaration": "@property (class, nonatomic, readonly) FIRConfiguration *sharedInstance;",
+    "deprecated": false,
+    "kind": "objective-c.type.property",
+    "path": "FIRConfiguration.sharedInstance"
+  },
+  "c:objc(cs)FIRConfiguration(im)loggerLevel": {
+    "declaration": "- (FIRLoggerLevel) loggerLevel;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRConfiguration.loggerLevel"
+  },
+  "c:objc(cs)FIRConfiguration(im)setLoggerLevel:": {
+    "declaration": "- (void) setLoggerLevel:(FIRLoggerLevel) loggerLevel;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRConfiguration.setLoggerLevel:"
+  },
+  "c:objc(cs)FIROptions": {
+    "declaration": "@interface FIROptions : NSObject",
+    "deprecated": false,
+    "kind": "objective-c.class",
+    "path": "FIROptions"
+  },
+  "c:objc(cs)FIROptions(cm)defaultOptions": {
+    "declaration": "+ (FIROptions *) defaultOptions;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIROptions.defaultOptions"
+  },
+  "c:objc(cs)FIROptions(im)initWithContentsOfFile:": {
+    "declaration": "- (instancetype) initWithContentsOfFile:(NSString *) plistPath;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIROptions.initWithContentsOfFile:"
+  },
+  "c:objc(cs)FIROptions(im)initWithGoogleAppID:GCMSenderID:": {
+    "declaration": "- (instancetype) initWithGoogleAppID:(NSString *) googleAppID GCMSenderID:(NSString *) GCMSenderID;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIROptions.initWithGoogleAppID:GCMSenderID:"
+  },
+  "c:objc(cs)FIROptions(py)APIKey": {
+    "declaration": "@property (copy, nonatomic) NSString *APIKey;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.APIKey"
+  },
+  "c:objc(cs)FIROptions(py)GCMSenderID": {
+    "declaration": "@property (copy, nonatomic) NSString *GCMSenderID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.GCMSenderID"
+  },
+  "c:objc(cs)FIROptions(py)appGroupID": {
+    "declaration": "@property (copy, nonatomic) NSString *appGroupID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.appGroupID"
+  },
+  "c:objc(cs)FIROptions(py)bundleID": {
+    "declaration": "@property (copy, nonatomic) NSString *bundleID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.bundleID"
+  },
+  "c:objc(cs)FIROptions(py)clientID": {
+    "declaration": "@property (copy, nonatomic) NSString *clientID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.clientID"
+  },
+  "c:objc(cs)FIROptions(py)databaseURL": {
+    "declaration": "@property (copy, nonatomic) NSString *databaseURL;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.databaseURL"
+  },
+  "c:objc(cs)FIROptions(py)googleAppID": {
+    "declaration": "@property (copy, nonatomic) NSString *googleAppID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.googleAppID"
+  },
+  "c:objc(cs)FIROptions(py)projectID": {
+    "declaration": "@property (copy, nonatomic) NSString *projectID;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.projectID"
+  },
+  "c:objc(cs)FIROptions(py)storageBucket": {
+    "declaration": "@property (copy, nonatomic) NSString *storageBucket;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIROptions.storageBucket"
+  },
+  "c:objc(cs)FIRTimestamp": {
+    "declaration": "@interface FIRTimestamp : NSObject",
+    "deprecated": false,
+    "kind": "objective-c.class",
+    "path": "FIRTimestamp"
+  },
+  "c:objc(cs)FIRTimestamp(cm)timestamp": {
+    "declaration": "+ (instancetype) timestamp;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRTimestamp.timestamp"
+  },
+  "c:objc(cs)FIRTimestamp(cm)timestampWithDate:": {
+    "declaration": "+ (instancetype) timestampWithDate:(NSDate *) date;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRTimestamp.timestampWithDate:"
+  },
+  "c:objc(cs)FIRTimestamp(cm)timestampWithSeconds:nanoseconds:": {
+    "declaration": "+ (instancetype) timestampWithSeconds:(int64_t) seconds nanoseconds:(int32_t) nanoseconds;",
+    "deprecated": false,
+    "kind": "objective-c.type.method",
+    "path": "FIRTimestamp.timestampWithSeconds:nanoseconds:"
+  },
+  "c:objc(cs)FIRTimestamp(im)compare:": {
+    "declaration": "- (NSComparisonResult) compare:(FIRTimestamp *) other;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRTimestamp.compare:"
+  },
+  "c:objc(cs)FIRTimestamp(im)dateValue": {
+    "declaration": "- (NSDate *) dateValue;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRTimestamp.dateValue"
+  },
+  "c:objc(cs)FIRTimestamp(im)initWithSeconds:nanoseconds:": {
+    "declaration": "- (instancetype) initWithSeconds:(int64_t) seconds nanoseconds:(int32_t) nanoseconds;",
+    "deprecated": false,
+    "kind": "objective-c.method",
+    "path": "FIRTimestamp.initWithSeconds:nanoseconds:"
+  },
+  "c:objc(cs)FIRTimestamp(py)nanoseconds": {
+    "declaration": "@property (assign, nonatomic, readonly) int32_t nanoseconds;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIRTimestamp.nanoseconds"
+  },
+  "c:objc(cs)FIRTimestamp(py)seconds": {
+    "declaration": "@property (assign, nonatomic, readonly) int64_t seconds;",
+    "deprecated": false,
+    "kind": "objective-c.property",
+    "path": "FIRTimestamp.seconds"
+  }
+}

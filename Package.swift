@@ -321,6 +321,40 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../../.."),
       ]
     ),
+    // Compile-only tests that pin FirebaseCore's public Swift API.
+    .testTarget(
+      name: "CoreSwiftAPI",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseCore/Tests/SwiftUnit",
+      exclude: [
+        // These use a bridging header, which SwiftPM doesn't support.
+        "FirebaseAppTests.swift",
+        "FirebaseConfigurationTests.swift",
+        "FirebaseCore-unit-Bridging-Header.h",
+        "FirebaseOptionsTests.swift",
+        "SwiftTestingUtilities",
+      ]
+    ),
+    // Compile-only tests that pin FirebaseCore's public Objective-C API for each import style.
+    .testTarget(
+      name: "CoreObjCAPI",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseCore/Tests/ObjCIntegration",
+      cSettings: [
+        // firebase-cpp-sdk includes FirebaseCore headers by bare name from this directory.
+        .headerSearchPath("../../Sources/Public/FirebaseCore"),
+      ]
+    ),
+    // Checks the Objective-C runtime contract (classes, selectors, type encodings) that other
+    // products, closed-source binaries and wrapper SDKs depend on.
+    .testTarget(
+      name: "CoreRuntimeABI",
+      dependencies: ["FirebaseCore"],
+      path: "FirebaseCore/Tests/RuntimeABI",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
 
     // MARK: - Firebase Core Extension
 

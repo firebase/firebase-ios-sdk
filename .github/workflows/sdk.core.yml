@@ -31,6 +31,36 @@ jobs:
     with:
       target: CoreUnit
 
+  # Compile-time and runtime checks that FirebaseCore's public API and Objective-C runtime
+  # contract don't change. See FirebaseCore/Tests/APIBaselines/README.md.
+  spm-api:
+    strategy:
+      matrix:
+        target: [CoreSwiftAPI, CoreObjCAPI, CoreRuntimeABI]
+    uses: ./.github/workflows/_spm.yml
+    with:
+      target: ${{ matrix.target }}
+      platforms: '["iOS", "macOS"]'
+
+  api-baselines:
+    runs-on: macos-26
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      # Must match the toolchain in FirebaseCore/Tests/APIBaselines/metadata.json.
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Dump the current API
+      run: scripts/core_api/core_api.py dump --out core_api_current
+    - name: Compare with the baselines
+      run: scripts/core_api/core_api.py check --current core_api_current
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ always() }}
+      with:
+        name: core-api-current
+        path: core_api_current
+
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:
