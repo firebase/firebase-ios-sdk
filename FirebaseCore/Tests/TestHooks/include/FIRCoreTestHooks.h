@@ -199,6 +199,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// An immutable set that enumerates its objects in the order they were given. `NSSet` doesn't
+/// define an order, so tests use this to control the order in which code sees the elements of a
+/// set. Swift can't subclass `NSSet`, so it's written in Objective-C. Copying returns the same
+/// set, so the order survives bridging to a Swift `Set`.
+NS_SWIFT_NAME(OrderedTestSet)
+@interface FIROrderedTestSet : NSSet
+
+/// Creates a set with `objects`, which must be distinct.
+- (instancetype)initWithOrderedObjects:(NSArray *)objects NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
+- (nullable instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
+
+@end
+
 NS_SWIFT_NAME(CoreTestHooks)
 @interface FIRCoreTestHooks : NSObject
 
