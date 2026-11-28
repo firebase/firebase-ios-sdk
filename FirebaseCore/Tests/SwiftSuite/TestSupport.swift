@@ -365,3 +365,42 @@ class CoreTestCase: XCTestCase {
     return try XCTUnwrap(FirebaseApp.app(name: name), file: file, line: line)
   }
 }
+
+/// Base class for tests that change the logger. It resets the logger to its state at launch around
+/// each test, with temporary user defaults for the persisted debug mode and no launch arguments.
+///
+/// The reset seam only exists in DEBUG builds, so the tests are skipped in other builds.
+class LoggerTestCase: XCTestCase {
+  private var temporaryUserDefaults: TemporaryUserDefaults?
+
+  /// The user defaults that the logger reads the persisted debug mode from during the test.
+  var userDefaults: UserDefaults {
+    guard let temporaryUserDefaults else {
+      preconditionFailure("userDefaults is only available while a test runs")
+    }
+    return temporaryUserDefaults.userDefaults
+  }
+
+  override func setUpWithError() throws {
+    try super.setUpWithError()
+    let temporaryUserDefaults = try TemporaryUserDefaults()
+    self.temporaryUserDefaults = temporaryUserDefaults
+    try XCTSkipUnless(resetLogger(launchArguments: []),
+                      "The logger reset seam only exists in DEBUG builds")
+  }
+
+  override func tearDown() {
+    // Restore the standard user defaults and the process's launch arguments.
+    CoreTestHooks.resetLogger(userDefaults: nil, launchArguments: nil)
+    temporaryUserDefaults = nil
+    super.tearDown()
+  }
+
+  /// Resets the logger, which initializes again on its next use with `launchArguments` and the
+  /// test's user defaults. Returns false if the seam isn't available.
+  @discardableResult
+  func resetLogger(launchArguments: [String]) -> Bool {
+    CoreTestHooks.resetLogger(userDefaults: temporaryUserDefaults?.userDefaults,
+                              launchArguments: launchArguments)
+  }
+}

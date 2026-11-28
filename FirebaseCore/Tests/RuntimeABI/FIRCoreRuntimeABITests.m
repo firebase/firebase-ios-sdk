@@ -89,7 +89,9 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
     @"FIRTimestamp" : @[
       @"+timestamp", @"+timestampWithDate:", @"+timestampWithSeconds:nanoseconds:",
       @"-initWithSeconds:nanoseconds:", @"-dateValue", @"-compare:", @"-seconds", @"-nanoseconds",
-      @"-copyWithZone:", @"-isEqual:", @"-hash"
+      @"-copyWithZone:", @"-isEqual:", @"-hash",
+      // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks.
+      @"-ISO8601String"
     ],
     @"FIRComponent" : @[
       @"+componentWithProtocol:creationBlock:",
@@ -100,8 +102,12 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
       @"-app", @"-__instanceForProtocol:", @"-instanceForProtocol:", @"-initWithApp:",
       @"-initWithApp:registrants:", @"-instantiateEagerComponents", @"-removeAllCachedInstances",
       @"-removeAllComponents", @"+registerAsComponentRegistrant:",
-      @"+registerAsComponentRegistrant:inSet:", @"-components", @"-setComponents:"
+      @"+registerAsComponentRegistrant:inSet:", @"-components", @"-setComponents:",
+      // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks.
+      @"-cachedInstances"
     ],
+    // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks.
+    @"FIRFirebaseUserAgent" : @[ @"-firebaseUserAgent", @"-setValue:forComponent:", @"-reset" ],
     @"FIRComponentType" : @[ @"+instanceForProtocol:inContainer:" ],
     @"FIRHeartbeatLogger" : @[
       @"-initWithAppID:", @"-log", @"-headerValue",
@@ -118,6 +124,12 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
     @"+findForegroundSceneForApplication:matchingSelector:",
     @"+findForegroundWindowSceneForApplication:"
   ];
+#endif
+#ifdef DEBUG
+  // Test seam used by FirebaseCoreTestHooks. Like the GoogleUtilities logger reset it relies on,
+  // it only exists in DEBUG builds.
+  contract[@"FIRConfiguration"] = [contract[@"FIRConfiguration"]
+      arrayByAddingObject:@"+resetLoggerForTestingWithUserDefaults:launchArguments:"];
 #endif
   return contract;
 }

@@ -77,6 +77,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"+registerAsComponentRegistrant:inSet:" : @"v@:#@",
       @"-__instanceForProtocol:" : @"@@:@",
       @"-app" : @"@@:",
+      @"-cachedInstances" : @"@@:",
       @"-components" : @"@@:",
       @"-initWithApp:" : @"@@:@",
       @"-initWithApp:registrants:" : @"@@:@@",
@@ -90,11 +91,17 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"+instanceForProtocol:inContainer:" : @"@@:@@",
     },
     @"FIRConfiguration" : @{
+      @"+resetLoggerForTestingWithUserDefaults:launchArguments:" : @"v@:@@",
       @"+sharedInstance" : @"@@:",
       @"-analyticsConfiguration" : @"@@:",
       @"-loggerLevel" : @"q@:",
       @"-setAnalyticsConfiguration:" : @"v@:@",
       @"-setLoggerLevel:" : @"v@:q",
+    },
+    @"FIRFirebaseUserAgent" : @{
+      @"-firebaseUserAgent" : @"@@:",
+      @"-reset" : @"v@:",
+      @"-setValue:forComponent:" : @"v@:@@",
     },
     @"FIRHeartbeatLogger" : @{
       @"-asyncHeaderValueWithCompletionHandler:" : @"v@:@?",
@@ -154,6 +161,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
       @"+timestamp" : @"@@:",
       @"+timestampWithDate:" : @"@@:@",
       @"+timestampWithSeconds:nanoseconds:" : @"@@:qi",
+      @"-ISO8601String" : @"@@:",
       @"-compare:" : @"q@:@",
       @"-copyWithZone:" : @"@@:^{_NSZone=}",
       @"-dateValue" : @"@@:",
