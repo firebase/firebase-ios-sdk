@@ -27,7 +27,6 @@
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
-#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
@@ -59,6 +58,8 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (nullable NSNumber *)readDataCollectionSwitchFromPlist;
 + (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app;
 
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
+
 @end
 
 @interface FIRAppTest : FIRTestCase
@@ -88,6 +89,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
   [FIROptionsMock mockFIROptions];
 
+  // `+[GULAppEnvironmentUtil isAppExtension]` doesn't return a value on visionOS, so don't depend
+  // on it.
+  [FIRApp setIsAppExtensionForTesting:@NO];
+
   self.assertNoLogCoreTelemetry = NO;
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
@@ -102,6 +107,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
   }
 
+  [FIRApp setIsAppExtensionForTesting:nil];
   [_appClassMock stopMocking];
   _appClassMock = nil;
   _notificationCenter = nil;
@@ -275,8 +281,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (void)testConfigureDefaultAppInExtension {
-  id environmentMock = OCMClassMock([GULAppEnvironmentUtil class]);
-  OCMStub([environmentMock isAppExtension]).andReturn(YES);
+  [FIRApp setIsAppExtensionForTesting:@YES];
 
   // Set up the default app like a standard app.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
@@ -297,15 +302,10 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                              GCMSenderID:kGCMSenderID];
   XCTAssertThrows([FIRApp configureWithOptions:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
-
-  // Explicitly stop the environmentMock.
-  [environmentMock stopMocking];
-  environmentMock = nil;
 }
 
 - (void)testConfigureCustomAppInExtension {
-  id environmentMock = OCMClassMock([GULAppEnvironmentUtil class]);
-  OCMStub([environmentMock isAppExtension]).andReturn(YES);
+  [FIRApp setIsAppExtensionForTesting:@YES];
 
   // Set up a custom named app like a standard app.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
@@ -326,10 +326,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                                              GCMSenderID:kGCMSenderID];
   XCTAssertThrows([FIRApp configureWithName:kFIRTestAppName1 options:differentOptions]);
   XCTAssertEqual([FIRApp allApps].count, 1);
-
-  // Explicitly stop the environmentMock.
-  [environmentMock stopMocking];
-  environmentMock = nil;
 }
 
 - (void)testValidName {
