@@ -511,6 +511,36 @@ TEST(IndexValueWriterTest, writeIndexValueSupportsOutOfDoubleRangeDecimal128) {
             neg_inf_encoder.GetEncodedBytes());
 }
 
+TEST(IndexValueWriterTest, indexEncodingBufferSeedPreservesEncodedPrefix) {
+  const absl::string_view string_with_special_bytes(
+      "a\0b\xff"
+      "c",
+      5);
+
+  IndexEncodingBuffer prefix_buffer;
+  prefix_buffer.ForKind(model::Segment::Kind::kAscending)
+      ->WriteString(string_with_special_bytes);
+
+  IndexEncodingBuffer seeded_buffer;
+  seeded_buffer.Seed("");
+  EXPECT_TRUE(seeded_buffer.GetEncodedBytes().empty());
+
+  seeded_buffer.Seed(prefix_buffer.GetEncodedBytes());
+  EXPECT_EQ(seeded_buffer.GetEncodedBytes(), prefix_buffer.GetEncodedBytes());
+
+  seeded_buffer.ForKind(model::Segment::Kind::kDescending)->WriteLong(42);
+
+  IndexEncodingBuffer combined_buffer;
+  combined_buffer.ForKind(model::Segment::Kind::kAscending)
+      ->WriteString(string_with_special_bytes);
+  combined_buffer.ForKind(model::Segment::Kind::kDescending)->WriteLong(42);
+
+  EXPECT_EQ(seeded_buffer.GetEncodedBytes(), combined_buffer.GetEncodedBytes());
+
+  seeded_buffer.Reset();
+  EXPECT_TRUE(seeded_buffer.GetEncodedBytes().empty());
+}
+
 }  // namespace
 }  // namespace index
 }  // namespace firestore
