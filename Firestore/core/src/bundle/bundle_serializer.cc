@@ -277,11 +277,11 @@ int32_t DecodeLimit(JsonReader& reader, const json& query) {
     const auto& limit_object = query.at("limit");
     // "limit" can be encoded as integer or "{"value": integer}".
     if (limit_object.is_number_integer()) {
-      return limit_object.get<int32_t>();
+      return reader.RequiredInt<int32_t>("limit", query);
     } else if (limit_object.is_object() && limit_object.contains("value")) {
       const auto& limit_value = limit_object.at("value");
       if (limit_value.is_number_integer()) {
-        return limit_value.get<int32_t>();
+        return reader.RequiredInt<int32_t>("value", limit_object);
       }
     }
     reader.Fail("'limit' is not encoded as a valid integer");
