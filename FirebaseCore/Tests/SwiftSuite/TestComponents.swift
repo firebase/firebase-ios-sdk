@@ -17,7 +17,7 @@ internal import FirebaseCoreExtension
 import Foundation
 
 // Libraries that register components with FirebaseCore, the way Swift products do. They replace
-// FIRTestClassCached and FIRTestClassEagerCached from FirebaseCore/Tests/Unit/FIRTestComponents.
+// the classes in FirebaseCore/Tests/Unit/FIRTestComponents.
 
 /// A lazily created component that asks to be cached.
 @objc protocol CoreTestCachedComponent {}
@@ -31,7 +31,15 @@ import Foundation
 /// A component that no library registers.
 @objc protocol CoreTestUnregisteredComponent {}
 
-/// Counts the instances that a component's creation block creates.
+/// A cached component that gets a `CoreTestCachedComponent` from its container when it's created.
+@objc protocol CoreTestDependentComponent {
+  var dependency: CoreTestCachedComponent? { get }
+}
+
+/// A cached component that's created eagerly only for the default app.
+@objc protocol CoreTestEagerInDefaultAppComponent {}
+
+/// A thread-safe counter, for example of the instances that a creation block creates.
 final class CreationCounter: @unchecked Sendable {
   private let lock = NSLock()
   private var _count = 0
@@ -49,11 +57,29 @@ final class CreationCounter: @unchecked Sendable {
   }
 }
 
-final class CoreTestCachedInstance: NSObject, CoreTestCachedComponent {}
+final class CoreTestCachedInstance: NSObject, CoreTestCachedComponent,
+  ComponentLifecycleMaintainer {
+  /// The number of times the container told this instance that its app will be deleted.
+  let appWillBeDeletedCalls = CreationCounter()
+
+  func appWillBeDeleted(_ app: FirebaseApp) {
+    appWillBeDeletedCalls.increment()
+  }
+}
 
 final class CoreTestEagerInstance: NSObject, CoreTestEagerComponent {}
 
 final class CoreTestUncachedInstance: NSObject, CoreTestUncachedComponent {}
+
+final class CoreTestDependentInstance: NSObject, CoreTestDependentComponent {
+  let dependency: CoreTestCachedComponent?
+
+  init(dependency: CoreTestCachedComponent?) {
+    self.dependency = dependency
+  }
+}
+
+final class CoreTestEagerInDefaultAppInstance: NSObject, CoreTestEagerInDefaultAppComponent {}
 
 final class CoreTestCachedLibrary: NSObject, Library {
   static func componentsToRegister() -> [Component] {
@@ -86,6 +112,42 @@ final class CoreTestUncachedLibrary: NSObject, Library {
       creations.increment()
       return CoreTestUncachedInstance()
     }]
+  }
+}
+
+/// Provides `CoreTestUncachedComponent` too, so it duplicates `CoreTestUncachedLibrary`.
+final class CoreTestDuplicateLibrary: NSObject, Library {
+  static func componentsToRegister() -> [Component] {
+    [Component(CoreTestUncachedComponent.self) { _, _ in
+      CoreTestUncachedInstance()
+    }]
+  }
+}
+
+final class CoreTestDependentLibrary: NSObject, Library {
+  static func componentsToRegister() -> [Component] {
+    [Component(CoreTestDependentComponent.self) { container, isCacheable in
+      isCacheable.pointee = true
+      let dependency = ComponentType<CoreTestCachedComponent>.instance(
+        for: CoreTestCachedComponent.self,
+        in: container
+      )
+      return CoreTestDependentInstance(dependency: dependency)
+    }]
+  }
+}
+
+final class CoreTestEagerInDefaultAppLibrary: NSObject, Library {
+  /// The number of instances created, across all containers.
+  static let creations = CreationCounter()
+
+  static func componentsToRegister() -> [Component] {
+    [Component(CoreTestEagerInDefaultAppComponent.self,
+               instantiationTiming: .eagerInDefaultApp) { _, isCacheable in
+        isCacheable.pointee = true
+        creations.increment()
+        return CoreTestEagerInDefaultAppInstance()
+      }]
   }
 }
 

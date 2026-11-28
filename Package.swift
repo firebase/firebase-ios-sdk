@@ -348,7 +348,7 @@ func packageTargets() -> [Target] {
     // Internal FirebaseCore API and helpers for the Swift unit tests. Test-only.
     .target(
       name: "FirebaseCoreTestHooks",
-      dependencies: ["FirebaseCore"],
+      dependencies: ["FirebaseCore", "FirebaseCoreExtension"],
       path: "FirebaseCore/Tests/TestHooks",
       publicHeadersPath: "include",
       cSettings: [
@@ -359,7 +359,12 @@ func packageTargets() -> [Target] {
     // Swift implementations of FirebaseCore.
     .testTarget(
       name: "CoreSwiftUnit",
-      dependencies: ["FirebaseCore", "FirebaseCoreExtension", "FirebaseCoreTestHooks"],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseCoreTestHooks",
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+      ],
       path: "FirebaseCore/Tests/SwiftSuite"
     ),
     // Checks the Objective-C runtime contract (classes, selectors, type encodings) that other

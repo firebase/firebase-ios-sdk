@@ -19,14 +19,17 @@
 // The declarations below describe internal Objective-C selectors of FirebaseCore. They're
 // declared here, instead of in FirebaseCore's headers, so that they stay out of the public API,
 // and they're resolved at run time, so they keep working when FirebaseCore is implemented in
-// Swift. They're covered by FirebaseCore/Tests/RuntimeABI.
+// Swift. They're covered by FirebaseCore/Tests/RuntimeABI. The internal API that other products
+// use is in FirebaseCoreExtension.
 
 #import <Foundation/Foundation.h>
 
 #if SWIFT_PACKAGE
 @import FirebaseCore;
+@import FirebaseCoreExtension;
 #else
 #import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 #endif  // SWIFT_PACKAGE
 
 NS_ASSUME_NONNULL_BEGIN
@@ -123,6 +126,79 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// Internal FIRTimestamp API.
+@interface FIRTimestamp (CoreTestHooks)
+
+/// The timestamp in ISO 8601 format with nanoseconds, for example
+/// "1912-04-14T23:40:00.000000000Z".
+@property(nonatomic, readonly) NSString *ISO8601String NS_SWIFT_NAME(iso8601String);
+
+@end
+
+// Internal FIRConfiguration API.
+@interface FIRConfiguration (CoreTestHooks)
+
+/// The configuration that forwards the Analytics collection flag.
+@property(nonatomic, readonly) FIRAnalyticsConfiguration *analyticsConfiguration;
+
+@end
+
+// Internal FIRComponentContainer API that isn't declared in FirebaseCoreExtension.
+@interface FIRComponentContainer (CoreTestHooks)
+
+/// Adds `klass` to `allRegistrants`. Containers created with those registrants get its
+/// components.
++ (void)registerAsComponentRegistrant:(Class<FIRLibrary>)klass
+                                inSet:(NSMutableSet<Class> *)allRegistrants
+    NS_SWIFT_NAME(registerAsComponentRegistrant(_:in:));
+
+/// Creates a container for `app` with the components of `allRegistrants`.
+- (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants;
+
+/// The creation blocks of the registered components, keyed by protocol name.
+@property(nonatomic, readonly)
+    NSMutableDictionary<NSString *, FIRComponentCreationBlock> *components;
+
+/// The cached component instances, keyed by protocol name.
+@property(nonatomic, readonly) NSMutableDictionary<NSString *, id> *cachedInstances;
+
+/// Creates the instances of the components that asked to be created eagerly.
+- (void)instantiateEagerComponents;
+
+/// Removes the cached instances, after telling them that the app will be deleted.
+- (void)removeAllCachedInstances;
+
+/// Removes the components, so the container creates no more instances.
+- (void)removeAllComponents;
+
+@end
+
+// Internal FIRHeartbeatLogger API.
+@interface FIRHeartbeatLogger (CoreTestHooks)
+
+/// Creates a logger that stores heartbeats under `appID` and asks `userAgentProvider` for the user
+/// agent each time it logs.
+- (instancetype)initWithAppID:(NSString *)appID
+            userAgentProvider:(NSString * (^)(void))userAgentProvider;
+
+@end
+
+/// Internal FirebaseCore class that builds the Firebase user agent string.
+@interface FIRFirebaseUserAgent : NSObject
+
+/// The environment components and the components set with `setValue:forComponent:`, as
+/// "name/value" pairs sorted by name and separated by spaces.
+- (NSString *)firebaseUserAgent NS_SWIFT_NAME(firebaseUserAgent());
+
+/// Sets the value of a component, or removes the component when `value` is nil.
+- (void)setValue:(nullable NSString *)value
+    forComponent:(NSString *)componentName NS_SWIFT_NAME(setValue(_:forComponent:));
+
+/// Removes the components set with `setValue:forComponent:`.
+- (void)reset NS_SWIFT_NAME(reset());
+
+@end
+
 NS_SWIFT_NAME(CoreTestHooks)
 @interface FIRCoreTestHooks : NSObject
 
@@ -153,6 +229,21 @@ NS_SWIFT_NAME(CoreTestHooks)
 /// The apps use real heartbeat loggers with a test-only storage ID. Each call removes the
 /// heartbeats that the loggers created by the previous call stored.
 + (void)setHeartbeatLogHandler:(nullable void (^)(NSString *appID))handler;
+
+/// Calls `+[FIRApp registerInternalLibrary:withName:withVersion:]` without the compile-time check
+/// that `library` conforms to FIRLibrary, so tests can pass classes that don't.
++ (void)registerInternalLibraryWithUncheckedClass:(Class)library
+                                             name:(NSString *)name
+                                          version:(NSString *)version
+    NS_SWIFT_NAME(registerInternalLibrary(uncheckedClass:name:version:));
+
+/// Resets the logger to its state at launch, and makes it read the persisted debug mode from
+/// `userDefaults` and the launch arguments from `launchArguments` when it initializes again. Pass
+/// nil for the standard user defaults and the process's launch arguments. Only available in DEBUG
+/// builds; returns NO if the seam isn't available.
++ (BOOL)resetLoggerWithUserDefaults:(nullable NSUserDefaults *)userDefaults
+                    launchArguments:(nullable NSArray<NSString *> *)launchArguments
+    NS_SWIFT_NAME(resetLogger(userDefaults:launchArguments:));
 
 /// Calls `+[FIRApp configureWithOptions:]`, which can't be passed nil from Swift.
 + (void)configureWithNullableOptions:(nullable FIROptions *)options;

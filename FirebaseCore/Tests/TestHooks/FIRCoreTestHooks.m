@@ -27,18 +27,17 @@
 + (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
 @end
 
-@interface FIRHeartbeatLogger : NSObject
-- (instancetype)initWithAppID:(NSString *)appID
-            userAgentProvider:(NSString * (^)(void))userAgentProvider;
-- (id)flushHeartbeatsIntoPayload;
-@end
-
 @interface FIRApp (CoreTestSeams)
 + (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
 + (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
 + (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary;
 + (void)setHeartbeatLoggerFactoryForTesting:
     (nullable FIRHeartbeatLogger * (^)(NSString *appID))factory;
+@end
+
+@interface FIRConfiguration (CoreTestSeams)
++ (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
+                              launchArguments:(nullable NSArray<NSString *> *)launchArguments;
 @end
 
 @implementation FIRCoreTestHooks
@@ -100,6 +99,24 @@ static NSMutableArray<FIRHeartbeatLogger *> *sRecordingHeartbeatLoggers;
     }
     return logger;
   }];
+}
+
++ (void)registerInternalLibraryWithUncheckedClass:(Class)library
+                                             name:(NSString *)name
+                                          version:(NSString *)version {
+  [FIRApp registerInternalLibrary:library withName:name withVersion:version];
+}
+
++ (BOOL)resetLoggerWithUserDefaults:(nullable NSUserDefaults *)userDefaults
+                    launchArguments:(nullable NSArray<NSString *> *)launchArguments {
+  // The seam only exists in DEBUG builds.
+  SEL selector = @selector(resetLoggerForTestingWithUserDefaults:launchArguments:);
+  if (![FIRConfiguration respondsToSelector:selector]) {
+    return NO;
+  }
+  [FIRConfiguration resetLoggerForTestingWithUserDefaults:userDefaults
+                                          launchArguments:launchArguments];
+  return YES;
 }
 
 + (void)configureWithNullableOptions:(nullable FIROptions *)options {

@@ -18,7 +18,12 @@
 #import <GoogleUtilities/GULLogger.h>
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRLoggerLevel.h"
 
+#import "FirebaseCore/Sources/Public/FirebaseCore/FIRConfiguration.h"
 #import "FirebaseCore/Sources/Public/FirebaseCore/FIRVersion.h"
+
+#ifdef DEBUG
+#import <os/lock.h>
+#endif  // DEBUG
 
 NSString *const kFIRLoggerSubsystem = @"com.google.firebase";
 
@@ -52,6 +57,13 @@ static BOOL sFIRAnalyticsDebugMode;
 /// The regex pattern for the message code.
 static NSString *const kMessageCodePattern = @"^I-[A-Z]{3}[0-9]{6}$";
 static NSRegularExpression *sMessageCodeRegex;
+
+/// Guards `sFIRLoggerLaunchArgumentsForTesting`.
+static os_unfair_lock sFIRLoggerTestOverridesLock = OS_UNFAIR_LOCK_INIT;
+
+/// Replaces the process's launch arguments in tests. Set only by tests, through
+/// `+[FIRConfiguration resetLoggerForTestingWithUserDefaults:launchArguments:]`.
+static NSArray<NSString *> *sFIRLoggerLaunchArgumentsForTesting;
 #endif
 
 void FIRLoggerInitialize(void) {
@@ -60,6 +72,13 @@ void FIRLoggerInitialize(void) {
     GULLoggerRegisterVersion(FIRFirebaseVersion());
 
     NSArray *arguments = [NSProcessInfo processInfo].arguments;
+#ifdef DEBUG
+    os_unfair_lock_lock(&sFIRLoggerTestOverridesLock);
+    if (sFIRLoggerLaunchArgumentsForTesting != nil) {
+      arguments = sFIRLoggerLaunchArgumentsForTesting;
+    }
+    os_unfair_lock_unlock(&sFIRLoggerTestOverridesLock);
+#endif  // DEBUG
 
     // Use the standard NSUserDefaults if it hasn't been explicitly set.
     if (sFIRLoggerUserDefaults == nil) {
@@ -128,6 +147,41 @@ void FIRResetLogger(void) {
 void FIRSetLoggerUserDefaults(NSUserDefaults *defaults) {
   sFIRLoggerUserDefaults = defaults;
 }
+
+#pragma mark - Test seam
+
+@interface FIRConfiguration (FIRLoggerTesting)
+
+/// For tests only, and only in DEBUG builds, like the GoogleUtilities logger reset it relies on.
+/// Resets the logger to its state at launch: the level is Notice, debug mode and Analytics debug
+/// mode are off, and the next log call initializes the logger again. That initialization reads
+/// the persisted debug mode from `userDefaults` and the launch arguments from `launchArguments`.
+/// Pass nil to use the standard user defaults and the process's launch arguments.
+///
+/// Unlike `FIRResetLogger`, this doesn't remove anything from the previous user defaults. It's a
+/// method on FIRConfiguration, which owns the public logger level API, so it's reachable at run
+/// time when FirebaseCore is implemented in Swift. FirebaseCore's Swift unit tests reach it
+/// through FirebaseCoreTestHooks.
++ (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
+                              launchArguments:(nullable NSArray<NSString *> *)launchArguments;
+
+@end
+
+@implementation FIRConfiguration (FIRLoggerTesting)
+
++ (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
+                              launchArguments:(nullable NSArray<NSString *> *)launchArguments {
+  extern void GULResetLogger(void);
+  os_unfair_lock_lock(&sFIRLoggerTestOverridesLock);
+  sFIRLoggerLaunchArgumentsForTesting = [launchArguments copy];
+  os_unfair_lock_unlock(&sFIRLoggerTestOverridesLock);
+  sFIRLoggerUserDefaults = userDefaults;
+  sFIRAnalyticsDebugMode = NO;
+  sFIRLoggerOnceToken = 0;
+  GULResetLogger();
+}
+
+@end
 #endif
 
 /**
