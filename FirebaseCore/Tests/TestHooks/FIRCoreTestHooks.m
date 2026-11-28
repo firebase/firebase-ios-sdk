@@ -61,6 +61,9 @@
 }
 
 - (nullable id)member:(id)object {
+  if (object == nil) {
+    return nil;
+  }
   NSUInteger index = [_objects indexOfObject:object];
   return index == NSNotFound ? nil : _objects[index];
 }

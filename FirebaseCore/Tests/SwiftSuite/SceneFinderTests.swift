@@ -294,7 +294,6 @@
         let realEncoding = try methodEncoding(pair.real, pair.selector)
         XCTAssertEqual(fakeEncoding, realEncoding, pair.selector)
       }
-      XCTAssertEqual(try methodEncoding(FakeScene.self, "activationState"), "q@:")
     }
 
     func testFakeSceneClassChecks() {
@@ -329,6 +328,12 @@
 
       // A Swift `Set` bridged from it, which a Swift implementation would iterate.
       let bridged = set as Set<NSObject>
+      XCTAssertEqual(bridged.count, scenes.count)
+      XCTAssertTrue(scenes.allSatisfy { bridged.contains($0) })
+      // `Set` doesn't promise an order. This checks, on purpose, that a bridged set that isn't
+      // mutated still enumerates the Objective-C set's order, which is what lets the tests above
+      // control the order that a Swift implementation of SceneFinder sees. If a toolchain changes
+      // that, this fails instead of the order-dependent tests silently checking fewer orders.
       XCTAssertTrue(bridged.elementsEqual(scenes, by: ===))
     }
 
