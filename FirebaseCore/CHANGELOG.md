@@ -1,3 +1,9 @@
+# Unreleased
+- [fixed] Fixed a rare crash when several threads used the same
+  `FirebaseOptions` (`FIROptions`) instance at the same time before its
+  Analytics settings had been read, for example by comparing it with `==`
+  (`isEqual:`). (#17150)
+
 # Firebase 13.0.0
 - [feature] Added support for Swift Package Traits (SE-0450) to allow developers
   to opt out of unused features and prune heavy dependencies. To opt out of

@@ -371,22 +371,27 @@ static dispatch_once_t sDefaultOptionsDictionaryOnceToken;
 #pragma mark - Internal instance methods
 
 - (NSDictionary *)analyticsOptionsDictionaryWithInfoDictionary:(NSDictionary *)infoDictionary {
-  if (_analyticsOptionsDictionary == nil) {
-    NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
-    NSArray *measurementKeys = @[
-      kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
-      kFIRIsAnalyticsCollectionDeactivated
-    ];
-    for (NSString *key in measurementKeys) {
-      id value = infoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
-      if (!value) {
-        continue;
+  // Several threads can read the analytics options for the first time at once, so create them
+  // under a lock. Otherwise each thread could create and store its own dictionary, and storing one
+  // would release another that a different thread is still returning.
+  @synchronized(self) {
+    if (_analyticsOptionsDictionary == nil) {
+      NSMutableDictionary *tempAnalyticsOptions = [[NSMutableDictionary alloc] init];
+      NSArray *measurementKeys = @[
+        kFIRIsMeasurementEnabled, kFIRIsAnalyticsCollectionEnabled,
+        kFIRIsAnalyticsCollectionDeactivated
+      ];
+      for (NSString *key in measurementKeys) {
+        id value = infoDictionary[key] ?: self.optionsDictionary[key] ?: nil;
+        if (!value) {
+          continue;
+        }
+        tempAnalyticsOptions[key] = value;
       }
-      tempAnalyticsOptions[key] = value;
+      _analyticsOptionsDictionary = tempAnalyticsOptions;
     }
-    _analyticsOptionsDictionary = tempAnalyticsOptions;
+    return _analyticsOptionsDictionary;
   }
-  return _analyticsOptionsDictionary;
 }
 
 - (NSDictionary *)analyticsOptionsDictionary {
