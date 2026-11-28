@@ -42,7 +42,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
   s.dependency 'FirebaseCore', '~> 13.3.0'
   s.dependency 'FirebaseCoreExtension', '~> 13.3.0'
   s.dependency 'GTMSessionFetcher/Core', '>= 4.0', '< 6.0'
-  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.5', '< 9.0'
 
   s.pod_target_xcconfig = {
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseStorage'

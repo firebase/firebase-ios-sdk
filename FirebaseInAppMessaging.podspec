@@ -84,8 +84,8 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.dependency 'FirebaseCore', '~> 13.3.0'
   s.dependency 'FirebaseInstallations', '~> 13.3.0'
   s.dependency 'FirebaseABTesting', '~> 13.3.0'
-  s.dependency 'GoogleUtilities/Environment', '>= 8.1.3', '< 9.0'
-  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/Environment', '>= 8.1.5', '< 9.0'
+  s.dependency 'GoogleUtilities/UserDefaults', '>= 8.1.5', '< 9.0'
   s.dependency 'nanopb', '~> 3.30910.0'
 
   s.test_spec 'unit' do |unit_tests|

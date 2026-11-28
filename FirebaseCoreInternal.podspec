@@ -38,7 +38,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.9'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.3', '< 9.0'
+  s.dependency 'GoogleUtilities/NSData+zlib', '>= 8.1.5', '< 9.0'
 
   s.pod_target_xcconfig = {
     'PRODUCT_BUNDLE_IDENTIFIER' => 'com.google.firebase.FirebaseCoreInternal'

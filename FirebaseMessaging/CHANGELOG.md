@@ -1,4 +1,10 @@
 # Unreleased
+- [fixed] In SwiftUI apps that use `UIApplicationDelegateAdaptor`, the app's
+  delegate now receives
+  `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` and the
+  other remote notification callbacks when Messaging's method swizzling is
+  enabled. Firebase now requires GoogleUtilities 8.1.5 or later, which includes
+  this fix. (#13566)
 - [fixed] Fixed potential crashes when `nil` completion handlers are passed to
   token APIs or when `FirebaseMessaging` is torn down while topic updates or
   token deletions are in flight. (#17122)
