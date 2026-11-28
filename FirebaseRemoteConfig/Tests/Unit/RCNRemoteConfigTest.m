@@ -334,7 +334,8 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
     // of checking it after a fixed delay, which fails when the fetch is slow.
     NSPredicate *fetchFinished = [NSPredicate
         predicateWithBlock:^BOOL(id _Nullable object, NSDictionary *_Nullable bindings) {
-          return config.lastFetchStatus != FIRRemoteConfigFetchStatusNoFetchYet;
+          FIRRemoteConfig *evaluatedConfig = (FIRRemoteConfig *)object;
+          return evaluatedConfig.lastFetchStatus != FIRRemoteConfigFetchStatusNoFetchYet;
         }];
     expectations[i] = [self expectationForPredicate:fetchFinished
                                 evaluatedWithObject:config
