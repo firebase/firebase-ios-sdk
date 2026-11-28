@@ -1,0 +1,73 @@
+{
+  "FirebaseAnalytics": {
+    "names": {
+      "FirebaseCore": [
+        "FIRLibrary"
+      ],
+      "other": [
+        "FIRAnalyticsInterop"
+      ]
+    },
+    "selectors": [
+      "componentWithProtocol:creationBlock:",
+      "componentsToRegister",
+      "googleAppID",
+      "isAnalyticsCollectionDeactivated",
+      "isAnalyticsCollectionEnabled",
+      "isDefaultAppConfigured",
+      "name",
+      "registerInternalLibrary:withName:withVersion:",
+      "sharedInstance"
+    ],
+    "symbols": {
+      "FirebaseCore": [
+        "_FIRFirebaseVersion",
+        "_OBJC_CLASS_$_FIRApp",
+        "_OBJC_CLASS_$_FIRComponent",
+        "_kFIRLoggerAnalytics"
+      ],
+      "FirebaseInstallations": [
+        "_FIRInstallationIDDidChangeNotification",
+        "_OBJC_CLASS_$_FIRInstallations"
+      ]
+    }
+  },
+  "GoogleAppMeasurement": {
+    "names": {
+      "FirebaseCore": [
+        "FIRAnalytics",
+        "FIRAnalyticsConfigurationSetEnabledNotification",
+        "FIRConfiguration",
+        "FIREBASE_ANALYTICS_COLLECTION_DEACTIVATED",
+        "FIREBASE_ANALYTICS_COLLECTION_ENABLED"
+      ],
+      "other": [
+        "FIRADatabase",
+        "FIREBASE_ANALYTICS_CONFIGURATION",
+        "FIRRemoteConfig",
+        "kFIRAnalyticsWillStartNotification"
+      ]
+    },
+    "selectors": [
+      "compare:",
+      "googleAppID",
+      "isAnalyticsCollectionDeactivated",
+      "isAnalyticsCollectionEnabled",
+      "name",
+      "reset",
+      "sharedInstance",
+      "timestamp"
+    ],
+    "symbols": {}
+  },
+  "GoogleAppMeasurementIdentitySupport": {
+    "names": {
+      "FirebaseCore": [],
+      "other": []
+    },
+    "selectors": [
+      "sharedInstance"
+    ],
+    "symbols": {}
+  }
+}

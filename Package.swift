@@ -377,6 +377,20 @@ func packageTargets() -> [Target] {
         .headerSearchPath("../../.."),
       ]
     ),
+    // Links FirebaseCore with the prebuilt FirebaseAnalytics and GoogleAppMeasurement binaries and
+    // checks at run time that they still work together. See scripts/core_api/check_binary_link.py.
+    .testTarget(
+      name: "CoreAnalyticsLink",
+      dependencies: [
+        "FirebaseCore",
+        .target(name: "FirebaseAnalyticsTarget",
+                condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])),
+      ],
+      path: "FirebaseCore/Tests/AnalyticsLink",
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
 
     // MARK: - Firebase Core Extension
 

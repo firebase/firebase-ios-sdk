@@ -144,6 +144,18 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeProtocolCo
   };
 }
 
+/// Protocol name -> required methods and their type encodings, without stack offsets. Other
+/// binaries adopt these protocols, including the FirebaseAnalytics binary, which implements
+/// +[FIRLibrary componentsToRegister], and FirebaseCore calls the methods. Class methods start
+/// with "+", instance methods with "-".
+static NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *
+FIRCoreRuntimeProtocolMethodContract(void) {
+  return @{
+    @"FIRLibrary" : @{@"+componentsToRegister" : @"@@:"},
+    @"FIRComponentLifecycleMaintainer" : @{@"-appWillBeDeleted:" : @"v@:@"},
+  };
+}
+
 /// Returns the type encoding without stack offsets, or nil if the method doesn't exist.
 ///
 /// `BOOL` is encoded as `B` on arm64 and as `c` (signed char) on x86_64, so `c` is normalized to
@@ -231,6 +243,34 @@ static NSString *_Nullable FIRCoreMethodEncoding(Class klass, NSString *selector
 - (void)testFIRLibraryProtocolExists {
   XCTAssertNotNil(NSProtocolFromString(@"FIRLibrary"));
   XCTAssertNotNil(NSProtocolFromString(@"FIRComponentLifecycleMaintainer"));
+}
+
+- (void)testProtocolMethods {
+  NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *contract =
+      FIRCoreRuntimeProtocolMethodContract();
+  NSCharacterSet *digits = [NSCharacterSet decimalDigitCharacterSet];
+  for (NSString *protocolName in contract) {
+    Protocol *protocol = NSProtocolFromString(protocolName);
+    XCTAssertNotNil(protocol, @"Protocol %@ no longer exists.", protocolName);
+    if (!protocol) {
+      continue;
+    }
+    for (NSString *selectorKey in contract[protocolName]) {
+      BOOL isInstanceMethod = [selectorKey hasPrefix:@"-"];
+      SEL selector = NSSelectorFromString([selectorKey substringFromIndex:1]);
+      struct objc_method_description description =
+          protocol_getMethodDescription(protocol, selector, YES, isInstanceMethod);
+      XCTAssertTrue(description.name != NULL, @"%@ no longer requires %@.", protocolName,
+                    selectorKey);
+      if (description.name == NULL) {
+        continue;
+      }
+      NSString *encoding = [[@(description.types) componentsSeparatedByCharactersInSet:digits]
+          componentsJoinedByString:@""];
+      XCTAssertEqualObjects(encoding, contract[protocolName][selectorKey],
+                            @"Type encoding of %@ %@ changed.", protocolName, selectorKey);
+    }
+  }
 }
 
 @end

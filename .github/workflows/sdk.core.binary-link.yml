@@ -1,0 +1,76 @@
+name: sdk.core.binary-link
+
+# Links FirebaseCore with the prebuilt FirebaseAnalytics and GoogleAppMeasurement binaries,
+# statically and as dynamic libraries, checks that they work together, and checks that
+# FirebaseCore provides the symbols they need. It runs when FirebaseCore or the checks change, and
+# when Package.swift changes, because Package.swift pins the binaries' versions. See
+# FirebaseCore/Tests/APIBaselines/README.md.
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+    - 'FirebaseCore**'
+    - 'Package.swift'
+    - 'scripts/core_api/**'
+    - 'scripts/spm_test_schemes/CoreAnalyticsLink.xcscheme'
+    - 'scripts/setup_spm_tests.sh'
+    - 'scripts/setup_simulator.sh'
+    - '.github/actions/setup_simulator/**'
+    - '.github/workflows/sdk.core.binary-link.yml'
+    - '!**/CHANGELOG.md'
+  schedule:
+  # Run every day at 3am (PDT) / 6am (EDT) - cron uses UTC times
+  - cron: '0 10 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  binary-link:
+    runs-on: macos-26
+    env:
+      STATIC_DERIVED_DATA: ${{ github.workspace }}/.build/binary-link-static
+      DYNAMIC_DERIVED_DATA: ${{ github.workspace }}/.build/binary-link-dynamic
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Setup simulator
+      uses: ./.github/actions/setup_simulator
+      with:
+        platform: iOS
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Static link test (macOS)
+      run: |
+        xcodebuild test -scheme CoreAnalyticsLink -destination 'platform=macOS' \
+          -enableCodeCoverage NO -derivedDataPath "$STATIC_DERIVED_DATA"
+    - name: Static link test (iOS Simulator)
+      run: |
+        xcodebuild test -scheme CoreAnalyticsLink \
+          -destination 'platform=iOS Simulator,name=Firebase-iPhone-15-Pro' \
+          -enableCodeCoverage NO -derivedDataPath "$STATIC_DERIVED_DATA"
+    # The dynamic test runs on macOS only: symbol visibility doesn't depend on the platform.
+    - name: Dynamic link test (macOS)
+      working-directory: scripts/core_api/binary_link
+      run: |
+        xcodebuild test -scheme CoreBinaryLink-Package -destination 'platform=macOS' \
+          -enableCodeCoverage NO -derivedDataPath "$DYNAMIC_DERIVED_DATA"
+    - name: Check the symbols
+      # Also after a test failure: a test that fails to link has no output, but the check still
+      # explains which symbol is missing.
+      if: ${{ !cancelled() }}
+      run: |
+        scripts/core_api/check_binary_link.py check \
+          --workspace-state "$STATIC_DERIVED_DATA/SourcePackages/workspace-state.json" \
+          --static "$STATIC_DERIVED_DATA/Build/Products/Debug" \
+          --static "$STATIC_DERIVED_DATA/Build/Products/Debug-iphonesimulator" \
+          --dynamic "$DYNAMIC_DERIVED_DATA/Build/Products/Debug" \
+          --dynamic-client "$DYNAMIC_DERIVED_DATA/Build/Products/Debug/CoreAnalyticsLinkDynamic.xctest/Contents/MacOS/CoreAnalyticsLinkDynamic"
