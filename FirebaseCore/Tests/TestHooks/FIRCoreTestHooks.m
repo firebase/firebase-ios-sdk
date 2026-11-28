@@ -40,6 +40,51 @@
                               launchArguments:(nullable NSArray<NSString *> *)launchArguments;
 @end
 
+@implementation FIROrderedTestSet {
+  NSArray *_objects;
+}
+
+- (instancetype)initWithOrderedObjects:(NSArray *)objects {
+  self = [super init];
+  if (self) {
+    _objects = [objects copy];
+  }
+  return self;
+}
+
+- (instancetype)initWithObjects:(const id _Nonnull[_Nullable])objects count:(NSUInteger)count {
+  return [self initWithOrderedObjects:[NSArray arrayWithObjects:objects count:count]];
+}
+
+- (NSUInteger)count {
+  return _objects.count;
+}
+
+- (nullable id)member:(id)object {
+  if (object == nil) {
+    return nil;
+  }
+  NSUInteger index = [_objects indexOfObject:object];
+  return index == NSNotFound ? nil : _objects[index];
+}
+
+- (NSEnumerator *)objectEnumerator {
+  return [_objects objectEnumerator];
+}
+
+- (NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState *)state
+                                  objects:(id __unsafe_unretained _Nullable[_Nonnull])buffer
+                                    count:(NSUInteger)length {
+  return [_objects countByEnumeratingWithState:state objects:buffer count:length];
+}
+
+- (id)copyWithZone:(nullable NSZone *)zone {
+  // Immutable, so a copy is the same set, which keeps the order.
+  return self;
+}
+
+@end
+
 @implementation FIRCoreTestHooks
 
 + (void)setRelevantBundles:(nullable NSArray<NSBundle *> *)bundles {
