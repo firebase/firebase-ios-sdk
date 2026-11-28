@@ -24,13 +24,10 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
+// This target is SwiftPM-only. Module imports, rather than `#if SWIFT_PACKAGE`, because SwiftPM's
+// native build system doesn't define SWIFT_PACKAGE when Swift imports this module.
 @import FirebaseCore;
 @import FirebaseCoreExtension;
-#else
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#endif  // SWIFT_PACKAGE
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -259,6 +256,18 @@ NS_SWIFT_NAME(CoreTestHooks)
 + (BOOL)resetLoggerWithUserDefaults:(nullable NSUserDefaults *)userDefaults
                     launchArguments:(nullable NSArray<NSString *> *)launchArguments
     NS_SWIFT_NAME(resetLogger(userDefaults:launchArguments:));
+
+/// Calls `handler` for each message that FirebaseCore's logger lets through level filtering, with
+/// the formatted message, before it's logged. The handler can be called on any thread. Pass nil to
+/// stop. Only available in DEBUG builds; returns NO if the seam isn't available.
++ (BOOL)setLogHandler:(nullable void (^)(FIRLoggerLevel level,
+                                         NSString *service,
+                                         NSString *messageCode,
+                                         NSString *message))handler
+    NS_SWIFT_NAME(setLogHandler(_:));
+
+/// Calls `-[FIROptions initWithContentsOfFile:]`, which can't be passed nil from Swift.
++ (nullable FIROptions *)optionsWithContentsOfNullableFile:(nullable NSString *)path;
 
 /// Calls `+[FIRApp configureWithOptions:]`, which can't be passed nil from Swift.
 + (void)configureWithNullableOptions:(nullable FIROptions *)options;

@@ -87,7 +87,8 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 @interface FIRApp ()
 
 #ifdef DEBUG
-@property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
+// Atomic because the data collection flag can be read and set from any thread.
+@property(atomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
 
 #pragma mark - Test seams

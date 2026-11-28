@@ -66,6 +66,29 @@ jobs:
         name: core-api-current
         path: core_api_current
 
+  # Runs the Swift unit tests with ThreadSanitizer, then checks how much of FirebaseCore they
+  # cover against FirebaseCore/Tests/APIBaselines/coverage.json. macOS only. See
+  # FirebaseCore/Tests/APIBaselines/README.md.
+  swift-unit-tsan-coverage:
+    runs-on: macos-26
+    steps:
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      with:
+        persist-credentials: false
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
+    - name: Run the Swift unit tests with ThreadSanitizer
+      run: scripts/core_api/run_tsan.sh --cloned-source-packages-path .build/core-packages
+    - name: Check line coverage
+      run: |
+        scripts/core_api/coverage.py check --out core_coverage_current.json \
+          --cloned-source-packages-path .build/core-packages
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      if: ${{ always() }}
+      with:
+        name: core-coverage-current
+        path: core_coverage_current.json
+
   catalyst:
     uses: ./.github/workflows/_catalyst.yml
     with:

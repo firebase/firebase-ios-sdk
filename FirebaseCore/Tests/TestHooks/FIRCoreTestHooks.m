@@ -38,6 +38,10 @@
 @interface FIRConfiguration (CoreTestSeams)
 + (void)resetLoggerForTestingWithUserDefaults:(nullable NSUserDefaults *)userDefaults
                               launchArguments:(nullable NSArray<NSString *> *)launchArguments;
++ (void)setLogHandlerForTesting:(nullable void (^)(FIRLoggerLevel level,
+                                                   NSString *service,
+                                                   NSString *messageCode,
+                                                   NSString *message))handler;
 @end
 
 @implementation FIROrderedTestSet {
@@ -162,6 +166,25 @@ static NSMutableArray<FIRHeartbeatLogger *> *sRecordingHeartbeatLoggers;
   [FIRConfiguration resetLoggerForTestingWithUserDefaults:userDefaults
                                           launchArguments:launchArguments];
   return YES;
+}
+
++ (BOOL)setLogHandler:(nullable void (^)(FIRLoggerLevel level,
+                                         NSString *service,
+                                         NSString *messageCode,
+                                         NSString *message))handler {
+  // The seam only exists in DEBUG builds.
+  if (![FIRConfiguration respondsToSelector:@selector(setLogHandlerForTesting:)]) {
+    return NO;
+  }
+  [FIRConfiguration setLogHandlerForTesting:handler];
+  return YES;
+}
+
++ (nullable FIROptions *)optionsWithContentsOfNullableFile:(nullable NSString *)path {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wnullable-to-nonnull-conversion"
+  return [[FIROptions alloc] initWithContentsOfFile:path];
+#pragma clang diagnostic pop
 }
 
 + (void)configureWithNullableOptions:(nullable FIROptions *)options {

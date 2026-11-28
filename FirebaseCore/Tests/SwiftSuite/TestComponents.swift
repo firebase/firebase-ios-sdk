@@ -39,6 +39,9 @@ import Foundation
 /// A cached component that's created eagerly only for the default app.
 @objc protocol CoreTestEagerInDefaultAppComponent {}
 
+/// A component whose creation block returns an instance that doesn't conform to it.
+@objc protocol CoreTestMisimplementedComponent {}
+
 /// A thread-safe counter, for example of the instances that a creation block creates.
 final class CreationCounter: @unchecked Sendable {
   private let lock = NSLock()
@@ -148,6 +151,15 @@ final class CoreTestEagerInDefaultAppLibrary: NSObject, Library {
         creations.increment()
         return CoreTestEagerInDefaultAppInstance()
       }]
+  }
+}
+
+/// Provides `CoreTestMisimplementedComponent` with an instance that doesn't conform to it.
+final class CoreTestMisimplementedLibrary: NSObject, Library {
+  static func componentsToRegister() -> [Component] {
+    [Component(CoreTestMisimplementedComponent.self) { _, _ in
+      NSObject()
+    }]
   }
 }
 

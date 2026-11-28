@@ -1,0 +1,145 @@
+{
+  "files": {
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/Heartbeat.swift": {
+      "covered": 15,
+      "lines": 15,
+      "percent": 100.0
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatController.swift": {
+      "covered": 183,
+      "lines": 189,
+      "percent": 96.83
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatStorage.swift": {
+      "covered": 122,
+      "lines": 124,
+      "percent": 98.39
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsBundle.swift": {
+      "covered": 59,
+      "lines": 107,
+      "percent": 55.14
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/HeartbeatsPayload.swift": {
+      "covered": 37,
+      "lines": 57,
+      "percent": 64.91
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/RingBuffer.swift": {
+      "covered": 44,
+      "lines": 62,
+      "percent": 70.97
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/Storage.swift": {
+      "covered": 31,
+      "lines": 57,
+      "percent": 54.39
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/StorageFactory.swift": {
+      "covered": 17,
+      "lines": 22,
+      "percent": 77.27
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatController.swift": {
+      "covered": 22,
+      "lines": 22,
+      "percent": 100.0
+    },
+    "FirebaseCore/Internal/Sources/HeartbeatLogging/_ObjC_HeartbeatsPayload.swift": {
+      "covered": 9,
+      "lines": 9,
+      "percent": 100.0
+    },
+    "FirebaseCore/Internal/Sources/Utilities/UnfairLock.swift": {
+      "covered": 17,
+      "lines": 30,
+      "percent": 56.67
+    },
+    "FirebaseCore/Sources/FIRAnalyticsConfiguration.m": {
+      "covered": 39,
+      "lines": 41,
+      "percent": 95.12
+    },
+    "FirebaseCore/Sources/FIRApp.m": {
+      "covered": 531,
+      "lines": 596,
+      "percent": 89.09
+    },
+    "FirebaseCore/Sources/FIRBundleUtil.m": {
+      "covered": 66,
+      "lines": 66,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRComponent.m": {
+      "covered": 19,
+      "lines": 19,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRComponentContainer.m": {
+      "covered": 112,
+      "lines": 129,
+      "percent": 86.82
+    },
+    "FirebaseCore/Sources/FIRComponentType.m": {
+      "covered": 3,
+      "lines": 3,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRConfiguration.m": {
+      "covered": 28,
+      "lines": 28,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRFirebaseUserAgent.m": {
+      "covered": 59,
+      "lines": 59,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRHeartbeatLogger.m": {
+      "covered": 65,
+      "lines": 65,
+      "percent": 100.0
+    },
+    "FirebaseCore/Sources/FIRLogger.m": {
+      "covered": 144,
+      "lines": 156,
+      "percent": 92.31
+    },
+    "FirebaseCore/Sources/FIROptions.m": {
+      "covered": 272,
+      "lines": 290,
+      "percent": 93.79
+    },
+    "FirebaseCore/Sources/FIRTimestamp.m": {
+      "covered": 87,
+      "lines": 92,
+      "percent": 94.57
+    },
+    "FirebaseCore/Sources/FIRVersion.m": {
+      "covered": 3,
+      "lines": 3,
+      "percent": 100.0
+    }
+  },
+  "groups": {
+    "FirebaseCore/Internal/Sources": {
+      "covered": 556,
+      "lines": 694,
+      "percent": 80.12
+    },
+    "FirebaseCore/Sources": {
+      "covered": 1428,
+      "lines": 1547,
+      "percent": 92.31
+    }
+  },
+  "platform": "macOS",
+  "suite": "CoreSwiftUnit",
+  "toolchain": "Apple Swift version 6.3.1 (swiftlang-6.3.1.1.2 clang-2100.0.123.102)",
+  "total": {
+    "covered": 1984,
+    "lines": 2241,
+    "percent": 88.53
+  },
+  "xcode": "Xcode 26.4.1 (17E202)"
+}

@@ -246,6 +246,13 @@ final class LockedValue<Value>: @unchecked Sendable {
       _value = newValue
     }
   }
+
+  /// Changes the value atomically, unlike reading and then setting `value`.
+  func modify(_ change: (inout Value) -> Void) {
+    lock.lock()
+    defer { lock.unlock() }
+    change(&_value)
+  }
 }
 
 /// Where heartbeats are stored, so the tests can remove what they store.

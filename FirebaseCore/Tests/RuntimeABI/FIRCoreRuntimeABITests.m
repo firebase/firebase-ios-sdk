@@ -126,10 +126,11 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
   ];
 #endif
 #ifdef DEBUG
-  // Test seam used by FirebaseCoreTestHooks. Like the GoogleUtilities logger reset it relies on,
-  // it only exists in DEBUG builds.
-  contract[@"FIRConfiguration"] = [contract[@"FIRConfiguration"]
-      arrayByAddingObject:@"+resetLoggerForTestingWithUserDefaults:launchArguments:"];
+  // Test seams used by FirebaseCoreTestHooks. Like the GoogleUtilities logger reset they rely on,
+  // they only exist in DEBUG builds.
+  contract[@"FIRConfiguration"] = [contract[@"FIRConfiguration"] arrayByAddingObjectsFromArray:@[
+    @"+resetLoggerForTestingWithUserDefaults:launchArguments:", @"+setLogHandlerForTesting:"
+  ]];
 #endif
   return contract;
 }

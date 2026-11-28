@@ -92,6 +92,7 @@ NSDictionary<NSString *, NSDictionary<NSString *, NSString *> *> *FIRCoreRuntime
     },
     @"FIRConfiguration" : @{
       @"+resetLoggerForTestingWithUserDefaults:launchArguments:" : @"v@:@@",
+      @"+setLogHandlerForTesting:" : @"v@:@?",
       @"+sharedInstance" : @"@@:",
       @"-analyticsConfiguration" : @"@@:",
       @"-loggerLevel" : @"q@:",
