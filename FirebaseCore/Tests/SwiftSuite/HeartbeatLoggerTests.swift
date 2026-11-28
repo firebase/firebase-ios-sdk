@@ -260,7 +260,11 @@ enum TestHeartbeatStorage {
   }
 
   #if os(tvOS)
-    private static let userDefaults = UserDefaults(suiteName: "com.google.heartbeat.storage")
+    /// Where heartbeats are stored on tvOS. A computed property, because `UserDefaults` isn't
+    /// `Sendable`, so Swift 6 doesn't allow storing it in a static property.
+    private static var userDefaults: UserDefaults? {
+      UserDefaults(suiteName: "com.google.heartbeat.storage")
+    }
 
     static var isWritable: Bool { userDefaults != nil }
 
