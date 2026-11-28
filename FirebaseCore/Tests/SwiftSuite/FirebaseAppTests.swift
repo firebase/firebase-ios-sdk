@@ -351,6 +351,7 @@ final class FirebaseAppTests: CoreTestCase {
 
   // MARK: - Heartbeats
 
+  @MainActor
   func testHeartbeatIsLoggedWhenAppBecomesActive() throws {
     // Replaces stubbing +[FIRHeartbeatLogger alloc] with OCMock, which can't intercept Swift.
     let recorder = HeartbeatLogRecorder()
@@ -364,6 +365,7 @@ final class FirebaseAppTests: CoreTestCase {
     XCTAssertEqual(recorder.appIDs, [googleAppID])
   }
 
+  @MainActor
   func testHeartbeatIsNotLoggedWhenDataCollectionIsDisabled() throws {
     // FIRAppTest.m's testGlobalDataCollectionNoDiagnosticsSent set no expectations on its
     // heartbeat logger mock, so it couldn't fail. This checks what it meant to.
@@ -401,6 +403,9 @@ final class FirebaseAppTests: CoreTestCase {
     }
   }
 
+  /// Posts the notification that apps receive when they become active. Like the system, it posts
+  /// on the main actor, which WatchKit requires for `WKApplication.didBecomeActiveNotification`.
+  @MainActor
   private func postAppDidBecomeActive() {
     #if canImport(UIKit) && !os(watchOS)
       let name = UIApplication.didBecomeActiveNotification
