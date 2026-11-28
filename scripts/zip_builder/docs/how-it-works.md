@@ -92,7 +92,11 @@ Also:
   `release.dependencyBundleIdPrefix` (when set) for dependencies. Characters a bundle ID can't
   hold become hyphens (`openssl_grpc` → `openssl-grpc`), as in CocoaPods' bundle IDs.
 - The version is the release version for the root package, else the package's resolved version.
-  A dependency not resolved to a tag falls back to the release version, with a warning.
+  A dependency resolved to a branch or revision has none, so it gets the highest release tag
+  (`X.Y.Z` or `vX.Y.Z`) on its checked-out commit, in its checkout or the SwiftPM mirror in
+  `.build/repositories` it was cloned from (`Planning/TaggedVersions.swift`): a release is
+  tagged on `main`, so a package resolved to `main` at a release gets that release's version.
+  Without such a tag, it falls back to the release version, with a warning.
 - Modules are dynamic from the start, because linker settings are only translated while planning,
   when they're in a dynamic product or when the framework they end up in is dynamic by config:
   with `build.linkage: dynamic`, every framework not in `frameworks.static`; else those in
