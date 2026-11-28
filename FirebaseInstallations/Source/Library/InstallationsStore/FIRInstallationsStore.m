@@ -28,6 +28,7 @@
 
 #import "FirebaseInstallations/Source/Library/Errors/FIRInstallationsErrorUtil.h"
 #import "FirebaseInstallations/Source/Library/FIRInstallationsItem.h"
+#import "FirebaseInstallations/Source/Library/FIRInstallationsLogger.h"
 #import "FirebaseInstallations/Source/Library/InstallationsStore/FIRInstallationsStoredItem.h"
 
 NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstallations";
@@ -37,6 +38,7 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 @property(nonatomic, readonly) dispatch_queue_t queue;
 @property(nonatomic, readonly) GULUserDefaults *userDefaults;
+@property(nonatomic, readonly) NSString *userDefaultsSuiteName;
 @end
 
 @implementation FIRInstallationsStore
@@ -49,8 +51,8 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
     _accessGroup = [accessGroup copy];
     _queue = dispatch_queue_create("com.firebase.FIRInstallationsStore", DISPATCH_QUEUE_SERIAL);
 
-    NSString *userDefaultsSuiteName = _accessGroup ?: kFIRInstallationsStoreUserDefaultsID;
-    _userDefaults = [[GULUserDefaults alloc] initWithSuiteName:userDefaultsSuiteName];
+    _userDefaultsSuiteName = _accessGroup ?: kFIRInstallationsStoreUserDefaultsID;
+    _userDefaults = [[GULUserDefaults alloc] initWithSuiteName:_userDefaultsSuiteName];
   }
   return self;
 }
@@ -60,16 +62,14 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
   NSString *itemID = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
   return [self installationExistsForAppID:appID appName:appName]
       .then(^id(id result) {
-        return [FBLPromise
-            wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-              [self.secureStorage getObjectForKey:itemID
-                                      objectClass:[FIRInstallationsStoredItem class]
-                                      accessGroup:self.accessGroup
-                                completionHandler:handler];
-            }];
+        return [self storedItemFromKeychainWithID:itemID];
       })
       .then(^id(FIRInstallationsStoredItem *_Nullable storedItem) {
         if (storedItem == nil) {
+          FIRLogDebug(kFIRLoggerInstallations, kFIRInstallationsMessageCodeStoreNoKeychainItem,
+                      @"The user defaults marker for installation %@ exists, but the keychain has "
+                      @"no item for it.",
+                      itemID);
           return [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID appName:appName];
         }
 
@@ -78,6 +78,24 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
         [item updateWithStoredItem:storedItem];
         return item;
       });
+}
+
+- (FBLPromise<FIRInstallationsStoredItem *> *)storedItemFromKeychainWithID:(NSString *)itemID {
+  FBLPromise<FIRInstallationsStoredItem *> *storedItemPromise = [FBLPromise
+      wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+        [self.secureStorage getObjectForKey:itemID
+                                objectClass:[FIRInstallationsStoredItem class]
+                                accessGroup:self.accessGroup
+                          completionHandler:handler];
+      }];
+
+  // A keychain error or an item that can't be decoded. The caller replaces the installation, so
+  // log the reason.
+  return storedItemPromise.catch(^(NSError *error) {
+    FIRLogWarning(kFIRLoggerInstallations, kFIRInstallationsMessageCodeStoreKeychainReadFailed,
+                  @"Failed to read the stored installation %@ from the keychain: %@", itemID,
+                  error);
+  });
 }
 
 - (FBLPromise<NSNull *> *)saveInstallation:(FIRInstallationsItem *)installationItem {
@@ -113,14 +131,24 @@ NSString *const kFIRInstallationsStoreUserDefaultsID = @"com.firebase.FIRInstall
 
 - (FBLPromise<NSNull *> *)installationExistsForAppID:(NSString *)appID appName:(NSString *)appName {
   NSString *identifier = [FIRInstallationsItem identifierWithAppID:appID appName:appName];
-  return [FBLPromise onQueue:self.queue
-                          do:^id _Nullable {
-                            return [[self userDefaults] objectForKey:identifier] != nil
-                                       ? [NSNull null]
-                                       : [FIRInstallationsErrorUtil
-                                             installationItemNotFoundForAppID:appID
-                                                                      appName:appName];
-                          }];
+  return [FBLPromise
+      onQueue:self.queue
+           do:^id _Nullable {
+             if ([[self userDefaults] objectForKey:identifier] != nil) {
+               return [NSNull null];
+             }
+
+             // The keychain item outlives an app reinstall, but the user defaults marker doesn't,
+             // so a missing marker means any installation in the keychain is ignored.
+             FIRLogDebug(kFIRLoggerInstallations,
+                         kFIRInstallationsMessageCodeStoreNoInstallationMarker,
+                         @"No user defaults marker for installation %@ in suite %@. Any "
+                         @"installation in the keychain is ignored. This is expected on the first "
+                         @"launch after the app is installed.",
+                         identifier, self.userDefaultsSuiteName);
+             return [FIRInstallationsErrorUtil installationItemNotFoundForAppID:appID
+                                                                        appName:appName];
+           }];
 }
 
 - (FBLPromise<NSNull *> *)setInstallationExists:(BOOL)exists
