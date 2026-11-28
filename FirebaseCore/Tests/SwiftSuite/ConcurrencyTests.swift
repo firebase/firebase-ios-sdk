@@ -155,6 +155,15 @@ final class ConcurrencyTests: CoreTestCase {
     let objects = UncheckedSendable((app: app, shared: app.options, options: options))
     let mismatches = LockedValue(0)
 
+    // Warm both shared instances before going concurrent. `isEqual(_:)` reads
+    // `analyticsOptionsDictionary` on both sides, which initializes it. That lazy initialization
+    // in `-[FIROptions analyticsOptionsDictionaryWithInfoDictionary:]` is unlocked: when two
+    // threads initialize it together, the second strong store frees the first dictionary while
+    // another thread is still returning it, a use-after-free. TSan can't see it, because
+    // `objc_storeStrong` is in uninstrumented libobjc. It's being fixed separately on main, in
+    // #17150. The Swift port must initialize it once, under a lock.
+    XCTAssertTrue(objects.value.shared.isEqual(options))
+
     DispatchQueue.concurrentPerform(iterations: iterations) { _ in
       let (app, shared, options) = objects.value
       let copy = app.options

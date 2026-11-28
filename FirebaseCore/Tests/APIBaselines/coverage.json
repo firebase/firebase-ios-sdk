@@ -135,10 +135,11 @@
   },
   "platform": "macOS",
   "suite": "CoreSwiftUnit",
-  "toolchain": "Apple Swift version 6.4.2 (swiftlang-6.4.2.1.9 clang-2100.4.1.1)",
+  "toolchain": "Apple Swift version 6.3.2 (swiftlang-6.3.2.1.108 clang-2100.1.1.101)",
   "total": {
     "covered": 1984,
     "lines": 2241,
     "percent": 88.53
-  }
+  },
+  "xcode": "Xcode 26.5 (17F42)"
 }

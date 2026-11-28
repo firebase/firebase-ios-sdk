@@ -55,15 +55,26 @@ total, and the toolchain that measured it.
 scripts/core_api/coverage.py check
 ```
 
-`check` builds `CoreSwiftUnit` with coverage, runs it, and fails if total line
-coverage dropped by more than 0.5 points. The `swift-unit-tsan-coverage` job in
-`.github/workflows/sdk.core.yml` runs it, and uploads the measured coverage as
-the `core-coverage-current` artifact. After an approved change, update the
-baseline with `scripts/core_api/coverage.py update`, or replace
-`coverage.json` with that artifact.
+`check` runs `CoreSwiftUnit` with `xcodebuild test -enableCodeCoverage YES`
+and fails if total line coverage dropped by more than 0.5 points. It reads the
+line counts with `llvm-cov export` from the run's `Coverage.profdata`, because
+`xccov` leaves out the `FirebaseCore/Internal` Swift files. It copies the
+`CoreSwiftUnit` scheme from `scripts/spm_test_schemes` if it isn't in
+`.swiftpm` yet, and removes the copy afterward. Use `--derived-data-path` and
+`--cloned-source-packages-path` to reuse a build and its package checkouts,
+and `--xcodebuild-arg` (repeatable) to pass other arguments to xcodebuild.
+`scripts/core_api/run_tsan.sh` runs the same suite with ThreadSanitizer, takes
+the same paths, passes other arguments to xcodebuild, and fails on a test
+failure or a ThreadSanitizer report.
 
-The first baseline was recorded locally with Xcode 27.2. It's to be replaced
-with the `core-coverage-current` artifact from the first CI run, which uses
+The `swift-unit-tsan-coverage` job in `.github/workflows/sdk.core.yml` runs
+both, and uploads the measured coverage as the `core-coverage-current`
+artifact. After an approved change, update the baseline with
+`scripts/core_api/coverage.py update`, or replace `coverage.json` with that
+artifact.
+
+The current baseline was recorded locally with Xcode 26.5. It's to be replaced
+with the `core-coverage-current` artifact from the next CI run, which uses
 the Xcode 26.4 that the job selects, as was done for the API baselines.
 Coverage can differ slightly between toolchains, and `check` notes when the
 toolchains differ. Measure with heartbeat storage writable,

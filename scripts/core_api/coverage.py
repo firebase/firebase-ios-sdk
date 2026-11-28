@@ -20,9 +20,15 @@ reimplementing FirebaseCore in Swift. This tool measures how much of
 FirebaseCore's code that suite covers, on macOS, and compares it with the
 baseline in FirebaseCore/Tests/APIBaselines/coverage.json.
 
-  measure  Build CoreSwiftUnit with coverage, run it, and write the coverage.
+  measure  Run CoreSwiftUnit with coverage and write the coverage.
   check    Fail if total line coverage dropped by more than the tolerance.
   update   Measure and replace the baseline.
+
+The tests run with `xcodebuild test -enableCodeCoverage YES` and the
+CoreSwiftUnit scheme, like the other Core CI jobs. `swift build` can't build
+only CoreSwiftUnit's test bundle with SwiftPM's native build system. The line
+counts come from `llvm-cov export` of the build's Coverage.profdata, because
+`xccov` leaves out the FirebaseCoreInternal Swift files.
 
 The gate compares total line coverage, not per-file coverage, because Swift
 files replace the Objective-C files during the port. Per-file numbers are
@@ -33,15 +39,20 @@ import argparse
 import glob
 import json
 import os
+import shutil
 import subprocess
 import sys
-import tempfile
 
 REPO_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", ".."))
 BASELINE = os.path.join(
     REPO_ROOT, "FirebaseCore", "Tests", "APIBaselines", "coverage.json")
 TARGET = "CoreSwiftUnit"
+SCHEME_DIR = os.path.join(REPO_ROOT, ".swiftpm", "xcode", "xcshareddata",
+                          "xcschemes")
+SCHEME_SOURCE = os.path.join(REPO_ROOT, "scripts", "spm_test_schemes",
+                             TARGET + ".xcscheme")
+DEFAULT_DERIVED_DATA = os.path.join(REPO_ROOT, ".build", "core-coverage")
 
 # The directories whose code counts, relative to the repository root. Add the
 # Swift implementation's directories here when it lands.
@@ -56,10 +67,11 @@ EXCLUDED_SUFFIXES = ("TestUtils.swift",)
 DEFAULT_TOLERANCE = 0.5
 
 
-def run(command, env=None, capture=True):
+def run(command, capture=True, stderr=None):
     """Runs a command in the repository root and returns its output."""
-    result = subprocess.run(command, cwd=REPO_ROOT, env=env, text=True,
-                            stdout=subprocess.PIPE if capture else None)
+    result = subprocess.run(command, cwd=REPO_ROOT, text=True,
+                            stdout=subprocess.PIPE if capture else None,
+                            stderr=stderr)
     if result.returncode != 0:
         sys.exit("Command failed ({}): {}".format(result.returncode,
                                                   " ".join(command)))
@@ -81,33 +93,59 @@ def source_files(source_dirs):
 
 def toolchain():
     """Returns the first line of `swift --version`."""
-    output = run(["xcrun", "swift", "--version"])
+    # The swift-driver version goes to stderr.
+    output = run(["xcrun", "swift", "--version"], stderr=subprocess.DEVNULL)
     return output.strip().splitlines()[0]
 
 
-def measure(build_args, source_dirs):
-    """Builds and runs the suite with coverage and returns the coverage."""
-    build = ["swift", "build", "--target", TARGET, "--enable-code-coverage"]
-    build += build_args
-    run(build, capture=False)
-    bin_path = run(build + ["--show-bin-path"]).strip().splitlines()[-1]
-    bundle = os.path.join(bin_path, TARGET + ".xctest")
-    binary = os.path.join(bundle, "Contents", "MacOS", TARGET)
+def xcode_version():
+    """Returns the Xcode version, for example "Xcode 26.4 (17E192)"."""
+    lines = run(["xcodebuild", "-version"]).strip().splitlines()
+    return " ".join(line.replace("Build version ", "(") + ")"
+                    if line.startswith("Build version") else line
+                    for line in lines[:2])
 
-    with tempfile.TemporaryDirectory() as profile_dir:
-        env = dict(os.environ)
-        env["LLVM_PROFILE_FILE"] = os.path.join(profile_dir, "%p.profraw")
-        run(["xcrun", "xctest", bundle], env=env, capture=False)
-        profiles = glob.glob(os.path.join(profile_dir, "*.profraw"))
-        if not profiles:
-            sys.exit("The tests didn't write any coverage profiles.")
-        profdata = os.path.join(profile_dir, "merged.profdata")
-        run(["xcrun", "llvm-profdata", "merge", "-sparse", "-o", profdata]
-            + profiles)
-        files = source_files(source_dirs)
-        report = json.loads(run(
-            ["xcrun", "llvm-cov", "export", "-summary-only",
-             "-instr-profile", profdata, binary] + files))
+
+def run_tests(derived_data, xcodebuild_args):
+    """Runs CoreSwiftUnit with coverage, copying its scheme if needed."""
+    scheme = os.path.join(SCHEME_DIR, TARGET + ".xcscheme")
+    copied_scheme = not os.path.exists(scheme)
+    if copied_scheme:
+        os.makedirs(SCHEME_DIR, exist_ok=True)
+        shutil.copy(SCHEME_SOURCE, scheme)
+    # Remove profiles from earlier runs, so only this run's are found.
+    shutil.rmtree(os.path.join(derived_data, "Build", "ProfileData"),
+                  ignore_errors=True)
+    try:
+        run(["xcodebuild", "test", "-scheme", TARGET,
+             "-destination", "platform=macOS",
+             "-enableCodeCoverage", "YES",
+             "-derivedDataPath", derived_data,
+             "-collect-test-diagnostics", "never"] + xcodebuild_args,
+            capture=False)
+    finally:
+        if copied_scheme:
+            os.remove(scheme)
+            # Remove the scheme directories too, if they're now empty.
+            for directory in (SCHEME_DIR, os.path.dirname(SCHEME_DIR)):
+                if not os.listdir(directory):
+                    os.rmdir(directory)
+
+
+def measure(derived_data, xcodebuild_args, source_dirs):
+    """Runs the suite with coverage and returns the coverage."""
+    run_tests(derived_data, xcodebuild_args)
+    profiles = glob.glob(os.path.join(
+        derived_data, "Build", "ProfileData", "*", "Coverage.profdata"))
+    if not profiles:
+        sys.exit("The tests didn't write a coverage profile.")
+    binary = os.path.join(derived_data, "Build", "Products", "Debug",
+                          TARGET + ".xctest", "Contents", "MacOS", TARGET)
+    files = source_files(source_dirs)
+    report = json.loads(run(
+        ["xcrun", "llvm-cov", "export", "-summary-only",
+         "-instr-profile", max(profiles, key=os.path.getmtime), binary]
+        + files))
 
     measured = {}
     for entry in report["data"][0]["files"]:
@@ -117,6 +155,7 @@ def measure(build_args, source_dirs):
                           "covered": lines["covered"]}
     return {
         "toolchain": toolchain(),
+        "xcode": xcode_version(),
         "platform": "macOS",
         "suite": TARGET,
         "total": summarize(measured.values()),
@@ -153,7 +192,8 @@ def compare(baseline, current, tolerance):
     if baseline["toolchain"] != current["toolchain"]:
         print("Note: the baseline was recorded with {}, not {}. Coverage can "
               "differ slightly between toolchains.".format(
-                  baseline["toolchain"], current["toolchain"]))
+                  baseline.get("xcode", baseline["toolchain"]),
+                  current.get("xcode", current["toolchain"])))
 
     for path in sorted(set(baseline["files"]) | set(current["files"])):
         before = baseline["files"].get(path)
@@ -178,13 +218,13 @@ def compare(baseline, current, tolerance):
 
 
 def write_json(path, value):
-    with open(path, "w") as file:
+    with open(path, "w", encoding="utf-8") as file:
         json.dump(value, file, indent=2, sort_keys=True)
         file.write("\n")
 
 
 def read_json(path):
-    with open(path) as file:
+    with open(path, encoding="utf-8") as file:
         return json.load(file)
 
 
@@ -195,9 +235,16 @@ def main():
     parser.add_argument(
         "command", choices=["measure", "check", "update"])
     parser.add_argument(
-        "--build-arg", action="append", default=[],
-        help="Extra argument for `swift build`, for example "
-             "--build-arg=--disable-sandbox. Can be repeated.")
+        "--derived-data-path", default=DEFAULT_DERIVED_DATA,
+        help="xcodebuild's derived data path. Defaults to %(default)s.")
+    parser.add_argument(
+        "--cloned-source-packages-path",
+        help="Where xcodebuild finds or clones the package dependencies.")
+    parser.add_argument(
+        "--xcodebuild-arg", action="append", default=[],
+        help="Extra argument for xcodebuild, for example "
+             "--xcodebuild-arg=-disableAutomaticPackageResolution. Can be "
+             "repeated.")
     parser.add_argument(
         "--source-dir", action="append",
         help="A directory whose code counts, relative to the repository. "
@@ -216,10 +263,16 @@ def main():
     args = parser.parse_args()
     source_dirs = args.source_dir or SOURCE_DIRS
 
+    xcodebuild_args = list(args.xcodebuild_arg)
+    if args.cloned_source_packages_path:
+        xcodebuild_args += ["-clonedSourcePackagesDirPath",
+                            args.cloned_source_packages_path]
+
     if args.command == "check" and args.current:
         current = read_json(args.current)
     else:
-        current = measure(args.build_arg, source_dirs)
+        current = measure(os.path.abspath(args.derived_data_path),
+                          xcodebuild_args, source_dirs)
 
     if args.command == "measure":
         if args.out:

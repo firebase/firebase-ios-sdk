@@ -24,13 +24,10 @@
 
 #import <Foundation/Foundation.h>
 
-#if SWIFT_PACKAGE
+// This target is SwiftPM-only. Module imports, rather than `#if SWIFT_PACKAGE`, because SwiftPM's
+// native build system doesn't define SWIFT_PACKAGE when Swift imports this module.
 @import FirebaseCore;
 @import FirebaseCoreExtension;
-#else
-#import <FirebaseCore/FirebaseCore.h>
-#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
-#endif  // SWIFT_PACKAGE
 
 NS_ASSUME_NONNULL_BEGIN
 

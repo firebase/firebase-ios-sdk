@@ -78,9 +78,11 @@ jobs:
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_26.4.app/Contents/Developer
     - name: Run the Swift unit tests with ThreadSanitizer
-      run: scripts/core_api/run_tsan.sh
+      run: scripts/core_api/run_tsan.sh --cloned-source-packages-path .build/core-packages
     - name: Check line coverage
-      run: scripts/core_api/coverage.py check --out core_coverage_current.json
+      run: |
+        scripts/core_api/coverage.py check --out core_coverage_current.json \
+          --cloned-source-packages-path .build/core-packages
     - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
       if: ${{ always() }}
       with:
