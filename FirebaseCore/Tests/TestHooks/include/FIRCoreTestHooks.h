@@ -57,12 +57,59 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// Internal FIRApp API that isn't declared in FirebaseCore/Extension/FIRAppInternal.h. The tests use
+// FirebaseCoreExtension for the rest of the internal FIRApp API.
+@interface FIRApp (CoreTestHooks)
+
+/// Whether `appID` is a valid GOOGLE_APP_ID.
++ (BOOL)validateAppID:(nullable NSString *)appID NS_SWIFT_NAME(validateAppID(_:));
+
+/// Whether `appID` has the format of a GOOGLE_APP_ID of the given version.
++ (BOOL)validateAppIDFormat:(nullable NSString *)appID
+                withVersion:(nullable NSString *)version
+    NS_SWIFT_NAME(validateAppIDFormat(_:withVersion:));
+
+/// Whether the hashed bundle ID in `appID` is valid for the given version.
++ (BOOL)validateBundleIDHashWithinAppID:(nullable NSString *)appID
+                             forVersion:(nullable NSString *)version
+    NS_SWIFT_NAME(validateBundleIDHash(withinAppID:forVersion:));
+
+/// Whether the GOOGLE_APP_ID of the app's options is valid.
+- (BOOL)isAppIDValid NS_SWIFT_NAME(isAppIDValid());
+
+@end
+
 NS_SWIFT_NAME(CoreTestHooks)
 @interface FIRCoreTestHooks : NSObject
 
 /// Replaces the bundles that FirebaseCore searches for GoogleService-Info.plist and checks the
 /// bundle ID against. Pass nil to restore the default bundles.
 + (void)setRelevantBundles:(nullable NSArray<NSBundle *> *)bundles;
+
+/// Makes FIRApp store the data collection flag in `userDefaults` instead of the standard user
+/// defaults. Pass nil to restore the standard user defaults.
++ (void)setUserDefaults:(nullable NSUserDefaults *)userDefaults;
+
+/// Makes FIRApp behave as if it were (or weren't) running in an app extension. Pass nil to restore
+/// the real environment.
++ (void)setIsAppExtension:(nullable NSNumber *)isAppExtension;
+
+/// Makes FIRApp read the data collection flag from `infoDictionary` instead of the main bundle's
+/// Info.plist. Pass nil to restore the main bundle's Info.plist.
++ (void)setInfoDictionary:(nullable NSDictionary<NSString *, id> *)infoDictionary;
+
+/// Calls `handler` with the app's GOOGLE_APP_ID whenever an app initialized from now on logs a
+/// heartbeat. Pass nil to stop recording for apps initialized afterwards.
+///
+/// The apps use real heartbeat loggers with a test-only storage ID. Each call removes the
+/// heartbeats that the loggers created by the previous call stored.
++ (void)setHeartbeatLogHandler:(nullable void (^)(NSString *appID))handler;
+
+/// Calls `+[FIRApp configureWithOptions:]`, which can't be passed nil from Swift.
++ (void)configureWithNullableOptions:(nullable FIROptions *)options;
+
+/// Calls `+[FIRApp configureWithName:options:]`, which can't be passed nil from Swift.
++ (void)configureWithNullableName:(nullable NSString *)name options:(nullable FIROptions *)options;
 
 /// Runs `block` and returns the Objective-C exception it raised, or nil if it raised none.
 + (nullable NSException *)exceptionRaisedBy:(NS_NOESCAPE void (^)(void))block;

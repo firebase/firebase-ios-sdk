@@ -45,6 +45,7 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 
 #import <objc/runtime.h>
+#import <os/lock.h>
 
 NSString *const kFIRDefaultAppName = @"__FIRAPP_DEFAULT";
 NSString *const kFIRAppReadyToConfigureSDKNotification = @"FIRAppReadyToConfigureSDKNotification";
@@ -91,7 +92,61 @@ static NSString *const kPlistURL = @"https://console.firebase.google.com/";
 @property(nonatomic) BOOL alreadyOutputDataCollectionFlag;
 #endif  // DEBUG
 
+#pragma mark - Test seams
+
+// For tests only. Production code never calls these, and behavior is unchanged while they're
+// unset. FirebaseCore's Swift unit tests reach them through FirebaseCoreTestHooks.
+
+/// Replaces `+[NSUserDefaults standardUserDefaults]` for the data collection flag, or restores it
+/// when `userDefaults` is nil.
++ (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults;
+
+/// Replaces `+[GULAppEnvironmentUtil isAppExtension]` when deciding whether a duplicate
+/// `configure` call is allowed, or restores it when `isAppExtension` is nil.
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension;
+
+/// Replaces the main bundle's Info.plist contents when reading the data collection flag, or
+/// restores them when `infoDictionary` is nil.
++ (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary;
+
+/// Creates the heartbeat logger of apps initialized from now on, instead of
+/// `-[FIRHeartbeatLogger initWithAppID:]`. Pass nil to restore the default.
++ (void)setHeartbeatLoggerFactoryForTesting:
+    (nullable FIRHeartbeatLogger *_Nonnull (^)(NSString *_Nonnull appID))factory;
+
 @end
+
+/// Guards the test overrides below. A dedicated lock, rather than the class, so that reading them
+/// never waits on `configure`.
+static os_unfair_lock sTestOverridesLock = OS_UNFAIR_LOCK_INIT;
+
+// Set only by tests, through the `+set…ForTesting:` methods.
+static NSUserDefaults *sUserDefaultsForTesting;
+static NSNumber *sIsAppExtensionForTesting;
+static NSDictionary<NSString *, id> *sInfoDictionaryForTesting;
+static FIRHeartbeatLogger * (^sHeartbeatLoggerFactoryForTesting)(NSString *);
+
+/// The user defaults that store the data collection flag.
+static NSUserDefaults *FIRAppUserDefaults(void) {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  NSUserDefaults *userDefaults = sUserDefaultsForTesting;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+  return userDefaults ?: [NSUserDefaults standardUserDefaults];
+}
+
+static BOOL FIRAppIsAppExtension(void) {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  NSNumber *isAppExtension = sIsAppExtensionForTesting;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+  return isAppExtension != nil ? isAppExtension.boolValue : [GULAppEnvironmentUtil isAppExtension];
+}
+
+static FIRHeartbeatLogger *FIRAppMakeHeartbeatLogger(NSString *appID) {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  FIRHeartbeatLogger * (^factory)(NSString *) = sHeartbeatLoggerFactoryForTesting;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+  return factory ? factory(appID) : [[FIRHeartbeatLogger alloc] initWithAppID:appID];
+}
 
 @implementation FIRApp
 
@@ -208,7 +263,7 @@ static FIRApp *sDefaultApp;
 /// like an extension.
 + (void)appWasConfiguredTwice:(FIRApp *)app usingOptions:(FIROptions *)options {
   // Only extensions should potentially be able to call `configure` more than once.
-  if (![GULAppEnvironmentUtil isAppExtension]) {
+  if (!FIRAppIsAppExtension()) {
     // Throw an exception since this is now an invalid state.
     if (app.isDefaultApp) {
       [NSException raise:kFirebaseCoreErrorDomain
@@ -328,7 +383,7 @@ static FIRApp *sDefaultApp;
     _options.editingLocked = YES;
     _isDefaultApp = [name isEqualToString:kFIRDefaultAppName];
     _container = [[FIRComponentContainer alloc] initWithApp:self];
-    _heartbeatLogger = [[FIRHeartbeatLogger alloc] initWithAppID:self.options.googleAppID];
+    _heartbeatLogger = FIRAppMakeHeartbeatLogger(self.options.googleAppID);
   }
   return self;
 }
@@ -382,7 +437,7 @@ static FIRApp *sDefaultApp;
 
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
-  [[NSUserDefaults standardUserDefaults] setBool:dataCollectionDefaultEnabled forKey:key];
+  [FIRAppUserDefaults() setBool:dataCollectionDefaultEnabled forKey:key];
 
   // Core also controls the FirebaseAnalytics flag, so check if the Analytics flags are set
   // within FIROptions and change the Analytics value if necessary. Analytics only works with the
@@ -747,7 +802,7 @@ static FIRApp *sDefaultApp;
 - (void)clearDataCollectionSwitchFromUserDefaults {
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, self.name];
-  [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+  [FIRAppUserDefaults() removeObjectForKey:key];
 }
 
 /**
@@ -758,7 +813,7 @@ static FIRApp *sDefaultApp;
   // Read the object in user defaults, and only return if it's an NSNumber.
   NSString *key =
       [NSString stringWithFormat:kFIRGlobalAppDataCollectionEnabledDefaultsKeyFormat, app.name];
-  id collectionEnabledDefaultsObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+  id collectionEnabledDefaultsObject = [FIRAppUserDefaults() objectForKey:key];
   if ([collectionEnabledDefaultsObject isKindOfClass:[NSNumber class]]) {
     return collectionEnabledDefaultsObject;
   }
@@ -771,6 +826,14 @@ static FIRApp *sDefaultApp;
  * only read once from the plist and return the cached value.
  */
 + (nullable NSNumber *)readDataCollectionSwitchFromPlist {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  NSDictionary<NSString *, id> *infoDictionaryForTesting = sInfoDictionaryForTesting;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+  if (infoDictionaryForTesting) {
+    id plistValue = infoDictionaryForTesting[kFIRGlobalAppDataCollectionEnabledPlistKey];
+    return [plistValue isKindOfClass:[NSNumber class]] ? plistValue : nil;
+  }
+
   static NSNumber *collectionEnabledPlistObject;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -783,6 +846,33 @@ static FIRApp *sDefaultApp;
   });
 
   return collectionEnabledPlistObject;
+}
+
+#pragma mark - Test seams
+
++ (void)setUserDefaultsForTesting:(nullable NSUserDefaults *)userDefaults {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  sUserDefaultsForTesting = userDefaults;
+  os_unfair_lock_unlock(&sTestOverridesLock);
+}
+
++ (void)setIsAppExtensionForTesting:(nullable NSNumber *)isAppExtension {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  sIsAppExtensionForTesting = [isAppExtension copy];
+  os_unfair_lock_unlock(&sTestOverridesLock);
+}
+
++ (void)setInfoDictionaryForTesting:(nullable NSDictionary<NSString *, id> *)infoDictionary {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  sInfoDictionaryForTesting = [infoDictionary copy];
+  os_unfair_lock_unlock(&sTestOverridesLock);
+}
+
++ (void)setHeartbeatLoggerFactoryForTesting:
+    (nullable FIRHeartbeatLogger *_Nonnull (^)(NSString *_Nonnull appID))factory {
+  os_unfair_lock_lock(&sTestOverridesLock);
+  sHeartbeatLoggerFactoryForTesting = [factory copy];
+  os_unfair_lock_unlock(&sTestOverridesLock);
 }
 
 #pragma mark - Swift Components.

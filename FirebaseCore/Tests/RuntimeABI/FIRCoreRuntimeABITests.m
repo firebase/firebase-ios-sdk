@@ -44,7 +44,13 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
       @"+isDefaultAppConfigured", @"+registerLibrary:withVersion:",
       @"+registerInternalLibrary:withName:", @"+registerInternalLibrary:withName:withVersion:",
       @"+firebaseUserAgent", @"+resetApps", @"-initInstanceWithName:options:", @"-isDefaultApp",
-      @"-container", @"-setContainer:", @"-heartbeatLogger"
+      @"-container", @"-setContainer:", @"-heartbeatLogger",
+      // Used by FirebaseCore's Swift unit tests through FirebaseCoreTestHooks.
+      @"+validateAppID:", @"+validateAppIDFormat:withVersion:",
+      @"+validateBundleIDHashWithinAppID:forVersion:", @"-isAppIDValid",
+      // Test seams used by FirebaseCoreTestHooks.
+      @"+setUserDefaultsForTesting:", @"+setIsAppExtensionForTesting:",
+      @"+setInfoDictionaryForTesting:", @"+setHeartbeatLoggerFactoryForTesting:"
     ],
     @"FIROptions" : @[
       // Public.
@@ -93,7 +99,9 @@ static NSDictionary<NSString *, NSArray<NSString *> *> *FIRCoreRuntimeABIContrac
     @"FIRHeartbeatLogger" : @[
       @"-initWithAppID:", @"-log", @"-headerValue",
       @"-asyncHeaderValueWithCompletionHandler:", @"-flushHeartbeatsIntoPayload",
-      @"-flushHeartbeatsIntoPayloadWithCompletionHandler:", @"-heartbeatCodeForToday"
+      @"-flushHeartbeatsIntoPayloadWithCompletionHandler:", @"-heartbeatCodeForToday",
+      // Used by FirebaseCoreTestHooks.
+      @"-initWithAppID:userAgentProvider:"
     ],
     @"FIRHeartbeatsPayload" : @[ @"-headerValue", @"-isEmpty" ],
   } mutableCopy];

@@ -359,7 +359,7 @@ func packageTargets() -> [Target] {
     // Swift implementations of FirebaseCore.
     .testTarget(
       name: "CoreSwiftUnit",
-      dependencies: ["FirebaseCore", "FirebaseCoreTestHooks"],
+      dependencies: ["FirebaseCore", "FirebaseCoreExtension", "FirebaseCoreTestHooks"],
       path: "FirebaseCore/Tests/SwiftSuite"
     ),
     // Checks the Objective-C runtime contract (classes, selectors, type encodings) that other
