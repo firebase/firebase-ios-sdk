@@ -101,6 +101,36 @@ class HeartbeatStorageTests: XCTestCase {
     XCTAssertNil(heartbeatStorage2)
   }
 
+  func testRemovingStaleCachedInstancePreservesReplacement() {
+    let id = "stale_cache_entry"
+    let staleInstance = HeartbeatStorage(id: id, storage: StorageFake())
+    let replacement = HeartbeatStorage(id: id, storage: StorageFake())
+    var cachedInstances = [id: HeartbeatStorageCacheEntry(instance: replacement)]
+
+    // A weak cache reference is cleared before the old instance's deinit runs.
+    cachedInstances[id] = HeartbeatStorageCacheEntry(
+      cacheIdentity: replacement.cacheIdentity,
+      instance: nil
+    )
+
+    HeartbeatStorage.removeCachedInstance(
+      id: id,
+      cacheIdentity: staleInstance.cacheIdentity,
+      from: &cachedInstances
+    )
+
+    XCTAssertEqual(cachedInstances[id]?.cacheIdentity, replacement.cacheIdentity)
+    XCTAssertNil(cachedInstances[id]?.instance.object)
+
+    HeartbeatStorage.removeCachedInstance(
+      id: id,
+      cacheIdentity: replacement.cacheIdentity,
+      from: &cachedInstances
+    )
+
+    XCTAssertNil(cachedInstances[id])
+  }
+
   // MARK: - HeartbeatStorageProtocol
 
   func testReadAndWrite_ReadsOldValueAndWritesNewValue() throws {
